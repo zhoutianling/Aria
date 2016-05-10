@@ -37,7 +37,7 @@ public class DownLoadUtil {
     private boolean isStop = false;
     private boolean isCancel = false;
     private static final int TIME_OUT = 5000; //超时时间
-    boolean newTask = true;
+    boolean isNewTask = true;
     private int mCancelNum = 0;
     private int mStopNum = 0;
 
@@ -92,17 +92,16 @@ public class DownLoadUtil {
         final File configFile = new File(context.getFilesDir().getPath() + "/temp/" + dFile.getName() + ".properties");
         try {
             if (!configFile.exists()) { //记录文件被删除，则重新下载
-                newTask = true;
+                isNewTask = true;
                 Util.createFile(configFile.getPath());
             } else {
-                newTask = false;
+                isNewTask = !dFile.exists();
             }
         } catch (Exception e) {
             e.printStackTrace();
             mListener.onFail();
             return;
         }
-        newTask = !dFile.exists();
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -133,8 +132,24 @@ public class DownLoadUtil {
                         //分配每条线程的下载区间
                         Properties pro = null;
                         pro = Util.loadConfig(configFile);
+                        if (pro.isEmpty()) {
+                            isNewTask = true;
+                        } else {
+                            for (int i = 0; i < THREAD_NUM; i++) {
+                                if(pro.getProperty(dFile.getName() + "_record_" + i) == null){
+                                    isNewTask = true;
+                                    break;
+                                }
+                            }
+                        }
+
                         int blockSize = fileLength / THREAD_NUM;
                         SparseArray<Thread> tasks = new SparseArray<>();
+                        int[] recordL = new int[THREAD_NUM];
+                        int rl = 0;
+                        for (int i = 0; i < THREAD_NUM; i++) {
+                            recordL[i] = -1;
+                        }
                         for (int i = 0; i < THREAD_NUM; i++) {
                             long startL = i * blockSize, endL = (i + 1) * blockSize;
                             Object state = pro.getProperty(dFile.getName() + "_state_" + i);
@@ -142,6 +157,8 @@ public class DownLoadUtil {
                                 mCurrentLocation += endL - startL;
                                 Log.d(TAG, "++++++++++ 线程_" + i + "_已经下载完成 ++++++++++");
                                 mCompleteThreadNum++;
+                                mStopNum++;
+                                mCancelNum++;
                                 if (mCompleteThreadNum == THREAD_NUM) {
                                     if (configFile.exists()) {
                                         configFile.delete();
@@ -155,12 +172,18 @@ public class DownLoadUtil {
                             }
                             //分配下载位置
                             Object record = pro.getProperty(dFile.getName() + "_record_" + i);
-                            if (!newTask && record != null && Long.parseLong(record + "") > 0) {       //如果有记录，则恢复下载
+                            if (!isNewTask && record != null && Long.parseLong(record + "") > 0) {       //如果有记录，则恢复下载
                                 Long r = Long.parseLong(record + "");
                                 mCurrentLocation += r - startL;
                                 Log.d(TAG, "++++++++++ 线程_" + i + "_恢复下载 ++++++++++");
                                 mListener.onChildResume(r);
                                 startL = r;
+                                recordL[rl] = i;
+                                rl++;
+                            }
+                            if (isNewTask) {
+                                recordL[rl] = i;
+                                rl++;
                             }
                             if (i == (THREAD_NUM - 1)) {
                                 endL = fileLength;//如果整个文件的大小不为线程个数的整数倍，则最后一个线程的结束位置即为文件的总长度
@@ -174,8 +197,9 @@ public class DownLoadUtil {
                         } else {
                             mListener.onStart(mCurrentLocation);
                         }
-                        for (int i = 0, count = tasks.size(); i < count; i++) {
-                            Thread task = tasks.get(i);
+                        for (int l : recordL) {
+                            if (l == -1) continue;
+                            Thread task = tasks.get(l);
                             if (task != null) {
                                 task.start();
                             }
