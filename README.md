@@ -22,7 +22,7 @@ DownloadUtil mUtil;
   */
   private void download(){
 	mUtil.download(this, mDownloadUrl, Environment.getExternalStorageDirectory().getPath() + "/test.apk"
-                , new DownloadListener() {
+                , new DownLoadUtil.DownloadListener() {
                     long fileSize = 1;
 
                     @Override
