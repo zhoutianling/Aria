@@ -4,7 +4,7 @@
 
 #下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/MTDownloadUtil/images/download.svg)](https://bintray.com/arialyy/maven/MTDownloadUtil/_latestVersion)<br/>
-compile 'com.arialyy.downloadutil:DownloadUtil:1.0.1'
+compile 'com.arialyy.downloadutil:DownloadUtil:1.0.2'
 
 #使用
 ```java
