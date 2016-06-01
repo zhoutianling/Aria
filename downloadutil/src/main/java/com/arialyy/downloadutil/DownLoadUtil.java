@@ -15,7 +15,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
-
 /**
  * Created by lyy on 2015/8/25.
  * 下载工具类
@@ -23,7 +22,7 @@ import java.util.Properties;
 public class DownLoadUtil {
     private static final String TAG = "DownLoadUtil";
     //下载监听
-    private IDownloadListener mListener;
+    private DownloadListener mListener;
     /**
      * 线程数
      */
@@ -40,10 +39,11 @@ public class DownLoadUtil {
     boolean isNewTask = true;
     private int mCancelNum = 0;
     private int mStopNum = 0;
-
     public DownLoadUtil() {
     }
-
+    public DownloadListener getListener(){
+        return mListener;
+    }
     /**
      * 获取当前下载位置
      *
@@ -52,25 +52,21 @@ public class DownLoadUtil {
     public long getCurrentLocation() {
         return mCurrentLocation;
     }
-
     public boolean isDownloading() {
         return isDownloading;
     }
-
     /**
      * 取消下载
      */
     public void cancelDownload() {
         isCancel = true;
     }
-
     /**
      * 停止下载
      */
     public void stopDownload() {
         isStop = true;
     }
-
     /**
      * 多线程断点续传下载文件，暂停和继续
      *
@@ -99,7 +95,7 @@ public class DownLoadUtil {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            mListener.onFail();
+            failDownload("下载失败，记录文件被删除");
             return;
         }
         new Thread(new Runnable() {
@@ -111,13 +107,13 @@ public class DownLoadUtil {
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
                     conn.setRequestProperty("Charset", "UTF-8");
-                    conn.setConnectTimeout(TIME_OUT);
+                    conn.setConnectTimeout(TIME_OUT * 4);
                     conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
                     conn.setRequestProperty("Accept", "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
                     conn.connect();
                     int len = conn.getContentLength();
                     if (len < 0) {  //网络被劫持时会出现这个问题
-                        mListener.onFail();
+                        failDownload("下载失败，网络被劫持");
                         return;
                     }
                     int code = conn.getResponseCode();
@@ -136,13 +132,16 @@ public class DownLoadUtil {
                             isNewTask = true;
                         } else {
                             for (int i = 0; i < THREAD_NUM; i++) {
-                                if(pro.getProperty(dFile.getName() + "_record_" + i) == null){
+                                if (pro.getProperty(dFile.getName() + "_record_" + i) == null) {
+                                    Object state = pro.getProperty(dFile.getName() + "_state_" + i);
+                                    if (state != null && Integer.parseInt(state + "") == 1) {
+                                        continue;
+                                    }
                                     isNewTask = true;
                                     break;
                                 }
                             }
                         }
-
                         int blockSize = fileLength / THREAD_NUM;
                         SparseArray<Thread> tasks = new SparseArray<>();
                         int[] recordL = new int[THREAD_NUM];
@@ -165,7 +164,6 @@ public class DownLoadUtil {
                                     }
                                     mListener.onComplete();
                                     isDownloading = false;
-                                    System.gc();
                                     return;
                                 }
                                 continue;
@@ -180,6 +178,8 @@ public class DownLoadUtil {
                                 startL = r;
                                 recordL[rl] = i;
                                 rl++;
+                            }else {
+                                isNewTask = true;
                             }
                             if (isNewTask) {
                                 recordL[rl] = i;
@@ -205,20 +205,21 @@ public class DownLoadUtil {
                             }
                         }
                     } else {
-                        Log.e(TAG, "下载失败，返回码：" + code);
-                        isDownloading = false;
-                        System.gc();
-                        mListener.onFail();
+                        failDownload("下载失败，返回码：" + code);
                     }
                 } catch (IOException e) {
-                    Log.e(TAG, "下载失败【downloadUrl:" + downloadUrl + "】\n【filePath:" + filePath + "】" + Util.getPrintException(e));
-                    isDownloading = false;
-                    mListener.onFail();
+                    failDownload("下载失败【downloadUrl:" + downloadUrl + "】\n【filePath:" + filePath + "】" + Util.getPrintException(e));
                 }
             }
         }).start();
     }
-
+    private void failDownload(String msg){
+        Log.e(TAG, msg);
+        isDownloading = false;
+        stopDownload();
+        mListener.onFail();
+        System.gc();
+    }
     /**
      * 多线程下载任务类,不能使用AsyncTask来进行多线程下载，因为AsyncTask是串行执行的，这种方式下载速度太慢了
      */
@@ -226,14 +227,13 @@ public class DownLoadUtil {
         private static final String TAG = "DownLoadTask";
         private DownloadEntity dEntity;
         private String configFPath;
-
         public DownLoadTask(DownloadEntity downloadInfo) {
             this.dEntity = downloadInfo;
             configFPath = dEntity.context.getFilesDir().getPath() + "/temp/" + dEntity.tempFile.getName() + ".properties";
         }
-
         @Override
         public void run() {
+            long currentLocation = 0;
             try {
                 Log.d(TAG, "线程_" + dEntity.threadId + "_正在下载【" + "开始位置 : " + dEntity.startLocation + "，结束位置：" + dEntity.endLocation + "】");
                 URL url = new URL(dEntity.downloadUrl);
@@ -242,10 +242,10 @@ public class DownLoadUtil {
                 conn.setRequestProperty("Range", "bytes=" + dEntity.startLocation + "-" + dEntity.endLocation);
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Charset", "UTF-8");
-                conn.setConnectTimeout(TIME_OUT);
+                conn.setConnectTimeout(TIME_OUT * 4);
                 conn.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
                 conn.setRequestProperty("Accept", "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
-                conn.setReadTimeout(2000);  //设置读取流的等待时间,必须设置该参数
+                conn.setReadTimeout(TIME_OUT * 24);  //设置读取流的等待时间,必须设置该参数
                 InputStream is = conn.getInputStream();
                 //创建可设置位置的文件
                 RandomAccessFile file = new RandomAccessFile(dEntity.tempFile, "rwd");
@@ -254,17 +254,15 @@ public class DownLoadUtil {
                 byte[] buffer = new byte[1024];
                 int len;
                 //当前子线程的下载位置
-                long currentLocation = dEntity.startLocation;
+                currentLocation = dEntity.startLocation;
                 while ((len = is.read(buffer)) != -1) {
                     if (isCancel) {
                         Log.d(TAG, "++++++++++ thread_" + dEntity.threadId + "_cancel ++++++++++");
                         break;
                     }
-
                     if (isStop) {
                         break;
                     }
-
                     //把下载数据数据写入文件
                     file.write(buffer, 0, len);
                     synchronized (DownLoadUtil.this) {
@@ -275,7 +273,6 @@ public class DownLoadUtil {
                 }
                 file.close();
                 is.close();
-
                 if (isCancel) {
                     synchronized (DownLoadUtil.this) {
                         mCancelNum++;
@@ -284,7 +281,6 @@ public class DownLoadUtil {
                             if (configFile.exists()) {
                                 configFile.delete();
                             }
-
                             if (dEntity.tempFile.exists()) {
                                 dEntity.tempFile.delete();
                             }
@@ -296,7 +292,6 @@ public class DownLoadUtil {
                     }
                     return;
                 }
-
                 //停止状态不需要删除记录文件
                 if (isStop) {
                     synchronized (DownLoadUtil.this) {
@@ -313,7 +308,6 @@ public class DownLoadUtil {
                     }
                     return;
                 }
-
                 Log.i(TAG, "线程【" + dEntity.threadId + "】下载完毕");
                 writeConfig(dEntity.tempFile.getName() + "_state_" + dEntity.threadId, 1 + "");
                 mListener.onChildComplete(dEntity.endLocation);
@@ -323,25 +317,44 @@ public class DownLoadUtil {
                     if (configFile.exists()) {
                         configFile.delete();
                     }
-                    mListener.onComplete();
                     isDownloading = false;
+                    mListener.onComplete();
                     System.gc();
                 }
             } catch (MalformedURLException e) {
                 e.printStackTrace();
                 isDownloading = false;
-                mListener.onFail();
+                synchronized (DownLoadUtil.this) {
+                    try {
+                        String location = String.valueOf(currentLocation);
+                        writeConfig(dEntity.tempFile.getName() + "_record_" + dEntity.threadId, location);
+                        failDownload("下载链接异常");
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             } catch (IOException e) {
-                Log.e(TAG, "下载失败【" + dEntity.downloadUrl + "】" + Util.getPrintException(e));
-                isDownloading = false;
-                mListener.onFail();
+                synchronized (DownLoadUtil.this) {
+                    try {
+                        String location = String.valueOf(currentLocation);
+                        writeConfig(dEntity.tempFile.getName() + "_record_" + dEntity.threadId, location);
+                        failDownload("下载失败【" + dEntity.downloadUrl + "】" + Util.getPrintException(e));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             } catch (Exception e) {
-                Log.e(TAG, "获取流失败" + Util.getPrintException(e));
-                isDownloading = false;
-                mListener.onFail();
+                synchronized (DownLoadUtil.this) {
+                    try {
+                        String location = String.valueOf(currentLocation);
+                        writeConfig(dEntity.tempFile.getName() + "_record_" + dEntity.threadId, location);
+                        failDownload("获取流失败" + Util.getPrintException(e));
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
+                }
             }
         }
-
         /**
          * 将记录写入到配置文件
          *
@@ -354,8 +367,6 @@ public class DownLoadUtil {
             Util.saveConfig(configFile, pro);
         }
     }
-
-
     /**
      * 子线程下载信息类
      */
@@ -368,7 +379,6 @@ public class DownLoadUtil {
         long endLocation;
         File tempFile;
         Context context;
-
         public DownloadEntity(Context context, long fileSize, String downloadUrl, File file, int threadId, long startLocation, long endLocation) {
             this.fileSize = fileSize;
             this.downloadUrl = downloadUrl;
@@ -380,5 +390,56 @@ public class DownLoadUtil {
         }
     }
 
+    public static class DownloadListener implements IDownloadListener {
 
+        @Override
+        public void onResume(long resumeLocation) {
+
+        }
+
+        @Override
+        public void onCancel() {
+
+        }
+
+        @Override
+        public void onFail() {
+
+        }
+
+        @Override
+        public void onPreDownload(HttpURLConnection connection) {
+
+        }
+
+        @Override
+        public void onProgress(long currentLocation) {
+
+        }
+
+        @Override
+        public void onChildComplete(long finishLocation) {
+
+        }
+
+        @Override
+        public void onStart(long startLocation) {
+
+        }
+
+        @Override
+        public void onChildResume(long resumeLocation) {
+
+        }
+
+        @Override
+        public void onStop(long stopLocation) {
+
+        }
+
+        @Override
+        public void onComplete() {
+
+        }
+    }
 }

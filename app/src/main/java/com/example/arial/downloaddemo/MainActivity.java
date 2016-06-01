@@ -17,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.arialyy.downloadutil.DownLoadUtil;
-import com.arialyy.downloadutil.DownloadListener;
 import com.arialyy.downloadutil.Util;
 
 import java.net.HttpURLConnection;
@@ -106,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void start() {
         mUtil.download(this, mDownloadUrl, Environment.getExternalStorageDirectory().getPath() + "/test.apk"
-                , new DownloadListener() {
+                , new DownLoadUtil.DownloadListener() {
                     long fileSize = 1;
 
                     @Override
