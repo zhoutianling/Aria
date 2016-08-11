@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil;
+package com.arialyy.downloadutil.util;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -22,7 +22,7 @@ import java.util.Properties;
 public class DownLoadUtil {
     private static final String TAG = "DownLoadUtil";
     //下载监听
-    private DownloadListener mListener;
+    private IDownloadListener mListener;
     /**
      * 线程数
      */
@@ -41,7 +41,7 @@ public class DownLoadUtil {
     private int mStopNum = 0;
     public DownLoadUtil() {
     }
-    public DownloadListener getListener(){
+    public IDownloadListener getListener(){
         return mListener;
     }
     /**
@@ -76,7 +76,7 @@ public class DownLoadUtil {
      * @param downloadListener 下载进度监听 {@link DownloadListener}
      */
     public void download(final Context context, @NonNull final String downloadUrl, @NonNull final String filePath,
-                         @NonNull final DownloadListener downloadListener) {
+                         @NonNull final IDownloadListener downloadListener) {
         isDownloading = true;
         mCurrentLocation = 0;
         isStop = false;

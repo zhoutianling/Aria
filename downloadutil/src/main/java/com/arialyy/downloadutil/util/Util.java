@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil;
+package com.arialyy.downloadutil.util;
 
 import android.util.Log;
 
