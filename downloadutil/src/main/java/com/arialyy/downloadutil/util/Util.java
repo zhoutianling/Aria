@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.util.Properties;
 
@@ -16,6 +17,32 @@ import java.util.Properties;
  */
 public class Util {
     private static final String TAG = "util";
+
+    /**
+     * 获取类里面的所在字段
+     */
+    public static Field[] getFields(Class clazz) {
+        Field[] fields = null;
+        fields = clazz.getDeclaredFields();
+        if (fields == null || fields.length == 0) {
+            Class superClazz = clazz.getSuperclass();
+            if (superClazz != null) {
+                fields = getFields(superClazz);
+            }
+        }
+        return fields;
+    }
+
+    /**
+     * 获取对象名
+     *
+     * @param obj 对象
+     * @return 对象名
+     */
+    public static String getClassName(Object obj) {
+        String arrays[] = obj.getClass().getName().split("\\.");
+        return arrays[arrays.length - 1];
+    }
 
     /**
      * 格式化文件大小
@@ -49,6 +76,7 @@ public class Util {
         BigDecimal result4 = new BigDecimal(teraBytes);
         return result4.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "TB";
     }
+
     /**
      * 创建目录 当目录不存在的时候创建文件，否则返回false
      *
@@ -96,6 +124,7 @@ public class Util {
         }
         return null;
     }
+
     /**
      * 设置打印的异常格式
      */
@@ -122,6 +151,7 @@ public class Util {
         err.append("===================================================");
         return err.toString();
     }
+
     /**
      * 读取下载配置文件
      *
@@ -129,8 +159,8 @@ public class Util {
      * @return
      */
     public static Properties loadConfig(File file) {
-        Properties properties = new Properties();
-        FileInputStream fis = null;
+        Properties      properties = new Properties();
+        FileInputStream fis        = null;
         try {
             fis = new FileInputStream(file);
             properties.load(fis);

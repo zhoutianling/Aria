@@ -2,6 +2,7 @@ package com.arialyy.downloadutil.core;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.util.Log;
 
@@ -9,7 +10,6 @@ import com.arialyy.downloadutil.DownloadManager;
 import com.arialyy.downloadutil.entity.DownloadEntity;
 import com.arialyy.downloadutil.inf.IDownloadListener;
 import com.arialyy.downloadutil.util.DownLoadUtil;
-import com.arialyy.downloadutil.util.SQLHelper;
 
 import java.net.HttpURLConnection;
 
@@ -24,7 +24,6 @@ public class Task {
     Handler           outHandler;
     Context           context;
     DownLoadUtil      util;
-    SQLHelper         sqlHelper;
 
     private Task() {
         util = new DownLoadUtil();
@@ -61,13 +60,6 @@ public class Task {
     }
 
     /**
-     * 存储下载实体
-     */
-    private void saveDownloadEntity(DownloadEntity entity) {
-
-    }
-
-    /**
      * 下载监听类
      */
     static class DownloadListener extends DownLoadUtil.DownloadListener {
@@ -89,20 +81,24 @@ public class Task {
         @Override
         public void onPreDownload(HttpURLConnection connection) {
             super.onPreDownload(connection);
-            long   len       = connection.getContentLength();
-            Intent preIntent = new Intent();
-            preIntent.addCategory(context.getPackageName());
+            long len = connection.getContentLength();
             downloadEntity.setFileSize(len);
+            downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
+            sendIntent(DownloadManager.ACTION_PRE, -1);
         }
 
         @Override
         public void onResume(long resumeLocation) {
             super.onResume(resumeLocation);
+            downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
+            sendIntent(DownloadManager.ACTION_RESUME, resumeLocation);
         }
 
         @Override
         public void onStart(long startLocation) {
             super.onStart(startLocation);
+            downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
+            sendIntent(DownloadManager.ACTION_START, startLocation);
         }
 
         @Override
@@ -117,21 +113,42 @@ public class Task {
         @Override
         public void onStop(long stopLocation) {
             super.onStop(stopLocation);
+            downloadEntity.setState(DownloadEntity.STATE_STOP);
+            sendIntent(DownloadManager.ACTION_STOP, stopLocation);
         }
 
         @Override
         public void onCancel() {
             super.onCancel();
+            downloadEntity.setState(DownloadEntity.STATE_CANCEL);
+            sendIntent(DownloadManager.ACTION_CANCEL, -1);
+            downloadEntity.deleteData();
         }
 
         @Override
         public void onComplete() {
             super.onComplete();
+            downloadEntity.setState(DownloadEntity.STATE_COMPLETE);
+            downloadEntity.setDownloadComplete(true);
+            sendIntent(DownloadManager.ACTION_COMPLETE, -1);
         }
 
         @Override
         public void onFail() {
             super.onFail();
+            downloadEntity.setState(DownloadEntity.STATE_FAIL);
+            sendIntent(DownloadManager.ACTION_FAIL, -1);
+        }
+
+        private void sendIntent(String action, long location) {
+            downloadEntity.save();
+            Intent intent = new Intent();
+            intent.addCategory(context.getPackageName());
+            intent.putExtra(action, downloadEntity);
+            if (location != -1) {
+                intent.putExtra(DownloadManager.CURRENT_LOCATION, location);
+            }
+            context.sendBroadcast(intent);
         }
     }
 

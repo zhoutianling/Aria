@@ -3,15 +3,17 @@ package com.arialyy.downloadutil.entity;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.arialyy.downloadutil.orm.DbEntity;
+
 /**
  * Created by lyy on 2015/12/25.
  * 下载实体
  */
-public class DownloadEntity implements Parcelable, Cloneable {
+public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
     /**
      * 其它状态
      */
-    public static final int STATE_OTHER        = 7;
+    public static final int STATE_OTHER        = -1;
     /**
      * 失败状态
      */
@@ -29,13 +31,13 @@ public class DownloadEntity implements Parcelable, Cloneable {
      */
     public static final int STATE_WAIT         = 3;
     /**
-     * 未完成状态
-     */
-    public static final int STATE_UN_COMPLETE  = 4;
-    /**
      * 下载中
      */
-    public static final int STATE_DOWNLOAD_ING = 5;
+    public static final int STATE_DOWNLOAD_ING = 4;
+    /**
+     * 取消下载
+     */
+    public static final int STATE_CANCEL       = 5;
 
     private String downloadUrl; //下载路径
     private String downloadPath;    //保存路径

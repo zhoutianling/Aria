@@ -47,6 +47,16 @@ public class DownloadManager {
      */
     public static final String ACTION_FAIL = "ACTION_FAIL";
 
+    /**
+     * 下载实体
+     */
+    public static final String DATA = "DOWNLOAD_ENTITY";
+
+    /**
+     * 位置
+     */
+    public static final String CURRENT_LOCATION = "CURRENT_LOCATION";
+
     private Context mContext;
 
     private DownloadManager(Context context) {
