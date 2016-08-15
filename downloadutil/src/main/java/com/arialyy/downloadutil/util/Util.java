@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Properties;
 
 /**
@@ -17,6 +19,44 @@ import java.util.Properties;
  */
 public class Util {
     private static final String TAG = "util";
+
+    /**
+     * 将缓存的key转换为hash码
+     *
+     * @param key 缓存的key
+     * @return 转换后的key的值, 系统便是通过该key来读写缓存
+     */
+    public static String keyToHashKey(String key) {
+        String cacheKey;
+        try {
+            final MessageDigest mDigest = MessageDigest.getInstance("MD5");
+            mDigest.update(key.getBytes());
+            cacheKey = bytesToHexString(mDigest.digest());
+        } catch (NoSuchAlgorithmException e) {
+            cacheKey = String.valueOf(key.hashCode());
+        }
+        return cacheKey;
+    }
+
+    /**
+     * 将普通字符串转换为16位进制字符串
+     *
+     * @param src
+     * @return
+     */
+    public static String bytesToHexString(byte[] src) {
+        StringBuilder stringBuilder = new StringBuilder("0x");
+        if (src == null || src.length <= 0) {
+            return null;
+        }
+        char[] buffer = new char[2];
+        for (byte aSrc : src) {
+            buffer[0] = Character.forDigit((aSrc >>> 4) & 0x0F, 16);
+            buffer[1] = Character.forDigit(aSrc & 0x0F, 16);
+            stringBuilder.append(buffer);
+        }
+        return stringBuilder.toString();
+    }
 
     /**
      * 获取类里面的所在字段

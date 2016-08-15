@@ -5,8 +5,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.arialyy.downloadutil.inf.IDownloadListener;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

@@ -2,13 +2,12 @@ package com.arialyy.downloadutil.core;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Handler;
 import android.util.Log;
 
 import com.arialyy.downloadutil.DownloadManager;
 import com.arialyy.downloadutil.entity.DownloadEntity;
-import com.arialyy.downloadutil.inf.IDownloadListener;
+import com.arialyy.downloadutil.util.IDownloadListener;
 import com.arialyy.downloadutil.util.DownLoadUtil;
 
 import java.net.HttpURLConnection;
@@ -41,6 +40,10 @@ public class Task {
             }
             util.download(context, downloadEntity.getDownloadUrl(), downloadEntity.getDownloadPath(), listener);
         }
+    }
+
+    public DownloadEntity getDownloadEntity() {
+        return downloadEntity;
     }
 
     /**

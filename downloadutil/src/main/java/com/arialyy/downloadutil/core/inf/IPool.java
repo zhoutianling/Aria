@@ -12,13 +12,20 @@ public interface IPool {
      *
      * @param task
      */
-    public void putTask(Task task);
+    public boolean putTask(Task task);
 
     /**
-     * 通过下载链接获取下载任务
+     * 按照队列原则取出下载任务
+     *
+     * @return 返回null或者下载任务
+     */
+    public Task pollTask();
+
+    /**
+     * 通过下载链接获取下载任务，当任务不为空时，队列将删除该下载任务
      *
      * @param downloadUrl 下载链接
-     * @return 下载任务
+     * @return 返回null或者下载任务
      */
     public Task getTask(String downloadUrl);
 

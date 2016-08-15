@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil.inf;
+package com.arialyy.downloadutil.util;
 
 import java.net.HttpURLConnection;
 
