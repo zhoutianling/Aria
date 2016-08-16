@@ -36,4 +36,11 @@ public interface IPool {
      * @return true:移除成功
      */
     public boolean removeTask(Task task);
+
+    /**
+     * 池子大小
+     *
+     * @return 返回缓存池或者当前任务池大小
+     */
+    public int size();
 }

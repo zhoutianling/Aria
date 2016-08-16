@@ -141,4 +141,9 @@ public class ExecutePool implements IPool {
         }
     }
 
+    @Override
+    public int size() {
+        return mExecuteQueue.size();
+    }
+
 }

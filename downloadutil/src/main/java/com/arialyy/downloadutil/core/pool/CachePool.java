@@ -96,4 +96,9 @@ public class CachePool implements IPool {
             }
         }
     }
+
+    @Override
+    public int size() {
+        return mCacheQueue.size();
+    }
 }
