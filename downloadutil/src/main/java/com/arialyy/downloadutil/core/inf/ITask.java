@@ -22,7 +22,7 @@ public interface ITask {
      * @param downloadUrl 下载链接
      * @return {@link Task}
      */
-    public Task searchTask(String downloadUrl);
+    public Task getTask(String downloadUrl);
 
     /**
      * 通过下载链接搜索下载任务
@@ -31,4 +31,19 @@ public interface ITask {
      * @return {@link com.arialyy.downloadutil.entity.DownloadEntity#STATE_FAIL}
      */
     public int getTaskState(String downloadUrl);
+
+    /**
+     * 通过下载链接删除任务
+     *
+     * @param downloadUrl 下载链接
+     */
+    public void removeTask(String downloadUrl);
+
+    /**
+     * 获取缓存池的下一个任务
+     *
+     * @return 下载任务 or null
+     */
+    public Task getNextTask();
+
 }

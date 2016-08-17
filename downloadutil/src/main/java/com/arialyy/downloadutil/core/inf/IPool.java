@@ -38,6 +38,14 @@ public interface IPool {
     public boolean removeTask(Task task);
 
     /**
+     * 通过下载链接移除下载任务
+     *
+     * @param downloadUrl 下载链接
+     * @return true:移除成功
+     */
+    public boolean removeTask(String downloadUrl);
+
+    /**
      * 池子大小
      *
      * @return 返回缓存池或者当前任务池大小

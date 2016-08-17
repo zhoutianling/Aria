@@ -1,5 +1,6 @@
 package com.arialyy.downloadutil.core.pool;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.arialyy.downloadutil.core.Task;
@@ -73,6 +74,10 @@ public class CachePool implements IPool {
     @Override
     public Task getTask(String downloadUrl) {
         synchronized (LOCK) {
+            if (TextUtils.isEmpty(downloadUrl)) {
+                Log.e(TAG, "请传入有效的下载链接");
+                return null;
+            }
             String key  = Util.keyToHashKey(downloadUrl);
             Task   task = mCacheArray.get(key);
             if (task != null) {
@@ -94,6 +99,20 @@ public class CachePool implements IPool {
                 mCacheArray.remove(key);
                 return mCacheQueue.remove(task);
             }
+        }
+    }
+
+    @Override
+    public boolean removeTask(String downloadUrl) {
+        synchronized (LOCK) {
+            if (TextUtils.isEmpty(downloadUrl)) {
+                Log.e(TAG, "请传入有效的下载链接");
+                return false;
+            }
+            String key = Util.keyToHashKey(downloadUrl);
+            Task task = mCacheArray.get(key);
+            mCacheArray.remove(key);
+            return mCacheQueue.remove(task);
         }
     }
 

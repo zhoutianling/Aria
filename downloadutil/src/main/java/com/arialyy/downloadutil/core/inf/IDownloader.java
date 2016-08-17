@@ -28,4 +28,11 @@ public interface IDownloader {
      */
     public void cancelTask(Task task);
 
+    /**
+     * 重试下载
+     *
+     * @param task {@link Task}
+     */
+    public void reTryStart(Task task);
+
 }

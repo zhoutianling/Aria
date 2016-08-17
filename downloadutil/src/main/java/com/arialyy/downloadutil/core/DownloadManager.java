@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil;
+package com.arialyy.downloadutil.core;
 
 import android.content.Context;
 

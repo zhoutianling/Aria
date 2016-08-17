@@ -1,33 +1,69 @@
 package com.arialyy.downloadutil.core;
 
-import com.arialyy.downloadutil.core.inf.IDownloader;
-import com.arialyy.downloadutil.core.inf.ITask;
-import com.arialyy.downloadutil.core.pool.CachePool;
-import com.arialyy.downloadutil.core.pool.ExecutePool;
-
 /**
- * Created by lyy on 2016/8/16.
- * 任务下载器，提供抽象的方法供具体的实现类操作
+ * Created by lyy on 2016/8/17.
+ * 下载任务调度类
  */
-public abstract class DownloadTarget implements IDownloader, ITask {
-    protected CachePool   mCachePool   = CachePool.getInstance();
-    protected ExecutePool mExecutePool = ExecutePool.getInstance();
+public class DownloadTarget extends IDownloadTarget {
 
-    /**
-     * 获取当前运行的任务数
-     *
-     * @return 当前正在执行的任务数
-     */
-    public int getCurrentTaskNum() {
-        return mExecutePool.size();
+    private static final    Object         LOCK     = new Object();
+    private static volatile DownloadTarget INSTANCE = null;
+
+    public static DownloadTarget getInstance() {
+        if (INSTANCE == null) {
+            synchronized (LOCK) {
+                INSTANCE = new DownloadTarget();
+            }
+        }
+        return INSTANCE;
     }
 
-    /**
-     * 获取缓存任务数
-     *
-     * @return 获取缓存的任务数
-     */
-    public int getCacheTaskNum() {
-        return mCachePool.size();
+    private DownloadTarget() {
+
+    }
+
+    @Override
+    public void startTask(Task task) {
+
+    }
+
+    @Override
+    public void stopTask(Task task) {
+
+    }
+
+    @Override
+    public void cancelTask(Task task) {
+
+    }
+
+    @Override
+    public void reTryStart(Task task) {
+
+    }
+
+    @Override
+    public void createTask(String downloadUrl, String downloadPath) {
+
+    }
+
+    @Override
+    public Task getTask(String downloadUrl) {
+        return null;
+    }
+
+    @Override
+    public int getTaskState(String downloadUrl) {
+        return 0;
+    }
+
+    @Override
+    public void removeTask(String downloadUrl) {
+
+    }
+
+    @Override
+    public Task getNextTask() {
+        return null;
     }
 }

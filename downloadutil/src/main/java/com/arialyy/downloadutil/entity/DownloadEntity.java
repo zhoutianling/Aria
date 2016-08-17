@@ -46,6 +46,15 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
     private int     state              = STATE_WAIT;
     private boolean isDownloadComplete = false;   //是否下载完成
     private long    currentProgress    = 0;    //当前下载进度
+    private int     failNum            = 0;
+
+    public int getFailNum() {
+        return failNum;
+    }
+
+    public void setFailNum(int failNum) {
+        this.failNum = failNum;
+    }
 
     public String getDownloadUrl() {
         return downloadUrl;
@@ -126,6 +135,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
         dest.writeInt(this.state);
         dest.writeByte(this.isDownloadComplete ? (byte) 1 : (byte) 0);
         dest.writeLong(this.currentProgress);
+        dest.writeInt(this.failNum);
     }
 
     protected DownloadEntity(Parcel in) {
@@ -136,6 +146,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
         this.state = in.readInt();
         this.isDownloadComplete = in.readByte() != 0;
         this.currentProgress = in.readLong();
+        this.failNum = in.readInt();
     }
 
     public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
@@ -149,4 +160,18 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
             return new DownloadEntity[size];
         }
     };
+
+    @Override
+    public String toString() {
+        return "DownloadEntity{" +
+                "downloadUrl='" + downloadUrl + '\'' +
+                ", downloadPath='" + downloadPath + '\'' +
+                ", completeTime=" + completeTime +
+                ", fileSize=" + fileSize +
+                ", state=" + state +
+                ", isDownloadComplete=" + isDownloadComplete +
+                ", currentProgress=" + currentProgress +
+                ", failNum=" + failNum +
+                '}';
+    }
 }

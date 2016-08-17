@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 
-import com.arialyy.downloadutil.DownloadManager;
 import com.arialyy.downloadutil.entity.DownloadEntity;
 import com.arialyy.downloadutil.util.IDownloadListener;
 import com.arialyy.downloadutil.util.DownLoadUtil;
@@ -17,27 +16,8 @@ import java.net.HttpURLConnection;
  * 下载任务类
  */
 public class Task {
-    public static final String TAG      = "Task";
-    /**
-     * 任务开始
-     */
-    public static final int    START    = 1;
-    /**
-     * 任务停止
-     */
-    public static final int    STOP     = 2;
-    /**
-     * 任务失败
-     */
-    public static final int    FAILE    = 3;
-    /**
-     * 任务取消
-     */
-    public static final int    CANCEL   = 4;
-    /**
-     * 任务完成
-     */
-    public static final int    COMPLETE = 5;
+    public static final String TAG = "Task";
+
     DownloadEntity    downloadEntity;
     IDownloadListener listener;
     Handler           outHandler;
@@ -121,7 +101,7 @@ public class Task {
         public void onStart(long startLocation) {
             super.onStart(startLocation);
             downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
-            sendInState2Target(START);
+            sendInState2Target(IDownloadTarget.START);
             sendIntent(DownloadManager.ACTION_START, startLocation);
         }
 
@@ -138,7 +118,7 @@ public class Task {
         public void onStop(long stopLocation) {
             super.onStop(stopLocation);
             downloadEntity.setState(DownloadEntity.STATE_STOP);
-            sendInState2Target(STOP);
+            sendInState2Target(IDownloadTarget.STOP);
             sendIntent(DownloadManager.ACTION_STOP, stopLocation);
         }
 
@@ -146,7 +126,7 @@ public class Task {
         public void onCancel() {
             super.onCancel();
             downloadEntity.setState(DownloadEntity.STATE_CANCEL);
-            sendInState2Target(CANCEL);
+            sendInState2Target(IDownloadTarget.CANCEL);
             sendIntent(DownloadManager.ACTION_CANCEL, -1);
             downloadEntity.deleteData();
         }
@@ -156,7 +136,7 @@ public class Task {
             super.onComplete();
             downloadEntity.setState(DownloadEntity.STATE_COMPLETE);
             downloadEntity.setDownloadComplete(true);
-            sendInState2Target(COMPLETE);
+            sendInState2Target(IDownloadTarget.COMPLETE);
             sendIntent(DownloadManager.ACTION_COMPLETE, -1);
         }
 
@@ -164,14 +144,14 @@ public class Task {
         public void onFail() {
             super.onFail();
             downloadEntity.setState(DownloadEntity.STATE_FAIL);
-            sendInState2Target(FAILE);
+            sendInState2Target(IDownloadTarget.FAIL);
             sendIntent(DownloadManager.ACTION_FAIL, -1);
         }
 
         /**
          * 将任务状态发送给下载器
          *
-         * @param state {@link Task#START}
+         * @param state {@link IDownloadTarget#START}
          */
         private void sendInState2Target(int state) {
             if (outHandler != null) {
