@@ -52,7 +52,7 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
     /**
      * 下载器任务监听
      */
-    private OnTargetListener mTargetListener;
+    protected OnTargetListener mTargetListener;
 
     /**
      * Target处理任务监听
