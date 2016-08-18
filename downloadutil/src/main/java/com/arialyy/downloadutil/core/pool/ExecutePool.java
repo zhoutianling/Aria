@@ -105,7 +105,6 @@ public class ExecutePool implements IPool {
         synchronized (LOCK) {
             Task task = mExecuteQueue.poll();
             if (task != null) {
-                task.stop();
                 String url = task.getDownloadEntity().getDownloadUrl();
                 mExecuteArray.remove(Util.keyToHashKey(url));
             }
@@ -121,13 +120,7 @@ public class ExecutePool implements IPool {
                 return null;
             }
             String key  = Util.keyToHashKey(downloadUrl);
-            Task   task = mExecuteArray.get(key);
-            if (task != null) {
-                task.stop();
-                mExecuteArray.remove(key);
-                mExecuteQueue.remove(task);
-            }
-            return task;
+            return mExecuteArray.get(key);
         }
     }
 
@@ -138,7 +131,6 @@ public class ExecutePool implements IPool {
                 Log.e(TAG, "任务不能为空");
                 return false;
             } else {
-                task.stop();
                 String key = Util.keyToHashKey(task.getDownloadEntity().getDownloadUrl());
                 mExecuteArray.remove(key);
                 return mExecuteQueue.remove(task);

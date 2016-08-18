@@ -166,6 +166,36 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
                     handleFailTask(entity);
                     break;
             }
+            callback(msg.what, entity);
+        }
+
+        /**
+         * 回调
+         *
+         * @param state  状态
+         * @param entity 下载实体
+         */
+        private void callback(int state, DownloadEntity entity) {
+            if (target.mTargetListener != null) {
+                Task task = target.getTask(entity.getDownloadUrl());
+                switch (state) {
+                    case START:
+                        target.mTargetListener.onTaskStart(task);
+                        break;
+                    case STOP:
+                        target.mTargetListener.onTaskStop(task);
+                        break;
+                    case CANCEL:
+                        target.mTargetListener.onTaskCancel(task);
+                        break;
+                    case COMPLETE:
+                        target.mTargetListener.onTaskCancel(task);
+                        break;
+                    case FAIL:
+                        target.mTargetListener.onTaskFail(task);
+                        break;
+                }
+            }
         }
 
         /**

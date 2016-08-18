@@ -56,6 +56,13 @@ public class Task {
     }
 
     /**
+     * 获取下载工具
+     */
+    public DownLoadUtil getDownloadUtil() {
+        return util;
+    }
+
+    /**
      * 取消下载
      */
     public void cancel() {

@@ -9,7 +9,7 @@ import com.arialyy.downloadutil.core.Task;
 public interface ITask {
 
     /**
-     * 创建一个新的下载任务
+     * 创建一个新的下载任务，创建时只是将新任务存储到缓存池
      *
      * @param downloadUrl  下载链接
      * @param downloadPath 保存路径
@@ -28,7 +28,7 @@ public interface ITask {
      * 通过下载链接搜索下载任务
      *
      * @param downloadUrl 下载链接
-     * @return {@link com.arialyy.downloadutil.entity.DownloadEntity#STATE_FAIL}
+     * @return {@code -1 ==> 错误}，{@link com.arialyy.downloadutil.entity.DownloadEntity#STATE_FAIL}
      */
     public int getTaskState(String downloadUrl);
 

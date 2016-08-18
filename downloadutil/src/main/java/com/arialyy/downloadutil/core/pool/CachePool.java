@@ -79,12 +79,7 @@ public class CachePool implements IPool {
                 return null;
             }
             String key  = Util.keyToHashKey(downloadUrl);
-            Task   task = mCacheArray.get(key);
-            if (task != null) {
-                mCacheArray.remove(key);
-                mCacheQueue.remove(task);
-            }
-            return task;
+            return mCacheArray.get(key);
         }
     }
 
