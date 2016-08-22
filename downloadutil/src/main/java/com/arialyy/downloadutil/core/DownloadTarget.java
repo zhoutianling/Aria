@@ -15,26 +15,31 @@ public class DownloadTarget extends IDownloadTarget {
     private static volatile DownloadTarget INSTANCE = null;
     private Context mContext;
 
-    public static DownloadTarget getInstance() {
+    public static DownloadTarget getInstance(Context context) {
+//        if (INSTANCE == null) {
+//            Log.e(TAG, "请在Application中调用DownloadTarget.init()方法注册下载器");
+//            return null;
+//        }
         if (INSTANCE == null) {
-            Log.e(TAG, "请在Application中调用DownloadTarget.init()方法注册下载器");
-            return null;
+            synchronized (LOCK) {
+                INSTANCE = new DownloadTarget(context.getApplicationContext());
+            }
         }
         return INSTANCE;
     }
-
-    /**
-     * 初始化下载器
-     *
-     * @param context 全局Context
-     */
-    public static void init(Context context) {
-        if (INSTANCE == null) {
-            synchronized (LOCK) {
-                INSTANCE = new DownloadTarget(context);
-            }
-        }
-    }
+//
+//    /**
+//     * 初始化下载器
+//     *
+//     * @param context 全局Context
+//     */
+//    public static void init(Context context) {
+//        if (INSTANCE == null) {
+//            synchronized (LOCK) {
+//                INSTANCE = new DownloadTarget(context.getApplicationContext());
+//            }
+//        }
+//    }
 
     private DownloadTarget() {
         super();
