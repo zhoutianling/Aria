@@ -95,6 +95,7 @@ public class DownloadTarget extends IDownloadTarget {
         if (task == null) {
             task = mExecutePool.getTask(downloadUrl);
         }
+
         return task;
     }
 

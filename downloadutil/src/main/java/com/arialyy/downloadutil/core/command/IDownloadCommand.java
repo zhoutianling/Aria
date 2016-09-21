@@ -1,5 +1,7 @@
 package com.arialyy.downloadutil.core.command;
 
+import android.support.annotation.NonNull;
+
 import com.arialyy.downloadutil.core.DownloadTarget;
 import com.arialyy.downloadutil.core.IDownloadTarget;
 
@@ -10,9 +12,9 @@ import java.util.List;
  * 下载命令
  */
 public abstract class IDownloadCommand {
-    private IDownloadTarget target;
+    protected IDownloadTarget target;
 
-    public IDownloadCommand(IDownloadTarget target) {
+    public IDownloadCommand(@NonNull IDownloadTarget target) {
         this.target = target;
     }
 
