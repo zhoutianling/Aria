@@ -61,7 +61,6 @@ public class DownloadManager {
 
     private DownloadManager(Context context) {
         mContext = context;
-//        ACTION_RUNNING = context.getPackageName();
     }
 
     public static DownloadManager getInstance(Context context) {

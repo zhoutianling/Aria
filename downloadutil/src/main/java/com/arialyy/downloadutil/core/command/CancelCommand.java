@@ -7,9 +7,9 @@ import com.arialyy.downloadutil.entity.DownloadEntity;
  * Created by lyy on 2016/9/20.
  * 取消命令
  */
-public class CancelCommand extends IDownloadCommand {
+class CancelCommand extends IDownloadCommand {
 
-  protected CancelCommand(Context context, DownloadEntity entity) {
+  CancelCommand(Context context, DownloadEntity entity) {
     super(context, entity);
   }
 
