@@ -41,12 +41,30 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
 
     private String downloadUrl; //下载路径
     private String downloadPath;    //保存路径
+    private String fileName;        //文件名
+    private String str;             //其它字段
     private long   completeTime;  //完成时间
     private long    fileSize           = 1;
     private int     state              = STATE_WAIT;
     private boolean isDownloadComplete = false;   //是否下载完成
     private long    currentProgress    = 0;    //当前下载进度
     private int     failNum            = 0;
+
+    public String getStr() {
+        return str;
+    }
+
+    public void setStr(String str) {
+        this.str = str;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 
     public int getFailNum() {
         return failNum;

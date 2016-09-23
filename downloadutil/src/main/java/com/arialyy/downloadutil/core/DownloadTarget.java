@@ -1,6 +1,7 @@
 package com.arialyy.downloadutil.core;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.arialyy.downloadutil.entity.DownloadEntity;
@@ -16,10 +17,6 @@ public class DownloadTarget extends IDownloadTarget {
     private Context mContext;
 
     public static DownloadTarget getInstance(Context context) {
-//        if (INSTANCE == null) {
-//            Log.e(TAG, "请在Application中调用DownloadTarget.init()方法注册下载器");
-//            return null;
-//        }
         if (INSTANCE == null) {
             synchronized (LOCK) {
                 INSTANCE = new DownloadTarget(context.getApplicationContext());
@@ -27,19 +24,6 @@ public class DownloadTarget extends IDownloadTarget {
         }
         return INSTANCE;
     }
-//
-//    /**
-//     * 初始化下载器
-//     *
-//     * @param context 全局Context
-//     */
-//    public static void init(Context context) {
-//        if (INSTANCE == null) {
-//            synchronized (LOCK) {
-//                INSTANCE = new DownloadTarget(context.getApplicationContext());
-//            }
-//        }
-//    }
 
     private DownloadTarget() {
         super();
@@ -81,46 +65,46 @@ public class DownloadTarget extends IDownloadTarget {
     }
 
     @Override
-    public void createTask(String downloadUrl, String downloadPath) {
-        DownloadEntity entity = new DownloadEntity();
-        entity.setDownloadUrl(downloadUrl);
-        entity.setDownloadPath(downloadPath);
+    public Task createTask(DownloadEntity entity) {
         Task task = TaskFactory.getInstance().createTask(mContext, entity, mTaskHandler);
         mCachePool.putTask(task);
-    }
-
-    @Override
-    public Task getTask(String downloadUrl) {
-        Task task = mCachePool.getTask(downloadUrl);
-        if (task == null) {
-            task = mExecutePool.getTask(downloadUrl);
-        }
-
         return task;
     }
 
     @Override
-    public int getTaskState(String downloadUrl) {
-        Task task = getTask(downloadUrl);
+    public Task getTask(DownloadEntity entity) {
+        Task task = mExecutePool.getTask(entity.getDownloadUrl());
         if (task == null) {
-            Log.e(TAG, "没有找到下载链接为【" + downloadUrl + "】的下载任务");
+            task = mCachePool.getTask(entity.getDownloadUrl());
+        }
+        if (task == null){
+            task = createTask(entity);
+        }
+        return task;
+    }
+
+    @Override
+    public int getTaskState(DownloadEntity entity) {
+        Task task = getTask(entity);
+        if (task == null) {
+            Log.e(TAG, "没有找到下载链接为【" + entity.getDownloadUrl() + "】的下载任务");
             return -1;
         }
         return task.getDownloadEntity().getState();
     }
 
     @Override
-    public void removeTask(String downloadUrl) {
-        Task task = mCachePool.getTask(downloadUrl);
+    public void removeTask(DownloadEntity entity) {
+        Task task = mCachePool.getTask(entity.getDownloadUrl());
         if (task != null) {
             Log.d(TAG, "任务删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
         } else {
-            task = mExecutePool.getTask(downloadUrl);
+            task = mExecutePool.getTask(entity.getDownloadUrl());
         }
         if (task != null) {
             Log.d(TAG, "任务删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
         } else {
-            Log.w(TAG, "没有找到下载链接为【" + downloadUrl + "】的任务");
+            Log.w(TAG, "没有找到下载链接为【" + entity.getDownloadUrl() + "】的任务");
         }
     }
 

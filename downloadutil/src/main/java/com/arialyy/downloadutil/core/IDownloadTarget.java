@@ -177,7 +177,7 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
          */
         private void callback(int state, DownloadEntity entity) {
             if (target.mTargetListener != null) {
-                Task task = target.getTask(entity.getDownloadUrl());
+                Task task = target.getTask(entity);
                 switch (state) {
                     case START:
                         target.mTargetListener.onTaskStart(task);
@@ -205,7 +205,7 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
          */
         private void handleFailTask(DownloadEntity entity) {
             if (entity.getFailNum() <= target.mFailNum) {
-                Task task = target.getTask(entity.getDownloadUrl());
+                Task task = target.getTask(entity);
                 target.reTryStart(task);
             } else {
                 startNextTask(entity);
@@ -218,7 +218,7 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
          * @param entity 通过Handler传递的下载实体
          */
         private void startNextTask(DownloadEntity entity) {
-            target.removeTask(entity.getDownloadUrl());
+            target.removeTask(entity);
             Task newTask = target.getNextTask();
             if (newTask == null) {
                 Log.e(TAG, "没有下一任务");

@@ -1,18 +1,19 @@
 package com.arialyy.downloadutil.core.command;
 
-import com.arialyy.downloadutil.core.IDownloadTarget;
+import android.content.Context;
+import com.arialyy.downloadutil.entity.DownloadEntity;
 
 /**
  * Created by lyy on 2016/9/20.
  * 取消命令
  */
-public class CancelCommand extends IDownloadCommand{
-    public CancelCommand(IDownloadTarget target) {
-        super(target);
-    }
+public class CancelCommand extends IDownloadCommand {
 
-    @Override
-    public void executeComment() {
+  protected CancelCommand(Context context, DownloadEntity entity) {
+    super(context, entity);
+  }
 
-    }
+  @Override public void executeComment() {
+    target.cancelTask(target.getTask(mEntity));
+  }
 }

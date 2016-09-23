@@ -18,11 +18,11 @@ import java.net.HttpURLConnection;
 public class Task {
     public static final String TAG = "Task";
 
-    DownloadEntity    downloadEntity;
-    IDownloadListener listener;
-    Handler           outHandler;
-    Context           context;
-    DownLoadUtil      util;
+    private DownloadEntity    downloadEntity;
+    private IDownloadListener listener;
+    private Handler           outHandler;
+    private Context           context;
+    private DownLoadUtil      util;
 
     private Task() {
         util = new DownLoadUtil();
@@ -72,7 +72,7 @@ public class Task {
     /**
      * 下载监听类
      */
-    static class DownloadListener extends DownLoadUtil.DownloadListener {
+    private static class DownloadListener extends DownLoadUtil.DownloadListener {
         Handler outHandler;
         Context context;
         Intent  sendIntent;

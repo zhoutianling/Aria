@@ -5,19 +5,19 @@ import com.arialyy.downloadutil.entity.DownloadEntity;
 
 /**
  * Created by lyy on 2016/9/20.
- * 停止命令
+ * 获取下载状态的命令
  */
-public class StopCommand extends IDownloadCommand {
+public class StateCommand extends IDownloadCommand {
 
   /**
    * @param context context
    * @param entity 下载实体
    */
-  protected StopCommand(Context context, DownloadEntity entity) {
+  protected StateCommand(Context context, DownloadEntity entity) {
     super(context, entity);
   }
 
   @Override public void executeComment() {
-    target.stopTask(target.getTask(mEntity));
+    target.getTaskState(mEntity);
   }
 }
