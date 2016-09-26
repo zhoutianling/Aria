@@ -1,6 +1,7 @@
 package com.arialyy.downloadutil.core.command;
 
 import android.content.Context;
+
 import com.arialyy.downloadutil.entity.DownloadEntity;
 
 /**

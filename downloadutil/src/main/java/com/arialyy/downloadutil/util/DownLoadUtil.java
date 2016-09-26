@@ -13,6 +13,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
+
 /**
  * Created by lyy on 2015/8/25.
  * 下载工具类
@@ -24,24 +25,27 @@ public class DownLoadUtil {
     /**
      * 线程数
      */
-    private static final int THREAD_NUM = 3;
+    private static final int THREAD_NUM         = 3;
     /**
      * 已经完成下载任务的线程数量
      */
-    private int mCompleteThreadNum = 0;
+    private              int mCompleteThreadNum = 0;
     private long mCurrentLocation;
-    private boolean isDownloading = false;
-    private boolean isStop = false;
-    private boolean isCancel = false;
-    private static final int TIME_OUT = 5000; //超时时间
+    private              boolean isDownloading = false;
+    private              boolean isStop        = false;
+    private              boolean isCancel      = false;
+    private static final int     TIME_OUT      = 5000; //超时时间
     boolean isNewTask = true;
     private int mCancelNum = 0;
-    private int mStopNum = 0;
+    private int mStopNum   = 0;
+
     public DownLoadUtil() {
     }
-    public IDownloadListener getListener(){
+
+    public IDownloadListener getListener() {
         return mListener;
     }
+
     /**
      * 获取当前下载位置
      *
@@ -50,21 +54,25 @@ public class DownLoadUtil {
     public long getCurrentLocation() {
         return mCurrentLocation;
     }
+
     public boolean isDownloading() {
         return isDownloading;
     }
+
     /**
      * 取消下载
      */
     public void cancelDownload() {
         isCancel = true;
     }
+
     /**
      * 停止下载
      */
     public void stopDownload() {
         isStop = true;
     }
+
     /**
      * 多线程断点续传下载文件，暂停和继续
      *
@@ -101,7 +109,7 @@ public class DownLoadUtil {
             public void run() {
                 try {
                     mListener = downloadListener;
-                    URL url = new URL(downloadUrl);
+                    URL               url  = new URL(downloadUrl);
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
                     conn.setRequestProperty("Charset", "UTF-8");
@@ -140,16 +148,16 @@ public class DownLoadUtil {
                                 }
                             }
                         }
-                        int blockSize = fileLength / THREAD_NUM;
-                        SparseArray<Thread> tasks = new SparseArray<>();
-                        int[] recordL = new int[THREAD_NUM];
-                        int rl = 0;
+                        int                 blockSize = fileLength / THREAD_NUM;
+                        SparseArray<Thread> tasks     = new SparseArray<>();
+                        int[]               recordL   = new int[THREAD_NUM];
+                        int                 rl        = 0;
                         for (int i = 0; i < THREAD_NUM; i++) {
                             recordL[i] = -1;
                         }
                         for (int i = 0; i < THREAD_NUM; i++) {
-                            long startL = i * blockSize, endL = (i + 1) * blockSize;
-                            Object state = pro.getProperty(dFile.getName() + "_state_" + i);
+                            long   startL = i * blockSize, endL = (i + 1) * blockSize;
+                            Object state  = pro.getProperty(dFile.getName() + "_state_" + i);
                             if (state != null && Integer.parseInt(state + "") == 1) {  //该线程已经完成
                                 mCurrentLocation += endL - startL;
                                 Log.d(TAG, "++++++++++ 线程_" + i + "_已经下载完成 ++++++++++");
@@ -176,7 +184,7 @@ public class DownLoadUtil {
                                 startL = r;
                                 recordL[rl] = i;
                                 rl++;
-                            }else {
+                            } else {
                                 isNewTask = true;
                             }
                             if (isNewTask) {
@@ -187,7 +195,7 @@ public class DownLoadUtil {
                                 endL = fileLength;//如果整个文件的大小不为线程个数的整数倍，则最后一个线程的结束位置即为文件的总长度
                             }
                             DownloadEntity entity = new DownloadEntity(context, fileLength, downloadUrl, dFile, i, startL, endL);
-                            DownLoadTask task = new DownLoadTask(entity);
+                            DownLoadTask   task   = new DownLoadTask(entity);
                             tasks.put(i, new Thread(task));
                         }
                         if (mCurrentLocation > 0) {
@@ -211,30 +219,34 @@ public class DownLoadUtil {
             }
         }).start();
     }
-    private void failDownload(String msg){
+
+    private void failDownload(String msg) {
         Log.e(TAG, msg);
         isDownloading = false;
         stopDownload();
         mListener.onFail();
         System.gc();
     }
+
     /**
      * 多线程下载任务类,不能使用AsyncTask来进行多线程下载，因为AsyncTask是串行执行的，这种方式下载速度太慢了
      */
     private class DownLoadTask implements Runnable {
         private static final String TAG = "DownLoadTask";
         private DownloadEntity dEntity;
-        private String configFPath;
+        private String         configFPath;
+
         public DownLoadTask(DownloadEntity downloadInfo) {
             this.dEntity = downloadInfo;
             configFPath = dEntity.context.getFilesDir().getPath() + "/temp/" + dEntity.tempFile.getName() + ".properties";
         }
+
         @Override
         public void run() {
             long currentLocation = 0;
             try {
                 Log.d(TAG, "线程_" + dEntity.threadId + "_正在下载【" + "开始位置 : " + dEntity.startLocation + "，结束位置：" + dEntity.endLocation + "】");
-                URL url = new URL(dEntity.downloadUrl);
+                URL               url  = new URL(dEntity.downloadUrl);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 //在头里面请求下载开始位置和结束位置
                 conn.setRequestProperty("Range", "bytes=" + dEntity.startLocation + "-" + dEntity.endLocation);
@@ -250,7 +262,7 @@ public class DownLoadUtil {
                 //设置每条线程写入文件的位置
                 file.seek(dEntity.startLocation);
                 byte[] buffer = new byte[1024];
-                int len;
+                int    len;
                 //当前子线程的下载位置
                 currentLocation = dEntity.startLocation;
                 while ((len = is.read(buffer)) != -1) {
@@ -353,30 +365,33 @@ public class DownLoadUtil {
                 }
             }
         }
+
         /**
          * 将记录写入到配置文件
          *
          * @param record
          */
         private void writeConfig(String key, String record) throws IOException {
-            File configFile = new File(configFPath);
-            Properties pro = Util.loadConfig(configFile);
+            File       configFile = new File(configFPath);
+            Properties pro        = Util.loadConfig(configFile);
             pro.setProperty(key, record);
             Util.saveConfig(configFile, pro);
         }
     }
+
     /**
      * 子线程下载信息类
      */
     private class DownloadEntity {
         //文件大小
-        long fileSize;
-        String downloadUrl;
-        int threadId;
-        long startLocation;
-        long endLocation;
-        File tempFile;
+        long    fileSize;
+        String  downloadUrl;
+        int     threadId;
+        long    startLocation;
+        long    endLocation;
+        File    tempFile;
         Context context;
+
         public DownloadEntity(Context context, long fileSize, String downloadUrl, File file, int threadId, long startLocation, long endLocation) {
             this.fileSize = fileSize;
             this.downloadUrl = downloadUrl;

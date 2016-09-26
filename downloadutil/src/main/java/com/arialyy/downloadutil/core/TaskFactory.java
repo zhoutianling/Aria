@@ -30,9 +30,10 @@ public class TaskFactory {
 
     /**
      * 创建普通下载任务
+     *
      * @param context
-     * @param entity    下载实体
-     * @param handler   {@link com.arialyy.downloadutil.core.IDownloadTarget.AutoTaskHandler}
+     * @param entity  下载实体
+     * @param handler {@link com.arialyy.downloadutil.core.IDownloadTarget.AutoTaskHandler}
      * @return
      */
     public Task createTask(Context context, DownloadEntity entity, Handler handler) {

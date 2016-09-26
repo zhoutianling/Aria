@@ -78,7 +78,7 @@ public class CachePool implements IPool {
                 Log.e(TAG, "请传入有效的下载链接");
                 return null;
             }
-            String key  = Util.keyToHashKey(downloadUrl);
+            String key = Util.keyToHashKey(downloadUrl);
             return mCacheArray.get(key);
         }
     }
@@ -104,8 +104,8 @@ public class CachePool implements IPool {
                 Log.e(TAG, "请传入有效的下载链接");
                 return false;
             }
-            String key = Util.keyToHashKey(downloadUrl);
-            Task task = mCacheArray.get(key);
+            String key  = Util.keyToHashKey(downloadUrl);
+            Task   task = mCacheArray.get(key);
             mCacheArray.remove(key);
             return mCacheQueue.remove(task);
         }

@@ -1,6 +1,7 @@
 package com.arialyy.downloadutil.core.command;
 
 import android.content.Context;
+
 import com.arialyy.downloadutil.entity.DownloadEntity;
 
 /**
@@ -9,11 +10,12 @@ import com.arialyy.downloadutil.entity.DownloadEntity;
  */
 class CancelCommand extends IDownloadCommand {
 
-  CancelCommand(Context context, DownloadEntity entity) {
-    super(context, entity);
-  }
+    CancelCommand(Context context, DownloadEntity entity) {
+        super(context, entity);
+    }
 
-  @Override public void executeComment() {
-    target.cancelTask(target.getTask(mEntity));
-  }
+    @Override
+    public void executeComment() {
+        target.cancelTask(target.getTask(mEntity));
+    }
 }

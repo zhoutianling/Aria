@@ -8,6 +8,7 @@ import com.arialyy.downloadutil.core.IDownloadTarget;
 
 import com.arialyy.downloadutil.entity.DownloadEntity;
 import com.arialyy.downloadutil.help.CheckHelp;
+
 import java.util.List;
 
 /**
@@ -16,15 +17,15 @@ import java.util.List;
  */
 public abstract class IDownloadCommand {
     protected IDownloadTarget target;
-    protected Context mContext;
-    protected DownloadEntity mEntity;
+    protected Context         mContext;
+    protected DownloadEntity  mEntity;
 
     /**
-     * @param context   context
-     * @param entity 下载实体
+     * @param context context
+     * @param entity  下载实体
      */
-    protected IDownloadCommand(Context context, DownloadEntity entity){
-        if (!CheckHelp.checkDownloadEntity(entity)){
+    protected IDownloadCommand(Context context, DownloadEntity entity) {
+        if (!CheckHelp.checkDownloadEntity(entity)) {
             return;
         }
         target = DownloadTarget.getInstance(context);
@@ -32,7 +33,7 @@ public abstract class IDownloadCommand {
         mEntity = entity;
     }
 
-    public Context getContext(){
+    public Context getContext() {
         return mContext;
     }
 

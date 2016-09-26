@@ -77,7 +77,7 @@ public class DownloadTarget extends IDownloadTarget {
         if (task == null) {
             task = mCachePool.getTask(entity.getDownloadUrl());
         }
-        if (task == null){
+        if (task == null) {
             task = createTask(entity);
         }
         return task;

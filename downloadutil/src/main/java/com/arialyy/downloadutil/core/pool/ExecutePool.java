@@ -119,7 +119,7 @@ public class ExecutePool implements IPool {
                 Log.e(TAG, "请传入有效的下载链接");
                 return null;
             }
-            String key  = Util.keyToHashKey(downloadUrl);
+            String key = Util.keyToHashKey(downloadUrl);
             return mExecuteArray.get(key);
         }
     }

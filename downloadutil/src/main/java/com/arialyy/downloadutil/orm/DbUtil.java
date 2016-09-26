@@ -1,4 +1,5 @@
 package com.arialyy.downloadutil.orm;
+
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
@@ -13,17 +14,17 @@ import java.lang.reflect.Field;
  * 数据库操作工具
  */
 public class DbUtil {
-    private static final String TAG = "DbUtil";
-    private volatile static DbUtil mDbUtil = null;
-    private int CREATE_TABLE = 0;
-    private int TABLE_EXISTS = 1;
-    private int INSERT_DATA = 2;
-    private int MODIFY_DATA = 3;
-    private int FIND_DATA = 4;
-    private int FIND_ALL_DATA = 5;
-    private int DEL_DATA = 6;
-    private int ROW_ID = 7;
-    private static final Object LOCK = new Object();
+    private static final    String TAG           = "DbUtil";
+    private volatile static DbUtil mDbUtil       = null;
+    private                 int    CREATE_TABLE  = 0;
+    private                 int    TABLE_EXISTS  = 1;
+    private                 int    INSERT_DATA   = 2;
+    private                 int    MODIFY_DATA   = 3;
+    private                 int    FIND_DATA     = 4;
+    private                 int    FIND_ALL_DATA = 5;
+    private                 int    DEL_DATA      = 6;
+    private                 int    ROW_ID        = 7;
+    private static final    Object LOCK          = new Object();
     private SQLiteDatabase mDb;
 
     private DbUtil() {
@@ -73,8 +74,8 @@ public class DbUtil {
      * 修改某行数据
      */
     protected void modifyData(DbEntity dbEntity) {
-        Class<?> clazz = dbEntity.getClass();
-        Field[] fields = Util.getFields(clazz);
+        Class<?> clazz  = dbEntity.getClass();
+        Field[]  fields = Util.getFields(clazz);
         if (fields != null && fields.length > 0) {
             StringBuilder sb = new StringBuilder();
             sb.append("UPDATE ").append(Util.getClassName(dbEntity)).append(" SET ");
@@ -136,8 +137,8 @@ public class DbUtil {
      * 插入数据
      */
     protected void insertData(DbEntity dbEntity) {
-        Class<?> clazz = dbEntity.getClass();
-        Field[] fields = Util.getFields(clazz);
+        Class<?> clazz  = dbEntity.getClass();
+        Field[]  fields = Util.getFields(clazz);
         if (fields != null && fields.length > 0) {
             StringBuilder sb = new StringBuilder();
             sb.append("INSERT INTO ").append(Util.getClassName(dbEntity)).append("(");
@@ -214,7 +215,7 @@ public class DbUtil {
             sb.append("create table ")
                     .append(Util.getClassName(dbEntity))
                     .append("(");
-            int i = 0;
+            int i         = 0;
             int ignoreNum = 0;
             for (Field field : fields) {
                 i++;
@@ -322,8 +323,8 @@ public class DbUtil {
             i++;
         }
         print(ROW_ID, sb.toString());
-        Cursor c = mDb.rawQuery(sb.toString(), null);
-        int id = c.getColumnIndex("rowid");
+        Cursor c  = mDb.rawQuery(sb.toString(), null);
+        int    id = c.getColumnIndex("rowid");
         c.close();
         return id;
     }
