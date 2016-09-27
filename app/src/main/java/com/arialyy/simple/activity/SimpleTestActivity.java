@@ -1,23 +1,24 @@
-package com.example.arial.downloaddemo;
+package com.arialyy.simple.activity;
 
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import butterknife.Bind;
 import com.arialyy.downloadutil.util.DownLoadUtil;
 import com.arialyy.downloadutil.util.Util;
-
+import com.arialyy.simple.R;
+import com.arialyy.simple.base.BaseActivity;
+import com.arialyy.simple.databinding.ActivitySimpleBinding;
 import java.net.HttpURLConnection;
 
-public class MainActivity extends AppCompatActivity {
+public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
   private static final int DOWNLOAD_PRE = 0x01;
   private static final int DOWNLOAD_STOP = 0x02;
   private static final int DOWNLOAD_FAILE = 0x03;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
   private DownLoadUtil mUtil;
   private Button mStart, mStop, mCancel;
   private TextView mSize;
+  @Bind(R.id.toolbar) Toolbar toolbar;
 
   private Handler mUpdateHandler = new Handler() {
     @Override public void handleMessage(Message msg) {
@@ -40,26 +42,26 @@ public class MainActivity extends AppCompatActivity {
           mStart.setEnabled(false);
           break;
         case DOWNLOAD_FAILE:
-          Toast.makeText(MainActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
+          Toast.makeText(SimpleTestActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
           break;
         case DOWNLOAD_STOP:
-          Toast.makeText(MainActivity.this, "暂停下载", Toast.LENGTH_SHORT).show();
+          Toast.makeText(SimpleTestActivity.this, "暂停下载", Toast.LENGTH_SHORT).show();
           mStart.setText("恢复");
           mStart.setEnabled(true);
           break;
         case DOWNLOAD_CANCEL:
           mPb.setProgress(0);
-          Toast.makeText(MainActivity.this, "取消下载", Toast.LENGTH_SHORT).show();
+          Toast.makeText(SimpleTestActivity.this, "取消下载", Toast.LENGTH_SHORT).show();
           mStart.setEnabled(true);
           mStart.setText("开始");
           break;
         case DOWNLOAD_RESUME:
-          Toast.makeText(MainActivity.this, "恢复下载，恢复位置 ==> " + Util.formatFileSize((Long) msg.obj),
+          Toast.makeText(SimpleTestActivity.this, "恢复下载，恢复位置 ==> " + Util.formatFileSize((Long) msg.obj),
               Toast.LENGTH_SHORT).show();
           mStart.setEnabled(false);
           break;
         case DOWNLOAD_COMPLETE:
-          Toast.makeText(MainActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
+          Toast.makeText(SimpleTestActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
           mStart.setEnabled(true);
           mCancel.setEnabled(false);
           mStop.setEnabled(false);
@@ -70,8 +72,16 @@ public class MainActivity extends AppCompatActivity {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_main);
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+    init();
+  }
+
+  @Override protected int setLayoutId() {
+    return R.layout.activity_simple;
+  }
+
+  @Override protected void init(Bundle savedInstanceState) {
+    super.init(savedInstanceState);
     setSupportActionBar(toolbar);
     init();
   }
