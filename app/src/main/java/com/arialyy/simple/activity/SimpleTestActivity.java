@@ -1,5 +1,8 @@
 package com.arialyy.simple.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -11,13 +14,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.arialyy.downloadutil.core.DownloadManager;
+import com.arialyy.downloadutil.core.command.CommandFactory;
+import com.arialyy.downloadutil.core.command.IDownloadCommand;
+import com.arialyy.downloadutil.entity.DownloadEntity;
 import com.arialyy.downloadutil.util.DownLoadUtil;
 import com.arialyy.downloadutil.util.Util;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySimpleBinding;
+import com.arialyy.simple.module.DownloadModule;
 
-import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.Bind;
 
@@ -58,7 +67,9 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
                     mStart.setText("开始");
                     break;
                 case DOWNLOAD_RESUME:
-                    Toast.makeText(SimpleTestActivity.this, "恢复下载，恢复位置 ==> " + Util.formatFileSize((Long) msg.obj), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(SimpleTestActivity.this,
+                            "恢复下载，恢复位置 ==> " + Util.formatFileSize((Long) msg.obj),
+                            Toast.LENGTH_SHORT).show();
                     mStart.setEnabled(false);
                     break;
                 case DOWNLOAD_COMPLETE:
@@ -71,10 +82,25 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
         }
     };
 
+    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override public void onReceive(Context context, Intent intent) {
+
+        }
+    };
+
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         init();
+    }
+
+    @Override protected void onResume() {
+        super.onResume();
+        registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
+    }
+
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
     }
 
     @Override protected int setLayoutId() {
@@ -111,58 +137,19 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
     }
 
     private void start() {
-        mUtil.download(this, mDownloadUrl, Environment.getExternalStorageDirectory().getPath() + "/test.apk", new DownLoadUtil.DownloadListener() {
-            long fileSize = 1;
+        DownloadEntity entity = new DownloadEntity();
+        entity.setFileName("test.apk");
+        entity.setDownloadUrl(mDownloadUrl);
+        entity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
+        List<IDownloadCommand> commands = new ArrayList<>();
+        IDownloadCommand addCommand = CommandFactory.getInstance()
+                .createCommand(this, entity, CommandFactory.TASK_CREATE);
+        IDownloadCommand startCommand = CommandFactory.getInstance()
+                .createCommand(this, entity, CommandFactory.TASK_START);
+        commands.add(addCommand);
+        commands.add(startCommand);
+        DownloadManager.getInstance(this).setCommands(commands).exe();
 
-            @Override public void onPreDownload(HttpURLConnection connection) {
-                super.onPreDownload(connection);
-                mPb.setMax(100);
-                fileSize = connection.getContentLength();
-                mUpdateHandler.obtainMessage(DOWNLOAD_PRE, fileSize).sendToTarget();
-            }
-
-            @Override public void onStart(long startLocation) {
-                super.onStart(startLocation);
-            }
-
-            @Override public void onChildResume(long resumeLocation) {
-                super.onChildResume(resumeLocation);
-            }
-
-            @Override public void onChildComplete(long finishLocation) {
-                super.onChildComplete(finishLocation);
-            }
-
-            @Override public void onProgress(long currentLocation) {
-                super.onProgress(currentLocation);
-                mPb.setProgress((int) (currentLocation * 100 / fileSize));
-            }
-
-            @Override public void onStop(long stopLocation) {
-                super.onStop(stopLocation);
-                mUpdateHandler.obtainMessage(DOWNLOAD_STOP).sendToTarget();
-            }
-
-            @Override public void onCancel() {
-                super.onCancel();
-                mUpdateHandler.obtainMessage(DOWNLOAD_CANCEL).sendToTarget();
-            }
-
-            @Override public void onResume(long resumeLocation) {
-                super.onResume(resumeLocation);
-                mUpdateHandler.obtainMessage(DOWNLOAD_RESUME, resumeLocation).sendToTarget();
-            }
-
-            @Override public void onFail() {
-                super.onFail();
-                mUpdateHandler.obtainMessage(DOWNLOAD_FAILE).sendToTarget();
-            }
-
-            @Override public void onComplete() {
-                super.onComplete();
-                mUpdateHandler.obtainMessage(DOWNLOAD_COMPLETE).sendToTarget();
-            }
-        });
     }
 
     private void stop() {

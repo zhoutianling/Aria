@@ -1,6 +1,7 @@
 package com.arialyy.downloadutil.core.command;
 
 import android.content.Context;
+
 import com.arialyy.downloadutil.entity.DownloadEntity;
 
 /**
@@ -9,11 +10,11 @@ import com.arialyy.downloadutil.entity.DownloadEntity;
  */
 class AddCommand extends IDownloadCommand {
 
-  AddCommand(Context context, DownloadEntity entity) {
-    super(context, entity);
-  }
+    AddCommand(Context context, DownloadEntity entity) {
+        super(context, entity);
+    }
 
-  @Override public void executeComment() {
-    target.createTask(mEntity);
-  }
+    @Override public void executeComment() {
+        target.createTask(mEntity);
+    }
 }

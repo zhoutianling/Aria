@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
     >
 
-  <com.arialyy.simple.widget.HorizontalProgressBarWithNumber
-      android:id="@+id/progressBar"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_centerVertical="true"
-      android:layout_marginRight="16dp"
-      android:layout_toLeftOf="@+id/bt"
-      android:max="100"
-      />
+    <com.arialyy.simple.widget.HorizontalProgressBarWithNumber
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="16dp"
+        android:layout_toLeftOf="@+id/bt"
+        android:max="100"
+        />
 
-  <Button
-      android:id="@+id/bt"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_alignParentRight="true"
-      android:text="开始"
-      style="?buttonBarButtonStyle"
-      />
+    <Button
+        android:id="@+id/bt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="开始"
+        style="?buttonBarButtonStyle"
+        />
 
 </RelativeLayout>

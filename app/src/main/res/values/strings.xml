@@ -1,4 +1,18 @@
 <resources>
-  <string name="app_name">DownloadDemo</string>
-  <string name="action_settings">Settings</string>
+    <string name="app_name">DownloadDemo</string>
+    <string name="action_settings">Settings</string>
+
+    <string-array name="test_apk_download_url">
+        <item>http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk</item>  <!--300M的文件-->
+        <item>http://static.gaoshouyou.com/d/21/e8/61218d78d0e8b79df68dbc18dd484c97.apk</item>
+        <item>http://static.gaoshouyou.com/d/12/0d/7f120f50c80d2e7b8c4ba24ece4f9cdd.apk</item>
+        <item>http://static.gaoshouyou.com/d/d4/4f/d6d48db3794fb9ecf47e83c346570881.apk</item>
+        <!--<item>http://static.gaoshouyou.com/d/18/cf/ba18113bc6cf56c1c5863e761e717003.apk</item>-->
+        <!--<item>http://static.gaoshouyou.com/d/60/17/2460921367173ea7145f11194a6f2587.apk</item>-->
+        <!--<item>http://static.gaoshouyou.com/d/32/e0/1a32123ecbe0ee010d35479df248f90f.apk</item>-->
+        <!--<item>http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk</item>-->
+        <!--<item>http://static.gaoshouyou.com/d/e6/f5/4de6329f9cf5dc3a1d1e6bbcca0d003c.apk</item>-->
+        <!--<item>http://static.gaoshouyou.com/d/6e/e5/ff6ecaaf45e532e6d07747af82357472.apk</item>-->
+        <!--<item>http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk</item>-->
+    </string-array>
 </resources>

@@ -32,11 +32,13 @@ public class HorizontalProgressBarWithNumber extends ProgressBar {
     /**
      * offset of draw progress
      */
-    protected            int   mTextOffset                           = dp2px(DEFAULT_SIZE_TEXT_OFFSET);
+    protected            int   mTextOffset                           = dp2px(
+            DEFAULT_SIZE_TEXT_OFFSET);
     /**
      * height of reached progress bar
      */
-    protected            int   mReachedProgressBarHeight             = dp2px(DEFAULT_HEIGHT_REACHED_PROGRESS_BAR);
+    protected            int   mReachedProgressBarHeight             = dp2px(
+            DEFAULT_HEIGHT_REACHED_PROGRESS_BAR);
     /**
      * color of reached bar
      */
@@ -48,7 +50,8 @@ public class HorizontalProgressBarWithNumber extends ProgressBar {
     /**
      * height of unreached progress bar
      */
-    protected            int   mUnReachedProgressBarHeight           = dp2px(DEFAULT_HEIGHT_UNREACHED_PROGRESS_BAR);
+    protected            int   mUnReachedProgressBarHeight           = dp2px(
+            DEFAULT_HEIGHT_UNREACHED_PROGRESS_BAR);
     /**
      * view width except padding
      */
@@ -82,7 +85,10 @@ public class HorizontalProgressBarWithNumber extends ProgressBar {
             result = specSize;
         } else {
             float textHeight = (mPaint.descent() - mPaint.ascent());
-            result = (int) (getPaddingTop() + getPaddingBottom() + Math.max(Math.max(mReachedProgressBarHeight, mUnReachedProgressBarHeight), Math.abs(textHeight)));
+            result = (int) (getPaddingTop() + getPaddingBottom() + Math.max(
+                    Math.max(mReachedProgressBarHeight, mUnReachedProgressBarHeight),
+                    Math.abs(textHeight))
+            );
             if (specMode == MeasureSpec.AT_MOST) {
                 result = Math.min(result, specSize);
             }
@@ -95,15 +101,28 @@ public class HorizontalProgressBarWithNumber extends ProgressBar {
      */
     private void obtainStyledAttributes(AttributeSet attrs) {
         // init values from custom attributes
-        final TypedArray attributes = getContext().obtainStyledAttributes(attrs, R.styleable.HorizontalProgressBarWithNumber);
-        mTextColor = attributes.getColor(R.styleable.HorizontalProgressBarWithNumber_progress_text_color, DEFAULT_TEXT_COLOR);
-        mTextSize = (int) attributes.getDimension(R.styleable.HorizontalProgressBarWithNumber_progress_text_size, mTextSize);
-        mReachedBarColor = attributes.getColor(R.styleable.HorizontalProgressBarWithNumber_progress_reached_color, mTextColor);
-        mUnReachedBarColor = attributes.getColor(R.styleable.HorizontalProgressBarWithNumber_progress_unreached_color, DEFAULT_COLOR_UNREACHED_COLOR);
-        mReachedProgressBarHeight = (int) attributes.getDimension(R.styleable.HorizontalProgressBarWithNumber_progress_reached_bar_height, mReachedProgressBarHeight);
-        mUnReachedProgressBarHeight = (int) attributes.getDimension(R.styleable.HorizontalProgressBarWithNumber_progress_unreached_bar_height, mUnReachedProgressBarHeight);
-        mTextOffset = (int) attributes.getDimension(R.styleable.HorizontalProgressBarWithNumber_progress_text_offset, mTextOffset);
-        int textVisible = attributes.getInt(R.styleable.HorizontalProgressBarWithNumber_progress_text_visibility, VISIBLE);
+        final TypedArray attributes = getContext().obtainStyledAttributes(attrs,
+                R.styleable.HorizontalProgressBarWithNumber);
+        mTextColor = attributes.getColor(
+                R.styleable.HorizontalProgressBarWithNumber_progress_text_color,
+                DEFAULT_TEXT_COLOR);
+        mTextSize = (int) attributes.getDimension(
+                R.styleable.HorizontalProgressBarWithNumber_progress_text_size, mTextSize);
+        mReachedBarColor = attributes.getColor(
+                R.styleable.HorizontalProgressBarWithNumber_progress_reached_color, mTextColor);
+        mUnReachedBarColor = attributes.getColor(
+                R.styleable.HorizontalProgressBarWithNumber_progress_unreached_color,
+                DEFAULT_COLOR_UNREACHED_COLOR);
+        mReachedProgressBarHeight = (int) attributes.getDimension(
+                R.styleable.HorizontalProgressBarWithNumber_progress_reached_bar_height,
+                mReachedProgressBarHeight);
+        mUnReachedProgressBarHeight = (int) attributes.getDimension(
+                R.styleable.HorizontalProgressBarWithNumber_progress_unreached_bar_height,
+                mUnReachedProgressBarHeight);
+        mTextOffset = (int) attributes.getDimension(
+                R.styleable.HorizontalProgressBarWithNumber_progress_text_offset, mTextOffset);
+        int textVisible = attributes.getInt(
+                R.styleable.HorizontalProgressBarWithNumber_progress_text_visibility, VISIBLE);
         if (textVisible != VISIBLE) {
             mIfDrawText = false;
         }
@@ -151,13 +170,15 @@ public class HorizontalProgressBarWithNumber extends ProgressBar {
      * dp 2 px
      */
     protected int dp2px(int dpVal) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpVal, getResources().getDisplayMetrics());
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpVal,
+                getResources().getDisplayMetrics());
     }
 
     /**
      * sp 2 px
      */
     protected int sp2px(int spVal) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, spVal, getResources().getDisplayMetrics());
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, spVal,
+                getResources().getDisplayMetrics());
     }
 }
