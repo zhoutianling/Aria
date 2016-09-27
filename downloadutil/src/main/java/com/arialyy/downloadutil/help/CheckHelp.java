@@ -1,6 +1,5 @@
 package com.arialyy.downloadutil.help;
 
-import android.app.Application;
 import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.Log;
@@ -28,20 +27,20 @@ public class CheckHelp {
     } else if (TextUtils.isEmpty(entity.getDownloadUrl())) {
       Log.w(TAG, Resources.getSystem().getString(R.string.error_download_url_null));
       return false;
-    } else if (TextUtils.isEmpty(entity.getFileName())){
+    } else if (TextUtils.isEmpty(entity.getFileName())) {
       Log.w(TAG, Resources.getSystem().getString(R.string.error_file_name_null));
       return false;
-    } else if (TextUtils.isEmpty(entity.getDownloadPath())){
+    } else if (TextUtils.isEmpty(entity.getDownloadPath())) {
       Log.w(TAG, Resources.getSystem().getString(R.string.error_file_name_null));
       return false;
     }
     String fileName = entity.getFileName();
-    if (fileName.contains(" ")){
+    if (fileName.contains(" ")) {
       fileName = fileName.replace(" ", "_");
     }
     String dPath = entity.getDownloadPath();
     File file = new File(dPath);
-    if (file.isDirectory()){
+    if (file.isDirectory()) {
       dPath += fileName;
       entity.setDownloadPath(dPath);
     }
