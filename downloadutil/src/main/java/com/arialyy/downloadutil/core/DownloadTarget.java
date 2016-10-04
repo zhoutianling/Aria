@@ -15,7 +15,14 @@ public class DownloadTarget extends IDownloadTarget {
     private static volatile DownloadTarget INSTANCE = null;
     private Context mContext;
 
-    public static DownloadTarget getInstance(Context context) {
+    public static DownloadTarget getInstance() {
+        if (INSTANCE == null) {
+            throw new NullPointerException("请在Application中调用init进行注册");
+        }
+        return INSTANCE;
+    }
+
+    static DownloadTarget init(Context context) {
         if (INSTANCE == null) {
             synchronized (LOCK) {
                 INSTANCE = new DownloadTarget(context.getApplicationContext());
@@ -86,20 +93,14 @@ public class DownloadTarget extends IDownloadTarget {
     }
 
     @Override public void removeTask(DownloadEntity entity) {
-        Task task = mCachePool.getTask(entity.getDownloadUrl());
+        Task task = mExecutePool.getTask(entity.getDownloadUrl());
         if (task != null) {
-            Log.d(TAG, "任务删除" + (mCachePool.removeTask(task) ?
-                    "成功" :
-                    "失败"
-            ));
+            Log.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
         } else {
-            task = mExecutePool.getTask(entity.getDownloadUrl());
+            task = mCachePool.getTask(entity.getDownloadUrl());
         }
         if (task != null) {
-            Log.d(TAG, "任务删除" + (mCachePool.removeTask(task) ?
-                    "成功" :
-                    "失败"
-            ));
+            Log.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
         } else {
             Log.w(TAG, "没有找到下载链接为【" + entity.getDownloadUrl() + "】的任务");
         }

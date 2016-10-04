@@ -55,7 +55,7 @@
 //        Cursor               c    = db.query(TABLE_NAME, null, null, null, null, null, null);
 //        if (c.moveToFirst()) {
 //            while (c.moveToNext()) {
-//                list.add(cursor2Entity(c));
+//                list.insert(cursor2Entity(c));
 //            }
 //        }
 //        c.close();

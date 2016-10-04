@@ -1,5 +1,6 @@
 package com.arialyy.simple.activity;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -20,6 +21,9 @@ import com.arialyy.downloadutil.core.command.IDownloadCommand;
 import com.arialyy.downloadutil.entity.DownloadEntity;
 import com.arialyy.downloadutil.util.DownLoadUtil;
 import com.arialyy.downloadutil.util.Util;
+import com.arialyy.frame.permission.OnPermissionCallback;
+import com.arialyy.frame.permission.PermissionManager;
+import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySimpleBinding;
@@ -83,8 +87,34 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
     };
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        @Override public void onReceive(Context context, Intent intent) {
+        long len = 0;
 
+        @Override public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            switch (action) {
+                case DownloadManager.ACTION_PRE:
+                    DownloadEntity entity = intent.getParcelableExtra(DownloadManager.ACTION_PRE);
+                    len = entity.getFileSize();
+                    L.d(TAG, "download pre");
+                    break;
+                case DownloadManager.ACTION_START:
+                    L.d(TAG, "download start");
+                    break;
+                case DownloadManager.ACTION_RESUME:
+                    L.d(TAG, "download resume");
+                    break;
+                case DownloadManager.ACTION_RUNNING:
+                    long current = intent.getLongExtra(DownloadManager.ACTION_RUNNING, 0);
+                    if (len == 0) {
+                        mPb.setProgress(0);
+                    } else {
+                        mPb.setProgress((int) ((current * 100) / len));
+                    }
+                    break;
+                case DownloadManager.ACTION_STOP:
+                    L.d(TAG, "download stop");
+                    break;
+            }
         }
     };
 
@@ -126,6 +156,21 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
         switch (view.getId()) {
             case R.id.start:
                 start();
+//                if (PermissionManager.getInstance()
+//                        .checkPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//                    start();
+//                } else {
+//                    PermissionManager.getInstance()
+//                            .requestPermission(this, new OnPermissionCallback() {
+//                                @Override public void onSuccess(String... permissions) {
+//                                    start();
+//                                }
+//
+//                                @Override public void onFail(String... permissions) {
+//
+//                                }
+//                            }, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//                }
                 break;
             case R.id.stop:
                 stop();
@@ -136,8 +181,9 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
         }
     }
 
+    DownloadEntity entity = new DownloadEntity();
+
     private void start() {
-        DownloadEntity entity = new DownloadEntity();
         entity.setFileName("test.apk");
         entity.setDownloadUrl(mDownloadUrl);
         entity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
@@ -148,12 +194,14 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
                 .createCommand(this, entity, CommandFactory.TASK_START);
         commands.add(addCommand);
         commands.add(startCommand);
-        DownloadManager.getInstance(this).setCommands(commands).exe();
-
+        DownloadManager.getInstance().setCommands(commands).exe();
     }
 
     private void stop() {
-        mUtil.stopDownload();
+//        mUtil.stopDownload();
+        IDownloadCommand stopCommand = CommandFactory.getInstance()
+                .createCommand(this, entity, CommandFactory.TASK_STOP);
+        DownloadManager.getInstance().setCommand(stopCommand).exe();
     }
 
     private void cancel() {

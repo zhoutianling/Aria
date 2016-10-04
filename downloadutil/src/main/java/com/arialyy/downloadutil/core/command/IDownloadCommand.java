@@ -24,7 +24,7 @@ public abstract class IDownloadCommand {
         if (!CheckHelp.checkDownloadEntity(entity)) {
             return;
         }
-        target = DownloadTarget.getInstance(context);
+        target = DownloadTarget.getInstance();
         mContext = context;
         mEntity = entity;
     }

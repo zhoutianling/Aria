@@ -1,8 +1,11 @@
 package com.arialyy.downloadutil.core;
 
+import android.app.Application;
 import android.content.Context;
+import android.util.Log;
 
 import com.arialyy.downloadutil.core.command.IDownloadCommand;
+import com.arialyy.downloadutil.orm.DbUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.List;
  * 下载管理器，通过命令的方式控制下载
  */
 public class DownloadManager {
+    private static final    String          TAG        = "DownloadManager";
     private static final    Object          LOCK       = new Object();
     private static volatile DownloadManager INSTANCE   = null;
     /**
@@ -74,13 +78,26 @@ public class DownloadManager {
 
     private DownloadManager(Context context) {
         mContext = context;
+        DownloadTarget.init(context);
+        DbUtil.init(context);
     }
 
-    public static DownloadManager getInstance(Context context) {
-        if (INSTANCE == null) {
-            synchronized (LOCK) {
-                INSTANCE = new DownloadManager(context.getApplicationContext());
+    public static DownloadManager init(Context context) {
+        if (context instanceof Application) {
+            if (INSTANCE == null) {
+                synchronized (LOCK) {
+                    INSTANCE = new DownloadManager(context.getApplicationContext());
+                }
             }
+        } else {
+            Log.e(TAG, "Context 只能为application");
+        }
+        return INSTANCE;
+    }
+
+    public static DownloadManager getInstance() {
+        if (INSTANCE == null) {
+            throw new NullPointerException("请在Application中调用init进行下载器注册");
         }
         return INSTANCE;
     }
@@ -88,8 +105,9 @@ public class DownloadManager {
     /**
      * 设置命令
      */
-    public void setCommant(IDownloadCommand command) {
+    public DownloadManager setCommand(IDownloadCommand command) {
         mCommands.add(command);
+        return this;
     }
 
     /**

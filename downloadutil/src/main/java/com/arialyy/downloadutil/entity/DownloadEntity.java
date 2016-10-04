@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.arialyy.downloadutil.orm.DbEntity;
+import com.arialyy.downloadutil.orm.Ignore;
 
 /**
  * Created by lyy on 2015/12/25.
@@ -13,30 +14,37 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
     /**
      * 其它状态
      */
+    @Ignore
     public static final int STATE_OTHER        = -1;
     /**
      * 失败状态
      */
+    @Ignore
     public static final int STATE_FAIL         = 0;
     /**
      * 完成状态
      */
+    @Ignore
     public static final int STATE_COMPLETE     = 1;
     /**
      * 停止状态
      */
+    @Ignore
     public static final int STATE_STOP         = 2;
     /**
      * 未开始状态
      */
+    @Ignore
     public static final int STATE_WAIT         = 3;
     /**
      * 下载中
      */
+    @Ignore
     public static final int STATE_DOWNLOAD_ING = 4;
     /**
      * 取消下载
      */
+    @Ignore
     public static final int STATE_CANCEL       = 5;
 
     private String downloadUrl; //下载路径
@@ -49,6 +57,8 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
     private boolean isDownloadComplete = false;   //是否下载完成
     private long    currentProgress    = 0;    //当前下载进度
     private int     failNum            = 0;
+
+    public DownloadEntity(){}
 
     public String getStr() {
         return str;
@@ -134,9 +144,6 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
         return (DownloadEntity) super.clone();
     }
 
-    public DownloadEntity() {
-    }
-
     @Override public int describeContents() {
         return 0;
     }
@@ -165,6 +172,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
         this.failNum = in.readInt();
     }
 
+    @Ignore
     public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
         @Override public DownloadEntity createFromParcel(Parcel source) {
             return new DownloadEntity(source);

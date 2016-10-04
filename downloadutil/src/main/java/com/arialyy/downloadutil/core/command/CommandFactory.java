@@ -18,6 +18,10 @@ public class CommandFactory {
      */
     public static final int TASK_START  = 0x123;
     /**
+     * 恢复任务
+     */
+    public static final int TASK_RESUME  = 0x127;
+    /**
      * 取消任务
      */
     public static final int TASK_CANCEL = 0x124;
@@ -56,6 +60,7 @@ public class CommandFactory {
         switch (type) {
             case TASK_CREATE:
                 return createAddCommand(context, entity);
+            case TASK_RESUME:
             case TASK_START:
                 return createStartCommand(context, entity);
             case TASK_CANCEL:

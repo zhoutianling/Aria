@@ -1,5 +1,7 @@
 package com.arialyy.downloadutil.orm;
 
+import android.app.Application;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
@@ -8,6 +10,9 @@ import android.util.Log;
 import com.arialyy.downloadutil.util.Util;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Created by AriaLyy on 2015/2/11.
@@ -15,7 +20,8 @@ import java.lang.reflect.Field;
  */
 public class DbUtil {
     private static final    String TAG           = "DbUtil";
-    private volatile static DbUtil mDbUtil       = null;
+    private volatile static DbUtil INSTANCE      = null;
+    private static final    Object LOCK          = new Object();
     private                 int    CREATE_TABLE  = 0;
     private                 int    TABLE_EXISTS  = 1;
     private                 int    INSERT_DATA   = 2;
@@ -24,32 +30,40 @@ public class DbUtil {
     private                 int    FIND_ALL_DATA = 5;
     private                 int    DEL_DATA      = 6;
     private                 int    ROW_ID        = 7;
-    private static final    Object LOCK          = new Object();
     private SQLiteDatabase mDb;
+    private SqlHelper      mHelper;
 
     private DbUtil() {
 
     }
 
-    private DbUtil(SQLiteDatabase db) {
-        mDb = db;
-    }
-
-    protected static DbUtil getInstance(SQLiteDatabase db) {
-        if (mDbUtil == null) {
+    public static DbUtil init(Context context) {
+        if (context instanceof Application) {
             synchronized (LOCK) {
-                if (mDbUtil == null) {
-                    mDbUtil = new DbUtil(db);
+                if (INSTANCE == null) {
+                    INSTANCE = new DbUtil(context);
                 }
             }
         }
-        return mDbUtil;
+        return INSTANCE;
+    }
+
+    private DbUtil(Context context) {
+        mHelper = new SqlHelper(context.getApplicationContext());
+    }
+
+    protected static DbUtil getInstance() {
+        if (INSTANCE == null) {
+            throw new NullPointerException("请在Application中调用init进行数据库工具注册注册");
+        }
+        return INSTANCE;
     }
 
     /**
      * 删除某条数据
      */
     protected void delData(DbEntity dbEntity, @NonNull Object[] wheres, @NonNull Object[] values) {
+        mDb = mHelper.getWritableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
             Log.e(TAG, "输入删除条件");
             return;
@@ -62,19 +76,19 @@ public class DbUtil {
         int i = 0;
         for (Object where : wheres) {
             sb.append(where).append("=").append("'").append(values[i]).append("'");
-            sb.append(i >= wheres.length - 1 ?
-                    "" :
-                    ",");
+            sb.append(i >= wheres.length - 1 ? "" : ",");
             i++;
         }
         print(DEL_DATA, sb.toString());
         mDb.execSQL(sb.toString());
+        close();
     }
 
     /**
      * 修改某行数据
      */
     protected void modifyData(DbEntity dbEntity) {
+        mDb = mHelper.getWritableDatabase();
         Class<?> clazz  = dbEntity.getClass();
         Field[]  fields = Util.getFields(clazz);
         if (fields != null && fields.length > 0) {
@@ -87,14 +101,12 @@ public class DbUtil {
                 if (ignore != null && ignore.value()) {
                     continue;
                 }
-                sb.append(i > 0 ?
-                        ", " :
-                        "");
+                sb.append(i > 0 ? ", " : "");
                 try {
                     sb.append(field.getName())
-                            .append(" = '")
-                            .append(field.get(dbEntity).toString())
-                            .append("'");
+                      .append(" = '")
+                      .append(field.get(dbEntity).toString())
+                      .append("'");
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -103,23 +115,28 @@ public class DbUtil {
             print(MODIFY_DATA, sb.toString());
             mDb.execSQL(sb.toString());
         }
+        close();
     }
 
     /**
      * 遍历所有数据
      */
-    protected Cursor findAllData(DbEntity dbEntity) {
+    protected <T extends DbEntity> List<T> findAllData(Class<T> clazz, DbEntity dbEntity) {
+        mDb = mHelper.getReadableDatabase();
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT rowid, * FROM ").append(Util.getClassName(dbEntity));
         print(FIND_ALL_DATA, sb.toString());
-        return mDb.rawQuery(sb.toString(), null);
+        Cursor cursor = mDb.rawQuery(sb.toString(), null);
+        return cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
     }
 
     /**
      * 条件查寻数据
      */
-    protected Cursor findData(DbEntity dbEntity, @NonNull Object[] wheres,
-                              @NonNull Object[] values) {
+    protected <T extends DbEntity> List<T> findData(Class<T> clazz, DbEntity dbEntity,
+                                                    @NonNull String[] wheres,
+                                                    @NonNull String[] values) {
+        mDb = mHelper.getReadableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
             Log.e(TAG, "请输入查询条件");
             return null;
@@ -132,19 +149,22 @@ public class DbUtil {
         int i = 0;
         for (Object where : wheres) {
             sb.append(where).append("=").append("'").append(values[i]).append("'");
-            sb.append(i >= wheres.length - 1 ?
-                    "" :
-                    ", ");
+            sb.append(i >= wheres.length - 1 ? "" : ", ");
             i++;
         }
         print(FIND_DATA, sb.toString());
-        return mDb.rawQuery(sb.toString(), null);
+        Cursor cursor = mDb.rawQuery(sb.toString(), null);
+        return cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
     }
 
     /**
      * 插入数据
      */
     protected void insertData(DbEntity dbEntity) {
+        mDb = mHelper.getWritableDatabase();
+        if (!tableExists(dbEntity)) {
+            createTable(dbEntity);
+        }
         Class<?> clazz  = dbEntity.getClass();
         Field[]  fields = Util.getFields(clazz);
         if (fields != null && fields.length > 0) {
@@ -157,9 +177,7 @@ public class DbUtil {
                 if (ignore != null && ignore.value()) {
                     continue;
                 }
-                sb.append(i > 0 ?
-                        ", " :
-                        "");
+                sb.append(i > 0 ? ", " : "");
                 sb.append(field.getName());
                 i++;
             }
@@ -171,9 +189,7 @@ public class DbUtil {
                 if (ignore != null && ignore.value()) {
                     continue;
                 }
-                sb.append(i > 0 ?
-                        ", " :
-                        "");
+                sb.append(i > 0 ? ", " : "");
                 sb.append("'");
                 try {
                     sb.append(field.get(dbEntity)).append("'");
@@ -186,12 +202,13 @@ public class DbUtil {
             print(INSERT_DATA, sb.toString());
             mDb.execSQL(sb.toString());
         }
+        close();
     }
 
     /**
      * 查找某张表是否存在
      */
-    protected boolean tableExists(DbEntity dbEntity) {
+    public boolean tableExists(DbEntity dbEntity) {
         Cursor cursor = null;
         try {
             StringBuilder sb = new StringBuilder();
@@ -217,19 +234,15 @@ public class DbUtil {
     /**
      * 创建表
      */
-    protected void createTable(DbEntity dbEntity) {
+    private void createTable(DbEntity dbEntity) {
         Field[] fields = Util.getFields(dbEntity.getClass());
         if (fields != null && fields.length > 0) {
             StringBuilder sb = new StringBuilder();
             sb.append("create table ").append(Util.getClassName(dbEntity)).append("(");
-            int i         = 0;
-            int ignoreNum = 0;
             for (Field field : fields) {
-                i++;
                 field.setAccessible(true);
                 Ignore ignore = field.getAnnotation(Ignore.class);
                 if (ignore != null && ignore.value()) {
-                    ignoreNum++;
                     continue;
                 }
                 sb.append(field.getName());
@@ -251,13 +264,12 @@ public class DbUtil {
                 } else {
                     sb.append(" blob");
                 }
-                sb.append(i >= fields.length - ignoreNum - 1 ?
-                        "" :
-                        ", ");
+                sb.append(",");
             }
-            sb.append(");");
-            print(CREATE_TABLE, sb.toString());
-            mDb.execSQL(sb.toString());
+            String str = sb.toString();
+            str = str.substring(0, str.length() - 1) + ");";
+            print(CREATE_TABLE, str);
+            mDb.execSQL(str);
         }
     }
 
@@ -294,25 +306,34 @@ public class DbUtil {
     /**
      * 关闭数据库
      */
-    protected void close() {
+    private void close() {
         if (mDb != null) {
             mDb.close();
         }
     }
 
     /**
-     * 获取所有行Id
+     * 获取所在行Id
      */
-    protected Cursor getRowId(DbEntity dbEntity) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT rowid, * FROM ").append(Util.getClassName(dbEntity));
-        return mDb.rawQuery(sb.toString(), null);
+    protected int[] getRowId(DbEntity dbEntity) {
+        mDb = mHelper.getReadableDatabase();
+        Cursor cursor = mDb.rawQuery("SELECT rowid, * FROM " + Util.getClassName(dbEntity), null);
+        int[]  ids    = new int[cursor.getCount()];
+        int    i      = 0;
+        while (cursor.moveToNext()) {
+            ids[i] = cursor.getInt(cursor.getColumnIndex("rowid"));
+            i++;
+        }
+        cursor.close();
+        close();
+        return ids;
     }
 
     /**
      * 获取行Id
      */
     protected int getRowId(DbEntity dbEntity, Object[] wheres, Object[] values) {
+        mDb = mHelper.getReadableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
             Log.e(TAG, "请输入删除条件");
             return -1;
@@ -325,15 +346,66 @@ public class DbUtil {
         int i = 0;
         for (Object where : wheres) {
             sb.append(where).append("=").append("'").append(values[i]).append("'");
-            sb.append(i >= wheres.length - 1 ?
-                    "" :
-                    ",");
+            sb.append(i >= wheres.length - 1 ? "" : ",");
             i++;
         }
         print(ROW_ID, sb.toString());
         Cursor c  = mDb.rawQuery(sb.toString(), null);
         int    id = c.getColumnIndex("rowid");
         c.close();
+        close();
         return id;
+    }
+
+    /**
+     * 根据数据游标创建一个具体的对象
+     */
+    private <T extends DbEntity> List<T> newInstanceEntity(Class<T> clazz, Cursor cursor) {
+        Field[] fields  = Util.getFields(clazz);
+        List<T> entitys = new ArrayList<>();
+        if (fields != null && fields.length > 0) {
+            try {
+                while (cursor.moveToNext()) {
+                    T entity = clazz.newInstance();
+                    for (Field field : fields) {
+                        field.setAccessible(true);
+                        Ignore ignore = field.getAnnotation(Ignore.class);
+                        if (ignore != null && ignore.value()) {
+                            continue;
+                        }
+                        Class<?> type   = field.getType();
+                        int      column = cursor.getColumnIndex(field.getName());
+                        if (type == String.class) {
+                            field.set(entity, cursor.getString(column));
+                        } else if (type == int.class || type == Integer.class) {
+                            field.setInt(entity, cursor.getInt(column));
+                        } else if (type == float.class || type == Float.class) {
+                            field.setFloat(entity, cursor.getFloat(column));
+                        } else if (type == double.class || type == Double.class) {
+                            field.setDouble(entity, cursor.getDouble(column));
+                        } else if (type == long.class || type == Long.class) {
+                            field.setLong(entity, cursor.getLong(column));
+                        } else if (type == boolean.class || type == Boolean.class) {
+                            field.setBoolean(entity,
+                                             !cursor.getString(column).equalsIgnoreCase("false"));
+                        } else if (type == java.util.Date.class || type == java.sql.Date.class) {
+                            field.set(entity, new Date(cursor.getString(column)));
+                        } else if (type == byte[].class) {
+                            field.set(entity, cursor.getBlob(column));
+                        }
+                        //                        field.set(entity, cursor.getColumnIndex("entity_id"));
+                    }
+                    entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
+                    entitys.add(entity);
+                }
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        cursor.close();
+        close();
+        return entitys;
     }
 }

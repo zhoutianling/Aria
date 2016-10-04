@@ -47,7 +47,7 @@ public class DownloadModule extends BaseModule {
      */
     public IntentFilter getDownloadFilter(){
         IntentFilter filter = new IntentFilter();
-        filter.addCategory(getContext().getPackageName());
+        filter.addDataScheme(getContext().getPackageName());
         filter.addAction(DownloadManager.ACTION_PRE);
         filter.addAction(DownloadManager.ACTION_RESUME);
         filter.addAction(DownloadManager.ACTION_START);

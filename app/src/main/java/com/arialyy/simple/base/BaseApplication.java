@@ -2,6 +2,7 @@ package com.arialyy.simple.base;
 
 import android.app.Application;
 
+import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.frame.core.AbsFrame;
 
 /**
@@ -11,5 +12,6 @@ public class BaseApplication extends Application {
     @Override public void onCreate() {
         super.onCreate();
         AbsFrame.init(this);
+        DownloadManager.init(this);
     }
 }

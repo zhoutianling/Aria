@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
  * 忽略某个字段
  */
 @Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Ignore {
-    boolean value() default false;
+    boolean value() default true;
 }

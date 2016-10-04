@@ -2,6 +2,7 @@ package com.arialyy.downloadutil.core;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 
@@ -39,7 +40,7 @@ public class Task {
                 listener = new DownloadListener(context, downloadEntity, outHandler);
             }
             util.download(context, downloadEntity.getDownloadUrl(),
-                    downloadEntity.getDownloadPath(), listener);
+                          downloadEntity.getDownloadPath(), listener);
         }
     }
 
@@ -86,8 +87,12 @@ public class Task {
             this.context = context;
             this.outHandler = outHandler;
             this.downloadEntity = downloadEntity;
-            sendIntent = new Intent();
-            sendIntent.addCategory(context.getPackageName());
+            sendIntent = new Intent(DownloadManager.ACTION_RUNNING);
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme(context.getPackageName());
+            Uri uri = builder.build();
+            sendIntent.setData(uri);
+
         }
 
         @Override public void onPreDownload(HttpURLConnection connection) {
@@ -116,6 +121,7 @@ public class Task {
             if (currentLocation - lastLen > INTERVAL) { //不要太过于频繁发送广播
                 sendIntent.putExtra(DownloadManager.ACTION_RUNNING, currentLocation);
                 lastLen = currentLocation;
+                context.sendBroadcast(sendIntent);
             }
         }
 
@@ -162,8 +168,11 @@ public class Task {
 
         private void sendIntent(String action, long location) {
             downloadEntity.save();
-            Intent intent = new Intent();
-            intent.addCategory(context.getPackageName());
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme(context.getPackageName());
+            Uri    uri    = builder.build();
+            Intent intent = new Intent(action);
+            intent.setData(uri);
             intent.putExtra(action, downloadEntity);
             if (location != -1) {
                 intent.putExtra(DownloadManager.CURRENT_LOCATION, location);
