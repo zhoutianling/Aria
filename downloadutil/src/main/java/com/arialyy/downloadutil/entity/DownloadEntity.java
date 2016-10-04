@@ -14,51 +14,45 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
     /**
      * 其它状态
      */
-    @Ignore
-    public static final int STATE_OTHER        = -1;
+    @Ignore public static final int STATE_OTHER        = -1;
     /**
      * 失败状态
      */
-    @Ignore
-    public static final int STATE_FAIL         = 0;
+    @Ignore public static final int STATE_FAIL         = 0;
     /**
      * 完成状态
      */
-    @Ignore
-    public static final int STATE_COMPLETE     = 1;
+    @Ignore public static final int STATE_COMPLETE     = 1;
     /**
      * 停止状态
      */
-    @Ignore
-    public static final int STATE_STOP         = 2;
+    @Ignore public static final int STATE_STOP         = 2;
     /**
      * 未开始状态
      */
-    @Ignore
-    public static final int STATE_WAIT         = 3;
+    @Ignore public static final int STATE_WAIT         = 3;
     /**
      * 下载中
      */
-    @Ignore
-    public static final int STATE_DOWNLOAD_ING = 4;
+    @Ignore public static final int STATE_DOWNLOAD_ING = 4;
     /**
      * 取消下载
      */
-    @Ignore
-    public static final int STATE_CANCEL       = 5;
+    @Ignore public static final int STATE_CANCEL       = 5;
 
-    private String downloadUrl; //下载路径
-    private String downloadPath;    //保存路径
-    private String fileName;        //文件名
-    private String str;             //其它字段
-    private long   completeTime;  //完成时间
+    private String downloadUrl  = ""; //下载路径
+    private String downloadPath = "";    //保存路径
+    private String fileName     = "";        //文件名
+    private String str          = "";             //其它字段
+    private long completeTime;  //完成时间
     private long    fileSize           = 1;
     private int     state              = STATE_WAIT;
     private boolean isDownloadComplete = false;   //是否下载完成
     private long    currentProgress    = 0;    //当前下载进度
     private int     failNum            = 0;
 
-    public DownloadEntity(){}
+    public DownloadEntity() {
+    }
 
     public String getStr() {
         return str;
@@ -154,9 +148,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
         dest.writeLong(this.completeTime);
         dest.writeLong(this.fileSize);
         dest.writeInt(this.state);
-        dest.writeByte(this.isDownloadComplete ?
-                (byte) 1 :
-                (byte) 0);
+        dest.writeByte(this.isDownloadComplete ? (byte) 1 : (byte) 0);
         dest.writeLong(this.currentProgress);
         dest.writeInt(this.failNum);
     }
@@ -172,8 +164,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
         this.failNum = in.readInt();
     }
 
-    @Ignore
-    public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
+    @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
         @Override public DownloadEntity createFromParcel(Parcel source) {
             return new DownloadEntity(source);
         }

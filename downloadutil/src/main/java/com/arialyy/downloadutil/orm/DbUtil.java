@@ -149,7 +149,7 @@ public class DbUtil {
         int i = 0;
         for (Object where : wheres) {
             sb.append(where).append("=").append("'").append(values[i]).append("'");
-            sb.append(i >= wheres.length - 1 ? "" : ", ");
+            sb.append(i >= wheres.length - 1 ? "" : " AND ");
             i++;
         }
         print(FIND_DATA, sb.toString());
@@ -208,7 +208,7 @@ public class DbUtil {
     /**
      * 查找某张表是否存在
      */
-    public boolean tableExists(DbEntity dbEntity) {
+    public synchronized boolean tableExists(DbEntity dbEntity) {
         Cursor cursor = null;
         try {
             StringBuilder sb = new StringBuilder();

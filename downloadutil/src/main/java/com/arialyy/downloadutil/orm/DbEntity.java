@@ -2,6 +2,8 @@ package com.arialyy.downloadutil.orm;
 
 import android.support.annotation.NonNull;
 
+import com.arialyy.downloadutil.util.Util;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,8 +59,8 @@ public class DbEntity {
     /**
      * 保存自身，如果表中已经有数据，则更新数据，否则插入数据
      */
-    public void save() {
-        if (thisIsExist()) {
+    public synchronized void save() {
+        if (mUtil.tableExists(this) && thisIsExist()) {
             update();
         } else {
             insert();
@@ -70,7 +72,7 @@ public class DbEntity {
      */
     private boolean thisIsExist() {
         try {
-            Field[]      fields = getClass().getFields();
+            Field[]      fields = Util.getFields(getClass());
             List<String> where  = new ArrayList<>();
             List<String> values = new ArrayList<>();
             for (Field field : fields) {
@@ -80,10 +82,10 @@ public class DbEntity {
                     continue;
                 }
                 where.add(field.getName());
-                values.add((String) field.get(getClass()));
+                values.add(field.get(this) + "");
             }
-            return findData(getClass(), (String[]) where.toArray(),
-                            (String[]) values.toArray()) != null;
+            return findData(getClass(), where.toArray(new String[where.size()]),
+                            values.toArray(new String[values.size()])) != null;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
@@ -124,6 +126,6 @@ public class DbEntity {
     public <T extends DbEntity> T findData(Class<T> clazz, @NonNull String[] wheres,
                                            @NonNull String[] values) {
         List<T> datas = mUtil.findData(clazz, this, wheres, values);
-        return datas.size() > 0 ? datas.get(0) : null;
+        return datas == null ? null : datas.size() > 0 ? datas.get(0) : null;
     }
 }
