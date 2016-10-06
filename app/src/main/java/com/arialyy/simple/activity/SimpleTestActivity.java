@@ -53,38 +53,48 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
             switch (msg.what) {
                 case DOWNLOAD_PRE:
                     mSize.setText(Util.formatFileSize((Long) msg.obj));
-                    mStart.setEnabled(false);
+                    setBtState(false);
                     break;
                 case DOWNLOAD_FAILE:
                     Toast.makeText(SimpleTestActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
+                    setBtState(true);
                     break;
                 case DOWNLOAD_STOP:
                     Toast.makeText(SimpleTestActivity.this, "暂停下载", Toast.LENGTH_SHORT).show();
                     mStart.setText("恢复");
-                    mStart.setEnabled(true);
+                    setBtState(true);
                     break;
                 case DOWNLOAD_CANCEL:
                     mPb.setProgress(0);
                     Toast.makeText(SimpleTestActivity.this, "取消下载", Toast.LENGTH_SHORT).show();
-                    mStart.setEnabled(true);
                     mStart.setText("开始");
+                    setBtState(true);
                     break;
                 case DOWNLOAD_RESUME:
                     Toast.makeText(SimpleTestActivity.this,
                                    "恢复下载，恢复位置 ==> " + Util.formatFileSize((Long) msg.obj),
                                    Toast.LENGTH_SHORT).show();
-                    mStart.setEnabled(false);
+                    setBtState(false);
                     break;
                 case DOWNLOAD_COMPLETE:
                     Toast.makeText(SimpleTestActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
-                    mStart.setText("重新开始");
-                    mStart.setEnabled(true);
+                    mStart.setText("重新开始？");
                     mCancel.setEnabled(false);
-                    mStop.setEnabled(false);
+                    setBtState(true);
                     break;
             }
         }
     };
+
+    /**
+     * 设置start 和 stop 按钮状态
+     *
+     * @param state
+     */
+    private void setBtState(boolean state) {
+        mStart.setEnabled(state);
+        mStop.setEnabled(!state);
+    }
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         long len = 0;
@@ -170,6 +180,12 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
         if (mEntity != null) {
             mPb.setProgress((int) ((mEntity.getCurrentProgress() * 100) / mEntity.getFileSize()));
             mSize.setText(Util.formatFileSize(mEntity.getFileSize()));
+            if (mEntity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
+                setBtState(false);
+            } else if (mEntity.isDownloadComplete()) {
+                mStart.setText("重新开始？");
+                setBtState(true);
+            }
         } else {
             mEntity = new DownloadEntity();
         }

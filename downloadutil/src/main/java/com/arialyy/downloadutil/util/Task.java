@@ -192,6 +192,7 @@ public class Task {
         }
 
         private void sendIntent(String action, long location) {
+            downloadEntity.setDownloadComplete(action.equals(DownloadManager.ACTION_COMPLETE));
             downloadEntity.setCurrentProgress(location);
             downloadEntity.update();
             Uri.Builder builder = new Uri.Builder();

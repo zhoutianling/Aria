@@ -24,14 +24,14 @@ public class DbEntity {
      * 获取所有行的rowid
      */
     public int[] getRowId() {
-        return mUtil.getRowId(this);
+        return mUtil.getRowId(getClass());
     }
 
     /**
      * 获取rowid
      */
     public int getRowId(@NonNull Object[] wheres, @NonNull Object[] values) {
-        return mUtil.getRowId(this, wheres, values);
+        return mUtil.getRowId(getClass(), wheres, values);
     }
 
     /**
@@ -60,7 +60,7 @@ public class DbEntity {
      * 保存自身，如果表中已经有数据，则更新数据，否则插入数据
      */
     public synchronized void save() {
-        if (mUtil.tableExists(this) && thisIsExist()) {
+        if (mUtil.tableExists(getClass()) && thisIsExist()) {
             update();
         } else {
             insert();

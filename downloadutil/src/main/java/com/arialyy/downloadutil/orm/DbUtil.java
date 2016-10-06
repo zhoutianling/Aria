@@ -62,7 +62,8 @@ public class DbUtil {
     /**
      * 删除某条数据
      */
-    protected void delData(Class clazz, @NonNull Object[] wheres, @NonNull Object[] values) {
+    protected <T extends DbEntity> void delData(Class<T> clazz, @NonNull Object[] wheres,
+            @NonNull Object[] values) {
         mDb = mHelper.getWritableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
             Log.e(TAG, "输入删除条件");
@@ -134,7 +135,10 @@ public class DbUtil {
      * 条件查寻数据
      */
     protected <T extends DbEntity> List<T> findData(Class<T> clazz, @NonNull String[] wheres,
-                                                    @NonNull String[] values) {
+            @NonNull String[] values) {
+        if (!tableExists(clazz)) {
+            createTable(clazz);
+        }
         mDb = mHelper.getReadableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
             Log.e(TAG, "请输入查询条件");
@@ -160,12 +164,12 @@ public class DbUtil {
      * 插入数据
      */
     protected void insertData(DbEntity dbEntity) {
-        if (!tableExists(dbEntity)) {
-            createTable(dbEntity);
+        Class<?> clazz = dbEntity.getClass();
+        if (!tableExists(clazz)) {
+            createTable(clazz);
         }
         mDb = mHelper.getWritableDatabase();
-        Class<?> clazz  = dbEntity.getClass();
-        Field[]  fields = Util.getFields(clazz);
+        Field[] fields = Util.getFields(clazz);
         if (fields != null && fields.length > 0) {
             StringBuilder sb = new StringBuilder();
             sb.append("INSERT INTO ").append(Util.getClassName(dbEntity)).append("(");
@@ -207,7 +211,7 @@ public class DbUtil {
     /**
      * 查找某张表是否存在
      */
-    public synchronized boolean tableExists(DbEntity dbEntity) {
+    public synchronized boolean tableExists(Class clazz) {
         if (mDb == null || !mDb.isOpen()) {
             mDb = mHelper.getReadableDatabase();
         }
@@ -215,7 +219,7 @@ public class DbUtil {
         try {
             StringBuilder sb = new StringBuilder();
             sb.append("SELECT COUNT(*) AS c FROM sqlite_master WHERE type ='table' AND name ='");
-            sb.append(Util.getClassName(dbEntity));
+            sb.append(Util.getClassName(clazz));
             sb.append("'");
             print(TABLE_EXISTS, sb.toString());
             cursor = mDb.rawQuery(sb.toString(), null);
@@ -237,14 +241,14 @@ public class DbUtil {
     /**
      * 创建表
      */
-    private void createTable(DbEntity dbEntity) {
+    private void createTable(Class clazz) {
         if (mDb == null || !mDb.isOpen()) {
             mDb = mHelper.getWritableDatabase();
         }
-        Field[] fields = Util.getFields(dbEntity.getClass());
+        Field[] fields = Util.getFields(clazz);
         if (fields != null && fields.length > 0) {
             StringBuilder sb = new StringBuilder();
-            sb.append("create table ").append(Util.getClassName(dbEntity)).append("(");
+            sb.append("create table ").append(Util.getClassName(clazz)).append("(");
             for (Field field : fields) {
                 field.setAccessible(true);
                 Ignore ignore = field.getAnnotation(Ignore.class);
@@ -322,9 +326,9 @@ public class DbUtil {
     /**
      * 获取所在行Id
      */
-    protected int[] getRowId(DbEntity dbEntity) {
+    protected int[] getRowId(Class clazz) {
         mDb = mHelper.getReadableDatabase();
-        Cursor cursor = mDb.rawQuery("SELECT rowid, * FROM " + Util.getClassName(dbEntity), null);
+        Cursor cursor = mDb.rawQuery("SELECT rowid, * FROM " + Util.getClassName(clazz), null);
         int[]  ids    = new int[cursor.getCount()];
         int    i      = 0;
         while (cursor.moveToNext()) {
@@ -339,7 +343,7 @@ public class DbUtil {
     /**
      * 获取行Id
      */
-    protected int getRowId(DbEntity dbEntity, Object[] wheres, Object[] values) {
+    protected int getRowId(Class clazz, Object[] wheres, Object[] values) {
         mDb = mHelper.getReadableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
             Log.e(TAG, "请输入删除条件");
@@ -349,7 +353,7 @@ public class DbUtil {
             return -1;
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT rowid FROM ").append(Util.getClassName(dbEntity)).append(" WHERE ");
+        sb.append("SELECT rowid FROM ").append(Util.getClassName(clazz)).append(" WHERE ");
         int i = 0;
         for (Object where : wheres) {
             sb.append(where).append("=").append("'").append(values[i]).append("'");
