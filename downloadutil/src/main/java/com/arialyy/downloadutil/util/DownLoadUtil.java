@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.arialyy.downloadutil.entity.DownloadEntity;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +20,7 @@ import java.util.Properties;
  * Created by lyy on 2015/8/25.
  * 下载工具类
  */
-public class DownLoadUtil {
+final class DownLoadUtil {
     private static final String TAG = "DownLoadUtil";
     //下载监听
     private IDownloadListener mListener;
@@ -38,8 +40,13 @@ public class DownLoadUtil {
     boolean isNewTask = true;
     private int mCancelNum = 0;
     private int mStopNum   = 0;
+    private Context        mContext;
+    private DownloadEntity mDownloadEntity;
 
-    public DownLoadUtil() {
+
+    public DownLoadUtil(Context context, DownloadEntity entity) {
+        mContext = context.getApplicationContext();
+        mDownloadEntity = entity;
     }
 
     public IDownloadListener getListener() {
@@ -72,26 +79,49 @@ public class DownLoadUtil {
     }
 
     /**
+     * 删除下载记录文件
+     */
+    public void delConfigFile() {
+        if (mContext != null && mDownloadEntity != null) {
+            File dFile = new File(mDownloadEntity.getDownloadPath());
+            File config = new File(
+                    mContext.getFilesDir().getPath() + "/temp/" + dFile.getName() + ".properties");
+            if (config.exists()) {
+                config.delete();
+            }
+        }
+    }
+
+    /**
+     * 删除temp文件
+     */
+    public void delTempFile() {
+        if (mContext != null && mDownloadEntity != null) {
+            File dFile = new File(mDownloadEntity.getDownloadPath());
+            if (dFile.exists()) {
+                dFile.delete();
+            }
+        }
+    }
+
+    /**
      * 多线程断点续传下载文件，暂停和继续
      *
-     * @param context          必须添加该参数，不能使用全局变量的context
-     * @param downloadUrl      下载路径
-     * @param filePath         保存路径
      * @param downloadListener 下载进度监听 {@link DownloadListener}
      */
-    public void download(final Context context, @NonNull final String downloadUrl,
-                         @NonNull final String filePath,
-                         @NonNull final IDownloadListener downloadListener) {
+    public void start(@NonNull final IDownloadListener downloadListener) {
         isDownloading = true;
         mCurrentLocation = 0;
         isStop = false;
         isCancel = false;
         mCancelNum = 0;
         mStopNum = 0;
-        final File dFile = new File(filePath);
+        final String filePath    = mDownloadEntity.getDownloadPath();
+        final String downloadUrl = mDownloadEntity.getDownloadUrl();
+        final File   dFile       = new File(filePath);
         //读取已完成的线程数
         final File configFile = new File(
-                context.getFilesDir().getPath() + "/temp/" + dFile.getName() + ".properties");
+                mContext.getFilesDir().getPath() + "/temp/" + dFile.getName() + ".properties");
         try {
             if (!configFile.exists()) { //记录文件被删除，则重新下载
                 isNewTask = true;
@@ -149,8 +179,8 @@ public class DownLoadUtil {
                                 }
                             }
                         }
-                        int                 blockSize = fileLength / THREAD_NUM;
                         SparseArray<Thread> tasks     = new SparseArray<>();
+                        int                 blockSize = fileLength / THREAD_NUM;
                         int[]               recordL   = new int[THREAD_NUM];
                         int                 rl        = 0;
                         for (int i = 0; i < THREAD_NUM; i++) {
@@ -194,11 +224,12 @@ public class DownLoadUtil {
                                 rl++;
                             }
                             if (i == (THREAD_NUM - 1)) {
-                                endL = fileLength;//如果整个文件的大小不为线程个数的整数倍，则最后一个线程的结束位置即为文件的总长度
+                                //如果整个文件的大小不为线程个数的整数倍，则最后一个线程的结束位置即为文件的总长度
+                                endL = fileLength;
                             }
-                            DownloadEntity entity = new DownloadEntity(context, fileLength,
-                                                                       downloadUrl, dFile, i,
-                                                                       startL, endL);
+                            ConfigEntity entity = new ConfigEntity(mContext, fileLength,
+                                                                   downloadUrl, dFile, i, startL,
+                                                                   endL);
                             DownLoadTask task = new DownLoadTask(entity);
                             tasks.put(i, new Thread(task));
                         }
@@ -238,13 +269,13 @@ public class DownLoadUtil {
      */
     private class DownLoadTask implements Runnable {
         private static final String TAG = "DownLoadTask";
-        private DownloadEntity dEntity;
-        private String         configFPath;
+        private ConfigEntity dEntity;
+        private String       configFPath;
 
-        public DownLoadTask(DownloadEntity downloadInfo) {
+        public DownLoadTask(ConfigEntity downloadInfo) {
             this.dEntity = downloadInfo;
             configFPath = dEntity.context.getFilesDir()
-                                         .getPath() + "/temp/" + dEntity.tempFile.getName() + ".properties";
+                    .getPath() + "/temp/" + dEntity.tempFile.getName() + ".properties";
         }
 
         @Override public void run() {
@@ -392,7 +423,7 @@ public class DownLoadUtil {
     /**
      * 子线程下载信息类
      */
-    private class DownloadEntity {
+    private class ConfigEntity {
         //文件大小
         long    fileSize;
         String  downloadUrl;
@@ -402,8 +433,8 @@ public class DownLoadUtil {
         File    tempFile;
         Context context;
 
-        public DownloadEntity(Context context, long fileSize, String downloadUrl, File file,
-                              int threadId, long startLocation, long endLocation) {
+        public ConfigEntity(Context context, long fileSize, String downloadUrl, File file,
+                int threadId, long startLocation, long endLocation) {
             this.fileSize = fileSize;
             this.downloadUrl = downloadUrl;
             this.tempFile = file;

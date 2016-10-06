@@ -19,6 +19,7 @@ class StateCommand extends IDownloadCommand {
     }
 
     @Override public void executeComment() {
+
         target.getTaskState(mEntity);
     }
 }

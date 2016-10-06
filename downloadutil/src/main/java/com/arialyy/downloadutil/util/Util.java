@@ -104,6 +104,17 @@ public class Util {
     }
 
     /**
+     * 获取对象名
+     *
+     * @param clazz clazz
+     * @return 对象名
+     */
+    public static String getClassName(Class clazz) {
+        String arrays[] = clazz.getName().split("\\.");
+        return arrays[arrays.length - 1];
+    }
+
+    /**
      * 格式化文件大小
      *
      * @param size file.length() 获取文件大小

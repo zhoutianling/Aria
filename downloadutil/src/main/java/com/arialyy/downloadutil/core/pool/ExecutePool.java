@@ -3,7 +3,7 @@ package com.arialyy.downloadutil.core.pool;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.arialyy.downloadutil.core.Task;
+import com.arialyy.downloadutil.util.Task;
 import com.arialyy.downloadutil.core.inf.IPool;
 import com.arialyy.downloadutil.util.Util;
 
@@ -70,10 +70,7 @@ public class ExecutePool implements IPool {
     private boolean putNewTask(Task newTask) {
         String  url = newTask.getDownloadEntity().getDownloadUrl();
         boolean s   = mExecuteQueue.offer(newTask);
-        Log.w(TAG, "任务添加" + (s ?
-                "成功" :
-                "失败，【" + url + "】"
-        ));
+        Log.w(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
         if (s) {
             newTask.start();
             mExecuteArray.put(Util.keyToHashKey(url), newTask);

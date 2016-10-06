@@ -3,7 +3,7 @@ package com.arialyy.downloadutil.core.pool;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.arialyy.downloadutil.core.Task;
+import com.arialyy.downloadutil.util.Task;
 import com.arialyy.downloadutil.core.inf.IPool;
 import com.arialyy.downloadutil.util.Util;
 
@@ -45,14 +45,11 @@ public class CachePool implements IPool {
             }
             String url = task.getDownloadEntity().getDownloadUrl();
             if (mCacheQueue.contains(task)) {
-                Log.e(TAG, "队列中已经包含了该任务，任务下载链接【" + url + "】");
+                Log.w(TAG, "队列中已经包含了该任务，任务下载链接【" + url + "】");
                 return false;
             } else {
-                boolean s = mCacheQueue.offer(task);
-                Log.w(TAG, "任务添加" + (s ?
-                        "成功" :
-                        "失败，【" + url + "】"
-                ));
+                 boolean s = mCacheQueue.offer(task);
+                Log.d(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
                 if (s) {
                     mCacheArray.put(Util.keyToHashKey(url), task);
                 }

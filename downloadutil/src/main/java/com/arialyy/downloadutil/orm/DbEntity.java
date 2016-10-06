@@ -38,14 +38,14 @@ public class DbEntity {
      * 删除当前数据
      */
     public void deleteData() {
-        mUtil.delData(this, new Object[]{"rowid"}, new Object[]{rowID});
+        mUtil.delData(getClass(), new Object[]{"rowid"}, new Object[]{rowID});
     }
 
     /**
      * 根据条件删除数据
      */
     public void deleteData(@NonNull Object[] wheres, @NonNull Object[] values) {
-        mUtil.delData(this, wheres, values);
+        mUtil.delData(getClass(), wheres, values);
     }
 
     /**
@@ -104,8 +104,9 @@ public class DbEntity {
      *
      * @return 没有数据返回null
      */
-    public <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
-        return mUtil.findAllData(clazz, this);
+    public static <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
+        DbUtil util = DbUtil.getInstance();
+        return util.findAllData(clazz);
     }
 
     /**
@@ -113,9 +114,10 @@ public class DbEntity {
      *
      * @return 没有数据返回null
      */
-    public <T extends DbEntity> List<T> findDatas(Class<T> clazz, @NonNull String[] wheres,
-                                                  @NonNull String[] values) {
-        return mUtil.findData(clazz, this, wheres, values);
+    public static <T extends DbEntity> List<T> findDatas(Class<T> clazz, @NonNull String[] wheres,
+            @NonNull String[] values) {
+        DbUtil util = DbUtil.getInstance();
+        return util.findData(clazz, wheres, values);
     }
 
     /**
@@ -123,9 +125,10 @@ public class DbEntity {
      *
      * @return 没有数据返回null
      */
-    public <T extends DbEntity> T findData(Class<T> clazz, @NonNull String[] wheres,
-                                           @NonNull String[] values) {
-        List<T> datas = mUtil.findData(clazz, this, wheres, values);
+    public static <T extends DbEntity> T findData(Class<T> clazz, @NonNull String[] wheres,
+            @NonNull String[] values) {
+        DbUtil  util  = DbUtil.getInstance();
+        List<T> datas = util.findData(clazz, wheres, values);
         return datas == null ? null : datas.size() > 0 ? datas.get(0) : null;
     }
 }

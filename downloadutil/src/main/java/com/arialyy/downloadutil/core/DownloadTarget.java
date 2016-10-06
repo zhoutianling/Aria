@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.arialyy.downloadutil.entity.DownloadEntity;
+import com.arialyy.downloadutil.util.Task;
 
 /**
  * Created by lyy on 2016/8/17.
@@ -53,13 +54,13 @@ public class DownloadTarget extends IDownloadTarget {
     }
 
     @Override public void cancelTask(Task task) {
-        if (mExecutePool.removeTask(task)) {
+        if (mExecutePool.removeTask(task) || mCachePool.removeTask(task)) {
             task.cancel();
         }
     }
 
     @Override public void reTryStart(Task task) {
-        if (!task.getDownloadUtil().isDownloading()) {
+        if (!task.isDownloading()) {
             task.start();
         } else {
             Log.w(TAG, "任务没有完全停止，重试下载失败");
@@ -76,9 +77,6 @@ public class DownloadTarget extends IDownloadTarget {
         Task task = mExecutePool.getTask(entity.getDownloadUrl());
         if (task == null) {
             task = mCachePool.getTask(entity.getDownloadUrl());
-        }
-        if (task == null) {
-            task = createTask(entity);
         }
         return task;
     }

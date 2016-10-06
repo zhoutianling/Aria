@@ -5,6 +5,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.arialyy.downloadutil.core.command.IDownloadCommand;
+import com.arialyy.downloadutil.entity.DownloadEntity;
+import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.orm.DbUtil;
 
 import java.util.ArrayList;
@@ -100,6 +102,10 @@ public class DownloadManager {
             throw new NullPointerException("请在Application中调用init进行下载器注册");
         }
         return INSTANCE;
+    }
+
+    public List<DownloadEntity> getAllDownloadEntity(){
+        return DbEntity.findAllData(DownloadEntity.class);
     }
 
     /**

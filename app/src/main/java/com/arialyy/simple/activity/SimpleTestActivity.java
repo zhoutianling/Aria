@@ -1,6 +1,5 @@
 package com.arialyy.simple.activity;
 
-import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -19,10 +18,8 @@ import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.command.CommandFactory;
 import com.arialyy.downloadutil.core.command.IDownloadCommand;
 import com.arialyy.downloadutil.entity.DownloadEntity;
-import com.arialyy.downloadutil.util.DownLoadUtil;
+import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.util.Util;
-import com.arialyy.frame.permission.OnPermissionCallback;
-import com.arialyy.frame.permission.PermissionManager;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
@@ -43,10 +40,12 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
     private static final int DOWNLOAD_COMPLETE = 0x06;
     private ProgressBar mPb;
     private String mDownloadUrl = "http://static.gaoshouyou.com/d/12/0d/7f120f50c80d2e7b8c4ba24ece4f9cdd.apk";
-    private DownLoadUtil mUtil;
-    private Button       mStart, mStop, mCancel;
-    private             TextView mSize;
-    @Bind(R.id.toolbar) Toolbar  toolbar;
+    private Button mStart, mStop, mCancel;
+    private             TextView        mSize;
+    @Bind(R.id.toolbar) Toolbar         toolbar;
+    private             CommandFactory  mFactory;
+    private             DownloadManager mManager;
+    private             DownloadEntity  mEntity;
 
     private Handler mUpdateHandler = new Handler() {
         @Override public void handleMessage(Message msg) {
@@ -72,12 +71,13 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
                     break;
                 case DOWNLOAD_RESUME:
                     Toast.makeText(SimpleTestActivity.this,
-                            "恢复下载，恢复位置 ==> " + Util.formatFileSize((Long) msg.obj),
-                            Toast.LENGTH_SHORT).show();
+                                   "恢复下载，恢复位置 ==> " + Util.formatFileSize((Long) msg.obj),
+                                   Toast.LENGTH_SHORT).show();
                     mStart.setEnabled(false);
                     break;
                 case DOWNLOAD_COMPLETE:
                     Toast.makeText(SimpleTestActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
+                    mStart.setText("重新开始");
                     mStart.setEnabled(true);
                     mCancel.setEnabled(false);
                     mStop.setEnabled(false);
@@ -96,12 +96,15 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
                     DownloadEntity entity = intent.getParcelableExtra(DownloadManager.ACTION_PRE);
                     len = entity.getFileSize();
                     L.d(TAG, "download pre");
+                    mUpdateHandler.obtainMessage(DOWNLOAD_PRE, len).sendToTarget();
                     break;
                 case DownloadManager.ACTION_START:
                     L.d(TAG, "download start");
                     break;
                 case DownloadManager.ACTION_RESUME:
                     L.d(TAG, "download resume");
+                    long location = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 1);
+                    mUpdateHandler.obtainMessage(DOWNLOAD_RESUME, location).sendToTarget();
                     break;
                 case DownloadManager.ACTION_RUNNING:
                     long current = intent.getLongExtra(DownloadManager.ACTION_RUNNING, 0);
@@ -113,6 +116,16 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
                     break;
                 case DownloadManager.ACTION_STOP:
                     L.d(TAG, "download stop");
+                    mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
+                    break;
+                case DownloadManager.ACTION_COMPLETE:
+                    mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
+                    break;
+                case DownloadManager.ACTION_CANCEL:
+                    mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
+                    break;
+                case DownloadManager.ACTION_FAIL:
+                    mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
                     break;
             }
         }
@@ -141,6 +154,7 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
         super.init(savedInstanceState);
         setSupportActionBar(toolbar);
         init();
+
     }
 
     private void init() {
@@ -149,7 +163,16 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
         mStop = (Button) findViewById(R.id.stop);
         mCancel = (Button) findViewById(R.id.cancel);
         mSize = (TextView) findViewById(R.id.size);
-        mUtil = new DownLoadUtil();
+        mFactory = CommandFactory.getInstance();
+        mManager = DownloadManager.getInstance();
+        mEntity = DbEntity.findData(DownloadEntity.class, new String[]{"downloadUrl"},
+                                    new String[]{mDownloadUrl});
+        if (mEntity != null) {
+            mPb.setProgress((int) ((mEntity.getCurrentProgress() * 100) / mEntity.getFileSize()));
+            mSize.setText(Util.formatFileSize(mEntity.getFileSize()));
+        } else {
+            mEntity = new DownloadEntity();
+        }
     }
 
     public void onClick(View view) {
@@ -181,30 +204,29 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
         }
     }
 
-    DownloadEntity entity = new DownloadEntity();
-
     private void start() {
-        entity.setFileName("test.apk");
-        entity.setDownloadUrl(mDownloadUrl);
-        entity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
+        mEntity.setFileName("test.apk");
+        mEntity.setDownloadUrl(mDownloadUrl);
+        mEntity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
         List<IDownloadCommand> commands = new ArrayList<>();
-        IDownloadCommand addCommand = CommandFactory.getInstance()
-                .createCommand(this, entity, CommandFactory.TASK_CREATE);
-        IDownloadCommand startCommand = CommandFactory.getInstance()
-                .createCommand(this, entity, CommandFactory.TASK_START);
+        IDownloadCommand addCommand = mFactory.createCommand(this, mEntity,
+                                                             CommandFactory.TASK_CREATE);
+        IDownloadCommand startCommand = mFactory.createCommand(this, mEntity,
+                                                               CommandFactory.TASK_START);
         commands.add(addCommand);
         commands.add(startCommand);
-        DownloadManager.getInstance().setCommands(commands).exe();
+        mManager.setCommands(commands).exe();
     }
 
     private void stop() {
-//        mUtil.stopDownload();
-        IDownloadCommand stopCommand = CommandFactory.getInstance()
-                .createCommand(this, entity, CommandFactory.TASK_STOP);
-        DownloadManager.getInstance().setCommand(stopCommand).exe();
+        IDownloadCommand stopCommand = mFactory.createCommand(this, mEntity,
+                                                              CommandFactory.TASK_STOP);
+        mManager.setCommand(stopCommand).exe();
     }
 
     private void cancel() {
-        mUtil.cancelDownload();
+        IDownloadCommand cancelCommand = mFactory.createCommand(this, mEntity,
+                                                                CommandFactory.TASK_CANCEL);
+        mManager.setCommand(cancelCommand).exe();
     }
 }

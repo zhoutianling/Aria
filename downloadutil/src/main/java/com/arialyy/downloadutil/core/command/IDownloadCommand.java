@@ -6,6 +6,7 @@ import com.arialyy.downloadutil.core.DownloadTarget;
 import com.arialyy.downloadutil.core.IDownloadTarget;
 import com.arialyy.downloadutil.entity.DownloadEntity;
 import com.arialyy.downloadutil.help.CheckHelp;
+import com.arialyy.downloadutil.util.Util;
 
 /**
  * Created by lyy on 2016/8/22.
@@ -15,6 +16,7 @@ public abstract class IDownloadCommand {
     protected IDownloadTarget target;
     protected Context         mContext;
     protected DownloadEntity  mEntity;
+    protected String          TAG;
 
     /**
      * @param context context
@@ -27,6 +29,7 @@ public abstract class IDownloadCommand {
         target = DownloadTarget.getInstance();
         mContext = context;
         mEntity = entity;
+        TAG = Util.getClassName(this);
     }
 
     public Context getContext() {

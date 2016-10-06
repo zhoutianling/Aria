@@ -7,7 +7,7 @@
 //import android.database.sqlite.SQLiteOpenHelper;
 //import android.support.annotation.NonNull;
 //
-//import com.arialyy.downloadutil.entity.DownloadEntity;
+//import com.arialyy.downloadutil.entity.ConfigEntity;
 //
 //import java.util.ArrayList;
 //import java.util.List;
@@ -50,8 +50,8 @@
 //    /**
 //     * 获取所有下载实体
 //     */
-//    public List<DownloadEntity> getAllEntity(@NonNull SQLiteDatabase db) {
-//        List<DownloadEntity> list = new ArrayList<>();
+//    public List<ConfigEntity> getAllEntity(@NonNull SQLiteDatabase db) {
+//        List<ConfigEntity> list = new ArrayList<>();
 //        Cursor               c    = db.query(TABLE_NAME, null, null, null, null, null, null);
 //        if (c.moveToFirst()) {
 //            while (c.moveToNext()) {
@@ -65,7 +65,7 @@
 //    /**
 //     * 更新下载实体
 //     */
-//    public void updateEntity(@NonNull SQLiteDatabase db, DownloadEntity entity) {
+//    public void updateEntity(@NonNull SQLiteDatabase db, ConfigEntity entity) {
 //        String   whereClause = "url=?";
 //        String[] whereArgs   = {entity.getDownloadUrl()};
 //        db.update(TABLE_NAME, createCv(entity), whereClause, whereArgs);
@@ -74,7 +74,7 @@
 //    /**
 //     * 删除下载实体
 //     */
-//    public void delEntity(@NonNull SQLiteDatabase db, DownloadEntity entity) {
+//    public void delEntity(@NonNull SQLiteDatabase db, ConfigEntity entity) {
 //        delEntity(db, entity.getDownloadUrl());
 //    }
 //
@@ -93,8 +93,8 @@
 //     * @param downloadUrl
 //     * @return
 //     */
-//    public DownloadEntity findEntity(@NonNull SQLiteDatabase db, @NonNull String downloadUrl) {
-//        DownloadEntity entity;
+//    public ConfigEntity findEntity(@NonNull SQLiteDatabase db, @NonNull String downloadUrl) {
+//        ConfigEntity entity;
 //        String         sql = "select * from " + TABLE_NAME + "where url=?";
 //        Cursor         c   = db.rawQuery(sql, new String[]{downloadUrl});
 //        if (c.getCount() <= 0) {
@@ -113,8 +113,8 @@
 //     *
 //     * @param entity
 //     */
-//    public void savaEntity(@NonNull SQLiteDatabase db, @NonNull DownloadEntity entity) {
-//        DownloadEntity temp = findEntity(db, entity.getDownloadUrl());
+//    public void savaEntity(@NonNull SQLiteDatabase db, @NonNull ConfigEntity entity) {
+//        ConfigEntity temp = findEntity(db, entity.getDownloadUrl());
 //        if (temp == null) {
 //            db.insert(TABLE_NAME, null, createCv(entity));
 //        } else {
@@ -128,9 +128,9 @@
 //     * @param c
 //     * @return
 //     */
-//    private DownloadEntity cursor2Entity(Cursor c) {
-//        DownloadEntity entity;
-//        entity = new DownloadEntity();
+//    private ConfigEntity cursor2Entity(Cursor c) {
+//        ConfigEntity entity;
+//        entity = new ConfigEntity();
 //        entity.setDownloadUrl(c.getString(c.getColumnIndex("url")));
 //        entity.setDownloadPath(c.getString(c.getColumnIndex("path")));
 //        entity.setCompleteTime(c.getLong(c.getColumnIndex("completeTime")));
@@ -148,7 +148,7 @@
 //     * @param entity
 //     * @return
 //     */
-//    private ContentValues createCv(@NonNull DownloadEntity entity) {
+//    private ContentValues createCv(@NonNull ConfigEntity entity) {
 //        ContentValues cv = new ContentValues();
 //        cv.put("url", entity.getDownloadUrl());
 //        cv.put("path", entity.getDownloadPath());

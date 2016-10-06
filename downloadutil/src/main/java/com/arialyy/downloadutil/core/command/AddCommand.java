@@ -1,7 +1,9 @@
 package com.arialyy.downloadutil.core.command;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.arialyy.downloadutil.util.Task;
 import com.arialyy.downloadutil.entity.DownloadEntity;
 
 /**
@@ -15,6 +17,11 @@ class AddCommand extends IDownloadCommand {
     }
 
     @Override public void executeComment() {
-        target.createTask(mEntity);
+        Task task = target.getTask(mEntity);
+        if (task == null) {
+            target.createTask(mEntity);
+        }else {
+            Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
+        }
     }
 }

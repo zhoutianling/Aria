@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Handler;
 
 import com.arialyy.downloadutil.entity.DownloadEntity;
+import com.arialyy.downloadutil.util.Task;
 
 /**
  * Created by lyy on 2016/8/18.
@@ -37,6 +38,6 @@ public class TaskFactory {
     public Task createTask(Context context, DownloadEntity entity, Handler handler) {
         Task.Builder builder = new Task.Builder(context, entity);
         builder.setOutHandler(handler);
-        return builder.builder();
+        return builder.build();
     }
 }

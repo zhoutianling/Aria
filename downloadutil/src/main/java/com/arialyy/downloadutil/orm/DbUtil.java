@@ -62,7 +62,7 @@ public class DbUtil {
     /**
      * 删除某条数据
      */
-    protected void delData(DbEntity dbEntity, @NonNull Object[] wheres, @NonNull Object[] values) {
+    protected void delData(Class clazz, @NonNull Object[] wheres, @NonNull Object[] values) {
         mDb = mHelper.getWritableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
             Log.e(TAG, "输入删除条件");
@@ -72,7 +72,7 @@ public class DbUtil {
             return;
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("DELETE FROM ").append(Util.getClassName(dbEntity)).append(" WHERE ");
+        sb.append("DELETE FROM ").append(Util.getClassName(clazz)).append(" WHERE ");
         int i = 0;
         for (Object where : wheres) {
             sb.append(where).append("=").append("'").append(values[i]).append("'");
@@ -104,9 +104,9 @@ public class DbUtil {
                 sb.append(i > 0 ? ", " : "");
                 try {
                     sb.append(field.getName())
-                      .append(" = '")
-                      .append(field.get(dbEntity).toString())
-                      .append("'");
+                            .append(" = '")
+                            .append(field.get(dbEntity).toString())
+                            .append("'");
                 } catch (IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -121,10 +121,10 @@ public class DbUtil {
     /**
      * 遍历所有数据
      */
-    protected <T extends DbEntity> List<T> findAllData(Class<T> clazz, DbEntity dbEntity) {
+    protected <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
         mDb = mHelper.getReadableDatabase();
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT rowid, * FROM ").append(Util.getClassName(dbEntity));
+        sb.append("SELECT rowid, * FROM ").append(Util.getClassName(clazz));
         print(FIND_ALL_DATA, sb.toString());
         Cursor cursor = mDb.rawQuery(sb.toString(), null);
         return cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
@@ -133,8 +133,7 @@ public class DbUtil {
     /**
      * 条件查寻数据
      */
-    protected <T extends DbEntity> List<T> findData(Class<T> clazz, DbEntity dbEntity,
-                                                    @NonNull String[] wheres,
+    protected <T extends DbEntity> List<T> findData(Class<T> clazz, @NonNull String[] wheres,
                                                     @NonNull String[] values) {
         mDb = mHelper.getReadableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
@@ -145,7 +144,7 @@ public class DbUtil {
             return null;
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT rowid, * FROM ").append(Util.getClassName(dbEntity)).append(" where ");
+        sb.append("SELECT rowid, * FROM ").append(Util.getClassName(clazz)).append(" where ");
         int i = 0;
         for (Object where : wheres) {
             sb.append(where).append("=").append("'").append(values[i]).append("'");
@@ -161,10 +160,10 @@ public class DbUtil {
      * 插入数据
      */
     protected void insertData(DbEntity dbEntity) {
-        mDb = mHelper.getWritableDatabase();
         if (!tableExists(dbEntity)) {
             createTable(dbEntity);
         }
+        mDb = mHelper.getWritableDatabase();
         Class<?> clazz  = dbEntity.getClass();
         Field[]  fields = Util.getFields(clazz);
         if (fields != null && fields.length > 0) {
@@ -209,6 +208,9 @@ public class DbUtil {
      * 查找某张表是否存在
      */
     public synchronized boolean tableExists(DbEntity dbEntity) {
+        if (mDb == null || !mDb.isOpen()) {
+            mDb = mHelper.getReadableDatabase();
+        }
         Cursor cursor = null;
         try {
             StringBuilder sb = new StringBuilder();
@@ -227,6 +229,7 @@ public class DbUtil {
             e.printStackTrace();
         } finally {
             if (cursor != null) cursor.close();
+            close();
         }
         return false;
     }
@@ -235,6 +238,9 @@ public class DbUtil {
      * 创建表
      */
     private void createTable(DbEntity dbEntity) {
+        if (mDb == null || !mDb.isOpen()) {
+            mDb = mHelper.getWritableDatabase();
+        }
         Field[] fields = Util.getFields(dbEntity.getClass());
         if (fields != null && fields.length > 0) {
             StringBuilder sb = new StringBuilder();
@@ -271,6 +277,7 @@ public class DbUtil {
             print(CREATE_TABLE, str);
             mDb.execSQL(str);
         }
+        close();
     }
 
     /**

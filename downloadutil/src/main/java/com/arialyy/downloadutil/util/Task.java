@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil.core;
+package com.arialyy.downloadutil.util;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,9 +6,9 @@ import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
 
+import com.arialyy.downloadutil.core.DownloadManager;
+import com.arialyy.downloadutil.core.IDownloadTarget;
 import com.arialyy.downloadutil.entity.DownloadEntity;
-import com.arialyy.downloadutil.util.DownLoadUtil;
-import com.arialyy.downloadutil.util.IDownloadListener;
 
 import java.net.HttpURLConnection;
 
@@ -19,41 +19,42 @@ import java.net.HttpURLConnection;
 public class Task {
     public static final String TAG = "Task";
 
-    private DownloadEntity    downloadEntity;
-    private IDownloadListener listener;
-    private Handler           outHandler;
-    private Context           context;
-    private DownLoadUtil      util;
+    private DownloadEntity    mEntity;
+    private IDownloadListener mListener;
+    private Handler           mOutHandler;
+    private Context           mContext;
+    private DownLoadUtil      mUtil;
 
-    private Task() {
-        util = new DownLoadUtil();
+    private Task(Context context, DownloadEntity entity) {
+        mContext = context.getApplicationContext();
+        mEntity = entity;
+        mUtil = new DownLoadUtil(context, entity);
     }
 
     /**
      * 开始下载
      */
     public void start() {
-        if (util.isDownloading()) {
+        if (mUtil.isDownloading()) {
             Log.d(TAG, "任务正在下载");
         } else {
-            if (listener == null) {
-                listener = new DownloadListener(context, downloadEntity, outHandler);
+            if (mListener == null) {
+                mListener = new DownloadListener(mContext, mEntity, mOutHandler);
             }
-            util.download(context, downloadEntity.getDownloadUrl(),
-                          downloadEntity.getDownloadPath(), listener);
+            mUtil.start(mListener);
         }
     }
 
     public DownloadEntity getDownloadEntity() {
-        return downloadEntity;
+        return mEntity;
     }
 
     /**
      * 停止下载
      */
     public void stop() {
-        if (util.isDownloading()) {
-            util.stopDownload();
+        if (mUtil.isDownloading()) {
+            mUtil.stopDownload();
         }
     }
 
@@ -61,14 +62,38 @@ public class Task {
      * 获取下载工具
      */
     public DownLoadUtil getDownloadUtil() {
-        return util;
+        return mUtil;
+    }
+
+    /**
+     * 任务下载状态
+     */
+    public boolean isDownloading() {
+        return mUtil.isDownloading();
     }
 
     /**
      * 取消下载
      */
     public void cancel() {
-        util.cancelDownload();
+        if (mUtil.isDownloading()) {
+            mUtil.cancelDownload();
+        } else {
+            // 如果任务不是下载状态
+            mUtil.cancelDownload();
+            mUtil.delConfigFile();
+            mUtil.delTempFile();
+            mEntity.deleteData();
+
+            //发送取消下载的广播
+            Uri.Builder builder = new Uri.Builder();
+            builder.scheme(mContext.getPackageName());
+            Uri    uri    = builder.build();
+            Intent intent = new Intent(DownloadManager.ACTION_CANCEL);
+            intent.setData(uri);
+            intent.putExtra(DownloadManager.ACTION_CANCEL, mEntity);
+            mContext.sendBroadcast(intent);
+        }
     }
 
     /**
@@ -83,7 +108,7 @@ public class Task {
         DownloadEntity downloadEntity;
 
         public DownloadListener(Context context, DownloadEntity downloadEntity,
-                                Handler outHandler) {
+                Handler outHandler) {
             this.context = context;
             this.outHandler = outHandler;
             this.downloadEntity = downloadEntity;
@@ -167,7 +192,8 @@ public class Task {
         }
 
         private void sendIntent(String action, long location) {
-            downloadEntity.save();
+            downloadEntity.setCurrentProgress(location);
+            downloadEntity.update();
             Uri.Builder builder = new Uri.Builder();
             builder.scheme(context.getPackageName());
             Uri    uri    = builder.build();
@@ -202,12 +228,11 @@ public class Task {
             return this;
         }
 
-        public Task builder() {
-            Task task = new Task();
-            task.context = context;
-            task.downloadEntity = downloadEntity;
-            task.listener = listener;
-            task.outHandler = outHandler;
+        public Task build() {
+            Task task = new Task(context, downloadEntity);
+            task.mListener = listener;
+            task.mOutHandler = outHandler;
+            downloadEntity.save();
             return task;
         }
     }
