@@ -99,6 +99,14 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
     }
 
     /**
+     * 获取任务执行池
+     * @return
+     */
+    public ExecutePool getExecutePool(){
+        return mExecutePool;
+    }
+
+    /**
      * 获取当前运行的任务数
      *
      * @return 当前正在执行的任务数

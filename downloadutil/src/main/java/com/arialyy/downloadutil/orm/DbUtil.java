@@ -62,7 +62,7 @@ public class DbUtil {
     /**
      * 删除某条数据
      */
-    protected <T extends DbEntity> void delData(Class<T> clazz, @NonNull Object[] wheres,
+    <T extends DbEntity> void delData(Class<T> clazz, @NonNull Object[] wheres,
             @NonNull Object[] values) {
         mDb = mHelper.getWritableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
@@ -88,7 +88,7 @@ public class DbUtil {
     /**
      * 修改某行数据
      */
-    protected void modifyData(DbEntity dbEntity) {
+    void modifyData(DbEntity dbEntity) {
         mDb = mHelper.getWritableDatabase();
         Class<?> clazz  = dbEntity.getClass();
         Field[]  fields = Util.getFields(clazz);
@@ -105,7 +105,7 @@ public class DbUtil {
                 sb.append(i > 0 ? ", " : "");
                 try {
                     sb.append(field.getName())
-                            .append(" = '")
+                            .append("='")
                             .append(field.get(dbEntity).toString())
                             .append("'");
                 } catch (IllegalAccessException e) {
@@ -113,6 +113,7 @@ public class DbUtil {
                 }
                 i++;
             }
+            sb.append(" where rowid=").append(dbEntity.rowID);
             print(MODIFY_DATA, sb.toString());
             mDb.execSQL(sb.toString());
         }
@@ -122,7 +123,10 @@ public class DbUtil {
     /**
      * 遍历所有数据
      */
-    protected <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
+    <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
+        if (!tableExists(clazz)) {
+            createTable(clazz);
+        }
         mDb = mHelper.getReadableDatabase();
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT rowid, * FROM ").append(Util.getClassName(clazz));
@@ -134,7 +138,7 @@ public class DbUtil {
     /**
      * 条件查寻数据
      */
-    protected <T extends DbEntity> List<T> findData(Class<T> clazz, @NonNull String[] wheres,
+    <T extends DbEntity> List<T> findData(Class<T> clazz, @NonNull String[] wheres,
             @NonNull String[] values) {
         if (!tableExists(clazz)) {
             createTable(clazz);
@@ -163,7 +167,7 @@ public class DbUtil {
     /**
      * 插入数据
      */
-    protected void insertData(DbEntity dbEntity) {
+    void insertData(DbEntity dbEntity) {
         Class<?> clazz = dbEntity.getClass();
         if (!tableExists(clazz)) {
             createTable(clazz);
@@ -211,14 +215,14 @@ public class DbUtil {
     /**
      * 查找某张表是否存在
      */
-    public synchronized boolean tableExists(Class clazz) {
+    synchronized boolean tableExists(Class clazz) {
         if (mDb == null || !mDb.isOpen()) {
             mDb = mHelper.getReadableDatabase();
         }
         Cursor cursor = null;
         try {
             StringBuilder sb = new StringBuilder();
-            sb.append("SELECT COUNT(*) AS c FROM sqlite_master WHERE type ='table' AND name ='");
+            sb.append("SELECT COUNT(*) AS c FROM sqlite_master WHERE type='table' AND name='");
             sb.append(Util.getClassName(clazz));
             sb.append("'");
             print(TABLE_EXISTS, sb.toString());
@@ -326,7 +330,7 @@ public class DbUtil {
     /**
      * 获取所在行Id
      */
-    protected int[] getRowId(Class clazz) {
+    int[] getRowId(Class clazz) {
         mDb = mHelper.getReadableDatabase();
         Cursor cursor = mDb.rawQuery("SELECT rowid, * FROM " + Util.getClassName(clazz), null);
         int[]  ids    = new int[cursor.getCount()];
@@ -343,7 +347,7 @@ public class DbUtil {
     /**
      * 获取行Id
      */
-    protected int getRowId(Class clazz, Object[] wheres, Object[] values) {
+    int getRowId(Class clazz, Object[] wheres, Object[] values) {
         mDb = mHelper.getReadableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
             Log.e(TAG, "请输入删除条件");
@@ -404,7 +408,6 @@ public class DbUtil {
                         } else if (type == byte[].class) {
                             field.set(entity, cursor.getBlob(column));
                         }
-                        //                        field.set(entity, cursor.getColumnIndex("entity_id"));
                     }
                     entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
                     entitys.add(entity);

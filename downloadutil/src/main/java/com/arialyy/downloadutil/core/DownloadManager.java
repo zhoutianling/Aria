@@ -8,6 +8,7 @@ import com.arialyy.downloadutil.core.command.IDownloadCommand;
 import com.arialyy.downloadutil.entity.DownloadEntity;
 import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.orm.DbUtil;
+import com.arialyy.downloadutil.util.Task;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +64,7 @@ public class DownloadManager {
     /**
      * 下载实体
      */
-    public static final String DATA = "DOWNLOAD_ENTITY";
+    public static final String ENTITY = "DOWNLOAD_ENTITY";
 
     /**
      * 位置

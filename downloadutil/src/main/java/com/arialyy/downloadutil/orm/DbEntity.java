@@ -23,7 +23,7 @@ public class DbEntity {
     /**
      * 获取所有行的rowid
      */
-    public int[] getRowId() {
+    public int[] getRowIds() {
         return mUtil.getRowId(getClass());
     }
 
@@ -71,6 +71,18 @@ public class DbEntity {
      * 查找数据在表中是否存在
      */
     private boolean thisIsExist() {
+        return findData(getClass(), new String[]{"rowid"}, new String[]{rowID + ""}) != null;
+    }
+
+    /**
+     * 插入数据
+     */
+    public void insert() {
+        mUtil.insertData(this);
+        updateRowID();
+    }
+
+    private void updateRowID() {
         try {
             Field[]      fields = Util.getFields(getClass());
             List<String> where  = new ArrayList<>();
@@ -84,19 +96,14 @@ public class DbEntity {
                 where.add(field.getName());
                 values.add(field.get(this) + "");
             }
-            return findData(getClass(), where.toArray(new String[where.size()]),
-                            values.toArray(new String[values.size()])) != null;
+            DbEntity entity = findData(getClass(), where.toArray(new String[where.size()]),
+                                       values.toArray(new String[values.size()]));
+            if (entity != null) {
+                rowID = entity.rowID;
+            }
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
-        return false;
-    }
-
-    /**
-     * 插入数据
-     */
-    public void insert() {
-        mUtil.insertData(this);
     }
 
     /**

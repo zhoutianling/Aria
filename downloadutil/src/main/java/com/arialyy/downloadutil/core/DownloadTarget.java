@@ -48,8 +48,13 @@ public class DownloadTarget extends IDownloadTarget {
     }
 
     @Override public void stopTask(Task task) {
-        if (mExecutePool.removeTask(task)) {
+        if (task.isDownloading()) {
+            if (mExecutePool.removeTask(task)) {
+                task.stop();
+            }
+        }else {
             task.stop();
+            Log.w(TAG, "停止任务失败，【任务已经停止】");
         }
     }
 

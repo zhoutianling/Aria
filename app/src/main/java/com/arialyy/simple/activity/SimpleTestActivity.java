@@ -103,7 +103,7 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
             String action = intent.getAction();
             switch (action) {
                 case DownloadManager.ACTION_PRE:
-                    DownloadEntity entity = intent.getParcelableExtra(DownloadManager.ACTION_PRE);
+                    DownloadEntity entity = intent.getParcelableExtra(DownloadManager.ENTITY);
                     len = entity.getFileSize();
                     L.d(TAG, "download pre");
                     mUpdateHandler.obtainMessage(DOWNLOAD_PRE, len).sendToTarget();
@@ -117,7 +117,7 @@ public class SimpleTestActivity extends BaseActivity<ActivitySimpleBinding> {
                     mUpdateHandler.obtainMessage(DOWNLOAD_RESUME, location).sendToTarget();
                     break;
                 case DownloadManager.ACTION_RUNNING:
-                    long current = intent.getLongExtra(DownloadManager.ACTION_RUNNING, 0);
+                    long current = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 0);
                     if (len == 0) {
                         mPb.setProgress(0);
                     } else {

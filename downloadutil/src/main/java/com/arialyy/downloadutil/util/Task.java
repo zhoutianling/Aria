@@ -55,6 +55,16 @@ public class Task {
     public void stop() {
         if (mUtil.isDownloading()) {
             mUtil.stopDownload();
+        } else {
+            mEntity.setState(DownloadEntity.STATE_STOP);
+            mEntity.save();
+            sendInState2Target(IDownloadTarget.STOP);
+
+            // 发送停止下载的广播
+            Intent intent = createIntent(DownloadManager.ACTION_STOP);
+            intent.putExtra(DownloadManager.CURRENT_LOCATION, mEntity.getCurrentProgress());
+            intent.putExtra(DownloadManager.ENTITY, mEntity);
+            mContext.sendBroadcast(intent);
         }
     }
 
@@ -84,40 +94,61 @@ public class Task {
             mUtil.delConfigFile();
             mUtil.delTempFile();
             mEntity.deleteData();
+            sendInState2Target(IDownloadTarget.CANCEL);
 
             //发送取消下载的广播
-            Uri.Builder builder = new Uri.Builder();
-            builder.scheme(mContext.getPackageName());
-            Uri    uri    = builder.build();
-            Intent intent = new Intent(DownloadManager.ACTION_CANCEL);
-            intent.setData(uri);
-            intent.putExtra(DownloadManager.ACTION_CANCEL, mEntity);
+            Intent intent = createIntent(DownloadManager.ACTION_CANCEL);
+            intent.putExtra(DownloadManager.ENTITY, mEntity);
             mContext.sendBroadcast(intent);
+        }
+    }
+
+    /**
+     * 创建特定的Intent
+     *
+     * @param action
+     * @return
+     */
+    private Intent createIntent(String action) {
+        Uri.Builder builder = new Uri.Builder();
+        builder.scheme(mContext.getPackageName());
+        Uri    uri    = builder.build();
+        Intent intent = new Intent(action);
+        intent.setData(uri);
+        return intent;
+    }
+
+    /**
+     * 将任务状态发送给下载器
+     *
+     * @param state {@link IDownloadTarget#START}
+     */
+    private void sendInState2Target(int state) {
+        if (mOutHandler != null) {
+            mOutHandler.obtainMessage(state, mEntity).sendToTarget();
         }
     }
 
     /**
      * 下载监听类
      */
-    private static class DownloadListener extends DownLoadUtil.DownloadListener {
+    private class DownloadListener extends DownLoadUtil.DownloadListener {
         Handler outHandler;
         Context context;
         Intent  sendIntent;
         long INTERVAL = 1024 * 10;   //10k大小的间隔
         long lastLen  = 0;   //上一次发送长度
+        long lastTime = 0;
+        long INTERVAL_TIME = 60 * 1000;   //10k大小的间隔
         DownloadEntity downloadEntity;
 
-        public DownloadListener(Context context, DownloadEntity downloadEntity,
+        DownloadListener(Context context, DownloadEntity downloadEntity,
                 Handler outHandler) {
             this.context = context;
             this.outHandler = outHandler;
             this.downloadEntity = downloadEntity;
-            sendIntent = new Intent(DownloadManager.ACTION_RUNNING);
-            Uri.Builder builder = new Uri.Builder();
-            builder.scheme(context.getPackageName());
-            Uri uri = builder.build();
-            sendIntent.setData(uri);
-
+            sendIntent = createIntent(DownloadManager.ACTION_RUNNING);
+            sendIntent.putExtra(DownloadManager.ENTITY, downloadEntity);
         }
 
         @Override public void onPreDownload(HttpURLConnection connection) {
@@ -143,9 +174,14 @@ public class Task {
 
         @Override public void onProgress(long currentLocation) {
             super.onProgress(currentLocation);
-            if (currentLocation - lastLen > INTERVAL) { //不要太过于频繁发送广播
-                sendIntent.putExtra(DownloadManager.ACTION_RUNNING, currentLocation);
-                lastLen = currentLocation;
+//            if (currentLocation - lastLen > INTERVAL) { //不要太过于频繁发送广播
+//                sendIntent.putExtra(DownloadManager.CURRENT_LOCATION, currentLocation);
+//                lastLen = currentLocation;
+//                context.sendBroadcast(sendIntent);
+//            }
+            if (System.currentTimeMillis() - lastLen > INTERVAL_TIME){
+                sendIntent.putExtra(DownloadManager.CURRENT_LOCATION, currentLocation);
+                lastTime = System.currentTimeMillis();
                 context.sendBroadcast(sendIntent);
             }
         }
@@ -180,27 +216,12 @@ public class Task {
             sendIntent(DownloadManager.ACTION_FAIL, -1);
         }
 
-        /**
-         * 将任务状态发送给下载器
-         *
-         * @param state {@link IDownloadTarget#START}
-         */
-        private void sendInState2Target(int state) {
-            if (outHandler != null) {
-                outHandler.obtainMessage(state, downloadEntity).sendToTarget();
-            }
-        }
-
         private void sendIntent(String action, long location) {
             downloadEntity.setDownloadComplete(action.equals(DownloadManager.ACTION_COMPLETE));
             downloadEntity.setCurrentProgress(location);
             downloadEntity.update();
-            Uri.Builder builder = new Uri.Builder();
-            builder.scheme(context.getPackageName());
-            Uri    uri    = builder.build();
-            Intent intent = new Intent(action);
-            intent.setData(uri);
-            intent.putExtra(action, downloadEntity);
+            Intent intent = createIntent(action);
+            intent.putExtra(DownloadManager.ENTITY, downloadEntity);
             if (location != -1) {
                 intent.putExtra(DownloadManager.CURRENT_LOCATION, location);
             }

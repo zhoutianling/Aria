@@ -4,9 +4,9 @@
 
     <string-array name="test_apk_download_url">
         <item>http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk</item>  <!--300M的文件-->
-        <item>http://static.gaoshouyou.com/d/21/e8/61218d78d0e8b79df68dbc18dd484c97.apk</item>
-        <item>http://static.gaoshouyou.com/d/12/0d/7f120f50c80d2e7b8c4ba24ece4f9cdd.apk</item>
-        <item>http://static.gaoshouyou.com/d/d4/4f/d6d48db3794fb9ecf47e83c346570881.apk</item>
+        <!--<item>http://static.gaoshouyou.com/d/21/e8/61218d78d0e8b79df68dbc18dd484c97.apk</item>-->
+        <!--<item>http://static.gaoshouyou.com/d/12/0d/7f120f50c80d2e7b8c4ba24ece4f9cdd.apk</item>-->
+        <!--<item>http://static.gaoshouyou.com/d/d4/4f/d6d48db3794fb9ecf47e83c346570881.apk</item>-->
         <!--<item>http://static.gaoshouyou.com/d/18/cf/ba18113bc6cf56c1c5863e761e717003.apk</item>-->
         <!--<item>http://static.gaoshouyou.com/d/60/17/2460921367173ea7145f11194a6f2587.apk</item>-->
         <!--<item>http://static.gaoshouyou.com/d/32/e0/1a32123ecbe0ee010d35479df248f90f.apk</item>-->

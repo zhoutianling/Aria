@@ -58,7 +58,24 @@ public class Util {
     }
 
     /**
-     * 将缓存的key转换为hash码
+     * 字符串转hashcode
+     *
+     * @param str
+     * @return
+     */
+    public static int keyToHashCode(String str) {
+        int total = 0;
+        for (int i = 0; i < str.length() && i < 6; i++) {
+            char ch = str.charAt(i);
+            if (ch == '-') ch = (char) 28; // does not contain the same last 5 bits as any letter
+            if (ch == '\'') ch = (char) 29; // nor this
+            total = (total * 33) + (ch & 0x1F);
+        }
+        return total;
+    }
+
+    /**
+     * 将key转换为16进制码
      *
      * @param key 缓存的key
      * @return 转换后的key的值, 系统便是通过该key来读写缓存
