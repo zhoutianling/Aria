@@ -62,7 +62,7 @@ public class DbUtil {
     /**
      * 删除某条数据
      */
-    <T extends DbEntity> void delData(Class<T> clazz, @NonNull Object[] wheres,
+    synchronized <T extends DbEntity> void delData(Class<T> clazz, @NonNull Object[] wheres,
             @NonNull Object[] values) {
         mDb = mHelper.getWritableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
@@ -88,7 +88,7 @@ public class DbUtil {
     /**
      * 修改某行数据
      */
-    void modifyData(DbEntity dbEntity) {
+    synchronized void modifyData(DbEntity dbEntity) {
         mDb = mHelper.getWritableDatabase();
         Class<?> clazz  = dbEntity.getClass();
         Field[]  fields = Util.getFields(clazz);
@@ -123,7 +123,7 @@ public class DbUtil {
     /**
      * 遍历所有数据
      */
-    <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
+    synchronized <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
         if (!tableExists(clazz)) {
             createTable(clazz);
         }
@@ -138,7 +138,7 @@ public class DbUtil {
     /**
      * 条件查寻数据
      */
-    <T extends DbEntity> List<T> findData(Class<T> clazz, @NonNull String[] wheres,
+    synchronized <T extends DbEntity> List<T> findData(Class<T> clazz, @NonNull String[] wheres,
             @NonNull String[] values) {
         if (!tableExists(clazz)) {
             createTable(clazz);
@@ -167,7 +167,7 @@ public class DbUtil {
     /**
      * 插入数据
      */
-    void insertData(DbEntity dbEntity) {
+    synchronized void insertData(DbEntity dbEntity) {
         Class<?> clazz = dbEntity.getClass();
         if (!tableExists(clazz)) {
             createTable(clazz);
@@ -245,7 +245,7 @@ public class DbUtil {
     /**
      * 创建表
      */
-    private void createTable(Class clazz) {
+    private synchronized void createTable(Class clazz) {
         if (mDb == null || !mDb.isOpen()) {
             mDb = mHelper.getWritableDatabase();
         }
@@ -321,7 +321,7 @@ public class DbUtil {
     /**
      * 关闭数据库
      */
-    private void close() {
+    private synchronized void close() {
         if (mDb != null) {
             mDb.close();
         }
@@ -330,7 +330,7 @@ public class DbUtil {
     /**
      * 获取所在行Id
      */
-    int[] getRowId(Class clazz) {
+    synchronized int[] getRowId(Class clazz) {
         mDb = mHelper.getReadableDatabase();
         Cursor cursor = mDb.rawQuery("SELECT rowid, * FROM " + Util.getClassName(clazz), null);
         int[]  ids    = new int[cursor.getCount()];
@@ -347,7 +347,7 @@ public class DbUtil {
     /**
      * 获取行Id
      */
-    int getRowId(Class clazz, Object[] wheres, Object[] values) {
+    synchronized int getRowId(Class clazz, Object[] wheres, Object[] values) {
         mDb = mHelper.getReadableDatabase();
         if (wheres.length <= 0 || values.length <= 0) {
             Log.e(TAG, "请输入删除条件");
@@ -375,7 +375,7 @@ public class DbUtil {
     /**
      * 根据数据游标创建一个具体的对象
      */
-    private <T extends DbEntity> List<T> newInstanceEntity(Class<T> clazz, Cursor cursor) {
+    private synchronized <T extends DbEntity> List<T> newInstanceEntity(Class<T> clazz, Cursor cursor) {
         Field[] fields  = Util.getFields(clazz);
         List<T> entitys = new ArrayList<>();
         if (fields != null && fields.length > 0) {

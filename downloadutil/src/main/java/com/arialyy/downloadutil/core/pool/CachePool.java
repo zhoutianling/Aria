@@ -3,25 +3,25 @@ package com.arialyy.downloadutil.core.pool;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.arialyy.downloadutil.util.Task;
 import com.arialyy.downloadutil.core.inf.IPool;
+import com.arialyy.downloadutil.util.Task;
 import com.arialyy.downloadutil.util.Util;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Created by lyy on 2016/8/14.
  * 任务缓存池，所有下载任务最先缓存在这个池中
  */
 public class CachePool implements IPool {
-    private static final    String    TAG      = "CachePool";
-    private static final    Object    LOCK     = new Object();
-    private static volatile CachePool INSTANCE = null;
-    private Map<String, Task> mCacheArray;
-    private Queue<Task>       mCacheQueue;
+    private static final    String    TAG              = "CachePool";
+    private static final    Object    LOCK             = new Object();
+    private static final    int       MAX_NUM = Integer.MAX_VALUE;  //最大下载任务数
+    private static volatile CachePool INSTANCE         = null;
+    private Map<String, Task>         mCacheArray;
+    private LinkedBlockingQueue<Task> mCacheQueue;
 
     public static CachePool getInstance() {
         if (INSTANCE == null) {
@@ -33,7 +33,7 @@ public class CachePool implements IPool {
     }
 
     private CachePool() {
-        mCacheQueue = new PriorityQueue<>();
+        mCacheQueue = new LinkedBlockingQueue<>(MAX_NUM);
         mCacheArray = new HashMap<>();
     }
 
@@ -48,7 +48,7 @@ public class CachePool implements IPool {
                 Log.w(TAG, "队列中已经包含了该任务，任务下载链接【" + url + "】");
                 return false;
             } else {
-                 boolean s = mCacheQueue.offer(task);
+                boolean s = mCacheQueue.offer(task);
                 Log.d(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
                 if (s) {
                     mCacheArray.put(Util.keyToHashKey(url), task);

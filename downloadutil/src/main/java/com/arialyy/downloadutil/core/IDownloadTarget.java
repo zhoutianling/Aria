@@ -100,9 +100,10 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
 
     /**
      * 获取任务执行池
+     *
      * @return
      */
-    public ExecutePool getExecutePool(){
+    public ExecutePool getExecutePool() {
         return mExecutePool;
     }
 
@@ -152,11 +153,7 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
             }
             switch (msg.what) {
                 case STOP:
-                    startNextTask(entity);
-                    break;
                 case CANCEL:
-                    startNextTask(entity);
-                    break;
                 case COMPLETE:
                     startNextTask(entity);
                     break;
@@ -187,7 +184,7 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
                         target.mTargetListener.onTaskCancel(task);
                         break;
                     case COMPLETE:
-                        target.mTargetListener.onTaskCancel(task);
+                        target.mTargetListener.onTaskComplete(task);
                         break;
                     case FAIL:
                         target.mTargetListener.onTaskFail(task);
@@ -222,7 +219,9 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
                 Log.w(TAG, "没有下一任务");
                 return;
             }
-            target.startTask(newTask);
+            if (newTask.getDownloadEntity().getState() == DownloadEntity.STATE_WAIT) {
+                target.startTask(newTask);
+            }
         }
     }
 }

@@ -65,7 +65,7 @@ public class Util {
      */
     public static int keyToHashCode(String str) {
         int total = 0;
-        for (int i = 0; i < str.length() && i < 6; i++) {
+        for (int i = 0; i < str.length(); i++) {
             char ch = str.charAt(i);
             if (ch == '-') ch = (char) 28; // does not contain the same last 5 bits as any letter
             if (ch == '\'') ch = (char) 29; // nor this

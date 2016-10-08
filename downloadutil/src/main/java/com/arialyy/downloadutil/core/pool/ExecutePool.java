@@ -89,7 +89,7 @@ public class ExecutePool implements IPool {
                 return false;
             }
             oldTask.stop();
-            wait(200);
+//            wait(200);
             String key = Util.keyToHashKey(oldTask.getDownloadEntity().getDownloadUrl());
             mExecuteArray.remove(key);
         } catch (InterruptedException e) {

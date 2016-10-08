@@ -1,7 +1,7 @@
 package com.arialyy.simple.adapter;
 
 import android.content.Context;
-import android.util.SparseIntArray;
+import android.content.res.Resources;
 import android.view.View;
 import android.widget.Button;
 
@@ -11,7 +11,6 @@ import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.command.CommandFactory;
 import com.arialyy.downloadutil.core.command.IDownloadCommand;
 import com.arialyy.downloadutil.entity.DownloadEntity;
-import com.arialyy.downloadutil.util.Util;
 import com.arialyy.simple.R;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
@@ -19,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import butterknife.Bind;
 
@@ -30,15 +30,15 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     private static final String TAG = "DownloadAdapter";
     private DownloadManager mManager;
     private CommandFactory  mFactory;
-    private Map<String, Long> mProgress  = new HashMap<>();
-    private SparseIntArray    mPositions = new SparseIntArray();
+    private Map<String, Long>    mProgress  = new HashMap<>();
+    private Map<String, Integer> mPositions = new HashMap<>();
 
     public DownloadAdapter(Context context, List<DownloadEntity> data) {
         super(context, data);
         int i = 0;
         for (DownloadEntity entity : data) {
             mProgress.put(entity.getDownloadUrl(), entity.getCurrentProgress());
-            mPositions.append(i, Util.keyToHashCode(entity.getDownloadUrl()));
+            mPositions.put(entity.getDownloadUrl(), i);
             i++;
         }
         mFactory = CommandFactory.getInstance();
@@ -59,11 +59,21 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
 
     public synchronized void setProgress(String url, long currentPosition) {
         mProgress.put(url, currentPosition);
+//        int index = indexItem(url);
+//        L.d(TAG, "index ==> " + index);
+//        notifyItemChanged(index);
         notifyItemChanged(indexItem(url));
     }
 
-    private int indexItem(String url) {
-        return mPositions.indexOfValue(Util.keyToHashCode(url));
+    private synchronized int indexItem(String url) {
+        Set set = mPositions.entrySet();
+        for (Object aSet : set) {
+            Map.Entry entry = (Map.Entry) aSet;
+            if (entry.getKey().equals(url)) {
+                return (int) entry.getValue();
+            }
+        }
+        return -1;
     }
 
     @Override protected void bindData(MyHolder holder, int position, DownloadEntity item) {
@@ -81,7 +91,8 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
             holder.bt.setTag(holder.bt.getId(), listener);
         }
         holder.bt.setOnClickListener(listener);
-        String str = "";
+        String str   = "";
+        int    color = android.R.color.holo_green_light;
         switch (item.getState()) {
             case DownloadEntity.STATE_WAIT:
             case DownloadEntity.STATE_OTHER:
@@ -90,12 +101,23 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
                 break;
             case DownloadEntity.STATE_STOP:
                 str = "恢复";
+                color = android.R.color.holo_blue_light;
                 break;
             case DownloadEntity.STATE_DOWNLOAD_ING:
                 str = "暂停";
+                color = android.R.color.holo_red_light;
+                break;
+            case DownloadEntity.STATE_COMPLETE:
+                str = "重新开始？";
+                holder.progress.setProgress(100);
                 break;
         }
         holder.bt.setText(str);
+        holder.bt.setTextColor(getColor(color));
+    }
+
+    private int getColor(int color) {
+        return Resources.getSystem().getColor(color);
     }
 
     private class BtClickListener implements View.OnClickListener {
@@ -111,6 +133,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
                 case DownloadEntity.STATE_OTHER:
                 case DownloadEntity.STATE_FAIL:
                 case DownloadEntity.STATE_STOP:
+                case DownloadEntity.STATE_COMPLETE:
                     start(entity);
                     break;
                 case DownloadEntity.STATE_DOWNLOAD_ING:
