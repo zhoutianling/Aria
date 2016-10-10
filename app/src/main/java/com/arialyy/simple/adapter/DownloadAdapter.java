@@ -11,6 +11,7 @@ import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.command.CommandFactory;
 import com.arialyy.downloadutil.core.command.IDownloadCommand;
 import com.arialyy.downloadutil.entity.DownloadEntity;
+import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
@@ -85,11 +86,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
         }
         current = (int) (mProgress.get(item.getDownloadUrl()) * 100 / item.getFileSize());
         holder.progress.setProgress(current);
-        BtClickListener listener = (BtClickListener) holder.bt.getTag(holder.bt.getId());
-        if (listener == null) {
-            listener = new BtClickListener(item);
-            holder.bt.setTag(holder.bt.getId(), listener);
-        }
+        BtClickListener listener = new BtClickListener(position, item);
         holder.bt.setOnClickListener(listener);
         String str   = "";
         int    color = android.R.color.holo_green_light;
@@ -122,12 +119,15 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
 
     private class BtClickListener implements View.OnClickListener {
         private DownloadEntity entity;
+        private int            position;
 
-        BtClickListener(DownloadEntity entity) {
+        BtClickListener(int position, DownloadEntity entity) {
             this.entity = entity;
+            this.position = position;
         }
 
         @Override public void onClick(View v) {
+            L.d(TAG, "position ==> " + position);
             switch (entity.getState()) {
                 case DownloadEntity.STATE_WAIT:
                 case DownloadEntity.STATE_OTHER:
