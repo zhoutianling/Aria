@@ -1,90 +1,38 @@
 package com.arialyy.simple.activity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-
-import com.arialyy.downloadutil.core.DownloadManager;
-import com.arialyy.downloadutil.entity.DownloadEntity;
-import com.arialyy.frame.util.show.L;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import butterknife.Bind;
 import com.arialyy.simple.R;
-import com.arialyy.simple.adapter.DownloadAdapter;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
-import com.arialyy.simple.module.DownloadModule;
-
-import butterknife.Bind;
 
 /**
- * Created by Lyy on 2016/9/27.
+ * Created by Lyy on 2016/10/13.
  */
 public class MainActivity extends BaseActivity<ActivityMainBinding> {
-    @Bind(R.id.list) RecyclerView mList;
-    DownloadAdapter mAdapter;
+  @Bind(R.id.toolbar) Toolbar mBar;
 
-    @Override protected int setLayoutId() {
-        return R.layout.activity_main;
+  @Override protected int setLayoutId() {
+    return R.layout.activity_main;
+  }
+
+  @Override protected void init(Bundle savedInstanceState) {
+    super.init(savedInstanceState);
+    setSupportActionBar(mBar);
+    mBar.setTitle("多线程多任务下载");
+  }
+
+  public void onClick(View view) {
+    switch (view.getId()) {
+      case R.id.single_task:
+        startActivity(new Intent(this, SingleTaskActivity.class));
+        break;
+      case R.id.multi_task:
+        startActivity(new Intent(this, MultiTaskActivity.class));
+        break;
     }
-
-    @Override protected void init(Bundle savedInstanceState) {
-        super.init(savedInstanceState);
-        mAdapter = new DownloadAdapter(this, getModule(DownloadModule.class).getDownloadData());
-        mList.setLayoutManager(new LinearLayoutManager(this));
-        mList.setAdapter(mAdapter);
-    }
-
-
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-        long len = 0;
-
-        @Override public void onReceive(Context context, Intent intent) {
-            String         action = intent.getAction();
-            DownloadEntity entity = intent.getParcelableExtra(DownloadManager.ENTITY);
-            switch (action) {
-                case DownloadManager.ACTION_PRE:
-                    len = entity.getFileSize();
-                    L.d(TAG, "download pre");
-                    break;
-                case DownloadManager.ACTION_START:
-                    L.d(TAG, "download start");
-                    break;
-                case DownloadManager.ACTION_RESUME:
-                    L.d(TAG, "download resume");
-                    long location = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 1);
-                    mAdapter.updateState(entity);
-                    break;
-                case DownloadManager.ACTION_RUNNING:
-                    long current = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 0);
-                    mAdapter.setProgress(entity.getDownloadUrl(), current);
-                    break;
-                case DownloadManager.ACTION_STOP:
-                    L.d(TAG, "download stop");
-                    mAdapter.updateState(entity);
-                    break;
-                case DownloadManager.ACTION_COMPLETE:
-                    L.d(TAG, "download complete");
-                    mAdapter.updateState(entity);
-                    break;
-                case DownloadManager.ACTION_CANCEL:
-                    L.d(TAG, "download cancel");
-                    break;
-                case DownloadManager.ACTION_FAIL:
-                    L.d(TAG, "download fail");
-                    break;
-            }
-        }
-    };
-
-    @Override protected void onResume() {
-        super.onResume();
-        registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
-    }
-
-    @Override protected void onDestroy() {
-        super.onDestroy();
-        unregisterReceiver(mReceiver);
-    }
+  }
 }

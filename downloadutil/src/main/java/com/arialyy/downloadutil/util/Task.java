@@ -1,5 +1,7 @@
 package com.arialyy.downloadutil.util;
 
+import android.Manifest;
+import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
