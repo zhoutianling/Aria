@@ -142,11 +142,11 @@ final class DownLoadUtil {
                     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("GET");
                     conn.setRequestProperty("Charset", "UTF-8");
-                    conn.setConnectTimeout(TIME_OUT * 4);
                     conn.setRequestProperty("User-Agent",
                                             "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
                     conn.setRequestProperty("Accept",
                                             "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
+                    conn.setConnectTimeout(TIME_OUT * 4);
                     conn.connect();
                     int len = conn.getContentLength();
                     if (len < 0) {  //网络被劫持时会出现这个问题
@@ -290,11 +290,11 @@ final class DownLoadUtil {
                                         "bytes=" + dEntity.startLocation + "-" + dEntity.endLocation);
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Charset", "UTF-8");
-                conn.setConnectTimeout(TIME_OUT * 4);
                 conn.setRequestProperty("User-Agent",
                                         "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
                 conn.setRequestProperty("Accept",
                                         "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
+                conn.setConnectTimeout(TIME_OUT * 4);
                 conn.setReadTimeout(TIME_OUT * 24);  //设置读取流的等待时间,必须设置该参数
                 InputStream is = conn.getInputStream();
                 //创建可设置位置的文件
@@ -323,6 +323,7 @@ final class DownLoadUtil {
                 }
                 file.close();
                 is.close();
+
                 if (isCancel) {
                     synchronized (DownLoadUtil.this) {
                         mCancelNum++;
