@@ -5,5 +5,5 @@ package com.arialyy.downloadutil.core;
  * 创建任务类型
  */
 public enum TaskEnum {
-    ORDINARY, NO_USR_CALLBACK
+  ORDINARY, NO_USR_CALLBACK
 }
