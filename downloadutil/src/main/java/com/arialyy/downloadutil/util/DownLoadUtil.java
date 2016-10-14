@@ -282,18 +282,19 @@ final class DownLoadUtil {
     }
 
     @Override public void run() {
-      long currentLocation = 0;
+      long              currentLocation = 0;
+      HttpURLConnection conn            = null;
+      InputStream       is              = null;
       try {
         Log.d(TAG, "线程_"
             + dEntity.threadId
-            + "_正在下载【"
-            + "开始位置 : "
+            + "_正在下载【开始位置 : "
             + dEntity.startLocation
             + "，结束位置："
             + dEntity.endLocation
             + "】");
-        URL               url  = new URL(dEntity.downloadUrl);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        URL url = new URL(dEntity.downloadUrl);
+        conn = (HttpURLConnection) url.openConnection();
         //在头里面请求下载开始位置和结束位置
         conn.setRequestProperty("Range",
             "bytes=" + dEntity.startLocation + "-" + dEntity.endLocation);
@@ -305,7 +306,7 @@ final class DownLoadUtil {
             "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
         conn.setConnectTimeout(TIME_OUT * 4);
         conn.setReadTimeout(TIME_OUT * 24);  //设置读取流的等待时间,必须设置该参数
-        InputStream is = conn.getInputStream();
+        is = conn.getInputStream();
         //创建可设置位置的文件
         RandomAccessFile file = new RandomAccessFile(dEntity.tempFile, "rwd");
         //设置每条线程写入文件的位置
@@ -328,7 +329,9 @@ final class DownLoadUtil {
           currentLocation += len;
         }
         file.close();
+        //close 为阻塞的，需要使用线程池来处理
         is.close();
+        conn.disconnect();
 
         if (isCancel) {
           cancel();
