@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
  * 表ID字段指定
  */
 @Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Id {
-    int value() default -1;
+  int value() default -1;
 }

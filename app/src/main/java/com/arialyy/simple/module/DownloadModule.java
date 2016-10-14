@@ -26,7 +26,7 @@ public class DownloadModule extends BaseModule {
    * 设置下载数据
    */
   public List<DownloadEntity> getDownloadData() {
-    List<DownloadEntity> list = DownloadEntity.findAllData(DownloadEntity.class);
+    List<DownloadEntity> list        = DownloadEntity.findAllData(DownloadEntity.class);
     List<DownloadEntity> newDownload = createNewDownload();
     if (list == null) {
       list = newDownload;
@@ -66,10 +66,11 @@ public class DownloadModule extends BaseModule {
    */
   private List<DownloadEntity> createNewDownload() {
     List<DownloadEntity> list = new ArrayList<>();
-    String[] urls = getContext().getResources().getStringArray(R.array.test_apk_download_url);
+    String[]             urls =
+        getContext().getResources().getStringArray(R.array.test_apk_download_url);
     for (String url : urls) {
-      String fileName = Util.keyToHashCode(url) + ".apk";
-      DownloadEntity entity = new DownloadEntity();
+      String         fileName = Util.keyToHashCode(url) + ".apk";
+      DownloadEntity entity   = new DownloadEntity();
       entity.setDownloadUrl(url);
       entity.setDownloadPath(getDownloadPath(url));
       entity.setFileName(fileName);

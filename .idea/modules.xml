@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/DownloadUtil.iml" filepath="$PROJECT_DIR$/DownloadUtil.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DownloadPrj.iml" filepath="$PROJECT_DIR$/DownloadPrj.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/downloadutil/downloadutil.iml" filepath="$PROJECT_DIR$/downloadutil/downloadutil.iml" />
     </modules>
