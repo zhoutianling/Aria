@@ -13,6 +13,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by lyy on 2015/8/25.
@@ -41,6 +43,7 @@ final class DownLoadUtil {
   private int mStopNum   = 0;
   private Context        mContext;
   private DownloadEntity mDownloadEntity;
+  private ExecutorService mFixedThreadPool = Executors.newFixedThreadPool(THREAD_NUM);
 
   public DownLoadUtil(Context context, DownloadEntity entity) {
     mContext = context.getApplicationContext();
@@ -67,6 +70,10 @@ final class DownLoadUtil {
    */
   public void cancelDownload() {
     isCancel = true;
+    Log.d(TAG, "++++++++++++++++ onCancel +++++++++++++++++");
+    isDownloading = false;
+    mFixedThreadPool.shutdown();
+    mListener.onCancel();
   }
 
   /**
@@ -74,6 +81,10 @@ final class DownLoadUtil {
    */
   public void stopDownload() {
     isStop = true;
+    Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
+    isDownloading = false;
+    mFixedThreadPool.shutdown();
+    mListener.onStop(mCurrentLocation);
   }
 
   /**
@@ -153,6 +164,7 @@ final class DownLoadUtil {
           }
           int code = conn.getResponseCode();
           if (code == 200) {
+
             int fileLength = conn.getContentLength();
             //必须建一个文件
             Util.createFile(filePath);
@@ -240,7 +252,8 @@ final class DownLoadUtil {
               if (l == -1) continue;
               Thread task = tasks.get(l);
               if (task != null) {
-                task.start();
+                mFixedThreadPool.execute(task);
+                //task.start();
               }
             }
           } else {
@@ -374,11 +387,11 @@ final class DownLoadUtil {
         String location = String.valueOf(currentLocation);
         Log.i(TAG, "thread_" + dEntity.threadId + "_stop, stop location ==> " + currentLocation);
         writeConfig(dEntity.tempFile.getName() + "_record_" + dEntity.threadId, location);
-        if (mStopNum == THREAD_NUM) {
-          Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
-          isDownloading = false;
-          mListener.onStop(mCurrentLocation);
-        }
+        //if (mStopNum == THREAD_NUM) {
+        //  Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
+        //  isDownloading = false;
+        //  mListener.onStop(mCurrentLocation);
+        //}
       }
     }
 
@@ -396,9 +409,9 @@ final class DownLoadUtil {
           if (dEntity.tempFile.exists()) {
             dEntity.tempFile.delete();
           }
-          Log.d(TAG, "++++++++++++++++ onCancel +++++++++++++++++");
-          isDownloading = false;
-          mListener.onCancel();
+          //Log.d(TAG, "++++++++++++++++ onCancel +++++++++++++++++");
+          //isDownloading = false;
+          //mListener.onCancel();
         }
       }
     }
