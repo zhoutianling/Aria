@@ -43,7 +43,8 @@ final class DownLoadUtil {
   private int mStopNum   = 0;
   private Context        mContext;
   private DownloadEntity mDownloadEntity;
-  private ExecutorService mFixedThreadPool = Executors.newFixedThreadPool(THREAD_NUM);
+  private ExecutorService       mFixedThreadPool = Executors.newFixedThreadPool(THREAD_NUM);
+  private SparseArray<Runnable> mTask            = new SparseArray<>();
 
   public DownLoadUtil(Context context, DownloadEntity entity) {
     mContext = context.getApplicationContext();
@@ -84,7 +85,12 @@ final class DownLoadUtil {
     Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
     isDownloading = false;
     mFixedThreadPool.shutdown();
-    mListener.onStop(mCurrentLocation);
+    for (int i = 0; i < THREAD_NUM; i++) {
+      DownLoadTask task = (DownLoadTask) mTask.get(i);
+      if (task != null) {
+        task.stop();
+      }
+    }
   }
 
   /**
@@ -189,10 +195,9 @@ final class DownLoadUtil {
                 }
               }
             }
-            SparseArray<Thread> tasks     = new SparseArray<>();
-            int                 blockSize = fileLength / THREAD_NUM;
-            int[]               recordL   = new int[THREAD_NUM];
-            int                 rl        = 0;
+            int   blockSize = fileLength / THREAD_NUM;
+            int[] recordL   = new int[THREAD_NUM];
+            int   rl        = 0;
             for (int i = 0; i < THREAD_NUM; i++) {
               recordL[i] = -1;
             }
@@ -241,7 +246,7 @@ final class DownLoadUtil {
               ConfigEntity entity =
                   new ConfigEntity(mContext, fileLength, downloadUrl, dFile, i, startL, endL);
               DownLoadTask task = new DownLoadTask(entity);
-              tasks.put(i, new Thread(task));
+              mTask.put(i, task);
             }
             if (mCurrentLocation > 0) {
               mListener.onResume(mCurrentLocation);
@@ -250,10 +255,9 @@ final class DownLoadUtil {
             }
             for (int l : recordL) {
               if (l == -1) continue;
-              Thread task = tasks.get(l);
+              Runnable task = mTask.get(l);
               if (task != null) {
                 mFixedThreadPool.execute(task);
-                //task.start();
               }
             }
           } else {
@@ -278,6 +282,7 @@ final class DownLoadUtil {
     mListener.onFail();
   }
 
+
   /**
    * 多线程下载任务类,不能使用AsyncTask来进行多线程下载，因为AsyncTask是串行执行的，这种方式下载速度太慢了
    */
@@ -285,6 +290,7 @@ final class DownLoadUtil {
     private static final String TAG = "DownLoadTask";
     private ConfigEntity dEntity;
     private String       configFPath;
+    private long currentLocation = 0;
 
     private DownLoadTask(ConfigEntity downloadInfo) {
       this.dEntity = downloadInfo;
@@ -295,9 +301,8 @@ final class DownLoadUtil {
     }
 
     @Override public void run() {
-      long              currentLocation = 0;
-      HttpURLConnection conn            = null;
-      InputStream       is              = null;
+      HttpURLConnection conn = null;
+      InputStream       is   = null;
       try {
         Log.d(TAG, "线程_"
             + dEntity.threadId
@@ -352,7 +357,7 @@ final class DownLoadUtil {
         }
         //停止状态不需要删除记录文件
         if (isStop) {
-          stop(currentLocation);
+          //stop();
           return;
         }
         Log.i(TAG, "线程【" + dEntity.threadId + "】下载完毕");
@@ -378,20 +383,22 @@ final class DownLoadUtil {
 
     /**
      * 停止下载
-     *
-     * @throws IOException
      */
-    private void stop(long currentLocation) throws IOException {
+    protected void stop() {
       synchronized (LOCK) {
-        mStopNum++;
-        String location = String.valueOf(currentLocation);
-        Log.i(TAG, "thread_" + dEntity.threadId + "_stop, stop location ==> " + currentLocation);
-        writeConfig(dEntity.tempFile.getName() + "_record_" + dEntity.threadId, location);
-        //if (mStopNum == THREAD_NUM) {
-        //  Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
-        //  isDownloading = false;
-        //  mListener.onStop(mCurrentLocation);
-        //}
+        try {
+          mStopNum++;
+          String location = String.valueOf(currentLocation);
+          Log.i(TAG, "thread_" + dEntity.threadId + "_stop, stop location ==> " + currentLocation);
+          writeConfig(dEntity.tempFile.getName() + "_record_" + dEntity.threadId, location);
+          if (mStopNum == THREAD_NUM) {
+            Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
+            isDownloading = false;
+            mListener.onStop(mCurrentLocation);
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       }
     }
 
