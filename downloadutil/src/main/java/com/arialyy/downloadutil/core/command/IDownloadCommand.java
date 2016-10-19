@@ -3,7 +3,7 @@ package com.arialyy.downloadutil.core.command;
 import android.content.Context;
 import com.arialyy.downloadutil.core.DownloadTarget;
 import com.arialyy.downloadutil.core.IDownloadTarget;
-import com.arialyy.downloadutil.entity.DownloadEntity;
+import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.help.CheckHelp;
 import com.arialyy.downloadutil.util.Util;
 

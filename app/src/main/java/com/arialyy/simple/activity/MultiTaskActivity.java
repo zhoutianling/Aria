@@ -8,8 +8,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import butterknife.Bind;
+import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
-import com.arialyy.downloadutil.entity.DownloadEntity;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.adapter.DownloadAdapter;
@@ -59,7 +59,9 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
           break;
         case DownloadManager.ACTION_RUNNING:
           long current = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 0);
-          mAdapter.setProgress(entity.getDownloadUrl(), current);
+          long speed = intent.getLongExtra(DownloadManager.CURRENT_SPEED, 0);
+          //mAdapter.setProgress(entity.getDownloadUrl(), current, speed);
+          mAdapter.setProgress(entity);
           break;
         case DownloadManager.ACTION_STOP:
           L.d(TAG, "download stop");
@@ -71,6 +73,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
           break;
         case DownloadManager.ACTION_CANCEL:
           L.d(TAG, "download cancel");
+          mAdapter.updateState(entity);
           break;
         case DownloadManager.ACTION_FAIL:
           L.d(TAG, "download fail");

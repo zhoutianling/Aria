@@ -2,8 +2,6 @@ package com.arialyy.downloadutil.core;
 
 import android.content.Context;
 import android.os.Handler;
-import com.arialyy.downloadutil.entity.DownloadEntity;
-import com.arialyy.downloadutil.util.Task;
 
 /**
  * Created by lyy on 2016/8/18.

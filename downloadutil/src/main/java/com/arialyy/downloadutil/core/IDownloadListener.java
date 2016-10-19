@@ -1,6 +1,4 @@
-package com.arialyy.downloadutil.util;
-
-import java.net.HttpURLConnection;
+package com.arialyy.downloadutil.core;
 
 /**
  * 下载监听
@@ -19,7 +17,7 @@ public interface IDownloadListener {
   /**
    * 下载预处理,可通过HttpURLConnection获取文件长度
    */
-  public void onPreDownload(HttpURLConnection connection);
+  public void onPreDownload(long fileSize);
 
   /**
    * 下载监听

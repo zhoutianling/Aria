@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil.entity;
+package com.arialyy.downloadutil.core;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -39,16 +39,17 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
    */
   @Ignore public static final int STATE_CANCEL       = 5;
 
-  private String downloadUrl  = ""; //下载路径
-  private String downloadPath = "";    //保存路径
-  private String fileName     = "";        //文件名
-  private String str          = "";             //其它字段
+  @Ignore private long    speed              = 0; //下载速度
+  private         String  downloadUrl        = ""; //下载路径
+  private         String  downloadPath       = ""; //保存路径
+  private         String  fileName           = ""; //文件名
+  private         String  str                = ""; //其它字段
+  private         long    fileSize           = 1;
+  private         int     state              = STATE_WAIT;
+  private         boolean isDownloadComplete = false;   //是否下载完成
+  private         long    currentProgress    = 0;    //当前下载进度
+  private         int     failNum            = 0;
   private long completeTime;  //完成时间
-  private long    fileSize           = 1;
-  private int     state              = STATE_WAIT;
-  private boolean isDownloadComplete = false;   //是否下载完成
-  private long    currentProgress    = 0;    //当前下载进度
-  private int     failNum            = 0;
 
   public DownloadEntity() {
   }
@@ -125,6 +126,14 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
     isDownloadComplete = downloadComplete;
   }
 
+  public long getSpeed() {
+    return speed;
+  }
+
+  public void setSpeed(long speed) {
+    this.speed = speed;
+  }
+
   public long getCurrentProgress() {
     return currentProgress;
   }
@@ -136,42 +145,6 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
   @Override public DownloadEntity clone() throws CloneNotSupportedException {
     return (DownloadEntity) super.clone();
   }
-
-  @Override public int describeContents() {
-    return 0;
-  }
-
-  @Override public void writeToParcel(Parcel dest, int flags) {
-    dest.writeString(this.downloadUrl);
-    dest.writeString(this.downloadPath);
-    dest.writeLong(this.completeTime);
-    dest.writeLong(this.fileSize);
-    dest.writeInt(this.state);
-    dest.writeByte(this.isDownloadComplete ? (byte) 1 : (byte) 0);
-    dest.writeLong(this.currentProgress);
-    dest.writeInt(this.failNum);
-  }
-
-  protected DownloadEntity(Parcel in) {
-    this.downloadUrl = in.readString();
-    this.downloadPath = in.readString();
-    this.completeTime = in.readLong();
-    this.fileSize = in.readLong();
-    this.state = in.readInt();
-    this.isDownloadComplete = in.readByte() != 0;
-    this.currentProgress = in.readLong();
-    this.failNum = in.readInt();
-  }
-
-  @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
-    @Override public DownloadEntity createFromParcel(Parcel source) {
-      return new DownloadEntity(source);
-    }
-
-    @Override public DownloadEntity[] newArray(int size) {
-      return new DownloadEntity[size];
-    }
-  };
 
   @Override public String toString() {
     return "DownloadEntity{" +
@@ -185,4 +158,46 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
         ", failNum=" + failNum +
         '}';
   }
+
+  @Override public int describeContents() {
+    return 0;
+  }
+
+  @Override public void writeToParcel(Parcel dest, int flags) {
+    dest.writeString(this.downloadUrl);
+    dest.writeString(this.downloadPath);
+    dest.writeString(this.fileName);
+    dest.writeString(this.str);
+    dest.writeLong(this.completeTime);
+    dest.writeLong(this.fileSize);
+    dest.writeInt(this.state);
+    dest.writeByte(this.isDownloadComplete ? (byte) 1 : (byte) 0);
+    dest.writeLong(this.currentProgress);
+    dest.writeInt(this.failNum);
+    dest.writeLong(this.speed);
+  }
+
+  protected DownloadEntity(Parcel in) {
+    this.downloadUrl = in.readString();
+    this.downloadPath = in.readString();
+    this.fileName = in.readString();
+    this.str = in.readString();
+    this.completeTime = in.readLong();
+    this.fileSize = in.readLong();
+    this.state = in.readInt();
+    this.isDownloadComplete = in.readByte() != 0;
+    this.currentProgress = in.readLong();
+    this.failNum = in.readInt();
+    this.speed = in.readLong();
+  }
+
+  @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
+    @Override public DownloadEntity createFromParcel(Parcel source) {
+      return new DownloadEntity(source);
+    }
+
+    @Override public DownloadEntity[] newArray(int size) {
+      return new DownloadEntity[size];
+    }
+  };
 }

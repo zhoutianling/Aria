@@ -2,8 +2,8 @@ package com.arialyy.downloadutil.core.command;
 
 import android.content.Context;
 import android.util.Log;
-import com.arialyy.downloadutil.entity.DownloadEntity;
-import com.arialyy.downloadutil.util.Task;
+import com.arialyy.downloadutil.core.DownloadEntity;
+import com.arialyy.downloadutil.core.Task;
 
 /**
  * Created by lyy on 2016/9/20.

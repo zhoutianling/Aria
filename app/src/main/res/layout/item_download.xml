@@ -9,19 +9,50 @@
       android:id="@+id/progressBar"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_centerVertical="true"
       android:layout_marginRight="16dp"
+      android:layout_marginTop="16dp"
       android:layout_toLeftOf="@+id/bt"
       android:max="100"
+      />
+
+  <TextView
+      android:id="@+id/fileSize"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/progressBar"
+      android:layout_marginTop="8dp"
+      android:text="0mb/0mb"
+      android:textColor="@color/black"
       />
 
   <Button
       android:id="@+id/bt"
       android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
+      android:layout_height="40dp"
       android:layout_alignParentRight="true"
+      android:layout_centerVertical="true"
       android:text="开始"
       style="?buttonBarButtonStyle"
+      />
+
+  <TextView
+      android:id="@+id/speed"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignTop="@+id/fileSize"
+      android:layout_centerHorizontal="true"
+      android:text="0kb/s"
+      android:textColor="@color/black"
+      />
+
+  <TextView
+      android:id="@+id/del"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_alignRight="@+id/progressBar"
+      android:layout_alignTop="@+id/fileSize"
+      android:text="删除"
+      android:textColor="@color/bt_selector_cancel"
       />
 
 </RelativeLayout>

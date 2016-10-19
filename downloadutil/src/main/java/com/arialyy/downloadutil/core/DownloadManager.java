@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 import com.arialyy.downloadutil.core.command.IDownloadCommand;
-import com.arialyy.downloadutil.entity.DownloadEntity;
 import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.orm.DbUtil;
 import java.util.ArrayList;
@@ -67,6 +66,11 @@ public class DownloadManager {
    * 位置
    */
   public static final String CURRENT_LOCATION = "CURRENT_LOCATION";
+
+  /**
+   * 速度
+   */
+  public static final String CURRENT_SPEED = "CURRENT_SPEED";
 
   private List<IDownloadCommand> mCommands = new ArrayList<>();
 

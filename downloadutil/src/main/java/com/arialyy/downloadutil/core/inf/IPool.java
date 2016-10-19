@@ -1,6 +1,6 @@
 package com.arialyy.downloadutil.core.inf;
 
-import com.arialyy.downloadutil.util.Task;
+import com.arialyy.downloadutil.core.Task;
 
 /**
  * Created by lyy on 2016/8/14.

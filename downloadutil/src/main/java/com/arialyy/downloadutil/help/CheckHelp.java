@@ -4,7 +4,7 @@ import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.downloadutil.R;
-import com.arialyy.downloadutil.entity.DownloadEntity;
+import com.arialyy.downloadutil.core.DownloadEntity;
 import java.io.File;
 
 /**

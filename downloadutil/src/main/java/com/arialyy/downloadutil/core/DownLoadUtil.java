@@ -1,16 +1,17 @@
-package com.arialyy.downloadutil.util;
+package com.arialyy.downloadutil.core;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.SparseArray;
-import com.arialyy.downloadutil.entity.DownloadEntity;
+import com.arialyy.downloadutil.util.Util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -71,10 +72,14 @@ final class DownLoadUtil {
    */
   public void cancelDownload() {
     isCancel = true;
-    Log.d(TAG, "++++++++++++++++ onCancel +++++++++++++++++");
     isDownloading = false;
     mFixedThreadPool.shutdown();
-    mListener.onCancel();
+    for (int i = 0; i < THREAD_NUM; i++) {
+      DownLoadTask task = (DownLoadTask) mTask.get(i);
+      if (task != null) {
+        task.cancel();
+      }
+    }
   }
 
   /**
@@ -82,7 +87,6 @@ final class DownLoadUtil {
    */
   public void stopDownload() {
     isStop = true;
-    Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
     isDownloading = false;
     mFixedThreadPool.shutdown();
     for (int i = 0; i < THREAD_NUM; i++) {
@@ -155,13 +159,8 @@ final class DownLoadUtil {
           mListener = downloadListener;
           URL               url  = new URL(downloadUrl);
           HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-          conn.setRequestMethod("GET");
-          conn.setRequestProperty("Charset", "UTF-8");
+          setCommadParam(conn);
           conn.setConnectTimeout(TIME_OUT * 4);
-          conn.setRequestProperty("User-Agent",
-              "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
-          conn.setRequestProperty("Accept",
-              "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
           conn.connect();
           int len = conn.getContentLength();
           if (len < 0) {  //网络被劫持时会出现这个问题
@@ -177,7 +176,7 @@ final class DownLoadUtil {
             RandomAccessFile file = new RandomAccessFile(filePath, "rwd");
             //设置文件长度
             file.setLength(fileLength);
-            mListener.onPreDownload(conn);
+            mListener.onPreDownload(conn.getContentLength());
             //分配每条线程的下载区间
             Properties pro = null;
             pro = Util.loadConfig(configFile);
@@ -282,9 +281,17 @@ final class DownLoadUtil {
     mListener.onFail();
   }
 
+  private void setCommadParam(HttpURLConnection conn) throws ProtocolException {
+    conn.setRequestMethod("GET");
+    conn.setRequestProperty("Charset", "UTF-8");
+    conn.setRequestProperty("User-Agent",
+        "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
+    conn.setRequestProperty("Accept",
+        "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
+  }
 
   /**
-   * 多线程下载任务类,不能使用AsyncTask来进行多线程下载，因为AsyncTask是串行执行的，这种方式下载速度太慢了
+   * 单个线程的下载任务
    */
   private class DownLoadTask implements Runnable {
     private static final String TAG = "DownLoadTask";
@@ -316,12 +323,7 @@ final class DownLoadUtil {
         //在头里面请求下载开始位置和结束位置
         conn.setRequestProperty("Range",
             "bytes=" + dEntity.startLocation + "-" + dEntity.endLocation);
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("Charset", "UTF-8");
-        conn.setRequestProperty("User-Agent",
-            "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
-        conn.setRequestProperty("Accept",
-            "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
+        setCommadParam(conn);
         conn.setConnectTimeout(TIME_OUT * 4);
         conn.setReadTimeout(TIME_OUT * 24);  //设置读取流的等待时间,必须设置该参数
         is = conn.getInputStream();
@@ -416,9 +418,9 @@ final class DownLoadUtil {
           if (dEntity.tempFile.exists()) {
             dEntity.tempFile.delete();
           }
-          //Log.d(TAG, "++++++++++++++++ onCancel +++++++++++++++++");
-          //isDownloading = false;
-          //mListener.onCancel();
+          Log.d(TAG, "++++++++++++++++ onCancel +++++++++++++++++");
+          isDownloading = false;
+          mListener.onCancel();
         }
       }
     }
@@ -504,7 +506,7 @@ final class DownLoadUtil {
 
     }
 
-    @Override public void onPreDownload(HttpURLConnection connection) {
+    @Override public void onPreDownload(long fileSize) {
 
     }
 

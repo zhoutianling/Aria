@@ -7,8 +7,6 @@ import com.arialyy.downloadutil.core.inf.IDownloader;
 import com.arialyy.downloadutil.core.inf.ITask;
 import com.arialyy.downloadutil.core.pool.CachePool;
 import com.arialyy.downloadutil.core.pool.ExecutePool;
-import com.arialyy.downloadutil.entity.DownloadEntity;
-import com.arialyy.downloadutil.util.Task;
 
 /**
  * Created by lyy on 2016/8/16.

@@ -1,7 +1,7 @@
 package com.arialyy.downloadutil.core.inf;
 
-import com.arialyy.downloadutil.entity.DownloadEntity;
-import com.arialyy.downloadutil.util.Task;
+import com.arialyy.downloadutil.core.DownloadEntity;
+import com.arialyy.downloadutil.core.Task;
 
 /**
  * Created by lyy on 2016/8/16.
@@ -29,7 +29,7 @@ public interface ITask {
    * 通过下载链接搜索下载任务
    *
    * @param entity 下载实体{@link DownloadEntity}
-   * @return {@code -1 ==> 错误}，{@link com.arialyy.downloadutil.entity.DownloadEntity#STATE_FAIL}
+   * @return {@code -1 ==> 错误}，{@link DownloadEntity#STATE_FAIL}
    */
   public int getTaskState(DownloadEntity entity);
 

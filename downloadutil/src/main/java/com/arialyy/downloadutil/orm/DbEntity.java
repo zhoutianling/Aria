@@ -56,7 +56,7 @@ public class DbEntity {
   /**
    * 保存自身，如果表中已经有数据，则更新数据，否则插入数据
    */
-  public void save() {
+  public synchronized void save() {
     if (mUtil.tableExists(getClass()) && thisIsExist()) {
       update();
     } else {

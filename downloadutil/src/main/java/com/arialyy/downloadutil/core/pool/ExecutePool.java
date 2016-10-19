@@ -3,7 +3,7 @@ package com.arialyy.downloadutil.core.pool;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.downloadutil.core.inf.IPool;
-import com.arialyy.downloadutil.util.Task;
+import com.arialyy.downloadutil.core.Task;
 import com.arialyy.downloadutil.util.Util;
 import java.util.HashMap;
 import java.util.Map;

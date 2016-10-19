@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Environment;
 import com.arialyy.downloadutil.core.DownloadManager;
-import com.arialyy.downloadutil.entity.DownloadEntity;
+import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.util.Util;
 import com.arialyy.frame.util.AndroidUtils;
 import com.arialyy.frame.util.StringUtil;
@@ -27,11 +27,8 @@ public class DownloadModule extends BaseModule {
    */
   public List<DownloadEntity> getDownloadData() {
     List<DownloadEntity> list        = DownloadEntity.findAllData(DownloadEntity.class);
-    List<DownloadEntity> newDownload = createNewDownload();
-    if (list == null) {
-      list = newDownload;
-    } else {
-      list = filter(list, newDownload);
+    if (list == null || list.size() == 0) {
+      list = createNewDownload();
     }
     return list;
   }
@@ -53,7 +50,7 @@ public class DownloadModule extends BaseModule {
           break;
         }
         count++;
-        if (count == sqlEntity.size()) {
+        if (count == createdEntity.size()) {
           list.add(cEntity);
         }
       }
@@ -74,6 +71,7 @@ public class DownloadModule extends BaseModule {
       entity.setDownloadUrl(url);
       entity.setDownloadPath(getDownloadPath(url));
       entity.setFileName(fileName);
+      entity.save();
       list.add(entity);
     }
     return list;

@@ -1,14 +1,10 @@
-package com.arialyy.downloadutil.util;
+package com.arialyy.downloadutil.core;
 
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
-import com.arialyy.downloadutil.core.DownloadManager;
-import com.arialyy.downloadutil.core.IDownloadTarget;
-import com.arialyy.downloadutil.entity.DownloadEntity;
-import java.net.HttpURLConnection;
 
 /**
  * Created by lyy on 2016/8/11.
@@ -131,10 +127,11 @@ public class Task {
     Handler outHandler;
     Context context;
     Intent  sendIntent;
-    long INTERVAL      = 1024 * 10;   //10k大小的间隔
-    long lastLen       = 0;   //上一次发送长度
-    long lastTime      = 0;
-    long INTERVAL_TIME = 60 * 1000;   //10k大小的间隔
+    long    INTERVAL      = 1024 * 10;   //10k大小的间隔
+    long    lastLen       = 0;   //上一次发送长度
+    long    lastTime      = 0;
+    long    INTERVAL_TIME = 1000;   //1m更新周期
+    boolean isFirst       = true;
     DownloadEntity downloadEntity;
 
     DownloadListener(Context context, DownloadEntity downloadEntity, Handler outHandler) {
@@ -145,10 +142,9 @@ public class Task {
       sendIntent.putExtra(DownloadManager.ENTITY, downloadEntity);
     }
 
-    @Override public void onPreDownload(HttpURLConnection connection) {
-      super.onPreDownload(connection);
-      long len = connection.getContentLength();
-      downloadEntity.setFileSize(len);
+    @Override public void onPreDownload(long fileSize) {
+      super.onPreDownload(fileSize);
+      downloadEntity.setFileSize(fileSize);
       downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
       sendIntent(DownloadManager.ACTION_PRE, -1);
     }
@@ -168,14 +164,19 @@ public class Task {
 
     @Override public void onProgress(long currentLocation) {
       super.onProgress(currentLocation);
-      //            if (currentLocation - lastLen > INTERVAL) { //不要太过于频繁发送广播
-      //                sendIntent.putExtra(DownloadManager.CURRENT_LOCATION, currentLocation);
-      //                lastLen = currentLocation;
-      //                context.sendBroadcast(sendIntent);
-      //            }
-      if (System.currentTimeMillis() - lastLen > INTERVAL_TIME) {
+      if (System.currentTimeMillis() - lastTime > INTERVAL_TIME) {
+        long speed = currentLocation - lastLen;
         sendIntent.putExtra(DownloadManager.CURRENT_LOCATION, currentLocation);
+        sendIntent.putExtra(DownloadManager.CURRENT_SPEED, speed);
         lastTime = System.currentTimeMillis();
+        if (isFirst) {
+          downloadEntity.setSpeed(0);
+          isFirst = false;
+        } else {
+          downloadEntity.setSpeed(speed);
+        }
+        downloadEntity.setCurrentProgress(currentLocation);
+        lastLen = currentLocation;
         context.sendBroadcast(sendIntent);
       }
     }
@@ -183,6 +184,7 @@ public class Task {
     @Override public void onStop(long stopLocation) {
       super.onStop(stopLocation);
       downloadEntity.setState(DownloadEntity.STATE_STOP);
+      downloadEntity.setSpeed(0);
       sendInState2Target(IDownloadTarget.STOP);
       sendIntent(DownloadManager.ACTION_STOP, stopLocation);
     }
@@ -199,13 +201,15 @@ public class Task {
       super.onComplete();
       downloadEntity.setState(DownloadEntity.STATE_COMPLETE);
       downloadEntity.setDownloadComplete(true);
+      downloadEntity.setSpeed(0);
       sendInState2Target(IDownloadTarget.COMPLETE);
-      sendIntent(DownloadManager.ACTION_COMPLETE, -1);
+      sendIntent(DownloadManager.ACTION_COMPLETE, downloadEntity.getFileSize());
     }
 
     @Override public void onFail() {
       super.onFail();
       downloadEntity.setState(DownloadEntity.STATE_FAIL);
+      downloadEntity.setSpeed(0);
       sendInState2Target(IDownloadTarget.FAIL);
       sendIntent(DownloadManager.ACTION_FAIL, -1);
     }

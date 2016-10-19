@@ -4,14 +4,15 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import butterknife.Bind;
 import com.arialyy.absadapter.common.AbsHolder;
 import com.arialyy.absadapter.recycler_view.AbsRVAdapter;
+import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.command.CommandFactory;
 import com.arialyy.downloadutil.core.command.IDownloadCommand;
-import com.arialyy.downloadutil.entity.DownloadEntity;
-import com.arialyy.frame.util.show.L;
+import com.arialyy.downloadutil.util.Util;
 import com.arialyy.simple.R;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 import java.util.ArrayList;
@@ -28,14 +29,12 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   private static final String TAG = "DownloadAdapter";
   private DownloadManager mManager;
   private CommandFactory  mFactory;
-  private Map<String, Long>    mProgress  = new HashMap<>();
   private Map<String, Integer> mPositions = new HashMap<>();
 
   public DownloadAdapter(Context context, List<DownloadEntity> data) {
     super(context, data);
     int i = 0;
     for (DownloadEntity entity : data) {
-      mProgress.put(entity.getDownloadUrl(), entity.getCurrentProgress());
       mPositions.put(entity.getDownloadUrl(), i);
       i++;
     }
@@ -52,15 +51,26 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   }
 
   public synchronized void updateState(DownloadEntity entity) {
-    notifyItemChanged(indexItem(entity.getDownloadUrl()));
+    if (entity.getState() == DownloadEntity.STATE_CANCEL) {
+      mPositions.clear();
+      int i = 0;
+      for (DownloadEntity entity_1 : mData) {
+        mPositions.put(entity_1.getDownloadUrl(), i);
+        i++;
+      }
+      notifyDataSetChanged();
+    } else {
+      int position = indexItem(entity.getDownloadUrl());
+      mData.set(position, entity);
+      notifyItemChanged(position);
+    }
   }
 
-  public synchronized void setProgress(String url, long currentPosition) {
-    mProgress.put(url, currentPosition);
-    //        int index = indexItem(url);
-    //        L.d(TAG, "index ==> " + index);
-    //        notifyItemChanged(index);
-    notifyItemChanged(indexItem(url));
+  public synchronized void setProgress(DownloadEntity entity) {
+    String url      = entity.getDownloadUrl();
+    int    position = indexItem(url);
+    mData.set(position, entity);
+    notifyItemChanged(position);
   }
 
   private synchronized int indexItem(String url) {
@@ -74,14 +84,12 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     return -1;
   }
 
-  @Override protected void bindData(MyHolder holder, int position, DownloadEntity item) {
-    //holder.progress.setProgress(item.getCurrentProgress());
-    long size    = item.getFileSize();
-    int  current = 0;
-    if (size == 0) {
-      current = 0;
-    }
-    current = (int) (mProgress.get(item.getDownloadUrl()) * 100 / item.getFileSize());
+  @Override protected void bindData(MyHolder holder, int position, final DownloadEntity item) {
+    long size     = item.getFileSize();
+    int  current  = 0;
+    long progress = item.getCurrentProgress();
+    long speed    = item.getSpeed();
+    current = size == 0 ? 0 : (int) (progress * 100 / size);
     holder.progress.setProgress(current);
     BtClickListener listener = new BtClickListener(position, item);
     holder.bt.setOnClickListener(listener);
@@ -108,6 +116,22 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     }
     holder.bt.setText(str);
     holder.bt.setTextColor(getColor(color));
+    holder.speed.setText(Util.formatFileSize(speed) + "/s");
+    holder.fileSize.setText(covertCurrentSize(progress) + "/" + Util.formatFileSize(size));
+    holder.cancel.setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        mData.remove(item);
+        notifyDataSetChanged();
+        IDownloadCommand cancelCommand =
+            mFactory.createCommand(getContext(), item, CommandFactory.TASK_CANCEL);
+        mManager.setCommand(cancelCommand).exe();
+      }
+    });
+  }
+
+  private String covertCurrentSize(long currentSize) {
+    String size = Util.formatFileSize(currentSize);
+    return size.substring(0, size.length() - 1);
   }
 
   private int getColor(int color) {
@@ -124,7 +148,6 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     }
 
     @Override public void onClick(View v) {
-      L.d(TAG, "position ==> " + position);
       switch (entity.getState()) {
         case DownloadEntity.STATE_WAIT:
         case DownloadEntity.STATE_OTHER:
@@ -140,7 +163,6 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     }
 
     private void start(DownloadEntity entity) {
-
       List<IDownloadCommand> commands = new ArrayList<>();
       IDownloadCommand addCommand =
           mFactory.createCommand(getContext(), entity, CommandFactory.TASK_CREATE);
@@ -156,17 +178,14 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
           mFactory.createCommand(getContext(), entity, CommandFactory.TASK_STOP);
       mManager.setCommand(stopCommand).exe();
     }
-
-    private void cancel(DownloadEntity entity) {
-      IDownloadCommand cancelCommand =
-          mFactory.createCommand(getContext(), entity, CommandFactory.TASK_CANCEL);
-      mManager.setCommand(cancelCommand).exe();
-    }
   }
 
   class MyHolder extends AbsHolder {
     @Bind(R.id.progressBar) HorizontalProgressBarWithNumber progress;
     @Bind(R.id.bt)          Button                          bt;
+    @Bind(R.id.speed)       TextView                        speed;
+    @Bind(R.id.fileSize)    TextView                        fileSize;
+    @Bind(R.id.del)         TextView                        cancel;
 
     MyHolder(View itemView) {
       super(itemView);

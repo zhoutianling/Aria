@@ -17,7 +17,7 @@ import butterknife.Bind;
 import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.command.CommandFactory;
 import com.arialyy.downloadutil.core.command.IDownloadCommand;
-import com.arialyy.downloadutil.entity.DownloadEntity;
+import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.util.Util;
 import com.arialyy.frame.util.show.L;
