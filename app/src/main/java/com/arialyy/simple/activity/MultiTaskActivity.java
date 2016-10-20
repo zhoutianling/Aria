@@ -46,8 +46,12 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
       DownloadEntity entity = intent.getParcelableExtra(DownloadManager.ENTITY);
       switch (action) {
         case DownloadManager.ACTION_PRE:
-          len = entity.getFileSize();
           L.d(TAG, "download pre");
+          mAdapter.updateState(entity);
+          break;
+        case DownloadManager.ACTION_POST_PRE:
+          len = entity.getFileSize();
+          L.d(TAG, "download post pre");
           break;
         case DownloadManager.ACTION_START:
           L.d(TAG, "download start");

@@ -7,13 +7,13 @@ import com.arialyy.downloadutil.core.DownloadEntity;
  * Created by lyy on 2016/9/20.
  * 获取下载状态的命令
  */
-class StateCommand extends IDownloadCommand {
+class StateCmd extends IDownloadCmd {
 
   /**
    * @param context context
    * @param entity 下载实体
    */
-  StateCommand(Context context, DownloadEntity entity) {
+  StateCmd(Context context, DownloadEntity entity) {
     super(context, entity);
   }
 

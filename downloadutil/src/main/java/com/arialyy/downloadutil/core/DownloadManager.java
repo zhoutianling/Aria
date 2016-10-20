@@ -3,7 +3,7 @@ package com.arialyy.downloadutil.core;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
-import com.arialyy.downloadutil.core.command.IDownloadCommand;
+import com.arialyy.downloadutil.core.command.IDownloadCmd;
 import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.orm.DbUtil;
 import java.util.ArrayList;
@@ -14,13 +14,19 @@ import java.util.List;
  * 下载管理器，通过命令的方式控制下载
  */
 public class DownloadManager {
-  private static final    String          TAG        = "DownloadManager";
-  private static final    Object          LOCK       = new Object();
-  private static volatile DownloadManager INSTANCE   = null;
+  private static final    String          TAG      = "DownloadManager";
+  private static final    Object          LOCK     = new Object();
+  private static volatile DownloadManager INSTANCE = null;
+
+  /**
+   * 预处理完成
+   */
+  public static final String ACTION_PRE = "ACTION_PRE";
+
   /**
    * 下载开始前事件
    */
-  public static final     String          ACTION_PRE = "ACTION_PRE";
+  public static final String ACTION_POST_PRE = "ACTION_POST_PRE";
 
   /**
    * 开始下载事件
@@ -72,7 +78,7 @@ public class DownloadManager {
    */
   public static final String CURRENT_SPEED = "CURRENT_SPEED";
 
-  private List<IDownloadCommand> mCommands = new ArrayList<>();
+  private List<IDownloadCmd> mCommands = new ArrayList<>();
 
   private DownloadManager() {
 
@@ -113,7 +119,7 @@ public class DownloadManager {
   /**
    * 设置命令
    */
-  public DownloadManager setCommand(IDownloadCommand command) {
+  public DownloadManager setCmd(IDownloadCmd command) {
     mCommands.add(command);
     return this;
   }
@@ -121,7 +127,7 @@ public class DownloadManager {
   /**
    * 设置一组命令
    */
-  public DownloadManager setCommands(List<IDownloadCommand> commands) {
+  public DownloadManager setCmds(List<IDownloadCmd> commands) {
     if (commands != null && commands.size() > 0) {
       mCommands.addAll(commands);
     }
@@ -132,7 +138,7 @@ public class DownloadManager {
    * 执行所有设置的命令
    */
   public synchronized void exe() {
-    for (IDownloadCommand command : mCommands) {
+    for (IDownloadCmd command : mCommands) {
       command.executeComment();
     }
     mCommands.clear();

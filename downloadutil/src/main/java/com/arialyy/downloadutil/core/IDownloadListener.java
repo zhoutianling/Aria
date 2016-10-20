@@ -15,9 +15,14 @@ public interface IDownloadListener {
   public void onFail();
 
   /**
-   * 下载预处理,可通过HttpURLConnection获取文件长度
+   * 预处理
    */
-  public void onPreDownload(long fileSize);
+  public void onPre();
+
+  /**
+   * 预处理完成,准备下载---开始下载之间
+   */
+  public void onPostPre(long fileSize);
 
   /**
    * 下载监听

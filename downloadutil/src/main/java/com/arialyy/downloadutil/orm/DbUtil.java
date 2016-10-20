@@ -292,6 +292,9 @@ public class DbUtil {
    * @param type {@link DbUtil}
    */
   private void print(int type, String sql) {
+    if (true){
+      return;
+    }
     String str = "";
     switch (type) {
       case 0:
@@ -409,6 +412,7 @@ public class DbUtil {
           }
           entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
           entitys.add(entity);
+          Log.d(TAG, "rowid ==> " + entity.rowID);
         }
       } catch (InstantiationException e) {
         e.printStackTrace();

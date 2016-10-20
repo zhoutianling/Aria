@@ -142,11 +142,17 @@ public class Task {
       sendIntent.putExtra(DownloadManager.ENTITY, downloadEntity);
     }
 
-    @Override public void onPreDownload(long fileSize) {
-      super.onPreDownload(fileSize);
-      downloadEntity.setFileSize(fileSize);
-      downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
+    @Override public void onPre() {
+      super.onPre();
+      downloadEntity.setState(DownloadEntity.STATE_PRE);
       sendIntent(DownloadManager.ACTION_PRE, -1);
+    }
+
+    @Override public void onPostPre(long fileSize) {
+      super.onPostPre(fileSize);
+      downloadEntity.setFileSize(fileSize);
+      downloadEntity.setState(DownloadEntity.STATE_POST_PRE);
+      sendIntent(DownloadManager.ACTION_POST_PRE, -1);
     }
 
     @Override public void onResume(long resumeLocation) {

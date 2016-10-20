@@ -11,7 +11,7 @@ import com.arialyy.downloadutil.util.Util;
  * Created by lyy on 2016/8/22.
  * 下载命令
  */
-public abstract class IDownloadCommand {
+public abstract class IDownloadCmd {
   protected IDownloadTarget target;
   protected Context         mContext;
   protected DownloadEntity  mEntity;
@@ -21,7 +21,7 @@ public abstract class IDownloadCommand {
    * @param context context
    * @param entity 下载实体
    */
-  protected IDownloadCommand(Context context, DownloadEntity entity) {
+  protected IDownloadCmd(Context context, DownloadEntity entity) {
     if (!CheckHelp.checkDownloadEntity(entity)) {
       return;
     }

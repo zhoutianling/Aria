@@ -8,8 +8,10 @@ import com.arialyy.downloadutil.orm.Ignore;
 /**
  * Created by lyy on 2015/12/25.
  * 下载实体
+ * ！！！ 注意：CREATOR要进行@Ignore注解
+ * ！！！并且需要Parcelable时需要手动填写rowID;
  */
-public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
+public class DownloadEntity extends DbEntity implements Parcelable {
   /**
    * 其它状态
    */
@@ -35,9 +37,17 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
    */
   @Ignore public static final int STATE_DOWNLOAD_ING = 4;
   /**
+   * 预处理
+   */
+  @Ignore public static final int STATE_PRE          = 5;
+  /**
+   * 预处理完成
+   */
+  @Ignore public static final int STATE_POST_PRE     = 6;
+  /**
    * 取消下载
    */
-  @Ignore public static final int STATE_CANCEL       = 5;
+  @Ignore public static final int STATE_CANCEL       = 7;
 
   @Ignore private long    speed              = 0; //下载速度
   private         String  downloadUrl        = ""; //下载路径
@@ -175,6 +185,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
     dest.writeLong(this.currentProgress);
     dest.writeInt(this.failNum);
     dest.writeLong(this.speed);
+    dest.writeInt(this.rowID);
   }
 
   protected DownloadEntity(Parcel in) {
@@ -189,6 +200,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, Cloneable {
     this.currentProgress = in.readLong();
     this.failNum = in.readInt();
     this.speed = in.readLong();
+    this.rowID = in.readInt();
   }
 
   @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {

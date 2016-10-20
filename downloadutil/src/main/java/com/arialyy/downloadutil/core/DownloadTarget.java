@@ -40,6 +40,7 @@ public class DownloadTarget extends IDownloadTarget {
 
   @Override public void startTask(Task task) {
     if (mExecutePool.putTask(task)) {
+      mCachePool.removeTask(task);
       task.start();
     }
   }

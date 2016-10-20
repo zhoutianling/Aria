@@ -1,6 +1,7 @@
 package com.arialyy.downloadutil.orm;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 import com.arialyy.downloadutil.util.Util;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -11,8 +12,9 @@ import java.util.List;
  * 所有数据库实体父类
  */
 public class DbEntity {
-  protected int    rowID = -1;
-  private   DbUtil mUtil = DbUtil.getInstance();
+  protected            int    rowID = -1;
+  private              DbUtil mUtil = DbUtil.getInstance();
+  private static final Object LOCK  = new Object();
 
   protected DbEntity() {
 
@@ -56,11 +58,13 @@ public class DbEntity {
   /**
    * 保存自身，如果表中已经有数据，则更新数据，否则插入数据
    */
-  public synchronized void save() {
-    if (mUtil.tableExists(getClass()) && thisIsExist()) {
-      update();
-    } else {
-      insert();
+  public void save() {
+    synchronized (LOCK) {
+      if (mUtil.tableExists(getClass()) && thisIsExist()) {
+        update();
+      } else {
+        insert();
+      }
     }
   }
 

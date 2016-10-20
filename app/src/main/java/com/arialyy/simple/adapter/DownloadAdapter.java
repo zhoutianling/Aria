@@ -10,8 +10,8 @@ import com.arialyy.absadapter.common.AbsHolder;
 import com.arialyy.absadapter.recycler_view.AbsRVAdapter;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
-import com.arialyy.downloadutil.core.command.CommandFactory;
-import com.arialyy.downloadutil.core.command.IDownloadCommand;
+import com.arialyy.downloadutil.core.command.CmdFactory;
+import com.arialyy.downloadutil.core.command.IDownloadCmd;
 import com.arialyy.downloadutil.util.Util;
 import com.arialyy.simple.R;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
@@ -28,18 +28,21 @@ import java.util.Set;
 public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter.MyHolder> {
   private static final String TAG = "DownloadAdapter";
   private DownloadManager mManager;
-  private CommandFactory  mFactory;
+  private CmdFactory      mFactory;
   private Map<String, Integer> mPositions = new HashMap<>();
 
   public DownloadAdapter(Context context, List<DownloadEntity> data) {
     super(context, data);
-    int i = 0;
+    mFactory = CmdFactory.getInstance();
+    mManager = DownloadManager.getInstance();
+    List<IDownloadCmd> addCmd = new ArrayList<>();
+    int                i      = 0;
     for (DownloadEntity entity : data) {
       mPositions.put(entity.getDownloadUrl(), i);
+      addCmd.add(mFactory.createCmd(context, entity, CmdFactory.TASK_CREATE));
       i++;
     }
-    mFactory = CommandFactory.getInstance();
-    mManager = DownloadManager.getInstance();
+    mManager.setCmds(addCmd).exe();
   }
 
   @Override protected MyHolder getViewHolder(View convertView, int viewType) {
@@ -105,6 +108,8 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
         str = "恢复";
         color = android.R.color.holo_blue_light;
         break;
+      case DownloadEntity.STATE_PRE:
+      case DownloadEntity.STATE_POST_PRE:
       case DownloadEntity.STATE_DOWNLOAD_ING:
         str = "暂停";
         color = android.R.color.holo_red_light;
@@ -122,9 +127,8 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
       @Override public void onClick(View v) {
         mData.remove(item);
         notifyDataSetChanged();
-        IDownloadCommand cancelCommand =
-            mFactory.createCommand(getContext(), item, CommandFactory.TASK_CANCEL);
-        mManager.setCommand(cancelCommand).exe();
+        IDownloadCmd cancelCmd = mFactory.createCmd(getContext(), item, CmdFactory.TASK_CANCEL);
+        mManager.setCmd(cancelCmd).exe();
       }
     });
   }
@@ -163,20 +167,13 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     }
 
     private void start(DownloadEntity entity) {
-      List<IDownloadCommand> commands = new ArrayList<>();
-      IDownloadCommand addCommand =
-          mFactory.createCommand(getContext(), entity, CommandFactory.TASK_CREATE);
-      IDownloadCommand startCommand =
-          mFactory.createCommand(getContext(), entity, CommandFactory.TASK_START);
-      commands.add(addCommand);
-      commands.add(startCommand);
-      mManager.setCommands(commands).exe();
+      IDownloadCmd startCmd = mFactory.createCmd(getContext(), entity, CmdFactory.TASK_START);
+      mManager.setCmd(startCmd).exe();
     }
 
     private void stop(DownloadEntity entity) {
-      IDownloadCommand stopCommand =
-          mFactory.createCommand(getContext(), entity, CommandFactory.TASK_STOP);
-      mManager.setCommand(stopCommand).exe();
+      IDownloadCmd stopCmd = mFactory.createCmd(getContext(), entity, CmdFactory.TASK_STOP);
+      mManager.setCmd(stopCmd).exe();
     }
   }
 

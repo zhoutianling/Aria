@@ -2,8 +2,8 @@ package com.arialyy.downloadutil.core.pool;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.downloadutil.core.inf.IPool;
 import com.arialyy.downloadutil.core.Task;
+import com.arialyy.downloadutil.core.inf.IPool;
 import com.arialyy.downloadutil.util.Util;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ public class ExecutePool implements IPool {
   private static final    Object      LOCK     = new Object();
   private static final    long        TIME_OUT = 1000;
   private static volatile ExecutePool INSTANCE = null;
-  private static          int         SIZE     = 2;
+  public static           int         SIZE     = 2;
   private ArrayBlockingQueue<Task> mExecuteQueue;
   private Map<String, Task>        mExecuteArray;
 

@@ -3,8 +3,8 @@ package com.arialyy.simple.module;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Environment;
-import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.DownloadEntity;
+import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.util.Util;
 import com.arialyy.frame.util.AndroidUtils;
 import com.arialyy.frame.util.StringUtil;
@@ -26,7 +26,7 @@ public class DownloadModule extends BaseModule {
    * 设置下载数据
    */
   public List<DownloadEntity> getDownloadData() {
-    List<DownloadEntity> list        = DownloadEntity.findAllData(DownloadEntity.class);
+    List<DownloadEntity> list = DownloadEntity.findAllData(DownloadEntity.class);
     if (list == null || list.size() == 0) {
       list = createNewDownload();
     }
@@ -63,16 +63,18 @@ public class DownloadModule extends BaseModule {
    */
   private List<DownloadEntity> createNewDownload() {
     List<DownloadEntity> list = new ArrayList<>();
-    String[]             urls =
-        getContext().getResources().getStringArray(R.array.test_apk_download_url);
+    String[] urls = getContext().getResources().getStringArray(R.array.test_apk_download_url);
+    int i = 0;
     for (String url : urls) {
       String         fileName = Util.keyToHashCode(url) + ".apk";
       DownloadEntity entity   = new DownloadEntity();
       entity.setDownloadUrl(url);
       entity.setDownloadPath(getDownloadPath(url));
-      entity.setFileName(fileName);
+      //entity.setFileName(fileName);
+      entity.setFileName("taskName_________" + i);
       entity.save();
       list.add(entity);
+      i++;
     }
     return list;
   }
@@ -84,6 +86,7 @@ public class DownloadModule extends BaseModule {
     IntentFilter filter = new IntentFilter();
     filter.addDataScheme(getContext().getPackageName());
     filter.addAction(DownloadManager.ACTION_PRE);
+    filter.addAction(DownloadManager.ACTION_POST_PRE);
     filter.addAction(DownloadManager.ACTION_RESUME);
     filter.addAction(DownloadManager.ACTION_START);
     filter.addAction(DownloadManager.ACTION_RUNNING);

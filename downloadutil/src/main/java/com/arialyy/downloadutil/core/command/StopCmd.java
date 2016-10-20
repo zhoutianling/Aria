@@ -9,13 +9,13 @@ import com.arialyy.downloadutil.core.Task;
  * Created by lyy on 2016/9/20.
  * 停止命令
  */
-class StopCommand extends IDownloadCommand {
+class StopCmd extends IDownloadCmd {
 
   /**
    * @param context context
    * @param entity 下载实体
    */
-  StopCommand(Context context, DownloadEntity entity) {
+  StopCmd(Context context, DownloadEntity entity) {
     super(context, entity);
   }
 

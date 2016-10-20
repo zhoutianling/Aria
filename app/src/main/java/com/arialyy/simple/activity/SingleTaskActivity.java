@@ -14,10 +14,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
-import com.arialyy.downloadutil.core.DownloadManager;
-import com.arialyy.downloadutil.core.command.CommandFactory;
-import com.arialyy.downloadutil.core.command.IDownloadCommand;
 import com.arialyy.downloadutil.core.DownloadEntity;
+import com.arialyy.downloadutil.core.DownloadManager;
+import com.arialyy.downloadutil.core.command.CmdFactory;
+import com.arialyy.downloadutil.core.command.IDownloadCmd;
 import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.util.Util;
 import com.arialyy.frame.util.show.L;
@@ -41,7 +41,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private Button mStart, mStop, mCancel;
   private             TextView        mSize;
   @Bind(R.id.toolbar) Toolbar         toolbar;
-  private             CommandFactory  mFactory;
+  private             CmdFactory      mFactory;
   private             DownloadManager mManager;
   private             DownloadEntity  mEntity;
 
@@ -97,7 +97,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     @Override public void onReceive(Context context, Intent intent) {
       String action = intent.getAction();
       switch (action) {
-        case DownloadManager.ACTION_PRE:
+        case DownloadManager.ACTION_POST_PRE:
           DownloadEntity entity = intent.getParcelableExtra(DownloadManager.ENTITY);
           len = entity.getFileSize();
           L.d(TAG, "download pre");
@@ -168,7 +168,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     mStop = (Button) findViewById(R.id.stop);
     mCancel = (Button) findViewById(R.id.cancel);
     mSize = (TextView) findViewById(R.id.size);
-    mFactory = CommandFactory.getInstance();
+    mFactory = CmdFactory.getInstance();
     mManager = DownloadManager.getInstance();
     mEntity = DbEntity.findData(DownloadEntity.class, new String[] { "downloadUrl" },
         new String[] { mDownloadUrl });
@@ -190,21 +190,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     switch (view.getId()) {
       case R.id.start:
         start();
-        //                if (PermissionManager.getInstance()
-        //                        .checkPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-        //                    start();
-        //                } else {
-        //                    PermissionManager.getInstance()
-        //                            .requestPermission(this, new OnPermissionCallback() {
-        //                                @Override public void onSuccess(String... permissions) {
-        //                                    start();
-        //                                }
-        //
-        //                                @Override public void onFail(String... permissions) {
-        //
-        //                                }
-        //                            }, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        //                }
         break;
       case R.id.stop:
         stop();
@@ -219,23 +204,21 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     mEntity.setFileName("test.apk");
     mEntity.setDownloadUrl(mDownloadUrl);
     mEntity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
-    List<IDownloadCommand> commands = new ArrayList<>();
-    IDownloadCommand addCommand = mFactory.createCommand(this, mEntity, CommandFactory.TASK_CREATE);
-    IDownloadCommand startCommand =
-        mFactory.createCommand(this, mEntity, CommandFactory.TASK_START);
-    commands.add(addCommand);
-    commands.add(startCommand);
-    mManager.setCommands(commands).exe();
+    List<IDownloadCmd> commands = new ArrayList<>();
+    IDownloadCmd       addCMD   = mFactory.createCmd(this, mEntity, CmdFactory.TASK_CREATE);
+    IDownloadCmd startCmd = mFactory.createCmd(this, mEntity, CmdFactory.TASK_START);
+    commands.add(addCMD);
+    commands.add(startCmd);
+    mManager.setCmds(commands).exe();
   }
 
   private void stop() {
-    IDownloadCommand stopCommand = mFactory.createCommand(this, mEntity, CommandFactory.TASK_STOP);
-    mManager.setCommand(stopCommand).exe();
+    IDownloadCmd stopCmd = mFactory.createCmd(this, mEntity, CmdFactory.TASK_STOP);
+    mManager.setCmd(stopCmd).exe();
   }
 
   private void cancel() {
-    IDownloadCommand cancelCommand =
-        mFactory.createCommand(this, mEntity, CommandFactory.TASK_CANCEL);
-    mManager.setCommand(cancelCommand).exe();
+    IDownloadCmd cancelCmd = mFactory.createCmd(this, mEntity, CmdFactory.TASK_CANCEL);
+    mManager.setCmd(cancelCmd).exe();
   }
 }

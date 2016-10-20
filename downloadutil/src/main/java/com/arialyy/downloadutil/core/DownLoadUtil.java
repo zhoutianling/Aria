@@ -1,7 +1,6 @@
 package com.arialyy.downloadutil.core;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.downloadutil.util.Util;
@@ -128,7 +127,8 @@ final class DownLoadUtil {
    *
    * @param downloadListener 下载进度监听 {@link DownloadListener}
    */
-  public void start(@NonNull final IDownloadListener downloadListener) {
+  public void start(IDownloadListener downloadListener) {
+    mListener = downloadListener;
     isDownloading = true;
     mCurrentLocation = 0;
     isStop = false;
@@ -153,13 +153,13 @@ final class DownLoadUtil {
       failDownload("下载失败，记录文件被删除");
       return;
     }
+    mListener.onPre();
     new Thread(new Runnable() {
       @Override public void run() {
         try {
-          mListener = downloadListener;
           URL               url  = new URL(downloadUrl);
           HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-          setCommadParam(conn);
+          setConnectParam(conn);
           conn.setConnectTimeout(TIME_OUT * 4);
           conn.connect();
           int len = conn.getContentLength();
@@ -169,14 +169,13 @@ final class DownLoadUtil {
           }
           int code = conn.getResponseCode();
           if (code == 200) {
-
             int fileLength = conn.getContentLength();
             //必须建一个文件
             Util.createFile(filePath);
             RandomAccessFile file = new RandomAccessFile(filePath, "rwd");
             //设置文件长度
             file.setLength(fileLength);
-            mListener.onPreDownload(conn.getContentLength());
+            mListener.onPostPre(fileLength);
             //分配每条线程的下载区间
             Properties pro = null;
             pro = Util.loadConfig(configFile);
@@ -281,7 +280,7 @@ final class DownLoadUtil {
     mListener.onFail();
   }
 
-  private void setCommadParam(HttpURLConnection conn) throws ProtocolException {
+  private void setConnectParam(HttpURLConnection conn) throws ProtocolException {
     conn.setRequestMethod("GET");
     conn.setRequestProperty("Charset", "UTF-8");
     conn.setRequestProperty("User-Agent",
@@ -323,7 +322,7 @@ final class DownLoadUtil {
         //在头里面请求下载开始位置和结束位置
         conn.setRequestProperty("Range",
             "bytes=" + dEntity.startLocation + "-" + dEntity.endLocation);
-        setCommadParam(conn);
+        setConnectParam(conn);
         conn.setConnectTimeout(TIME_OUT * 4);
         conn.setReadTimeout(TIME_OUT * 24);  //设置读取流的等待时间,必须设置该参数
         is = conn.getInputStream();
@@ -506,7 +505,11 @@ final class DownLoadUtil {
 
     }
 
-    @Override public void onPreDownload(long fileSize) {
+    @Override public void onPre() {
+
+    }
+
+    @Override public void onPostPre(long fileSize) {
 
     }
 

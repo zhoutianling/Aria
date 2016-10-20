@@ -1,26 +1,26 @@
 package com.arialyy.downloadutil.core.command;
 
 import android.content.Context;
-import android.util.Log;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.Task;
 
 /**
- * Created by lyy on 2016/8/22.
- * 添加任务的命令
+ * Created by lyy on 2016/9/20.
+ * 取消命令
  */
-class AddCommand extends IDownloadCommand {
+class CancelCmd extends IDownloadCmd {
 
-  AddCommand(Context context, DownloadEntity entity) {
+  CancelCmd(Context context, DownloadEntity entity) {
     super(context, entity);
   }
 
   @Override public void executeComment() {
     Task task = target.getTask(mEntity);
     if (task == null) {
-      target.createTask(mEntity);
-    } else {
-      Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
+      task = target.createTask(mEntity);
+    }
+    if (task != null) {
+      target.cancelTask(task);
     }
   }
 }

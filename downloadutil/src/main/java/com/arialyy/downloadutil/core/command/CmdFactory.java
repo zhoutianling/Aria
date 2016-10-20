@@ -7,7 +7,7 @@ import com.arialyy.downloadutil.core.DownloadEntity;
  * Created by Lyy on 2016/9/23.
  * 命令工厂
  */
-public class CommandFactory {
+public class CmdFactory {
   /**
    * 创建任务
    */
@@ -33,17 +33,17 @@ public class CommandFactory {
    */
   public static final int TASK_STATE  = 0x126;
 
-  private static final    Object         LOCK     = new Object();
-  private static volatile CommandFactory INSTANCE = null;
+  private static final    Object     LOCK     = new Object();
+  private static volatile CmdFactory INSTANCE = null;
 
-  private CommandFactory() {
+  private CmdFactory() {
 
   }
 
-  public static CommandFactory getInstance() {
+  public static CmdFactory getInstance() {
     if (INSTANCE == null) {
       synchronized (LOCK) {
-        INSTANCE = new CommandFactory();
+        INSTANCE = new CmdFactory();
       }
     }
     return INSTANCE;
@@ -55,19 +55,19 @@ public class CommandFactory {
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}、{@link #TASK_STATE}
    */
-  public IDownloadCommand createCommand(Context context, DownloadEntity entity, int type) {
+  public IDownloadCmd createCmd(Context context, DownloadEntity entity, int type) {
     switch (type) {
       case TASK_CREATE:
-        return createAddCommand(context, entity);
+        return createAddCmd(context, entity);
       case TASK_RESUME:
       case TASK_START:
-        return createStartCommand(context, entity);
+        return createStartCmd(context, entity);
       case TASK_CANCEL:
-        return createCancelCommand(context, entity);
+        return createCancelCmd(context, entity);
       case TASK_STOP:
-        return createStopCommand(context, entity);
+        return createStopCmd(context, entity);
       case TASK_STATE:
-        return createStateCommand(context, entity);
+        return createStateCmd(context, entity);
       default:
         return null;
     }
@@ -76,45 +76,45 @@ public class CommandFactory {
   /**
    * 创建获取任务状态的命令
    *
-   * @return {@link StateCommand}
+   * @return {@link StateCmd}
    */
-  private StateCommand createStateCommand(Context context, DownloadEntity entity) {
-    return new StateCommand(context, entity);
+  private StateCmd createStateCmd(Context context, DownloadEntity entity) {
+    return new StateCmd(context, entity);
   }
 
   /**
    * 创建停止命令
    *
-   * @return {@link StopCommand}
+   * @return {@link StopCmd}
    */
-  private StopCommand createStopCommand(Context context, DownloadEntity entity) {
-    return new StopCommand(context, entity);
+  private StopCmd createStopCmd(Context context, DownloadEntity entity) {
+    return new StopCmd(context, entity);
   }
 
   /**
    * 创建下载任务命令
    *
-   * @return {@link AddCommand}
+   * @return {@link AddCmd}
    */
-  private AddCommand createAddCommand(Context context, DownloadEntity entity) {
-    return new AddCommand(context, entity);
+  private AddCmd createAddCmd(Context context, DownloadEntity entity) {
+    return new AddCmd(context, entity);
   }
 
   /**
    * 创建启动下载命令
    *
-   * @return {@link StartCommand}
+   * @return {@link StartCmd}
    */
-  private StartCommand createStartCommand(Context context, DownloadEntity entity) {
-    return new StartCommand(context, entity);
+  private StartCmd createStartCmd(Context context, DownloadEntity entity) {
+    return new StartCmd(context, entity);
   }
 
   /**
    * 创建 取消下载的命令
    *
-   * @return {@link CancelCommand}
+   * @return {@link CancelCmd}
    */
-  private CancelCommand createCancelCommand(Context context, DownloadEntity entity) {
-    return new CancelCommand(context, entity);
+  private CancelCmd createCancelCmd(Context context, DownloadEntity entity) {
+    return new CancelCmd(context, entity);
   }
 }

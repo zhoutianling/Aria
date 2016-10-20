@@ -149,6 +149,10 @@ public abstract class IDownloadTarget implements IDownloader, ITask {
       switch (msg.what) {
         case STOP:
         case CANCEL:
+          if (target.mExecutePool.size() != ExecutePool.SIZE) {
+            startNextTask(entity);
+          }
+          break;
         case COMPLETE:
           startNextTask(entity);
           break;
