@@ -1,17 +1,16 @@
 # DownloadUtil
-android 多线程多任务断点续传工具，使用该工具，你可以很容易实现复杂的下载功能</br>
-+ 特点：
+这是一个 android 多线程多任务断点续传工具，使用该工具，你可以很容易实现`多线程下载功能和复杂的任务自动切换功能`</br>
++ 该工具具有以下特点：
  - 通过命令控制下载
  - 可在广播中接收任务的各种下载状态
- - 支持多任务调度
- - 多任务状态控制
  - 支持任务自动切换
+ - 支持下载速度直接获取
 
 如果你觉得我的代码对你有帮助，请麻烦你在右上角给我一个star.`^_^`
 
 #下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/MTDownloadUtil/images/download.svg)](https://bintray.com/arialyy/maven/MTDownloadUtil/_latestVersion)<br/>
-compile 'com.arialyy.downloadutil:DownloadUtil:1.0.2'
+compile 'com.arialyy.downloadutil:DownloadUtil:2.1.0'
 
 
 #示例
@@ -51,7 +50,6 @@ private BroadcastReceiver mReceiver = new BroadcastReceiver() {
         case DownloadManager.ACTION_RESUME: //恢复下载
           L.d(TAG, "download resume");
           long location = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 1);
-          mUpdateHandler.obtainMessage(DOWNLOAD_RESUME, location).sendToTarget();
           break;
         case DownloadManager.ACTION_RUNNING:  //下载中
           long current = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 0);
@@ -60,13 +58,10 @@ private BroadcastReceiver mReceiver = new BroadcastReceiver() {
           L.d(TAG, "download stop");
           break;
         case DownloadManager.ACTION_COMPLETE: //下载完成
-          mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
           break;
         case DownloadManager.ACTION_CANCEL:   //取消下载
-          mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
           break;
         case DownloadManager.ACTION_FAIL:     // 下载失败
-          mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
           break;
       }
     }
@@ -100,7 +95,9 @@ private BroadcastReceiver mReceiver = new BroadcastReceiver() {
   entity.setDownloadPath(downloadPath);  //设置存放路径
 ```
 
-+ 五、通过命令控制下载(下载状态控制，或下载任务切换将自动完成)
++ 五、通过命令控制下载(下载状态控制，或下载任务切换将自动完成)</br>
+**！！注意：命令需要第四步的下载实体支持**
+
  - 获取命令工厂实例和下载管理器实例
  ```java
  CmdFactory factory = CmdFactory.getInstance();
@@ -110,8 +107,8 @@ private BroadcastReceiver mReceiver = new BroadcastReceiver() {
  ```java
  private void start() {
    List<IDownloadCmd> commands = new ArrayList<>();
-   IDownloadCmd       addCMD   = factory.createCmd(this, mEntity, CmdFactory.TASK_CREATE);
-   IDownloadCmd       startCmd = factory.createCmd(this, mEntity, CmdFactory.TASK_START);
+   IDownloadCmd       addCMD   = factory.createCmd(this, entity, CmdFactory.TASK_CREATE);
+   IDownloadCmd       startCmd = factory.createCmd(this, entity, CmdFactory.TASK_START);
    commands.add(addCMD);
    commands.add(startCmd);
    manager.setCmds(commands).exe();
@@ -120,14 +117,14 @@ private BroadcastReceiver mReceiver = new BroadcastReceiver() {
  - 停止命令
  ```java
  private void stop() {
-   IDownloadCmd stopCmd = factory.createCmd(this, mEntity, CmdFactory.TASK_STOP);
+   IDownloadCmd stopCmd = factory.createCmd(this, entity, CmdFactory.TASK_STOP);
    manager.setCmd(stopCmd).exe();
  }
  ```
  - 取消命令（取消下载、删除下载任务）
  ```java
  private void cancel() {
-    IDownloadCmd cancelCmd = factory.createCmd(this, mEntity, CmdFactory.TASK_CANCEL);
+    IDownloadCmd cancelCmd = factory.createCmd(this, entity, CmdFactory.TASK_CANCEL);
     manager.setCmd(cancelCmd).exe();
  }
  ```
