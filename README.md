@@ -1,5 +1,5 @@
 # DownloadUtil
-![图标](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/app/src/main/res/mipmap-hdpi/ic_launcher.png)
+![图标](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/app/src/main/res/mipmap-hdpi/ic_launcher.png)</br>
 这是一个 android 多线程多任务断点续传工具，使用该工具，你可以很容易实现`多线程下载功能和复杂的任务自动切换功能`</br>
 + 该工具具有以下特点：
  - 通过命令控制下载
