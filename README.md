@@ -96,7 +96,7 @@ private BroadcastReceiver mReceiver = new BroadcastReceiver() {
   entity.setDownloadPath(downloadPath);  //设置存放路径
 ```
 
-+ 五、通过命令控制下载(下载状态控制，或下载任务切换将自动完成)</br>
+* 五、通过命令控制下载(下载状态控制，或下载任务切换将自动完成)</br>
 **！！注意：命令需要第四步的下载实体支持**
 
  - 获取命令工厂实例和下载管理器实例
