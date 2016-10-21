@@ -6,7 +6,7 @@
  - 支持任务自动切换
  - 支持下载速度直接获取
 
-如果你觉得我的代码对你有帮助，请麻烦你在右上角给我一个star.`^_^`
+如果你觉得我的代码对你有帮助，您的star和issues将是对我最大支持.`^_^`
 
 #下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/MTDownloadUtil/images/download.svg)](https://bintray.com/arialyy/maven/MTDownloadUtil/_latestVersion)<br/>
