@@ -3,6 +3,7 @@ package com.arialyy.downloadutil.core;
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
+import com.arialyy.downloadutil.core.inf.IDownloadUtil;
 import com.arialyy.downloadutil.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -20,35 +21,44 @@ import java.util.concurrent.Executors;
  * Created by lyy on 2015/8/25.
  * 下载工具类
  */
-final class DownLoadUtil {
-  private static final String TAG  = "DownLoadUtil";
+final class DownloadUtil implements IDownloadUtil {
+  private static final String TAG  = "DownloadUtil";
   private static final Object LOCK = new Object();
   //下载监听
-  private IDownloadListener mListener;
+  private       IDownloadListener mListener;
   /**
    * 线程数
    */
-  private static final int     THREAD_NUM         = 3;
-  private static final int     TIME_OUT           = 5000; //超时时间
+  private final int               THREAD_NUM;
+  private int     mConnectTimeOut    = 5000 * 4; //连接超时时间
+  private int     mReadTimeOut       = 5000 * 20; //流读取的超时时间
   /**
    * 已经完成下载任务的线程数量
    */
-  private              int     mCompleteThreadNum = 0;
-  private              boolean isDownloading      = false;
-  private              boolean isStop             = false;
-  private              boolean isCancel           = false;
-  private long mCurrentLocation;
-  boolean isNewTask = true;
-  private int mCancelNum = 0;
-  private int mStopNum   = 0;
-  private Context        mContext;
-  private DownloadEntity mDownloadEntity;
-  private ExecutorService       mFixedThreadPool = Executors.newFixedThreadPool(THREAD_NUM);
-  private SparseArray<Runnable> mTask            = new SparseArray<>();
+  private int     mCompleteThreadNum = 0;
+  private boolean isDownloading      = false;
+  private boolean isStop             = false;
+  private boolean isCancel           = false;
+  private boolean isNewTask          = true;
+  private int     mCancelNum         = 0;
+  private long    mCurrentLocation   = 0;
+  private int     mStopNum           = 0;
+  private Context         mContext;
+  private DownloadEntity  mDownloadEntity;
+  private ExecutorService mFixedThreadPool;
+  private SparseArray<Runnable> mTask = new SparseArray<>();
 
-  public DownLoadUtil(Context context, DownloadEntity entity) {
+  DownloadUtil(Context context, DownloadEntity entity, IDownloadListener downloadListener) {
+    this(context, entity, downloadListener, 3);
+  }
+
+  DownloadUtil(Context context, DownloadEntity entity, IDownloadListener downloadListener,
+      int threadNum) {
     mContext = context.getApplicationContext();
     mDownloadEntity = entity;
+    mListener = downloadListener;
+    THREAD_NUM = threadNum;
+    mFixedThreadPool = Executors.newFixedThreadPool(THREAD_NUM);
   }
 
   public IDownloadListener getListener() {
@@ -56,20 +66,34 @@ final class DownLoadUtil {
   }
 
   /**
+   * 设置连接超时时间
+   */
+  public void setConnectTimeOut(int timeOut) {
+    mConnectTimeOut = timeOut;
+  }
+
+  /**
+   * 设置流读取的超时时间
+   */
+  public void setReadTimeOut(int readTimeOut) {
+    mReadTimeOut = readTimeOut;
+  }
+
+  /**
    * 获取当前下载位置
    */
-  public long getCurrentLocation() {
+  @Override public long getCurrentLocation() {
     return mCurrentLocation;
   }
 
-  public boolean isDownloading() {
+  @Override public boolean isDownloading() {
     return isDownloading;
   }
 
   /**
    * 取消下载
    */
-  public void cancelDownload() {
+  @Override public void cancelDownload() {
     isCancel = true;
     isDownloading = false;
     mFixedThreadPool.shutdown();
@@ -84,7 +108,7 @@ final class DownLoadUtil {
   /**
    * 停止下载
    */
-  public void stopDownload() {
+  @Override public void stopDownload() {
     isStop = true;
     isDownloading = false;
     mFixedThreadPool.shutdown();
@@ -99,7 +123,7 @@ final class DownLoadUtil {
   /**
    * 删除下载记录文件
    */
-  public void delConfigFile() {
+  @Override public void delConfigFile() {
     if (mContext != null && mDownloadEntity != null) {
       File dFile = new File(mDownloadEntity.getDownloadPath());
       File config =
@@ -113,7 +137,7 @@ final class DownLoadUtil {
   /**
    * 删除temp文件
    */
-  public void delTempFile() {
+  @Override public void delTempFile() {
     if (mContext != null && mDownloadEntity != null) {
       File dFile = new File(mDownloadEntity.getDownloadPath());
       if (dFile.exists()) {
@@ -123,12 +147,9 @@ final class DownLoadUtil {
   }
 
   /**
-   * 多线程断点续传下载文件，暂停和继续
-   *
-   * @param downloadListener 下载进度监听 {@link DownloadListener}
+   * 多线程断点续传下载文件，开始下载
    */
-  public void start(IDownloadListener downloadListener) {
-    mListener = downloadListener;
+  @Override public void startDownload() {
     isDownloading = true;
     mCurrentLocation = 0;
     isStop = false;
@@ -160,7 +181,7 @@ final class DownLoadUtil {
           URL               url  = new URL(downloadUrl);
           HttpURLConnection conn = (HttpURLConnection) url.openConnection();
           setConnectParam(conn);
-          conn.setConnectTimeout(TIME_OUT * 4);
+          conn.setConnectTimeout(mConnectTimeOut * 4);
           conn.connect();
           int len = conn.getContentLength();
           if (len < 0) {  //网络被劫持时会出现这个问题
@@ -273,6 +294,10 @@ final class DownLoadUtil {
     }).start();
   }
 
+  @Override public void resumeDownload() {
+    startDownload();
+  }
+
   private void failDownload(String msg) {
     Log.e(TAG, msg);
     isDownloading = false;
@@ -323,8 +348,8 @@ final class DownLoadUtil {
         conn.setRequestProperty("Range",
             "bytes=" + dEntity.startLocation + "-" + dEntity.endLocation);
         setConnectParam(conn);
-        conn.setConnectTimeout(TIME_OUT * 4);
-        conn.setReadTimeout(TIME_OUT * 24);  //设置读取流的等待时间,必须设置该参数
+        conn.setConnectTimeout(mConnectTimeOut);
+        conn.setReadTimeout(mReadTimeOut);  //设置读取流的等待时间,必须设置该参数
         is = conn.getInputStream();
         //创建可设置位置的文件
         RandomAccessFile file = new RandomAccessFile(dEntity.tempFile, "rwd");
@@ -469,7 +494,7 @@ final class DownLoadUtil {
   /**
    * 子线程下载信息类
    */
-  private class ConfigEntity {
+  private static class ConfigEntity {
     //文件大小
     long    fileSize;
     String  downloadUrl;
@@ -479,8 +504,8 @@ final class DownLoadUtil {
     File    tempFile;
     Context context;
 
-    public ConfigEntity(Context context, long fileSize, String downloadUrl, File file, int threadId,
-        long startLocation, long endLocation) {
+    private ConfigEntity(Context context, long fileSize, String downloadUrl, File file,
+        int threadId, long startLocation, long endLocation) {
       this.fileSize = fileSize;
       this.downloadUrl = downloadUrl;
       this.tempFile = file;
@@ -488,53 +513,6 @@ final class DownLoadUtil {
       this.startLocation = startLocation;
       this.endLocation = endLocation;
       this.context = context;
-    }
-  }
-
-  public static class DownloadListener implements IDownloadListener {
-
-    @Override public void onResume(long resumeLocation) {
-
-    }
-
-    @Override public void onCancel() {
-
-    }
-
-    @Override public void onFail() {
-
-    }
-
-    @Override public void onPre() {
-
-    }
-
-    @Override public void onPostPre(long fileSize) {
-
-    }
-
-    @Override public void onProgress(long currentLocation) {
-
-    }
-
-    @Override public void onChildComplete(long finishLocation) {
-
-    }
-
-    @Override public void onStart(long startLocation) {
-
-    }
-
-    @Override public void onChildResume(long resumeLocation) {
-
-    }
-
-    @Override public void onStop(long stopLocation) {
-
-    }
-
-    @Override public void onComplete() {
-
     }
   }
 }

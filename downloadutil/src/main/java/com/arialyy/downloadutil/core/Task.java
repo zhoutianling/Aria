@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
+import com.arialyy.downloadutil.core.inf.IDownloadUtil;
 
 /**
  * Created by lyy on 2016/8/11.
@@ -17,12 +18,17 @@ public class Task {
   private IDownloadListener mListener;
   private Handler           mOutHandler;
   private Context           mContext;
-  private DownLoadUtil      mUtil;
+  private IDownloadUtil     mUtil;
 
   private Task(Context context, DownloadEntity entity) {
     mContext = context.getApplicationContext();
     mEntity = entity;
-    mUtil = new DownLoadUtil(context, entity);
+    init();
+  }
+
+  private void init() {
+    mListener = new DListener(mContext, mEntity, mOutHandler);
+    mUtil = new DownloadUtil(mContext, mEntity, mListener);
   }
 
   /**
@@ -33,9 +39,9 @@ public class Task {
       Log.d(TAG, "任务正在下载");
     } else {
       if (mListener == null) {
-        mListener = new DownloadListener(mContext, mEntity, mOutHandler);
+        mListener = new DListener(mContext, mEntity, mOutHandler);
       }
-      mUtil.start(mListener);
+      mUtil.startDownload();
     }
   }
 
@@ -65,7 +71,7 @@ public class Task {
   /**
    * 获取下载工具
    */
-  public DownLoadUtil getDownloadUtil() {
+  public IDownloadUtil getDownloadUtil() {
     return mUtil;
   }
 
@@ -123,7 +129,7 @@ public class Task {
   /**
    * 下载监听类
    */
-  private class DownloadListener extends DownLoadUtil.DownloadListener {
+  private class DListener extends DownloadListener {
     Handler outHandler;
     Context context;
     Intent  sendIntent;
@@ -134,7 +140,7 @@ public class Task {
     boolean isFirst       = true;
     DownloadEntity downloadEntity;
 
-    DownloadListener(Context context, DownloadEntity downloadEntity, Handler outHandler) {
+    DListener(Context context, DownloadEntity downloadEntity, Handler outHandler) {
       this.context = context;
       this.outHandler = outHandler;
       this.downloadEntity = downloadEntity;
@@ -234,29 +240,47 @@ public class Task {
   }
 
   public static class Builder {
-    DownloadEntity    downloadEntity;
-    IDownloadListener listener;
-    Handler           outHandler;
-    Context           context;
+    DownloadEntity downloadEntity;
+    Handler        outHandler;
+    Context        context;
+    int threadNum = 3;
+    IDownloadUtil downloadUtil;
 
     public Builder(Context context, DownloadEntity downloadEntity) {
       this.context = context;
       this.downloadEntity = downloadEntity;
     }
 
-    public Builder setDownloadListener(IDownloadListener listener) {
-      this.listener = listener;
-      return this;
-    }
-
+    /**
+     * 设置自定义Handler处理下载状态时间
+     *
+     * @param outHandler {@link IDownloadTarget.AutoTaskHandler}
+     */
     public Builder setOutHandler(Handler outHandler) {
       this.outHandler = outHandler;
       return this;
     }
 
+    /**
+     * 设置线程数
+     */
+    public Builder setThreadNum(int threadNum) {
+      this.threadNum = threadNum;
+      return this;
+    }
+
+    ///**
+    // * 设置自定义下载工具
+    // *
+    // * @param downloadUtil {@link IDownloadUtil}
+    // */
+    //public Builder setDownloadUtil(IDownloadUtil downloadUtil) {
+    //  this.downloadUtil = downloadUtil;
+    //  return this;
+    //}
+
     public Task build() {
       Task task = new Task(context, downloadEntity);
-      task.mListener = listener;
       task.mOutHandler = outHandler;
       downloadEntity.save();
       return task;
