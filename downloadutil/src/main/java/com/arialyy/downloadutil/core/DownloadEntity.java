@@ -48,7 +48,15 @@ public class DownloadEntity extends DbEntity implements Parcelable {
    * 取消下载
    */
   @Ignore public static final int STATE_CANCEL       = 7;
+  @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
+    @Override public DownloadEntity createFromParcel(Parcel source) {
+      return new DownloadEntity(source);
+    }
 
+    @Override public DownloadEntity[] newArray(int size) {
+      return new DownloadEntity[size];
+    }
+  };
   @Ignore private long    speed              = 0; //下载速度
   private         String  downloadUrl        = ""; //下载路径
   private         String  downloadPath       = ""; //保存路径
@@ -62,6 +70,21 @@ public class DownloadEntity extends DbEntity implements Parcelable {
   private long completeTime;  //完成时间
 
   public DownloadEntity() {
+  }
+
+  protected DownloadEntity(Parcel in) {
+    this.downloadUrl = in.readString();
+    this.downloadPath = in.readString();
+    this.fileName = in.readString();
+    this.str = in.readString();
+    this.completeTime = in.readLong();
+    this.fileSize = in.readLong();
+    this.state = in.readInt();
+    this.isDownloadComplete = in.readByte() != 0;
+    this.currentProgress = in.readLong();
+    this.failNum = in.readInt();
+    this.speed = in.readLong();
+    this.rowID = in.readInt();
   }
 
   public String getStr() {
@@ -92,16 +115,16 @@ public class DownloadEntity extends DbEntity implements Parcelable {
     return downloadUrl;
   }
 
+  public void setDownloadUrl(String downloadUrl) {
+    this.downloadUrl = downloadUrl;
+  }
+
   public long getCompleteTime() {
     return completeTime;
   }
 
   public void setCompleteTime(long completeTime) {
     this.completeTime = completeTime;
-  }
-
-  public void setDownloadUrl(String downloadUrl) {
-    this.downloadUrl = downloadUrl;
   }
 
   public String getDownloadPath() {
@@ -187,29 +210,4 @@ public class DownloadEntity extends DbEntity implements Parcelable {
     dest.writeLong(this.speed);
     dest.writeInt(this.rowID);
   }
-
-  protected DownloadEntity(Parcel in) {
-    this.downloadUrl = in.readString();
-    this.downloadPath = in.readString();
-    this.fileName = in.readString();
-    this.str = in.readString();
-    this.completeTime = in.readLong();
-    this.fileSize = in.readLong();
-    this.state = in.readInt();
-    this.isDownloadComplete = in.readByte() != 0;
-    this.currentProgress = in.readLong();
-    this.failNum = in.readInt();
-    this.speed = in.readLong();
-    this.rowID = in.readInt();
-  }
-
-  @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
-    @Override public DownloadEntity createFromParcel(Parcel source) {
-      return new DownloadEntity(source);
-    }
-
-    @Override public DownloadEntity[] newArray(int size) {
-      return new DownloadEntity[size];
-    }
-  };
 }

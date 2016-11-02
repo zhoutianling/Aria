@@ -18,8 +18,8 @@ import java.util.List;
  */
 public class DbUtil {
   private static final    String TAG           = "DbUtil";
-  private volatile static DbUtil INSTANCE      = null;
   private static final    Object LOCK          = new Object();
+  private volatile static DbUtil INSTANCE      = null;
   private                 int    CREATE_TABLE  = 0;
   private                 int    TABLE_EXISTS  = 1;
   private                 int    INSERT_DATA   = 2;
@@ -35,6 +35,10 @@ public class DbUtil {
 
   }
 
+  private DbUtil(Context context) {
+    mHelper = new SqlHelper(context.getApplicationContext());
+  }
+
   public static DbUtil init(Context context) {
     if (context instanceof Application) {
       synchronized (LOCK) {
@@ -44,10 +48,6 @@ public class DbUtil {
       }
     }
     return INSTANCE;
-  }
-
-  private DbUtil(Context context) {
-    mHelper = new SqlHelper(context.getApplicationContext());
   }
 
   protected static DbUtil getInstance() {
@@ -292,7 +292,7 @@ public class DbUtil {
    * @param type {@link DbUtil}
    */
   private void print(int type, String sql) {
-    if (true){
+    if (true) {
       return;
     }
     String str = "";

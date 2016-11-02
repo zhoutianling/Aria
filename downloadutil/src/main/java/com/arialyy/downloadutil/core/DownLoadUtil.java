@@ -24,12 +24,12 @@ import java.util.concurrent.Executors;
 final class DownloadUtil implements IDownloadUtil {
   private static final String TAG  = "DownloadUtil";
   private static final Object LOCK = new Object();
-  //下载监听
-  private       IDownloadListener mListener;
   /**
    * 线程数
    */
   private final int               THREAD_NUM;
+  //下载监听
+  private       IDownloadListener mListener;
   private int     mConnectTimeOut    = 5000 * 4; //连接超时时间
   private int     mReadTimeOut       = 5000 * 20; //流读取的超时时间
   /**
@@ -315,6 +315,31 @@ final class DownloadUtil implements IDownloadUtil {
   }
 
   /**
+   * 子线程下载信息类
+   */
+  private static class ConfigEntity {
+    //文件大小
+    long    fileSize;
+    String  downloadUrl;
+    int     threadId;
+    long    startLocation;
+    long    endLocation;
+    File    tempFile;
+    Context context;
+
+    private ConfigEntity(Context context, long fileSize, String downloadUrl, File file,
+        int threadId, long startLocation, long endLocation) {
+      this.fileSize = fileSize;
+      this.downloadUrl = downloadUrl;
+      this.tempFile = file;
+      this.threadId = threadId;
+      this.startLocation = startLocation;
+      this.endLocation = endLocation;
+      this.context = context;
+    }
+  }
+
+  /**
    * 单个线程的下载任务
    */
   private class DownLoadTask implements Runnable {
@@ -488,31 +513,6 @@ final class DownloadUtil implements IDownloadUtil {
           e.printStackTrace();
         }
       }
-    }
-  }
-
-  /**
-   * 子线程下载信息类
-   */
-  private static class ConfigEntity {
-    //文件大小
-    long    fileSize;
-    String  downloadUrl;
-    int     threadId;
-    long    startLocation;
-    long    endLocation;
-    File    tempFile;
-    Context context;
-
-    private ConfigEntity(Context context, long fileSize, String downloadUrl, File file,
-        int threadId, long startLocation, long endLocation) {
-      this.fileSize = fileSize;
-      this.downloadUrl = downloadUrl;
-      this.tempFile = file;
-      this.threadId = threadId;
-      this.startLocation = startLocation;
-      this.endLocation = endLocation;
-      this.context = context;
     }
   }
 }

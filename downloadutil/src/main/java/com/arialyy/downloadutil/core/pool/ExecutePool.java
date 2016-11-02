@@ -18,10 +18,15 @@ public class ExecutePool implements IPool {
   private static final    String      TAG      = "ExecutePool";
   private static final    Object      LOCK     = new Object();
   private static final    long        TIME_OUT = 1000;
-  private static volatile ExecutePool INSTANCE = null;
   public static           int         SIZE     = 2;
+  private static volatile ExecutePool INSTANCE = null;
   private ArrayBlockingQueue<Task> mExecuteQueue;
   private Map<String, Task>        mExecuteArray;
+
+  private ExecutePool() {
+    mExecuteQueue = new ArrayBlockingQueue<>(SIZE);
+    mExecuteArray = new HashMap<>();
+  }
 
   public static ExecutePool getInstance() {
     if (INSTANCE == null) {
@@ -30,11 +35,6 @@ public class ExecutePool implements IPool {
       }
     }
     return INSTANCE;
-  }
-
-  private ExecutePool() {
-    mExecuteQueue = new ArrayBlockingQueue<>(SIZE);
-    mExecuteArray = new HashMap<>();
   }
 
   @Override public boolean putTask(Task task) {

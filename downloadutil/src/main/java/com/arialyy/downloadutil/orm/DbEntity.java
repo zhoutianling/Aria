@@ -1,7 +1,6 @@
 package com.arialyy.downloadutil.orm;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 import com.arialyy.downloadutil.util.Util;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -12,12 +11,45 @@ import java.util.List;
  * 所有数据库实体父类
  */
 public class DbEntity {
+  private static final Object LOCK  = new Object();
   protected            int    rowID = -1;
   private              DbUtil mUtil = DbUtil.getInstance();
-  private static final Object LOCK  = new Object();
 
   protected DbEntity() {
 
+  }
+
+  /**
+   * 查询所有数据
+   *
+   * @return 没有数据返回null
+   */
+  public static <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
+    DbUtil util = DbUtil.getInstance();
+    return util.findAllData(clazz);
+  }
+
+  /**
+   * 查询一组数据
+   *
+   * @return 没有数据返回null
+   */
+  public static <T extends DbEntity> List<T> findDatas(Class<T> clazz, @NonNull String[] wheres,
+      @NonNull String[] values) {
+    DbUtil util = DbUtil.getInstance();
+    return util.findData(clazz, wheres, values);
+  }
+
+  /**
+   * 查询一行数据
+   *
+   * @return 没有数据返回null
+   */
+  public static <T extends DbEntity> T findData(Class<T> clazz, @NonNull String[] wheres,
+      @NonNull String[] values) {
+    DbUtil  util  = DbUtil.getInstance();
+    List<T> datas = util.findData(clazz, wheres, values);
+    return datas == null ? null : datas.size() > 0 ? datas.get(0) : null;
   }
 
   /**
@@ -105,38 +137,5 @@ public class DbEntity {
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }
-  }
-
-  /**
-   * 查询所有数据
-   *
-   * @return 没有数据返回null
-   */
-  public static <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
-    DbUtil util = DbUtil.getInstance();
-    return util.findAllData(clazz);
-  }
-
-  /**
-   * 查询一组数据
-   *
-   * @return 没有数据返回null
-   */
-  public static <T extends DbEntity> List<T> findDatas(Class<T> clazz, @NonNull String[] wheres,
-      @NonNull String[] values) {
-    DbUtil util = DbUtil.getInstance();
-    return util.findData(clazz, wheres, values);
-  }
-
-  /**
-   * 查询一行数据
-   *
-   * @return 没有数据返回null
-   */
-  public static <T extends DbEntity> T findData(Class<T> clazz, @NonNull String[] wheres,
-      @NonNull String[] values) {
-    DbUtil  util  = DbUtil.getInstance();
-    List<T> datas = util.findData(clazz, wheres, values);
-    return datas == null ? null : datas.size() > 0 ? datas.get(0) : null;
   }
 }

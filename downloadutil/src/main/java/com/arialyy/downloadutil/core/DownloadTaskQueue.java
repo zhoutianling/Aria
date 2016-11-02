@@ -20,6 +20,14 @@ public class DownloadTaskQueue implements ITaskQueue, IDownloader {
   private                 ExecutePool       mExecutePool = ExecutePool.getInstance();
   private Context mContext;
 
+  private DownloadTaskQueue() {
+  }
+
+  private DownloadTaskQueue(Context context) {
+    super();
+    mContext = context;
+  }
+
   public static DownloadTaskQueue getInstance() {
     if (INSTANCE == null) {
       throw new NullPointerException("请在Application中调用init进行注册");
@@ -34,14 +42,6 @@ public class DownloadTaskQueue implements ITaskQueue, IDownloader {
       }
     }
     return INSTANCE;
-  }
-
-  private DownloadTaskQueue() {
-  }
-
-  private DownloadTaskQueue(Context context) {
-    super();
-    mContext = context;
   }
 
   /**

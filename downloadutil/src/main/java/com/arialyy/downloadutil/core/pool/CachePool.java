@@ -2,8 +2,8 @@ package com.arialyy.downloadutil.core.pool;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.downloadutil.core.inf.IPool;
 import com.arialyy.downloadutil.core.Task;
+import com.arialyy.downloadutil.core.inf.IPool;
 import com.arialyy.downloadutil.util.Util;
 import java.util.HashMap;
 import java.util.Map;
@@ -21,6 +21,11 @@ public class CachePool implements IPool {
   private Map<String, Task>         mCacheArray;
   private LinkedBlockingQueue<Task> mCacheQueue;
 
+  private CachePool() {
+    mCacheQueue = new LinkedBlockingQueue<>(MAX_NUM);
+    mCacheArray = new HashMap<>();
+  }
+
   public static CachePool getInstance() {
     if (INSTANCE == null) {
       synchronized (LOCK) {
@@ -28,11 +33,6 @@ public class CachePool implements IPool {
       }
     }
     return INSTANCE;
-  }
-
-  private CachePool() {
-    mCacheQueue = new LinkedBlockingQueue<>(MAX_NUM);
-    mCacheArray = new HashMap<>();
   }
 
   @Override public boolean putTask(Task task) {

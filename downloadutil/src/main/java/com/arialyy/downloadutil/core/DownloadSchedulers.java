@@ -10,9 +10,6 @@ import com.arialyy.downloadutil.core.pool.ExecutePool;
  * 任务下载器，提供抽象的方法供具体的实现类操作
  */
 public class DownloadSchedulers implements IDownloadSchedulers {
-  private static final    String             TAG      = "DownloadSchedulers";
-  private static final    Object             LOCK     = new Object();
-  private static volatile DownloadSchedulers INSTANCE = null;
   /**
    * 任务开始
    */
@@ -33,7 +30,9 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    * 任务完成
    */
   public static final     int                COMPLETE = 5;
-
+  private static final    String             TAG      = "DownloadSchedulers";
+  private static final    Object             LOCK     = new Object();
+  private static volatile DownloadSchedulers INSTANCE = null;
   /**
    * 下载失败次数
    */
@@ -50,6 +49,10 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   OnTargetListener  mTargetListener;
   DownloadTaskQueue mQueue;
 
+  public DownloadSchedulers(DownloadTaskQueue downloadTaskQueue) {
+    mQueue = downloadTaskQueue;
+  }
+
   public static DownloadSchedulers getInstance(DownloadTaskQueue queue) {
     if (INSTANCE == null) {
       synchronized (LOCK) {
@@ -57,40 +60,6 @@ public class DownloadSchedulers implements IDownloadSchedulers {
       }
     }
     return INSTANCE;
-  }
-
-  /**
-   * Target处理任务监听
-   */
-  public interface OnTargetListener {
-    /**
-     * 任务开始
-     */
-    public void onTaskStart(Task task);
-
-    /**
-     * 任务停止
-     */
-    public void onTaskStop(Task task);
-
-    /**
-     * 任务取消
-     */
-    public void onTaskCancel(Task task);
-
-    /**
-     * 任务下载失败
-     */
-    public void onTaskFail(Task task);
-
-    /**
-     * 任务完成
-     */
-    public void onTaskComplete(Task task);
-  }
-
-  public DownloadSchedulers(DownloadTaskQueue downloadTaskQueue) {
-    mQueue = downloadTaskQueue;
   }
 
   @Override public boolean handleMessage(Message msg) {
@@ -192,5 +161,35 @@ public class DownloadSchedulers implements IDownloadSchedulers {
 
   public void setTimeOut(long timeOut) {
     this.mTimeOut = timeOut;
+  }
+
+  /**
+   * Target处理任务监听
+   */
+  public interface OnTargetListener {
+    /**
+     * 任务开始
+     */
+    public void onTaskStart(Task task);
+
+    /**
+     * 任务停止
+     */
+    public void onTaskStop(Task task);
+
+    /**
+     * 任务取消
+     */
+    public void onTaskCancel(Task task);
+
+    /**
+     * 任务下载失败
+     */
+    public void onTaskFail(Task task);
+
+    /**
+     * 任务完成
+     */
+    public void onTaskComplete(Task task);
   }
 }

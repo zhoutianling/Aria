@@ -5,6 +5,4 @@ package com.arialyy.downloadutil.help;
  */
 public class LockHelp {
   public static final Object LOCK = new Object();
-
-
 }

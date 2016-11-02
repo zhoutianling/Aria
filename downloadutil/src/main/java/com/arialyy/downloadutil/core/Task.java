@@ -127,6 +127,54 @@ public class Task {
     }
   }
 
+  public static class Builder {
+    DownloadEntity downloadEntity;
+    Handler        outHandler;
+    Context        context;
+    int threadNum = 3;
+    IDownloadUtil downloadUtil;
+
+    public Builder(Context context, DownloadEntity downloadEntity) {
+      this.context = context;
+      this.downloadEntity = downloadEntity;
+    }
+
+    /**
+     * 设置自定义Handler处理下载状态时间
+     *
+     * @param schedulers {@link IDownloadSchedulers}
+     */
+    public Builder setOutHandler(IDownloadSchedulers schedulers) {
+      this.outHandler = new Handler(schedulers);
+      return this;
+    }
+
+    /**
+     * 设置线程数
+     */
+    public Builder setThreadNum(int threadNum) {
+      this.threadNum = threadNum;
+      return this;
+    }
+
+    ///**
+    // * 设置自定义下载工具
+    // *
+    // * @param downloadUtil {@link IDownloadUtil}
+    // */
+    //public Builder setDownloadUtil(IDownloadUtil downloadUtil) {
+    //  this.downloadUtil = downloadUtil;
+    //  return this;
+    //}
+
+    public Task build() {
+      Task task = new Task(context, downloadEntity);
+      task.mOutHandler = outHandler;
+      downloadEntity.save();
+      return task;
+    }
+  }
+
   /**
    * 下载监听类
    */
@@ -237,54 +285,6 @@ public class Task {
         intent.putExtra(DownloadManager.CURRENT_LOCATION, location);
       }
       context.sendBroadcast(intent);
-    }
-  }
-
-  public static class Builder {
-    DownloadEntity downloadEntity;
-    Handler        outHandler;
-    Context        context;
-    int threadNum = 3;
-    IDownloadUtil downloadUtil;
-
-    public Builder(Context context, DownloadEntity downloadEntity) {
-      this.context = context;
-      this.downloadEntity = downloadEntity;
-    }
-
-    /**
-     * 设置自定义Handler处理下载状态时间
-     *
-     * @param schedulers {@link IDownloadSchedulers}
-     */
-    public Builder setOutHandler(IDownloadSchedulers schedulers) {
-      this.outHandler = new Handler(schedulers);
-      return this;
-    }
-
-    /**
-     * 设置线程数
-     */
-    public Builder setThreadNum(int threadNum) {
-      this.threadNum = threadNum;
-      return this;
-    }
-
-    ///**
-    // * 设置自定义下载工具
-    // *
-    // * @param downloadUtil {@link IDownloadUtil}
-    // */
-    //public Builder setDownloadUtil(IDownloadUtil downloadUtil) {
-    //  this.downloadUtil = downloadUtil;
-    //  return this;
-    //}
-
-    public Task build() {
-      Task task = new Task(context, downloadEntity);
-      task.mOutHandler = outHandler;
-      downloadEntity.save();
-      return task;
     }
   }
 }
