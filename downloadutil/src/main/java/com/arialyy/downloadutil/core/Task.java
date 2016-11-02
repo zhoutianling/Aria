@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
+import com.arialyy.downloadutil.core.inf.IDownloadSchedulers;
 import com.arialyy.downloadutil.core.inf.IDownloadUtil;
 
 /**
@@ -58,7 +59,7 @@ public class Task {
     } else {
       mEntity.setState(DownloadEntity.STATE_STOP);
       mEntity.save();
-      sendInState2Target(IDownloadTarget.STOP);
+      sendInState2Target(DownloadSchedulers.STOP);
 
       // 发送停止下载的广播
       Intent intent = createIntent(DownloadManager.ACTION_STOP);
@@ -94,7 +95,7 @@ public class Task {
       mUtil.delConfigFile();
       mUtil.delTempFile();
       mEntity.deleteData();
-      sendInState2Target(IDownloadTarget.CANCEL);
+      sendInState2Target(DownloadSchedulers.CANCEL);
 
       //发送取消下载的广播
       Intent intent = createIntent(DownloadManager.ACTION_CANCEL);
@@ -118,7 +119,7 @@ public class Task {
   /**
    * 将任务状态发送给下载器
    *
-   * @param state {@link IDownloadTarget#START}
+   * @param state {@link DownloadSchedulers#START}
    */
   private void sendInState2Target(int state) {
     if (mOutHandler != null) {
@@ -170,7 +171,7 @@ public class Task {
     @Override public void onStart(long startLocation) {
       super.onStart(startLocation);
       downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
-      sendInState2Target(IDownloadTarget.START);
+      sendInState2Target(DownloadSchedulers.START);
       sendIntent(DownloadManager.ACTION_START, startLocation);
     }
 
@@ -197,14 +198,14 @@ public class Task {
       super.onStop(stopLocation);
       downloadEntity.setState(DownloadEntity.STATE_STOP);
       downloadEntity.setSpeed(0);
-      sendInState2Target(IDownloadTarget.STOP);
+      sendInState2Target(DownloadSchedulers.STOP);
       sendIntent(DownloadManager.ACTION_STOP, stopLocation);
     }
 
     @Override public void onCancel() {
       super.onCancel();
       downloadEntity.setState(DownloadEntity.STATE_CANCEL);
-      sendInState2Target(IDownloadTarget.CANCEL);
+      sendInState2Target(DownloadSchedulers.CANCEL);
       sendIntent(DownloadManager.ACTION_CANCEL, -1);
       downloadEntity.deleteData();
     }
@@ -214,7 +215,7 @@ public class Task {
       downloadEntity.setState(DownloadEntity.STATE_COMPLETE);
       downloadEntity.setDownloadComplete(true);
       downloadEntity.setSpeed(0);
-      sendInState2Target(IDownloadTarget.COMPLETE);
+      sendInState2Target(DownloadSchedulers.COMPLETE);
       sendIntent(DownloadManager.ACTION_COMPLETE, downloadEntity.getFileSize());
     }
 
@@ -222,7 +223,7 @@ public class Task {
       super.onFail();
       downloadEntity.setState(DownloadEntity.STATE_FAIL);
       downloadEntity.setSpeed(0);
-      sendInState2Target(IDownloadTarget.FAIL);
+      sendInState2Target(DownloadSchedulers.FAIL);
       sendIntent(DownloadManager.ACTION_FAIL, -1);
     }
 
@@ -254,10 +255,10 @@ public class Task {
     /**
      * 设置自定义Handler处理下载状态时间
      *
-     * @param outHandler {@link IDownloadTarget.AutoTaskHandler}
+     * @param schedulers {@link IDownloadSchedulers}
      */
-    public Builder setOutHandler(Handler outHandler) {
-      this.outHandler = outHandler;
+    public Builder setOutHandler(IDownloadSchedulers schedulers) {
+      this.outHandler = new Handler(schedulers);
       return this;
     }
 

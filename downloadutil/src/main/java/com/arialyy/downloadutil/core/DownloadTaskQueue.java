@@ -2,40 +2,78 @@ package com.arialyy.downloadutil.core;
 
 import android.content.Context;
 import android.util.Log;
+import com.arialyy.downloadutil.core.inf.IDownloadSchedulers;
+import com.arialyy.downloadutil.core.inf.IDownloader;
+import com.arialyy.downloadutil.core.inf.ITaskQueue;
+import com.arialyy.downloadutil.core.pool.CachePool;
+import com.arialyy.downloadutil.core.pool.ExecutePool;
 
 /**
  * Created by lyy on 2016/8/17.
- * 下载任务调度类
+ * 下载任务队列
  */
-public class DownloadTarget extends IDownloadTarget {
-  private static final    String         TAG      = "DownloadTarget";
-  private static final    Object         LOCK     = new Object();
-  private static volatile DownloadTarget INSTANCE = null;
+public class DownloadTaskQueue implements ITaskQueue, IDownloader {
+  private static final    String            TAG          = "DownloadTaskQueue";
+  private static final    Object            LOCK         = new Object();
+  private static volatile DownloadTaskQueue INSTANCE     = null;
+  private                 CachePool         mCachePool   = CachePool.getInstance();
+  private                 ExecutePool       mExecutePool = ExecutePool.getInstance();
   private Context mContext;
 
-  public static DownloadTarget getInstance() {
+  public static DownloadTaskQueue getInstance() {
     if (INSTANCE == null) {
       throw new NullPointerException("请在Application中调用init进行注册");
     }
     return INSTANCE;
   }
 
-  static DownloadTarget init(Context context) {
+  static DownloadTaskQueue init(Context context) {
     if (INSTANCE == null) {
       synchronized (LOCK) {
-        INSTANCE = new DownloadTarget(context.getApplicationContext());
+        INSTANCE = new DownloadTaskQueue(context.getApplicationContext());
       }
     }
     return INSTANCE;
   }
 
-  private DownloadTarget() {
-    super();
+  private DownloadTaskQueue() {
   }
 
-  private DownloadTarget(Context context) {
+  private DownloadTaskQueue(Context context) {
     super();
     mContext = context;
+  }
+
+  /**
+   * 获取任务执行池
+   */
+  public ExecutePool getExecutePool() {
+    return mExecutePool;
+  }
+
+  /**
+   * 获取缓存池
+   */
+  public CachePool getCachePool() {
+    return mCachePool;
+  }
+
+  /**
+   * 获取当前运行的任务数
+   *
+   * @return 当前正在执行的任务数
+   */
+  public int getCurrentTaskNum() {
+    return mExecutePool.size();
+  }
+
+  /**
+   * 获取缓存任务数
+   *
+   * @return 获取缓存的任务数
+   */
+  public int getCacheTaskNum() {
+    return mCachePool.size();
   }
 
   @Override public void startTask(Task task) {
@@ -71,7 +109,14 @@ public class DownloadTarget extends IDownloadTarget {
   }
 
   @Override public Task createTask(DownloadEntity entity) {
-    Task task = TaskFactory.getInstance().createTask(mContext, entity, mTaskHandler);
+    return createTask(entity, null);
+  }
+
+  @Override public Task createTask(DownloadEntity entity, IDownloadSchedulers schedulers) {
+    if (schedulers == null) {
+      schedulers = DownloadSchedulers.getInstance(this);
+    }
+    Task task = TaskFactory.getInstance().createTask(mContext, entity, schedulers);
     mCachePool.putTask(task);
     return task;
   }

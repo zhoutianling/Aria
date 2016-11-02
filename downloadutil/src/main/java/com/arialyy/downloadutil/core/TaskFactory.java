@@ -1,7 +1,7 @@
 package com.arialyy.downloadutil.core;
 
 import android.content.Context;
-import android.os.Handler;
+import com.arialyy.downloadutil.core.inf.IDownloadSchedulers;
 
 /**
  * Created by lyy on 2016/8/18.
@@ -30,11 +30,11 @@ public class TaskFactory {
    * 创建普通下载任务
    *
    * @param entity 下载实体
-   * @param handler "com.arialyy.downloadutil.core.IDownloadTarget.AutoTaskHandler"
+   * @param schedulers {@link IDownloadSchedulers}
    */
-  public Task createTask(Context context, DownloadEntity entity, Handler handler) {
+  public Task createTask(Context context, DownloadEntity entity, IDownloadSchedulers schedulers) {
     Task.Builder builder = new Task.Builder(context, entity);
-    builder.setOutHandler(handler);
+    builder.setOutHandler(schedulers);
     return builder.build();
   }
 }

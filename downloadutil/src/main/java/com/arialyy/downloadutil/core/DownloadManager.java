@@ -88,7 +88,7 @@ public class DownloadManager {
 
   private DownloadManager(Context context) {
     mContext = context;
-    DownloadTarget.init(context);
+    DownloadTaskQueue.init(context);
     DbUtil.init(context);
   }
 

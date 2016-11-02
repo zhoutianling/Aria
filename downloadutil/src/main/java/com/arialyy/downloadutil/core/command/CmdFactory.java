@@ -28,10 +28,6 @@ public class CmdFactory {
    * 停止任务
    */
   public static final int TASK_STOP   = 0x125;
-  /**
-   * 获取任务状态
-   */
-  public static final int TASK_STATE  = 0x126;
 
   private static final    Object     LOCK     = new Object();
   private static volatile CmdFactory INSTANCE = null;
@@ -53,7 +49,7 @@ public class CmdFactory {
    * @param context context
    * @param entity 下载实体
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
-   * #TASK_STOP}、{@link #TASK_STATE}
+   * #TASK_STOP}
    */
   public IDownloadCmd createCmd(Context context, DownloadEntity entity, int type) {
     switch (type) {
@@ -66,20 +62,9 @@ public class CmdFactory {
         return createCancelCmd(context, entity);
       case TASK_STOP:
         return createStopCmd(context, entity);
-      case TASK_STATE:
-        return createStateCmd(context, entity);
       default:
         return null;
     }
-  }
-
-  /**
-   * 创建获取任务状态的命令
-   *
-   * @return {@link StateCmd}
-   */
-  private StateCmd createStateCmd(Context context, DownloadEntity entity) {
-    return new StateCmd(context, entity);
   }
 
   /**

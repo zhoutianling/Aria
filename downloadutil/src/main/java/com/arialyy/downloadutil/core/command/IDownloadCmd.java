@@ -1,9 +1,8 @@
 package com.arialyy.downloadutil.core.command;
 
 import android.content.Context;
-import com.arialyy.downloadutil.core.DownloadTarget;
-import com.arialyy.downloadutil.core.IDownloadTarget;
 import com.arialyy.downloadutil.core.DownloadEntity;
+import com.arialyy.downloadutil.core.DownloadTaskQueue;
 import com.arialyy.downloadutil.help.CheckHelp;
 import com.arialyy.downloadutil.util.Util;
 
@@ -12,10 +11,10 @@ import com.arialyy.downloadutil.util.Util;
  * 下载命令
  */
 public abstract class IDownloadCmd {
-  protected IDownloadTarget target;
-  protected Context         mContext;
-  protected DownloadEntity  mEntity;
-  protected String          TAG;
+  DownloadTaskQueue target;
+  Context           mContext;
+  DownloadEntity    mEntity;
+  String            TAG;
 
   /**
    * @param context context
@@ -25,7 +24,7 @@ public abstract class IDownloadCmd {
     if (!CheckHelp.checkDownloadEntity(entity)) {
       return;
     }
-    target = DownloadTarget.getInstance();
+    target = DownloadTaskQueue.getInstance();
     mContext = context;
     mEntity = entity;
     TAG = Util.getClassName(this);
@@ -43,9 +42,9 @@ public abstract class IDownloadCmd {
   /**
    * 设置下载器
    *
-   * @param downloadTarget {@link IDownloadTarget}
+   * @param downloadTarget {@link DownloadTaskQueue}
    */
-  public void setDownloadTarget(IDownloadTarget downloadTarget) {
+  public void setDownloadQueue(DownloadTaskQueue downloadTarget) {
     target = downloadTarget;
   }
 }
