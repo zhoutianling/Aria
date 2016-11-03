@@ -1,17 +1,20 @@
-package com.arialyy.downloadutil.core;
+package com.arialyy.downloadutil.core.queue;
 
 import android.content.Context;
 import android.util.Log;
-import com.arialyy.downloadutil.core.inf.IDownloadSchedulers;
-import com.arialyy.downloadutil.core.inf.ITaskQueue;
-import com.arialyy.downloadutil.core.pool.CachePool;
-import com.arialyy.downloadutil.core.pool.ExecutePool;
+import com.arialyy.downloadutil.core.DownloadEntity;
+import com.arialyy.downloadutil.core.scheduler.DownloadSchedulers;
+import com.arialyy.downloadutil.core.task.Task;
+import com.arialyy.downloadutil.core.task.TaskFactory;
+import com.arialyy.downloadutil.core.scheduler.IDownloadSchedulers;
+import com.arialyy.downloadutil.core.queue.pool.CachePool;
+import com.arialyy.downloadutil.core.queue.pool.ExecutePool;
 
 /**
  * Created by lyy on 2016/8/17.
  * 下载任务队列
  */
-final class DownloadTaskQueue implements ITaskQueue {
+public class DownloadTaskQueue implements ITaskQueue {
   private static final String      TAG          = "DownloadTaskQueue";
   private              CachePool   mCachePool   = CachePool.getInstance();
   private              ExecutePool mExecutePool = ExecutePool.getInstance();
@@ -126,11 +129,11 @@ final class DownloadTaskQueue implements ITaskQueue {
     mSchedulers = schedulers;
   }
 
-  static class Builder {
+  public static class Builder {
     Context             context;
     IDownloadSchedulers schedulers;
 
-    Builder(Context context) {
+    public Builder(Context context) {
       this.context = context.getApplicationContext();
     }
 
@@ -139,7 +142,7 @@ final class DownloadTaskQueue implements ITaskQueue {
       return this;
     }
 
-    DownloadTaskQueue build() {
+    public DownloadTaskQueue build() {
       DownloadTaskQueue queue = new DownloadTaskQueue(context);
       if (schedulers == null) {
         schedulers = DownloadSchedulers.getInstance(queue);

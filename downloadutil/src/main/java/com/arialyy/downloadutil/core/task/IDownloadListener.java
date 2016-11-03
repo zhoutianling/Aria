@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil.core;
+package com.arialyy.downloadutil.core.task;
 
 /**
  * 下载监听

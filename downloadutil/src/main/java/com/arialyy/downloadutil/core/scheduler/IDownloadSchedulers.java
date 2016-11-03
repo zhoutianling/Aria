@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil.core.inf;
+package com.arialyy.downloadutil.core.scheduler;
 
 import android.os.Handler;
 import com.arialyy.downloadutil.core.DownloadEntity;

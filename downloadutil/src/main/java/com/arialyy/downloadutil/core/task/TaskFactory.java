@@ -1,7 +1,8 @@
-package com.arialyy.downloadutil.core;
+package com.arialyy.downloadutil.core.task;
 
 import android.content.Context;
-import com.arialyy.downloadutil.core.inf.IDownloadSchedulers;
+import com.arialyy.downloadutil.core.DownloadEntity;
+import com.arialyy.downloadutil.core.scheduler.IDownloadSchedulers;
 
 /**
  * Created by lyy on 2016/8/18.

@@ -1,9 +1,11 @@
-package com.arialyy.downloadutil.core;
+package com.arialyy.downloadutil.core.scheduler;
 
 import android.os.Message;
 import android.util.Log;
-import com.arialyy.downloadutil.core.inf.IDownloadSchedulers;
-import com.arialyy.downloadutil.core.pool.ExecutePool;
+import com.arialyy.downloadutil.core.DownloadEntity;
+import com.arialyy.downloadutil.core.task.Task;
+import com.arialyy.downloadutil.core.queue.pool.ExecutePool;
+import com.arialyy.downloadutil.core.queue.DownloadTaskQueue;
 
 /**
  * Created by lyy on 2016/8/16.

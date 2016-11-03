@@ -2,7 +2,7 @@ package com.arialyy.downloadutil.core.command;
 
 import android.util.Log;
 import com.arialyy.downloadutil.core.DownloadEntity;
-import com.arialyy.downloadutil.core.Task;
+import com.arialyy.downloadutil.core.task.Task;
 
 /**
  * Created by lyy on 2016/9/20.

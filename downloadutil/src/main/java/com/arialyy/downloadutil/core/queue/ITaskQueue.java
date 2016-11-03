@@ -1,13 +1,14 @@
-package com.arialyy.downloadutil.core.inf;
+package com.arialyy.downloadutil.core.queue;
 
 import com.arialyy.downloadutil.core.DownloadEntity;
-import com.arialyy.downloadutil.core.Task;
+import com.arialyy.downloadutil.core.task.Task;
+import com.arialyy.downloadutil.core.scheduler.IDownloadSchedulers;
 
 /**
  * Created by lyy on 2016/8/16.
  * 任务功能接口
  */
-public interface ITaskQueue extends IDownloader{
+public interface ITaskQueue extends IDownloader {
 
   /**
    * 创建一个新的下载任务，创建时只是将新任务存储到缓存池

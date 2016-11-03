@@ -1,9 +1,9 @@
-package com.arialyy.downloadutil.core;
+package com.arialyy.downloadutil.core.task;
 
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
-import com.arialyy.downloadutil.core.inf.IDownloadUtil;
+import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.util.Util;
 import java.io.File;
 import java.io.IOException;

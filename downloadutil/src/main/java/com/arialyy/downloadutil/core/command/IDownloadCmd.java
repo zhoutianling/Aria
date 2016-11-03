@@ -2,7 +2,7 @@ package com.arialyy.downloadutil.core.command;
 
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
-import com.arialyy.downloadutil.core.inf.ITaskQueue;
+import com.arialyy.downloadutil.core.queue.ITaskQueue;
 import com.arialyy.downloadutil.help.CheckHelp;
 import com.arialyy.downloadutil.util.Util;
 

@@ -1,6 +1,6 @@
-package com.arialyy.downloadutil.core;
+package com.arialyy.downloadutil.core.task;
 
-public class DownloadListener implements IDownloadListener {
+class DownloadListener implements IDownloadListener {
 
   @Override public void onResume(long resumeLocation) {
 

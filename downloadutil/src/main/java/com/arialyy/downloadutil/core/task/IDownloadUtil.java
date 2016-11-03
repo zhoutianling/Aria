@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil.core.inf;
+package com.arialyy.downloadutil.core.task;
 
 /**
  * Created by “AriaLyy@outlook.com” on 2016/10/31.
