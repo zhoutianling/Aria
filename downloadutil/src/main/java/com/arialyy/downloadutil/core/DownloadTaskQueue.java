@@ -3,7 +3,6 @@ package com.arialyy.downloadutil.core;
 import android.content.Context;
 import android.util.Log;
 import com.arialyy.downloadutil.core.inf.IDownloadSchedulers;
-import com.arialyy.downloadutil.core.inf.IDownloader;
 import com.arialyy.downloadutil.core.inf.ITaskQueue;
 import com.arialyy.downloadutil.core.pool.CachePool;
 import com.arialyy.downloadutil.core.pool.ExecutePool;
@@ -132,7 +131,7 @@ final class DownloadTaskQueue implements ITaskQueue {
     IDownloadSchedulers schedulers;
 
     Builder(Context context) {
-      context = context.getApplicationContext();
+      this.context = context.getApplicationContext();
     }
 
     public Builder setDownloadSchedulers(IDownloadSchedulers schedulers) {
