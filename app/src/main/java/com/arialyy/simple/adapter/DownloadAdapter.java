@@ -39,7 +39,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     int                i      = 0;
     for (DownloadEntity entity : data) {
       mPositions.put(entity.getDownloadUrl(), i);
-      addCmd.add(mFactory.createCmd(context, entity, CmdFactory.TASK_CREATE));
+      addCmd.add(mFactory.createCmd(entity, CmdFactory.TASK_CREATE));
       i++;
     }
     mManager.setCmds(addCmd).exe();
@@ -127,7 +127,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
       @Override public void onClick(View v) {
         mData.remove(item);
         notifyDataSetChanged();
-        IDownloadCmd cancelCmd = mFactory.createCmd(getContext(), item, CmdFactory.TASK_CANCEL);
+        IDownloadCmd cancelCmd = mFactory.createCmd(item, CmdFactory.TASK_CANCEL);
         mManager.setCmd(cancelCmd).exe();
       }
     });
@@ -167,12 +167,12 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     }
 
     private void start(DownloadEntity entity) {
-      IDownloadCmd startCmd = mFactory.createCmd(getContext(), entity, CmdFactory.TASK_START);
+      IDownloadCmd startCmd = mFactory.createCmd(entity, CmdFactory.TASK_START);
       mManager.setCmd(startCmd).exe();
     }
 
     private void stop(DownloadEntity entity) {
-      IDownloadCmd stopCmd = mFactory.createCmd(getContext(), entity, CmdFactory.TASK_STOP);
+      IDownloadCmd stopCmd = mFactory.createCmd(entity, CmdFactory.TASK_STOP);
       mManager.setCmd(stopCmd).exe();
     }
   }

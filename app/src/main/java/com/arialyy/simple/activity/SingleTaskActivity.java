@@ -205,20 +205,20 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     mEntity.setDownloadUrl(mDownloadUrl);
     mEntity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
     List<IDownloadCmd> commands = new ArrayList<>();
-    IDownloadCmd       addCMD   = mFactory.createCmd(this, mEntity, CmdFactory.TASK_CREATE);
-    IDownloadCmd startCmd = mFactory.createCmd(this, mEntity, CmdFactory.TASK_START);
+    IDownloadCmd       addCMD   = mFactory.createCmd(mEntity, CmdFactory.TASK_CREATE);
+    IDownloadCmd       startCmd = mFactory.createCmd(mEntity, CmdFactory.TASK_START);
     commands.add(addCMD);
     commands.add(startCmd);
     mManager.setCmds(commands).exe();
   }
 
   private void stop() {
-    IDownloadCmd stopCmd = mFactory.createCmd(this, mEntity, CmdFactory.TASK_STOP);
+    IDownloadCmd stopCmd = mFactory.createCmd(mEntity, CmdFactory.TASK_STOP);
     mManager.setCmd(stopCmd).exe();
   }
 
   private void cancel() {
-    IDownloadCmd cancelCmd = mFactory.createCmd(this, mEntity, CmdFactory.TASK_CANCEL);
+    IDownloadCmd cancelCmd = mFactory.createCmd(mEntity, CmdFactory.TASK_CANCEL);
     mManager.setCmd(cancelCmd).exe();
   }
 }

@@ -10,17 +10,17 @@ import com.arialyy.downloadutil.core.Task;
  */
 class StartCmd extends IDownloadCmd {
 
-  StartCmd(Context context, DownloadEntity entity) {
-    super(context, entity);
+  StartCmd(DownloadEntity entity) {
+    super(entity);
   }
 
-  @Override public void executeComment() {
-    Task task = target.getTask(mEntity);
+  @Override public void executeCmd() {
+    Task task = mQueue.getTask(mEntity);
     if (task == null) {
-      task = target.createTask(mEntity);
+      task = mQueue.createTask(mEntity);
     }
     if (task != null) {
-      target.startTask(task);
+      mQueue.startTask(task);
     }
   }
 }

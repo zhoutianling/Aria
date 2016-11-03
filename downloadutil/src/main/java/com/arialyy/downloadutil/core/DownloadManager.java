@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 import com.arialyy.downloadutil.core.command.IDownloadCmd;
+import com.arialyy.downloadutil.core.inf.ITaskQueue;
 import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.orm.DbUtil;
 import java.util.ArrayList;
@@ -17,56 +18,57 @@ public class DownloadManager {
   /**
    * 预处理完成
    */
-  public static final String ACTION_PRE = "ACTION_PRE";
+  public static final     String             ACTION_PRE       = "ACTION_PRE";
   /**
    * 下载开始前事件
    */
-  public static final String ACTION_POST_PRE = "ACTION_POST_PRE";
+  public static final     String             ACTION_POST_PRE  = "ACTION_POST_PRE";
   /**
    * 开始下载事件
    */
-  public static final String ACTION_START = "ACTION_START";
+  public static final     String             ACTION_START     = "ACTION_START";
   /**
    * 恢复下载事件
    */
-  public static final String ACTION_RESUME = "ACTION_RESUME";
+  public static final     String             ACTION_RESUME    = "ACTION_RESUME";
   /**
    * 正在下载事件
    */
-  public static final String ACTION_RUNNING = "ACTION_RUNNING";
+  public static final     String             ACTION_RUNNING   = "ACTION_RUNNING";
   /**
    * 停止下载事件
    */
-  public static final String ACTION_STOP = "ACTION_STOP";
+  public static final     String             ACTION_STOP      = "ACTION_STOP";
   /**
    * 取消下载事件
    */
-  public static final String ACTION_CANCEL = "ACTION_CANCEL";
+  public static final     String             ACTION_CANCEL    = "ACTION_CANCEL";
   /**
    * 下载完成事件
    */
-  public static final String ACTION_COMPLETE = "ACTION_COMPLETE";
+  public static final     String             ACTION_COMPLETE  = "ACTION_COMPLETE";
   /**
    * 下载失败事件
    */
-  public static final String ACTION_FAIL = "ACTION_FAIL";
+  public static final     String             ACTION_FAIL      = "ACTION_FAIL";
   /**
    * 下载实体
    */
-  public static final String ENTITY = "DOWNLOAD_ENTITY";
+  public static final     String             ENTITY           = "DOWNLOAD_ENTITY";
   /**
    * 位置
    */
-  public static final String CURRENT_LOCATION = "CURRENT_LOCATION";
+  public static final     String             CURRENT_LOCATION = "CURRENT_LOCATION";
   /**
    * 速度
    */
-  public static final String CURRENT_SPEED = "CURRENT_SPEED";
-  private static final    String          TAG      = "DownloadManager";
-  private static final    Object          LOCK     = new Object();
-  private static volatile DownloadManager INSTANCE = null;
-  private List<IDownloadCmd> mCommands = new ArrayList<>();
-  private Context mContext;
+  public static final     String             CURRENT_SPEED    = "CURRENT_SPEED";
+  private static final    String             TAG              = "DownloadManager";
+  private static final    Object             LOCK             = new Object();
+  private static volatile DownloadManager    INSTANCE         = null;
+  private                 List<IDownloadCmd> mCommands        = new ArrayList<>();
+  private Context    mContext;
+  private ITaskQueue mTaskQueue;
 
   private DownloadManager() {
 
@@ -74,7 +76,8 @@ public class DownloadManager {
 
   private DownloadManager(Context context) {
     mContext = context;
-    DownloadTaskQueue.init(context);
+    DownloadTaskQueue.Builder builder = new DownloadTaskQueue.Builder(context);
+    mTaskQueue = builder.build();
     DbUtil.init(context);
   }
 
@@ -103,6 +106,13 @@ public class DownloadManager {
   }
 
   /**
+   * 获取任务队列
+   */
+  public ITaskQueue getTaskQueue() {
+    return mTaskQueue;
+  }
+
+  /**
    * 设置命令
    */
   public DownloadManager setCmd(IDownloadCmd command) {
@@ -125,8 +135,17 @@ public class DownloadManager {
    */
   public synchronized void exe() {
     for (IDownloadCmd command : mCommands) {
-      command.executeComment();
+      command.executeCmd();
     }
     mCommands.clear();
+  }
+
+  /**
+   * 设置下载器
+   *
+   * @param queue {@link ITaskQueue}
+   */
+  public void setDownloadQueue(ITaskQueue queue) {
+    mTaskQueue = queue;
   }
 }

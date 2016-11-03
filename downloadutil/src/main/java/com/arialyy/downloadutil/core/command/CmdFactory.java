@@ -1,6 +1,5 @@
 package com.arialyy.downloadutil.core.command;
 
-import android.content.Context;
 import com.arialyy.downloadutil.core.DownloadEntity;
 
 /**
@@ -46,22 +45,21 @@ public class CmdFactory {
   }
 
   /**
-   * @param context context
    * @param entity 下载实体
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}
    */
-  public IDownloadCmd createCmd(Context context, DownloadEntity entity, int type) {
+  public IDownloadCmd createCmd(DownloadEntity entity, int type) {
     switch (type) {
       case TASK_CREATE:
-        return createAddCmd(context, entity);
+        return createAddCmd(entity);
       case TASK_RESUME:
       case TASK_START:
-        return createStartCmd(context, entity);
+        return createStartCmd(entity);
       case TASK_CANCEL:
-        return createCancelCmd(context, entity);
+        return createCancelCmd(entity);
       case TASK_STOP:
-        return createStopCmd(context, entity);
+        return createStopCmd(entity);
       default:
         return null;
     }
@@ -72,8 +70,8 @@ public class CmdFactory {
    *
    * @return {@link StopCmd}
    */
-  private StopCmd createStopCmd(Context context, DownloadEntity entity) {
-    return new StopCmd(context, entity);
+  private StopCmd createStopCmd(DownloadEntity entity) {
+    return new StopCmd(entity);
   }
 
   /**
@@ -81,8 +79,8 @@ public class CmdFactory {
    *
    * @return {@link AddCmd}
    */
-  private AddCmd createAddCmd(Context context, DownloadEntity entity) {
-    return new AddCmd(context, entity);
+  private AddCmd createAddCmd(DownloadEntity entity) {
+    return new AddCmd(entity);
   }
 
   /**
@@ -90,8 +88,8 @@ public class CmdFactory {
    *
    * @return {@link StartCmd}
    */
-  private StartCmd createStartCmd(Context context, DownloadEntity entity) {
-    return new StartCmd(context, entity);
+  private StartCmd createStartCmd(DownloadEntity entity) {
+    return new StartCmd(entity);
   }
 
   /**
@@ -99,7 +97,7 @@ public class CmdFactory {
    *
    * @return {@link CancelCmd}
    */
-  private CancelCmd createCancelCmd(Context context, DownloadEntity entity) {
-    return new CancelCmd(context, entity);
+  private CancelCmd createCancelCmd(DownloadEntity entity) {
+    return new CancelCmd(entity);
   }
 }

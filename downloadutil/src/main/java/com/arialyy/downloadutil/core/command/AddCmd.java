@@ -1,6 +1,5 @@
 package com.arialyy.downloadutil.core.command;
 
-import android.content.Context;
 import android.util.Log;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.Task;
@@ -11,14 +10,14 @@ import com.arialyy.downloadutil.core.Task;
  */
 class AddCmd extends IDownloadCmd {
 
-  AddCmd(Context context, DownloadEntity entity) {
-    super(context, entity);
+  AddCmd(DownloadEntity entity) {
+    super(entity);
   }
 
-  @Override public void executeComment() {
-    Task task = target.getTask(mEntity);
+  @Override public void executeCmd() {
+    Task task = mQueue.getTask(mEntity);
     if (task == null) {
-      target.createTask(mEntity);
+      mQueue.createTask(mEntity);
     } else {
       Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
     }

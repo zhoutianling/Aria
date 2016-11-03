@@ -12,13 +12,12 @@ import com.arialyy.downloadutil.core.pool.ExecutePool;
  * Created by lyy on 2016/8/17.
  * 下载任务队列
  */
-public class DownloadTaskQueue implements ITaskQueue, IDownloader {
-  private static final    String            TAG          = "DownloadTaskQueue";
-  private static final    Object            LOCK         = new Object();
-  private static volatile DownloadTaskQueue INSTANCE     = null;
-  private                 CachePool         mCachePool   = CachePool.getInstance();
-  private                 ExecutePool       mExecutePool = ExecutePool.getInstance();
-  private Context mContext;
+final class DownloadTaskQueue implements ITaskQueue {
+  private static final String      TAG          = "DownloadTaskQueue";
+  private              CachePool   mCachePool   = CachePool.getInstance();
+  private              ExecutePool mExecutePool = ExecutePool.getInstance();
+  private Context             mContext;
+  private IDownloadSchedulers mSchedulers;
 
   private DownloadTaskQueue() {
   }
@@ -26,22 +25,6 @@ public class DownloadTaskQueue implements ITaskQueue, IDownloader {
   private DownloadTaskQueue(Context context) {
     super();
     mContext = context;
-  }
-
-  public static DownloadTaskQueue getInstance() {
-    if (INSTANCE == null) {
-      throw new NullPointerException("请在Application中调用init进行注册");
-    }
-    return INSTANCE;
-  }
-
-  static DownloadTaskQueue init(Context context) {
-    if (INSTANCE == null) {
-      synchronized (LOCK) {
-        INSTANCE = new DownloadTaskQueue(context.getApplicationContext());
-      }
-    }
-    return INSTANCE;
   }
 
   /**
@@ -109,14 +92,7 @@ public class DownloadTaskQueue implements ITaskQueue, IDownloader {
   }
 
   @Override public Task createTask(DownloadEntity entity) {
-    return createTask(entity, null);
-  }
-
-  @Override public Task createTask(DownloadEntity entity, IDownloadSchedulers schedulers) {
-    if (schedulers == null) {
-      schedulers = DownloadSchedulers.getInstance(this);
-    }
-    Task task = TaskFactory.getInstance().createTask(mContext, entity, schedulers);
+    Task task = TaskFactory.getInstance().createTask(mContext, entity, mSchedulers);
     mCachePool.putTask(task);
     return task;
   }
@@ -127,15 +103,6 @@ public class DownloadTaskQueue implements ITaskQueue, IDownloader {
       task = mCachePool.getTask(entity.getDownloadUrl());
     }
     return task;
-  }
-
-  @Override public int getTaskState(DownloadEntity entity) {
-    Task task = getTask(entity);
-    if (task == null) {
-      Log.e(TAG, "没有找到下载链接为【" + entity.getDownloadUrl() + "】的下载任务");
-      return -1;
-    }
-    return task.getDownloadEntity().getState();
   }
 
   @Override public void removeTask(DownloadEntity entity) {
@@ -154,5 +121,32 @@ public class DownloadTaskQueue implements ITaskQueue, IDownloader {
 
   @Override public Task getNextTask() {
     return mCachePool.pollTask();
+  }
+
+  @Override public void setScheduler(IDownloadSchedulers schedulers) {
+    mSchedulers = schedulers;
+  }
+
+  static class Builder {
+    Context             context;
+    IDownloadSchedulers schedulers;
+
+    Builder(Context context) {
+      context = context.getApplicationContext();
+    }
+
+    public Builder setDownloadSchedulers(IDownloadSchedulers schedulers) {
+      this.schedulers = schedulers;
+      return this;
+    }
+
+    DownloadTaskQueue build() {
+      DownloadTaskQueue queue = new DownloadTaskQueue(context);
+      if (schedulers == null) {
+        schedulers = DownloadSchedulers.getInstance(queue);
+      }
+      queue.setScheduler(schedulers);
+      return queue;
+    }
   }
 }
