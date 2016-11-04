@@ -3,12 +3,12 @@ package com.arialyy.downloadutil.core.queue;
 import android.content.Context;
 import android.util.Log;
 import com.arialyy.downloadutil.core.DownloadEntity;
-import com.arialyy.downloadutil.core.scheduler.DownloadSchedulers;
-import com.arialyy.downloadutil.core.task.Task;
-import com.arialyy.downloadutil.core.task.TaskFactory;
-import com.arialyy.downloadutil.core.scheduler.IDownloadSchedulers;
 import com.arialyy.downloadutil.core.queue.pool.CachePool;
 import com.arialyy.downloadutil.core.queue.pool.ExecutePool;
+import com.arialyy.downloadutil.core.scheduler.DownloadSchedulers;
+import com.arialyy.downloadutil.core.scheduler.IDownloadSchedulers;
+import com.arialyy.downloadutil.core.task.Task;
+import com.arialyy.downloadutil.core.task.TaskFactory;
 
 /**
  * Created by lyy on 2016/8/17.
@@ -20,6 +20,7 @@ public class DownloadTaskQueue implements ITaskQueue {
   private              ExecutePool mExecutePool = ExecutePool.getInstance();
   private Context             mContext;
   private IDownloadSchedulers mSchedulers;
+  private int mDownloadNum = 2;
 
   private DownloadTaskQueue() {
   }
@@ -91,6 +92,10 @@ public class DownloadTaskQueue implements ITaskQueue {
     } else {
       Log.w(TAG, "任务没有完全停止，重试下载失败");
     }
+  }
+
+  @Override public void setDownloadNum(int downloadNum) {
+
   }
 
   @Override public Task createTask(DownloadEntity entity) {

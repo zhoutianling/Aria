@@ -73,7 +73,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     switch (msg.what) {
       case STOP:
       case CANCEL:
-        if (mQueue.getExecutePool().size() != ExecutePool.SIZE) {
+        if (mQueue.getExecutePool().size() != ExecutePool.mSize) {
           startNextTask(entity);
         }
         break;

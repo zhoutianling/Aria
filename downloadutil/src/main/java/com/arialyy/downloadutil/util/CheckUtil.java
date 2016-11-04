@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil.help;
+package com.arialyy.downloadutil.util;
 
 import android.content.res.Resources;
 import android.text.TextUtils;
@@ -11,8 +11,8 @@ import java.io.File;
  * Created by Lyy on 2016/9/23.
  * 检查帮助类
  */
-public class CheckHelp {
-  private static final String TAG = "CheckHelp";
+public class CheckUtil {
+  private static final String TAG = "CheckUtil";
 
   /**
    * 检测下载实体是否合法

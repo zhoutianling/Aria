@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.downloadutil.core.DownloadEntity;
-import com.arialyy.downloadutil.util.Util;
+import com.arialyy.downloadutil.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -165,7 +165,7 @@ final class DownloadUtil implements IDownloadUtil {
     try {
       if (!configFile.exists()) { //记录文件被删除，则重新下载
         isNewTask = true;
-        Util.createFile(configFile.getPath());
+        CommonUtil.createFile(configFile.getPath());
       } else {
         isNewTask = !dFile.exists();
       }
@@ -192,14 +192,14 @@ final class DownloadUtil implements IDownloadUtil {
           if (code == 200) {
             int fileLength = conn.getContentLength();
             //必须建一个文件
-            Util.createFile(filePath);
+            CommonUtil.createFile(filePath);
             RandomAccessFile file = new RandomAccessFile(filePath, "rwd");
             //设置文件长度
             file.setLength(fileLength);
             mListener.onPostPre(fileLength);
             //分配每条线程的下载区间
             Properties pro = null;
-            pro = Util.loadConfig(configFile);
+            pro = CommonUtil.loadConfig(configFile);
             if (pro.isEmpty()) {
               isNewTask = true;
             } else {
@@ -288,7 +288,7 @@ final class DownloadUtil implements IDownloadUtil {
               + "】\n【filePath:"
               + filePath
               + "】"
-              + Util.getPrintException(e));
+              + CommonUtil.getPrintException(e));
         }
       }
     }).start();
@@ -486,9 +486,9 @@ final class DownloadUtil implements IDownloadUtil {
      */
     private void writeConfig(String key, String record) throws IOException {
       File       configFile = new File(configFPath);
-      Properties pro        = Util.loadConfig(configFile);
+      Properties pro        = CommonUtil.loadConfig(configFile);
       pro.setProperty(key, record);
-      Util.saveConfig(configFile, pro);
+      CommonUtil.saveConfig(configFile, pro);
     }
 
     /**
@@ -502,7 +502,7 @@ final class DownloadUtil implements IDownloadUtil {
           isStop = true;
           Log.e(TAG, msg);
           if (ex != null) {
-            Log.e(TAG, Util.getPrintException(ex));
+            Log.e(TAG, CommonUtil.getPrintException(ex));
           }
           if (currentLocation != -1) {
             String location = String.valueOf(currentLocation);

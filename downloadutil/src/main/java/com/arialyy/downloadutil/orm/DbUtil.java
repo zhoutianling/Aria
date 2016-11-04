@@ -6,7 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import com.arialyy.downloadutil.util.Util;
+import com.arialyy.downloadutil.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
@@ -71,7 +71,7 @@ public class DbUtil {
       return;
     }
     StringBuilder sb = new StringBuilder();
-    sb.append("DELETE FROM ").append(Util.getClassName(clazz)).append(" WHERE ");
+    sb.append("DELETE FROM ").append(CommonUtil.getClassName(clazz)).append(" WHERE ");
     int i = 0;
     for (Object where : wheres) {
       sb.append(where).append("=").append("'").append(values[i]).append("'");
@@ -89,10 +89,10 @@ public class DbUtil {
   synchronized void modifyData(DbEntity dbEntity) {
     mDb = mHelper.getWritableDatabase();
     Class<?> clazz  = dbEntity.getClass();
-    Field[]  fields = Util.getFields(clazz);
+    Field[]  fields = CommonUtil.getFields(clazz);
     if (fields != null && fields.length > 0) {
       StringBuilder sb = new StringBuilder();
-      sb.append("UPDATE ").append(Util.getClassName(dbEntity)).append(" SET ");
+      sb.append("UPDATE ").append(CommonUtil.getClassName(dbEntity)).append(" SET ");
       int i = 0;
       for (Field field : fields) {
         field.setAccessible(true);
@@ -127,7 +127,7 @@ public class DbUtil {
     }
     mDb = mHelper.getReadableDatabase();
     StringBuilder sb = new StringBuilder();
-    sb.append("SELECT rowid, * FROM ").append(Util.getClassName(clazz));
+    sb.append("SELECT rowid, * FROM ").append(CommonUtil.getClassName(clazz));
     print(FIND_ALL_DATA, sb.toString());
     Cursor cursor = mDb.rawQuery(sb.toString(), null);
     return cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
@@ -150,7 +150,7 @@ public class DbUtil {
       return null;
     }
     StringBuilder sb = new StringBuilder();
-    sb.append("SELECT rowid, * FROM ").append(Util.getClassName(clazz)).append(" where ");
+    sb.append("SELECT rowid, * FROM ").append(CommonUtil.getClassName(clazz)).append(" where ");
     int i = 0;
     for (Object where : wheres) {
       sb.append(where).append("=").append("'").append(values[i]).append("'");
@@ -171,10 +171,10 @@ public class DbUtil {
       createTable(clazz);
     }
     mDb = mHelper.getWritableDatabase();
-    Field[] fields = Util.getFields(clazz);
+    Field[] fields = CommonUtil.getFields(clazz);
     if (fields != null && fields.length > 0) {
       StringBuilder sb = new StringBuilder();
-      sb.append("INSERT INTO ").append(Util.getClassName(dbEntity)).append("(");
+      sb.append("INSERT INTO ").append(CommonUtil.getClassName(dbEntity)).append("(");
       int i = 0;
       for (Field field : fields) {
         field.setAccessible(true);
@@ -221,7 +221,7 @@ public class DbUtil {
     try {
       StringBuilder sb = new StringBuilder();
       sb.append("SELECT COUNT(*) AS c FROM sqlite_master WHERE type='table' AND name='");
-      sb.append(Util.getClassName(clazz));
+      sb.append(CommonUtil.getClassName(clazz));
       sb.append("'");
       print(TABLE_EXISTS, sb.toString());
       cursor = mDb.rawQuery(sb.toString(), null);
@@ -247,10 +247,10 @@ public class DbUtil {
     if (mDb == null || !mDb.isOpen()) {
       mDb = mHelper.getWritableDatabase();
     }
-    Field[] fields = Util.getFields(clazz);
+    Field[] fields = CommonUtil.getFields(clazz);
     if (fields != null && fields.length > 0) {
       StringBuilder sb = new StringBuilder();
-      sb.append("create table ").append(Util.getClassName(clazz)).append("(");
+      sb.append("create table ").append(CommonUtil.getClassName(clazz)).append("(");
       for (Field field : fields) {
         field.setAccessible(true);
         Ignore ignore = field.getAnnotation(Ignore.class);
@@ -333,7 +333,7 @@ public class DbUtil {
    */
   synchronized int[] getRowId(Class clazz) {
     mDb = mHelper.getReadableDatabase();
-    Cursor cursor = mDb.rawQuery("SELECT rowid, * FROM " + Util.getClassName(clazz), null);
+    Cursor cursor = mDb.rawQuery("SELECT rowid, * FROM " + CommonUtil.getClassName(clazz), null);
     int[]  ids    = new int[cursor.getCount()];
     int    i      = 0;
     while (cursor.moveToNext()) {
@@ -358,7 +358,7 @@ public class DbUtil {
       return -1;
     }
     StringBuilder sb = new StringBuilder();
-    sb.append("SELECT rowid FROM ").append(Util.getClassName(clazz)).append(" WHERE ");
+    sb.append("SELECT rowid FROM ").append(CommonUtil.getClassName(clazz)).append(" WHERE ");
     int i = 0;
     for (Object where : wheres) {
       sb.append(where).append("=").append("'").append(values[i]).append("'");
@@ -378,7 +378,7 @@ public class DbUtil {
    */
   private synchronized <T extends DbEntity> List<T> newInstanceEntity(Class<T> clazz,
       Cursor cursor) {
-    Field[] fields  = Util.getFields(clazz);
+    Field[] fields  = CommonUtil.getFields(clazz);
     List<T> entitys = new ArrayList<>();
     if (fields != null && fields.length > 0) {
       try {

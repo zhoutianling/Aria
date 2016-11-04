@@ -19,7 +19,7 @@ import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.command.CmdFactory;
 import com.arialyy.downloadutil.core.command.IDownloadCmd;
 import com.arialyy.downloadutil.orm.DbEntity;
-import com.arialyy.downloadutil.util.Util;
+import com.arialyy.downloadutil.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
@@ -50,7 +50,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       super.handleMessage(msg);
       switch (msg.what) {
         case DOWNLOAD_PRE:
-          mSize.setText(Util.formatFileSize((Long) msg.obj));
+          mSize.setText(CommonUtil.formatFileSize((Long) msg.obj));
           setBtState(false);
           break;
         case DOWNLOAD_FAILE:
@@ -70,7 +70,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           break;
         case DOWNLOAD_RESUME:
           Toast.makeText(SingleTaskActivity.this,
-              "恢复下载，恢复位置 ==> " + Util.formatFileSize((Long) msg.obj), Toast.LENGTH_SHORT).show();
+              "恢复下载，恢复位置 ==> " + CommonUtil.formatFileSize((Long) msg.obj), Toast.LENGTH_SHORT).show();
           setBtState(false);
           break;
         case DOWNLOAD_COMPLETE:
@@ -174,7 +174,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         new String[] { mDownloadUrl });
     if (mEntity != null) {
       mPb.setProgress((int) ((mEntity.getCurrentProgress() * 100) / mEntity.getFileSize()));
-      mSize.setText(Util.formatFileSize(mEntity.getFileSize()));
+      mSize.setText(CommonUtil.formatFileSize(mEntity.getFileSize()));
       if (mEntity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
         setBtState(false);
       } else if (mEntity.isDownloadComplete()) {

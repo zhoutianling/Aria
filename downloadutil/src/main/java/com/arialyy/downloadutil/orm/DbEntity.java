@@ -1,7 +1,7 @@
 package com.arialyy.downloadutil.orm;
 
 import android.support.annotation.NonNull;
-import com.arialyy.downloadutil.util.Util;
+import com.arialyy.downloadutil.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,7 +117,7 @@ public class DbEntity {
 
   private void updateRowID() {
     try {
-      Field[]      fields = Util.getFields(getClass());
+      Field[]      fields = CommonUtil.getFields(getClass());
       List<String> where  = new ArrayList<>();
       List<String> values = new ArrayList<>();
       for (Field field : fields) {

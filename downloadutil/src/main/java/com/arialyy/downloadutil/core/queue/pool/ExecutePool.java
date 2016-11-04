@@ -2,9 +2,9 @@ package com.arialyy.downloadutil.core.queue.pool;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.downloadutil.core.task.Task;
 import com.arialyy.downloadutil.core.queue.IPool;
-import com.arialyy.downloadutil.util.Util;
+import com.arialyy.downloadutil.core.task.Task;
+import com.arialyy.downloadutil.util.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -18,13 +18,13 @@ public class ExecutePool implements IPool {
   private static final    String      TAG      = "ExecutePool";
   private static final    Object      LOCK     = new Object();
   private static final    long        TIME_OUT = 1000;
-  public static           int         SIZE     = 2;
   private static volatile ExecutePool INSTANCE = null;
+  public static           int         mSize    = 2;
   private ArrayBlockingQueue<Task> mExecuteQueue;
   private Map<String, Task>        mExecuteArray;
 
   private ExecutePool() {
-    mExecuteQueue = new ArrayBlockingQueue<>(SIZE);
+    mExecuteQueue = new ArrayBlockingQueue<>(mSize);
     mExecuteArray = new HashMap<>();
   }
 
@@ -48,7 +48,7 @@ public class ExecutePool implements IPool {
         Log.e(TAG, "队列中已经包含了该任务，任务下载链接【" + url + "】");
         return false;
       } else {
-        if (mExecuteQueue.size() >= SIZE) {
+        if (mExecuteQueue.size() >= mSize) {
           if (pollFirstTask()) {
             return putNewTask(task);
           }
@@ -58,6 +58,25 @@ public class ExecutePool implements IPool {
       }
     }
     return false;
+  }
+
+  /**
+   * 设置执行任务数
+   *
+   * @param downloadNum 下载数
+   */
+  private void setDownloadNum(int downloadNum) {
+    try {
+      ArrayBlockingQueue<Task> temp = new ArrayBlockingQueue<>(downloadNum);
+      Task                     task;
+      while ((task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS)) != null) {
+        temp.offer(task);
+      }
+      mExecuteQueue = temp;
+      mSize = downloadNum;
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -71,7 +90,7 @@ public class ExecutePool implements IPool {
     Log.w(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
     if (s) {
       newTask.start();
-      mExecuteArray.put(Util.keyToHashKey(url), newTask);
+      mExecuteArray.put(CommonUtil.keyToHashKey(url), newTask);
     }
     return s;
   }
@@ -88,7 +107,7 @@ public class ExecutePool implements IPool {
       }
       oldTask.stop();
       //            wait(200);
-      String key = Util.keyToHashKey(oldTask.getDownloadEntity().getDownloadUrl());
+      String key = CommonUtil.keyToHashKey(oldTask.getDownloadEntity().getDownloadUrl());
       mExecuteArray.remove(key);
     } catch (InterruptedException e) {
       e.printStackTrace();
@@ -102,7 +121,7 @@ public class ExecutePool implements IPool {
       Task task = mExecuteQueue.poll();
       if (task != null) {
         String url = task.getDownloadEntity().getDownloadUrl();
-        mExecuteArray.remove(Util.keyToHashKey(url));
+        mExecuteArray.remove(CommonUtil.keyToHashKey(url));
       }
       return task;
     }
@@ -114,7 +133,7 @@ public class ExecutePool implements IPool {
         Log.e(TAG, "请传入有效的下载链接");
         return null;
       }
-      String key = Util.keyToHashKey(downloadUrl);
+      String key = CommonUtil.keyToHashKey(downloadUrl);
       return mExecuteArray.get(key);
     }
   }
@@ -125,7 +144,7 @@ public class ExecutePool implements IPool {
         Log.e(TAG, "任务不能为空");
         return false;
       } else {
-        String key = Util.keyToHashKey(task.getDownloadEntity().getDownloadUrl());
+        String key = CommonUtil.keyToHashKey(task.getDownloadEntity().getDownloadUrl());
         mExecuteArray.remove(key);
         return mExecuteQueue.remove(task);
       }
@@ -138,7 +157,7 @@ public class ExecutePool implements IPool {
         Log.e(TAG, "请传入有效的下载链接");
         return false;
       }
-      String key  = Util.keyToHashKey(downloadUrl);
+      String key  = CommonUtil.keyToHashKey(downloadUrl);
       Task   task = mExecuteArray.get(key);
       mExecuteArray.remove(key);
       return mExecuteQueue.remove(task);

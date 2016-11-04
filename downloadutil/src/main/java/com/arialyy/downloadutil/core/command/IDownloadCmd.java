@@ -3,8 +3,8 @@ package com.arialyy.downloadutil.core.command;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.queue.ITaskQueue;
-import com.arialyy.downloadutil.help.CheckHelp;
-import com.arialyy.downloadutil.util.Util;
+import com.arialyy.downloadutil.util.CheckUtil;
+import com.arialyy.downloadutil.util.CommonUtil;
 
 /**
  * Created by lyy on 2016/8/22.
@@ -19,11 +19,11 @@ public abstract class IDownloadCmd {
    * @param entity 下载实体
    */
   IDownloadCmd(DownloadEntity entity) {
-    if (!CheckHelp.checkDownloadEntity(entity)) {
+    if (!CheckUtil.checkDownloadEntity(entity)) {
       return;
     }
     mEntity = entity;
-    TAG = Util.getClassName(this);
+    TAG = CommonUtil.getClassName(this);
     mQueue = DownloadManager.getInstance().getTaskQueue();
   }
 

@@ -14,7 +14,7 @@ import java.util.Properties;
 /**
  * Created by lyy on 2016/1/22.
  */
-public class Util {
+public class CommonUtil {
   private static final String TAG = "util";
 
   /**

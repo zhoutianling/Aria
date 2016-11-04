@@ -12,7 +12,7 @@ import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.command.CmdFactory;
 import com.arialyy.downloadutil.core.command.IDownloadCmd;
-import com.arialyy.downloadutil.util.Util;
+import com.arialyy.downloadutil.util.CommonUtil;
 import com.arialyy.simple.R;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 import java.util.ArrayList;
@@ -121,8 +121,8 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     }
     holder.bt.setText(str);
     holder.bt.setTextColor(getColor(color));
-    holder.speed.setText(Util.formatFileSize(speed) + "/s");
-    holder.fileSize.setText(covertCurrentSize(progress) + "/" + Util.formatFileSize(size));
+    holder.speed.setText(CommonUtil.formatFileSize(speed) + "/s");
+    holder.fileSize.setText(covertCurrentSize(progress) + "/" + CommonUtil.formatFileSize(size));
     holder.cancel.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
         mData.remove(item);
@@ -134,7 +134,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   }
 
   private String covertCurrentSize(long currentSize) {
-    String size = Util.formatFileSize(currentSize);
+    String size = CommonUtil.formatFileSize(currentSize);
     return size.substring(0, size.length() - 1);
   }
 

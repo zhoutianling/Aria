@@ -1,4 +1,4 @@
-package com.arialyy.downloadutil.help;
+package com.arialyy.downloadutil.util;
 
 import android.os.Environment;
 import java.security.MessageDigest;
@@ -8,7 +8,7 @@ import java.security.NoSuchAlgorithmException;
  * Created by lyy on 2016/9/27.
  * 下载路径帮助类
  */
-public class PathHelp {
+public class PathUtil {
 
   /**
    * 下载链接转换保存路径

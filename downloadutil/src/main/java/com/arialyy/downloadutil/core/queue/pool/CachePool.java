@@ -4,7 +4,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.downloadutil.core.task.Task;
 import com.arialyy.downloadutil.core.queue.IPool;
-import com.arialyy.downloadutil.util.Util;
+import com.arialyy.downloadutil.util.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -49,7 +49,7 @@ public class CachePool implements IPool {
         boolean s = mCacheQueue.offer(task);
         Log.d(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
         if (s) {
-          mCacheArray.put(Util.keyToHashKey(url), task);
+          mCacheArray.put(CommonUtil.keyToHashKey(url), task);
         }
         return s;
       }
@@ -61,7 +61,7 @@ public class CachePool implements IPool {
       Task task = mCacheQueue.poll();
       if (task != null) {
         String url = task.getDownloadEntity().getDownloadUrl();
-        mCacheArray.remove(Util.keyToHashKey(url));
+        mCacheArray.remove(CommonUtil.keyToHashKey(url));
       }
       return task;
     }
@@ -73,7 +73,7 @@ public class CachePool implements IPool {
         Log.e(TAG, "请传入有效的下载链接");
         return null;
       }
-      String key = Util.keyToHashKey(downloadUrl);
+      String key = CommonUtil.keyToHashKey(downloadUrl);
       return mCacheArray.get(key);
     }
   }
@@ -84,7 +84,7 @@ public class CachePool implements IPool {
         Log.e(TAG, "任务不能为空");
         return false;
       } else {
-        String key = Util.keyToHashKey(task.getDownloadEntity().getDownloadUrl());
+        String key = CommonUtil.keyToHashKey(task.getDownloadEntity().getDownloadUrl());
         mCacheArray.remove(key);
         return mCacheQueue.remove(task);
       }
@@ -97,7 +97,7 @@ public class CachePool implements IPool {
         Log.e(TAG, "请传入有效的下载链接");
         return false;
       }
-      String key  = Util.keyToHashKey(downloadUrl);
+      String key  = CommonUtil.keyToHashKey(downloadUrl);
       Task   task = mCacheArray.get(key);
       mCacheArray.remove(key);
       return mCacheQueue.remove(task);

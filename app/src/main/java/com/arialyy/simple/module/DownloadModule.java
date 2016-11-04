@@ -5,7 +5,7 @@ import android.content.IntentFilter;
 import android.os.Environment;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
-import com.arialyy.downloadutil.util.Util;
+import com.arialyy.downloadutil.util.CommonUtil;
 import com.arialyy.frame.util.AndroidUtils;
 import com.arialyy.frame.util.StringUtil;
 import com.arialyy.simple.R;
@@ -66,7 +66,7 @@ public class DownloadModule extends BaseModule {
     String[] urls = getContext().getResources().getStringArray(R.array.test_apk_download_url);
     int i = 0;
     for (String url : urls) {
-      String         fileName = Util.keyToHashCode(url) + ".apk";
+      String         fileName = CommonUtil.keyToHashCode(url) + ".apk";
       DownloadEntity entity   = new DownloadEntity();
       entity.setDownloadUrl(url);
       entity.setDownloadPath(getDownloadPath(url));
