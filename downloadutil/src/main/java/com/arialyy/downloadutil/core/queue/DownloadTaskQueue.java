@@ -95,7 +95,7 @@ public class DownloadTaskQueue implements ITaskQueue {
   }
 
   @Override public void setDownloadNum(int downloadNum) {
-
+    mExecutePool.setDownloadNum(downloadNum);
   }
 
   @Override public Task createTask(DownloadEntity entity) {

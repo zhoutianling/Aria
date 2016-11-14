@@ -65,7 +65,7 @@ public class ExecutePool implements IPool {
    *
    * @param downloadNum 下载数
    */
-  private void setDownloadNum(int downloadNum) {
+  public void setDownloadNum(int downloadNum) {
     try {
       ArrayBlockingQueue<Task> temp = new ArrayBlockingQueue<>(downloadNum);
       Task                     task;

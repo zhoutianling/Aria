@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.Button;
 import butterknife.Bind;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
@@ -15,6 +17,7 @@ import com.arialyy.simple.R;
 import com.arialyy.simple.adapter.DownloadAdapter;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiBinding;
+import com.arialyy.simple.dialog.DownloadNumDialog;
 import com.arialyy.simple.module.DownloadModule;
 
 /**
@@ -86,6 +89,11 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     }
   };
 
+  public void onClick(View view){
+    DownloadNumDialog dialog = new DownloadNumDialog();
+    dialog.show(getSupportFragmentManager(), "download_num");
+  }
+
   @Override protected void onResume() {
     super.onResume();
     registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
@@ -94,5 +102,12 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
   @Override protected void onDestroy() {
     super.onDestroy();
     unregisterReceiver(mReceiver);
+  }
+
+  @Override protected void dataCallback(int result, Object data) {
+    super.dataCallback(result, data);
+    if (result == DownloadNumDialog.RESULT_CODE){
+      mAdapter.setDownloadNum(Integer.parseInt(data + ""));
+    }
   }
 }
