@@ -90,7 +90,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
   };
 
   public void onClick(View view){
-    DownloadNumDialog dialog = new DownloadNumDialog();
+    DownloadNumDialog dialog = new DownloadNumDialog(this);
     dialog.show(getSupportFragmentManager(), "download_num");
   }
 

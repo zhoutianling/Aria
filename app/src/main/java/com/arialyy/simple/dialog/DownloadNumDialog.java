@@ -1,5 +1,6 @@
 package com.arialyy.simple.dialog;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,10 +15,15 @@ import com.arialyy.simple.databinding.DialogDownloadNumBinding;
  * Created by “AriaLyy@outlook.com” on 2016/11/14.
  * 设置下载数量对话框
  */
-public class DownloadNumDialog extends BaseDialog<DialogDownloadNumBinding> implements RadioGroup.OnCheckedChangeListener{
+@SuppressLint("ValidFragment") public class DownloadNumDialog
+    extends BaseDialog<DialogDownloadNumBinding> implements RadioGroup.OnCheckedChangeListener {
   public static final int RESULT_CODE = 1001;
   @Bind(R.id.cancel) Button mCancel;
   @Bind(R.id.rg) RadioGroup mRg;
+
+  public DownloadNumDialog(Object obj) {
+    super(obj);
+  }
 
   @Override protected int setLayoutId() {
     return R.layout.dialog_download_num;
@@ -41,6 +47,7 @@ public class DownloadNumDialog extends BaseDialog<DialogDownloadNumBinding> impl
     RadioButton rb = (RadioButton) group.getChildAt(checkedId);
     if (rb.isChecked()) {
       getSimplerModule().onDialog(RESULT_CODE, rb.getTag());
+      dismiss();
     }
   }
 }
