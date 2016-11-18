@@ -2,8 +2,9 @@ group = PROJ_GROUP
 version = PROJ_VERSION
 project.archivesBaseName = PROJ_ARTIFACTID
 apply plugin: 'com.jfrog.bintray'
-apply plugin: "com.jfrog.artifactory"
-apply plugin: 'maven-publish'
+apply plugin: 'com.github.dcendents.android-maven'
+//apply plugin: "com.jfrog.artifactory"
+//apply plugin: 'maven-publish'
 
 task sourcesJar(type: Jar) {
   from android.sourceSets.main.java.srcDirs
@@ -72,59 +73,59 @@ artifacts {
 }
 
 
-def pomConfig = {
-  scm {
-    connection PROJ_VCSURL
-    developerConnection PROJ_VCSURL
-    url PROJ_WEBSITEURL
-  }
-  licenses {
-    license {
-      name "The Apache Software License, Version 2.0"
-      url "http://www.apache.org/licenses/LICENSE-2.0.txt"
-      distribution "repo"
-    }
-  }
-  developers {
-    developer {
-      id DEVELOPER_ID
-      name DEVELOPER_NAME
-      email DEVELOPER_EMAIL
-    }
-  }
-  "dependencies " {
-    //        dependency {
-    //            groupId "com.alibaba"
-    //            artifactId "fastjson"
-    //            "version " "1.2.6"
-    //            //同dependencies
-    //        }
-    //        }
-  }
-}
-
-publishing {
-  publications {
-    mavenJava(MavenPublication) {
-      artifactId PROJ_ARTIFACTID
-      artifact javadocJar
-      artifact sourcesJar
-
-      pom {
-        packaging 'aar'
-      }
-      pom.withXml {
-        def root = asNode()
-        root.appendNode('description', PROJ_DESCRIPTION)
-        root.children().last() + pomConfig
-      }
-    }
-  }
-}
-
-afterEvaluate {
-  publishing.publications.mavenJava.artifact(bundleRelease)
-}
+//def pomConfig = {
+//  scm {
+//    connection PROJ_VCSURL
+//    developerConnection PROJ_VCSURL
+//    url PROJ_WEBSITEURL
+//  }
+//  licenses {
+//    license {
+//      name "The Apache Software License, Version 2.0"
+//      url "http://www.apache.org/licenses/LICENSE-2.0.txt"
+//      distribution "repo"
+//    }
+//  }
+//  developers {
+//    developer {
+//      id DEVELOPER_ID
+//      name DEVELOPER_NAME
+//      email DEVELOPER_EMAIL
+//    }
+//  }
+//  "dependencies " {
+//    //        dependency {
+//    //            groupId "com.alibaba"
+//    //            artifactId "fastjson"
+//    //            "version " "1.2.6"
+//    //            //同dependencies
+//    //        }
+//    //        }
+//  }
+//}
+//
+//publishing {
+//  publications {
+//    mavenJava(MavenPublication) {
+//      artifactId PROJ_ARTIFACTID
+//      artifact javadocJar
+//      artifact sourcesJar
+//
+//      pom {
+//        packaging 'aar'
+//      }
+//      pom.withXml {
+//        def root = asNode()
+//        root.appendNode('description', PROJ_DESCRIPTION)
+//        root.children().last() + pomConfig
+//      }
+//    }
+//  }
+//}
+//
+//afterEvaluate {
+//  publishing.publications.mavenJava.artifact(bundleRelease)
+//}
 
 bintray {
   user = hasProperty("bintrayUser") ? getProperty("bintrayUser") : getProperty("BINTRAY_USER")
