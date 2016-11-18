@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 apply plugin: 'com.github.dcendents.android-maven'
 
-group='AriaLyy'
+group='com.github.AriaLyy'
 
 android {
   compileSdkVersion 23
