@@ -1,6 +1,6 @@
 # DownloadUtil
 ![图标](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/app/src/main/res/mipmap-hdpi/ic_launcher.png)</br>
-这是一个 android 多线程多任务断点续传工具，使用该工具，你可以很容易实现`多线程下载功能和复杂的任务自动切换功能`</br>
+这是一个 android 智能切换多任务断点续传工具，使用该工具，你可以很容易实现`多线程下载功能和复杂的任务自动切换功能`</br>
 + 该工具具有以下特点：
  - 通过命令控制下载
  - 可在广播中接收任务的各种下载状态
@@ -11,7 +11,7 @@
 
 #下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/MTDownloadUtil/images/download.svg)](https://bintray.com/arialyy/maven/MTDownloadUtil/_latestVersion)<br/>
-compile 'com.arialyy.downloadutil:DownloadUtil:2.1.0'
+compile 'com.arialyy.downloadutil:DownloadUtil:2.1.1'
 
 
 #示例
@@ -130,13 +130,20 @@ private BroadcastReceiver mReceiver = new BroadcastReceiver() {
  }
  ```
 
+# 修改最大任务数
+```
+mManager.getTaskQueue().setDownloadNum(num);
+
+```
+
 # 开发日志
  + v_2.1.0 修复大量bug
+ + v_2.1.1 增加，选择最大下载任务数接口
 
 License
 -------
 
-    Copyright 2016 AriaLyy
+    Copyright 2016 AriaLyy(DownloadUtil)
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
