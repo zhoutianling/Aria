@@ -111,6 +111,10 @@ public class DownloadTaskQueue implements ITaskQueue {
     }
   }
 
+  @Override public int size() {
+    return mExecutePool.size();
+  }
+
   @Override public void setDownloadNum(int downloadNum) {
     mExecutePool.setDownloadNum(downloadNum);
   }
