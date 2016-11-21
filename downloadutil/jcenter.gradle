@@ -1,10 +1,9 @@
-group = PROJ_GROUP
+group = PROJ_GROUP_ID
 version = PROJ_VERSION
-project.archivesBaseName = PROJ_ARTIFACTID
+project.archivesBaseName = PROJ_ARTIFACT_ID
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
-//apply plugin: "com.jfrog.artifactory"
-//apply plugin: 'maven-publish'
+//输入：gradlew bintrayupload 执行
 
 task sourcesJar(type: Jar) {
   from android.sourceSets.main.java.srcDirs
@@ -29,7 +28,7 @@ javadoc {
     author true
     version true
     links "http://docs.oracle.com/javase/7/docs/api"
-    title PROJ_ARTIFACTID
+    title PROJ_ARTIFACT_ID
   }
 }
 
@@ -72,98 +71,68 @@ artifacts {
   archives sourcesJar
 }
 
-
-//def pomConfig = {
-//  scm {
-//    connection PROJ_VCSURL
-//    developerConnection PROJ_VCSURL
-//    url PROJ_WEBSITEURL
-//  }
-//  licenses {
-//    license {
-//      name "The Apache Software License, Version 2.0"
-//      url "http://www.apache.org/licenses/LICENSE-2.0.txt"
-//      distribution "repo"
-//    }
-//  }
-//  developers {
-//    developer {
-//      id DEVELOPER_ID
-//      name DEVELOPER_NAME
-//      email DEVELOPER_EMAIL
-//    }
-//  }
-//  "dependencies " {
-//    //        dependency {
-//    //            groupId "com.alibaba"
-//    //            artifactId "fastjson"
-//    //            "version " "1.2.6"
-//    //            //同dependencies
-//    //        }
-//    //        }
-//  }
-//}
-//
-//publishing {
-//  publications {
-//    mavenJava(MavenPublication) {
-//      artifactId PROJ_ARTIFACTID
-//      artifact javadocJar
-//      artifact sourcesJar
-//
-//      pom {
-//        packaging 'aar'
-//      }
-//      pom.withXml {
-//        def root = asNode()
-//        root.appendNode('description', PROJ_DESCRIPTION)
-//        root.children().last() + pomConfig
-//      }
-//    }
-//  }
-//}
-//
-//afterEvaluate {
-//  publishing.publications.mavenJava.artifact(bundleRelease)
-//}
-
 bintray {
   user = hasProperty("bintrayUser") ? getProperty("bintrayUser") : getProperty("BINTRAY_USER")
   key = hasProperty("bintrayKey") ? getProperty("bintrayKey") : getProperty("BINTRAY_KEY")
 
   configurations = ['archives']
   publications = ['mavenJava']
-  publish = true
 
   pkg {
-    repo = 'maven'
+    repo = PROJ_REPE
     name = PROJ_NAME
     desc = PROJ_DESCRIPTION
-    websiteUrl = PROJ_WEBSITEURL
-    issueTrackerUrl = PROJ_ISSUETRACKERURL
-    vcsUrl = PROJ_VCSURL
-    licenses = ['Apache-2.0']
+    websiteUrl = PROJ_WEB_SITE_URL
+    issueTrackerUrl = PROJ_ISSUE_TRACKER_URL
+    vcsUrl = PROJ_VCS_URL
+    publish = true
     publicDownloadNumbers = true
+    licenses = LICENSES
+//    version {
+//      desc = libraryDescription
+//      gpg {
+//        sign = true //Determines whether to GPG sign the files. The default is false
+//        passphrase = properties.getProperty("bintray.gpg.password")
+//        //Optional. The passphrase for GPG signing'
+//      }
+//    }
   }
 }
 
-artifactory {
-  contextUrl = 'http://oss.jfrog.org/artifactory'
-  resolve {
-    repository {
-      repoKey = 'libs-release'
-    }
-  }
-  publish {
-    repository {
-      repoKey = 'oss-snapshot-local' //The Artifactory repository key to publish to
-      username = bintray.user
-      password = bintray.key
-      maven = true
-    }
-    defaults {
-      publications('mavenJava')
-      publishArtifacts = true
+install {
+  repositories.mavenInstaller {
+    // This generates POM.xml with proper parameters
+    pom {
+      project {
+        packaging 'aar'
+        groupId PROJ_GROUP_ID
+        artifactId PROJ_ARTIFACT_ID
+
+        // Add your description here
+        name PROJ_NAME
+        description PROJ_DESCRIPTION
+        url PROJ_WEB_SITE_URL
+
+        // Set your license
+        licenses {
+          license {
+            name LICENSE_NAME
+            url LICENSE_URL
+          }
+        }
+        developers {
+          developer {
+            id DEVELOPER_ID
+            name DEVELOPER_NAME
+            email DEVELOPER_EMAIL
+          }
+        }
+        scm {
+          connection PROJ_WEB_SITE_URL
+          developerConnection PROJ_WEB_SITE_URL
+          url PROJ_VCS_URL
+        }
+      }
     }
   }
 }
