@@ -3,7 +3,7 @@ version = PROJ_VERSION
 project.archivesBaseName = PROJ_ARTIFACT_ID
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
-//输入：gradlew install 执行
+//输入：gradlew bintrayupload 执行
 
 //############################## jar、sources、doc 打包 start #######################################
 task sourcesJar(type: Jar) {
@@ -79,10 +79,9 @@ bintray {
   key = hasProperty("bintrayKey") ? getProperty("bintrayKey") : getProperty("BINTRAY_KEY")
 
   configurations = ['archives']
-  publications = ['mavenJava']
 
   pkg {
-    repo = PROJ_REPE
+    repo = PROJ_REPO
     name = PROJ_NAME
     desc = PROJ_DESCRIPTION
     websiteUrl = PROJ_WEB_SITE_URL
@@ -102,7 +101,7 @@ bintray {
   }
 }
 
-//上传：gradlew install
+//install
 install {
   repositories.mavenInstaller {
     // This generates POM.xml with proper parameters
