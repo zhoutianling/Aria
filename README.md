@@ -16,6 +16,7 @@ compile 'com.arialyy.downloadutil:DownloadUtil:2.1.1'
 
 #示例
 ![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/download_img.gif)
+![单任务下载](https://github.com/AriaLyy/DownloadUtil/blob/master/img/11.gif "")
 
 # 性能展示
 ![性能展示](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/performance.png)
