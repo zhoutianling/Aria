@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.downloadutil.core.queue;
 
 import com.arialyy.downloadutil.core.DownloadEntity;
@@ -26,6 +25,11 @@ import com.arialyy.downloadutil.core.task.Task;
  * 任务功能接口
  */
 public interface ITaskQueue extends IDownloader {
+
+  /**
+   * 任务池队列大小
+   */
+  public int size();
 
   /**
    * 设置下载任务数

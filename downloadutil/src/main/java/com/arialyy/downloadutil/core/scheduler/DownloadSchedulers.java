@@ -20,6 +20,7 @@ package com.arialyy.downloadutil.core.scheduler;
 import android.os.Message;
 import android.util.Log;
 import com.arialyy.downloadutil.core.DownloadEntity;
+import com.arialyy.downloadutil.core.queue.ITaskQueue;
 import com.arialyy.downloadutil.core.task.Task;
 import com.arialyy.downloadutil.core.queue.pool.ExecutePool;
 import com.arialyy.downloadutil.core.queue.DownloadTaskQueue;
@@ -65,10 +66,10 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 下载器任务监听
    */
-  OnTargetListener  mTargetListener;
-  DownloadTaskQueue mQueue;
+  OnTargetListener mTargetListener;
+  ITaskQueue       mQueue;
 
-  public DownloadSchedulers(DownloadTaskQueue downloadTaskQueue) {
+  public DownloadSchedulers(ITaskQueue downloadTaskQueue) {
     mQueue = downloadTaskQueue;
   }
 
@@ -90,7 +91,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     switch (msg.what) {
       case STOP:
       case CANCEL:
-        if (mQueue.getExecutePool().size() != ExecutePool.mSize) {
+        if (mQueue.size() != ExecutePool.mSize) {
           startNextTask(entity);
         }
         break;

@@ -157,13 +157,4 @@ public class DownloadManager {
     }
     mCommands.clear();
   }
-
-  /**
-   * 设置下载器
-   *
-   * @param queue {@link ITaskQueue}
-   */
-  public void setDownloadQueue(ITaskQueue queue) {
-    mTaskQueue = queue;
-  }
 }
