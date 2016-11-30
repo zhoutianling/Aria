@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.simple.activity;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -35,6 +35,8 @@ import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.command.CmdFactory;
 import com.arialyy.downloadutil.core.command.IDownloadCmd;
+import com.arialyy.downloadutil.core.scheduler.OnSchedulerListener;
+import com.arialyy.downloadutil.core.task.Task;
 import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
@@ -46,26 +48,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
-  private static final int DOWNLOAD_PRE      = 0x01;
-  private static final int DOWNLOAD_STOP     = 0x02;
-  private static final int DOWNLOAD_FAILE    = 0x03;
-  private static final int DOWNLOAD_CANCEL   = 0x04;
-  private static final int DOWNLOAD_RESUME   = 0x05;
-  private static final int DOWNLOAD_COMPLETE = 0x06;
+  public static final int DOWNLOAD_PRE = 0x01;
+  public static final int DOWNLOAD_STOP = 0x02;
+  public static final int DOWNLOAD_FAILE = 0x03;
+  public static final int DOWNLOAD_CANCEL = 0x04;
+  public static final int DOWNLOAD_RESUME = 0x05;
+  public static final int DOWNLOAD_COMPLETE = 0x06;
+  public static final int DOWNLOAD_RUNNING = 0x07;
   private ProgressBar mPb;
   private String mDownloadUrl =
       "http://static.gaoshouyou.com/d/12/0d/7f120f50c80d2e7b8c4ba24ece4f9cdd.apk";
   private Button mStart, mStop, mCancel;
-  private             TextView        mSize;
-  @Bind(R.id.toolbar) Toolbar         toolbar;
-  private             CmdFactory      mFactory;
-  private             DownloadManager mManager;
-  private             DownloadEntity  mEntity;
+  private TextView mSize;
+  @Bind(R.id.toolbar) Toolbar toolbar;
+  private CmdFactory mFactory;
+  private DownloadManager mManager;
+  private DownloadEntity mEntity;
+  private BroadcastReceiver mReceiver;
 
   private Handler mUpdateHandler = new Handler() {
     @Override public void handleMessage(Message msg) {
       super.handleMessage(msg);
       switch (msg.what) {
+        case DOWNLOAD_RUNNING:
+          mPb.setProgress((Integer) msg.obj);
+          break;
         case DOWNLOAD_PRE:
           mSize.setText(CommonUtil.formatFileSize((Long) msg.obj));
           setBtState(false);
@@ -86,8 +93,9 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           setBtState(true);
           break;
         case DOWNLOAD_RESUME:
-          Toast.makeText(SingleTaskActivity.this,
-              "恢复下载，恢复位置 ==> " + CommonUtil.formatFileSize((Long) msg.obj), Toast.LENGTH_SHORT).show();
+          //Toast.makeText(SingleTaskActivity.this,
+          //    "恢复下载，恢复位置 ==> " + CommonUtil.formatFileSize((Long) msg.obj), Toast.LENGTH_SHORT)
+          //    .show();
           setBtState(false);
           break;
         case DOWNLOAD_COMPLETE:
@@ -108,51 +116,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     mStop.setEnabled(!state);
   }
 
-  private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-    long len = 0;
-
-    @Override public void onReceive(Context context, Intent intent) {
-      String action = intent.getAction();
-      switch (action) {
-        case DownloadManager.ACTION_POST_PRE:
-          DownloadEntity entity = intent.getParcelableExtra(DownloadManager.ENTITY);
-          len = entity.getFileSize();
-          L.d(TAG, "download pre");
-          mUpdateHandler.obtainMessage(DOWNLOAD_PRE, len).sendToTarget();
-          break;
-        case DownloadManager.ACTION_START:
-          L.d(TAG, "download start");
-          break;
-        case DownloadManager.ACTION_RESUME:
-          L.d(TAG, "download resume");
-          long location = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 1);
-          mUpdateHandler.obtainMessage(DOWNLOAD_RESUME, location).sendToTarget();
-          break;
-        case DownloadManager.ACTION_RUNNING:
-          long current = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 0);
-          if (len == 0) {
-            mPb.setProgress(0);
-          } else {
-            mPb.setProgress((int) ((current * 100) / len));
-          }
-          break;
-        case DownloadManager.ACTION_STOP:
-          L.d(TAG, "download stop");
-          mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
-          break;
-        case DownloadManager.ACTION_COMPLETE:
-          mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
-          break;
-        case DownloadManager.ACTION_CANCEL:
-          mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
-          break;
-        case DownloadManager.ACTION_FAIL:
-          mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
-          break;
-      }
-    }
-  };
-
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     init();
@@ -160,12 +123,14 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Override protected void onResume() {
     super.onResume();
-    registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
+    //IntentFilter filter = getModule(DownloadModule.class).getDownloadFilter();
+    //mReceiver = getModule(DownloadModule.class).createReceiver(mUpdateHandler);
+    //registerReceiver(mReceiver, filter);
   }
 
   @Override protected void onDestroy() {
     super.onDestroy();
-    unregisterReceiver(mReceiver);
+    //unregisterReceiver(mReceiver);
   }
 
   @Override protected int setLayoutId() {
@@ -200,13 +165,21 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       }
     } else {
       mEntity = new DownloadEntity();
+      mEntity.setFileName("test.apk");
+      mEntity.setDownloadUrl(mDownloadUrl);
+      mEntity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
     }
   }
 
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        start();
+        String text = ((TextView) view).getText().toString();
+        if (text.equals("重新开始？") || text.equals("开始")) {
+          start();
+        }else if (text.equals("恢复")){
+          resume();
+        }
         break;
       case R.id.stop:
         stop();
@@ -217,16 +190,57 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     }
   }
 
+  private void resume(){
+    IDownloadCmd startCmd = mFactory.createCmd(mEntity, CmdFactory.TASK_START);
+    mManager.setCmd(startCmd).exe();
+    mUpdateHandler.obtainMessage(DOWNLOAD_RESUME, mEntity.getCurrentProgress()).sendToTarget();
+  }
+
   private void start() {
     mEntity.setFileName("test.apk");
     mEntity.setDownloadUrl(mDownloadUrl);
     mEntity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
-    List<IDownloadCmd> commands = new ArrayList<>();
-    IDownloadCmd       addCMD   = mFactory.createCmd(mEntity, CmdFactory.TASK_CREATE);
-    IDownloadCmd       startCmd = mFactory.createCmd(mEntity, CmdFactory.TASK_START);
-    commands.add(addCMD);
-    commands.add(startCmd);
-    mManager.setCmds(commands).exe();
+    //List<IDownloadCmd> commands = new ArrayList<>();
+    //IDownloadCmd addCMD = mFactory.createCmd(mEntity, CmdFactory.TASK_CREATE);
+    //IDownloadCmd startCmd = mFactory.createCmd(mEntity, CmdFactory.TASK_START);
+    //commands.add(addCMD);
+    //commands.add(startCmd);
+    //mManager.setCmds(commands).exe();
+    mManager.setCmd(CmdFactory.getInstance().createCmd(mEntity, CmdFactory.TASK_SINGLE))
+        .regSchedulerListener(new OnSchedulerListener() {
+          @Override public void onTaskStart(Task task) {
+            mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
+                .sendToTarget();
+          }
+
+          @Override public void onTaskStop(Task task) {
+            mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
+          }
+
+          @Override public void onTaskCancel(Task task) {
+            mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
+          }
+
+          @Override public void onTaskFail(Task task) {
+            mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
+          }
+
+          @Override public void onTaskComplete(Task task) {
+            mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
+          }
+
+          @Override public void onTaskRunning(Task task) {
+            //L.d(TAG, task.getDownloadEntity().getCurrentProgress() + "");
+            long current = task.getDownloadEntity().getCurrentProgress();
+            long len = task.getDownloadEntity().getFileSize();
+            if (len == 0) {
+              mPb.setProgress(0);
+            } else {
+              mPb.setProgress((int) ((current * 100) / len));
+            }
+          }
+        })
+        .exe();
   }
 
   private void stop() {

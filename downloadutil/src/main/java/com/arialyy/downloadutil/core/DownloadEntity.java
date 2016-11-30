@@ -116,8 +116,9 @@ public class DownloadEntity extends DbEntity implements Parcelable {
     return fileName;
   }
 
-  public void setFileName(String fileName) {
+  public DownloadEntity setFileName(String fileName) {
     this.fileName = fileName;
+    return this;
   }
 
   public int getFailNum() {
@@ -132,8 +133,9 @@ public class DownloadEntity extends DbEntity implements Parcelable {
     return downloadUrl;
   }
 
-  public void setDownloadUrl(String downloadUrl) {
+  public DownloadEntity setDownloadUrl(String downloadUrl) {
     this.downloadUrl = downloadUrl;
+    return this;
   }
 
   public long getCompleteTime() {
@@ -148,8 +150,9 @@ public class DownloadEntity extends DbEntity implements Parcelable {
     return downloadPath;
   }
 
-  public void setDownloadPath(String downloadPath) {
+  public DownloadEntity setDownloadPath(String downloadPath) {
     this.downloadPath = downloadPath;
+    return this;
   }
 
   public long getFileSize() {

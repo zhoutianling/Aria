@@ -17,10 +17,8 @@
 
 package com.arialyy.downloadutil.util;
 
-import android.content.res.Resources;
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.downloadutil.R;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import java.io.File;
 
@@ -39,16 +37,16 @@ public class CheckUtil {
    */
   public static boolean checkDownloadEntity(DownloadEntity entity) {
     if (entity == null) {
-      Log.w(TAG, Resources.getSystem().getString(R.string.error_entity_null));
+      Log.w(TAG, "下载实体不能为空");
       return false;
     } else if (TextUtils.isEmpty(entity.getDownloadUrl())) {
-      Log.w(TAG, Resources.getSystem().getString(R.string.error_download_url_null));
+      Log.w(TAG, "下载链接不能为空");
       return false;
     } else if (TextUtils.isEmpty(entity.getFileName())) {
-      Log.w(TAG, Resources.getSystem().getString(R.string.error_file_name_null));
+      Log.w(TAG, "文件名不能为空");
       return false;
     } else if (TextUtils.isEmpty(entity.getDownloadPath())) {
-      Log.w(TAG, Resources.getSystem().getString(R.string.error_download_path_null));
+      Log.w(TAG, "存储地址不能为空");
       return false;
     }
     String fileName = entity.getFileName();

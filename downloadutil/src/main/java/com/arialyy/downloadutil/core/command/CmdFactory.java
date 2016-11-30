@@ -44,6 +44,7 @@ public class CmdFactory {
    * 停止任务
    */
   public static final int TASK_STOP   = 0x125;
+  public static final int TASK_SINGLE   = 0x126;
 
   private static final    Object     LOCK     = new Object();
   private static volatile CmdFactory INSTANCE = null;
@@ -77,10 +78,13 @@ public class CmdFactory {
         return createCancelCmd(entity);
       case TASK_STOP:
         return createStopCmd(entity);
+      case TASK_SINGLE:
+        return new SingleCmd(entity);
       default:
         return null;
     }
   }
+
 
   /**
    * 创建停止命令

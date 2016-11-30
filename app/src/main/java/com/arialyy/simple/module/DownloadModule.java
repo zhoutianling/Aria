@@ -17,15 +17,20 @@
 
 package com.arialyy.simple.module;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Environment;
+import android.os.Handler;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.util.CommonUtil;
 import com.arialyy.frame.util.AndroidUtils;
 import com.arialyy.frame.util.StringUtil;
+import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
+import com.arialyy.simple.activity.SingleTaskActivity;
 import com.arialyy.simple.base.BaseModule;
 import java.io.File;
 import java.util.ArrayList;
@@ -112,6 +117,54 @@ public class DownloadModule extends BaseModule {
     filter.addAction(DownloadManager.ACTION_COMPLETE);
     filter.addAction(DownloadManager.ACTION_FAIL);
     return filter;
+  }
+
+  /**
+   * 创建Receiver
+   */
+  public BroadcastReceiver createReceiver(final Handler handler){
+
+    return new BroadcastReceiver() {
+      long len = 0;
+
+      @Override public void onReceive(Context context, Intent intent) {
+        String action = intent.getAction();
+        switch (action) {
+          case DownloadManager.ACTION_POST_PRE:
+            DownloadEntity entity = intent.getParcelableExtra(DownloadManager.ENTITY);
+            len = entity.getFileSize();
+            L.d(TAG, "download pre");
+            handler.obtainMessage(SingleTaskActivity.DOWNLOAD_PRE, len).sendToTarget();
+            break;
+          case DownloadManager.ACTION_START:
+            L.d(TAG, "download start");
+            break;
+          case DownloadManager.ACTION_RESUME:
+            L.d(TAG, "download resume");
+            long location = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 1);
+            handler.obtainMessage(SingleTaskActivity.DOWNLOAD_RESUME, location).sendToTarget();
+            break;
+          case DownloadManager.ACTION_RUNNING:
+            long current = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 0);
+            int progress = len ==0 ? 0 : (int) ((current * 100) / len);
+            handler.obtainMessage(SingleTaskActivity.DOWNLOAD_RUNNING, progress).sendToTarget();
+            break;
+          case DownloadManager.ACTION_STOP:
+            L.d(TAG, "download stop");
+            handler.sendEmptyMessage(SingleTaskActivity.DOWNLOAD_STOP);
+            break;
+          case DownloadManager.ACTION_COMPLETE:
+            handler.sendEmptyMessage(SingleTaskActivity.DOWNLOAD_COMPLETE);
+            break;
+          case DownloadManager.ACTION_CANCEL:
+            handler.sendEmptyMessage(SingleTaskActivity.DOWNLOAD_CANCEL);
+            break;
+          case DownloadManager.ACTION_FAIL:
+            handler.sendEmptyMessage(SingleTaskActivity.DOWNLOAD_FAILE);
+            break;
+        }
+      }
+    };
   }
 
   /**

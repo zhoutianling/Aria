@@ -111,6 +111,10 @@ public class DownloadTaskQueue implements ITaskQueue {
     }
   }
 
+  @Override public IDownloadSchedulers getDownloadSchedulers() {
+    return mSchedulers;
+  }
+
   @Override public int size() {
     return mExecutePool.size();
   }

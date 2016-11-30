@@ -251,6 +251,8 @@ public class CommonUtil {
   public static Properties loadConfig(File file) {
     Properties      properties = new Properties();
     FileInputStream fis        = null;
+
+
     try {
       fis = new FileInputStream(file);
       properties.load(fis);

@@ -257,6 +257,7 @@ public class Task {
         }
         downloadEntity.setCurrentProgress(currentLocation);
         lastLen = currentLocation;
+        sendInState2Target(DownloadSchedulers.RUNNING);
         context.sendBroadcast(sendIntent);
       }
     }

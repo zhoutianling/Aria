@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.downloadutil.core.scheduler;
 
 import android.os.Message;
@@ -33,25 +32,29 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 任务开始
    */
-  public static final     int                START    = 1;
+  public static final int START = 1;
   /**
    * 任务停止
    */
-  public static final     int                STOP     = 2;
+  public static final int STOP = 2;
   /**
    * 任务失败
    */
-  public static final     int                FAIL     = 3;
+  public static final int FAIL = 3;
   /**
    * 任务取消
    */
-  public static final     int                CANCEL   = 4;
+  public static final int CANCEL = 4;
   /**
    * 任务完成
    */
-  public static final     int                COMPLETE = 5;
-  private static final    String             TAG      = "DownloadSchedulers";
-  private static final    Object             LOCK     = new Object();
+  public static final int COMPLETE = 5;
+  /**
+   * 下载中
+   */
+  public static final int RUNNING = 6;
+  private static final String TAG = "DownloadSchedulers";
+  private static final Object LOCK = new Object();
   private static volatile DownloadSchedulers INSTANCE = null;
   /**
    * 下载失败次数
@@ -66,8 +69,8 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 下载器任务监听
    */
-  OnTargetListener mTargetListener;
-  ITaskQueue       mQueue;
+  OnSchedulerListener mTargetListener;
+  ITaskQueue mQueue;
 
   public DownloadSchedulers(ITaskQueue downloadTaskQueue) {
     mQueue = downloadTaskQueue;
@@ -116,6 +119,9 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     if (mTargetListener != null) {
       Task task = mQueue.getTask(entity);
       switch (state) {
+        case RUNNING:
+          mTargetListener.onTaskRunning(task);
+          break;
         case START:
           mTargetListener.onTaskStart(task);
           break;
@@ -166,13 +172,12 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     }
   }
 
-  /**
-   * 设置下载器监听
-   *
-   * @param targetListener {@link OnTargetListener}
-   */
-  public void setOnTargetListener(OnTargetListener targetListener) {
+  @Override public void regTargetListener(OnSchedulerListener targetListener) {
     this.mTargetListener = targetListener;
+  }
+
+  @Override public void unRegTargetListener(OnSchedulerListener targetListener) {
+    mTargetListener = null;
   }
 
   public void setFailNum(int mFailNum) {
@@ -181,35 +186,5 @@ public class DownloadSchedulers implements IDownloadSchedulers {
 
   public void setTimeOut(long timeOut) {
     this.mTimeOut = timeOut;
-  }
-
-  /**
-   * Target处理任务监听
-   */
-  public interface OnTargetListener {
-    /**
-     * 任务开始
-     */
-    public void onTaskStart(Task task);
-
-    /**
-     * 任务停止
-     */
-    public void onTaskStop(Task task);
-
-    /**
-     * 任务取消
-     */
-    public void onTaskCancel(Task task);
-
-    /**
-     * 任务下载失败
-     */
-    public void onTaskFail(Task task);
-
-    /**
-     * 任务完成
-     */
-    public void onTaskComplete(Task task);
   }
 }

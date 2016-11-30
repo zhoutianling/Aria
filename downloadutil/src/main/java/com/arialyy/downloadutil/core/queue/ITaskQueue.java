@@ -27,6 +27,11 @@ import com.arialyy.downloadutil.core.task.Task;
 public interface ITaskQueue extends IDownloader {
 
   /**
+   * 获取调度器
+   */
+  public IDownloadSchedulers getDownloadSchedulers();
+
+  /**
    * 任务池队列大小
    */
   public int size();
