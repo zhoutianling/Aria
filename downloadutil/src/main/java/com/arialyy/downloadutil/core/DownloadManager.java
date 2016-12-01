@@ -22,7 +22,6 @@ import android.util.Log;
 import com.arialyy.downloadutil.core.command.IDownloadCmd;
 import com.arialyy.downloadutil.core.queue.ITaskQueue;
 import com.arialyy.downloadutil.core.queue.DownloadTaskQueue;
-import com.arialyy.downloadutil.core.scheduler.OnSchedulerListener;
 import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.orm.DbUtil;
 import java.util.ArrayList;
@@ -122,15 +121,6 @@ public class DownloadManager {
 
   public List<DownloadEntity> getAllDownloadEntity() {
     return DbEntity.findAllData(DownloadEntity.class);
-  }
-
-  /**
-   * 注册
-   * @param listener
-   */
-  public DownloadManager regSchedulerListener(OnSchedulerListener listener) {
-    mTaskQueue.getDownloadSchedulers().regTargetListener(listener);
-    return this;
   }
 
   /**

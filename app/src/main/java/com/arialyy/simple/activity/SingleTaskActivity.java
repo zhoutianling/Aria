@@ -17,9 +17,6 @@
 package com.arialyy.simple.activity;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -39,13 +36,9 @@ import com.arialyy.downloadutil.core.scheduler.OnSchedulerListener;
 import com.arialyy.downloadutil.core.task.Task;
 import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.util.CommonUtil;
-import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
-import com.arialyy.simple.module.DownloadModule;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public static final int DOWNLOAD_PRE = 0x01;
@@ -207,7 +200,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     //commands.add(startCmd);
     //mManager.setCmds(commands).exe();
     mManager.setCmd(CmdFactory.getInstance().createCmd(mEntity, CmdFactory.TASK_SINGLE))
-        .regSchedulerListener(new OnSchedulerListener() {
+        .addSchedulerListener(new OnSchedulerListener() {
           @Override public void onTaskStart(Task task) {
             mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
                 .sendToTarget();

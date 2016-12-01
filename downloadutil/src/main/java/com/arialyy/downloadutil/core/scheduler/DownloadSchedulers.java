@@ -16,13 +16,19 @@
 
 package com.arialyy.downloadutil.core.scheduler;
 
+import android.content.Context;
 import android.os.Message;
 import android.util.Log;
+import android.util.SparseArray;
+import android.util.SparseIntArray;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.queue.ITaskQueue;
 import com.arialyy.downloadutil.core.task.Task;
 import com.arialyy.downloadutil.core.queue.pool.ExecutePool;
 import com.arialyy.downloadutil.core.queue.DownloadTaskQueue;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by lyy on 2016/8/16.
@@ -69,7 +75,8 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 下载器任务监听
    */
-  OnSchedulerListener mTargetListener;
+  OnSchedulerListener mSchedulerListener;
+  Map<Integer, OnSchedulerListener> mSchedulerListeners = new HashMap<>();
   ITaskQueue mQueue;
 
   public DownloadSchedulers(ITaskQueue downloadTaskQueue) {
@@ -116,26 +123,38 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    * @param entity 下载实体
    */
   private void callback(int state, DownloadEntity entity) {
-    if (mTargetListener != null) {
+    if (mSchedulerListeners.size() > 0) {
+      //Set<Map.Entry<Integer, String>>
+      for (Map.Entry<Integer, OnSchedulerListener> entry : mSchedulerListeners.entrySet()) {
+        callback(state, entity, entry.getValue());
+      }
+    }
+  }
+
+  private void callback(int state, DownloadEntity entity, OnSchedulerListener listener) {
+    if (listener != null) {
       Task task = mQueue.getTask(entity);
       switch (state) {
         case RUNNING:
-          mTargetListener.onTaskRunning(task);
+          listener.onTaskRunning(task);
           break;
         case START:
-          mTargetListener.onTaskStart(task);
+          listener.onTaskStart(task);
           break;
         case STOP:
-          mTargetListener.onTaskStop(task);
+          listener.onTaskStop(task);
           break;
         case CANCEL:
-          mTargetListener.onTaskCancel(task);
+          listener.onTaskCancel(task);
+          removeSchedulerListener(listener);
           break;
         case COMPLETE:
-          mTargetListener.onTaskComplete(task);
+          listener.onTaskComplete(task);
+          removeSchedulerListener(listener);
           break;
         case FAIL:
-          mTargetListener.onTaskFail(task);
+          listener.onTaskFail(task);
+          removeSchedulerListener(listener);
           break;
       }
     }
@@ -172,12 +191,12 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     }
   }
 
-  @Override public void regTargetListener(OnSchedulerListener targetListener) {
-    this.mTargetListener = targetListener;
+  @Override public void addSchedulerListener(Context context, OnSchedulerListener schedulerListener) {
+    mSchedulerListeners.put(schedulerListener.hashCode(), schedulerListener);
   }
 
-  @Override public void unRegTargetListener(OnSchedulerListener targetListener) {
-    mTargetListener = null;
+  @Override public void removeSchedulerListener(OnSchedulerListener schedulerListener) {
+    mSchedulerListeners.remove(schedulerListener.hashCode());
   }
 
   public void setFailNum(int mFailNum) {

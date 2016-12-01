@@ -16,6 +16,7 @@
 
 package com.arialyy.downloadutil.core.scheduler;
 
+import android.content.Context;
 import android.os.Handler;
 import com.arialyy.downloadutil.core.DownloadEntity;
 
@@ -28,14 +29,14 @@ public interface IDownloadSchedulers extends Handler.Callback {
   /**
    * 注册下载器监听
    *
-   * @param targetListener {@link OnSchedulerListener}
+   * @param schedulerListener {@link OnSchedulerListener}
    */
-  public void regTargetListener(OnSchedulerListener targetListener);
+  public void addSchedulerListener(Context context, OnSchedulerListener schedulerListener);
 
   /**
    * 取消注册监听器
    */
-  public void unRegTargetListener(OnSchedulerListener targetListener);
+  public void removeSchedulerListener(OnSchedulerListener schedulerListener);
 
   /**
    * 处理下载任务下载失败的情形
