@@ -3,7 +3,8 @@ package com.arialyy.downloadutil.core;
 import android.content.Context;
 import com.arialyy.downloadutil.core.scheduler.OnSchedulerListener;
 
-public class AMEntity {
-  Context context;
+public class AMTarget {
+  Context             context;
   OnSchedulerListener listener;
+  DownloadEntity      entity;
 }
