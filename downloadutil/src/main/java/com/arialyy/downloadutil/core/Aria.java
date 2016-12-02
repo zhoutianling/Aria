@@ -42,9 +42,10 @@ public class Aria {
     mDownloadManager = DownloadManager.init(context);
   }
 
-  //public static AriaManager whit(Context context) {
-  //  return AriaManager.getInstance().get(context);
-  //}
+  public static AMTarget whit(Context context) {
+    AMTarget target = AriaManager.getInstance(context).get(context);
+    return target;
+  }
 
   /**
    * 开始下载

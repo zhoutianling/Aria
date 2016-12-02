@@ -7,4 +7,10 @@ public class AMTarget {
   Context             context;
   OnSchedulerListener listener;
   DownloadEntity      entity;
+
+
+  //public DownloadManager load(DownloadEntity entity){
+  //  this.entity = entity;
+  //}
+
 }

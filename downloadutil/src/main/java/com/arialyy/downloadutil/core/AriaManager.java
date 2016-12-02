@@ -33,6 +33,10 @@ import java.util.Map;
     return INSTANCE;
   }
 
+  public AMTarget get(Context context){
+    return getTarget(context);
+  }
+
   private void putTarget(Context context) {
     String   clsName = context.getClass().getName();
     AMTarget target  = mTargets.get(clsName);
