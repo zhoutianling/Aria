@@ -28,11 +28,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
+import com.arialyy.downloadutil.core.AMReceiver;
+import com.arialyy.downloadutil.core.AMTarget;
+import com.arialyy.downloadutil.core.Aria;
 import com.arialyy.downloadutil.core.DownloadEntity;
-import com.arialyy.downloadutil.core.DownloadManager;
-import com.arialyy.downloadutil.core.command.CmdFactory;
-import com.arialyy.downloadutil.core.command.IDownloadCmd;
-import com.arialyy.downloadutil.core.scheduler.OnSchedulerListener;
 import com.arialyy.downloadutil.core.task.Task;
 import com.arialyy.downloadutil.orm.DbEntity;
 import com.arialyy.downloadutil.util.CommonUtil;
@@ -54,8 +53,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private Button mStart, mStop, mCancel;
   private TextView mSize;
   @Bind(R.id.toolbar) Toolbar toolbar;
-  private CmdFactory mFactory;
-  private DownloadManager mManager;
   private DownloadEntity mEntity;
   private BroadcastReceiver mReceiver;
 
@@ -69,6 +66,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         case DOWNLOAD_PRE:
           mSize.setText(CommonUtil.formatFileSize((Long) msg.obj));
           setBtState(false);
+          mStart.setText("暂停");
           break;
         case DOWNLOAD_FAILE:
           Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
@@ -89,6 +87,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           //Toast.makeText(SingleTaskActivity.this,
           //    "恢复下载，恢复位置 ==> " + CommonUtil.formatFileSize((Long) msg.obj), Toast.LENGTH_SHORT)
           //    .show();
+          mStart.setText("暂停");
           setBtState(false);
           break;
         case DOWNLOAD_COMPLETE:
@@ -119,6 +118,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     //IntentFilter filter = getModule(DownloadModule.class).getDownloadFilter();
     //mReceiver = getModule(DownloadModule.class).createReceiver(mUpdateHandler);
     //registerReceiver(mReceiver, filter);
+    Aria.whit(this).addSchedulerListener(new MySchedulerListener());
   }
 
   @Override protected void onDestroy() {
@@ -143,8 +143,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     mStop = (Button) findViewById(R.id.stop);
     mCancel = (Button) findViewById(R.id.cancel);
     mSize = (TextView) findViewById(R.id.size);
-    mFactory = CmdFactory.getInstance();
-    mManager = DownloadManager.getInstance();
+    //mFactory = CmdFactory.getInstance();
+    //mManager = DownloadManager.getInstance();
     mEntity = DbEntity.findData(DownloadEntity.class, new String[] { "downloadUrl" },
         new String[] { mDownloadUrl });
     if (mEntity != null) {
@@ -184,65 +184,61 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private void resume(){
-    IDownloadCmd startCmd = mFactory.createCmd(mEntity, CmdFactory.TASK_START);
-    mManager.setCmd(startCmd).exe();
-    mUpdateHandler.obtainMessage(DOWNLOAD_RESUME, mEntity.getCurrentProgress()).sendToTarget();
+    Aria.whit(this).load(mEntity).resume();
   }
 
   private void start() {
     mEntity.setFileName("test.apk");
     mEntity.setDownloadUrl(mDownloadUrl);
     mEntity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
-    //List<IDownloadCmd> commands = new ArrayList<>();
-    //IDownloadCmd addCMD = mFactory.createCmd(mEntity, CmdFactory.TASK_CREATE);
-    //IDownloadCmd startCmd = mFactory.createCmd(mEntity, CmdFactory.TASK_START);
-    //commands.add(addCMD);
-    //commands.add(startCmd);
-    //mManager.setCmds(commands).exe();
-    mManager.setCmd(CmdFactory.getInstance().createCmd(mEntity, CmdFactory.TASK_SINGLE))
-        .addSchedulerListener(new OnSchedulerListener() {
-          @Override public void onTaskStart(Task task) {
-            mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
-                .sendToTarget();
-          }
-
-          @Override public void onTaskStop(Task task) {
-            mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
-          }
-
-          @Override public void onTaskCancel(Task task) {
-            mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
-          }
-
-          @Override public void onTaskFail(Task task) {
-            mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
-          }
-
-          @Override public void onTaskComplete(Task task) {
-            mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
-          }
-
-          @Override public void onTaskRunning(Task task) {
-            //L.d(TAG, task.getDownloadEntity().getCurrentProgress() + "");
-            long current = task.getDownloadEntity().getCurrentProgress();
-            long len = task.getDownloadEntity().getFileSize();
-            if (len == 0) {
-              mPb.setProgress(0);
-            } else {
-              mPb.setProgress((int) ((current * 100) / len));
-            }
-          }
-        })
-        .exe();
+    Aria.whit(this).load(mEntity).start();
   }
 
   private void stop() {
-    IDownloadCmd stopCmd = mFactory.createCmd(mEntity, CmdFactory.TASK_STOP);
-    mManager.setCmd(stopCmd).exe();
+    Aria.whit(this).load(mEntity).stop();
   }
 
   private void cancel() {
-    IDownloadCmd cancelCmd = mFactory.createCmd(mEntity, CmdFactory.TASK_CANCEL);
-    mManager.setCmd(cancelCmd).exe();
+    Aria.whit(this).load(mEntity).cancel();
   }
+
+  private class MySchedulerListener extends AMTarget.SimpleSchedulerListener{
+    @Override public void onTaskStart(Task task) {
+      mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
+          .sendToTarget();
+    }
+
+    @Override public void onTaskResume(Task task) {
+      super.onTaskResume(task);
+      mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
+          .sendToTarget();
+    }
+
+    @Override public void onTaskStop(Task task) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
+    }
+
+    @Override public void onTaskCancel(Task task) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
+    }
+
+    @Override public void onTaskFail(Task task) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
+    }
+
+    @Override public void onTaskComplete(Task task) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
+    }
+
+    @Override public void onTaskRunning(Task task) {
+      long current = task.getDownloadEntity().getCurrentProgress();
+      long len = task.getDownloadEntity().getFileSize();
+      if (len == 0) {
+        mPb.setProgress(0);
+      } else {
+        mPb.setProgress((int) ((current * 100) / len));
+      }
+    }
+  }
+
 }

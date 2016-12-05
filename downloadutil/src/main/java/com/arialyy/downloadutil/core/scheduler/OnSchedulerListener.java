@@ -7,6 +7,16 @@ import com.arialyy.downloadutil.core.task.Task;
  */
 public interface OnSchedulerListener {
   /**
+   * 任务预加载
+   */
+  public void onTaskPre(Task task);
+
+  /**
+   * 任务恢复下载
+   */
+  public void onTaskResume(Task task);
+
+  /**
    * 任务开始
    */
   public void onTaskStart(Task task);

@@ -19,8 +19,6 @@ package com.arialyy.downloadutil.core.scheduler;
 import android.content.Context;
 import android.os.Message;
 import android.util.Log;
-import android.util.SparseArray;
-import android.util.SparseIntArray;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.queue.ITaskQueue;
 import com.arialyy.downloadutil.core.task.Task;
@@ -28,13 +26,17 @@ import com.arialyy.downloadutil.core.queue.pool.ExecutePool;
 import com.arialyy.downloadutil.core.queue.DownloadTaskQueue;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by lyy on 2016/8/16.
  * 任务下载器，提供抽象的方法供具体的实现类操作
  */
 public class DownloadSchedulers implements IDownloadSchedulers {
+  /**
+   * 任务预加载
+   */
+  public static final int PRE = 0;
   /**
    * 任务开始
    */
@@ -59,6 +61,10 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    * 下载中
    */
   public static final int RUNNING = 6;
+  /**
+   * 恢复下载
+   */
+  public static final int RESUME = 7;
   private static final String TAG = "DownloadSchedulers";
   private static final Object LOCK = new Object();
   private static volatile DownloadSchedulers INSTANCE = null;
@@ -75,8 +81,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 下载器任务监听
    */
-  OnSchedulerListener mSchedulerListener;
-  Map<Integer, OnSchedulerListener> mSchedulerListeners = new HashMap<>();
+  Map<Integer, OnSchedulerListener> mSchedulerListeners = new ConcurrentHashMap<>();
   ITaskQueue mQueue;
 
   public DownloadSchedulers(ITaskQueue downloadTaskQueue) {
@@ -134,6 +139,10 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   private void callback(int state, DownloadEntity entity, OnSchedulerListener listener) {
     if (listener != null) {
       Task task = mQueue.getTask(entity);
+      if (task == null) {
+        Log.e(TAG, "队列中没有下载链接【" + entity.getDownloadUrl() + "】的任务");
+        return;
+      }
       switch (state) {
         case RUNNING:
           listener.onTaskRunning(task);
@@ -143,6 +152,12 @@ public class DownloadSchedulers implements IDownloadSchedulers {
           break;
         case STOP:
           listener.onTaskStop(task);
+          break;
+        case RESUME:
+          listener.onTaskResume(task);
+          break;
+        case PRE:
+          listener.onTaskPre(task);
           break;
         case CANCEL:
           listener.onTaskCancel(task);
@@ -191,7 +206,8 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     }
   }
 
-  @Override public void addSchedulerListener(Context context, OnSchedulerListener schedulerListener) {
+  @Override
+  public void addSchedulerListener(Context context, OnSchedulerListener schedulerListener) {
     mSchedulerListeners.put(schedulerListener.hashCode(), schedulerListener);
   }
 

@@ -19,14 +19,10 @@ package com.arialyy.downloadutil.core;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
-import com.arialyy.downloadutil.core.command.CmdFactory;
-import com.arialyy.downloadutil.core.command.IDownloadCmd;
-import com.arialyy.downloadutil.core.scheduler.OnSchedulerListener;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by lyy on 2016/12/1.
+ * Aria启动，管理全局任务
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
 public class Aria {
@@ -38,64 +34,11 @@ public class Aria {
     //mDownloadManager = DownloadManager.getInstance();
   }
 
-  private Aria(Context context) {
-    mDownloadManager = DownloadManager.init(context);
+  public static AMReceiver whit(Context context) {
+    return AriaManager.getInstance(context).get(context);
   }
 
-  public static AMTarget whit(Context context) {
-    AMTarget target = AriaManager.getInstance(context).get(context);
-    return target;
-  }
-
-  /**
-   * 开始下载
-   */
-  public Aria start(DownloadEntity entity) {
-    List<IDownloadCmd> cmds = new ArrayList<>();
-    cmds.add(createCmd(entity, CmdFactory.TASK_CREATE));
-    cmds.add(createCmd(entity, CmdFactory.TASK_START));
-    mDownloadManager.setCmds(cmds).exe();
-    return this;
-  }
-
-  /**
-   * 停止下载
-   */
-  public void stop(DownloadEntity entity) {
-    mDownloadManager.setCmd(createCmd(entity, CmdFactory.TASK_STOP)).exe();
-  }
-
-  /**
-   * 恢复下载
-   */
-  public void resume(DownloadEntity entity) {
-    mDownloadManager.setCmd(createCmd(entity, CmdFactory.TASK_START)).exe();
-  }
-
-  /**
-   * 取消下载
-   */
-  public void cancel(DownloadEntity entity) {
-    mDownloadManager.setCmd(createCmd(entity, CmdFactory.TASK_CANCEL)).exe();
-  }
-
-  /**
-   * 添加调度器回调
-   */
-  public Aria addSchedulerListener(Context context, OnSchedulerListener listener) {
-    //mDownloadManager.getTaskQueue().getDownloadSchedulers().addSchedulerListener(listener);
-    return this;
-  }
-
-  /**
-   * 移除回调
-   */
-  public Aria removeSchedulerListener(Context context) {
-    //mDownloadManager.getTaskQueue().getDownloadSchedulers().removeSchedulerListener(listener);
-    return this;
-  }
-
-  private IDownloadCmd createCmd(DownloadEntity entity, int cmd) {
-    return CmdFactory.getInstance().createCmd(entity, cmd);
+  public static AriaManager get(Context context){
+    return AriaManager.getInstance(context);
   }
 }

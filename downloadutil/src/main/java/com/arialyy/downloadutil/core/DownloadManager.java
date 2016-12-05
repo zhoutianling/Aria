@@ -86,7 +86,6 @@ public class DownloadManager {
   private List<IDownloadCmd> mCommands = new ArrayList<>();
   private Context mContext;
   private ITaskQueue mTaskQueue;
-  private DownloadEntity mTempDEntity;
 
   private DownloadManager() {
 

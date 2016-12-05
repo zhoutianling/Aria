@@ -25,6 +25,7 @@ import android.widget.TextView;
 import butterknife.Bind;
 import com.arialyy.absadapter.common.AbsHolder;
 import com.arialyy.absadapter.recycler_view.AbsRVAdapter;
+import com.arialyy.downloadutil.core.Aria;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.command.CmdFactory;
@@ -188,13 +189,15 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     }
 
     private void start(DownloadEntity entity) {
-      IDownloadCmd startCmd = mFactory.createCmd(entity, CmdFactory.TASK_START);
-      mManager.setCmd(startCmd).exe();
+      //IDownloadCmd startCmd = mFactory.createCmd(entity, CmdFactory.TASK_START);
+      //mManager.setCmd(startCmd).exe();
+      Aria.whit(getContext()).load(entity).start();
     }
 
     private void stop(DownloadEntity entity) {
-      IDownloadCmd stopCmd = mFactory.createCmd(entity, CmdFactory.TASK_STOP);
-      mManager.setCmd(stopCmd).exe();
+      //IDownloadCmd stopCmd = mFactory.createCmd(entity, CmdFactory.TASK_STOP);
+      //mManager.setCmd(stopCmd).exe();
+      Aria.whit(getContext()).load(entity).stop();
     }
   }
 
