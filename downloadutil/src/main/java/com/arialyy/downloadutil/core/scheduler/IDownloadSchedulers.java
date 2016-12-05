@@ -31,7 +31,7 @@ public interface IDownloadSchedulers extends Handler.Callback {
    *
    * @param schedulerListener {@link OnSchedulerListener}
    */
-  public void addSchedulerListener(Context context, OnSchedulerListener schedulerListener);
+  public void addSchedulerListener(OnSchedulerListener schedulerListener);
 
   /**
    * 取消注册监听器

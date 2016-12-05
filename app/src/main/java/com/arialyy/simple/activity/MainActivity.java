@@ -19,6 +19,7 @@ package com.arialyy.simple.activity;
 
 import android.Manifest;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
@@ -49,7 +50,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
     mBar.setTitle("多线程多任务下载");
     boolean hasPermission = PermissionManager.getInstance()
         .checkPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-    if (hasPermission) {
+    if (hasPermission || Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
       setEnable(true);
     } else {
       setEnable(false);

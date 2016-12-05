@@ -87,20 +87,23 @@ public class DownloadTaskQueue implements ITaskQueue {
   }
 
   @Override public void stopTask(Task task) {
-    if (task.isDownloading()) {
-      if (mExecutePool.removeTask(task)) {
-        task.stop();
-      }
-    } else {
-      task.stop();
-      Log.w(TAG, "停止任务失败，【任务已经停止】");
-    }
+    if (!task.isDownloading())Log.w(TAG, "停止任务失败，【任务已经停止】");
+    task.stop();
+    //if (task.isDownloading()) {
+    //  if (mExecutePool.removeTask(task)) {
+    //    task.stop();
+    //  }
+    //} else {
+    //  task.stop();
+    //  Log.w(TAG, "停止任务失败，【任务已经停止】");
+    //}
   }
 
   @Override public void cancelTask(Task task) {
-    if (mExecutePool.removeTask(task) || mCachePool.removeTask(task)) {
-      task.cancel();
-    }
+    //if (mExecutePool.removeTask(task) || mCachePool.removeTask(task)) {
+    //  task.cancel();
+    //}
+    task.cancel();
   }
 
   @Override public void reTryStart(Task task) {

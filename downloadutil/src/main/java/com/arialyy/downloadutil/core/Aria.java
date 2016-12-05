@@ -17,28 +17,49 @@
 package com.arialyy.downloadutil.core;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.app.Application;
+import android.app.Fragment;
+import android.app.Service;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.os.Build;
+import com.bumptech.glide.Glide;
 
 /**
  * Created by lyy on 2016/12/1.
  * Aria启动，管理全局任务
  */
-@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
-public class Aria {
-  private static final Object LOCK = new Object();
-  private static volatile Aria INSTANCE = null;
-  private DownloadManager mDownloadManager;
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) public class Aria {
 
   private Aria() {
-    //mDownloadManager = DownloadManager.getInstance();
   }
 
   public static AMReceiver whit(Context context) {
-    return AriaManager.getInstance(context).get(context);
+    if (context == null) throw new IllegalArgumentException("context 不能为 null");
+    if (context instanceof Activity
+        || context instanceof Service
+        || context instanceof Application) {
+      return AriaManager.getInstance(context).get(context);
+    } else {
+      throw new IllegalArgumentException("这是不支持的context");
+    }
   }
 
-  public static AriaManager get(Context context){
-    return AriaManager.getInstance(context);
+  public static AMReceiver whit(Fragment fragment) {
+    return AriaManager.getInstance(
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
+            : fragment.getActivity()).get(fragment);
+  }
+
+  public static AriaManager get(Context context) {
+    if (context == null) throw new IllegalArgumentException("context 不能为 null");
+    if (context instanceof Activity
+        || context instanceof Service
+        || context instanceof Application) {
+      return AriaManager.getInstance(context);
+    } else {
+      throw new IllegalArgumentException("这是不支持的context");
+    }
   }
 }

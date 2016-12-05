@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.downloadutil.orm;
 
 import android.app.Application;
@@ -113,8 +112,7 @@ public class DbUtil {
       int i = 0;
       for (Field field : fields) {
         field.setAccessible(true);
-        Ignore ignore = field.getAnnotation(Ignore.class);
-        if (ignore != null && ignore.value()) {
+        if (ignoreField(field)) {
           continue;
         }
         sb.append(i > 0 ? ", " : "");
@@ -195,8 +193,7 @@ public class DbUtil {
       int i = 0;
       for (Field field : fields) {
         field.setAccessible(true);
-        Ignore ignore = field.getAnnotation(Ignore.class);
-        if (ignore != null && ignore.value()) {
+        if (ignoreField(field)) {
           continue;
         }
         sb.append(i > 0 ? ", " : "");
@@ -207,8 +204,7 @@ public class DbUtil {
       i = 0;
       for (Field field : fields) {
         field.setAccessible(true);
-        Ignore ignore = field.getAnnotation(Ignore.class);
-        if (ignore != null && ignore.value()) {
+        if (ignoreField(field)) {
           continue;
         }
         sb.append(i > 0 ? ", " : "");
@@ -270,8 +266,7 @@ public class DbUtil {
       sb.append("create table ").append(CommonUtil.getClassName(clazz)).append("(");
       for (Field field : fields) {
         field.setAccessible(true);
-        Ignore ignore = field.getAnnotation(Ignore.class);
-        if (ignore != null && ignore.value()) {
+        if (ignoreField(field)) {
           continue;
         }
         sb.append(field.getName());
@@ -290,8 +285,10 @@ public class DbUtil {
           sb.append(" boolean");
         } else if (type == java.util.Date.class || type == java.sql.Date.class) {
           sb.append(" data");
-        } else {
+        } else if (type == byte.class || type == Byte.class) {
           sb.append(" blob");
+        } else {
+          continue;
         }
         sb.append(",");
       }
@@ -301,6 +298,15 @@ public class DbUtil {
       mDb.execSQL(str);
     }
     close();
+  }
+
+  /**
+   * @return true 忽略该字段
+   */
+  private boolean ignoreField(Field field) {
+    // field.isSynthetic(), 使用as热启动App时，AS会自动给你的clss添加change字段
+    Ignore ignore = field.getAnnotation(Ignore.class);
+    return (ignore != null && ignore.value()) || field.isSynthetic();
   }
 
   /**
@@ -403,8 +409,7 @@ public class DbUtil {
           T entity = clazz.newInstance();
           for (Field field : fields) {
             field.setAccessible(true);
-            Ignore ignore = field.getAnnotation(Ignore.class);
-            if (ignore != null && ignore.value()) {
+            if (ignoreField(field)) {
               continue;
             }
             Class<?> type   = field.getType();
@@ -425,6 +430,8 @@ public class DbUtil {
               field.set(entity, new Date(cursor.getString(column)));
             } else if (type == byte[].class) {
               field.set(entity, cursor.getBlob(column));
+            } else {
+              continue;
             }
           }
           entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));

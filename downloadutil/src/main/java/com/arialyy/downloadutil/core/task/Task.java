@@ -141,7 +141,7 @@ public class Task {
    */
   private void sendInState2Target(int state) {
     if (mOutHandler != null) {
-      mOutHandler.obtainMessage(state, mEntity).sendToTarget();
+      mOutHandler.obtainMessage(state, this).sendToTarget();
     }
   }
 
@@ -218,7 +218,7 @@ public class Task {
     @Override public void onPre() {
       super.onPre();
       downloadEntity.setState(DownloadEntity.STATE_PRE);
-      sendIntent(DownloadManager.ACTION_PRE, -1);
+      //sendIntent(DownloadManager.ACTION_PRE, -1);
     }
 
     @Override public void onPostPre(long fileSize) {
@@ -226,21 +226,21 @@ public class Task {
       downloadEntity.setFileSize(fileSize);
       downloadEntity.setState(DownloadEntity.STATE_POST_PRE);
       sendInState2Target(DownloadSchedulers.PRE);
-      sendIntent(DownloadManager.ACTION_POST_PRE, -1);
+      //sendIntent(DownloadManager.ACTION_POST_PRE, -1);
     }
 
     @Override public void onResume(long resumeLocation) {
       super.onResume(resumeLocation);
       downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
       sendInState2Target(DownloadSchedulers.RESUME);
-      sendIntent(DownloadManager.ACTION_RESUME, resumeLocation);
+      //sendIntent(DownloadManager.ACTION_RESUME, resumeLocation);
     }
 
     @Override public void onStart(long startLocation) {
       super.onStart(startLocation);
       downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
       sendInState2Target(DownloadSchedulers.START);
-      sendIntent(DownloadManager.ACTION_START, startLocation);
+      //sendIntent(DownloadManager.ACTION_START, startLocation);
     }
 
     @Override public void onProgress(long currentLocation) {
@@ -259,7 +259,7 @@ public class Task {
         downloadEntity.setCurrentProgress(currentLocation);
         lastLen = currentLocation;
         sendInState2Target(DownloadSchedulers.RUNNING);
-        context.sendBroadcast(sendIntent);
+        //context.sendBroadcast(sendIntent);
       }
     }
 
@@ -268,14 +268,14 @@ public class Task {
       downloadEntity.setState(DownloadEntity.STATE_STOP);
       downloadEntity.setSpeed(0);
       sendInState2Target(DownloadSchedulers.STOP);
-      sendIntent(DownloadManager.ACTION_STOP, stopLocation);
+      //sendIntent(DownloadManager.ACTION_STOP, stopLocation);
     }
 
     @Override public void onCancel() {
       super.onCancel();
       downloadEntity.setState(DownloadEntity.STATE_CANCEL);
       sendInState2Target(DownloadSchedulers.CANCEL);
-      sendIntent(DownloadManager.ACTION_CANCEL, -1);
+      //sendIntent(DownloadManager.ACTION_CANCEL, -1);
       downloadEntity.deleteData();
     }
 
@@ -285,7 +285,7 @@ public class Task {
       downloadEntity.setDownloadComplete(true);
       downloadEntity.setSpeed(0);
       sendInState2Target(DownloadSchedulers.COMPLETE);
-      sendIntent(DownloadManager.ACTION_COMPLETE, downloadEntity.getFileSize());
+      //sendIntent(DownloadManager.ACTION_COMPLETE, downloadEntity.getFileSize());
     }
 
     @Override public void onFail() {
@@ -293,7 +293,7 @@ public class Task {
       downloadEntity.setState(DownloadEntity.STATE_FAIL);
       downloadEntity.setSpeed(0);
       sendInState2Target(DownloadSchedulers.FAIL);
-      sendIntent(DownloadManager.ACTION_FAIL, -1);
+      //sendIntent(DownloadManager.ACTION_FAIL, -1);
     }
 
     private void sendIntent(String action, long location) {

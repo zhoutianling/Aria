@@ -98,14 +98,17 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   }
 
   @Override public boolean handleMessage(Message msg) {
-    DownloadEntity entity = (DownloadEntity) msg.obj;
-    if (entity == null) {
-      Log.e(TAG, "请传入下载实体DownloadEntity");
+    Task task = (Task) msg.obj;
+    if (task == null) {
+      Log.e(TAG, "请传入下载任务");
       return true;
     }
+    callback(msg.what, task);
+    DownloadEntity entity = task.getDownloadEntity();
     switch (msg.what) {
       case STOP:
       case CANCEL:
+        mQueue.removeTask(entity);
         if (mQueue.size() != ExecutePool.mSize) {
           startNextTask(entity);
         }
@@ -117,7 +120,6 @@ public class DownloadSchedulers implements IDownloadSchedulers {
         handleFailTask(entity);
         break;
     }
-    callback(msg.what, entity);
     return true;
   }
 
@@ -125,22 +127,22 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    * 回调
    *
    * @param state 状态
-   * @param entity 下载实体
    */
-  private void callback(int state, DownloadEntity entity) {
+  private void callback(int state, Task task) {
     if (mSchedulerListeners.size() > 0) {
       //Set<Map.Entry<Integer, String>>
       for (Map.Entry<Integer, OnSchedulerListener> entry : mSchedulerListeners.entrySet()) {
-        callback(state, entity, entry.getValue());
+        callback(state, task, entry.getValue());
       }
     }
   }
 
-  private void callback(int state, DownloadEntity entity, OnSchedulerListener listener) {
+  private void callback(int state, Task task, OnSchedulerListener listener) {
     if (listener != null) {
-      Task task = mQueue.getTask(entity);
+      //Task task = mQueue.getTask(entity);
       if (task == null) {
-        Log.e(TAG, "队列中没有下载链接【" + entity.getDownloadUrl() + "】的任务");
+        //Log.e(TAG, "队列中没有下载链接【" + entity.getDownloadUrl() + "】的任务");
+        Log.e(TAG, "传递的下载任务");
         return;
       }
       switch (state) {
@@ -207,7 +209,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   }
 
   @Override
-  public void addSchedulerListener(Context context, OnSchedulerListener schedulerListener) {
+  public void addSchedulerListener(OnSchedulerListener schedulerListener) {
     mSchedulerListeners.put(schedulerListener.hashCode(), schedulerListener);
   }
 

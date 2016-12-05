@@ -41,8 +41,8 @@ import java.util.Set;
     return INSTANCE;
   }
 
-  AMReceiver get(Context context) {
-    return getTarget(context);
+  AMReceiver get(Object obj) {
+    return getTarget(obj);
   }
 
   /**
@@ -77,21 +77,21 @@ import java.util.Set;
     }
   }
 
-  private AMReceiver putTarget(Context context) {
-    String clsName = context.getClass().getName();
+  private AMReceiver putTarget(Object obj) {
+    String clsName = obj.getClass().getName();
     AMReceiver target = mTargets.get(clsName);
     if (target == null) {
       target = new AMReceiver();
-      target.context = context;
+      target.obj = obj;
       mTargets.put(clsName, target);
     }
     return target;
   }
 
-  private AMReceiver getTarget(Context context) {
-    AMReceiver target = mTargets.get(context.getClass().getName());
+  private AMReceiver getTarget(Object obj) {
+    AMReceiver target = mTargets.get(obj.getClass().getName());
     if (target == null) {
-      target = putTarget(context);
+      target = putTarget(obj);
     }
     return target;
   }
@@ -141,8 +141,8 @@ import java.util.Set;
       for (String key : keys) {
         if (key.equals(activity.getClass().getName())) {
           AMReceiver target = mTargets.get(key);
-          if (target.context != null) {
-            if (target.context instanceof Application || target.context instanceof Service) break;
+          if (target.obj != null) {
+            if (target.obj instanceof Application || target.obj instanceof Service) break;
             target.removeSchedulerListener();
             mTargets.remove(key);
           }

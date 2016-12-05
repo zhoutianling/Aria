@@ -16,21 +16,15 @@
 package com.arialyy.downloadutil.core;
 
 import android.content.Context;
-import com.arialyy.downloadutil.core.command.CmdFactory;
-import com.arialyy.downloadutil.core.command.IDownloadCmd;
 import com.arialyy.downloadutil.core.scheduler.OnSchedulerListener;
-import com.arialyy.downloadutil.core.task.Task;
-import com.arialyy.downloadutil.util.CommonUtil;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * AM 接收器
  */
 public class AMReceiver {
-  Context context;
+  Object             obj;
   OnSchedulerListener listener;
-  DownloadEntity entity;
+  DownloadEntity      entity;
   DownloadManager manager = DownloadManager.getInstance();
 
   public AMTarget load(DownloadEntity entity) {
@@ -43,7 +37,7 @@ public class AMReceiver {
    */
   public AMReceiver addSchedulerListener(OnSchedulerListener listener) {
     this.listener = listener;
-    manager.getTaskQueue().getDownloadSchedulers().addSchedulerListener(context, listener);
+    manager.getTaskQueue().getDownloadSchedulers().addSchedulerListener(listener);
     return this;
   }
 
