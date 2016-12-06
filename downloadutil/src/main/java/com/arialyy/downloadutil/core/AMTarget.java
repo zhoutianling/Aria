@@ -15,7 +15,7 @@ import java.util.List;
 public class AMTarget {
   private AMReceiver receiver;
 
-  public AMTarget(AMReceiver receiver){
+  public AMTarget(AMReceiver receiver) {
     this.receiver = receiver;
   }
 
@@ -24,8 +24,8 @@ public class AMTarget {
    */
   public void start() {
     List<IDownloadCmd> cmds = new ArrayList<>();
-    cmds.add(CommonUtil.createCmd(receiver.entity, CmdFactory.TASK_CREATE));
-    cmds.add(CommonUtil.createCmd(receiver.entity, CmdFactory.TASK_START));
+    cmds.add(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CREATE));
+    cmds.add(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_START));
     receiver.manager.setCmds(cmds).exe();
   }
 
@@ -33,21 +33,24 @@ public class AMTarget {
    * 停止下载
    */
   public void stop() {
-    receiver.manager.setCmd(CommonUtil.createCmd(receiver.entity, CmdFactory.TASK_STOP)).exe();
+    receiver.manager.setCmd(
+        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_STOP)).exe();
   }
 
   /**
    * 恢复下载
    */
   public void resume() {
-    receiver.manager.setCmd(CommonUtil.createCmd(receiver.entity, CmdFactory.TASK_START)).exe();
+    receiver.manager.setCmd(
+        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_START)).exe();
   }
 
   /**
    * 取消下载
    */
   public void cancel() {
-    receiver.manager.setCmd(CommonUtil.createCmd(receiver.entity, CmdFactory.TASK_CANCEL)).exe();
+    receiver.manager.setCmd(
+        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CANCEL)).exe();
   }
 
   public static class SimpleSchedulerListener implements OnSchedulerListener {

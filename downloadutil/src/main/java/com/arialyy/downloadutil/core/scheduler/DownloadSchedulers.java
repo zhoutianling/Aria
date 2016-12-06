@@ -16,15 +16,14 @@
 
 package com.arialyy.downloadutil.core.scheduler;
 
-import android.content.Context;
 import android.os.Message;
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.downloadutil.core.DownloadEntity;
 import com.arialyy.downloadutil.core.queue.ITaskQueue;
 import com.arialyy.downloadutil.core.task.Task;
 import com.arialyy.downloadutil.core.queue.pool.ExecutePool;
 import com.arialyy.downloadutil.core.queue.DownloadTaskQueue;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,37 +35,37 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 任务预加载
    */
-  public static final int PRE = 0;
+  public static final     int                PRE      = 0;
   /**
    * 任务开始
    */
-  public static final int START = 1;
+  public static final     int                START    = 1;
   /**
    * 任务停止
    */
-  public static final int STOP = 2;
+  public static final     int                STOP     = 2;
   /**
    * 任务失败
    */
-  public static final int FAIL = 3;
+  public static final     int                FAIL     = 3;
   /**
    * 任务取消
    */
-  public static final int CANCEL = 4;
+  public static final     int                CANCEL   = 4;
   /**
    * 任务完成
    */
-  public static final int COMPLETE = 5;
+  public static final     int                COMPLETE = 5;
   /**
    * 下载中
    */
-  public static final int RUNNING = 6;
+  public static final     int                RUNNING  = 6;
   /**
    * 恢复下载
    */
-  public static final int RESUME = 7;
-  private static final String TAG = "DownloadSchedulers";
-  private static final Object LOCK = new Object();
+  public static final     int                RESUME   = 7;
+  private static final    String             TAG      = "DownloadSchedulers";
+  private static final    Object             LOCK     = new Object();
   private static volatile DownloadSchedulers INSTANCE = null;
   /**
    * 下载失败次数
@@ -81,7 +80,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 下载器任务监听
    */
-  Map<Integer, OnSchedulerListener> mSchedulerListeners = new ConcurrentHashMap<>();
+  Map<String, OnSchedulerListener> mSchedulerListeners = new ConcurrentHashMap<>();
   ITaskQueue mQueue;
 
   public DownloadSchedulers(ITaskQueue downloadTaskQueue) {
@@ -130,9 +129,8 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    */
   private void callback(int state, Task task) {
     if (mSchedulerListeners.size() > 0) {
-      //Set<Map.Entry<Integer, String>>
-      for (Map.Entry<Integer, OnSchedulerListener> entry : mSchedulerListeners.entrySet()) {
-        callback(state, task, entry.getValue());
+      if (!TextUtils.isEmpty(task.getTargetName())) {
+        callback(state, task, mSchedulerListeners.get(task.getTargetName()));
       }
     }
   }
@@ -163,15 +161,12 @@ public class DownloadSchedulers implements IDownloadSchedulers {
           break;
         case CANCEL:
           listener.onTaskCancel(task);
-          removeSchedulerListener(listener);
           break;
         case COMPLETE:
           listener.onTaskComplete(task);
-          removeSchedulerListener(listener);
           break;
         case FAIL:
           listener.onTaskFail(task);
-          removeSchedulerListener(listener);
           break;
       }
     }
@@ -213,13 +208,24 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     }
   }
 
-  @Override
-  public void addSchedulerListener(OnSchedulerListener schedulerListener) {
-    mSchedulerListeners.put(schedulerListener.hashCode(), schedulerListener);
+  @Override public void addSchedulerListener(Object target, OnSchedulerListener schedulerListener) {
+    if (target == null) {
+      throw new IllegalArgumentException("target 不能为null");
+    }
+    String name = target.getClass().getName();
+    if (mSchedulerListeners.get(name) != null) {
+      Log.w(TAG, "监听器已存在");
+      return;
+    }
+    mSchedulerListeners.put(name, schedulerListener);
   }
 
-  @Override public void removeSchedulerListener(OnSchedulerListener schedulerListener) {
-    mSchedulerListeners.remove(schedulerListener.hashCode());
+  @Override
+  public void removeSchedulerListener(Object target, OnSchedulerListener schedulerListener) {
+    if (target == null) {
+      throw new IllegalArgumentException("target 不能为null");
+    }
+    mSchedulerListeners.remove(target.getClass().getName());
   }
 
   public void setFailNum(int mFailNum) {

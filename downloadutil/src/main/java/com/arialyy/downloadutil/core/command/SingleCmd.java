@@ -12,6 +12,10 @@ class SingleCmd extends IDownloadCmd {
   /**
    * @param entity 下载实体
    */
+  SingleCmd(Object target, DownloadEntity entity) {
+    super(target, entity);
+  }
+
   SingleCmd(DownloadEntity entity) {
     super(entity);
   }
@@ -19,7 +23,7 @@ class SingleCmd extends IDownloadCmd {
   @Override public void executeCmd() {
     Task task = mQueue.getTask(mEntity);
     if (task == null) {
-      task = mQueue.createTask(mEntity);
+      task = mQueue.createTask(mTarget, mEntity);
     } else {
       Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
     }

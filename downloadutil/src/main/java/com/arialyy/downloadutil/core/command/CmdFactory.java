@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.downloadutil.core.command;
 
 import com.arialyy.downloadutil.core.DownloadEntity;
@@ -44,7 +43,7 @@ public class CmdFactory {
    * 停止任务
    */
   public static final int TASK_STOP   = 0x125;
-  public static final int TASK_SINGLE   = 0x126;
+  public static final int TASK_SINGLE = 0x126;
 
   private static final    Object     LOCK     = new Object();
   private static volatile CmdFactory INSTANCE = null;
@@ -85,6 +84,38 @@ public class CmdFactory {
     }
   }
 
+  /**
+   * @param target 创建任务的对象
+   * @param entity 下载实体
+   * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
+   * #TASK_STOP}
+   */
+  public IDownloadCmd createCmd(Object target, DownloadEntity entity, int type) {
+    switch (type) {
+      case TASK_CREATE:
+        return createAddCmd(target, entity);
+      case TASK_RESUME:
+      case TASK_START:
+        return createStartCmd(target, entity);
+      case TASK_CANCEL:
+        return createCancelCmd(target, entity);
+      case TASK_STOP:
+        return createStopCmd(target, entity);
+      case TASK_SINGLE:
+        return new SingleCmd(target, entity);
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * 创建停止命令
+   *
+   * @return {@link StopCmd}
+   */
+  private StopCmd createStopCmd(Object target, DownloadEntity entity) {
+    return new StopCmd(target, entity);
+  }
 
   /**
    * 创建停止命令
@@ -93,6 +124,15 @@ public class CmdFactory {
    */
   private StopCmd createStopCmd(DownloadEntity entity) {
     return new StopCmd(entity);
+  }
+
+  /**
+   * 创建下载任务命令
+   *
+   * @return {@link AddCmd}
+   */
+  private AddCmd createAddCmd(Object target, DownloadEntity entity) {
+    return new AddCmd(target, entity);
   }
 
   /**
@@ -109,8 +149,26 @@ public class CmdFactory {
    *
    * @return {@link StartCmd}
    */
+  private StartCmd createStartCmd(Object target, DownloadEntity entity) {
+    return new StartCmd(target, entity);
+  }
+  
+  /**
+   * 创建启动下载命令
+   *
+   * @return {@link StartCmd}
+   */
   private StartCmd createStartCmd(DownloadEntity entity) {
     return new StartCmd(entity);
+  }
+
+  /**
+   * 创建 取消下载的命令
+   *
+   * @return {@link CancelCmd}
+   */
+  private CancelCmd createCancelCmd(Object target, DownloadEntity entity) {
+    return new CancelCmd(target, entity);
   }
 
   /**

@@ -32,12 +32,15 @@ import com.arialyy.downloadutil.core.scheduler.DownloadSchedulers;
  */
 public class Task {
   public static final String TAG = "Task";
-
-  private DownloadEntity mEntity;
+  /**
+   * 产生该任务对象的hash码
+   */
+  private String            mTargetName;
+  private DownloadEntity    mEntity;
   private IDownloadListener mListener;
-  private Handler mOutHandler;
-  private Context mContext;
-  private IDownloadUtil mUtil;
+  private Handler           mOutHandler;
+  private Context           mContext;
+  private IDownloadUtil     mUtil;
 
   private Task(Context context, DownloadEntity entity) {
     mContext = context.getApplicationContext();
@@ -66,6 +69,14 @@ public class Task {
 
   public DownloadEntity getDownloadEntity() {
     return mEntity;
+  }
+
+  public String getTargetName() {
+    return mTargetName;
+  }
+
+  public void setmTargetName(String targetName) {
+    this.mTargetName = targetName;
   }
 
   /**
@@ -128,7 +139,7 @@ public class Task {
   private Intent createIntent(String action) {
     Uri.Builder builder = new Uri.Builder();
     builder.scheme(mContext.getPackageName());
-    Uri uri = builder.build();
+    Uri    uri    = builder.build();
     Intent intent = new Intent(action);
     intent.setData(uri);
     return intent;
@@ -147,12 +158,18 @@ public class Task {
 
   public static class Builder {
     DownloadEntity downloadEntity;
-    Handler outHandler;
-    Context context;
+    Handler        outHandler;
+    Context        context;
     int threadNum = 3;
+    String        targetName;
     IDownloadUtil downloadUtil;
 
     public Builder(Context context, DownloadEntity downloadEntity) {
+      this("", context, downloadEntity);
+    }
+
+    public Builder(String targetName, Context context, DownloadEntity downloadEntity) {
+      this.targetName = targetName;
       this.context = context;
       this.downloadEntity = downloadEntity;
     }
@@ -188,6 +205,7 @@ public class Task {
     public Task build() {
       Task task = new Task(context, downloadEntity);
       task.mOutHandler = outHandler;
+      task.setmTargetName(targetName);
       downloadEntity.save();
       return task;
     }
@@ -199,12 +217,12 @@ public class Task {
   private class DListener extends DownloadListener {
     Handler outHandler;
     Context context;
-    Intent sendIntent;
-    long INTERVAL = 1024 * 10;   //10k大小的间隔
-    long lastLen = 0;   //上一次发送长度
-    long lastTime = 0;
-    long INTERVAL_TIME = 1000;   //1m更新周期
-    boolean isFirst = true;
+    Intent  sendIntent;
+    long    INTERVAL      = 1024 * 10;   //10k大小的间隔
+    long    lastLen       = 0;   //上一次发送长度
+    long    lastTime      = 0;
+    long    INTERVAL_TIME = 1000;   //1m更新周期
+    boolean isFirst       = true;
     DownloadEntity downloadEntity;
 
     DListener(Context context, DownloadEntity downloadEntity, Handler outHandler) {

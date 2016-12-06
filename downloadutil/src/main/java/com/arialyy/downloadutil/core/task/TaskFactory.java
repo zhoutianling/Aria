@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.downloadutil.core.task;
 
 import android.content.Context;
@@ -51,7 +50,12 @@ public class TaskFactory {
    * @param schedulers {@link IDownloadSchedulers}
    */
   public Task createTask(Context context, DownloadEntity entity, IDownloadSchedulers schedulers) {
-    Task.Builder builder = new Task.Builder(context, entity);
+    return createTask("", context, entity, schedulers);
+  }
+
+  public Task createTask(String targetName, Context context, DownloadEntity entity,
+      IDownloadSchedulers schedulers) {
+    Task.Builder builder = new Task.Builder(targetName, context, entity);
     builder.setOutHandler(schedulers);
     return builder.build();
   }

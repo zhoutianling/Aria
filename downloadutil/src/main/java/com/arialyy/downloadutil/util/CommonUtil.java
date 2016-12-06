@@ -36,6 +36,10 @@ import java.util.Properties;
 public class CommonUtil {
   private static final String TAG = "util";
 
+  public static IDownloadCmd createCmd(Object target, DownloadEntity entity, int cmd) {
+    return CmdFactory.getInstance().createCmd(target, entity, cmd);
+  }
+
   public static IDownloadCmd createCmd(DownloadEntity entity, int cmd) {
     return CmdFactory.getInstance().createCmd(entity, cmd);
   }
@@ -255,8 +259,8 @@ public class CommonUtil {
    * 读取下载配置文件
    */
   public static Properties loadConfig(File file) {
-    Properties properties = new Properties();
-    FileInputStream fis = null;
+    Properties      properties = new Properties();
+    FileInputStream fis        = null;
 
     try {
       fis = new FileInputStream(file);

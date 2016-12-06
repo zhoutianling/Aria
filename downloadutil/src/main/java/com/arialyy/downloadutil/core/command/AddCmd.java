@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.downloadutil.core.command;
 
 import android.util.Log;
@@ -31,10 +30,14 @@ class AddCmd extends IDownloadCmd {
     super(entity);
   }
 
+  AddCmd(Object target, DownloadEntity entity) {
+    super(target, entity);
+  }
+
   @Override public void executeCmd() {
     Task task = mQueue.getTask(mEntity);
     if (task == null) {
-      mQueue.createTask(mEntity);
+      mQueue.createTask(mTarget, mEntity);
     } else {
       Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
     }

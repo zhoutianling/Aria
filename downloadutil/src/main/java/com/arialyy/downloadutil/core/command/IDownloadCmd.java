@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.downloadutil.core.command;
 
 import com.arialyy.downloadutil.core.DownloadEntity;
@@ -31,14 +30,23 @@ public abstract class IDownloadCmd {
   ITaskQueue     mQueue;
   DownloadEntity mEntity;
   String         TAG;
+  Object         mTarget;
 
   /**
    * @param entity 下载实体
    */
   IDownloadCmd(DownloadEntity entity) {
+    this(null, entity);
+  }
+
+  /**
+   * @param target 产生任务的对象
+   */
+  IDownloadCmd(Object target, DownloadEntity entity) {
     if (!CheckUtil.checkDownloadEntity(entity)) {
       return;
     }
+    mTarget = target;
     mEntity = entity;
     TAG = CommonUtil.getClassName(this);
     mQueue = DownloadManager.getInstance().getTaskQueue();

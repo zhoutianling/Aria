@@ -37,32 +37,42 @@ import com.arialyy.downloadutil.util.CommonUtil;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
+import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
-  public static final int DOWNLOAD_PRE = 0x01;
-  public static final int DOWNLOAD_STOP = 0x02;
-  public static final int DOWNLOAD_FAILE = 0x03;
-  public static final int DOWNLOAD_CANCEL = 0x04;
-  public static final int DOWNLOAD_RESUME = 0x05;
-  public static final int DOWNLOAD_COMPLETE = 0x06;
-  public static final int DOWNLOAD_RUNNING = 0x07;
-  private static final String DOWNLOAD_URL =
+  public static final  int    DOWNLOAD_PRE      = 0x01;
+  public static final  int    DOWNLOAD_STOP     = 0x02;
+  public static final  int    DOWNLOAD_FAILE    = 0x03;
+  public static final  int    DOWNLOAD_CANCEL   = 0x04;
+  public static final  int    DOWNLOAD_RESUME   = 0x05;
+  public static final  int    DOWNLOAD_COMPLETE = 0x06;
+  public static final  int    DOWNLOAD_RUNNING  = 0x07;
+  private static final String DOWNLOAD_URL      =
       "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
-  @Bind(R.id.progressBar) ProgressBar mPb;
-  @Bind(R.id.start) Button mStart;
-  @Bind(R.id.stop) Button mStop;
-  @Bind(R.id.cancel) Button mCancel;
-  @Bind(R.id.size) TextView mSize;
-  @Bind(R.id.toolbar) Toolbar toolbar;
-  private DownloadEntity mEntity;
-  private BroadcastReceiver mReceiver;
+  @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
+  @Bind(R.id.start)       Button                          mStart;
+  @Bind(R.id.stop)        Button                          mStop;
+  @Bind(R.id.cancel)      Button                          mCancel;
+  @Bind(R.id.size)        TextView                        mSize;
+  @Bind(R.id.toolbar)     Toolbar                         toolbar;
+  @Bind(R.id.speed)       TextView                        mSpeed;
+  private                 DownloadEntity                  mEntity;
+  private                 BroadcastReceiver               mReceiver;
 
   private Handler mUpdateHandler = new Handler() {
     @Override public void handleMessage(Message msg) {
       super.handleMessage(msg);
       switch (msg.what) {
         case DOWNLOAD_RUNNING:
-          mPb.setProgress((Integer) msg.obj);
+          Task task = (Task) msg.obj;
+          long current = task.getDownloadEntity().getCurrentProgress();
+          long len = task.getDownloadEntity().getFileSize();
+          if (len == 0) {
+            mPb.setProgress(0);
+          } else {
+            mPb.setProgress((int) ((current * 100) / len));
+          }
+          mSpeed.setText(CommonUtil.formatFileSize(task.getDownloadEntity().getSpeed()) + "/s");
           break;
         case DOWNLOAD_PRE:
           mSize.setText(CommonUtil.formatFileSize((Long) msg.obj));
@@ -218,13 +228,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     }
 
     @Override public void onTaskRunning(Task task) {
-      long current = task.getDownloadEntity().getCurrentProgress();
-      long len = task.getDownloadEntity().getFileSize();
-      if (len == 0) {
-        mPb.setProgress(0);
-      } else {
-        mPb.setProgress((int) ((current * 100) / len));
-      }
+      mUpdateHandler.obtainMessage(DOWNLOAD_RUNNING, task).sendToTarget();
     }
   }
 }

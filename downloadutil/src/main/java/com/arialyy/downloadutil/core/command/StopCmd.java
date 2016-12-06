@@ -30,6 +30,10 @@ class StopCmd extends IDownloadCmd {
   /**
    * @param entity 下载实体
    */
+  StopCmd(Object target, DownloadEntity entity) {
+    super(target, entity);
+  }
+
   StopCmd(DownloadEntity entity) {
     super(entity);
   }
@@ -38,7 +42,7 @@ class StopCmd extends IDownloadCmd {
     Task task = mQueue.getTask(mEntity);
     if (task == null) {
       if (mEntity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
-        task = mQueue.createTask(mEntity);
+        task = mQueue.createTask(mTarget, mEntity);
         mQueue.stopTask(task);
       } else {
         Log.w(TAG, "停止命令执行失败，【调度器中没有该任务】");

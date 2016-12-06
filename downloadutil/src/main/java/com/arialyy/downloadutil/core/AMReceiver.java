@@ -22,7 +22,7 @@ import com.arialyy.downloadutil.core.scheduler.OnSchedulerListener;
  * AM 接收器
  */
 public class AMReceiver {
-  Object             obj;
+  Object              obj;
   OnSchedulerListener listener;
   DownloadEntity      entity;
   DownloadManager manager = DownloadManager.getInstance();
@@ -37,7 +37,7 @@ public class AMReceiver {
    */
   public AMReceiver addSchedulerListener(OnSchedulerListener listener) {
     this.listener = listener;
-    manager.getTaskQueue().getDownloadSchedulers().addSchedulerListener(listener);
+    manager.getTaskQueue().getDownloadSchedulers().addSchedulerListener(obj, listener);
     return this;
   }
 
@@ -46,7 +46,7 @@ public class AMReceiver {
    */
   public AMReceiver removeSchedulerListener() {
     if (listener != null) {
-      manager.getTaskQueue().getDownloadSchedulers().removeSchedulerListener(listener);
+      manager.getTaskQueue().getDownloadSchedulers().removeSchedulerListener(obj, listener);
     }
     return this;
   }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.downloadutil.core.queue;
 
 import android.content.Context;
@@ -88,7 +87,7 @@ public class DownloadTaskQueue implements ITaskQueue {
   }
 
   @Override public void stopTask(Task task) {
-    if (!task.isDownloading())Log.w(TAG, "停止任务失败，【任务已经停止】");
+    if (!task.isDownloading()) Log.w(TAG, "停止任务失败，【任务已经停止】");
     task.stop();
     //if (task.isDownloading()) {
     //  if (mExecutePool.removeTask(task)) {
@@ -127,8 +126,14 @@ public class DownloadTaskQueue implements ITaskQueue {
     mExecutePool.setDownloadNum(downloadNum);
   }
 
-  @Override public Task createTask(DownloadEntity entity) {
-    Task task = TaskFactory.getInstance().createTask(mContext, entity, mSchedulers);
+  @Override public Task createTask(Object target, DownloadEntity entity) {
+    Task task;
+    if (target == null) {
+      task = TaskFactory.getInstance().createTask(mContext, entity, mSchedulers);
+    } else {
+      task = TaskFactory.getInstance()
+          .createTask(target.getClass().getName(), mContext, entity, mSchedulers);
+    }
     mCachePool.putTask(task);
     return task;
   }

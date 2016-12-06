@@ -16,6 +16,7 @@
 
 package com.arialyy.downloadutil.core.scheduler;
 
+import android.content.Context;
 import android.os.Handler;
 import com.arialyy.downloadutil.core.DownloadEntity;
 
@@ -26,16 +27,18 @@ import com.arialyy.downloadutil.core.DownloadEntity;
 public interface IDownloadSchedulers extends Handler.Callback {
 
   /**
-   * 注册下载器监听
+   * 注册下载器监听，一个观察者只能注册一次监听
    *
+   * @param target 观察者，创建该监听器的对象
    * @param schedulerListener {@link OnSchedulerListener}
    */
-  public void addSchedulerListener(OnSchedulerListener schedulerListener);
+  public void addSchedulerListener(Object target, OnSchedulerListener schedulerListener);
 
   /**
+   * @param target 观察者，创建该监听器的对象
    * 取消注册监听器
    */
-  public void removeSchedulerListener(OnSchedulerListener schedulerListener);
+  public void removeSchedulerListener(Object target, OnSchedulerListener schedulerListener);
 
   /**
    * 处理下载任务下载失败的情形
