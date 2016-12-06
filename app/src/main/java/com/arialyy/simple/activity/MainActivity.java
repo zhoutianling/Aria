@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.simple.activity;
 
 import android.Manifest;
@@ -48,22 +47,26 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
     super.init(savedInstanceState);
     setSupportActionBar(mBar);
     mBar.setTitle("多线程多任务下载");
-    boolean hasPermission = PermissionManager.getInstance()
-        .checkPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-    if (hasPermission || Build.VERSION.SDK_INT <= Build.VERSION_CODES.M) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       setEnable(true);
-    } else {
-      setEnable(false);
-      PermissionManager.getInstance().requestPermission(this, new OnPermissionCallback() {
-        @Override public void onSuccess(String... permissions) {
-          setEnable(true);
-        }
+    } else {  //6.0处理
+      boolean hasPermission = PermissionManager.getInstance()
+          .checkPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+      if (hasPermission) {
+        setEnable(true);
+      } else {
+        setEnable(false);
+        PermissionManager.getInstance().requestPermission(this, new OnPermissionCallback() {
+          @Override public void onSuccess(String... permissions) {
+            setEnable(true);
+          }
 
-        @Override public void onFail(String... permissions) {
-          T.showShort(MainActivity.this, "没有文件读写权限");
-          setEnable(false);
-        }
-      }, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+          @Override public void onFail(String... permissions) {
+            T.showShort(MainActivity.this, "没有文件读写权限");
+            setEnable(false);
+          }
+        }, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+      }
     }
   }
 

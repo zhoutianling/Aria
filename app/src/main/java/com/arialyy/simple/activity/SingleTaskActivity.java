@@ -28,7 +28,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
-import com.arialyy.downloadutil.core.AMReceiver;
 import com.arialyy.downloadutil.core.AMTarget;
 import com.arialyy.downloadutil.core.Aria;
 import com.arialyy.downloadutil.core.DownloadEntity;
@@ -47,11 +46,13 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public static final int DOWNLOAD_RESUME = 0x05;
   public static final int DOWNLOAD_COMPLETE = 0x06;
   public static final int DOWNLOAD_RUNNING = 0x07;
-  private ProgressBar mPb;
-  private String mDownloadUrl =
-      "http://static.gaoshouyou.com/d/12/0d/7f120f50c80d2e7b8c4ba24ece4f9cdd.apk";
-  private Button mStart, mStop, mCancel;
-  private TextView mSize;
+  private static final String DOWNLOAD_URL =
+      "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
+  @Bind(R.id.progressBar) ProgressBar mPb;
+  @Bind(R.id.start) Button mStart;
+  @Bind(R.id.stop) Button mStop;
+  @Bind(R.id.cancel) Button mCancel;
+  @Bind(R.id.size) TextView mSize;
   @Bind(R.id.toolbar) Toolbar toolbar;
   private DownloadEntity mEntity;
   private BroadcastReceiver mReceiver;
@@ -115,15 +116,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Override protected void onResume() {
     super.onResume();
-    //IntentFilter filter = getModule(DownloadModule.class).getDownloadFilter();
-    //mReceiver = getModule(DownloadModule.class).createReceiver(mUpdateHandler);
-    //registerReceiver(mReceiver, filter);
     Aria.whit(this).addSchedulerListener(new MySchedulerListener());
   }
 
   @Override protected void onDestroy() {
     super.onDestroy();
-    //unregisterReceiver(mReceiver);
   }
 
   @Override protected int setLayoutId() {
@@ -138,15 +135,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private void init() {
-    mPb = (ProgressBar) findViewById(R.id.progressBar);
-    mStart = (Button) findViewById(R.id.start);
-    mStop = (Button) findViewById(R.id.stop);
-    mCancel = (Button) findViewById(R.id.cancel);
-    mSize = (TextView) findViewById(R.id.size);
-    //mFactory = CmdFactory.getInstance();
-    //mManager = DownloadManager.getInstance();
     mEntity = DbEntity.findData(DownloadEntity.class, new String[] { "downloadUrl" },
-        new String[] { mDownloadUrl });
+        new String[] { DOWNLOAD_URL });
     if (mEntity != null) {
       mPb.setProgress((int) ((mEntity.getCurrentProgress() * 100) / mEntity.getFileSize()));
       mSize.setText(CommonUtil.formatFileSize(mEntity.getFileSize()));
@@ -159,7 +149,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     } else {
       mEntity = new DownloadEntity();
       mEntity.setFileName("test.apk");
-      mEntity.setDownloadUrl(mDownloadUrl);
+      mEntity.setDownloadUrl(DOWNLOAD_URL);
       mEntity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
     }
   }
@@ -170,7 +160,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         String text = ((TextView) view).getText().toString();
         if (text.equals("重新开始？") || text.equals("开始")) {
           start();
-        }else if (text.equals("恢复")){
+        } else if (text.equals("恢复")) {
           resume();
         }
         break;
@@ -183,14 +173,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     }
   }
 
-  private void resume(){
+  private void resume() {
     Aria.whit(this).load(mEntity).resume();
   }
 
   private void start() {
-    mEntity.setFileName("test.apk");
-    mEntity.setDownloadUrl(mDownloadUrl);
-    mEntity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
     Aria.whit(this).load(mEntity).start();
   }
 
@@ -202,7 +189,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     Aria.whit(this).load(mEntity).cancel();
   }
 
-  private class MySchedulerListener extends AMTarget.SimpleSchedulerListener{
+  private class MySchedulerListener extends AMTarget.SimpleSchedulerListener {
     @Override public void onTaskStart(Task task) {
       mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
           .sendToTarget();
@@ -240,5 +227,4 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       }
     }
   }
-
 }

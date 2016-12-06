@@ -75,6 +75,7 @@ public class DownloadEntity extends DbEntity implements Parcelable {
     }
   };
   @Ignore private long    speed              = 0; //下载速度
+  @Ignore private         int     failNum            = 0;
   private         String  downloadUrl        = ""; //下载路径
   private         String  downloadPath       = ""; //保存路径
   private         String  fileName           = ""; //文件名
@@ -83,7 +84,6 @@ public class DownloadEntity extends DbEntity implements Parcelable {
   private         int     state              = STATE_WAIT;
   private         boolean isDownloadComplete = false;   //是否下载完成
   private         long    currentProgress    = 0;    //当前下载进度
-  private         int     failNum            = 0;
   private long completeTime;  //完成时间
 
   public DownloadEntity() {

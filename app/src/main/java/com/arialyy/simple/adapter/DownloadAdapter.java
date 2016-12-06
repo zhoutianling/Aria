@@ -38,6 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Lyy on 2016/9/27.
@@ -47,7 +48,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   private static final String TAG = "DownloadAdapter";
   private DownloadManager mManager;
   private CmdFactory      mFactory;
-  private Map<String, Integer> mPositions = new HashMap<>();
+  private Map<String, Integer> mPositions = new ConcurrentHashMap<>();
 
   public DownloadAdapter(Context context, List<DownloadEntity> data) {
     super(context, data);
@@ -82,6 +83,9 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
       notifyDataSetChanged();
     } else {
       int position = indexItem(entity.getDownloadUrl());
+      if (position == -1){
+        return;
+      }
       mData.set(position, entity);
       notifyItemChanged(position);
     }
@@ -90,16 +94,18 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   public synchronized void setProgress(DownloadEntity entity) {
     String url      = entity.getDownloadUrl();
     int    position = indexItem(url);
+    if (position == -1){
+      return;
+    }
     mData.set(position, entity);
     notifyItemChanged(position);
   }
 
   private synchronized int indexItem(String url) {
-    Set set = mPositions.entrySet();
-    for (Object aSet : set) {
-      Map.Entry entry = (Map.Entry) aSet;
-      if (entry.getKey().equals(url)) {
-        return (int) entry.getValue();
+    Set<String> keys = mPositions.keySet();
+    for (String key : keys){
+      if (key.equals(url)){
+        return mPositions.get(key);
       }
     }
     return -1;
@@ -112,7 +118,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     long speed    = item.getSpeed();
     current = size == 0 ? 0 : (int) (progress * 100 / size);
     holder.progress.setProgress(current);
-    BtClickListener listener = new BtClickListener(position, item);
+    BtClickListener listener = new BtClickListener(item);
     holder.bt.setOnClickListener(listener);
     String str   = "";
     int    color = android.R.color.holo_green_light;
@@ -166,11 +172,9 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
 
   private class BtClickListener implements View.OnClickListener {
     private DownloadEntity entity;
-    private int            position;
 
-    BtClickListener(int position, DownloadEntity entity) {
+    BtClickListener(DownloadEntity entity) {
       this.entity = entity;
-      this.position = position;
     }
 
     @Override public void onClick(View v) {
@@ -189,14 +193,10 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     }
 
     private void start(DownloadEntity entity) {
-      //IDownloadCmd startCmd = mFactory.createCmd(entity, CmdFactory.TASK_START);
-      //mManager.setCmd(startCmd).exe();
       Aria.whit(getContext()).load(entity).start();
     }
 
     private void stop(DownloadEntity entity) {
-      //IDownloadCmd stopCmd = mFactory.createCmd(entity, CmdFactory.TASK_STOP);
-      //mManager.setCmd(stopCmd).exe();
       Aria.whit(getContext()).load(entity).stop();
     }
   }

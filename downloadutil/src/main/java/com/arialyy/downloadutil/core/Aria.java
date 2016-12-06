@@ -22,9 +22,7 @@ import android.app.Application;
 import android.app.Fragment;
 import android.app.Service;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.os.Build;
-import com.bumptech.glide.Glide;
 
 /**
  * Created by lyy on 2016/12/1.

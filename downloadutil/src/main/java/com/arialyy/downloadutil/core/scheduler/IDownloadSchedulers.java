@@ -16,7 +16,6 @@
 
 package com.arialyy.downloadutil.core.scheduler;
 
-import android.content.Context;
 import android.os.Handler;
 import com.arialyy.downloadutil.core.DownloadEntity;
 

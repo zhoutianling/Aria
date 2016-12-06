@@ -82,6 +82,7 @@ public class DownloadTaskQueue implements ITaskQueue {
   @Override public void startTask(Task task) {
     if (mExecutePool.putTask(task)) {
       mCachePool.removeTask(task);
+      task.getDownloadEntity().setFailNum(0);
       task.start();
     }
   }

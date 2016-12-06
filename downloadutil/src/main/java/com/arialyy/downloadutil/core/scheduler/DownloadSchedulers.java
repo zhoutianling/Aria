@@ -186,6 +186,11 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     if (entity.getFailNum() <= mFailNum) {
       Task task = mQueue.getTask(entity);
       mQueue.reTryStart(task);
+      try {
+        Thread.currentThread().sleep(4000);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
     } else {
       startNextTask(entity);
     }

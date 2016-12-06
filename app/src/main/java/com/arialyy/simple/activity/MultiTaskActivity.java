@@ -17,20 +17,14 @@
 
 package com.arialyy.simple.activity;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
-import android.widget.Button;
 import butterknife.Bind;
 import com.arialyy.downloadutil.core.AMTarget;
 import com.arialyy.downloadutil.core.Aria;
-import com.arialyy.downloadutil.core.DownloadEntity;
-import com.arialyy.downloadutil.core.DownloadManager;
 import com.arialyy.downloadutil.core.task.Task;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
@@ -116,7 +110,6 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
 
   @Override protected void onResume() {
     super.onResume();
-    //registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
     Aria.whit(this).addSchedulerListener(new MySchedulerListener());
   }
 

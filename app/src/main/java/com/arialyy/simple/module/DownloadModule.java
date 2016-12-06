@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.simple.module;
 
 import android.content.BroadcastReceiver;
@@ -48,9 +47,16 @@ public class DownloadModule extends BaseModule {
    * 设置下载数据
    */
   public List<DownloadEntity> getDownloadData() {
-    List<DownloadEntity> list = DownloadEntity.findAllData(DownloadEntity.class);
-    if (list == null || list.size() == 0) {
-      list = createNewDownload();
+    String[] urls = getContext().getResources().getStringArray(R.array.test_apk_download_url);
+    List<DownloadEntity> list = new ArrayList<>();
+    for (String url : urls) {
+      DownloadEntity entity =
+          DownloadEntity.findData(DownloadEntity.class, new String[] { "downloadUrl" },
+              new String[] { url });
+      if (entity == null) {
+        entity = createDownloadEntity(url);
+      }
+      list.add(entity);
     }
     return list;
   }
@@ -80,6 +86,17 @@ public class DownloadModule extends BaseModule {
     return list;
   }
 
+  private DownloadEntity createDownloadEntity(String url) {
+    String fileName = CommonUtil.keyToHashCode(url) + ".apk";
+    DownloadEntity entity = new DownloadEntity();
+    entity.setDownloadUrl(url);
+    entity.setDownloadPath(getDownloadPath(url));
+    entity.setFileName(fileName);
+    //entity.setFileName("taskName_________" + i);
+    entity.save();
+    return entity;
+  }
+
   /**
    * 创建下载列表
    */
@@ -88,14 +105,7 @@ public class DownloadModule extends BaseModule {
     String[] urls = getContext().getResources().getStringArray(R.array.test_apk_download_url);
     int i = 0;
     for (String url : urls) {
-      String         fileName = CommonUtil.keyToHashCode(url) + ".apk";
-      DownloadEntity entity   = new DownloadEntity();
-      entity.setDownloadUrl(url);
-      entity.setDownloadPath(getDownloadPath(url));
-      //entity.setFileName(fileName);
-      entity.setFileName("taskName_________" + i);
-      entity.save();
-      list.add(entity);
+      list.add(createDownloadEntity(url));
       i++;
     }
     return list;
@@ -122,7 +132,7 @@ public class DownloadModule extends BaseModule {
   /**
    * 创建Receiver
    */
-  public BroadcastReceiver createReceiver(final Handler handler){
+  public BroadcastReceiver createReceiver(final Handler handler) {
 
     return new BroadcastReceiver() {
       long len = 0;
@@ -146,7 +156,7 @@ public class DownloadModule extends BaseModule {
             break;
           case DownloadManager.ACTION_RUNNING:
             long current = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 0);
-            int progress = len ==0 ? 0 : (int) ((current * 100) / len);
+            int progress = len == 0 ? 0 : (int) ((current * 100) / len);
             handler.obtainMessage(SingleTaskActivity.DOWNLOAD_RUNNING, progress).sendToTarget();
             break;
           case DownloadManager.ACTION_STOP:
