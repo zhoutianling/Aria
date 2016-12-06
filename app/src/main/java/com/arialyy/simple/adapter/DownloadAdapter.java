@@ -25,16 +25,11 @@ import android.widget.TextView;
 import butterknife.Bind;
 import com.arialyy.absadapter.common.AbsHolder;
 import com.arialyy.absadapter.recycler_view.AbsRVAdapter;
-import com.arialyy.downloadutil.core.Aria;
-import com.arialyy.downloadutil.core.DownloadEntity;
-import com.arialyy.downloadutil.core.DownloadManager;
-import com.arialyy.downloadutil.core.command.CmdFactory;
-import com.arialyy.downloadutil.core.command.IDownloadCmd;
-import com.arialyy.downloadutil.util.CommonUtil;
+import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.simple.R;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,22 +41,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter.MyHolder> {
   private static final String TAG = "DownloadAdapter";
-  private DownloadManager mManager;
-  private CmdFactory      mFactory;
   private Map<String, Integer> mPositions = new ConcurrentHashMap<>();
 
   public DownloadAdapter(Context context, List<DownloadEntity> data) {
     super(context, data);
-    mFactory = CmdFactory.getInstance();
-    mManager = DownloadManager.getInstance();
-    List<IDownloadCmd> addCmd = new ArrayList<>();
     int                i      = 0;
     for (DownloadEntity entity : data) {
       mPositions.put(entity.getDownloadUrl(), i);
-      addCmd.add(mFactory.createCmd(entity, CmdFactory.TASK_CREATE));
+      Aria.whit(getContext()).load(entity).add();
       i++;
     }
-    mManager.setCmds(addCmd).exe();
   }
 
   @Override protected MyHolder getViewHolder(View convertView, int viewType) {
@@ -152,14 +141,13 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
       @Override public void onClick(View v) {
         mData.remove(item);
         notifyDataSetChanged();
-        IDownloadCmd cancelCmd = mFactory.createCmd(item, CmdFactory.TASK_CANCEL);
-        mManager.setCmd(cancelCmd).exe();
+        Aria.whit(getContext()).load(item).cancel();
       }
     });
   }
 
   public void setDownloadNum(int num) {
-    mManager.getTaskQueue().setDownloadNum(num);
+    Aria.get(getContext()).setDownloadNum(num);
   }
 
   private String covertCurrentSize(long currentSize) {

@@ -15,19 +15,40 @@
  */
 
 
-package com.arialyy.simple.base;
+package com.arialyy.aria.core.queue;
 
-import android.app.Application;
-import com.arialyy.aria.core.DownloadManager;
-import com.arialyy.frame.core.AbsFrame;
+import com.arialyy.aria.core.task.Task;
 
 /**
- * Created by Lyy on 2016/9/27.
+ * Created by lyy on 2016/8/16.
+ * 下载功能接口
  */
-public class BaseApplication extends Application {
-  @Override public void onCreate() {
-    super.onCreate();
-    AbsFrame.init(this);
-    DownloadManager.init(this);
-  }
+public interface IDownloader {
+  /**
+   * 开始任务
+   *
+   * @param task {@link Task}
+   */
+  public void startTask(Task task);
+
+  /**
+   * 停止任务
+   *
+   * @param task {@link Task}
+   */
+  public void stopTask(Task task);
+
+  /**
+   * 取消任务
+   *
+   * @param task {@link Task}
+   */
+  public void cancelTask(Task task);
+
+  /**
+   * 重试下载
+   *
+   * @param task {@link Task}
+   */
+  public void reTryStart(Task task);
 }

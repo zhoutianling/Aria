@@ -15,19 +15,17 @@
  */
 
 
-package com.arialyy.simple.base;
+package com.arialyy.aria.orm;
 
-import android.app.Application;
-import com.arialyy.aria.core.DownloadManager;
-import com.arialyy.frame.core.AbsFrame;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created by Lyy on 2016/9/27.
+ * Created by lyy on 2015/11/2.
+ * 表ID字段指定
  */
-public class BaseApplication extends Application {
-  @Override public void onCreate() {
-    super.onCreate();
-    AbsFrame.init(this);
-    DownloadManager.init(this);
-  }
+@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Id {
+  int value() default -1;
 }

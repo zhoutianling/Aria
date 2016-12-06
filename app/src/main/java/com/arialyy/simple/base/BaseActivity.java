@@ -14,17 +14,27 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.simple.base;
 
 import android.databinding.ViewDataBinding;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import com.arialyy.frame.core.AbsActivity;
+import com.arialyy.frame.util.AndroidVersionUtil;
+import com.arialyy.simple.R;
 
 /**
  * Created by Lyy on 2016/9/27.
  */
 public abstract class BaseActivity<VB extends ViewDataBinding> extends AbsActivity<VB> {
+
+  @Override protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    if (AndroidVersionUtil.hasLollipop()) {
+      getWindow().setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
+    }
+  }
+
   @Override protected void dataCallback(int result, Object data) {
 
   }

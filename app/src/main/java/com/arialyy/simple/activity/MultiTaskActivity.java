@@ -23,9 +23,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import butterknife.Bind;
-import com.arialyy.downloadutil.core.AMTarget;
-import com.arialyy.downloadutil.core.Aria;
-import com.arialyy.downloadutil.core.task.Task;
+import com.arialyy.aria.core.AMTarget;
+import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.task.Task;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.adapter.DownloadAdapter;
@@ -135,6 +135,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     @Override public void onTaskStart(Task task) {
       super.onTaskStart(task);
       L.d(TAG, "download start");
+      mAdapter.updateState(task.getDownloadEntity());
     }
 
     @Override public void onTaskResume(Task task) {

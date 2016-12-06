@@ -14,20 +14,32 @@
  * limitations under the License.
  */
 
+package com.arialyy.aria.core.command;
 
-package com.arialyy.simple.base;
-
-import android.app.Application;
-import com.arialyy.aria.core.DownloadManager;
-import com.arialyy.frame.core.AbsFrame;
+import android.util.Log;
+import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.task.Task;
 
 /**
- * Created by Lyy on 2016/9/27.
+ * Created by lyy on 2016/8/22.
+ * 添加任务的命令
  */
-public class BaseApplication extends Application {
-  @Override public void onCreate() {
-    super.onCreate();
-    AbsFrame.init(this);
-    DownloadManager.init(this);
+class AddCmd extends IDownloadCmd {
+
+  AddCmd(DownloadEntity entity) {
+    super(entity);
+  }
+
+  AddCmd(Object target, DownloadEntity entity) {
+    super(target, entity);
+  }
+
+  @Override public void executeCmd() {
+    Task task = mQueue.getTask(mEntity);
+    if (task == null) {
+      mQueue.createTask(mTarget, mEntity);
+    } else {
+      Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
+    }
   }
 }
