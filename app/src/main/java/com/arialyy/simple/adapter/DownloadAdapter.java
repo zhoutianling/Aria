@@ -97,6 +97,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     if (position == -1){
       return;
     }
+
     mData.set(position, entity);
     notifyItemChanged(position);
   }
