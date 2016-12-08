@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.orm;
 
 import android.support.annotation.NonNull;
@@ -44,6 +43,14 @@ public class DbEntity {
   public static <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
     DbUtil util = DbUtil.getInstance();
     return util.findAllData(clazz);
+  }
+
+  /**
+   * 查询第一条数据
+   */
+  public static <T extends DbEntity> T findFirst(Class<T> clazz) {
+    List<T> list = findAllData(clazz);
+    return (list == null || list.size() == 0) ? null : list.get(0);
   }
 
   /**

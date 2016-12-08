@@ -147,7 +147,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   }
 
   public void setDownloadNum(int num) {
-    Aria.get(getContext()).setDownloadNum(num);
+    Aria.get(getContext()).setMaxDownloadNum(num);
   }
 
   private String covertCurrentSize(long currentSize) {

@@ -28,6 +28,6 @@ public class BaseApplication extends Application {
   @Override public void onCreate() {
     super.onCreate();
     AbsFrame.init(this);
-    DownloadManager.init(this);
+    //DownloadManager.init(this);
   }
 }

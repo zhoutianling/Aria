@@ -36,7 +36,6 @@ public class DownloadTaskQueue implements ITaskQueue {
   private              ExecutePool mExecutePool = ExecutePool.getInstance();
   private Context             mContext;
   private IDownloadSchedulers mSchedulers;
-  private int mDownloadNum = 2;
 
   private DownloadTaskQueue() {
   }

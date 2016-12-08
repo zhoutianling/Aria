@@ -8,6 +8,7 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.core.command.IDownloadCmd;
@@ -22,6 +23,7 @@ import java.util.Set;
  * Aria管理器，任务操作在这里执行
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH) public class AriaManager {
+  private static final    String                  TAG      = "AriaManager";
   private static final    Object                  LOCK     = new Object();
   private static volatile AriaManager             INSTANCE = null;
   private                 Map<String, AMReceiver> mTargets = new HashMap<>();
@@ -47,16 +49,6 @@ import java.util.Set;
   }
 
   /**
-   * 设置同时下载的任务数
-   */
-  public void setDownloadNum(int num) {
-    if (num <= 0) {
-      throw new IllegalArgumentException("下载任务数不能小于1");
-    }
-    mManager.getTaskQueue().setDownloadNum(num);
-  }
-
-  /**
    * 停止所有正在执行的任务
    */
   public void stopAllTask() {
@@ -68,6 +60,26 @@ import java.util.Set;
       }
     }
     mManager.setCmds(stopCmds).exe();
+  }
+
+  /**
+   * 是否打开下载广播
+   */
+  public void openBroadcast(boolean open) {
+
+  }
+
+  /**
+   * 设置最大下载数，最大下载数不能小于1
+   *
+   * @param maxDownloadNum 最大下载数
+   */
+  public void setMaxDownloadNum(int maxDownloadNum) {
+    if (maxDownloadNum < 1){
+      Log.w(TAG, "最大任务数不能小于 1");
+      return;
+    }
+    mManager.getTaskQueue().setDownloadNum(maxDownloadNum);
   }
 
   /**

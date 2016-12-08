@@ -22,6 +22,7 @@ import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.core.command.IDownloadCmd;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.Configuration;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -82,21 +83,22 @@ public class DownloadManager {
   private static final    Object             LOCK             = new Object();
   private static volatile DownloadManager    INSTANCE         = null;
   private                 List<IDownloadCmd> mCommands        = new ArrayList<>();
-  private Context    mContext;
-  private ITaskQueue mTaskQueue;
+  public static  Context       APP;
+  private        ITaskQueue    mTaskQueue;
+  private static Configuration mConfig;
 
   private DownloadManager() {
 
   }
 
   private DownloadManager(Context context) {
-    mContext = context;
+    APP = context;
     DownloadTaskQueue.Builder builder = new DownloadTaskQueue.Builder(context);
     mTaskQueue = builder.build();
     DbUtil.init(context);
   }
 
-  public static DownloadManager init(Context context) {
+  static DownloadManager init(Context context) {
     if (INSTANCE == null) {
       synchronized (LOCK) {
         INSTANCE = new DownloadManager(context.getApplicationContext());
@@ -112,7 +114,7 @@ public class DownloadManager {
     return INSTANCE;
   }
 
-  public List<DownloadEntity> getAllDownloadEntity() {
+  List<DownloadEntity> getAllDownloadEntity() {
     return DbEntity.findAllData(DownloadEntity.class);
   }
 
@@ -126,7 +128,7 @@ public class DownloadManager {
   /**
    * 设置命令
    */
-  public DownloadManager setCmd(IDownloadCmd command) {
+  DownloadManager setCmd(IDownloadCmd command) {
     mCommands.add(command);
     return this;
   }
@@ -134,7 +136,7 @@ public class DownloadManager {
   /**
    * 设置一组命令
    */
-  public DownloadManager setCmds(List<IDownloadCmd> commands) {
+  DownloadManager setCmds(List<IDownloadCmd> commands) {
     if (commands != null && commands.size() > 0) {
       mCommands.addAll(commands);
     }
@@ -144,7 +146,7 @@ public class DownloadManager {
   /**
    * 执行所有设置的命令
    */
-  public synchronized void exe() {
+  synchronized void exe() {
     for (IDownloadCmd command : mCommands) {
       command.executeCmd();
     }
