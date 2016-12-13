@@ -86,7 +86,7 @@ compile 'com.arialyy.aria:Aria:2.3.1'
   ```java
   Aria.get(this).setReTryInterval(5000);
   ```
-- 设置是否打开广播，如果你需要在Service后台获取下载完成情况，那么你需要打开Aria广播发送按钮，[Aria广播使用](https://github.com/AriaLyy/Aria/blob/v_2.0/BroadCast.md) 
+- 设置是否打开广播，如果你需要在Service后台获取下载完成情况，那么你需要打开Aria广播，[Aria广播配置](https://github.com/AriaLyy/Aria/blob/v_2.0/BroadCast.md) 
 
   ```java
   Aria.get(this).openBroadcast(true);
