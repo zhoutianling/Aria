@@ -1,6 +1,6 @@
 # Aria
 ![图标](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/app/src/main/res/mipmap-hdpi/ic_launcher.png)</br>
-Aria，致力于让下载傻瓜化</br>
+下载不应该是让人感到痛苦的功能，Aria，致力于让下载傻瓜化。</br>
 + Aria有以下特点：
  - 简单
  - 可自定义是否使用广播
