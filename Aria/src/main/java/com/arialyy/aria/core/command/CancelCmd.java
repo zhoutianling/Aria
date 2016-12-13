@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.core.command;
 
 import com.arialyy.aria.core.DownloadEntity;
@@ -40,7 +39,9 @@ class CancelCmd extends IDownloadCmd {
       task = mQueue.createTask(mTarget, mEntity);
     }
     if (task != null) {
-      task.setmTargetName(mTarget.getClass().getName());
+      if (mTarget != null) {
+        task.setTargetName(mTarget.getClass().getName());
+      }
       mQueue.cancelTask(task);
     }
   }

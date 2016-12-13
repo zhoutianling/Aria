@@ -39,7 +39,7 @@ class StartCmd extends IDownloadCmd {
       task = mQueue.createTask(mTarget, mEntity);
     }
     if (task != null) {
-      task.setmTargetName(mTarget.getClass().getName());
+      task.setTargetName(mTarget.getClass().getName());
       mQueue.startTask(task);
     }
   }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.core.command;
 
 import android.util.Log;
@@ -48,7 +47,9 @@ class StopCmd extends IDownloadCmd {
         Log.w(TAG, "停止命令执行失败，【调度器中没有该任务】");
       }
     } else {
-      task.setmTargetName(mTarget.getClass().getName());
+      if (mTarget != null) {
+        task.setTargetName(mTarget.getClass().getName());
+      }
       mQueue.stopTask(task);
     }
   }

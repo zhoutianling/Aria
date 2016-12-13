@@ -42,7 +42,7 @@ class SingleCmd extends IDownloadCmd {
     } else {
       Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
     }
-    task.setmTargetName(mTarget.getClass().getName());
+    task.setTargetName(mTarget.getClass().getName());
     mQueue.startTask(task);
   }
 }

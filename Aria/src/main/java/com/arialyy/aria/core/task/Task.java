@@ -76,7 +76,7 @@ public class Task {
     return mTargetName;
   }
 
-  public void setmTargetName(String targetName) {
+  public void setTargetName(String targetName) {
     this.mTargetName = targetName;
   }
 
@@ -206,7 +206,7 @@ public class Task {
     public Task build() {
       Task task = new Task(context, downloadEntity);
       task.mOutHandler = outHandler;
-      task.setmTargetName(targetName);
+      task.setTargetName(targetName);
       downloadEntity.save();
       return task;
     }
