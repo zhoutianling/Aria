@@ -44,8 +44,8 @@ compile 'com.arialyy.aria:Aria:2.3.1'
   }
 ```
 ### 三、还记得上面的DownloadEntity吗？现在是时候使用它进行下载了
-- 启动下载 
- 
+- 启动下载
+
   ```java
   Aria.whit(this).load(mEntity).start();
   ```
@@ -86,8 +86,7 @@ compile 'com.arialyy.aria:Aria:2.3.1'
   ```java
   Aria.get(this).setReTryInterval(5000);
   ```
-- 设置是否打开广播，如果你需要在Service后台获取下载完成情况，那么你需要打开Aria广播发送按钮，[Aria广播使用](#广播使用)
-
+- 设置是否打开广播，如果你需要在Service后台获取下载完成情况，那么你需要打开Aria广播发送按钮，[Aria广播使用](https://github.com/AriaLyy/Aria/blob/v_2.0/BroadCast.md) 
   ```java
   Aria.get(this).openBroadcast(true);
   ```
