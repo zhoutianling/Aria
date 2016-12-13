@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -104,8 +104,15 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
   //};
 
   public void onClick(View view){
-    DownloadNumDialog dialog = new DownloadNumDialog(this);
-    dialog.show(getSupportFragmentManager(), "download_num");
+    switch (view.getId()){
+      case R.id.num:
+        DownloadNumDialog dialog = new DownloadNumDialog(this);
+        dialog.show(getSupportFragmentManager(), "download_num");
+        break;
+      case R.id.stop_all:
+        Aria.get(this).stopAllTask();
+        break;
+    }
   }
 
   @Override protected void onResume() {

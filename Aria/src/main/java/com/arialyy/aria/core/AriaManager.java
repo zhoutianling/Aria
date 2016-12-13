@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.arialyy.aria.core;
 
 import android.annotation.TargetApi;
@@ -8,10 +23,12 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.util.Configuration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +37,7 @@ import java.util.Set;
 
 /**
  * Created by lyy on 2016/12/1.
+ * https://github.com/AriaLyy/Aria
  * Aria管理器，任务操作在这里执行
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH) public class AriaManager {
@@ -49,6 +67,24 @@ import java.util.Set;
   }
 
   /**
+   * 获取下载列表
+   */
+  public List<DownloadEntity> getDownloadList(){
+    return DownloadEntity.findAllData(DownloadEntity.class);
+  }
+
+  /**
+   * 通过下载链接获取下载实体
+   */
+  public DownloadEntity getDownloadEntity(String downloadUrl) {
+    if (TextUtils.isEmpty(downloadUrl)) {
+      throw new IllegalArgumentException("下载链接不能为null");
+    }
+    return DownloadEntity.findData(DownloadEntity.class, new String[] { "downloadUrl" },
+        new String[] { downloadUrl });
+  }
+
+  /**
    * 停止所有正在执行的任务
    */
   public void stopAllTask() {
@@ -63,10 +99,36 @@ import java.util.Set;
   }
 
   /**
+   * 设置下载超时时间
+   */
+  @Deprecated
+  private AriaManager setTimeOut(int timeOut) {
+    Configuration.getInstance().setTimeOut(timeOut);
+    return this;
+  }
+
+  /**
+   * 设置下载失败重试次数
+   */
+  public AriaManager setReTryNum(int reTryNum) {
+    Configuration.getInstance().setReTryNum(reTryNum);
+    return this;
+  }
+
+  /**
+   * 设置下载失败重试间隔
+   */
+  public AriaManager setReTryInterval(int interval) {
+    Configuration.getInstance().setReTryInterval(interval);
+    return this;
+  }
+
+  /**
    * 是否打开下载广播
    */
-  public void openBroadcast(boolean open) {
-
+  public AriaManager openBroadcast(boolean open) {
+    Configuration.getInstance().setOpenBroadcast(open);
+    return this;
   }
 
   /**
@@ -74,12 +136,13 @@ import java.util.Set;
    *
    * @param maxDownloadNum 最大下载数
    */
-  public void setMaxDownloadNum(int maxDownloadNum) {
-    if (maxDownloadNum < 1){
+  public AriaManager setMaxDownloadNum(int maxDownloadNum) {
+    if (maxDownloadNum < 1) {
       Log.w(TAG, "最大任务数不能小于 1");
-      return;
+      return this;
     }
     mManager.getTaskQueue().setDownloadNum(maxDownloadNum);
+    return this;
   }
 
   /**

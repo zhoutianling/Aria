@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Environment;
 import android.os.Handler;
+import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.DownloadManager;
 import com.arialyy.aria.util.CommonUtil;
@@ -50,9 +51,7 @@ public class DownloadModule extends BaseModule {
     String[] urls = getContext().getResources().getStringArray(R.array.test_apk_download_url);
     List<DownloadEntity> list = new ArrayList<>();
     for (String url : urls) {
-      DownloadEntity entity =
-          DownloadEntity.findData(DownloadEntity.class, new String[] { "downloadUrl" },
-              new String[] { url });
+      DownloadEntity entity = Aria.get(getContext()).getDownloadEntity(url);
       if (entity == null) {
         entity = createDownloadEntity(url);
       }
@@ -93,7 +92,6 @@ public class DownloadModule extends BaseModule {
     entity.setDownloadPath(getDownloadPath(url));
     entity.setFileName(fileName);
     //entity.setFileName("taskName_________" + i);
-    entity.save();
     return entity;
   }
 

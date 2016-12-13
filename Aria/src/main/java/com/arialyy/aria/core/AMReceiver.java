@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.arialyy.aria.core;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 
 /**
+ * Created by lyy on 2016/12/5.
  * AM 接收器
  */
 public class AMReceiver {

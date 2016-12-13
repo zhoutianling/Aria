@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import android.os.Build;
 
 /**
  * Created by lyy on 2016/12/1.
+ * https://github.com/AriaLyy/Aria
  * Aria启动，管理全局任务
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) public class Aria {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package com.arialyy.simple.activity;
 
 import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -30,12 +32,15 @@ import butterknife.Bind;
 import com.arialyy.aria.core.AMTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.DownloadManager;
 import com.arialyy.aria.core.task.Task;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
+import com.arialyy.simple.module.DownloadModule;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
@@ -56,7 +61,14 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   @Bind(R.id.toolbar)     Toolbar                         toolbar;
   @Bind(R.id.speed)       TextView                        mSpeed;
   private                 DownloadEntity                  mEntity;
-  private                 BroadcastReceiver               mReceiver;
+  private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+    @Override public void onReceive(Context context, Intent intent) {
+      String action = intent.getAction();
+      if (action.equals(DownloadManager.ACTION_START)) {
+        L.d("START");
+      }
+    }
+  };
 
   private Handler mUpdateHandler = new Handler() {
     @Override public void handleMessage(Message msg) {
@@ -126,10 +138,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   @Override protected void onResume() {
     super.onResume();
     Aria.whit(this).addSchedulerListener(new MySchedulerListener());
+    //registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
   }
 
   @Override protected void onDestroy() {
     super.onDestroy();
+    //unregisterReceiver(mReceiver);
   }
 
   @Override protected int setLayoutId() {
@@ -141,11 +155,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     setSupportActionBar(toolbar);
     toolbar.setTitle("单任务下载");
     init();
+    Aria.get(this).openBroadcast(true);
   }
 
   private void init() {
-    mEntity = DbEntity.findData(DownloadEntity.class, new String[] { "downloadUrl" },
-        new String[] { DOWNLOAD_URL });
+    mEntity = Aria.get(this).getDownloadEntity(DOWNLOAD_URL);
     if (mEntity != null) {
       mPb.setProgress((int) ((mEntity.getCurrentProgress() * 100) / mEntity.getFileSize()));
       mSize.setText(CommonUtil.formatFileSize(mEntity.getFileSize()));
