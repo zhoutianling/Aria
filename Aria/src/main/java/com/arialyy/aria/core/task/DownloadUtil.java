@@ -75,7 +75,7 @@ final class DownloadUtil implements IDownloadUtil {
     mDownloadEntity = entity;
     mListener = downloadListener;
     THREAD_NUM = threadNum;
-    mFixedThreadPool = Executors.newFixedThreadPool(THREAD_NUM);
+    mFixedThreadPool = Executors.newFixedThreadPool(Integer.MAX_VALUE);
   }
 
   public IDownloadListener getListener() {
@@ -292,7 +292,7 @@ final class DownloadUtil implements IDownloadUtil {
             for (int l : recordL) {
               if (l == -1) continue;
               Runnable task = mTask.get(l);
-              if (task != null) {
+              if (task != null && !mFixedThreadPool.isShutdown()) {
                 mFixedThreadPool.execute(task);
               }
             }

@@ -106,6 +106,10 @@ public class DownloadTaskQueue implements ITaskQueue {
   }
 
   @Override public void reTryStart(Task task) {
+    if (task == null){
+      Log.w(TAG, "重试下载失败，task 为null");
+      return;
+    }
     if (!task.isDownloading()) {
       task.start();
     } else {
