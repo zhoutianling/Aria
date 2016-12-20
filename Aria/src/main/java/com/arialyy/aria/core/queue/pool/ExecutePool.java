@@ -137,12 +137,18 @@ public class ExecutePool implements IPool {
 
   @Override public Task pollTask() {
     synchronized (LOCK) {
-      Task task = mExecuteQueue.poll();
-      if (task != null) {
-        String url = task.getDownloadEntity().getDownloadUrl();
-        mExecuteArray.remove(CommonUtil.keyToHashKey(url));
+      try {
+        Task task = null;
+        task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
+        if (task != null) {
+          String url = task.getDownloadEntity().getDownloadUrl();
+          mExecuteArray.remove(CommonUtil.keyToHashKey(url));
+        }
+        return task;
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
-      return task;
+      return null;
     }
   }
 
