@@ -18,10 +18,13 @@ package com.arialyy.aria.core;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
+import android.app.Dialog;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -29,6 +32,7 @@ import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.core.command.IDownloadCmd;
 import com.arialyy.aria.util.Configuration;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +73,7 @@ import java.util.Set;
   /**
    * 获取下载列表
    */
-  public List<DownloadEntity> getDownloadList(){
+  public List<DownloadEntity> getDownloadList() {
     return DownloadEntity.findAllData(DownloadEntity.class);
   }
 
@@ -101,8 +105,7 @@ import java.util.Set;
   /**
    * 设置下载超时时间
    */
-  @Deprecated
-  private AriaManager setTimeOut(int timeOut) {
+  @Deprecated private AriaManager setTimeOut(int timeOut) {
     Configuration.getInstance().setTimeOut(timeOut);
     return this;
   }
@@ -169,14 +172,49 @@ import java.util.Set;
     if (target == null) {
       target = new AMReceiver();
       target.obj = obj;
+      String key = "";
       if (obj instanceof android.support.v4.app.Fragment) {
-        clsName += "_" + ((Fragment) obj).getActivity().getClass().getName();
+        key = "_" + ((Fragment) obj).getActivity().getClass().getName();
       } else if (obj instanceof android.app.Fragment) {
-        clsName += "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
+        key = "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
+      } else if (obj instanceof Dialog) {
+        Activity activity = ((Dialog) obj).getOwnerActivity();
+        if (activity != null) {
+          key = "_" + activity.getClass().getName();
+        }
+        handleDialogDialogLift((Dialog) obj);
       }
-      mTargets.put(clsName, target);
+
+      if (!TextUtils.isEmpty(key)) {
+        mTargets.put(clsName, target);
+      }
     }
     return target;
+  }
+
+  /**
+   * 处理对话框取消或dismiss
+   */
+  private void handleDialogDialogLift(Dialog dialog) {
+    try {
+      Field   dismissField = CommonUtil.getField(dialog.getClass(), "mDismissMessage");
+      Message dismissMsg   = (Message) dismissField.get(dialog);
+      //如果Dialog已经设置Dismiss事件，则查找cancel事件
+      if (dismissMsg != null) {
+        Field   cancelField = CommonUtil.getField(dialog.getClass(), "mCancelMessage");
+        Message cancelMsg   = (Message) dismissField.get(dialog);
+        if (cancelMsg != null) {
+          Log.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。为了防止内存泄露，"
+              + "请在dismiss方法中调用Aria.whit(this).removeSchedulerListener();来注销事件");
+        } else {
+
+        }
+      } else {
+
+      }
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
   }
 
   private AMReceiver getTarget(Object obj) {
