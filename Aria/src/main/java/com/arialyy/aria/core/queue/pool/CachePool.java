@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.core.queue.pool;
 
 import android.text.TextUtils;
@@ -25,6 +24,7 @@ import com.arialyy.aria.core.task.Task;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by lyy on 2016/8/14.
@@ -35,6 +35,7 @@ public class CachePool implements IPool {
   private static final    Object    LOCK     = new Object();
   private static final    int       MAX_NUM  = Integer.MAX_VALUE;  //最大下载任务数
   private static volatile CachePool INSTANCE = null;
+  private static final    long      TIME_OUT = 1000;
   private Map<String, Task>         mCacheArray;
   private LinkedBlockingQueue<Task> mCacheQueue;
 
@@ -75,13 +76,19 @@ public class CachePool implements IPool {
 
   @Override public Task pollTask() {
     synchronized (LOCK) {
-      Task task = mCacheQueue.poll();
-      if (task != null) {
-        String url = task.getDownloadEntity().getDownloadUrl();
-        mCacheArray.remove(CommonUtil.keyToHashKey(url));
+      try {
+        Task task = null;
+        task = mCacheQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
+        if (task != null) {
+          String url = task.getDownloadEntity().getDownloadUrl();
+          mCacheArray.remove(CommonUtil.keyToHashKey(url));
+        }
+        return task;
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
-      return task;
     }
+    return null;
   }
 
   @Override public Task getTask(String downloadUrl) {

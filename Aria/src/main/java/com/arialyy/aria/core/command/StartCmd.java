@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ class StartCmd extends IDownloadCmd {
       task = mQueue.createTask(mTarget, mEntity);
     }
     if (task != null) {
-      task.setmTargetName(mTarget.getClass().getName());
+      task.setTargetName(mTarget.getClass().getName());
       mQueue.startTask(task);
     }
   }

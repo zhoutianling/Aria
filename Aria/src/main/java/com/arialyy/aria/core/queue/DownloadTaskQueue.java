@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
 import com.arialyy.aria.core.task.Task;
 import com.arialyy.aria.core.task.TaskFactory;
+import com.arialyy.aria.util.Configuration;
 
 /**
  * Created by lyy on 2016/8/17.
@@ -36,7 +37,6 @@ public class DownloadTaskQueue implements ITaskQueue {
   private              ExecutePool mExecutePool = ExecutePool.getInstance();
   private Context             mContext;
   private IDownloadSchedulers mSchedulers;
-  private int mDownloadNum = 2;
 
   private DownloadTaskQueue() {
   }
@@ -107,6 +107,10 @@ public class DownloadTaskQueue implements ITaskQueue {
   }
 
   @Override public void reTryStart(Task task) {
+    if (task == null) {
+      Log.w(TAG, "重试下载失败，task 为null");
+      return;
+    }
     if (!task.isDownloading()) {
       task.start();
     } else {
@@ -123,7 +127,32 @@ public class DownloadTaskQueue implements ITaskQueue {
   }
 
   @Override public void setDownloadNum(int downloadNum) {
+    //原始长度
+    int size = Configuration.getInstance().getDownloadNum();
+    int diff = downloadNum - size;
+    if (size == downloadNum){
+      Log.d(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");
+      return;
+    }
+    //设置的任务数小于配置任务数
+    if (diff <= -1 && mExecutePool.size() >= size) {
+      for (int i = 0, len = Math.abs(diff); i < len; i++) {
+        Task eTask = mExecutePool.pollTask();
+        if (eTask != null) {
+          stopTask(eTask);
+        }
+      }
+    }
     mExecutePool.setDownloadNum(downloadNum);
+    if (diff >= 1) {
+      for (int i = 0; i < diff; i++) {
+        Task nextTask = getNextTask();
+        if (nextTask != null
+            && nextTask.getDownloadEntity().getState() == DownloadEntity.STATE_WAIT) {
+          startTask(nextTask);
+        }
+      }
+    }
   }
 
   @Override public Task createTask(Object target, DownloadEntity entity) {

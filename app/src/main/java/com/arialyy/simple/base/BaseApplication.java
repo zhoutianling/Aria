@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,6 @@ public class BaseApplication extends Application {
   @Override public void onCreate() {
     super.onCreate();
     AbsFrame.init(this);
-    DownloadManager.init(this);
+    //DownloadManager.init(this);
   }
 }

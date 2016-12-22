@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 package com.arialyy.aria.orm;
 
@@ -44,6 +43,14 @@ public class DbEntity {
   public static <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
     DbUtil util = DbUtil.getInstance();
     return util.findAllData(clazz);
+  }
+
+  /**
+   * 查询第一条数据
+   */
+  public static <T extends DbEntity> T findFirst(Class<T> clazz) {
+    List<T> list = findAllData(clazz);
+    return (list == null || list.size() == 0) ? null : list.get(0);
   }
 
   /**

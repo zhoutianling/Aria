@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 
 package com.arialyy.aria.core.command;
 
@@ -48,7 +47,9 @@ class StopCmd extends IDownloadCmd {
         Log.w(TAG, "停止命令执行失败，【调度器中没有该任务】");
       }
     } else {
-      task.setmTargetName(mTarget.getClass().getName());
+      if (mTarget != null) {
+        task.setTargetName(mTarget.getClass().getName());
+      }
       mQueue.stopTask(task);
     }
   }

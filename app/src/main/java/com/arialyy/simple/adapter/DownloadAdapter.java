@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -147,7 +147,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   }
 
   public void setDownloadNum(int num) {
-    Aria.get(getContext()).setDownloadNum(num);
+    Aria.get(getContext()).setMaxDownloadNum(num);
   }
 
   private String covertCurrentSize(long currentSize) {

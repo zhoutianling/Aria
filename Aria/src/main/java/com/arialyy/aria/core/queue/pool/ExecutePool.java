@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.core.queue.pool;
 
 import android.text.TextUtils;
@@ -22,6 +21,7 @@ import android.util.Log;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.core.queue.IPool;
 import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.util.Configuration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -36,11 +36,12 @@ public class ExecutePool implements IPool {
   private static final    Object      LOCK     = new Object();
   private static final    long        TIME_OUT = 1000;
   private static volatile ExecutePool INSTANCE = null;
-  public static           int         mSize    = 2;
   private ArrayBlockingQueue<Task> mExecuteQueue;
   private Map<String, Task>        mExecuteArray;
+  private int                      mSize;
 
   private ExecutePool() {
+    mSize = Configuration.getInstance().getDownloadNum();
     mExecuteQueue = new ArrayBlockingQueue<>(mSize);
     mExecuteArray = new HashMap<>();
   }
@@ -91,6 +92,7 @@ public class ExecutePool implements IPool {
       }
       mExecuteQueue = temp;
       mSize = downloadNum;
+      Configuration.getInstance().setDownloadNum(mSize);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
@@ -135,12 +137,18 @@ public class ExecutePool implements IPool {
 
   @Override public Task pollTask() {
     synchronized (LOCK) {
-      Task task = mExecuteQueue.poll();
-      if (task != null) {
-        String url = task.getDownloadEntity().getDownloadUrl();
-        mExecuteArray.remove(CommonUtil.keyToHashKey(url));
+      try {
+        Task task = null;
+        task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
+        if (task != null) {
+          String url = task.getDownloadEntity().getDownloadUrl();
+          mExecuteArray.remove(CommonUtil.keyToHashKey(url));
+        }
+        return task;
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
-      return task;
+      return null;
     }
   }
 

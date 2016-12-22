@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.util.Configuration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -67,10 +68,6 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   private static final    String             TAG      = "DownloadSchedulers";
   private static final    Object             LOCK     = new Object();
   private static volatile DownloadSchedulers INSTANCE = null;
-  /**
-   * 下载失败次数
-   */
-  int mFailNum = 10;
 
   /**
    * 超时时间
@@ -108,7 +105,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
       case STOP:
       case CANCEL:
         mQueue.removeTask(entity);
-        if (mQueue.size() != ExecutePool.mSize) {
+        if (mQueue.size() != Configuration.getInstance().getDownloadNum()) {
           startNextTask(entity);
         }
         break;
@@ -178,11 +175,12 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    * @param entity 失败实体
    */
   @Override public void handleFailTask(DownloadEntity entity) {
-    if (entity.getFailNum() <= mFailNum) {
+    final Configuration config = Configuration.getInstance();
+    if (entity.getFailNum() <= config.getReTryNum()) {
       Task task = mQueue.getTask(entity);
       mQueue.reTryStart(task);
       try {
-        Thread.currentThread().sleep(4000);
+        Thread.currentThread().sleep(config.getReTryInterval());
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -226,13 +224,5 @@ public class DownloadSchedulers implements IDownloadSchedulers {
       throw new IllegalArgumentException("target 不能为null");
     }
     mSchedulerListeners.remove(target.getClass().getName());
-  }
-
-  public void setFailNum(int mFailNum) {
-    this.mFailNum = mFailNum;
-  }
-
-  public void setTimeOut(long timeOut) {
-    this.mTimeOut = timeOut;
   }
 }

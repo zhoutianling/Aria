@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.arialyy.aria.core.DownloadManager;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.util.Configuration;
 
 /**
  * Created by lyy on 2016/8/11.
@@ -75,7 +76,7 @@ public class Task {
     return mTargetName;
   }
 
-  public void setmTargetName(String targetName) {
+  public void setTargetName(String targetName) {
     this.mTargetName = targetName;
   }
 
@@ -205,7 +206,7 @@ public class Task {
     public Task build() {
       Task task = new Task(context, downloadEntity);
       task.mOutHandler = outHandler;
-      task.setmTargetName(targetName);
+      task.setTargetName(targetName);
       downloadEntity.save();
       return task;
     }
@@ -325,7 +326,9 @@ public class Task {
       if (location != -1) {
         intent.putExtra(DownloadManager.CURRENT_LOCATION, location);
       }
-      //context.sendBroadcast(intent);
+      if (Configuration.isOpenBreadCast) {
+        context.sendBroadcast(intent);
+      }
     }
   }
 }

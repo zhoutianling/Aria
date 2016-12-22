@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 AriaLyy(DownloadUtil)
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package com.arialyy.aria.util;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.DownloadEntity;
@@ -42,6 +44,33 @@ public class CommonUtil {
 
   public static IDownloadCmd createCmd(DownloadEntity entity, int cmd) {
     return CmdFactory.getInstance().createCmd(entity, cmd);
+  }
+
+  /**
+   * 存储字符串到配置文件
+   *
+   * @param preName 配置文件名
+   * @param key 存储的键值
+   * @param value 需要存储的字符串
+   * @return 成功标志
+   */
+  public static Boolean putString(String preName, Context context, String key, String value) {
+    SharedPreferences        pre    = context.getSharedPreferences(preName, Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = pre.edit();
+    editor.putString(key, value);
+    return editor.commit();
+  }
+
+  /**
+   * 从配置文件读取字符串
+   *
+   * @param preName 配置文件名
+   * @param key 字符串键值
+   * @return 键值对应的字符串, 默认返回""
+   */
+  public static String getString(String preName, Context context, String key) {
+    SharedPreferences pre = context.getSharedPreferences(preName, Context.MODE_PRIVATE);
+    return pre.getString(key, "");
   }
 
   /**
