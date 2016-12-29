@@ -436,7 +436,7 @@ public class DbUtil {
           }
           entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
           entitys.add(entity);
-          Log.d(TAG, "rowid ==> " + entity.rowID);
+          //Log.d(TAG, "rowid ==> " + entity.rowID);
         }
       } catch (InstantiationException e) {
         e.printStackTrace();

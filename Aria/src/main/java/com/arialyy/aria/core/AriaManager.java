@@ -45,12 +45,12 @@ import java.util.Set;
  * Aria管理器，任务操作在这里执行
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH) public class AriaManager {
-  private static final    String                  TAG      = "AriaManager";
-  private static final    Object                  LOCK     = new Object();
-  private static volatile AriaManager             INSTANCE = null;
-  private                 Map<String, AMReceiver> mTargets = new HashMap<>();
+  private static final String TAG = "AriaManager";
+  private static final Object LOCK = new Object();
+  private static volatile AriaManager INSTANCE = null;
+  private Map<String, AMReceiver> mTargets = new HashMap<>();
   private DownloadManager mManager;
-  private LifeCallback    mLifeCallback;
+  private LifeCallback mLifeCallback;
 
   private AriaManager(Context context) {
     regAppLifeCallback(context);
@@ -93,7 +93,7 @@ import java.util.Set;
    */
   public void stopAllTask() {
     List<DownloadEntity> allEntity = mManager.getAllDownloadEntity();
-    List<IDownloadCmd>   stopCmds  = new ArrayList<>();
+    List<IDownloadCmd> stopCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       if (entity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
         stopCmds.add(CommonUtil.createCmd(entity, CmdFactory.TASK_STOP));
@@ -152,8 +152,8 @@ import java.util.Set;
    * 删除所有任务
    */
   public void cancelAllTask() {
-    List<DownloadEntity> allEntity  = mManager.getAllDownloadEntity();
-    List<IDownloadCmd>   cancelCmds = new ArrayList<>();
+    List<DownloadEntity> allEntity = mManager.getAllDownloadEntity();
+    List<IDownloadCmd> cancelCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       cancelCmds.add(CommonUtil.createCmd(entity, CmdFactory.TASK_CANCEL));
     }
@@ -167,8 +167,8 @@ import java.util.Set;
   }
 
   private AMReceiver putTarget(Object obj) {
-    String     clsName = obj.getClass().getName();
-    AMReceiver target  = mTargets.get(clsName);
+    String clsName = obj.getClass().getName();
+    AMReceiver target = mTargets.get(clsName);
     if (target == null) {
       target = new AMReceiver();
       target.obj = obj;
@@ -197,20 +197,20 @@ import java.util.Set;
    */
   private void handleDialogDialogLift(Dialog dialog) {
     try {
-      Field   dismissField = CommonUtil.getField(dialog.getClass(), "mDismissMessage");
-      Message dismissMsg   = (Message) dismissField.get(dialog);
+      Field dismissField = CommonUtil.getField(dialog.getClass(), "mDismissMessage");
+      Message dismissMsg = (Message) dismissField.get(dialog);
       //如果Dialog已经设置Dismiss事件，则查找cancel事件
       if (dismissMsg != null) {
-        Field   cancelField = CommonUtil.getField(dialog.getClass(), "mCancelMessage");
-        Message cancelMsg   = (Message) dismissField.get(dialog);
+        Field cancelField = CommonUtil.getField(dialog.getClass(), "mCancelMessage");
+        Message cancelMsg = (Message) cancelField.get(dialog);
         if (cancelMsg != null) {
           Log.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。为了防止内存泄露，"
               + "请在dismiss方法中调用Aria.whit(this).removeSchedulerListener();来注销事件");
         } else {
-
+          dialog.setCancelMessage(createCancelMessage());
         }
       } else {
-
+        dialog.setCancelMessage(createDismissMessage());
       }
     } catch (IllegalAccessException e) {
       e.printStackTrace();
@@ -233,6 +233,55 @@ import java.util.Set;
     if (app instanceof Application) {
       mLifeCallback = new LifeCallback();
       ((Application) app).registerActivityLifecycleCallbacks(mLifeCallback);
+    }
+  }
+
+  /**
+   * 创建Dialog取消消息
+   */
+  private Message createCancelMessage() {
+    final Message cancelMsg = new Message();
+    cancelMsg.what = 0x44;
+    cancelMsg.obj = new Dialog.OnCancelListener() {
+
+      @Override public void onCancel(DialogInterface dialog) {
+        destroySchedulerListener(dialog);
+      }
+    };
+    return cancelMsg;
+  }
+
+  /**
+   * 创建Dialog dismiss取消消息
+   */
+  private Message createDismissMessage() {
+    final Message cancelMsg = new Message();
+    cancelMsg.what = 0x43;
+    cancelMsg.obj = new Dialog.OnDismissListener() {
+
+      @Override public void onDismiss(DialogInterface dialog) {
+        destroySchedulerListener(dialog);
+      }
+    };
+    return cancelMsg;
+  }
+
+  /**
+   * onDestroy
+   */
+  private void destroySchedulerListener(Object obj) {
+    Set<String> keys = mTargets.keySet();
+    String clsName = obj.getClass().getName();
+    for (String key : keys) {
+      if (key.equals(clsName) || key.contains(clsName)) {
+        AMReceiver target = mTargets.get(key);
+        if (target.obj != null) {
+          if (target.obj instanceof Application || target.obj instanceof Service) break;
+          target.removeSchedulerListener();
+          mTargets.remove(key);
+        }
+        break;
+      }
     }
   }
 
@@ -266,19 +315,7 @@ import java.util.Set;
     }
 
     @Override public void onActivityDestroyed(Activity activity) {
-      Set<String> keys = mTargets.keySet();
-      for (String key : keys) {
-        String clsName = activity.getClass().getName();
-        if (key.equals(clsName) || key.contains(clsName)) {
-          AMReceiver target = mTargets.get(key);
-          if (target.obj != null) {
-            if (target.obj instanceof Application || target.obj instanceof Service) break;
-            target.removeSchedulerListener();
-            mTargets.remove(key);
-          }
-          break;
-        }
-      }
+      destroySchedulerListener(activity);
     }
   }
 }

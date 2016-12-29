@@ -30,7 +30,7 @@ import java.util.List;
 public class AMTarget {
   private AMReceiver receiver;
 
-  public AMTarget(AMReceiver receiver) {
+  AMTarget(AMReceiver receiver) {
     this.receiver = receiver;
   }
 
@@ -50,6 +50,7 @@ public class AMTarget {
     cmds.add(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CREATE));
     cmds.add(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_START));
     receiver.manager.setCmds(cmds).exe();
+    cmds.clear();
   }
 
   /**
@@ -74,6 +75,21 @@ public class AMTarget {
   public void cancel() {
     receiver.manager.setCmd(
         CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CANCEL)).exe();
+  }
+
+  /**
+   * 是否在下载
+   */
+  public boolean isDownloading() {
+    return DownloadManager.getInstance().getTaskQueue().getTask(receiver.entity).isDownloading();
+  }
+
+  /**
+   * 重新下载
+   */
+  public void reStart() {
+    cancel();
+    start();
   }
 
   public static class SimpleSchedulerListener implements OnSchedulerListener {
