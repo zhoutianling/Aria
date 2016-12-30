@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.core.task;
 
 import android.content.Context;
@@ -30,7 +29,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -198,6 +200,7 @@ final class DownloadUtil implements IDownloadUtil {
           URL               url  = new URL(downloadUrl);
           HttpURLConnection conn = (HttpURLConnection) url.openConnection();
           setConnectParam(conn);
+          conn.setRequestProperty("Range", "bytes=" + 0 + "-");
           conn.setConnectTimeout(mConnectTimeOut * 4);
           conn.connect();
           int len = conn.getContentLength();
@@ -206,7 +209,9 @@ final class DownloadUtil implements IDownloadUtil {
             return;
           }
           int code = conn.getResponseCode();
-          if (code == 200) {
+          //https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81
+          //206支持断点
+          if (code == HttpURLConnection.HTTP_PARTIAL) {
             int fileLength = conn.getContentLength();
             //必须建一个文件
             CommonUtil.createFile(filePath);
@@ -296,6 +301,9 @@ final class DownloadUtil implements IDownloadUtil {
                 mFixedThreadPool.execute(task);
               }
             }
+          } else if (code == HttpURLConnection.HTTP_OK) {
+            //在conn.setRequestProperty("Range", "bytes=" + 0 + "-");下，200为不支持断点状态
+            Log.w(TAG, "该下载链接不支持断点下载");
           } else {
             failDownload("下载失败，返回码：" + code);
           }
