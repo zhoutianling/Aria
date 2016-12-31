@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.util;
 
 import android.text.TextUtils;
@@ -43,11 +42,10 @@ public class CheckUtil {
       Log.w(TAG, "下载链接不能为空");
       return false;
     } else if (TextUtils.isEmpty(entity.getFileName())) {
-      Log.w(TAG, "文件名不能为空");
-      return false;
+      //Log.w(TAG, "文件名不能为空");
+      throw new IllegalArgumentException("文件名不能为null");
     } else if (TextUtils.isEmpty(entity.getDownloadPath())) {
-      Log.w(TAG, "存储地址不能为空");
-      return false;
+      throw new IllegalArgumentException("文件保存路径不能为null");
     }
     String fileName = entity.getFileName();
     if (fileName.contains(" ")) {

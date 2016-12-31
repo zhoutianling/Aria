@@ -15,10 +15,10 @@
  */
 package com.arialyy.aria.core;
 
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.core.command.IDownloadCmd;
-import com.arialyy.aria.core.task.Task;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +28,32 @@ import java.util.List;
  * https://github.com/AriaLyy/Aria
  */
 public class AMTarget {
-  private AMReceiver receiver;
+  private AMReceiver mReceiver;
 
   AMTarget(AMReceiver receiver) {
-    this.receiver = receiver;
+    this.mReceiver = receiver;
+  }
+
+  /**
+   * 设置文件存储路径
+   */
+  public AMTarget setDownloadPath(@NonNull String downloadPath) {
+    if (TextUtils.isEmpty(downloadPath)) {
+      throw new IllegalArgumentException("文件保持路径不能为null");
+    }
+    mReceiver.entity.setDownloadPath(downloadPath);
+    return this;
+  }
+
+  /**
+   * 设置文件名
+   */
+  public AMTarget setDownloadName(@NonNull String downloadName) {
+    if (TextUtils.isEmpty(downloadName)) {
+      throw new IllegalArgumentException("文件名不能为null");
+    }
+    mReceiver.entity.setFileName(downloadName);
+    return this;
   }
 
   /**
@@ -39,7 +61,7 @@ public class AMTarget {
    */
   public void add() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CREATE))
+        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_CREATE))
         .exe();
   }
 
@@ -48,8 +70,8 @@ public class AMTarget {
    */
   public void start() {
     List<IDownloadCmd> cmds = new ArrayList<>();
-    cmds.add(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CREATE));
-    cmds.add(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_START));
+    cmds.add(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_CREATE));
+    cmds.add(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_START));
     DownloadManager.getInstance().setCmds(cmds).exe();
     cmds.clear();
   }
@@ -59,7 +81,7 @@ public class AMTarget {
    */
   public void stop() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_STOP))
+        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_STOP))
         .exe();
   }
 
@@ -68,7 +90,7 @@ public class AMTarget {
    */
   public void resume() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_START))
+        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_START))
         .exe();
   }
 
@@ -77,7 +99,7 @@ public class AMTarget {
    */
   public void cancel() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CANCEL))
+        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_CANCEL))
         .exe();
   }
 
@@ -85,7 +107,7 @@ public class AMTarget {
    * 是否在下载
    */
   public boolean isDownloading() {
-    return DownloadManager.getInstance().getTaskQueue().getTask(receiver.entity).isDownloading();
+    return DownloadManager.getInstance().getTaskQueue().getTask(mReceiver.entity).isDownloading();
   }
 
   /**
@@ -96,38 +118,13 @@ public class AMTarget {
     start();
   }
 
-  public static class SimpleSchedulerListener implements OnSchedulerListener {
-
-    @Override public void onTaskPre(Task task) {
-
-    }
-
-    @Override public void onTaskResume(Task task) {
-
-    }
-
-    @Override public void onTaskStart(Task task) {
-
-    }
-
-    @Override public void onTaskStop(Task task) {
-
-    }
-
-    @Override public void onTaskCancel(Task task) {
-
-    }
-
-    @Override public void onTaskFail(Task task) {
-
-    }
-
-    @Override public void onTaskComplete(Task task) {
-
-    }
-
-    @Override public void onTaskRunning(Task task) {
-
-    }
-  }
+  //static class Build {
+  //  DownloadEntity entity;
+  //
+  //  Build(DownloadEntity entity) {
+  //    this.entity = entity;
+  //  }
+  //
+  //
+  //}
 }

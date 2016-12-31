@@ -15,6 +15,9 @@
  */
 package com.arialyy.aria.core;
 
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 
@@ -27,8 +30,20 @@ public class AMReceiver {
   OnSchedulerListener listener;
   DownloadEntity      entity;
 
-  public AMTarget load(DownloadEntity entity) {
+  @Deprecated public AMTarget load(DownloadEntity entity) {
     this.entity = entity;
+    return new AMTarget(this);
+  }
+
+  /**
+   * 读取下载链接
+   */
+  public AMTarget load(@NonNull String downloadUrl) {
+    if (TextUtils.isEmpty(downloadUrl)) {
+      throw new IllegalArgumentException("下载链接不能为null");
+    }
+    entity = new DownloadEntity();
+    entity.setDownloadUrl(downloadUrl);
     return new AMTarget(this);
   }
 

@@ -44,6 +44,7 @@ public class Task {
   private Handler           mOutHandler;
   private Context           mContext;
   private IDownloadUtil     mUtil;
+  private long              mSpeed;
 
   private Task(Context context, DownloadEntity entity, Handler outHandler) {
     mContext = context.getApplicationContext();
@@ -55,6 +56,13 @@ public class Task {
   private void init() {
     mListener = new DListener(mContext, this, mOutHandler);
     mUtil = new DownloadUtil(mContext, mEntity, mListener);
+  }
+
+  /**
+   * 获取下载速度
+   */
+  public long getSpeed() {
+    return mSpeed;
   }
 
   /**
@@ -151,7 +159,7 @@ public class Task {
       this("", context, downloadEntity);
     }
 
-    public Builder(String targetName, Context context, DownloadEntity downloadEntity) {
+    Builder(String targetName, Context context, DownloadEntity downloadEntity) {
       this.targetName = targetName;
       this.context = context;
       this.downloadEntity = downloadEntity;
@@ -162,7 +170,7 @@ public class Task {
      *
      * @param schedulers {@link IDownloadSchedulers}
      */
-    public Builder setOutHandler(IDownloadSchedulers schedulers) {
+    Builder setOutHandler(IDownloadSchedulers schedulers) {
       this.outHandler = new Handler(schedulers);
       return this;
     }
@@ -198,7 +206,7 @@ public class Task {
    */
   private static class DListener extends DownloadListener {
     WeakReference<Handler> outHandler;
-    WeakReference<Task>    task;
+    WeakReference<Task>    wTask;
     Context                context;
     Intent                 sendIntent;
     long    INTERVAL      = 1024 * 10;   //10k大小的间隔
@@ -207,12 +215,14 @@ public class Task {
     long    INTERVAL_TIME = 1000;   //1m更新周期
     boolean isFirst       = true;
     DownloadEntity downloadEntity;
+    Task           task;
 
     DListener(Context context, Task task, Handler outHandler) {
       this.context = context;
       this.outHandler = new WeakReference<>(outHandler);
-      this.task = new WeakReference<>(task);
-      this.downloadEntity = this.task.get().getDownloadEntity();
+      this.wTask = new WeakReference<>(task);
+      task = wTask.get();
+      this.downloadEntity = this.task.getDownloadEntity();
       sendIntent = CommonUtil.createIntent(context.getPackageName(), Aria.ACTION_RUNNING);
       sendIntent.putExtra(Aria.ENTITY, downloadEntity);
     }
@@ -307,7 +317,7 @@ public class Task {
      */
     private void sendInState2Target(int state) {
       if (outHandler.get() != null) {
-        outHandler.get().obtainMessage(state, task.get()).sendToTarget();
+        outHandler.get().obtainMessage(state, task).sendToTarget();
       }
     }
 
