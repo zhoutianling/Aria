@@ -86,8 +86,8 @@ public class DownloadModule extends BaseModule {
   }
 
   private DownloadEntity createDownloadEntity(String url) {
-    String fileName = CommonUtil.keyToHashCode(url) + ".apk";
-    DownloadEntity entity = new DownloadEntity();
+    String         fileName = CommonUtil.keyToHashCode(url) + ".apk";
+    DownloadEntity entity   = new DownloadEntity();
     entity.setDownloadUrl(url);
     entity.setDownloadPath(getDownloadPath(url));
     entity.setFileName(fileName);
@@ -115,15 +115,15 @@ public class DownloadModule extends BaseModule {
   public IntentFilter getDownloadFilter() {
     IntentFilter filter = new IntentFilter();
     filter.addDataScheme(getContext().getPackageName());
-    filter.addAction(DownloadManager.ACTION_PRE);
-    filter.addAction(DownloadManager.ACTION_POST_PRE);
-    filter.addAction(DownloadManager.ACTION_RESUME);
-    filter.addAction(DownloadManager.ACTION_START);
-    filter.addAction(DownloadManager.ACTION_RUNNING);
-    filter.addAction(DownloadManager.ACTION_STOP);
-    filter.addAction(DownloadManager.ACTION_CANCEL);
-    filter.addAction(DownloadManager.ACTION_COMPLETE);
-    filter.addAction(DownloadManager.ACTION_FAIL);
+    filter.addAction(Aria.ACTION_PRE);
+    filter.addAction(Aria.ACTION_POST_PRE);
+    filter.addAction(Aria.ACTION_RESUME);
+    filter.addAction(Aria.ACTION_START);
+    filter.addAction(Aria.ACTION_RUNNING);
+    filter.addAction(Aria.ACTION_STOP);
+    filter.addAction(Aria.ACTION_CANCEL);
+    filter.addAction(Aria.ACTION_COMPLETE);
+    filter.addAction(Aria.ACTION_FAIL);
     return filter;
   }
 
@@ -138,36 +138,36 @@ public class DownloadModule extends BaseModule {
       @Override public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
         switch (action) {
-          case DownloadManager.ACTION_POST_PRE:
-            DownloadEntity entity = intent.getParcelableExtra(DownloadManager.ENTITY);
+          case Aria.ACTION_POST_PRE:
+            DownloadEntity entity = intent.getParcelableExtra(Aria.ENTITY);
             len = entity.getFileSize();
             L.d(TAG, "download pre");
             handler.obtainMessage(SingleTaskActivity.DOWNLOAD_PRE, len).sendToTarget();
             break;
-          case DownloadManager.ACTION_START:
+          case Aria.ACTION_START:
             L.d(TAG, "download start");
             break;
-          case DownloadManager.ACTION_RESUME:
+          case Aria.ACTION_RESUME:
             L.d(TAG, "download resume");
-            long location = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 1);
+            long location = intent.getLongExtra(Aria.CURRENT_LOCATION, 1);
             handler.obtainMessage(SingleTaskActivity.DOWNLOAD_RESUME, location).sendToTarget();
             break;
-          case DownloadManager.ACTION_RUNNING:
-            long current = intent.getLongExtra(DownloadManager.CURRENT_LOCATION, 0);
+          case Aria.ACTION_RUNNING:
+            long current = intent.getLongExtra(Aria.CURRENT_LOCATION, 0);
             int progress = len == 0 ? 0 : (int) ((current * 100) / len);
             handler.obtainMessage(SingleTaskActivity.DOWNLOAD_RUNNING, progress).sendToTarget();
             break;
-          case DownloadManager.ACTION_STOP:
+          case Aria.ACTION_STOP:
             L.d(TAG, "download stop");
             handler.sendEmptyMessage(SingleTaskActivity.DOWNLOAD_STOP);
             break;
-          case DownloadManager.ACTION_COMPLETE:
+          case Aria.ACTION_COMPLETE:
             handler.sendEmptyMessage(SingleTaskActivity.DOWNLOAD_COMPLETE);
             break;
-          case DownloadManager.ACTION_CANCEL:
+          case Aria.ACTION_CANCEL:
             handler.sendEmptyMessage(SingleTaskActivity.DOWNLOAD_CANCEL);
             break;
-          case DownloadManager.ACTION_FAIL:
+          case Aria.ACTION_FAIL:
             handler.sendEmptyMessage(SingleTaskActivity.DOWNLOAD_FAILE);
             break;
         }

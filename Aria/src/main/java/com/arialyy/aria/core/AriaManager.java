@@ -45,12 +45,12 @@ import java.util.Set;
  * Aria管理器，任务操作在这里执行
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH) public class AriaManager {
-  private static final String TAG = "AriaManager";
-  private static final Object LOCK = new Object();
-  private static volatile AriaManager INSTANCE = null;
-  private Map<String, AMReceiver> mTargets = new HashMap<>();
+  private static final    String                  TAG      = "AriaManager";
+  private static final    Object                  LOCK     = new Object();
+  private static volatile AriaManager             INSTANCE = null;
+  private                 Map<String, AMReceiver> mTargets = new HashMap<>();
   private DownloadManager mManager;
-  private LifeCallback mLifeCallback;
+  private LifeCallback    mLifeCallback;
 
   private AriaManager(Context context) {
     regAppLifeCallback(context);
@@ -93,7 +93,7 @@ import java.util.Set;
    */
   public void stopAllTask() {
     List<DownloadEntity> allEntity = mManager.getAllDownloadEntity();
-    List<IDownloadCmd> stopCmds = new ArrayList<>();
+    List<IDownloadCmd>   stopCmds  = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       if (entity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
         stopCmds.add(CommonUtil.createCmd(entity, CmdFactory.TASK_STOP));
@@ -152,8 +152,8 @@ import java.util.Set;
    * 删除所有任务
    */
   public void cancelAllTask() {
-    List<DownloadEntity> allEntity = mManager.getAllDownloadEntity();
-    List<IDownloadCmd> cancelCmds = new ArrayList<>();
+    List<DownloadEntity> allEntity  = mManager.getAllDownloadEntity();
+    List<IDownloadCmd>   cancelCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       cancelCmds.add(CommonUtil.createCmd(entity, CmdFactory.TASK_CANCEL));
     }
@@ -167,26 +167,32 @@ import java.util.Set;
   }
 
   private AMReceiver putTarget(Object obj) {
-    String clsName = obj.getClass().getName();
-    AMReceiver target = mTargets.get(clsName);
-    if (target == null) {
-      target = new AMReceiver();
-      target.obj = obj;
-      String key = "";
+    String     clsName = obj.getClass().getName();
+    AMReceiver target  = null;
+    String     key     = "";
+    if (!(obj instanceof Activity)) {
       if (obj instanceof android.support.v4.app.Fragment) {
-        key = "_" + ((Fragment) obj).getActivity().getClass().getName();
+        key = clsName + "_" + ((Fragment) obj).getActivity().getClass().getName();
       } else if (obj instanceof android.app.Fragment) {
-        key = "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
+        key = clsName + "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
       } else if (obj instanceof Dialog) {
         Activity activity = ((Dialog) obj).getOwnerActivity();
         if (activity != null) {
-          key = "_" + activity.getClass().getName();
+          key = clsName + "_" + activity.getClass().getName();
         }
         handleDialogDialogLift((Dialog) obj);
       }
-
-      if (!TextUtils.isEmpty(key)) {
-        mTargets.put(clsName, target);
+    } else {
+      key = clsName;
+    }
+    if (TextUtils.isEmpty(key)) {
+      throw new IllegalArgumentException("未知类型");
+    } else {
+      target = mTargets.get(key);
+      if (target == null) {
+        target = new AMReceiver();
+        target.obj = obj;
+        mTargets.put(key, target);
       }
     }
     return target;
@@ -197,12 +203,12 @@ import java.util.Set;
    */
   private void handleDialogDialogLift(Dialog dialog) {
     try {
-      Field dismissField = CommonUtil.getField(dialog.getClass(), "mDismissMessage");
-      Message dismissMsg = (Message) dismissField.get(dialog);
+      Field   dismissField = CommonUtil.getField(dialog.getClass(), "mDismissMessage");
+      Message dismissMsg   = (Message) dismissField.get(dialog);
       //如果Dialog已经设置Dismiss事件，则查找cancel事件
       if (dismissMsg != null) {
-        Field cancelField = CommonUtil.getField(dialog.getClass(), "mCancelMessage");
-        Message cancelMsg = (Message) cancelField.get(dialog);
+        Field   cancelField = CommonUtil.getField(dialog.getClass(), "mCancelMessage");
+        Message cancelMsg   = (Message) cancelField.get(dialog);
         if (cancelMsg != null) {
           Log.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。为了防止内存泄露，"
               + "请在dismiss方法中调用Aria.whit(this).removeSchedulerListener();来注销事件");
@@ -270,14 +276,15 @@ import java.util.Set;
    * onDestroy
    */
   private void destroySchedulerListener(Object obj) {
-    Set<String> keys = mTargets.keySet();
-    String clsName = obj.getClass().getName();
+    Set<String> keys    = mTargets.keySet();
+    String      clsName = obj.getClass().getName();
     for (String key : keys) {
       if (key.equals(clsName) || key.contains(clsName)) {
-        AMReceiver target = mTargets.get(key);
-        if (target.obj != null) {
-          if (target.obj instanceof Application || target.obj instanceof Service) break;
-          target.removeSchedulerListener();
+        AMReceiver receiver = mTargets.get(key);
+        if (receiver.obj != null) {
+          if (receiver.obj instanceof Application || receiver.obj instanceof Service) break;
+          receiver.removeSchedulerListener();
+          receiver.destroy();
           mTargets.remove(key);
         }
         break;

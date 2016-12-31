@@ -18,14 +18,16 @@ package com.arialyy.aria.core.task;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Handler;
 import android.util.Log;
+import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.DownloadManager;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.Configuration;
+import java.lang.ref.WeakReference;
 
 /**
  * Created by lyy on 2016/8/11.
@@ -43,14 +45,15 @@ public class Task {
   private Context           mContext;
   private IDownloadUtil     mUtil;
 
-  private Task(Context context, DownloadEntity entity) {
+  private Task(Context context, DownloadEntity entity, Handler outHandler) {
     mContext = context.getApplicationContext();
     mEntity = entity;
+    mOutHandler = outHandler;
     init();
   }
 
   private void init() {
-    mListener = new DListener(mContext, mEntity, mOutHandler);
+    mListener = new DListener(mContext, this, mOutHandler);
     mUtil = new DownloadUtil(mContext, mEntity, mListener);
   }
 
@@ -62,7 +65,7 @@ public class Task {
       Log.d(TAG, "任务正在下载");
     } else {
       if (mListener == null) {
-        mListener = new DListener(mContext, mEntity, mOutHandler);
+        mListener = new DListener(mContext, this, mOutHandler);
       }
       mUtil.startDownload();
     }
@@ -89,12 +92,13 @@ public class Task {
     } else {
       mEntity.setState(DownloadEntity.STATE_STOP);
       mEntity.save();
-      sendInState2Target(DownloadSchedulers.STOP);
-
+      if (mOutHandler != null) {
+        mOutHandler.obtainMessage(DownloadSchedulers.STOP, this).sendToTarget();
+      }
       // 发送停止下载的广播
-      Intent intent = createIntent(DownloadManager.ACTION_STOP);
-      intent.putExtra(DownloadManager.CURRENT_LOCATION, mEntity.getCurrentProgress());
-      intent.putExtra(DownloadManager.ENTITY, mEntity);
+      Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_STOP);
+      intent.putExtra(Aria.CURRENT_LOCATION, mEntity.getCurrentProgress());
+      intent.putExtra(Aria.ENTITY, mEntity);
       mContext.sendBroadcast(intent);
     }
   }
@@ -125,35 +129,13 @@ public class Task {
       mUtil.delConfigFile();
       mUtil.delTempFile();
       mEntity.deleteData();
-      sendInState2Target(DownloadSchedulers.CANCEL);
-
+      if (mOutHandler != null) {
+        mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
+      }
       //发送取消下载的广播
-      Intent intent = createIntent(DownloadManager.ACTION_CANCEL);
-      intent.putExtra(DownloadManager.ENTITY, mEntity);
+      Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_CANCEL);
+      intent.putExtra(Aria.ENTITY, mEntity);
       mContext.sendBroadcast(intent);
-    }
-  }
-
-  /**
-   * 创建特定的Intent
-   */
-  private Intent createIntent(String action) {
-    Uri.Builder builder = new Uri.Builder();
-    builder.scheme(mContext.getPackageName());
-    Uri    uri    = builder.build();
-    Intent intent = new Intent(action);
-    intent.setData(uri);
-    return intent;
-  }
-
-  /**
-   * 将任务状态发送给下载器
-   *
-   * @param state {@link DownloadSchedulers#START}
-   */
-  private void sendInState2Target(int state) {
-    if (mOutHandler != null) {
-      mOutHandler.obtainMessage(state, this).sendToTarget();
     }
   }
 
@@ -204,8 +186,7 @@ public class Task {
     //}
 
     public Task build() {
-      Task task = new Task(context, downloadEntity);
-      task.mOutHandler = outHandler;
+      Task task = new Task(context, downloadEntity, outHandler);
       task.setTargetName(targetName);
       downloadEntity.save();
       return task;
@@ -215,10 +196,11 @@ public class Task {
   /**
    * 下载监听类
    */
-  private class DListener extends DownloadListener {
-    Handler outHandler;
-    Context context;
-    Intent  sendIntent;
+  private static class DListener extends DownloadListener {
+    WeakReference<Handler> outHandler;
+    WeakReference<Task>    task;
+    Context                context;
+    Intent                 sendIntent;
     long    INTERVAL      = 1024 * 10;   //10k大小的间隔
     long    lastLen       = 0;   //上一次发送长度
     long    lastTime      = 0;
@@ -226,18 +208,19 @@ public class Task {
     boolean isFirst       = true;
     DownloadEntity downloadEntity;
 
-    DListener(Context context, DownloadEntity downloadEntity, Handler outHandler) {
+    DListener(Context context, Task task, Handler outHandler) {
       this.context = context;
-      this.outHandler = outHandler;
-      this.downloadEntity = downloadEntity;
-      sendIntent = createIntent(DownloadManager.ACTION_RUNNING);
-      sendIntent.putExtra(DownloadManager.ENTITY, downloadEntity);
+      this.outHandler = new WeakReference<>(outHandler);
+      this.task = new WeakReference<>(task);
+      this.downloadEntity = this.task.get().getDownloadEntity();
+      sendIntent = CommonUtil.createIntent(context.getPackageName(), Aria.ACTION_RUNNING);
+      sendIntent.putExtra(Aria.ENTITY, downloadEntity);
     }
 
     @Override public void onPre() {
       super.onPre();
       downloadEntity.setState(DownloadEntity.STATE_PRE);
-      sendIntent(DownloadManager.ACTION_PRE, -1);
+      sendIntent(Aria.ACTION_PRE, -1);
     }
 
     @Override public void onPostPre(long fileSize) {
@@ -245,14 +228,14 @@ public class Task {
       downloadEntity.setFileSize(fileSize);
       downloadEntity.setState(DownloadEntity.STATE_POST_PRE);
       sendInState2Target(DownloadSchedulers.PRE);
-      sendIntent(DownloadManager.ACTION_POST_PRE, -1);
+      sendIntent(Aria.ACTION_POST_PRE, -1);
     }
 
     @Override public void onResume(long resumeLocation) {
       super.onResume(resumeLocation);
       downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
       sendInState2Target(DownloadSchedulers.RESUME);
-      sendIntent(DownloadManager.ACTION_RESUME, resumeLocation);
+      sendIntent(Aria.ACTION_RESUME, resumeLocation);
     }
 
     @Override public void onStart(long startLocation) {
@@ -260,15 +243,15 @@ public class Task {
       downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
       downloadEntity.setFailNum(0);
       sendInState2Target(DownloadSchedulers.START);
-      sendIntent(DownloadManager.ACTION_START, startLocation);
+      sendIntent(Aria.ACTION_START, startLocation);
     }
 
     @Override public void onProgress(long currentLocation) {
       super.onProgress(currentLocation);
       if (System.currentTimeMillis() - lastTime > INTERVAL_TIME) {
         long speed = currentLocation - lastLen;
-        sendIntent.putExtra(DownloadManager.CURRENT_LOCATION, currentLocation);
-        sendIntent.putExtra(DownloadManager.CURRENT_SPEED, speed);
+        sendIntent.putExtra(Aria.CURRENT_LOCATION, currentLocation);
+        sendIntent.putExtra(Aria.CURRENT_SPEED, speed);
         lastTime = System.currentTimeMillis();
         if (isFirst) {
           downloadEntity.setSpeed(0);
@@ -288,14 +271,14 @@ public class Task {
       downloadEntity.setState(DownloadEntity.STATE_STOP);
       downloadEntity.setSpeed(0);
       sendInState2Target(DownloadSchedulers.STOP);
-      sendIntent(DownloadManager.ACTION_STOP, stopLocation);
+      sendIntent(Aria.ACTION_STOP, stopLocation);
     }
 
     @Override public void onCancel() {
       super.onCancel();
       downloadEntity.setState(DownloadEntity.STATE_CANCEL);
       sendInState2Target(DownloadSchedulers.CANCEL);
-      sendIntent(DownloadManager.ACTION_CANCEL, -1);
+      sendIntent(Aria.ACTION_CANCEL, -1);
       downloadEntity.deleteData();
     }
 
@@ -305,7 +288,7 @@ public class Task {
       downloadEntity.setDownloadComplete(true);
       downloadEntity.setSpeed(0);
       sendInState2Target(DownloadSchedulers.COMPLETE);
-      sendIntent(DownloadManager.ACTION_COMPLETE, downloadEntity.getFileSize());
+      sendIntent(Aria.ACTION_COMPLETE, downloadEntity.getFileSize());
     }
 
     @Override public void onFail() {
@@ -314,17 +297,28 @@ public class Task {
       downloadEntity.setState(DownloadEntity.STATE_FAIL);
       downloadEntity.setSpeed(0);
       sendInState2Target(DownloadSchedulers.FAIL);
-      sendIntent(DownloadManager.ACTION_FAIL, -1);
+      sendIntent(Aria.ACTION_FAIL, -1);
+    }
+
+    /**
+     * 将任务状态发送给下载器
+     *
+     * @param state {@link DownloadSchedulers#START}
+     */
+    private void sendInState2Target(int state) {
+      if (outHandler.get() != null) {
+        outHandler.get().obtainMessage(state, task.get()).sendToTarget();
+      }
     }
 
     private void sendIntent(String action, long location) {
-      downloadEntity.setDownloadComplete(action.equals(DownloadManager.ACTION_COMPLETE));
+      downloadEntity.setDownloadComplete(action.equals(Aria.ACTION_COMPLETE));
       downloadEntity.setCurrentProgress(location);
       downloadEntity.update();
-      Intent intent = createIntent(action);
-      intent.putExtra(DownloadManager.ENTITY, downloadEntity);
+      Intent intent = CommonUtil.createIntent(context.getPackageName(), action);
+      intent.putExtra(Aria.ENTITY, downloadEntity);
       if (location != -1) {
-        intent.putExtra(DownloadManager.CURRENT_LOCATION, location);
+        intent.putExtra(Aria.CURRENT_LOCATION, location);
       }
       if (Configuration.isOpenBreadCast) {
         context.sendBroadcast(intent);

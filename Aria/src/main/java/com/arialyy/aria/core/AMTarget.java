@@ -38,8 +38,9 @@ public class AMTarget {
    * 添加任务
    */
   public void add() {
-    receiver.manager.setCmd(
-        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CREATE)).exe();
+    DownloadManager.getInstance()
+        .setCmd(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CREATE))
+        .exe();
   }
 
   /**
@@ -49,7 +50,7 @@ public class AMTarget {
     List<IDownloadCmd> cmds = new ArrayList<>();
     cmds.add(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CREATE));
     cmds.add(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_START));
-    receiver.manager.setCmds(cmds).exe();
+    DownloadManager.getInstance().setCmds(cmds).exe();
     cmds.clear();
   }
 
@@ -57,24 +58,27 @@ public class AMTarget {
    * 停止下载
    */
   public void stop() {
-    receiver.manager.setCmd(
-        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_STOP)).exe();
+    DownloadManager.getInstance()
+        .setCmd(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_STOP))
+        .exe();
   }
 
   /**
    * 恢复下载
    */
   public void resume() {
-    receiver.manager.setCmd(
-        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_START)).exe();
+    DownloadManager.getInstance()
+        .setCmd(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_START))
+        .exe();
   }
 
   /**
    * 取消下载
    */
   public void cancel() {
-    receiver.manager.setCmd(
-        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CANCEL)).exe();
+    DownloadManager.getInstance()
+        .setCmd(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CANCEL))
+        .exe();
   }
 
   /**

@@ -19,12 +19,12 @@ package com.arialyy.aria.core.scheduler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.DownloadManager;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
-import com.arialyy.aria.core.queue.pool.ExecutePool;
-import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.util.Configuration;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,61 +36,85 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 任务预加载
    */
-  public static final int PRE = 0;
+  public static final     int                PRE      = 0;
   /**
    * 任务开始
    */
-  public static final int START = 1;
+  public static final     int                START    = 1;
   /**
    * 任务停止
    */
-  public static final int STOP = 2;
+  public static final     int                STOP     = 2;
   /**
    * 任务失败
    */
-  public static final int FAIL = 3;
+  public static final     int                FAIL     = 3;
   /**
    * 任务取消
    */
-  public static final int CANCEL = 4;
+  public static final     int                CANCEL   = 4;
   /**
    * 任务完成
    */
-  public static final int COMPLETE = 5;
+  public static final     int                COMPLETE = 5;
   /**
    * 下载中
    */
-  public static final int RUNNING = 6;
+  public static final     int                RUNNING  = 6;
   /**
    * 恢复下载
    */
-  public static final int RESUME = 7;
-  private static final String TAG = "DownloadSchedulers";
-  private static final Object LOCK = new Object();
+  public static final     int                RESUME   = 7;
+  private static final    String             TAG      = "DownloadSchedulers";
+  private static final    Object             LOCK     = new Object();
   private static volatile DownloadSchedulers INSTANCE = null;
-
-  /**
-   * 超时时间
-   */
-  long mTimeOut = 10000;
 
   /**
    * 下载器任务监听
    */
   Map<String, OnSchedulerListener> mSchedulerListeners = new ConcurrentHashMap<>();
+  DownloadManager                  mManager            = DownloadManager.getInstance();
   ITaskQueue mQueue;
 
-  public DownloadSchedulers(ITaskQueue downloadTaskQueue) {
-    mQueue = downloadTaskQueue;
+  private DownloadSchedulers() {
+    mQueue = mManager.getTaskQueue();
   }
 
-  public static DownloadSchedulers getInstance(DownloadTaskQueue queue) {
+  public static DownloadSchedulers getInstance() {
     if (INSTANCE == null) {
       synchronized (LOCK) {
-        INSTANCE = new DownloadSchedulers(queue);
+        //INSTANCE = new DownloadSchedulers(queue);
+        INSTANCE = new DownloadSchedulers();
       }
     }
     return INSTANCE;
+  }
+
+  @Override public void addSchedulerListener(Object target, OnSchedulerListener schedulerListener) {
+    if (target == null) {
+      throw new IllegalArgumentException("target 不能为null");
+    }
+    String name = target.getClass().getName();
+    if (mSchedulerListeners.get(name) != null) {
+      Log.w(TAG, "监听器已存在");
+      return;
+    }
+    mSchedulerListeners.put(name, schedulerListener);
+  }
+
+  @Override
+  public void removeSchedulerListener(Object target, OnSchedulerListener schedulerListener) {
+    if (target == null) {
+      throw new IllegalArgumentException("target 不能为null");
+    }
+    //OnSchedulerListener listener = mSchedulerListeners.get(target.getClass().getName());
+    //mSchedulerListeners.remove(listener);
+    //该内存溢出解决方案：http://stackoverflow.com/questions/14585829/how-safe-is-to-delete-already-removed-concurrenthashmap-element
+    for (Iterator<Map.Entry<String, OnSchedulerListener>> iter =
+        mSchedulerListeners.entrySet().iterator(); iter.hasNext(); ) {
+      Map.Entry<String, OnSchedulerListener> entry = iter.next();
+      if (entry.getKey().equals(target.getClass().getName())) iter.remove();
+    }
   }
 
   @Override public boolean handleMessage(Message msg) {
@@ -104,6 +128,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     switch (msg.what) {
       case STOP:
       case CANCEL:
+        mQueue.removeTask(entity);
         mQueue.removeTask(entity);
         if (mQueue.size() != Configuration.getInstance().getDownloadNum()) {
           startNextTask(entity);
@@ -204,27 +229,5 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     if (newTask.getDownloadEntity().getState() == DownloadEntity.STATE_WAIT) {
       mQueue.startTask(newTask);
     }
-  }
-
-  @Override public void addSchedulerListener(Object target, OnSchedulerListener schedulerListener) {
-    if (target == null) {
-      throw new IllegalArgumentException("target 不能为null");
-    }
-    String name = target.getClass().getName();
-    if (mSchedulerListeners.get(name) != null) {
-      Log.w(TAG, "监听器已存在");
-      return;
-    }
-    mSchedulerListeners.put(name, schedulerListener);
-  }
-
-  @Override
-  public void removeSchedulerListener(Object target, OnSchedulerListener schedulerListener) {
-    if (target == null) {
-      throw new IllegalArgumentException("target 不能为null");
-    }
-    OnSchedulerListener listener = mSchedulerListeners.get(target.getClass().getName());
-    mSchedulerListeners.remove(listener);
-    listener = null;
   }
 }

@@ -64,7 +64,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private BroadcastReceiver mReceiver = new BroadcastReceiver() {
     @Override public void onReceive(Context context, Intent intent) {
       String action = intent.getAction();
-      if (action.equals(DownloadManager.ACTION_START)) {
+      if (action.equals(Aria.ACTION_START)) {
         L.d("START");
       }
     }

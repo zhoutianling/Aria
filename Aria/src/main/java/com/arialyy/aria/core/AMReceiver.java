@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core;
 
+import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 
 /**
@@ -25,7 +26,6 @@ public class AMReceiver {
   Object              obj;
   OnSchedulerListener listener;
   DownloadEntity      entity;
-  DownloadManager manager = DownloadManager.getInstance();
 
   public AMTarget load(DownloadEntity entity) {
     this.entity = entity;
@@ -37,7 +37,7 @@ public class AMReceiver {
    */
   public AMReceiver addSchedulerListener(OnSchedulerListener listener) {
     this.listener = listener;
-    manager.getTaskQueue().getDownloadSchedulers().addSchedulerListener(obj, listener);
+    DownloadSchedulers.getInstance().addSchedulerListener(obj, listener);
     return this;
   }
 
@@ -46,8 +46,13 @@ public class AMReceiver {
    */
   public AMReceiver removeSchedulerListener() {
     if (listener != null) {
-      manager.getTaskQueue().getDownloadSchedulers().removeSchedulerListener(obj, listener);
+      DownloadSchedulers.getInstance().removeSchedulerListener(obj, listener);
     }
     return this;
+  }
+
+  void destroy() {
+    obj = null;
+    listener = null;
   }
 }
