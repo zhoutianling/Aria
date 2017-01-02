@@ -30,14 +30,15 @@ import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
+import com.arialyy.simple.dialog.DownloadDialog;
 
 /**
  * Created by Lyy on 2016/10/13.
  */
 public class MainActivity extends BaseActivity<ActivityMainBinding> {
-  @Bind(R.id.toolbar) Toolbar mBar;
-  @Bind(R.id.single_task) Button mSigleBt;
-  @Bind(R.id.multi_task) Button mMultiBt;
+  @Bind(R.id.toolbar)     Toolbar mBar;
+  @Bind(R.id.single_task) Button  mSigleBt;
+  @Bind(R.id.multi_task)  Button  mMultiBt;
 
   @Override protected int setLayoutId() {
     return R.layout.activity_main;
@@ -82,6 +83,10 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
         break;
       case R.id.multi_task:
         startActivity(new Intent(this, MultiTaskActivity.class));
+        break;
+      case R.id.dialog_task:
+        DownloadDialog dialog = new DownloadDialog(this);
+        dialog.show();
         break;
     }
   }

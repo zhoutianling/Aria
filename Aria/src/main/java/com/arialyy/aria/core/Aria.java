@@ -148,6 +148,14 @@ import com.arialyy.aria.core.task.Task;
     }
   }
 
+  /**
+   * 处理Dialog的通用任务
+   */
+  public static AMReceiver get(Dialog dialog) {
+    checkNull(dialog);
+    return AriaManager.getInstance(dialog.getContext()).get(dialog);
+  }
+
   public static class SimpleSchedulerListener implements OnSchedulerListener {
 
     @Override public void onTaskPre(Task task) {
