@@ -23,6 +23,10 @@ class DownloadListener implements IDownloadListener {
 
   }
 
+  @Override public void supportBreakpoint(boolean support) {
+
+  }
+
   @Override public void onCancel() {
 
   }

@@ -132,7 +132,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     }
   }
 
-  private class MySchedulerListener extends AMTarget.SimpleSchedulerListener{
+  private class MySchedulerListener extends Aria.SimpleSchedulerListener{
     @Override public void onTaskPre(Task task) {
       super.onTaskPre(task);
       L.d(TAG, "download pre");

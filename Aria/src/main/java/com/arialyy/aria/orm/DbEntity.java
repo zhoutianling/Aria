@@ -55,24 +55,28 @@ public class DbEntity {
 
   /**
    * 查询一组数据
+   * <code>
+   * DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+   * </code>
    *
    * @return 没有数据返回null
    */
-  public static <T extends DbEntity> List<T> findDatas(Class<T> clazz, @NonNull String[] wheres,
-      @NonNull String[] values) {
+  public static <T extends DbEntity> List<T> findDatas(Class<T> clazz, String... expression) {
     DbUtil util = DbUtil.getInstance();
-    return util.findData(clazz, wheres, values);
+    return util.findData(clazz, expression);
   }
 
   /**
    * 查询一行数据
+   * <code>
+   * DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+   * </code>
    *
    * @return 没有数据返回null
    */
-  public static <T extends DbEntity> T findData(Class<T> clazz, @NonNull String[] wheres,
-      @NonNull String[] values) {
+  public static <T extends DbEntity> T findData(Class<T> clazz, String... expression) {
     DbUtil  util  = DbUtil.getInstance();
-    List<T> datas = util.findData(clazz, wheres, values);
+    List<T> datas = util.findData(clazz, expression);
     return datas == null ? null : datas.size() > 0 ? datas.get(0) : null;
   }
 
@@ -94,14 +98,19 @@ public class DbEntity {
    * 删除当前数据
    */
   public void deleteData() {
-    mUtil.delData(getClass(), new Object[] { "rowid" }, new Object[] { rowID });
+    //mUtil.delData(getClass(), new Object[] { "rowid" }, new Object[] { rowID });
+    deleteData(getClass(), "rowid=?", rowID + "");
   }
 
   /**
    * 根据条件删除数据
+   * <code>
+   * DownloadEntity.deleteData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+   * </code>
    */
-  public void deleteData(@NonNull Object[] wheres, @NonNull Object[] values) {
-    mUtil.delData(getClass(), wheres, values);
+  public static <T extends DbEntity> void deleteData(Class<T> clazz, String... expression) {
+    DbUtil util = DbUtil.getInstance();
+    util.delData(clazz, expression);
   }
 
   /**
@@ -128,7 +137,7 @@ public class DbEntity {
    * 查找数据在表中是否存在
    */
   private boolean thisIsExist() {
-    return findData(getClass(), new String[] { "rowid" }, new String[] { rowID + "" }) != null;
+    return findData(getClass(), "rowid=?", rowID + "") != null;
   }
 
   /**
@@ -137,6 +146,13 @@ public class DbEntity {
   public void insert() {
     mUtil.insertData(this);
     updateRowID();
+  }
+
+  private <T extends DbEntity> T findData(Class<T> clazz, @NonNull String[] wheres,
+      @NonNull String[] values) {
+    DbUtil  util = DbUtil.getInstance();
+    List<T> list = util.findData(clazz, wheres, values);
+    return list == null ? null : list.get(0);
   }
 
   private void updateRowID() {

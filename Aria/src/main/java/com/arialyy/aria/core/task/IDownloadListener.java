@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.core.task;
 
 /**
  * 下载监听
  */
 public interface IDownloadListener {
+
+  /**
+   * 支持断点回调
+   *
+   * @param support true,支持；false 不支持
+   */
+  public void supportBreakpoint(boolean support);
+
   /**
    * 取消下载
    */

@@ -15,10 +15,11 @@
  */
 package com.arialyy.aria.core;
 
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.core.command.IDownloadCmd;
-import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,18 +29,68 @@ import java.util.List;
  * https://github.com/AriaLyy/Aria
  */
 public class AMTarget {
-  private AMReceiver receiver;
+  private AMReceiver mReceiver;
 
-  public AMTarget(AMReceiver receiver) {
-    this.receiver = receiver;
+  AMTarget(AMReceiver receiver) {
+    this.mReceiver = receiver;
+  }
+
+  /**
+   * 设置文件存储路径
+   */
+  public AMTarget setDownloadPath(@NonNull String downloadPath) {
+    if (TextUtils.isEmpty(downloadPath)) {
+      throw new IllegalArgumentException("文件保持路径不能为null");
+    }
+    mReceiver.entity.setDownloadPath(downloadPath);
+    return this;
+  }
+
+  /**
+   * 设置文件名
+   */
+  public AMTarget setDownloadName(@NonNull String downloadName) {
+    if (TextUtils.isEmpty(downloadName)) {
+      throw new IllegalArgumentException("文件名不能为null");
+    }
+    mReceiver.entity.setFileName(downloadName);
+    return this;
+  }
+
+  /**
+   * 获取下载文件大小
+   */
+  public long getFileSize() {
+    DownloadEntity entity = getDownloadEntity(mReceiver.entity.getDownloadUrl());
+    if (entity == null) {
+      throw new NullPointerException("下载管理器中没有改任务");
+    }
+    return entity.getFileSize();
+  }
+
+  /**
+   * 获取当前下载进度，如果下載实体存在，则返回当前进度
+   */
+  public long getCurrentProgress() {
+    DownloadEntity entity = getDownloadEntity(mReceiver.entity.getDownloadUrl());
+    if (entity == null) {
+      throw new NullPointerException("下载管理器中没有改任务");
+    }
+    return entity.getCurrentProgress();
+  }
+
+  private DownloadEntity getDownloadEntity(String downloadUrl) {
+    CheckUtil.checkDownloadUrl(downloadUrl);
+    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
   }
 
   /**
    * 添加任务
    */
   public void add() {
-    receiver.manager.setCmd(
-        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CREATE)).exe();
+    DownloadManager.getInstance()
+        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_CREATE))
+        .exe();
   }
 
   /**
@@ -47,67 +98,51 @@ public class AMTarget {
    */
   public void start() {
     List<IDownloadCmd> cmds = new ArrayList<>();
-    cmds.add(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CREATE));
-    cmds.add(CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_START));
-    receiver.manager.setCmds(cmds).exe();
+    cmds.add(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_CREATE));
+    cmds.add(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_START));
+    DownloadManager.getInstance().setCmds(cmds).exe();
+    cmds.clear();
   }
 
   /**
    * 停止下载
    */
   public void stop() {
-    receiver.manager.setCmd(
-        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_STOP)).exe();
+    DownloadManager.getInstance()
+        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_STOP))
+        .exe();
   }
 
   /**
    * 恢复下载
    */
   public void resume() {
-    receiver.manager.setCmd(
-        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_START)).exe();
+    DownloadManager.getInstance()
+        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_START))
+        .exe();
   }
 
   /**
    * 取消下载
    */
   public void cancel() {
-    receiver.manager.setCmd(
-        CommonUtil.createCmd(receiver.obj, receiver.entity, CmdFactory.TASK_CANCEL)).exe();
+    DownloadManager.getInstance()
+        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_CANCEL))
+        .exe();
   }
 
-  public static class SimpleSchedulerListener implements OnSchedulerListener {
+  /**
+   * 是否在下载
+   */
+  public boolean isDownloading() {
+    return DownloadManager.getInstance().getTaskQueue().getTask(mReceiver.entity).isDownloading();
+  }
 
-    @Override public void onTaskPre(Task task) {
-
-    }
-
-    @Override public void onTaskResume(Task task) {
-
-    }
-
-    @Override public void onTaskStart(Task task) {
-
-    }
-
-    @Override public void onTaskStop(Task task) {
-
-    }
-
-    @Override public void onTaskCancel(Task task) {
-
-    }
-
-    @Override public void onTaskFail(Task task) {
-
-    }
-
-    @Override public void onTaskComplete(Task task) {
-
-    }
-
-    @Override public void onTaskRunning(Task task) {
-
-    }
+  /**
+   * 重新下载
+   */
+  public void reStart() {
+    cancel();
+    start();
   }
 }

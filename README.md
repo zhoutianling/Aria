@@ -15,7 +15,7 @@
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:2.3.2'
+compile 'com.arialyy.aria:Aria:2.3.3'
 ```
 
 
@@ -29,12 +29,13 @@ compile 'com.arialyy.aria:Aria:2.3.2'
 
 ***
 ## 使用
-### 一、Aria 是实体驱动型的工具，所以，第一步，你需要创建一个下载实体
+### 一、只需要以下参数，你便能很简单的使用Aria下载文件了
 ```java
-  DownloadEntity mEntity = new DownloadEntity();
-  mEntity.setFileName(fileName);          //设置文件名
-  mEntity.setDownloadUrl(downloadUrl);    //设置下载链接
-  mEntity.setDownloadPath(downloadPath);  //设置存放路径
+  Aria.whit(this)
+        .load(DOWNLOAD_URL)		//下载地址，必填
+        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")	//文件保存路径，必填
+        .setDownloadName("test.apk")	//文件名，必填
+        .start();
 ```
 ### 二、为了能接收到Aria传递的数据，你需要把你的Activity或fragment注册到Aria管理器中，注册的方式很简单，在onResume
 ```java
@@ -43,26 +44,44 @@ compile 'com.arialyy.aria:Aria:2.3.2'
     Aria.whit(this).addSchedulerListener(new MySchedulerListener());
   }
 ```
-### 三、还记得上面的DownloadEntity吗？现在是时候使用它进行下载了
+### 三、通过下载链接，你还能使用Aria执行很多操作，如：
+- 添加任务（不进行下载）
+
+  ```java
+  Aria.whit(this).load(DOWNLOAD_URL)
+    .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")	//文件保存路径，必填
+    .setDownloadName("test.apk")	//文件名，必填
+    .add();
+	```
 - 启动下载
 
   ```java
-  Aria.whit(this).load(mEntity).start();
+  Aria.whit(this).load(DOWNLOAD_URL).start();
   ```
 - 暂停下载
 
   ```java
-  Aria.whit(this).load(mEntity).stop();
+  Aria.whit(this).load(DOWNLOAD_URL).stop();
   ```
 - 恢复下载
 
   ```java
-  Aria.whit(this).load(mEntity).resume();
+  Aria.whit(this).load(DOWNLOAD_URL).resume();
   ```
 - 取消下载
 
   ```java
-  Aria.whit(this).load(mEntity).cancel();
+  Aria.whit(this).load(DOWNLOAD_URL).cancel();
+  ```
+- 获取当前下载进度
+
+  ```java
+  Aria.whit(this).load(DOWNLOAD_URL).getCurrentProgress();
+  ```
+- 获取文件大小
+
+  ```java
+  Aria.whit(this).load(DOWNLOAD_URL).getFileSize();
   ```
 
 ### 四、关于Aria，你还需要知道的一些东西
@@ -86,7 +105,7 @@ compile 'com.arialyy.aria:Aria:2.3.2'
   ```java
   Aria.get(this).setReTryInterval(5000);
   ```
-- 设置是否打开广播，如果你需要在Service后台获取下载完成情况，那么你需要打开Aria广播，[Aria广播配置](https://github.com/AriaLyy/Aria/blob/v_2.0/BroadCast.md) 
+- 设置是否打开广播，如果你需要在Service后台获取下载完成情况，那么你需要打开Aria广播，[Aria广播配置](https://github.com/AriaLyy/Aria/blob/v_2.0/BroadCast.md)
 
   ```java
   Aria.get(this).openBroadcast(true);
@@ -94,9 +113,13 @@ compile 'com.arialyy.aria:Aria:2.3.2'
 
 ***
 ## 开发日志
- + v_2.1.0 修复大量bug
- + v_2.1.1 增加，选择最大下载任务数接口
+ + v_2.3.3
+  - 添加断点支持
+  - 修改下载逻辑，让使用更加简单
+  - 修复一个内存泄露的bug
  + v_2.3.1 重命名为Aria，下载流程简化
+ + v_2.1.1 增加，选择最大下载任务数接口
+ + v_2.1.0 修复大量bug
 
 License
 -------

@@ -26,10 +26,10 @@ import com.arialyy.aria.core.task.Task;
  */
 public interface ITaskQueue extends IDownloader {
 
-  /**
-   * 获取调度器
-   */
-  public IDownloadSchedulers getDownloadSchedulers();
+  ///**
+  // * 获取调度器
+  // */
+  //public IDownloadSchedulers getDownloadSchedulers();
 
   /**
    * 任务池队列大小
@@ -74,10 +74,10 @@ public interface ITaskQueue extends IDownloader {
    */
   public Task getNextTask();
 
-  /**
-   * 设置下载调度器
-   *
-   * @param schedulers 下载调度器{@link IDownloadSchedulers}
-   */
-  public void setScheduler(IDownloadSchedulers schedulers);
+  ///**
+  // * 设置下载调度器
+  // *
+  // * @param schedulers 下载调度器{@link IDownloadSchedulers}
+  // */
+  //public void setScheduler(IDownloadSchedulers schedulers);
 }

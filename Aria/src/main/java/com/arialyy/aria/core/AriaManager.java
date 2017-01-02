@@ -18,17 +18,23 @@ package com.arialyy.aria.core;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
+import android.app.Dialog;
 import android.app.Service;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.command.CmdFactory;
+import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.core.command.IDownloadCmd;
 import com.arialyy.aria.util.Configuration;
+import java.io.File;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +75,7 @@ import java.util.Set;
   /**
    * 获取下载列表
    */
-  public List<DownloadEntity> getDownloadList(){
+  public List<DownloadEntity> getDownloadList() {
     return DownloadEntity.findAllData(DownloadEntity.class);
   }
 
@@ -77,11 +83,15 @@ import java.util.Set;
    * 通过下载链接获取下载实体
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
-    if (TextUtils.isEmpty(downloadUrl)) {
-      throw new IllegalArgumentException("下载链接不能为null");
-    }
-    return DownloadEntity.findData(DownloadEntity.class, new String[] { "downloadUrl" },
-        new String[] { downloadUrl });
+    CheckUtil.checkDownloadUrl(downloadUrl);
+    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+  }
+
+  /**
+   * 下载任务是否存在
+   */
+  public boolean taskExists(String downloadUrl) {
+    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl) != null;
   }
 
   /**
@@ -101,8 +111,7 @@ import java.util.Set;
   /**
    * 设置下载超时时间
    */
-  @Deprecated
-  private AriaManager setTimeOut(int timeOut) {
+  @Deprecated private AriaManager setTimeOut(int timeOut) {
     Configuration.getInstance().setTimeOut(timeOut);
     return this;
   }
@@ -165,18 +174,59 @@ import java.util.Set;
 
   private AMReceiver putTarget(Object obj) {
     String     clsName = obj.getClass().getName();
-    AMReceiver target  = mTargets.get(clsName);
-    if (target == null) {
-      target = new AMReceiver();
-      target.obj = obj;
+    AMReceiver target  = null;
+    String     key     = "";
+    if (!(obj instanceof Activity)) {
       if (obj instanceof android.support.v4.app.Fragment) {
-        clsName += "_" + ((Fragment) obj).getActivity().getClass().getName();
+        key = clsName + "_" + ((Fragment) obj).getActivity().getClass().getName();
       } else if (obj instanceof android.app.Fragment) {
-        clsName += "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
+        key = clsName + "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
+      } else if (obj instanceof Dialog) {
+        Activity activity = ((Dialog) obj).getOwnerActivity();
+        if (activity != null) {
+          key = clsName + "_" + activity.getClass().getName();
+        }
+        handleDialogDialogLift((Dialog) obj);
       }
-      mTargets.put(clsName, target);
+    } else {
+      key = clsName;
+    }
+    if (TextUtils.isEmpty(key)) {
+      throw new IllegalArgumentException("未知类型");
+    } else {
+      target = mTargets.get(key);
+      if (target == null) {
+        target = new AMReceiver();
+        target.obj = obj;
+        mTargets.put(key, target);
+      }
     }
     return target;
+  }
+
+  /**
+   * 处理对话框取消或dismiss
+   */
+  private void handleDialogDialogLift(Dialog dialog) {
+    try {
+      Field   dismissField = CommonUtil.getField(dialog.getClass(), "mDismissMessage");
+      Message dismissMsg   = (Message) dismissField.get(dialog);
+      //如果Dialog已经设置Dismiss事件，则查找cancel事件
+      if (dismissMsg != null) {
+        Field   cancelField = CommonUtil.getField(dialog.getClass(), "mCancelMessage");
+        Message cancelMsg   = (Message) cancelField.get(dialog);
+        if (cancelMsg != null) {
+          Log.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。为了防止内存泄露，"
+              + "请在dismiss方法中调用Aria.whit(this).removeSchedulerListener();来注销事件");
+        } else {
+          dialog.setCancelMessage(createCancelMessage());
+        }
+      } else {
+        dialog.setCancelMessage(createDismissMessage());
+      }
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
   }
 
   private AMReceiver getTarget(Object obj) {
@@ -195,6 +245,56 @@ import java.util.Set;
     if (app instanceof Application) {
       mLifeCallback = new LifeCallback();
       ((Application) app).registerActivityLifecycleCallbacks(mLifeCallback);
+    }
+  }
+
+  /**
+   * 创建Dialog取消消息
+   */
+  private Message createCancelMessage() {
+    final Message cancelMsg = new Message();
+    cancelMsg.what = 0x44;
+    cancelMsg.obj = new Dialog.OnCancelListener() {
+
+      @Override public void onCancel(DialogInterface dialog) {
+        destroySchedulerListener(dialog);
+      }
+    };
+    return cancelMsg;
+  }
+
+  /**
+   * 创建Dialog dismiss取消消息
+   */
+  private Message createDismissMessage() {
+    final Message cancelMsg = new Message();
+    cancelMsg.what = 0x43;
+    cancelMsg.obj = new Dialog.OnDismissListener() {
+
+      @Override public void onDismiss(DialogInterface dialog) {
+        destroySchedulerListener(dialog);
+      }
+    };
+    return cancelMsg;
+  }
+
+  /**
+   * onDestroy
+   */
+  private void destroySchedulerListener(Object obj) {
+    Set<String> keys    = mTargets.keySet();
+    String      clsName = obj.getClass().getName();
+    for (String key : keys) {
+      if (key.equals(clsName) || key.contains(clsName)) {
+        AMReceiver receiver = mTargets.get(key);
+        if (receiver.obj != null) {
+          if (receiver.obj instanceof Application || receiver.obj instanceof Service) break;
+          receiver.removeSchedulerListener();
+          receiver.destroy();
+          mTargets.remove(key);
+        }
+        break;
+      }
     }
   }
 
@@ -228,19 +328,7 @@ import java.util.Set;
     }
 
     @Override public void onActivityDestroyed(Activity activity) {
-      Set<String> keys = mTargets.keySet();
-      for (String key : keys) {
-        String clsName = activity.getClass().getName();
-        if (key.equals(clsName) || key.contains(clsName)) {
-          AMReceiver target = mTargets.get(key);
-          if (target.obj != null) {
-            if (target.obj instanceof Application || target.obj instanceof Service) break;
-            target.removeSchedulerListener();
-            mTargets.remove(key);
-          }
-          break;
-        }
-      }
+      destroySchedulerListener(activity);
     }
   }
 }

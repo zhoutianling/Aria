@@ -19,6 +19,8 @@ package com.arialyy.simple.activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -26,6 +28,7 @@ import android.os.Message;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
@@ -53,6 +56,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public static final  int    DOWNLOAD_RUNNING  = 0x07;
   private static final String DOWNLOAD_URL      =
       "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
+  //private static final String DOWNLOAD_URL      =
+  //    "http://www.yangqiang.im/wp-content/uploads/2016/10/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F.png";
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
   @Bind(R.id.start)       Button                          mStart;
   @Bind(R.id.stop)        Button                          mStop;
@@ -60,11 +65,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   @Bind(R.id.size)        TextView                        mSize;
   @Bind(R.id.toolbar)     Toolbar                         toolbar;
   @Bind(R.id.speed)       TextView                        mSpeed;
+  @Bind(R.id.img)         ImageView                       mImg;
   private                 DownloadEntity                  mEntity;
   private BroadcastReceiver mReceiver = new BroadcastReceiver() {
     @Override public void onReceive(Context context, Intent intent) {
       String action = intent.getAction();
-      if (action.equals(DownloadManager.ACTION_START)) {
+      if (action.equals(Aria.ACTION_START)) {
         L.d("START");
       }
     }
@@ -76,14 +82,14 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       switch (msg.what) {
         case DOWNLOAD_RUNNING:
           Task task = (Task) msg.obj;
-          long current = task.getDownloadEntity().getCurrentProgress();
-          long len = task.getDownloadEntity().getFileSize();
+          long current = task.getCurrentProgress();
+          long len = task.getFileSize();
           if (len == 0) {
             mPb.setProgress(0);
           } else {
             mPb.setProgress((int) ((current * 100) / len));
           }
-          mSpeed.setText(CommonUtil.formatFileSize(task.getDownloadEntity().getSpeed()) + "/s");
+          mSpeed.setText(CommonUtil.formatFileSize(task.getSpeed()) + "/s");
           break;
         case DOWNLOAD_PRE:
           mSize.setText(CommonUtil.formatFileSize((Long) msg.obj));
@@ -117,6 +123,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           mStart.setText("重新开始？");
           mCancel.setEnabled(false);
           setBtState(true);
+
+          //String path = Environment.getExternalStorageDirectory().getPath() + "/test.jpg";
+          //Bitmap bm = BitmapFactory.decodeFile(path);
+          //mImg.setImageBitmap(bm);
+
           break;
       }
     }
@@ -159,21 +170,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private void init() {
-    mEntity = Aria.get(this).getDownloadEntity(DOWNLOAD_URL);
-    if (mEntity != null) {
-      mPb.setProgress((int) ((mEntity.getCurrentProgress() * 100) / mEntity.getFileSize()));
-      mSize.setText(CommonUtil.formatFileSize(mEntity.getFileSize()));
-      if (mEntity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
-        setBtState(false);
-      } else if (mEntity.isDownloadComplete()) {
-        mStart.setText("重新开始？");
-        setBtState(true);
-      }
-    } else {
-      mEntity = new DownloadEntity();
-      mEntity.setFileName("test.apk");
-      mEntity.setDownloadUrl(DOWNLOAD_URL);
-      mEntity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
+    if (Aria.get(this).taskExists(DOWNLOAD_URL)) {
+      AMTarget target = Aria.whit(this).load(DOWNLOAD_URL);
+      int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
+      mPb.setProgress(p);
     }
   }
 
@@ -197,22 +197,28 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private void resume() {
-    Aria.whit(this).load(mEntity).resume();
+    Aria.whit(this).load(DOWNLOAD_URL).resume();
   }
 
   private void start() {
-    Aria.whit(this).load(mEntity).start();
+    Aria.whit(this)
+        .load(DOWNLOAD_URL)
+        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
+        .setDownloadName("test.apk")
+        //.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.jpg")
+        //.setDownloadName("test.jpg")
+        .start();
   }
 
   private void stop() {
-    Aria.whit(this).load(mEntity).stop();
+    Aria.whit(this).load(DOWNLOAD_URL).stop();
   }
 
   private void cancel() {
-    Aria.whit(this).load(mEntity).cancel();
+    Aria.whit(this).load(DOWNLOAD_URL).cancel();
   }
 
-  private class MySchedulerListener extends AMTarget.SimpleSchedulerListener {
+  private class MySchedulerListener extends Aria.SimpleSchedulerListener {
     @Override public void onTaskStart(Task task) {
       mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
           .sendToTarget();
@@ -220,8 +226,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
     @Override public void onTaskResume(Task task) {
       super.onTaskResume(task);
-      mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
-          .sendToTarget();
+      mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getFileSize()).sendToTarget();
     }
 
     @Override public void onTaskStop(Task task) {

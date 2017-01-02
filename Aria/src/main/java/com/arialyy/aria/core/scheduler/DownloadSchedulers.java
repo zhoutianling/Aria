@@ -19,12 +19,12 @@ package com.arialyy.aria.core.scheduler;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.DownloadManager;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
-import com.arialyy.aria.core.queue.pool.ExecutePool;
-import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.util.Configuration;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -70,27 +70,51 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   private static volatile DownloadSchedulers INSTANCE = null;
 
   /**
-   * 超时时间
-   */
-  long mTimeOut = 10000;
-
-  /**
    * 下载器任务监听
    */
   Map<String, OnSchedulerListener> mSchedulerListeners = new ConcurrentHashMap<>();
+  DownloadManager                  mManager            = DownloadManager.getInstance();
   ITaskQueue mQueue;
 
-  public DownloadSchedulers(ITaskQueue downloadTaskQueue) {
-    mQueue = downloadTaskQueue;
+  private DownloadSchedulers() {
+    mQueue = mManager.getTaskQueue();
   }
 
-  public static DownloadSchedulers getInstance(DownloadTaskQueue queue) {
+  public static DownloadSchedulers getInstance() {
     if (INSTANCE == null) {
       synchronized (LOCK) {
-        INSTANCE = new DownloadSchedulers(queue);
+        //INSTANCE = new DownloadSchedulers(queue);
+        INSTANCE = new DownloadSchedulers();
       }
     }
     return INSTANCE;
+  }
+
+  @Override public void addSchedulerListener(Object target, OnSchedulerListener schedulerListener) {
+    if (target == null) {
+      throw new IllegalArgumentException("target 不能为null");
+    }
+    String name = target.getClass().getName();
+    if (mSchedulerListeners.get(name) != null) {
+      Log.w(TAG, "监听器已存在");
+      return;
+    }
+    mSchedulerListeners.put(name, schedulerListener);
+  }
+
+  @Override
+  public void removeSchedulerListener(Object target, OnSchedulerListener schedulerListener) {
+    if (target == null) {
+      throw new IllegalArgumentException("target 不能为null");
+    }
+    //OnSchedulerListener listener = mSchedulerListeners.get(target.getClass().getName());
+    //mSchedulerListeners.remove(listener);
+    //该内存溢出解决方案：http://stackoverflow.com/questions/14585829/how-safe-is-to-delete-already-removed-concurrenthashmap-element
+    for (Iterator<Map.Entry<String, OnSchedulerListener>> iter =
+        mSchedulerListeners.entrySet().iterator(); iter.hasNext(); ) {
+      Map.Entry<String, OnSchedulerListener> entry = iter.next();
+      if (entry.getKey().equals(target.getClass().getName())) iter.remove();
+    }
   }
 
   @Override public boolean handleMessage(Message msg) {
@@ -104,6 +128,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     switch (msg.what) {
       case STOP:
       case CANCEL:
+        mQueue.removeTask(entity);
         mQueue.removeTask(entity);
         if (mQueue.size() != Configuration.getInstance().getDownloadNum()) {
           startNextTask(entity);
@@ -174,19 +199,23 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    *
    * @param entity 失败实体
    */
-  @Override public void handleFailTask(DownloadEntity entity) {
-    final Configuration config = Configuration.getInstance();
-    if (entity.getFailNum() <= config.getReTryNum()) {
-      Task task = mQueue.getTask(entity);
-      mQueue.reTryStart(task);
-      try {
-        Thread.currentThread().sleep(config.getReTryInterval());
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+  @Override public void handleFailTask(final DownloadEntity entity) {
+    new Thread(new Runnable() {
+      @Override public void run() {
+        final Configuration config = Configuration.getInstance();
+        if (entity.getFailNum() <= config.getReTryNum()) {
+          Task task = mQueue.getTask(entity);
+          mQueue.reTryStart(task);
+          try {
+            Thread.sleep(config.getReTryInterval());
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        } else {
+          startNextTask(entity);
+        }
       }
-    } else {
-      startNextTask(entity);
-    }
+    }).start();
   }
 
   /**
@@ -204,25 +233,5 @@ public class DownloadSchedulers implements IDownloadSchedulers {
     if (newTask.getDownloadEntity().getState() == DownloadEntity.STATE_WAIT) {
       mQueue.startTask(newTask);
     }
-  }
-
-  @Override public void addSchedulerListener(Object target, OnSchedulerListener schedulerListener) {
-    if (target == null) {
-      throw new IllegalArgumentException("target 不能为null");
-    }
-    String name = target.getClass().getName();
-    if (mSchedulerListeners.get(name) != null) {
-      Log.w(TAG, "监听器已存在");
-      return;
-    }
-    mSchedulerListeners.put(name, schedulerListener);
-  }
-
-  @Override
-  public void removeSchedulerListener(Object target, OnSchedulerListener schedulerListener) {
-    if (target == null) {
-      throw new IllegalArgumentException("target 不能为null");
-    }
-    mSchedulerListeners.remove(target.getClass().getName());
   }
 }

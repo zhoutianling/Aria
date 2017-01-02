@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -76,8 +77,8 @@ public class DbUtil {
   /**
    * 删除某条数据
    */
-  synchronized <T extends DbEntity> void delData(Class<T> clazz, @NonNull Object[] wheres,
-      @NonNull Object[] values) {
+  @Deprecated private synchronized <T extends DbEntity> void delData(Class<T> clazz,
+      @NonNull Object[] wheres, @NonNull Object[] values) {
     mDb = mHelper.getWritableDatabase();
     if (wheres.length <= 0 || values.length <= 0) {
       Log.e(TAG, "输入删除条件");
@@ -96,6 +97,25 @@ public class DbUtil {
     }
     print(DEL_DATA, sb.toString());
     mDb.execSQL(sb.toString());
+    close();
+  }
+
+  /**
+   * 删除某条数据
+   */
+  synchronized <T extends DbEntity> void delData(Class<T> clazz, String... expression) {
+    CheckUtil.checkSqlExpression(expression);
+    mDb = mHelper.getWritableDatabase();
+    String sql = "DELETE FROM " + CommonUtil.getClassName(clazz) + " WHERE " + expression[0] + " ";
+    sql = sql.replace("?", "%s");
+    Object[] params = new String[expression.length - 1];
+    for (int i = 0, len = params.length; i < len; i++) {
+      params[i] = "'" + expression[i + 1] + "'";
+    }
+    sql = String.format(sql, params);
+    Log.d(TAG, sql);
+    print(DEL_DATA, sql);
+    mDb.execSQL(sql);
     close();
   }
 
@@ -151,8 +171,31 @@ public class DbUtil {
   /**
    * 条件查寻数据
    */
-  synchronized <T extends DbEntity> List<T> findData(Class<T> clazz, @NonNull String[] wheres,
-      @NonNull String[] values) {
+  synchronized <T extends DbEntity> List<T> findData(Class<T> clazz, String... expression) {
+    if (!tableExists(clazz)) {
+      createTable(clazz);
+    }
+    mDb = mHelper.getReadableDatabase();
+    CheckUtil.checkSqlExpression(expression);
+    String sql =
+        "SELECT rowid, * FROM " + CommonUtil.getClassName(clazz) + " WHERE " + expression[0] + " ";
+    sql = sql.replace("?", "%s");
+    Object[] params = new String[expression.length - 1];
+    for (int i = 0, len = params.length; i < len; i++) {
+      params[i] = "'" + expression[i + 1] + "'";
+    }
+    sql = String.format(sql, params);
+    Log.d(TAG, sql);
+    print(FIND_DATA, sql);
+    Cursor cursor = mDb.rawQuery(sql, null);
+    return cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
+  }
+
+  /**
+   * 条件查寻数据
+   */
+  @Deprecated synchronized <T extends DbEntity> List<T> findData(Class<T> clazz,
+      @NonNull String[] wheres, @NonNull String[] values) {
     if (!tableExists(clazz)) {
       createTable(clazz);
     }
@@ -436,7 +479,7 @@ public class DbUtil {
           }
           entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
           entitys.add(entity);
-          Log.d(TAG, "rowid ==> " + entity.rowID);
+          //Log.d(TAG, "rowid ==> " + entity.rowID);
         }
       } catch (InstantiationException e) {
         e.printStackTrace();

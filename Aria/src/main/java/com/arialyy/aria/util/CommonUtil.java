@@ -17,7 +17,9 @@
 package com.arialyy.aria.util;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.util.Log;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.DownloadEntity;
@@ -44,6 +46,18 @@ public class CommonUtil {
 
   public static IDownloadCmd createCmd(DownloadEntity entity, int cmd) {
     return CmdFactory.getInstance().createCmd(entity, cmd);
+  }
+
+  /**
+   * 创建隐性的Intent
+   */
+  public static Intent createIntent(String packageName, String action) {
+    Uri.Builder builder = new Uri.Builder();
+    builder.scheme(packageName);
+    Uri    uri    = builder.build();
+    Intent intent = new Intent(action);
+    intent.setData(uri);
+    return intent;
   }
 
   /**

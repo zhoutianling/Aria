@@ -15,7 +15,12 @@
  */
 package com.arialyy.aria.core;
 
+import android.os.Build;
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
+import com.arialyy.aria.util.CheckUtil;
 
 /**
  * Created by lyy on 2016/12/5.
@@ -25,10 +30,27 @@ public class AMReceiver {
   Object              obj;
   OnSchedulerListener listener;
   DownloadEntity      entity;
-  DownloadManager manager = DownloadManager.getInstance();
 
-  public AMTarget load(DownloadEntity entity) {
+  /**
+   * {@link #load(String)}，请使用该方法
+   */
+  @Deprecated public AMTarget load(DownloadEntity entity) {
     this.entity = entity;
+    return new AMTarget(this);
+  }
+
+  /**
+   * 读取下载链接
+   */
+  public AMTarget load(@NonNull String downloadUrl) {
+    CheckUtil.checkDownloadUrl(downloadUrl);
+    if (entity == null) {
+      entity = DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+    }
+    if (entity == null) {
+      entity = new DownloadEntity();
+    }
+    entity.setDownloadUrl(downloadUrl);
     return new AMTarget(this);
   }
 
@@ -37,7 +59,7 @@ public class AMReceiver {
    */
   public AMReceiver addSchedulerListener(OnSchedulerListener listener) {
     this.listener = listener;
-    manager.getTaskQueue().getDownloadSchedulers().addSchedulerListener(obj, listener);
+    DownloadSchedulers.getInstance().addSchedulerListener(obj, listener);
     return this;
   }
 
@@ -46,8 +68,13 @@ public class AMReceiver {
    */
   public AMReceiver removeSchedulerListener() {
     if (listener != null) {
-      manager.getTaskQueue().getDownloadSchedulers().removeSchedulerListener(obj, listener);
+      DownloadSchedulers.getInstance().removeSchedulerListener(obj, listener);
     }
     return this;
+  }
+
+  void destroy() {
+    obj = null;
+    listener = null;
   }
 }
