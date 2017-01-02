@@ -34,13 +34,13 @@ import com.arialyy.aria.core.task.Task;
  * Aria启动，管理全局任务
  * <pre>
  *   <code>
- *      DownloadEntity mEntity = new DownloadEntity();
- *      mEntity.setFileName(fileName);          //设置文件名
- *      mEntity.setDownloadUrl(downloadUrl);    //设置下载链接
- *      mEntity.setDownloadPath(downloadPath);  //设置存放路径
- *
- *      //启动下载
- *     Aria.whit(this).load(mEntity).start();
+ *   //启动下载
+ *   Aria.whit(this)
+ *       .load(DOWNLOAD_URL)     //下载地址，必填
+ *       //文件保存路径，必填
+ *       .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
+ *       .setDownloadName("test.apk")    //文件名，必填
+ *       .start();
  *   </code>
  * </pre>
  */
