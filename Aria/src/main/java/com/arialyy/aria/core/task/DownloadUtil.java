@@ -229,10 +229,10 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
       conn.setConnectTimeout(mConnectTimeOut * 4);
       conn.connect();
       int len = conn.getContentLength();
-      if (len < 0) {  //网络被劫持时会出现这个问题
-        failDownload("下载失败，网络被劫持");
-        return;
-      }
+      //if (len < 0) {  //网络被劫持时会出现这个问题
+      //  failDownload("下载失败，网络被劫持");
+      //  return;
+      //}
       int code = conn.getResponseCode();
       //https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81
       //206支持断点
@@ -240,8 +240,9 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
         isSupportBreakpoint = true;
         mListener.supportBreakpoint(true);
         handleBreakpoint(conn);
-      } else if (code == HttpURLConnection.HTTP_OK) {
+      } else if (code == HttpURLConnection.HTTP_OK || len < 0) {
         //在conn.setRequestProperty("Range", "bytes=" + 0 + "-");下，200为不支持断点状态
+        isSupportBreakpoint = false;
         mListener.supportBreakpoint(false);
         Log.w(TAG, "该下载链接不支持断点下载");
         handleBreakpoint(conn);

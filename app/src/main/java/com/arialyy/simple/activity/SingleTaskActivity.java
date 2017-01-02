@@ -54,10 +54,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public static final  int    DOWNLOAD_RESUME   = 0x05;
   public static final  int    DOWNLOAD_COMPLETE = 0x06;
   public static final  int    DOWNLOAD_RUNNING  = 0x07;
-  private static final String DOWNLOAD_URL      =
-      "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
   //private static final String DOWNLOAD_URL      =
-  //    "http://img13.poco.cn/mypoco/myphoto/20120828/15/55689209201208281549023849547194135_001.jpg";
+  //    "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
+  private static final String DOWNLOAD_URL      =
+      "http://o.aolcdn.com/hss/storage/midas/3679ed444c51eca8d17a82b7da021b01/204737495/fitbit-charge-2.jpeg";
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
   @Bind(R.id.start)       Button                          mStart;
   @Bind(R.id.stop)        Button                          mStop;
@@ -124,9 +124,9 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           mCancel.setEnabled(false);
           setBtState(true);
 
-          //String path = Environment.getExternalStorageDirectory().getPath() + "/test.jpg";
-          //Bitmap bm = BitmapFactory.decodeFile(path);
-          //mImg.setImageBitmap(bm);
+          String path = Environment.getExternalStorageDirectory().getPath() + "/test.jpg";
+          Bitmap bm = BitmapFactory.decodeFile(path);
+          mImg.setImageBitmap(bm);
 
           break;
       }
@@ -203,10 +203,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private void start() {
     Aria.whit(this)
         .load(DOWNLOAD_URL)
-        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
-        .setDownloadName("test.apk")
-        //.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.jpg")
-        //.setDownloadName("test.jpg")
+        //.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
+        //.setDownloadName("test.apk")
+        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.jpg")
+        .setDownloadName("test.jpg")
         .start();
   }
 

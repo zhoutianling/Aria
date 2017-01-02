@@ -257,7 +257,6 @@ public class Task {
     @Override public void onStart(long startLocation) {
       super.onStart(startLocation);
       downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
-      downloadEntity.setFailNum(0);
       sendInState2Target(DownloadSchedulers.START);
       sendIntent(Aria.ACTION_START, startLocation);
     }

@@ -199,19 +199,23 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    *
    * @param entity 失败实体
    */
-  @Override public void handleFailTask(DownloadEntity entity) {
-    final Configuration config = Configuration.getInstance();
-    if (entity.getFailNum() <= config.getReTryNum()) {
-      Task task = mQueue.getTask(entity);
-      mQueue.reTryStart(task);
-      try {
-        Thread.currentThread().sleep(config.getReTryInterval());
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+  @Override public void handleFailTask(final DownloadEntity entity) {
+    new Thread(new Runnable() {
+      @Override public void run() {
+        final Configuration config = Configuration.getInstance();
+        if (entity.getFailNum() <= config.getReTryNum()) {
+          Task task = mQueue.getTask(entity);
+          mQueue.reTryStart(task);
+          try {
+            Thread.sleep(config.getReTryInterval());
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        } else {
+          startNextTask(entity);
+        }
       }
-    } else {
-      startNextTask(entity);
-    }
+    }).start();
   }
 
   /**
