@@ -524,6 +524,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
      */
     private void progress(long len) {
       synchronized (LOCK) {
+        currentLocation += len;
         mCurrentLocation += len;
         mListener.onProgress(mCurrentLocation);
       }

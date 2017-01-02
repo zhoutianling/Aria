@@ -44,7 +44,6 @@ public class Task {
   private Handler           mOutHandler;
   private Context           mContext;
   private IDownloadUtil     mUtil;
-  private long              mSpeed;
 
   private Task(Context context, DownloadEntity entity, Handler outHandler) {
     mContext = context.getApplicationContext();
@@ -62,7 +61,21 @@ public class Task {
    * 获取下载速度
    */
   public long getSpeed() {
-    return mSpeed;
+    return mEntity.getSpeed();
+  }
+
+  /**
+   * 获取文件大小
+   */
+  public long getFileSize(){
+    return mEntity.getFileSize();
+  }
+
+  /**
+   * 获取当前下载进度
+   */
+  public long getCurrentProgress(){
+    return mEntity.getCurrentProgress();
   }
 
   /**
@@ -109,13 +122,6 @@ public class Task {
       intent.putExtra(Aria.ENTITY, mEntity);
       mContext.sendBroadcast(intent);
     }
-  }
-
-  /**
-   * 获取下载工具
-   */
-  public IDownloadUtil getDownloadUtil() {
-    return mUtil;
   }
 
   /**
@@ -221,7 +227,7 @@ public class Task {
       this.context = context;
       this.outHandler = new WeakReference<>(outHandler);
       this.wTask = new WeakReference<>(task);
-      task = wTask.get();
+      this.task = wTask.get();
       this.downloadEntity = this.task.getDownloadEntity();
       sendIntent = CommonUtil.createIntent(context.getPackageName(), Aria.ACTION_RUNNING);
       sendIntent.putExtra(Aria.ENTITY, downloadEntity);

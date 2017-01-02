@@ -29,9 +29,11 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.command.CmdFactory;
+import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.core.command.IDownloadCmd;
 import com.arialyy.aria.util.Configuration;
+import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,11 +83,15 @@ import java.util.Set;
    * 通过下载链接获取下载实体
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
-    if (TextUtils.isEmpty(downloadUrl)) {
-      throw new IllegalArgumentException("下载链接不能为null");
-    }
-    return DownloadEntity.findData(DownloadEntity.class, new String[] { "downloadUrl" },
-        new String[] { downloadUrl });
+    CheckUtil.checkDownloadUrl(downloadUrl);
+    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+  }
+
+  /**
+   * 下载任务是否存在
+   */
+  public boolean taskExists(String downloadUrl) {
+    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl) != null;
   }
 
   /**

@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +55,33 @@ public class AMTarget {
     }
     mReceiver.entity.setFileName(downloadName);
     return this;
+  }
+
+  /**
+   * 获取下载文件大小
+   */
+  public long getFileSize() {
+    DownloadEntity entity = getDownloadEntity(mReceiver.entity.getDownloadUrl());
+    if (entity == null) {
+      throw new NullPointerException("下载管理器中没有改任务");
+    }
+    return entity.getFileSize();
+  }
+
+  /**
+   * 获取当前下载进度，如果下載实体存在，则返回当前进度
+   */
+  public long getCurrentProgress() {
+    DownloadEntity entity = getDownloadEntity(mReceiver.entity.getDownloadUrl());
+    if (entity == null) {
+      throw new NullPointerException("下载管理器中没有改任务");
+    }
+    return entity.getCurrentProgress();
+  }
+
+  private DownloadEntity getDownloadEntity(String downloadUrl) {
+    CheckUtil.checkDownloadUrl(downloadUrl);
+    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
   }
 
   /**
@@ -117,14 +145,4 @@ public class AMTarget {
     cancel();
     start();
   }
-
-  //static class Build {
-  //  DownloadEntity entity;
-  //
-  //  Build(DownloadEntity entity) {
-  //    this.entity = entity;
-  //  }
-  //
-  //
-  //}
 }

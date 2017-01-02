@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
+import com.arialyy.aria.util.CheckUtil;
 
 /**
  * Created by lyy on 2016/12/5.
@@ -30,6 +31,9 @@ public class AMReceiver {
   OnSchedulerListener listener;
   DownloadEntity      entity;
 
+  /**
+   * {@link #load(String)}，请使用该方法
+   */
   @Deprecated public AMTarget load(DownloadEntity entity) {
     this.entity = entity;
     return new AMTarget(this);
@@ -39,10 +43,13 @@ public class AMReceiver {
    * 读取下载链接
    */
   public AMTarget load(@NonNull String downloadUrl) {
-    if (TextUtils.isEmpty(downloadUrl)) {
-      throw new IllegalArgumentException("下载链接不能为null");
+    CheckUtil.checkDownloadUrl(downloadUrl);
+    if (entity == null) {
+      entity = DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
     }
-    entity = new DownloadEntity();
+    if (entity == null) {
+      entity = new DownloadEntity();
+    }
     entity.setDownloadUrl(downloadUrl);
     return new AMTarget(this);
   }

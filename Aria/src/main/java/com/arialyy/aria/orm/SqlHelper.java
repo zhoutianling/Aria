@@ -26,7 +26,7 @@ import android.text.TextUtils;
  * Created by lyy on 2015/11/2.
  * sql帮助类
  */
-public class SqlHelper extends SQLiteOpenHelper {
+final class SqlHelper extends SQLiteOpenHelper {
   protected static String DB_NAME;
   protected static int VERSION = -1;
 

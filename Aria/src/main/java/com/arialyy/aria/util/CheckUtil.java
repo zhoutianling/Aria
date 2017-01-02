@@ -20,6 +20,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.DownloadEntity;
 import java.io.File;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Lyy on 2016/9/23.
@@ -27,6 +29,41 @@ import java.io.File;
  */
 public class CheckUtil {
   private static final String TAG = "CheckUtil";
+
+  /**
+   * 检查sql的expression是否合法
+   */
+  public static void checkSqlExpression(String... expression) {
+    if (expression.length == 0) {
+      throw new IllegalArgumentException("sql语句表达式不能为null");
+    }
+    if (expression.length == 1) {
+      throw new IllegalArgumentException("表达式需要写入参数");
+    }
+    String where = expression[0];
+    if (!where.contains("?")) {
+      throw new IllegalArgumentException("请在where语句的'='后编写?");
+    }
+    Pattern pattern = Pattern.compile("\\?");
+    Matcher matcher = pattern.matcher(where);
+    int     count   = 0;
+    while (matcher.find()) {
+      count++;
+    }
+    if (count < expression.length - 1){
+      throw new IllegalArgumentException("条件语句的?个数不能小于参数个数");
+    }
+    if (count > expression.length - 1){
+      throw new IllegalArgumentException("条件语句的?个数不能大于参数个数");
+    }
+  }
+
+  /**
+   * 检测下载链接是否为null
+   */
+  public static void checkDownloadUrl(String downloadUrl) {
+    if (TextUtils.isEmpty(downloadUrl)) throw new IllegalArgumentException("下载链接不能为null");
+  }
 
   /**
    * 检测下载实体是否合法
