@@ -47,10 +47,10 @@ public interface ITaskQueue extends IDownloader {
    * 创建一个新的下载任务，创建时只是将新任务存储到缓存池
    *
    * @param entity 下载实体{@link DownloadEntity}
-   * @param target 生成该任务的对象
+   * @param targetName 生成该任务的对象
    * @return {@link Task}
    */
-  public Task createTask(Object target, DownloadEntity entity);
+  public Task createTask(String targetName, DownloadEntity entity);
 
   /**
    * 通过下载链接从缓存池或任务池搜索下载任务，如果缓存池或任务池都没有任务，则创建新任务

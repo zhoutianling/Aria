@@ -3,6 +3,7 @@
 下载不应该是让人感到痛苦的功能，Aria，致力于让下载傻瓜化。</br>
 + Aria有以下特点：
  - 简单
+ - 可在Dialog、popupWindow等组件中使用
  - 可自定义是否使用广播
  - 支持多线程、多任务下载
  - 支持任务自动切换
@@ -15,14 +16,14 @@
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:2.3.3'
+compile 'com.arialyy.aria:Aria:2.3.6'
 ```
 
 
 
 ## 示例
 ![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/download_img.gif)
-![单任务下载](https://github.com/AriaLyy/DownloadUtil/blob/master/img/11.gif "")
+![Dialog使用](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/dialog_use.gif "")
 
 ## 性能展示
 ![性能展示](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/performance.png)
@@ -113,6 +114,7 @@ compile 'com.arialyy.aria:Aria:2.3.3'
 
 ***
 ## 开发日志
+ + v_2.3.6 添加dialog、popupWindow支持
  + v_2.3.3
   - 添加断点支持
   - 修改下载逻辑，让使用更加简单

@@ -25,7 +25,7 @@ import com.arialyy.aria.core.task.Task;
  */
 class StartCmd extends IDownloadCmd {
 
-  StartCmd(Object target, DownloadEntity entity) {
+  StartCmd(String target, DownloadEntity entity) {
     super(target, entity);
   }
 
@@ -36,10 +36,10 @@ class StartCmd extends IDownloadCmd {
   @Override public void executeCmd() {
     Task task = mQueue.getTask(mEntity);
     if (task == null) {
-      task = mQueue.createTask(mTarget, mEntity);
+      task = mQueue.createTask(mTargetName, mEntity);
     }
     if (task != null) {
-      task.setTargetName(mTarget.getClass().getName());
+      task.setTargetName(mTargetName);
       mQueue.startTask(task);
     }
   }

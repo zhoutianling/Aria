@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import butterknife.Bind;
@@ -30,14 +31,18 @@ import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
+import com.arialyy.simple.dialog.DownloadDialog;
+import com.arialyy.simple.pop.DownloadPopupWindow;
 
 /**
  * Created by Lyy on 2016/10/13.
  */
 public class MainActivity extends BaseActivity<ActivityMainBinding> {
-  @Bind(R.id.toolbar) Toolbar mBar;
-  @Bind(R.id.single_task) Button mSigleBt;
-  @Bind(R.id.multi_task) Button mMultiBt;
+  @Bind(R.id.toolbar)     Toolbar mBar;
+  @Bind(R.id.single_task) Button  mSigleBt;
+  @Bind(R.id.multi_task)  Button  mMultiBt;
+  @Bind(R.id.dialog_task) Button  mDialogBt;
+  @Bind(R.id.pop_task)    Button  mPopBt;
 
   @Override protected int setLayoutId() {
     return R.layout.activity_main;
@@ -73,6 +78,8 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
   private void setEnable(boolean enable) {
     mSigleBt.setEnabled(enable);
     mMultiBt.setEnabled(enable);
+    mDialogBt.setEnabled(enable);
+    mPopBt.setEnabled(enable);
   }
 
   public void onClick(View view) {
@@ -82,6 +89,15 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
         break;
       case R.id.multi_task:
         startActivity(new Intent(this, MultiTaskActivity.class));
+        break;
+      case R.id.dialog_task:
+        DownloadDialog dialog = new DownloadDialog(this);
+        dialog.show();
+        break;
+      case R.id.pop_task:
+        DownloadPopupWindow pop = new DownloadPopupWindow(this);
+        //pop.showAsDropDown(mRootView);
+        pop.showAtLocation(mRootView, Gravity.CENTER_VERTICAL, 0, 0);
         break;
     }
   }

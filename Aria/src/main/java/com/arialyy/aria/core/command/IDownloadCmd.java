@@ -27,10 +27,10 @@ import com.arialyy.aria.core.DownloadEntity;
  * 下载命令
  */
 public abstract class IDownloadCmd {
-  ITaskQueue     mQueue;
+  ITaskQueue mQueue;
   DownloadEntity mEntity;
-  String         TAG;
-  Object         mTarget;
+  String TAG;
+  String mTargetName;
 
   /**
    * @param entity 下载实体
@@ -40,13 +40,13 @@ public abstract class IDownloadCmd {
   }
 
   /**
-   * @param target 产生任务的对象
+   * @param targetName 产生任务的对象名
    */
-  IDownloadCmd(Object target, DownloadEntity entity) {
+  IDownloadCmd(String targetName, DownloadEntity entity) {
     if (!CheckUtil.checkDownloadEntity(entity)) {
       return;
     }
-    mTarget = target;
+    mTargetName = targetName;
     mEntity = entity;
     TAG = CommonUtil.getClassName(this);
     mQueue = DownloadManager.getInstance().getTaskQueue();

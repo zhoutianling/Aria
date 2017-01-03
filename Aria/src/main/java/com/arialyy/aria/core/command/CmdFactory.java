@@ -90,7 +90,7 @@ public class CmdFactory {
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}
    */
-  public IDownloadCmd createCmd(Object target, DownloadEntity entity, int type) {
+  public IDownloadCmd createCmd(String target, DownloadEntity entity, int type) {
     switch (type) {
       case TASK_CREATE:
         return createAddCmd(target, entity);
@@ -113,7 +113,7 @@ public class CmdFactory {
    *
    * @return {@link StopCmd}
    */
-  private StopCmd createStopCmd(Object target, DownloadEntity entity) {
+  private StopCmd createStopCmd(String target, DownloadEntity entity) {
     return new StopCmd(target, entity);
   }
 
@@ -131,7 +131,7 @@ public class CmdFactory {
    *
    * @return {@link AddCmd}
    */
-  private AddCmd createAddCmd(Object target, DownloadEntity entity) {
+  private AddCmd createAddCmd(String target, DownloadEntity entity) {
     return new AddCmd(target, entity);
   }
 
@@ -149,7 +149,7 @@ public class CmdFactory {
    *
    * @return {@link StartCmd}
    */
-  private StartCmd createStartCmd(Object target, DownloadEntity entity) {
+  private StartCmd createStartCmd(String target, DownloadEntity entity) {
     return new StartCmd(target, entity);
   }
 
@@ -167,7 +167,7 @@ public class CmdFactory {
    *
    * @return {@link CancelCmd}
    */
-  private CancelCmd createCancelCmd(Object target, DownloadEntity entity) {
+  private CancelCmd createCancelCmd(String target, DownloadEntity entity) {
     return new CancelCmd(target, entity);
   }
 

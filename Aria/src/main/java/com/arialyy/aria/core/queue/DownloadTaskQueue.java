@@ -17,6 +17,7 @@
 package com.arialyy.aria.core.queue;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.queue.pool.CachePool;
@@ -32,9 +33,9 @@ import com.arialyy.aria.util.Configuration;
  * 下载任务队列
  */
 public class DownloadTaskQueue implements ITaskQueue {
-  private static final String      TAG          = "DownloadTaskQueue";
-  private              CachePool   mCachePool   = CachePool.getInstance();
-  private              ExecutePool mExecutePool = ExecutePool.getInstance();
+  private static final String TAG = "DownloadTaskQueue";
+  private CachePool mCachePool = CachePool.getInstance();
+  private ExecutePool mExecutePool = ExecutePool.getInstance();
   private Context mContext;
   //private IDownloadSchedulers mSchedulers;
 
@@ -155,17 +156,16 @@ public class DownloadTaskQueue implements ITaskQueue {
     }
   }
 
-  @Override public Task createTask(Object target, DownloadEntity entity) {
+  @Override public Task createTask(String target, DownloadEntity entity) {
     Task task;
-    if (target == null) {
+    if (TextUtils.isEmpty(target)) {
       //task = TaskFactory.getInstance().createTask(mContext, entity, mSchedulers);
-      task = TaskFactory.getInstance()
-          .createTask(mContext, entity, DownloadSchedulers.getInstance());
+      task =
+          TaskFactory.getInstance().createTask(mContext, entity, DownloadSchedulers.getInstance());
     } else {
       task = TaskFactory.getInstance()
           //.createTask(target.getClass().getName(), mContext, entity, mSchedulers);
-          .createTask(target.getClass().getName(), mContext, entity,
-              DownloadSchedulers.getInstance());
+          .createTask(target, mContext, entity, DownloadSchedulers.getInstance());
     }
     mCachePool.putTask(task);
     return task;
@@ -202,7 +202,7 @@ public class DownloadTaskQueue implements ITaskQueue {
   //}
 
   public static class Builder {
-    Context             context;
+    Context context;
     IDownloadSchedulers schedulers;
 
     public Builder(Context context) {

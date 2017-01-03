@@ -89,7 +89,8 @@ public class AMTarget {
    */
   public void add() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_CREATE))
+        .setCmd(
+            CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_CREATE))
         .exe();
   }
 
@@ -98,8 +99,8 @@ public class AMTarget {
    */
   public void start() {
     List<IDownloadCmd> cmds = new ArrayList<>();
-    cmds.add(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_CREATE));
-    cmds.add(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_START));
+    cmds.add(CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_CREATE));
+    cmds.add(CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_START));
     DownloadManager.getInstance().setCmds(cmds).exe();
     cmds.clear();
   }
@@ -109,7 +110,7 @@ public class AMTarget {
    */
   public void stop() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_STOP))
+        .setCmd(CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_STOP))
         .exe();
   }
 
@@ -118,7 +119,7 @@ public class AMTarget {
    */
   public void resume() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_START))
+        .setCmd(CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_START))
         .exe();
   }
 
@@ -127,7 +128,8 @@ public class AMTarget {
    */
   public void cancel() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(mReceiver.obj, mReceiver.entity, CmdFactory.TASK_CANCEL))
+        .setCmd(
+            CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_CANCEL))
         .exe();
   }
 

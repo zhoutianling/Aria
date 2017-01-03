@@ -16,6 +16,7 @@
 
 package com.arialyy.aria.core.command;
 
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
@@ -29,7 +30,7 @@ class StopCmd extends IDownloadCmd {
   /**
    * @param entity 下载实体
    */
-  StopCmd(Object target, DownloadEntity entity) {
+  StopCmd(String target, DownloadEntity entity) {
     super(target, entity);
   }
 
@@ -41,14 +42,14 @@ class StopCmd extends IDownloadCmd {
     Task task = mQueue.getTask(mEntity);
     if (task == null) {
       if (mEntity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
-        task = mQueue.createTask(mTarget, mEntity);
+        task = mQueue.createTask(mTargetName, mEntity);
         mQueue.stopTask(task);
       } else {
         Log.w(TAG, "停止命令执行失败，【调度器中没有该任务】");
       }
     } else {
-      if (mTarget != null) {
-        task.setTargetName(mTarget.getClass().getName());
+      if (!TextUtils.isEmpty(mTargetName)) {
+        task.setTargetName(mTargetName);
       }
       mQueue.stopTask(task);
     }
