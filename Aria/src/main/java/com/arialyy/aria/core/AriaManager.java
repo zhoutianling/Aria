@@ -199,7 +199,7 @@ import java.util.Set;
       target = mTargets.get(key);
       if (target == null) {
         target = new AMReceiver();
-        target.obj = obj;
+        target.targetName = obj.getClass().getName();
         mTargets.put(key, target);
       }
     }

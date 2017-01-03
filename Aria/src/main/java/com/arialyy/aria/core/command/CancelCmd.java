@@ -25,7 +25,7 @@ import com.arialyy.aria.core.task.Task;
  */
 class CancelCmd extends IDownloadCmd {
 
-  CancelCmd(Object target, DownloadEntity entity) {
+  CancelCmd(String target, DownloadEntity entity) {
     super(target, entity);
   }
 
@@ -36,11 +36,11 @@ class CancelCmd extends IDownloadCmd {
   @Override public void executeCmd() {
     Task task = mQueue.getTask(mEntity);
     if (task == null) {
-      task = mQueue.createTask(mTarget, mEntity);
+      task = mQueue.createTask(mTargetName, mEntity);
     }
     if (task != null) {
-      if (mTarget != null) {
-        task.setTargetName(mTarget.getClass().getName());
+      if (mTargetName != null) {
+        task.setTargetName(mTargetName);
       }
       mQueue.cancelTask(task);
     }

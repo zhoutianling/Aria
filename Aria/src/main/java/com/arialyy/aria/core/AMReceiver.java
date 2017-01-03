@@ -27,9 +27,10 @@ import com.arialyy.aria.util.CheckUtil;
  * AM 接收器
  */
 public class AMReceiver {
-  Object              obj;
+  String targetName;
   OnSchedulerListener listener;
-  DownloadEntity      entity;
+  DownloadEntity entity;
+  Object obj;
 
   /**
    * {@link #load(String)}，请使用该方法
@@ -59,7 +60,7 @@ public class AMReceiver {
    */
   public AMReceiver addSchedulerListener(OnSchedulerListener listener) {
     this.listener = listener;
-    DownloadSchedulers.getInstance().addSchedulerListener(obj, listener);
+    DownloadSchedulers.getInstance().addSchedulerListener(targetName, listener);
     return this;
   }
 
@@ -68,13 +69,13 @@ public class AMReceiver {
    */
   public AMReceiver removeSchedulerListener() {
     if (listener != null) {
-      DownloadSchedulers.getInstance().removeSchedulerListener(obj, listener);
+      DownloadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
     }
     return this;
   }
 
   void destroy() {
-    obj = null;
+    targetName = null;
     listener = null;
   }
 }
