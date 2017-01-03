@@ -40,7 +40,7 @@ import java.util.Properties;
 public class CommonUtil {
   private static final String TAG = "util";
 
-  public static IDownloadCmd createCmd(Object target, DownloadEntity entity, int cmd) {
+  public static IDownloadCmd createCmd(String target, DownloadEntity entity, int cmd) {
     return CmdFactory.getInstance().createCmd(target, entity, cmd);
   }
 

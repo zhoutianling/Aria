@@ -28,15 +28,16 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.PopupWindow;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.core.command.IDownloadCmd;
 import com.arialyy.aria.util.Configuration;
-import java.io.File;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -185,29 +186,68 @@ import java.util.Set;
         Activity activity = ((Dialog) obj).getOwnerActivity();
         if (activity != null) {
           key = clsName + "_" + activity.getClass().getName();
+        } else {
+          key = clsName;
         }
-        handleDialogDialogLift((Dialog) obj);
+        handleDialogLift((Dialog) obj);
+      } else if (obj instanceof PopupWindow) {
+        Context context = ((PopupWindow) obj).getContentView().getContext();
+        if (context instanceof Activity) {
+          key = clsName + "_" + context.getClass().getName();
+        } else {
+          key = clsName;
+        }
+        handlePopupWindowLift((PopupWindow) obj);
       }
     } else {
       key = clsName;
     }
     if (TextUtils.isEmpty(key)) {
       throw new IllegalArgumentException("未知类型");
-    } else {
-      target = mTargets.get(key);
-      if (target == null) {
-        target = new AMReceiver();
-        target.obj = obj;
-        mTargets.put(key, target);
-      }
+    }
+    target = mTargets.get(key);
+    if (target == null) {
+      target = new AMReceiver();
+      target.targetName = obj.getClass().getName();
+      mTargets.put(key, target);
     }
     return target;
   }
 
   /**
+   * 出来悬浮框取消或dismiss
+   */
+  private void handlePopupWindowLift(PopupWindow popupWindow) {
+    try {
+      Field dismissField = CommonUtil.getField(popupWindow.getClass(), "mOnDismissListener");
+      PopupWindow.OnDismissListener listener =
+          (PopupWindow.OnDismissListener) dismissField.get(popupWindow);
+      if (listener != null) {
+        Log.e(TAG, "你已经对PopupWindow设置了Dismiss事件。为了防止内存泄露，"
+            + "请在dismiss方法中调用Aria.whit(this).removeSchedulerListener();来注销事件");
+      } else {
+        popupWindow.setOnDismissListener(createPopupWindowListener(popupWindow));
+      }
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * 创建popupWindow dismiss事件
+   */
+  private PopupWindow.OnDismissListener createPopupWindowListener(final PopupWindow popupWindow) {
+    return new PopupWindow.OnDismissListener() {
+      @Override public void onDismiss() {
+        destroySchedulerListener(popupWindow);
+      }
+    };
+  }
+
+  /**
    * 处理对话框取消或dismiss
    */
-  private void handleDialogDialogLift(Dialog dialog) {
+  private void handleDialogLift(Dialog dialog) {
     try {
       Field   dismissField = CommonUtil.getField(dialog.getClass(), "mDismissMessage");
       Message dismissMsg   = (Message) dismissField.get(dialog);
@@ -219,10 +259,10 @@ import java.util.Set;
           Log.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。为了防止内存泄露，"
               + "请在dismiss方法中调用Aria.whit(this).removeSchedulerListener();来注销事件");
         } else {
-          dialog.setCancelMessage(createCancelMessage());
+          dialog.setOnCancelListener(createCancelListener());
         }
       } else {
-        dialog.setCancelMessage(createDismissMessage());
+        dialog.setOnDismissListener(createDismissListener());
       }
     } catch (IllegalAccessException e) {
       e.printStackTrace();
@@ -249,33 +289,27 @@ import java.util.Set;
   }
 
   /**
-   * 创建Dialog取消消息
+   * 创建Dialog取消事件
    */
-  private Message createCancelMessage() {
-    final Message cancelMsg = new Message();
-    cancelMsg.what = 0x44;
-    cancelMsg.obj = new Dialog.OnCancelListener() {
+  private Dialog.OnCancelListener createCancelListener() {
+    return new Dialog.OnCancelListener() {
 
       @Override public void onCancel(DialogInterface dialog) {
         destroySchedulerListener(dialog);
       }
     };
-    return cancelMsg;
   }
 
   /**
-   * 创建Dialog dismiss取消消息
+   * 创建Dialog dismiss取消事件
    */
-  private Message createDismissMessage() {
-    final Message cancelMsg = new Message();
-    cancelMsg.what = 0x43;
-    cancelMsg.obj = new Dialog.OnDismissListener() {
+  private Dialog.OnDismissListener createDismissListener() {
+    return new Dialog.OnDismissListener() {
 
       @Override public void onDismiss(DialogInterface dialog) {
         destroySchedulerListener(dialog);
       }
     };
-    return cancelMsg;
   }
 
   /**
@@ -284,15 +318,18 @@ import java.util.Set;
   private void destroySchedulerListener(Object obj) {
     Set<String> keys    = mTargets.keySet();
     String      clsName = obj.getClass().getName();
-    for (String key : keys) {
+    for (Iterator<Map.Entry<String, AMReceiver>> iter = mTargets.entrySet().iterator();
+        iter.hasNext(); ) {
+      Map.Entry<String, AMReceiver> entry = iter.next();
+      String                        key   = entry.getKey();
       if (key.equals(clsName) || key.contains(clsName)) {
         AMReceiver receiver = mTargets.get(key);
         if (receiver.obj != null) {
           if (receiver.obj instanceof Application || receiver.obj instanceof Service) break;
-          receiver.removeSchedulerListener();
-          receiver.destroy();
-          mTargets.remove(key);
         }
+        receiver.removeSchedulerListener();
+        receiver.destroy();
+        iter.remove();
         break;
       }
     }
