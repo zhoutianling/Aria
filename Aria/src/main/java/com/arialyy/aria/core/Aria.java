@@ -24,7 +24,10 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.Service;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.os.Build;
+import android.view.ContextThemeWrapper;
+import android.widget.PopupWindow;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.core.task.Task;
 
@@ -113,13 +116,31 @@ import com.arialyy.aria.core.task.Task;
   }
 
   /**
-   * 处理Fragment、或者DialogFragment
+   * 处理Fragment
    */
-  public static AMReceiver whit(Fragment fragment) {
+  private static AMReceiver whit(Fragment fragment) {
     checkNull(fragment);
     return AriaManager.getInstance(
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
             : fragment.getActivity()).get(fragment);
+  }
+
+  /**
+   * 处理Fragment、或者DialogFragment
+   */
+  public static AMReceiver whit(DialogFragment dialog) {
+    checkNull(dialog);
+    return AriaManager.getInstance(
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? dialog.getContext() : dialog.getActivity())
+        .get(dialog);
+  }
+
+  /**
+   * 处理popupwindow
+   */
+  public static AMReceiver whit(PopupWindow popupWindow) {
+    checkNull(popupWindow);
+    return AriaManager.getInstance(popupWindow.getContentView().getContext()).get(popupWindow);
   }
 
   /**
@@ -151,9 +172,17 @@ import com.arialyy.aria.core.task.Task;
   /**
    * 处理Dialog的通用任务
    */
-  public static AMReceiver get(Dialog dialog) {
+  public static AriaManager get(Dialog dialog) {
     checkNull(dialog);
-    return AriaManager.getInstance(dialog.getContext()).get(dialog);
+    return AriaManager.getInstance(dialog.getContext());
+  }
+
+  /**
+   * 处理Dialog的通用任务
+   */
+  public static AriaManager get(PopupWindow popupWindow) {
+    checkNull(popupWindow);
+    return AriaManager.getInstance(popupWindow.getContentView().getContext());
   }
 
   public static class SimpleSchedulerListener implements OnSchedulerListener {

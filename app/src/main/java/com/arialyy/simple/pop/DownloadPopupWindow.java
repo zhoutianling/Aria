@@ -1,6 +1,9 @@
-package com.arialyy.simple.dialog;
+package com.arialyy.simple.pop;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ClipDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
@@ -13,13 +16,14 @@ import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.core.AbsDialog;
+import com.arialyy.frame.core.AbsPopupWindow;
 import com.arialyy.simple.R;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
 /**
  * Created by AriaL on 2017/1/2.
  */
-public class DownloadDialog extends AbsDialog {
+public class DownloadPopupWindow extends AbsPopupWindow {
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
   @Bind(R.id.start)       Button                          mStart;
   @Bind(R.id.stop)        Button                          mStop;
@@ -30,16 +34,16 @@ public class DownloadDialog extends AbsDialog {
   private static final String DOWNLOAD_URL =
       "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
 
-  public DownloadDialog(Context context) {
-    super(context);
-    init();
+  public DownloadPopupWindow(Context context) {
+    super(context, new ColorDrawable(Color.WHITE));
+    initWidget();
   }
 
   @Override protected int setLayoutId() {
     return R.layout.dialog_download;
   }
 
-  private void init() {
+  private void initWidget() {
     if (Aria.get(this).taskExists(DOWNLOAD_URL)) {
       AMTarget target = Aria.whit(this).load(DOWNLOAD_URL);
       int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());

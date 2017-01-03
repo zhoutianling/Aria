@@ -93,10 +93,6 @@ public class DownloadSchedulers implements IDownloadSchedulers {
 
   @Override
   public void addSchedulerListener(String targetName, OnSchedulerListener schedulerListener) {
-    if (mSchedulerListeners.get(targetName) != null) {
-      Log.w(TAG, "监听器已存在");
-      return;
-    }
     mSchedulerListeners.put(targetName, schedulerListener);
   }
 
