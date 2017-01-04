@@ -26,6 +26,7 @@
 
     <activity android:name=".activity.SingleTaskActivity"/>
     <activity android:name=".activity.MultiTaskActivity"/>
+    <activity android:name=".activity.FragmentActivity"/>
   </application>
 
 </manifest>

@@ -38,11 +38,11 @@ import com.arialyy.simple.pop.DownloadPopupWindow;
  * Created by Lyy on 2016/10/13.
  */
 public class MainActivity extends BaseActivity<ActivityMainBinding> {
-  @Bind(R.id.toolbar)     Toolbar mBar;
-  @Bind(R.id.single_task) Button  mSigleBt;
-  @Bind(R.id.multi_task)  Button  mMultiBt;
-  @Bind(R.id.dialog_task) Button  mDialogBt;
-  @Bind(R.id.pop_task)    Button  mPopBt;
+  @Bind(R.id.toolbar) Toolbar mBar;
+  @Bind(R.id.single_task) Button mSigleBt;
+  @Bind(R.id.multi_task) Button mMultiBt;
+  @Bind(R.id.dialog_task) Button mDialogBt;
+  @Bind(R.id.pop_task) Button mPopBt;
 
   @Override protected int setLayoutId() {
     return R.layout.activity_main;
@@ -98,6 +98,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
         DownloadPopupWindow pop = new DownloadPopupWindow(this);
         //pop.showAsDropDown(mRootView);
         pop.showAtLocation(mRootView, Gravity.CENTER_VERTICAL, 0, 0);
+        break;
+      case R.id.fragment_task:
+        startActivity(new Intent(this, FragmentActivity.class));
         break;
     }
   }
