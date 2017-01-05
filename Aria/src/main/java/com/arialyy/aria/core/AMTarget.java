@@ -29,10 +29,13 @@ import java.util.List;
  * https://github.com/AriaLyy/Aria
  */
 public class AMTarget {
-  private AMReceiver mReceiver;
+  //private AMReceiver mReceiver;
+  DownloadEntity entity;
+  String targetName;
 
-  AMTarget(AMReceiver receiver) {
-    this.mReceiver = receiver;
+  AMTarget(DownloadEntity entity, String targetName) {
+    this.entity = entity;
+    this.targetName = targetName;
   }
 
   /**
@@ -42,7 +45,7 @@ public class AMTarget {
     if (TextUtils.isEmpty(downloadPath)) {
       throw new IllegalArgumentException("文件保持路径不能为null");
     }
-    mReceiver.entity.setDownloadPath(downloadPath);
+    entity.setDownloadPath(downloadPath);
     return this;
   }
 
@@ -53,7 +56,7 @@ public class AMTarget {
     if (TextUtils.isEmpty(downloadName)) {
       throw new IllegalArgumentException("文件名不能为null");
     }
-    mReceiver.entity.setFileName(downloadName);
+    entity.setFileName(downloadName);
     return this;
   }
 
@@ -61,7 +64,7 @@ public class AMTarget {
    * 获取下载文件大小
    */
   public long getFileSize() {
-    DownloadEntity entity = getDownloadEntity(mReceiver.entity.getDownloadUrl());
+    DownloadEntity entity = getDownloadEntity(this.entity.getDownloadUrl());
     if (entity == null) {
       throw new NullPointerException("下载管理器中没有改任务");
     }
@@ -72,7 +75,7 @@ public class AMTarget {
    * 获取当前下载进度，如果下載实体存在，则返回当前进度
    */
   public long getCurrentProgress() {
-    DownloadEntity entity = getDownloadEntity(mReceiver.entity.getDownloadUrl());
+    DownloadEntity entity = getDownloadEntity(this.entity.getDownloadUrl());
     if (entity == null) {
       throw new NullPointerException("下载管理器中没有改任务");
     }
@@ -89,8 +92,7 @@ public class AMTarget {
    */
   public void add() {
     DownloadManager.getInstance()
-        .setCmd(
-            CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_CREATE))
+        .setCmd(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_CREATE))
         .exe();
   }
 
@@ -99,8 +101,8 @@ public class AMTarget {
    */
   public void start() {
     List<IDownloadCmd> cmds = new ArrayList<>();
-    cmds.add(CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_CREATE));
-    cmds.add(CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_START));
+    cmds.add(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_CREATE));
+    cmds.add(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_START));
     DownloadManager.getInstance().setCmds(cmds).exe();
     cmds.clear();
   }
@@ -110,7 +112,7 @@ public class AMTarget {
    */
   public void stop() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_STOP))
+        .setCmd(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_STOP))
         .exe();
   }
 
@@ -119,7 +121,7 @@ public class AMTarget {
    */
   public void resume() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_START))
+        .setCmd(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_START))
         .exe();
   }
 
@@ -128,8 +130,7 @@ public class AMTarget {
    */
   public void cancel() {
     DownloadManager.getInstance()
-        .setCmd(
-            CommonUtil.createCmd(mReceiver.targetName, mReceiver.entity, CmdFactory.TASK_CANCEL))
+        .setCmd(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_CANCEL))
         .exe();
   }
 
@@ -137,7 +138,7 @@ public class AMTarget {
    * 是否在下载
    */
   public boolean isDownloading() {
-    return DownloadManager.getInstance().getTaskQueue().getTask(mReceiver.entity).isDownloading();
+    return DownloadManager.getInstance().getTaskQueue().getTask(entity).isDownloading();
   }
 
   /**

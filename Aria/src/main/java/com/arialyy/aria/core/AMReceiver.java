@@ -37,7 +37,7 @@ public class AMReceiver {
    */
   @Deprecated public AMTarget load(DownloadEntity entity) {
     this.entity = entity;
-    return new AMTarget(this);
+    return new AMTarget(entity, targetName);
   }
 
   /**
@@ -52,7 +52,7 @@ public class AMReceiver {
       entity = new DownloadEntity();
     }
     entity.setDownloadUrl(downloadUrl);
-    return new AMTarget(this);
+    return new AMTarget(entity, targetName);
   }
 
   /**

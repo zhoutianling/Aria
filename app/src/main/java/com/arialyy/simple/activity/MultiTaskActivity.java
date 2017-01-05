@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.simple.activity;
 
 import android.os.Bundle;
@@ -25,6 +24,7 @@ import android.view.View;
 import butterknife.Bind;
 import com.arialyy.aria.core.AMTarget;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
@@ -33,14 +33,17 @@ import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiBinding;
 import com.arialyy.simple.dialog.DownloadNumDialog;
 import com.arialyy.simple.module.DownloadModule;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Lyy on 2016/9/27.
  */
 public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
-  @Bind(R.id.list)    RecyclerView mList;
-  @Bind(R.id.toolbar) Toolbar      mBar;
+  @Bind(R.id.list) RecyclerView mList;
+  @Bind(R.id.toolbar) Toolbar mBar;
   DownloadAdapter mAdapter;
+  List<DownloadEntity> mData = new ArrayList<>();
 
   @Override protected int setLayoutId() {
     return R.layout.activity_multi;
@@ -50,7 +53,8 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     super.init(savedInstanceState);
     setSupportActionBar(mBar);
     mBar.setTitle("多任务下载");
-    mAdapter = new DownloadAdapter(this, getModule(DownloadModule.class).getDownloadData());
+    mData.addAll(getModule(DownloadModule.class).getDownloadData());
+    mAdapter = new DownloadAdapter(this, mData);
     mList.setLayoutManager(new LinearLayoutManager(this));
     mList.setAdapter(mAdapter);
   }
@@ -103,14 +107,18 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
   //  }
   //};
 
-  public void onClick(View view){
-    switch (view.getId()){
+  public void onClick(View view) {
+    switch (view.getId()) {
       case R.id.num:
         DownloadNumDialog dialog = new DownloadNumDialog(this);
         dialog.show(getSupportFragmentManager(), "download_num");
         break;
       case R.id.stop_all:
         Aria.get(this).stopAllTask();
+        break;
+      case R.id.add_task:
+        mData.add(getModule(DownloadModule.class).createRandomDownloadEntity());
+        mAdapter.notifyDataSetChanged();
         break;
     }
   }
@@ -127,12 +135,12 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
 
   @Override protected void dataCallback(int result, Object data) {
     super.dataCallback(result, data);
-    if (result == DownloadNumDialog.RESULT_CODE){
+    if (result == DownloadNumDialog.RESULT_CODE) {
       mAdapter.setDownloadNum(Integer.parseInt(data + ""));
     }
   }
 
-  private class MySchedulerListener extends Aria.SimpleSchedulerListener{
+  private class MySchedulerListener extends Aria.SimpleSchedulerListener {
     @Override public void onTaskPre(Task task) {
       super.onTaskPre(task);
       L.d(TAG, "download pre");

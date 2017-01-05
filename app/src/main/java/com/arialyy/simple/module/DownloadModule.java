@@ -35,13 +35,29 @@ import com.arialyy.simple.base.BaseModule;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Lyy on 2016/9/27.
  */
 public class DownloadModule extends BaseModule {
+  private List<String> mTestDownloadUrl = new ArrayList<>();
+
   public DownloadModule(Context context) {
     super(context);
+    mTestDownloadUrl.add("static.gaoshouyou.com/d/e6/f5/4de6329f9cf5dc3a1d1e6bbcca0d003c.apk");
+    mTestDownloadUrl.add("static.gaoshouyou.com/d/6e/e5/ff6ecaaf45e532e6d07747af82357472.apk");
+    mTestDownloadUrl.add("static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk");
+  }
+
+  public String getRadomUrl() {
+    Random random = new Random();
+    int i = random.nextInt(2);
+    return mTestDownloadUrl.get(i);
+  }
+
+  public DownloadEntity createRandomDownloadEntity(){
+    return createDownloadEntity(getRadomUrl());
   }
 
   /**
@@ -86,8 +102,8 @@ public class DownloadModule extends BaseModule {
   }
 
   private DownloadEntity createDownloadEntity(String url) {
-    String         fileName = CommonUtil.keyToHashCode(url) + ".apk";
-    DownloadEntity entity   = new DownloadEntity();
+    String fileName = CommonUtil.keyToHashCode(url) + ".apk";
+    DownloadEntity entity = new DownloadEntity();
     entity.setDownloadUrl(url);
     entity.setDownloadPath(getDownloadPath(url));
     entity.setFileName(fileName);
