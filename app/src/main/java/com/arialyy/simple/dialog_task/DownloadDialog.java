@@ -1,4 +1,4 @@
-package com.arialyy.simple.dialog;
+package com.arialyy.simple.dialog_task;
 
 import android.content.Context;
 import android.os.Environment;

@@ -16,7 +16,7 @@ Aria，致力于让下载傻瓜化</br>
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:2.3.6'
+compile 'com.arialyy.aria:Aria:2.3.8'
 ```
 
 
@@ -30,7 +30,13 @@ compile 'com.arialyy.aria:Aria:2.3.6'
 
 ***
 ## 使用
-### 一、只需要以下参数，你便能很简单的使用Aria下载文件了
+### 一、添加权限
+```xml
+<uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+```
+### 二、只需要以下参数，你便能很简单的使用Aria下载文件了
 ```java
   Aria.whit(this)
         .load(DOWNLOAD_URL)		//下载地址，必填
@@ -38,14 +44,14 @@ compile 'com.arialyy.aria:Aria:2.3.6'
         .setDownloadName("test.apk")	//文件名，必填
         .start();
 ```
-### 二、为了能接收到Aria传递的数据，你需要把你的Activity或fragment注册到Aria管理器中，注册的方式很简单，在onResume
+### 三、为了能接收到Aria传递的数据，你需要把你的Activity或fragment注册到Aria管理器中，注册的方式很简单，在onResume
 ```java
 @Override protected void onResume() {
     super.onResume();
     Aria.whit(this).addSchedulerListener(new MySchedulerListener());
   }
 ```
-### 三、通过下载链接，你还能使用Aria执行很多操作，如：
+### 四、通过下载链接，你还能使用Aria执行很多操作，如：
 - 添加任务（不进行下载）
 
   ```java
@@ -85,7 +91,7 @@ compile 'com.arialyy.aria:Aria:2.3.6'
   Aria.whit(this).load(DOWNLOAD_URL).getFileSize();
   ```
 
-### 四、关于Aria，你还需要知道的一些东西
+### 五、关于Aria，你还需要知道的一些东西
 - 设置下载任务数，Aria默认下载任务为**2**
 
   ```java
@@ -114,6 +120,7 @@ compile 'com.arialyy.aria:Aria:2.3.6'
 
 ***
 ## 开发日志
+ + v_2.3.8 修复数据错乱的bug、添加fragment支持
  + v_2.3.6 添加dialog、popupWindow支持
  + v_2.3.3
   - 添加断点支持

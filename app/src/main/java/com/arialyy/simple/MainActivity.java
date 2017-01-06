@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.arialyy.simple.activity;
+package com.arialyy.simple;
 
 import android.Manifest;
 import android.content.Intent;
@@ -28,11 +28,13 @@ import butterknife.Bind;
 import com.arialyy.frame.permission.OnPermissionCallback;
 import com.arialyy.frame.permission.PermissionManager;
 import com.arialyy.frame.util.show.T;
-import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
-import com.arialyy.simple.dialog.DownloadDialog;
-import com.arialyy.simple.pop.DownloadPopupWindow;
+import com.arialyy.simple.dialog_task.DownloadDialog;
+import com.arialyy.simple.fragment_task.FragmentActivity;
+import com.arialyy.simple.multi_task.MultiTaskActivity;
+import com.arialyy.simple.pop_task.DownloadPopupWindow;
+import com.arialyy.simple.single_task.SingleTaskActivity;
 
 /**
  * Created by Lyy on 2016/10/13.

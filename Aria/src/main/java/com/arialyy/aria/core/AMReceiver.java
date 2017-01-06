@@ -27,16 +27,14 @@ import com.arialyy.aria.util.CheckUtil;
  * AM 接收器
  */
 public class AMReceiver {
-  String targetName;
+  String              targetName;
   OnSchedulerListener listener;
-  DownloadEntity entity;
-  Object obj;
+  Object              obj;
 
   /**
    * {@link #load(String)}，请使用该方法
    */
   @Deprecated public AMTarget load(DownloadEntity entity) {
-    this.entity = entity;
     return new AMTarget(entity, targetName);
   }
 
@@ -45,9 +43,8 @@ public class AMReceiver {
    */
   public AMTarget load(@NonNull String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    if (entity == null) {
-      entity = DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
-    }
+    DownloadEntity entity =
+        DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
     if (entity == null) {
       entity = new DownloadEntity();
     }

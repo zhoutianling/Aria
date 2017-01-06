@@ -1,4 +1,4 @@
-package com.arialyy.simple.fragment;
+package com.arialyy.simple.fragment_task;
 
 import android.os.Bundle;
 import android.os.Environment;
@@ -15,7 +15,6 @@ import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.core.AbsFragment;
 import com.arialyy.simple.R;
 import com.arialyy.simple.databinding.FragmentDownloadBinding;
-import com.arialyy.simple.dialog.DownloadDialog;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
 /**

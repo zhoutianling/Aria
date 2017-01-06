@@ -1,8 +1,7 @@
-package com.arialyy.simple.pop;
+package com.arialyy.simple.pop_task;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Environment;
 import android.view.View;
@@ -15,7 +14,6 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.frame.core.AbsDialog;
 import com.arialyy.frame.core.AbsPopupWindow;
 import com.arialyy.simple.R;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;

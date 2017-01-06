@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-  <LinearLayout
+  <RelativeLayout
+      xmlns:tools="http://schemas.android.com/tools"
+      android:id="@+id/activity_main"
       android:layout_width="match_parent"
       android:layout_height="match_parent"
-      android:orientation="vertical"
+      tools:context="com.example.arial.test.MainActivity"
       >
-    <fragment
-        android:id="@+id/fragment1"
-        android:name="com.arialyy.simple.fragment_task.DownloadFragment"
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
 
-  </LinearLayout>
+  </RelativeLayout>
 </layout>
