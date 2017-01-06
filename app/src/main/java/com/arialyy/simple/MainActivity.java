@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.arialyy.simple.activity;
+package com.arialyy.simple;
 
 import android.Manifest;
 import android.content.Intent;
@@ -28,21 +28,23 @@ import butterknife.Bind;
 import com.arialyy.frame.permission.OnPermissionCallback;
 import com.arialyy.frame.permission.PermissionManager;
 import com.arialyy.frame.util.show.T;
-import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
-import com.arialyy.simple.dialog.DownloadDialog;
-import com.arialyy.simple.pop.DownloadPopupWindow;
+import com.arialyy.simple.dialog_task.DownloadDialog;
+import com.arialyy.simple.fragment_task.FragmentActivity;
+import com.arialyy.simple.multi_task.MultiTaskActivity;
+import com.arialyy.simple.pop_task.DownloadPopupWindow;
+import com.arialyy.simple.single_task.SingleTaskActivity;
 
 /**
  * Created by Lyy on 2016/10/13.
  */
 public class MainActivity extends BaseActivity<ActivityMainBinding> {
-  @Bind(R.id.toolbar)     Toolbar mBar;
-  @Bind(R.id.single_task) Button  mSigleBt;
-  @Bind(R.id.multi_task)  Button  mMultiBt;
-  @Bind(R.id.dialog_task) Button  mDialogBt;
-  @Bind(R.id.pop_task)    Button  mPopBt;
+  @Bind(R.id.toolbar) Toolbar mBar;
+  @Bind(R.id.single_task) Button mSigleBt;
+  @Bind(R.id.multi_task) Button mMultiBt;
+  @Bind(R.id.dialog_task) Button mDialogBt;
+  @Bind(R.id.pop_task) Button mPopBt;
 
   @Override protected int setLayoutId() {
     return R.layout.activity_main;
@@ -98,6 +100,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
         DownloadPopupWindow pop = new DownloadPopupWindow(this);
         //pop.showAsDropDown(mRootView);
         pop.showAtLocation(mRootView, Gravity.CENTER_VERTICAL, 0, 0);
+        break;
+      case R.id.fragment_task:
+        startActivity(new Intent(this, FragmentActivity.class));
         break;
     }
   }

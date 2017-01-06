@@ -67,15 +67,22 @@ public class Task {
   /**
    * 获取文件大小
    */
-  public long getFileSize(){
+  public long getFileSize() {
     return mEntity.getFileSize();
   }
 
   /**
    * 获取当前下载进度
    */
-  public long getCurrentProgress(){
+  public long getCurrentProgress() {
     return mEntity.getCurrentProgress();
+  }
+
+  /**
+   * 获取当前下载任务的下载地址
+   */
+  public String getDownloadUrl() {
+    return mEntity.getDownloadUrl();
   }
 
   /**
@@ -202,6 +209,7 @@ public class Task {
     public Task build() {
       Task task = new Task(context, downloadEntity, outHandler);
       task.setTargetName(targetName);
+      //Log.w(TAG, "downloadEntity hashcode ==> " + downloadEntity.hashCode());
       downloadEntity.save();
       return task;
     }

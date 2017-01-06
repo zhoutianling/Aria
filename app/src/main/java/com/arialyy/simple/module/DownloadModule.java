@@ -24,24 +24,59 @@ import android.os.Environment;
 import android.os.Handler;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.DownloadEntity;
-import com.arialyy.aria.core.DownloadManager;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.AndroidUtils;
 import com.arialyy.frame.util.StringUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
-import com.arialyy.simple.activity.SingleTaskActivity;
+import com.arialyy.simple.multi_task.FileListEntity;
+import com.arialyy.simple.single_task.SingleTaskActivity;
 import com.arialyy.simple.base.BaseModule;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Created by Lyy on 2016/9/27.
  */
 public class DownloadModule extends BaseModule {
+  private List<String> mTestDownloadUrl = new ArrayList<>();
+
   public DownloadModule(Context context) {
     super(context);
+    mTestDownloadUrl.add("http://static.gaoshouyou.com/d/e6/f5/4de6329f9cf5dc3a1d1e6bbcca0d003c.apk");
+    mTestDownloadUrl.add("http://static.gaoshouyou.com/d/6e/e5/ff6ecaaf45e532e6d07747af82357472.apk");
+    mTestDownloadUrl.add("http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk");
+  }
+
+  public String getRadomUrl() {
+    Random random = new Random();
+    int i = random.nextInt(2);
+    return mTestDownloadUrl.get(i);
+  }
+
+  public DownloadEntity createRandomDownloadEntity(){
+    return createDownloadEntity(getRadomUrl());
+  }
+
+  /**
+   * 创建下载地址
+   */
+  public List<FileListEntity> createFileList() {
+    String[] names = getContext().getResources().getStringArray(R.array.file_nams);
+    String[] downloadUrl = getContext().getResources().getStringArray(R.array.download_url);
+    List<FileListEntity> list = new ArrayList<>();
+    int i = 0;
+    for (String name : names) {
+      FileListEntity entity = new FileListEntity();
+      entity.name = name;
+      entity.downloadUrl = downloadUrl[i];
+      entity.downloadPath = Environment.getExternalStorageDirectory() + "/Download/" + name;
+      list.add(entity);
+      i++;
+    }
+    return list;
   }
 
   /**
@@ -86,8 +121,8 @@ public class DownloadModule extends BaseModule {
   }
 
   private DownloadEntity createDownloadEntity(String url) {
-    String         fileName = CommonUtil.keyToHashCode(url) + ".apk";
-    DownloadEntity entity   = new DownloadEntity();
+    String fileName = CommonUtil.keyToHashCode(url) + ".apk";
+    DownloadEntity entity = new DownloadEntity();
     entity.setDownloadUrl(url);
     entity.setDownloadPath(getDownloadPath(url));
     entity.setFileName(fileName);

@@ -24,9 +24,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.Service;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.os.Build;
-import android.view.ContextThemeWrapper;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.core.task.Task;
@@ -51,43 +49,43 @@ import com.arialyy.aria.core.task.Task;
   /**
    * 预处理完成
    */
-  public static final String ACTION_PRE       = "ACTION_PRE";
+  public static final String ACTION_PRE = "ACTION_PRE";
   /**
    * 下载开始前事件
    */
-  public static final String ACTION_POST_PRE  = "ACTION_POST_PRE";
+  public static final String ACTION_POST_PRE = "ACTION_POST_PRE";
   /**
    * 开始下载事件
    */
-  public static final String ACTION_START     = "ACTION_START";
+  public static final String ACTION_START = "ACTION_START";
   /**
    * 恢复下载事件
    */
-  public static final String ACTION_RESUME    = "ACTION_RESUME";
+  public static final String ACTION_RESUME = "ACTION_RESUME";
   /**
    * 正在下载事件
    */
-  public static final String ACTION_RUNNING   = "ACTION_RUNNING";
+  public static final String ACTION_RUNNING = "ACTION_RUNNING";
   /**
    * 停止下载事件
    */
-  public static final String ACTION_STOP      = "ACTION_STOP";
+  public static final String ACTION_STOP = "ACTION_STOP";
   /**
    * 取消下载事件
    */
-  public static final String ACTION_CANCEL    = "ACTION_CANCEL";
+  public static final String ACTION_CANCEL = "ACTION_CANCEL";
   /**
    * 下载完成事件
    */
-  public static final String ACTION_COMPLETE  = "ACTION_COMPLETE";
+  public static final String ACTION_COMPLETE = "ACTION_COMPLETE";
   /**
    * 下载失败事件
    */
-  public static final String ACTION_FAIL      = "ACTION_FAIL";
+  public static final String ACTION_FAIL = "ACTION_FAIL";
   /**
    * 下载实体
    */
-  public static final String ENTITY           = "DOWNLOAD_ENTITY";
+  public static final String ENTITY = "DOWNLOAD_ENTITY";
   /**
    * 位置
    */
@@ -95,7 +93,7 @@ import com.arialyy.aria.core.task.Task;
   /**
    * 速度
    */
-  public static final String CURRENT_SPEED    = "CURRENT_SPEED";
+  public static final String CURRENT_SPEED = "CURRENT_SPEED";
 
   private Aria() {
   }
@@ -118,7 +116,17 @@ import com.arialyy.aria.core.task.Task;
   /**
    * 处理Fragment
    */
-  private static AMReceiver whit(Fragment fragment) {
+  public static AMReceiver whit(Fragment fragment) {
+    checkNull(fragment);
+    return AriaManager.getInstance(
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
+            : fragment.getActivity()).get(fragment);
+  }
+
+  /**
+   * 处理Fragment
+   */
+  public static AMReceiver whit(android.support.v4.app.Fragment fragment) {
     checkNull(fragment);
     return AriaManager.getInstance(
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
@@ -151,10 +159,6 @@ import com.arialyy.aria.core.task.Task;
     return AriaManager.getInstance(dialog.getContext()).get(dialog);
   }
 
-  private static void checkNull(Object obj) {
-    if (obj == null) throw new IllegalArgumentException("不能传入空对象");
-  }
-
   /**
    * 处理通用事件
    */
@@ -183,6 +187,30 @@ import com.arialyy.aria.core.task.Task;
   public static AriaManager get(PopupWindow popupWindow) {
     checkNull(popupWindow);
     return AriaManager.getInstance(popupWindow.getContentView().getContext());
+  }
+
+  /**
+   * 处理Fragment的通用任务
+   */
+  public static AriaManager get(Fragment fragment) {
+    checkNull(fragment);
+    return AriaManager.getInstance(
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
+            : fragment.getActivity());
+  }
+
+  /**
+   * 处理Fragment的通用任务
+   */
+  public static AriaManager get(android.support.v4.app.Fragment fragment) {
+    checkNull(fragment);
+    return AriaManager.getInstance(
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
+            : fragment.getActivity());
+  }
+
+  private static void checkNull(Object obj) {
+    if (obj == null) throw new IllegalArgumentException("不能传入空对象");
   }
 
   public static class SimpleSchedulerListener implements OnSchedulerListener {

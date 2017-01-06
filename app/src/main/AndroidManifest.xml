@@ -15,7 +15,7 @@
       android:theme="@style/AppTheme.NoActionBar">
     <!--android:name=".activity.SingleTaskActivity"-->
     <activity
-        android:name=".activity.MainActivity"
+        android:name=".MainActivity"
         android:label="@string/app_name">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
@@ -24,8 +24,10 @@
       </intent-filter>
     </activity>
 
-    <activity android:name=".activity.SingleTaskActivity"/>
-    <activity android:name=".activity.MultiTaskActivity"/>
+    <activity android:name=".single_task.SingleTaskActivity"/>
+    <activity android:name=".multi_task.MultiTaskActivity"/>
+    <activity android:name=".fragment_task.FragmentActivity"/>
+    <activity android:name=".multi_task.DownloadActivity"/>
   </application>
 
 </manifest>

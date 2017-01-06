@@ -15,7 +15,7 @@
  */
 
 
-package com.arialyy.simple.dialog;
+package com.arialyy.simple.multi_task;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;

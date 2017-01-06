@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-
-package com.arialyy.simple.adapter;
+package com.arialyy.simple.multi_task;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -40,16 +38,15 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by Lyy on 2016/9/27.
  * 下载列表适配器
  */
-public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter.MyHolder> {
-  private static final String TAG = "DownloadAdapter";
-  private Map<String, Integer> mPositions = new ConcurrentHashMap<>();
+final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter.MyHolder> {
+  private static final String               TAG        = "DownloadAdapter";
+  private              Map<String, Integer> mPositions = new ConcurrentHashMap<>();
 
-  public DownloadAdapter(Context context, List<DownloadEntity> data) {
+  DownloadAdapter(Context context, List<DownloadEntity> data) {
     super(context, data);
-    int                i      = 0;
+    int i = 0;
     for (DownloadEntity entity : data) {
       mPositions.put(entity.getDownloadUrl(), i);
-      Aria.whit(getContext()).load(entity).add();
       i++;
     }
   }
@@ -73,7 +70,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
       notifyDataSetChanged();
     } else {
       int position = indexItem(entity.getDownloadUrl());
-      if (position == -1){
+      if (position == -1) {
         return;
       }
       mData.set(position, entity);
@@ -82,9 +79,9 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   }
 
   public synchronized void setProgress(DownloadEntity entity) {
-    String url      = entity.getDownloadUrl();
-    int    position = indexItem(url);
-    if (position == -1){
+    String url = entity.getDownloadUrl();
+    int position = indexItem(url);
+    if (position == -1) {
       return;
     }
 
@@ -94,8 +91,8 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
 
   private synchronized int indexItem(String url) {
     Set<String> keys = mPositions.keySet();
-    for (String key : keys){
-      if (key.equals(url)){
+    for (String key : keys) {
+      if (key.equals(url)) {
         return mPositions.get(key);
       }
     }
@@ -103,16 +100,19 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   }
 
   @Override protected void bindData(MyHolder holder, int position, final DownloadEntity item) {
-    long size     = item.getFileSize();
-    int  current  = 0;
+    long size = item.getFileSize();
+    int current = 0;
     long progress = item.getCurrentProgress();
-    long speed    = item.getSpeed();
+    long speed = item.getSpeed();
     current = size == 0 ? 0 : (int) (progress * 100 / size);
     holder.progress.setProgress(current);
     BtClickListener listener = new BtClickListener(item);
     holder.bt.setOnClickListener(listener);
-    String str   = "";
-    int    color = android.R.color.holo_green_light;
+    holder.name.setText("文件名：" + item.getFileName());
+    holder.url.setText("下载地址：" + item.getDownloadUrl());
+    holder.path.setText("保持路径：" + item.getDownloadPath());
+    String str = "";
+    int color = android.R.color.holo_green_light;
     switch (item.getState()) {
       case DownloadEntity.STATE_WAIT:
       case DownloadEntity.STATE_OTHER:
@@ -192,11 +192,14 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   }
 
   class MyHolder extends AbsHolder {
-    @Bind(R.id.progressBar) HorizontalProgressBarWithNumber progress;
-    @Bind(R.id.bt)          Button                          bt;
-    @Bind(R.id.speed)       TextView                        speed;
-    @Bind(R.id.fileSize)    TextView                        fileSize;
-    @Bind(R.id.del)         TextView                        cancel;
+    @Bind(R.id.progressBar)   HorizontalProgressBarWithNumber progress;
+    @Bind(R.id.bt)            Button                          bt;
+    @Bind(R.id.speed)         TextView                        speed;
+    @Bind(R.id.fileSize)      TextView                        fileSize;
+    @Bind(R.id.del)           TextView                        cancel;
+    @Bind(R.id.name)          TextView                        name;
+    @Bind(R.id.download_url)  TextView                        url;
+    @Bind(R.id.download_path) TextView                        path;
 
     MyHolder(View itemView) {
       super(itemView);
