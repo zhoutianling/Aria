@@ -242,12 +242,16 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
         handleBreakpoint(conn);
       } else if (code == HttpURLConnection.HTTP_OK || len < 0) {
         //在conn.setRequestProperty("Range", "bytes=" + 0 + "-");下，200为不支持断点状态
+        if (len < 0){
+          failDownload("任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，文件长度小于0");
+          return;
+        }
         isSupportBreakpoint = false;
         mListener.supportBreakpoint(false);
         Log.w(TAG, "该下载链接不支持断点下载");
         handleBreakpoint(conn);
       } else {
-        failDownload("下载失败，返回码：" + code);
+        failDownload("任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，返回码：" + code);
       }
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"
