@@ -30,6 +30,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.command.CmdFactory;
+import com.arialyy.aria.util.CAConfiguration;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.core.command.IDownloadCmd;
@@ -48,12 +49,12 @@ import java.util.Set;
  * Aria管理器，任务操作在这里执行
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH) public class AriaManager {
-  private static final    String                  TAG      = "AriaManager";
-  private static final    Object                  LOCK     = new Object();
-  private static volatile AriaManager             INSTANCE = null;
-  private                 Map<String, AMReceiver> mTargets = new HashMap<>();
+  private static final String TAG = "AriaManager";
+  private static final Object LOCK = new Object();
+  private static volatile AriaManager INSTANCE = null;
+  private Map<String, AMReceiver> mTargets = new HashMap<>();
   private DownloadManager mManager;
-  private LifeCallback    mLifeCallback;
+  private LifeCallback mLifeCallback;
 
   private AriaManager(Context context) {
     regAppLifeCallback(context);
@@ -71,6 +72,24 @@ import java.util.Set;
 
   AMReceiver get(Object obj) {
     return getTarget(obj);
+  }
+
+  /**
+   * 设置CA证书信息
+   *
+   * @param caAlias ca证书别名
+   * @param caPath assets 文件夹下的ca证书完整路径
+   */
+  public void setCAInfo(String caAlias, String caPath) {
+    if (TextUtils.isEmpty(caAlias)) {
+      Log.e(TAG, "ca证书别名不能为null");
+      return;
+    } else if (TextUtils.isEmpty(caPath)) {
+      Log.e(TAG, "ca证书路径不能为null");
+      return;
+    }
+    CAConfiguration.CA_ALIAS = caAlias;
+    CAConfiguration.CA_PATH = caPath;
   }
 
   /**
@@ -100,7 +119,7 @@ import java.util.Set;
    */
   public void stopAllTask() {
     List<DownloadEntity> allEntity = mManager.getAllDownloadEntity();
-    List<IDownloadCmd>   stopCmds  = new ArrayList<>();
+    List<IDownloadCmd> stopCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       if (entity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
         stopCmds.add(CommonUtil.createCmd(entity, CmdFactory.TASK_STOP));
@@ -159,8 +178,8 @@ import java.util.Set;
    * 删除所有任务
    */
   public void cancelAllTask() {
-    List<DownloadEntity> allEntity  = mManager.getAllDownloadEntity();
-    List<IDownloadCmd>   cancelCmds = new ArrayList<>();
+    List<DownloadEntity> allEntity = mManager.getAllDownloadEntity();
+    List<IDownloadCmd> cancelCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       cancelCmds.add(CommonUtil.createCmd(entity, CmdFactory.TASK_CANCEL));
     }
@@ -174,9 +193,9 @@ import java.util.Set;
   }
 
   private AMReceiver putTarget(Object obj) {
-    String     clsName = obj.getClass().getName();
-    AMReceiver target  = null;
-    String     key     = "";
+    String clsName = obj.getClass().getName();
+    AMReceiver target = null;
+    String key = "";
     if (!(obj instanceof Activity)) {
       if (obj instanceof android.support.v4.app.Fragment) {
         key = clsName + "_" + ((Fragment) obj).getActivity().getClass().getName();
@@ -249,12 +268,12 @@ import java.util.Set;
    */
   private void handleDialogLift(Dialog dialog) {
     try {
-      Field   dismissField = CommonUtil.getField(dialog.getClass(), "mDismissMessage");
-      Message dismissMsg   = (Message) dismissField.get(dialog);
+      Field dismissField = CommonUtil.getField(dialog.getClass(), "mDismissMessage");
+      Message dismissMsg = (Message) dismissField.get(dialog);
       //如果Dialog已经设置Dismiss事件，则查找cancel事件
       if (dismissMsg != null) {
-        Field   cancelField = CommonUtil.getField(dialog.getClass(), "mCancelMessage");
-        Message cancelMsg   = (Message) cancelField.get(dialog);
+        Field cancelField = CommonUtil.getField(dialog.getClass(), "mCancelMessage");
+        Message cancelMsg = (Message) cancelField.get(dialog);
         if (cancelMsg != null) {
           Log.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。为了防止内存泄露，"
               + "请在dismiss方法中调用Aria.whit(this).removeSchedulerListener();来注销事件");
@@ -316,12 +335,12 @@ import java.util.Set;
    * onDestroy
    */
   private void destroySchedulerListener(Object obj) {
-    Set<String> keys    = mTargets.keySet();
-    String      clsName = obj.getClass().getName();
+    Set<String> keys = mTargets.keySet();
+    String clsName = obj.getClass().getName();
     for (Iterator<Map.Entry<String, AMReceiver>> iter = mTargets.entrySet().iterator();
         iter.hasNext(); ) {
       Map.Entry<String, AMReceiver> entry = iter.next();
-      String                        key   = entry.getKey();
+      String key = entry.getKey();
       if (key.equals(clsName) || key.contains(clsName)) {
         AMReceiver receiver = mTargets.get(key);
         if (receiver.obj != null) {
