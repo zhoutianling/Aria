@@ -20,7 +20,9 @@ import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.util.CAConfiguration;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.SSLContextUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,43 +31,47 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 /**
  * Created by lyy on 2015/8/25.
  * 下载工具类
  */
 final class DownloadUtil implements IDownloadUtil, Runnable {
-  private static final String TAG  = "DownloadUtil";
+  private static final String TAG = "DownloadUtil";
   private static final Object LOCK = new Object();
   /**
    * 线程数
    */
-  private final int               THREAD_NUM;
+  private final int THREAD_NUM;
   //下载监听
-  private       IDownloadListener mListener;
-  private int     mConnectTimeOut     = 5000 * 4; //连接超时时间
-  private int     mReadTimeOut        = 5000 * 20; //流读取的超时时间
+  private IDownloadListener mListener;
+  private int mConnectTimeOut = 5000 * 4; //连接超时时间
+  private int mReadTimeOut = 5000 * 20; //流读取的超时时间
   /**
    * 已经完成下载任务的线程数量
    */
-  private boolean isDownloading       = false;
-  private boolean isStop              = false;
-  private boolean isCancel            = false;
-  private boolean isNewTask           = true;
+  private boolean isDownloading = false;
+  private boolean isStop = false;
+  private boolean isCancel = false;
+  private boolean isNewTask = true;
   private boolean isSupportBreakpoint = true;
-  private int     mCompleteThreadNum  = 0;
-  private int     mCancelNum          = 0;
-  private long    mCurrentLocation    = 0;
-  private int     mStopNum            = 0;
-  private int     mFailNum            = 0;
-  private Context         mContext;
-  private DownloadEntity  mDownloadEntity;
+  private int mCompleteThreadNum = 0;
+  private int mCancelNum = 0;
+  private long mCurrentLocation = 0;
+  private int mStopNum = 0;
+  private int mFailNum = 0;
+  private Context mContext;
+  private DownloadEntity mDownloadEntity;
   private ExecutorService mFixedThreadPool;
-  private File            mDownloadFile; //下载的文件
-  private File            mConfigFile;//下载信息配置文件
+  private File mDownloadFile; //下载的文件
+  private File mConfigFile;//下载信息配置文件
   private SparseArray<Runnable> mTask = new SparseArray<>();
 
   DownloadUtil(Context context, DownloadEntity entity, IDownloadListener downloadListener) {
@@ -222,8 +228,8 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
 
   @Override public void run() {
     try {
-      URL               url  = new URL(mDownloadEntity.getDownloadUrl());
-      HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+      URL url = new URL(mDownloadEntity.getDownloadUrl());
+      HttpURLConnection conn = handleConnection(url);
       setConnectParam(conn);
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       conn.setConnectTimeout(mConnectTimeOut * 4);
@@ -242,12 +248,16 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
         handleBreakpoint(conn);
       } else if (code == HttpURLConnection.HTTP_OK || len < 0) {
         //在conn.setRequestProperty("Range", "bytes=" + 0 + "-");下，200为不支持断点状态
+        if (len < 0) {
+          failDownload("任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，文件长度小于0");
+          return;
+        }
         isSupportBreakpoint = false;
         mListener.supportBreakpoint(false);
         Log.w(TAG, "该下载链接不支持断点下载");
         handleBreakpoint(conn);
       } else {
-        failDownload("下载失败，返回码：" + code);
+        failDownload("任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，返回码：" + code);
       }
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"
@@ -257,6 +267,30 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
           + "】"
           + CommonUtil.getPrintException(e));
     }
+  }
+
+  /**
+   * 处理链接
+   *
+   * @throws IOException
+   */
+  private HttpURLConnection handleConnection(URL url) throws IOException {
+    HttpURLConnection conn;
+    URLConnection urlConn = url.openConnection();
+    if (urlConn instanceof HttpsURLConnection) {
+      conn = (HttpsURLConnection) urlConn;
+      SSLContext sslContext =
+          SSLContextUtil.getSSLContext(CAConfiguration.CA_ALIAS, CAConfiguration.CA_ALIAS);
+      if (sslContext == null) {
+        sslContext = SSLContextUtil.getDefaultSLLContext();
+      }
+      SSLSocketFactory ssf = sslContext.getSocketFactory();
+      ((HttpsURLConnection) conn).setSSLSocketFactory(ssf);
+      ((HttpsURLConnection) conn).setHostnameVerifier(SSLContextUtil.HOSTNAME_VERIFIER);
+    } else {
+      conn = (HttpURLConnection) urlConn;
+    }
+    return conn;
   }
 
   /**
@@ -301,15 +335,15 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
         }
       }
     }
-    int   blockSize = fileLength / THREAD_NUM;
-    int[] recordL   = new int[THREAD_NUM];
-    int   rl        = 0;
+    int blockSize = fileLength / THREAD_NUM;
+    int[] recordL = new int[THREAD_NUM];
+    int rl = 0;
     for (int i = 0; i < THREAD_NUM; i++) {
       recordL[i] = -1;
     }
     for (int i = 0; i < THREAD_NUM; i++) {
-      long   startL = i * blockSize, endL = (i + 1) * blockSize;
-      Object state  = pro.getProperty(mDownloadFile.getName() + "_state_" + i);
+      long startL = i * blockSize, endL = (i + 1) * blockSize;
+      Object state = pro.getProperty(mDownloadFile.getName() + "_state_" + i);
       if (state != null && Integer.parseInt(state + "") == 1) {  //该线程已经完成
         mCurrentLocation += endL - startL;
         Log.d(TAG, "++++++++++ 线程_" + i + "_已经下载完成 ++++++++++");
@@ -377,12 +411,12 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
    */
   private static class ConfigEntity {
     //文件大小
-    long    fileSize;
-    String  downloadUrl;
-    int     threadId;
-    long    startLocation;
-    long    endLocation;
-    File    tempFile;
+    long fileSize;
+    String downloadUrl;
+    int threadId;
+    long startLocation;
+    long endLocation;
+    File tempFile;
   }
 
   /**
@@ -391,7 +425,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
   private class SingleThreadTask implements Runnable {
     private static final String TAG = "SingleThreadTask";
     private ConfigEntity configEntity;
-    private String       configFPath;
+    private String configFPath;
     private long currentLocation = 0;
 
     private SingleThreadTask(ConfigEntity downloadInfo) {
@@ -406,10 +440,11 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
 
     @Override public void run() {
       HttpURLConnection conn = null;
-      InputStream       is   = null;
+      InputStream is = null;
       try {
         URL url = new URL(configEntity.downloadUrl);
-        conn = (HttpURLConnection) url.openConnection();
+        //conn = (HttpURLConnection) url.openConnection();
+        conn = handleConnection(url);
         if (isSupportBreakpoint) {
           Log.d(TAG, "线程_"
               + configEntity.threadId
@@ -433,7 +468,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
         //设置每条线程写入文件的位置
         file.seek(configEntity.startLocation);
         byte[] buffer = new byte[1024];
-        int    len;
+        int len;
         //当前子线程的下载位置
         currentLocation = configEntity.startLocation;
         while ((len = is.read(buffer)) != -1) {
@@ -593,8 +628,8 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
      * 将记录写入到配置文件
      */
     private void writeConfig(String key, String record) throws IOException {
-      File       configFile = new File(configFPath);
-      Properties pro        = CommonUtil.loadConfig(configFile);
+      File configFile = new File(configFPath);
+      Properties pro = CommonUtil.loadConfig(configFile);
       pro.setProperty(key, record);
       CommonUtil.saveConfig(configFile, pro);
     }

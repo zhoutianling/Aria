@@ -16,6 +16,7 @@
 
 package com.arialyy.aria.core.scheduler;
 
+import android.os.CountDownTimer;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
@@ -154,10 +155,8 @@ public class DownloadSchedulers implements IDownloadSchedulers {
 
   private void callback(int state, Task task, OnSchedulerListener listener) {
     if (listener != null) {
-      //Task task = mQueue.getTask(entity);
       if (task == null) {
-        //Log.e(TAG, "队列中没有下载链接【" + entity.getDownloadUrl() + "】的任务");
-        Log.e(TAG, "传递的下载任务");
+        Log.e(TAG, "TASK 为null，回调失败");
         return;
       }
       switch (state) {
@@ -195,9 +194,13 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    * @param entity 失败实体
    */
   @Override public void handleFailTask(final DownloadEntity entity) {
-    new Thread(new Runnable() {
-      @Override public void run() {
-        final Configuration config = Configuration.getInstance();
+    final Configuration config = Configuration.getInstance();
+    CountDownTimer timer = new CountDownTimer(config.getReTryInterval(), 1000) {
+      @Override public void onTick(long millisUntilFinished) {
+
+      }
+
+      @Override public void onFinish() {
         if (entity.getFailNum() <= config.getReTryNum()) {
           Task task = mQueue.getTask(entity);
           mQueue.reTryStart(task);
@@ -210,7 +213,8 @@ public class DownloadSchedulers implements IDownloadSchedulers {
           startNextTask(entity);
         }
       }
-    }).start();
+    };
+    timer.start();
   }
 
   /**

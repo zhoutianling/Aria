@@ -8,6 +8,7 @@
  - 支持多线程、多任务下载
  - 支持任务自动切换
  - 支持下载速度直接获取
+ - 支持https地址下载
 
 [Aria怎样使用？](#使用)
 
@@ -16,10 +17,8 @@
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:2.3.8'
+compile 'com.arialyy.aria:Aria:2.3.9'
 ```
-
-
 
 ## 示例
 ![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/download_img.gif)
@@ -52,6 +51,7 @@ compile 'com.arialyy.aria:Aria:2.3.8'
   }
 ```
 ### 四、通过下载链接，你还能使用Aria执行很多操作，如：
+Aria支持https下载，如果你希望使用自己的ca证书，那么你需要进行[Aria https证书配置](#https证书配置)
 - 添加任务（不进行下载）
 
   ```java
@@ -118,8 +118,22 @@ compile 'com.arialyy.aria:Aria:2.3.8'
   Aria.get(this).openBroadcast(true);
   ```
 
+### https证书配置
+  + 将你的证书导入`assets`目录
+  + 调用以下代码配置ca证书相关信息
+  ```java
+  /**
+   * 设置CA证书信息
+   *
+   * @param caAlias ca证书别名
+   * @param caPath assets 文件夹下的ca证书完整路径
+   */
+  Aria.get(this).setCAInfo("caAlias","caPath");
+  ```
+
 ***
 ## 开发日志
+ + v_2.3.9 支持https链接下载
  + v_2.3.8 修复数据错乱的bug、添加fragment支持
  + v_2.3.6 添加dialog、popupWindow支持
  + v_2.3.3
@@ -128,7 +142,6 @@ compile 'com.arialyy.aria:Aria:2.3.8'
   - 修复一个内存泄露的bug
  + v_2.3.1 重命名为Aria，下载流程简化
  + v_2.1.1 增加，选择最大下载任务数接口
- + v_2.1.0 修复大量bug
 
 License
 -------

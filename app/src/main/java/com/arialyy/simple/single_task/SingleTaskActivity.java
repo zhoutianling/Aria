@@ -49,10 +49,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public static final  int    DOWNLOAD_RESUME   = 0x05;
   public static final  int    DOWNLOAD_COMPLETE = 0x06;
   public static final  int    DOWNLOAD_RUNNING  = 0x07;
+
   private static final String DOWNLOAD_URL      =
-      "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
-  //private static final String DOWNLOAD_URL      =
-  //    "http://www.yangqiang.im/wp-content/uploads/2016/10/%E6%8A%BD%E8%B1%A1%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F.png";
+      //"http://kotlinlang.org/docs/kotlin-docs.pdf";
+      "https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
   @Bind(R.id.start)       Button                          mStart;
   @Bind(R.id.stop)        Button                          mStop;
@@ -114,6 +114,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           setBtState(false);
           break;
         case DOWNLOAD_COMPLETE:
+          mPb.setProgress(100);
           Toast.makeText(SingleTaskActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
           mStart.setText("重新开始？");
           mCancel.setEnabled(false);
