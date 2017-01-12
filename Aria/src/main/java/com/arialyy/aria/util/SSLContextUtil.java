@@ -1,5 +1,6 @@
 package com.arialyy.aria.util;
 
+import android.text.TextUtils;
 import com.arialyy.aria.core.DownloadManager;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -37,6 +38,9 @@ public class SSLContextUtil {
    * @param caPath 保存在assets目录下的CA证书完整路径
    */
   public static SSLContext getSSLContext(String caAlias, String caPath) {
+    if (TextUtils.isEmpty(caAlias) || TextUtils.isEmpty(caPath)){
+      return null;
+    }
     // Load CAs from an InputStream
     // (could be from a resource or ByteArrayInputStream or ...)
     CertificateFactory cf = null;
