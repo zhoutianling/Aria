@@ -33,9 +33,9 @@ import com.arialyy.aria.util.Configuration;
  * 下载任务队列
  */
 public class DownloadTaskQueue implements ITaskQueue {
-  private static final String TAG = "DownloadTaskQueue";
-  private CachePool mCachePool = CachePool.getInstance();
-  private ExecutePool mExecutePool = ExecutePool.getInstance();
+  private static final String      TAG          = "DownloadTaskQueue";
+  private              CachePool   mCachePool   = CachePool.getInstance();
+  private              ExecutePool mExecutePool = ExecutePool.getInstance();
   private Context mContext;
   //private IDownloadSchedulers mSchedulers;
 
@@ -171,13 +171,10 @@ public class DownloadTaskQueue implements ITaskQueue {
     Task task = mExecutePool.getTask(entity.getDownloadUrl());
     if (task != null) {
       Log.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
-    } else {
-      task = mCachePool.getTask(entity.getDownloadUrl());
     }
+    task = mCachePool.getTask(entity.getDownloadUrl());
     if (task != null) {
       Log.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
-    } else {
-      Log.w(TAG, "没有找到下载链接为【" + entity.getDownloadUrl() + "】的任务");
     }
   }
 
