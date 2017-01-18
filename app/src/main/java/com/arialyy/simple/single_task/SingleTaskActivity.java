@@ -119,11 +119,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           mStart.setText("重新开始？");
           mCancel.setEnabled(false);
           setBtState(true);
-
-          //String path = Environment.getExternalStorageDirectory().getPath() + "/test.jpg";
-          //Bitmap bm = BitmapFactory.decodeFile(path);
-          //mImg.setImageBitmap(bm);
-
           break;
       }
     }
@@ -201,8 +196,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         .load(DOWNLOAD_URL)
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
         .setDownloadName("test.apk")
-        //.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.jpg")
-        //.setDownloadName("test.jpg")
         .start();
   }
 
