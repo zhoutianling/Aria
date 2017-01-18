@@ -89,7 +89,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         case DOWNLOAD_PRE:
           mSize.setText(CommonUtil.formatFileSize((Long) msg.obj));
           setBtState(false);
-          mStart.setText("暂停");
+          //mStart.setText("暂停");
           break;
         case DOWNLOAD_FAILE:
           Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
@@ -119,11 +119,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           mStart.setText("重新开始？");
           mCancel.setEnabled(false);
           setBtState(true);
-
-          //String path = Environment.getExternalStorageDirectory().getPath() + "/test.jpg";
-          //Bitmap bm = BitmapFactory.decodeFile(path);
-          //mImg.setImageBitmap(bm);
-
           break;
       }
     }
@@ -201,8 +196,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         .load(DOWNLOAD_URL)
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
         .setDownloadName("test.apk")
-        //.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.jpg")
-        //.setDownloadName("test.jpg")
         .start();
   }
 

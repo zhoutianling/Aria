@@ -33,6 +33,7 @@ import com.arialyy.simple.databinding.ActivityMainBinding;
 import com.arialyy.simple.dialog_task.DownloadDialog;
 import com.arialyy.simple.fragment_task.FragmentActivity;
 import com.arialyy.simple.multi_task.MultiTaskActivity;
+import com.arialyy.simple.notification.SimpleNotification;
 import com.arialyy.simple.pop_task.DownloadPopupWindow;
 import com.arialyy.simple.single_task.SingleTaskActivity;
 
@@ -103,6 +104,10 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
         break;
       case R.id.fragment_task:
         startActivity(new Intent(this, FragmentActivity.class));
+        break;
+      case R.id.notification:
+        SimpleNotification notification = new SimpleNotification(this);
+        notification.start();
         break;
     }
   }

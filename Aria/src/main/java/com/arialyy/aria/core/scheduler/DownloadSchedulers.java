@@ -121,15 +121,16 @@ public class DownloadSchedulers implements IDownloadSchedulers {
       case STOP:
       case CANCEL:
         mQueue.removeTask(entity);
-        mQueue.removeTask(entity);
-        if (mQueue.size() != Configuration.getInstance().getDownloadNum()) {
+        if (mQueue.size() < Configuration.getInstance().getDownloadNum()) {
           startNextTask(entity);
         }
         break;
       case COMPLETE:
+        mQueue.removeTask(entity);
         startNextTask(entity);
         break;
       case FAIL:
+        mQueue.removeTask(entity);
         handleFailTask(entity);
         break;
     }
@@ -223,7 +224,6 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    * @param entity 通过Handler传递的下载实体
    */
   @Override public void startNextTask(DownloadEntity entity) {
-    mQueue.removeTask(entity);
     Task newTask = mQueue.getNextTask();
     if (newTask == null) {
       Log.w(TAG, "没有下一任务");
