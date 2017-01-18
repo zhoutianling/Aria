@@ -67,7 +67,6 @@ final class FileListAdapter extends AbsRVAdapter<FileListEntity, FileListAdapter
     Set<String> keys = mBtStates.keySet();
     for (String key : keys) {
       if (key.equals(downloadUrl)) {
-        Log.d(TAG, "able ==> " + able);
         mBtStates.put(downloadUrl, able);
         notifyItemChanged(indexItem(downloadUrl));
         return;
@@ -80,7 +79,7 @@ final class FileListAdapter extends AbsRVAdapter<FileListEntity, FileListAdapter
     for (String key : keys) {
       if (key.equals(url)) {
         int index = mPositions.get(key);
-        Log.d(TAG, "index ==> " + index);
+        //Log.d(TAG, "index ==> " + index);
         return index;
       }
     }
