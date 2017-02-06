@@ -36,7 +36,7 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadBinding> {
 
   @Override protected void onResume() {
     super.onResume();
-    Aria.whit(this).addSchedulerListener(new MySchedulerListener());
+    Aria.download(this).addSchedulerListener(new MySchedulerListener());
   }
 
   private class MySchedulerListener extends Aria.SimpleSchedulerListener {

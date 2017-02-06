@@ -142,7 +142,7 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
       @Override public void onClick(View v) {
         mData.remove(item);
         notifyDataSetChanged();
-        Aria.whit(getContext()).load(item).cancel();
+        Aria.download(getContext()).load(item).cancel();
       }
     });
   }
@@ -183,11 +183,11 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
     }
 
     private void start(DownloadEntity entity) {
-      Aria.whit(getContext()).load(entity).start();
+      Aria.download(getContext()).load(entity).start();
     }
 
     private void stop(DownloadEntity entity) {
-      Aria.whit(getContext()).load(entity).stop();
+      Aria.download(getContext()).load(entity).stop();
     }
   }
 

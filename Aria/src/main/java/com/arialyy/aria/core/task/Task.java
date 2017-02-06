@@ -21,11 +21,11 @@ import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.DownloadManager;
-import com.arialyy.aria.core.TaskEntity;
+import com.arialyy.aria.core.DownloadTaskEntity;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.Configuration;
 import java.lang.ref.WeakReference;
@@ -39,23 +39,25 @@ public class Task {
   /**
    * 产生该任务对象的hash码
    */
-  private String            mTargetName;
-  private DownloadEntity    mEntity;
+  private String mTargetName;
+  private DownloadEntity mEntity;
+  private DownloadTaskEntity mTaskEntity;
   private IDownloadListener mListener;
-  private Handler           mOutHandler;
-  private Context           mContext;
-  private IDownloadUtil     mUtil;
+  private Handler mOutHandler;
+  private Context mContext;
+  private IDownloadUtil mUtil;
 
-  private Task(Context context, DownloadEntity entity, Handler outHandler) {
+  private Task(Context context, DownloadTaskEntity taskEntity, Handler outHandler) {
     mContext = context.getApplicationContext();
-    mEntity = entity;
+    mTaskEntity = taskEntity;
+    mEntity = taskEntity.downloadEntity;
     mOutHandler = outHandler;
     init();
   }
 
   private void init() {
     mListener = new DListener(mContext, this, mOutHandler);
-    mUtil = new DownloadUtil(mContext, mEntity, mListener);
+    mUtil = new DownloadUtil(mContext, mTaskEntity, mListener);
   }
 
   /**
@@ -162,21 +164,21 @@ public class Task {
   }
 
   static class Builder {
-    DownloadEntity downloadEntity;
-    Handler        outHandler;
-    Context        context;
+    DownloadTaskEntity taskEntity;
+    Handler outHandler;
+    Context context;
     int threadNum = 3;
-    String        targetName;
-    IDownloadUtil downloadUtil;
+    String targetName;
 
-    public Builder(Context context, DownloadEntity downloadEntity) {
+    public Builder(Context context, DownloadTaskEntity downloadEntity) {
       this("", context, downloadEntity);
     }
 
-    Builder(String targetName, Context context, DownloadEntity downloadEntity) {
+    Builder(String targetName, Context context, DownloadTaskEntity taskEntity) {
+      CheckUtil.checkDownloadEntity(taskEntity.downloadEntity);
       this.targetName = targetName;
       this.context = context;
-      this.downloadEntity = downloadEntity;
+      this.taskEntity = taskEntity;
     }
 
     /**
@@ -198,9 +200,9 @@ public class Task {
     }
 
     public Task build() {
-      Task task = new Task(context, downloadEntity, outHandler);
+      Task task = new Task(context, taskEntity, outHandler);
       task.setTargetName(targetName);
-      downloadEntity.save();
+      taskEntity.downloadEntity.save();
       return task;
     }
   }
@@ -210,16 +212,16 @@ public class Task {
    */
   private static class DListener extends DownloadListener {
     WeakReference<Handler> outHandler;
-    WeakReference<Task>    wTask;
-    Context                context;
-    Intent                 sendIntent;
-    long    INTERVAL      = 1024 * 10;   //10k大小的间隔
-    long    lastLen       = 0;   //上一次发送长度
-    long    lastTime      = 0;
-    long    INTERVAL_TIME = 1000;   //1m更新周期
-    boolean isFirst       = true;
+    WeakReference<Task> wTask;
+    Context context;
+    Intent sendIntent;
+    long INTERVAL = 1024 * 10;   //10k大小的间隔
+    long lastLen = 0;   //上一次发送长度
+    long lastTime = 0;
+    long INTERVAL_TIME = 1000;   //1m更新周期
+    boolean isFirst = true;
     DownloadEntity downloadEntity;
-    Task           task;
+    Task task;
 
     DListener(Context context, Task task, Handler outHandler) {
       this.context = context;

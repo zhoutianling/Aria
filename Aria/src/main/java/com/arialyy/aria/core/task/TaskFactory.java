@@ -17,7 +17,7 @@
 package com.arialyy.aria.core.task;
 
 import android.content.Context;
-import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.DownloadTaskEntity;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
 
 /**
@@ -27,7 +27,7 @@ import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
 public class TaskFactory {
   private static final String TAG = "TaskFactory";
 
-  private static final    Object      LOCK     = new Object();
+  private static final Object LOCK = new Object();
   private static volatile TaskFactory INSTANCE = null;
 
   private TaskFactory() {
@@ -46,14 +46,19 @@ public class TaskFactory {
   /**
    * 创建普通下载任务
    *
-   * @param entity 下载实体
+   * @param entity 下载任务实体{@link DownloadTaskEntity}
    * @param schedulers {@link IDownloadSchedulers}
    */
-  public Task createTask(Context context, DownloadEntity entity, IDownloadSchedulers schedulers) {
+  public Task createTask(Context context, DownloadTaskEntity entity,
+      IDownloadSchedulers schedulers) {
     return createTask("", context, entity, schedulers);
   }
 
-  public Task createTask(String targetName, Context context, DownloadEntity entity,
+  /**
+   * @param entity 下载任务实体{@link DownloadTaskEntity}
+   * @param schedulers {@link IDownloadSchedulers}
+   */
+  public Task createTask(String targetName, Context context, DownloadTaskEntity entity,
       IDownloadSchedulers schedulers) {
     Task.Builder builder = new Task.Builder(targetName, context, entity);
     builder.setOutHandler(schedulers);

@@ -41,11 +41,11 @@ public class DownloadDialog extends AbsDialog {
 
   private void init() {
     if (Aria.get(this).taskExists(DOWNLOAD_URL)) {
-      AMTarget target = Aria.whit(this).load(DOWNLOAD_URL);
+      AMTarget target = Aria.download(this).load(DOWNLOAD_URL);
       int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
-    Aria.whit(this).addSchedulerListener(new MyDialogDownloadCallback());
+    Aria.download(this).addSchedulerListener(new MyDialogDownloadCallback());
     DownloadEntity entity = Aria.get(this).getDownloadEntity(DOWNLOAD_URL);
     if (entity != null) {
       mSize.setText(CommonUtil.formatFileSize(entity.getFileSize()));
@@ -59,17 +59,17 @@ public class DownloadDialog extends AbsDialog {
   @OnClick({ R.id.start, R.id.stop, R.id.cancel }) public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.whit(this)
+        Aria.download(this)
             .load(DOWNLOAD_URL)
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/daialog.apk")
             .setDownloadName("daialog.apk")
             .start();
         break;
       case R.id.stop:
-        Aria.whit(this).load(DOWNLOAD_URL).stop();
+        Aria.download(this).load(DOWNLOAD_URL).stop();
         break;
       case R.id.cancel:
-        Aria.whit(this).load(DOWNLOAD_URL).cancel();
+        Aria.download(this).load(DOWNLOAD_URL).cancel();
         break;
     }
   }

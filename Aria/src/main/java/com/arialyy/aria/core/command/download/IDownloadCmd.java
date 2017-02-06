@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.download;
 
 import com.arialyy.aria.core.DownloadManager;
+import com.arialyy.aria.core.DownloadTaskEntity;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -28,22 +29,22 @@ import com.arialyy.aria.core.DownloadEntity;
  */
 public abstract class IDownloadCmd {
   ITaskQueue mQueue;
-  DownloadEntity mEntity;
+  DownloadTaskEntity mEntity;
   String TAG;
   String mTargetName;
 
   /**
    * @param entity 下载实体
    */
-  IDownloadCmd(DownloadEntity entity) {
+  IDownloadCmd(DownloadTaskEntity entity) {
     this(null, entity);
   }
 
   /**
    * @param targetName 产生任务的对象名
    */
-  IDownloadCmd(String targetName, DownloadEntity entity) {
-    if (!CheckUtil.checkDownloadEntity(entity)) {
+  IDownloadCmd(String targetName, DownloadTaskEntity entity) {
+    if (!CheckUtil.checkDownloadEntity(entity.downloadEntity)) {
       return;
     }
     mTargetName = targetName;

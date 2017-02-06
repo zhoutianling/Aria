@@ -139,7 +139,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Override protected void onResume() {
     super.onResume();
-    Aria.whit(this).addSchedulerListener(new MySchedulerListener());
+    Aria.download(this).addSchedulerListener(new MySchedulerListener());
     //registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
   }
 
@@ -162,7 +162,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   private void init() {
     if (Aria.get(this).taskExists(DOWNLOAD_URL)) {
-      AMTarget target = Aria.whit(this).load(DOWNLOAD_URL);
+      AMTarget target = Aria.download(this).load(DOWNLOAD_URL);
       int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
@@ -188,11 +188,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private void resume() {
-    Aria.whit(this).load(DOWNLOAD_URL).resume();
+    Aria.download(this).load(DOWNLOAD_URL).resume();
   }
 
   private void start() {
-    Aria.whit(this)
+    Aria.download(this)
         .load(DOWNLOAD_URL)
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
         .setDownloadName("test.apk")
@@ -200,11 +200,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private void stop() {
-    Aria.whit(this).load(DOWNLOAD_URL).stop();
+    Aria.download(this).load(DOWNLOAD_URL).stop();
   }
 
   private void cancel() {
-    Aria.whit(this).load(DOWNLOAD_URL).cancel();
+    Aria.download(this).load(DOWNLOAD_URL).cancel();
   }
 
   private class MySchedulerListener extends Aria.SimpleSchedulerListener {

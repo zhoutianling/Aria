@@ -20,10 +20,10 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.DownloadTaskEntity;
 import com.arialyy.aria.core.queue.pool.CachePool;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
-import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
 import com.arialyy.aria.core.task.Task;
 import com.arialyy.aria.core.task.TaskFactory;
 import com.arialyy.aria.util.Configuration;
@@ -146,7 +146,7 @@ public class DownloadTaskQueue implements ITaskQueue {
     }
   }
 
-  @Override public Task createTask(String target, DownloadEntity entity) {
+  @Override public Task createTask(String target, DownloadTaskEntity entity) {
     Task task;
     if (TextUtils.isEmpty(target)) {
       task =

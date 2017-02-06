@@ -32,6 +32,13 @@ public class CheckUtil {
   private static final String TAG = "CheckUtil";
 
   /**
+   * 判空
+   */
+  public static void checkNull(Object obj) {
+    if (obj == null) throw new IllegalArgumentException("不能传入空对象");
+  }
+
+  /**
    * 检查sql的expression是否合法
    */
   public static void checkSqlExpression(String... expression) {
@@ -47,14 +54,14 @@ public class CheckUtil {
     }
     Pattern pattern = Pattern.compile("\\?");
     Matcher matcher = pattern.matcher(where);
-    int     count   = 0;
+    int count = 0;
     while (matcher.find()) {
       count++;
     }
-    if (count < expression.length - 1){
+    if (count < expression.length - 1) {
       throw new IllegalArgumentException("条件语句的?个数不能小于参数个数");
     }
-    if (count > expression.length - 1){
+    if (count > expression.length - 1) {
       throw new IllegalArgumentException("条件语句的?个数不能大于参数个数");
     }
   }
@@ -90,7 +97,7 @@ public class CheckUtil {
       fileName = fileName.replace(" ", "_");
     }
     String dPath = entity.getDownloadPath();
-    File   file  = new File(dPath);
+    File file = new File(dPath);
     if (file.isDirectory()) {
       dPath += fileName;
       entity.setDownloadPath(dPath);

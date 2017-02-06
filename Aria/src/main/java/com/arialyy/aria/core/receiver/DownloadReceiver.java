@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core;
+package com.arialyy.aria.core.receiver;
 
 import android.support.annotation.NonNull;
+import com.arialyy.aria.core.AMTarget;
+import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.util.CheckUtil;
@@ -24,10 +26,9 @@ import com.arialyy.aria.util.CheckUtil;
  * Created by lyy on 2016/12/5.
  * AM 接收器
  */
-public class AMReceiver {
-  String              targetName;
-  OnSchedulerListener listener;
-  Object              obj;
+public class DownloadReceiver {
+  public String targetName;
+  public OnSchedulerListener listener;
 
   /**
    * {@link #load(String)}，请使用该方法
@@ -53,7 +54,7 @@ public class AMReceiver {
   /**
    * 添加调度器回调
    */
-  public AMReceiver addSchedulerListener(OnSchedulerListener listener) {
+  public DownloadReceiver addSchedulerListener(OnSchedulerListener listener) {
     this.listener = listener;
     DownloadSchedulers.getInstance().addSchedulerListener(targetName, listener);
     return this;
@@ -62,14 +63,14 @@ public class AMReceiver {
   /**
    * 移除回调
    */
-  public AMReceiver removeSchedulerListener() {
+  public DownloadReceiver removeSchedulerListener() {
     if (listener != null) {
       DownloadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
     }
     return this;
   }
 
-  void destroy() {
+  public void destroy() {
     targetName = null;
     listener = null;
   }

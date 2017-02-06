@@ -19,7 +19,7 @@ package com.arialyy.aria.core;
 import android.content.Context;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.orm.DbUtil;
-import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.core.command.download.IDownloadCmd;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.Configuration;

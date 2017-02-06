@@ -26,6 +26,7 @@ import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.widget.PopupWindow;
+import com.arialyy.aria.core.receiver.DownloadReceiver;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.core.task.Task;
 
@@ -36,7 +37,7 @@ import com.arialyy.aria.core.task.Task;
  * <pre>
  *   <code>
  *   //启动下载
- *   Aria.whit(this)
+ *   Aria.download(this)
  *       .load(DOWNLOAD_URL)     //下载地址，必填
  *       //文件保存路径，必填
  *       .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
@@ -99,118 +100,46 @@ import com.arialyy.aria.core.task.Task;
   }
 
   /**
-   * 接受Activity、Service、Application
+   * 初始化下载
+   *
+   * @param obj 支持类型有【Activity、Service、Application、DialogFragment、Fragment、PopupWindow、Dialog】
    */
-  public static AMReceiver whit(Context context) {
-    //if (context == null) throw new IllegalArgumentException("context 不能为 null");
-    checkNull(context);
-    if (context instanceof Activity
-        || context instanceof Service
-        || context instanceof Application) {
-      return AriaManager.getInstance(context).get(context);
-    } else {
-      throw new IllegalArgumentException("这是不支持的context");
-    }
-  }
-
-  /**
-   * 处理Fragment
-   */
-  public static AMReceiver whit(Fragment fragment) {
-    checkNull(fragment);
-    return AriaManager.getInstance(
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
-            : fragment.getActivity()).get(fragment);
-  }
-
-  /**
-   * 处理Fragment
-   */
-  public static AMReceiver whit(android.support.v4.app.Fragment fragment) {
-    checkNull(fragment);
-    return AriaManager.getInstance(
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
-            : fragment.getActivity()).get(fragment);
-  }
-
-  /**
-   * 处理Fragment、或者DialogFragment
-   */
-  public static AMReceiver whit(DialogFragment dialog) {
-    checkNull(dialog);
-    return AriaManager.getInstance(
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? dialog.getContext() : dialog.getActivity())
-        .get(dialog);
-  }
-
-  /**
-   * 处理popupwindow
-   */
-  public static AMReceiver whit(PopupWindow popupWindow) {
-    checkNull(popupWindow);
-    return AriaManager.getInstance(popupWindow.getContentView().getContext()).get(popupWindow);
-  }
-
-  /**
-   * 处理Dialog
-   */
-  public static AMReceiver whit(Dialog dialog) {
-    checkNull(dialog);
-    return AriaManager.getInstance(dialog.getContext()).get(dialog);
+  public static DownloadReceiver download(Object obj) {
+    return get(obj).download(obj);
   }
 
   /**
    * 处理通用事件
+   *
+   * @param obj 支持类型有【Activity、Service、Application、DialogFragment、Fragment、PopupWindow、Dialog】
    */
-  public static AriaManager get(Context context) {
-    if (context == null) throw new IllegalArgumentException("context 不能为 null");
-    if (context instanceof Activity
-        || context instanceof Service
-        || context instanceof Application) {
-      return AriaManager.getInstance(context);
+  public static AriaManager get(Object obj) {
+    if (obj instanceof Activity || obj instanceof Service || obj instanceof Application) {
+      return AriaManager.getInstance((Context) obj);
+    } else if (obj instanceof DialogFragment) {
+      DialogFragment dialog = (DialogFragment) obj;
+      return AriaManager.getInstance(
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? dialog.getContext()
+              : dialog.getActivity());
+    } else if (obj instanceof android.support.v4.app.Fragment) {
+      android.support.v4.app.Fragment fragment = (android.support.v4.app.Fragment) obj;
+      return AriaManager.getInstance(
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
+              : fragment.getActivity());
+    } else if (obj instanceof Fragment) {
+      Fragment fragment = (Fragment) obj;
+      return AriaManager.getInstance(
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
+              : fragment.getActivity());
+    } else if (obj instanceof PopupWindow) {
+      PopupWindow popupWindow = (PopupWindow) obj;
+      return AriaManager.getInstance(popupWindow.getContentView().getContext());
+    } else if (obj instanceof Dialog) {
+      Dialog dialog = (Dialog) obj;
+      return AriaManager.getInstance(dialog.getContext());
     } else {
-      throw new IllegalArgumentException("这是不支持的context");
+      throw new IllegalArgumentException("不支持的类型");
     }
-  }
-
-  /**
-   * 处理Dialog的通用任务
-   */
-  public static AriaManager get(Dialog dialog) {
-    checkNull(dialog);
-    return AriaManager.getInstance(dialog.getContext());
-  }
-
-  /**
-   * 处理Dialog的通用任务
-   */
-  public static AriaManager get(PopupWindow popupWindow) {
-    checkNull(popupWindow);
-    return AriaManager.getInstance(popupWindow.getContentView().getContext());
-  }
-
-  /**
-   * 处理Fragment的通用任务
-   */
-  public static AriaManager get(Fragment fragment) {
-    checkNull(fragment);
-    return AriaManager.getInstance(
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
-            : fragment.getActivity());
-  }
-
-  /**
-   * 处理Fragment的通用任务
-   */
-  public static AriaManager get(android.support.v4.app.Fragment fragment) {
-    checkNull(fragment);
-    return AriaManager.getInstance(
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
-            : fragment.getActivity());
-  }
-
-  private static void checkNull(Object obj) {
-    if (obj == null) throw new IllegalArgumentException("不能传入空对象");
   }
 
   public static class SimpleSchedulerListener implements OnSchedulerListener {

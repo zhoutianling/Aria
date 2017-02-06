@@ -6,8 +6,6 @@ import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.task.Task;
-import com.arialyy.frame.util.show.L;
-import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 
 /**
@@ -36,11 +34,11 @@ public class SimpleNotification {
         .setProgress(100, 0, false)
         .setSmallIcon(R.mipmap.ic_launcher);
     mManager.notify(mNotifiyId, mBuilder.build());
-    Aria.whit(mContext).addSchedulerListener(new DownloadCallback(mBuilder, mManager));
+    Aria.download(mContext).addSchedulerListener(new DownloadCallback(mBuilder, mManager));
   }
 
   public void start() {
-    Aria.whit(mContext)
+    Aria.download(mContext)
         .load(DOWNLOAD_URL)
         .setDownloadName("notification_test.apk")
         .setDownloadPath(
@@ -49,7 +47,7 @@ public class SimpleNotification {
   }
 
   public void stop() {
-    Aria.whit(mContext).load(DOWNLOAD_URL).stop();
+    Aria.download(mContext).load(DOWNLOAD_URL).stop();
   }
 
   private static class DownloadCallback extends Aria.SimpleSchedulerListener {

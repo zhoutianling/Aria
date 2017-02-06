@@ -14,32 +14,42 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.download;
 
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.DownloadTaskEntity;
 import com.arialyy.aria.core.task.Task;
 
 /**
- * Created by lyy on 2016/8/22.
- * 添加任务的命令
+ * Created by lyy on 2016/9/20.
+ * 停止命令
  */
-class AddCmd extends IDownloadCmd {
+class StopCmd extends IDownloadCmd {
 
-  AddCmd(DownloadEntity entity) {
+  StopCmd(DownloadTaskEntity entity) {
     super(entity);
   }
 
-  AddCmd(String target, DownloadEntity entity) {
-    super(target, entity);
+  StopCmd(String targetName, DownloadTaskEntity entity) {
+    super(targetName, entity);
   }
 
   @Override public void executeCmd() {
-    Task task = mQueue.getTask(mEntity);
+    Task task = mQueue.getTask(mEntity.downloadEntity);
     if (task == null) {
-      mQueue.createTask(mTargetName, mEntity);
+      if (mEntity.downloadEntity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
+        task = mQueue.createTask(mTargetName, mEntity);
+        mQueue.stopTask(task);
+      } else {
+        Log.w(TAG, "停止命令执行失败，【调度器中没有该任务】");
+      }
     } else {
-      Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
+      if (!TextUtils.isEmpty(mTargetName)) {
+        task.setTargetName(mTargetName);
+      }
+      mQueue.stopTask(task);
     }
   }
 }

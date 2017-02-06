@@ -33,7 +33,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
 
   @Override protected void init(Bundle savedInstanceState) {
     if (Aria.get(this).taskExists(DOWNLOAD_URL)) {
-      AMTarget target = Aria.whit(this).load(DOWNLOAD_URL);
+      AMTarget target = Aria.download(this).load(DOWNLOAD_URL);
       int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
@@ -49,23 +49,23 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
 
   @Override public void onResume() {
     super.onResume();
-    Aria.whit(this).addSchedulerListener(new DownloadFragment.MyDialogDownloadCallback());
+    Aria.download(this).addSchedulerListener(new DownloadFragment.MyDialogDownloadCallback());
   }
 
   @OnClick({ R.id.start, R.id.stop, R.id.cancel }) public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.whit(this)
+        Aria.download(this)
             .load(DOWNLOAD_URL)
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/daialog.apk")
             .setDownloadName("daialog.apk")
             .start();
         break;
       case R.id.stop:
-        Aria.whit(this).load(DOWNLOAD_URL).stop();
+        Aria.download(this).load(DOWNLOAD_URL).stop();
         break;
       case R.id.cancel:
-        Aria.whit(this).load(DOWNLOAD_URL).cancel();
+        Aria.download(this).load(DOWNLOAD_URL).cancel();
         break;
     }
   }

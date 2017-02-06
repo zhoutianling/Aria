@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.download;
 
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.DownloadTaskEntity;
 
 /**
  * Created by Lyy on 2016/9/23.
@@ -66,7 +67,7 @@ public class CmdFactory {
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}
    */
-  public IDownloadCmd createCmd(DownloadEntity entity, int type) {
+  public IDownloadCmd createCmd(DownloadTaskEntity entity, int type) {
     switch (type) {
       case TASK_CREATE:
         return createAddCmd(entity);
@@ -78,7 +79,7 @@ public class CmdFactory {
       case TASK_STOP:
         return createStopCmd(entity);
       case TASK_SINGLE:
-        return new SingleCmd(entity);
+        //return new SingleCmd(entity);
       default:
         return null;
     }
@@ -90,7 +91,7 @@ public class CmdFactory {
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}
    */
-  public IDownloadCmd createCmd(String target, DownloadEntity entity, int type) {
+  public IDownloadCmd createCmd(String target, DownloadTaskEntity entity, int type) {
     switch (type) {
       case TASK_CREATE:
         return createAddCmd(target, entity);
@@ -102,7 +103,7 @@ public class CmdFactory {
       case TASK_STOP:
         return createStopCmd(target, entity);
       case TASK_SINGLE:
-        return new SingleCmd(target, entity);
+        //return new SingleCmd(target, entity);
       default:
         return null;
     }
@@ -113,7 +114,7 @@ public class CmdFactory {
    *
    * @return {@link StopCmd}
    */
-  private StopCmd createStopCmd(String target, DownloadEntity entity) {
+  private StopCmd createStopCmd(String target, DownloadTaskEntity entity) {
     return new StopCmd(target, entity);
   }
 
@@ -122,7 +123,7 @@ public class CmdFactory {
    *
    * @return {@link StopCmd}
    */
-  private StopCmd createStopCmd(DownloadEntity entity) {
+  private StopCmd createStopCmd(DownloadTaskEntity entity) {
     return new StopCmd(entity);
   }
 
@@ -131,7 +132,7 @@ public class CmdFactory {
    *
    * @return {@link AddCmd}
    */
-  private AddCmd createAddCmd(String target, DownloadEntity entity) {
+  private AddCmd createAddCmd(String target, DownloadTaskEntity entity) {
     return new AddCmd(target, entity);
   }
 
@@ -140,7 +141,7 @@ public class CmdFactory {
    *
    * @return {@link AddCmd}
    */
-  private AddCmd createAddCmd(DownloadEntity entity) {
+  private AddCmd createAddCmd(DownloadTaskEntity entity) {
     return new AddCmd(entity);
   }
 
@@ -149,7 +150,7 @@ public class CmdFactory {
    *
    * @return {@link StartCmd}
    */
-  private StartCmd createStartCmd(String target, DownloadEntity entity) {
+  private StartCmd createStartCmd(String target, DownloadTaskEntity entity) {
     return new StartCmd(target, entity);
   }
 
@@ -158,7 +159,7 @@ public class CmdFactory {
    *
    * @return {@link StartCmd}
    */
-  private StartCmd createStartCmd(DownloadEntity entity) {
+  private StartCmd createStartCmd(DownloadTaskEntity entity) {
     return new StartCmd(entity);
   }
 
@@ -167,7 +168,7 @@ public class CmdFactory {
    *
    * @return {@link CancelCmd}
    */
-  private CancelCmd createCancelCmd(String target, DownloadEntity entity) {
+  private CancelCmd createCancelCmd(String target, DownloadTaskEntity entity) {
     return new CancelCmd(target, entity);
   }
 
@@ -176,7 +177,7 @@ public class CmdFactory {
    *
    * @return {@link CancelCmd}
    */
-  private CancelCmd createCancelCmd(DownloadEntity entity) {
+  private CancelCmd createCancelCmd(DownloadTaskEntity entity) {
     return new CancelCmd(entity);
   }
 }

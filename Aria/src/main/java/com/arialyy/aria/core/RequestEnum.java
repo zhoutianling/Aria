@@ -7,7 +7,7 @@ package com.arialyy.aria.core;
 public enum RequestEnum {
   GET("GET"), POST("POST");
 
-  String name;
+  public String name;
 
   RequestEnum(String name) {
     this.name = name;

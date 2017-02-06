@@ -17,25 +17,56 @@ package com.arialyy.aria.core;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.core.command.download.CmdFactory;
+import com.arialyy.aria.core.command.download.IDownloadCmd;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * Created by lyy on 2016/12/5.
  * https://github.com/AriaLyy/Aria
  */
 public class AMTarget {
-  //private AMReceiver mReceiver;
   DownloadEntity entity;
   String targetName;
+  DownloadTaskEntity taskEntity;
 
-  AMTarget(DownloadEntity entity, String targetName) {
+  public AMTarget(DownloadEntity entity, String targetName) {
     this.entity = entity;
     this.targetName = targetName;
+    taskEntity = new DownloadTaskEntity(entity);
+  }
+
+  /**
+   * 给url请求添加头部
+   *
+   * @param key 头部key
+   * @param header 头部value
+   */
+  public AMTarget addHeader(@NonNull String key, @NonNull String header) {
+    taskEntity.headers.put(key, header);
+    return this;
+  }
+
+  /**
+   * 给url请求添加头部
+   *
+   * @param headers Map<Key, Value>
+   */
+  public AMTarget addHeaders(Map<String, String> headers) {
+    if (headers != null && headers.size() > 0) {
+      Set<String> keys = headers.keySet();
+      for (String key : keys) {
+        taskEntity.headers.put(key, headers.get(key));
+      }
+    }
+    return this;
   }
 
   /**
@@ -92,7 +123,7 @@ public class AMTarget {
    */
   public void add() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_CREATE))
+        .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_CREATE))
         .exe();
   }
 
@@ -101,8 +132,8 @@ public class AMTarget {
    */
   public void start() {
     List<IDownloadCmd> cmds = new ArrayList<>();
-    cmds.add(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_CREATE));
-    cmds.add(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_START));
+    cmds.add(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_CREATE));
+    cmds.add(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_START));
     DownloadManager.getInstance().setCmds(cmds).exe();
     cmds.clear();
   }
@@ -112,7 +143,7 @@ public class AMTarget {
    */
   public void stop() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_STOP))
+        .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_STOP))
         .exe();
   }
 
@@ -121,7 +152,7 @@ public class AMTarget {
    */
   public void resume() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_START))
+        .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_START))
         .exe();
   }
 
@@ -130,7 +161,7 @@ public class AMTarget {
    */
   public void cancel() {
     DownloadManager.getInstance()
-        .setCmd(CommonUtil.createCmd(targetName, entity, CmdFactory.TASK_CANCEL))
+        .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_CANCEL))
         .exe();
   }
 

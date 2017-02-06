@@ -20,6 +20,8 @@ import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.DownloadTaskEntity;
+import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
@@ -48,20 +50,23 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
   private boolean isSupportBreakpoint = true;
   private Context mContext;
   private DownloadEntity mDownloadEntity;
+  private DownloadTaskEntity mDownloadTaskEntity;
   private ExecutorService mFixedThreadPool;
   private File mDownloadFile; //下载的文件
   private File mConfigFile;//下载信息配置文件
   private SparseArray<Runnable> mTask = new SparseArray<>();
   private DownloadStateConstance mConstance;
 
-  DownloadUtil(Context context, DownloadEntity entity, IDownloadListener downloadListener) {
+  DownloadUtil(Context context, DownloadTaskEntity entity, IDownloadListener downloadListener) {
     this(context, entity, downloadListener, 3);
   }
 
-  DownloadUtil(Context context, DownloadEntity entity, IDownloadListener downloadListener,
+  DownloadUtil(Context context, DownloadTaskEntity entity, IDownloadListener downloadListener,
       int threadNum) {
+    CheckUtil.checkDownloadEntity(entity.downloadEntity);
+    mDownloadEntity = entity.downloadEntity;
     mContext = context.getApplicationContext();
-    mDownloadEntity = entity;
+    mDownloadTaskEntity = entity;
     mListener = downloadListener;
     THREAD_NUM = threadNum;
     mFixedThreadPool = Executors.newFixedThreadPool(Integer.MAX_VALUE);
@@ -70,7 +75,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
   }
 
   private void init() {
-    mDownloadFile = new File(mDownloadEntity.getDownloadPath());
+    mDownloadFile = new File(mDownloadTaskEntity.downloadEntity.getDownloadPath());
     //读取已完成的线程数
     mConfigFile = new File(
         mContext.getFilesDir().getPath() + "/temp/" + mDownloadFile.getName() + ".properties");
@@ -196,7 +201,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
     try {
       URL url = new URL(mDownloadEntity.getDownloadUrl());
       HttpURLConnection conn = ConnectionHelp.handleConnection(url);
-      conn = ConnectionHelp.setConnectParam(conn);
+      conn = ConnectionHelp.setConnectParam(mDownloadTaskEntity, conn);
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       conn.setConnectTimeout(mConnectTimeOut * 4);
       conn.connect();
@@ -251,6 +256,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
       entity.END_LOCATION = entity.FILE_SIZE;
       entity.CONFIG_FILE_PATH = mConfigFile.getPath();
       entity.isSupportBreakpoint = isSupportBreakpoint;
+      entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
       SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
       mFixedThreadPool.execute(task);
       mListener.onStart(0);
@@ -336,6 +342,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
       entity.END_LOCATION = endL;
       entity.CONFIG_FILE_PATH = mConfigFile.getPath();
       entity.isSupportBreakpoint = isSupportBreakpoint;
+      entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
       SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
       mTask.put(i, task);
     }
@@ -366,5 +373,6 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
     File TEMP_FILE;
     boolean isSupportBreakpoint = true;
     String CONFIG_FILE_PATH;
+    DownloadTaskEntity DOWNLOAD_TASK_ENTITY;
   }
 }

@@ -24,9 +24,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
-import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiBinding;
@@ -74,7 +72,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
 
   @Override protected void onResume() {
     super.onResume();
-    Aria.whit(this).addSchedulerListener(new DownloadListener());
+    Aria.download(this).addSchedulerListener(new DownloadListener());
   }
 
   @Override protected void onDestroy() {

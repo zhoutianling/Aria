@@ -1,7 +1,6 @@
 package com.arialyy.simple.multi_task;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -51,7 +50,7 @@ final class FileListAdapter extends AbsRVAdapter<FileListEntity, FileListAdapter
       holder.bt.setOnClickListener(new View.OnClickListener() {
         @Override public void onClick(View v) {
           Toast.makeText(getContext(), "开始下载：" + item.name, Toast.LENGTH_SHORT).show();
-          Aria.whit(getContext())
+          Aria.download(getContext())
               .load(item.downloadUrl)
               .setDownloadName(item.name)
               .setDownloadPath(item.downloadPath)

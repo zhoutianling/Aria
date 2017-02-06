@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.download;
 
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.DownloadTaskEntity;
 import com.arialyy.aria.core.task.Task;
 
 /**
@@ -25,16 +26,16 @@ import com.arialyy.aria.core.task.Task;
  */
 class StartCmd extends IDownloadCmd {
 
-  StartCmd(String target, DownloadEntity entity) {
-    super(target, entity);
-  }
-
-  StartCmd(DownloadEntity entity) {
+  StartCmd(DownloadTaskEntity entity) {
     super(entity);
   }
 
+  StartCmd(String targetName, DownloadTaskEntity entity) {
+    super(targetName, entity);
+  }
+
   @Override public void executeCmd() {
-    Task task = mQueue.getTask(mEntity);
+    Task task = mQueue.getTask(mEntity.downloadEntity);
     if (task == null) {
       task = mQueue.createTask(mTargetName, mEntity);
     }

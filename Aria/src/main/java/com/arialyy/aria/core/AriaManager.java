@@ -19,7 +19,6 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
-import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
@@ -29,11 +28,12 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.PopupWindow;
-import com.arialyy.aria.core.command.CmdFactory;
+import com.arialyy.aria.core.command.download.CmdFactory;
+import com.arialyy.aria.core.receiver.DownloadReceiver;
 import com.arialyy.aria.util.CAConfiguration;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.core.command.download.IDownloadCmd;
 import com.arialyy.aria.util.Configuration;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ import java.util.Set;
   private static final String TAG = "AriaManager";
   private static final Object LOCK = new Object();
   private static volatile AriaManager INSTANCE = null;
-  private Map<String, AMReceiver> mTargets = new HashMap<>();
+  private Map<String, DownloadReceiver> mDownloadTargets = new HashMap<>();
   private DownloadManager mManager;
   private LifeCallback mLifeCallback;
 
@@ -70,8 +70,8 @@ import java.util.Set;
     return INSTANCE;
   }
 
-  AMReceiver get(Object obj) {
-    return getTarget(obj);
+  DownloadReceiver download(Object obj) {
+    return getDownloadTarget(obj);
   }
 
   /**
@@ -115,14 +115,15 @@ import java.util.Set;
   }
 
   /**
-   * 停止所有正在执行的任务
+   * 停止所有正在下载的任务
    */
   public void stopAllTask() {
     List<DownloadEntity> allEntity = mManager.getAllDownloadEntity();
     List<IDownloadCmd> stopCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       if (entity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
-        stopCmds.add(CommonUtil.createCmd(entity, CmdFactory.TASK_STOP));
+        stopCmds.add(
+            CommonUtil.createDownloadCmd(new DownloadTaskEntity(entity), CmdFactory.TASK_STOP));
       }
     }
     mManager.setCmds(stopCmds).exe();
@@ -181,20 +182,21 @@ import java.util.Set;
     List<DownloadEntity> allEntity = mManager.getAllDownloadEntity();
     List<IDownloadCmd> cancelCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
-      cancelCmds.add(CommonUtil.createCmd(entity, CmdFactory.TASK_CANCEL));
+      cancelCmds.add(
+          CommonUtil.createDownloadCmd(new DownloadTaskEntity(entity), CmdFactory.TASK_CANCEL));
     }
     mManager.setCmds(cancelCmds).exe();
-    Set<String> keys = mTargets.keySet();
+    Set<String> keys = mDownloadTargets.keySet();
     for (String key : keys) {
-      AMReceiver target = mTargets.get(key);
+      DownloadReceiver target = mDownloadTargets.get(key);
       target.removeSchedulerListener();
-      mTargets.remove(key);
+      mDownloadTargets.remove(key);
     }
   }
 
-  private AMReceiver putTarget(Object obj) {
+  private DownloadReceiver putTarget(Object obj) {
     String clsName = obj.getClass().getName();
-    AMReceiver target = null;
+    DownloadReceiver target = null;
     String key = "";
     if (!(obj instanceof Activity)) {
       if (obj instanceof android.support.v4.app.Fragment) {
@@ -224,11 +226,11 @@ import java.util.Set;
     if (TextUtils.isEmpty(key)) {
       throw new IllegalArgumentException("未知类型");
     }
-    target = mTargets.get(key);
+    target = mDownloadTargets.get(key);
     if (target == null) {
-      target = new AMReceiver();
+      target = new DownloadReceiver();
       target.targetName = obj.getClass().getName();
-      mTargets.put(key, target);
+      mDownloadTargets.put(key, target);
     }
     return target;
   }
@@ -243,7 +245,7 @@ import java.util.Set;
           (PopupWindow.OnDismissListener) dismissField.get(popupWindow);
       if (listener != null) {
         Log.e(TAG, "你已经对PopupWindow设置了Dismiss事件。为了防止内存泄露，"
-            + "请在dismiss方法中调用Aria.whit(this).removeSchedulerListener();来注销事件");
+            + "请在dismiss方法中调用Aria.download(this).removeSchedulerListener();来注销事件");
       } else {
         popupWindow.setOnDismissListener(createPopupWindowListener(popupWindow));
       }
@@ -276,7 +278,7 @@ import java.util.Set;
         Message cancelMsg = (Message) cancelField.get(dialog);
         if (cancelMsg != null) {
           Log.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。为了防止内存泄露，"
-              + "请在dismiss方法中调用Aria.whit(this).removeSchedulerListener();来注销事件");
+              + "请在dismiss方法中调用Aria.download(this).removeSchedulerListener();来注销事件");
         } else {
           dialog.setOnCancelListener(createCancelListener());
         }
@@ -288,8 +290,8 @@ import java.util.Set;
     }
   }
 
-  private AMReceiver getTarget(Object obj) {
-    AMReceiver target = mTargets.get(obj.getClass().getName());
+  private DownloadReceiver getDownloadTarget(Object obj) {
+    DownloadReceiver target = mDownloadTargets.get(obj.getClass().getName());
     if (target == null) {
       target = putTarget(obj);
     }
@@ -335,17 +337,15 @@ import java.util.Set;
    * onDestroy
    */
   private void destroySchedulerListener(Object obj) {
-    Set<String> keys = mTargets.keySet();
+    Set<String> keys = mDownloadTargets.keySet();
     String clsName = obj.getClass().getName();
-    for (Iterator<Map.Entry<String, AMReceiver>> iter = mTargets.entrySet().iterator();
+    for (
+        Iterator<Map.Entry<String, DownloadReceiver>> iter = mDownloadTargets.entrySet().iterator();
         iter.hasNext(); ) {
-      Map.Entry<String, AMReceiver> entry = iter.next();
+      Map.Entry<String, DownloadReceiver> entry = iter.next();
       String key = entry.getKey();
       if (key.equals(clsName) || key.contains(clsName)) {
-        AMReceiver receiver = mTargets.get(key);
-        if (receiver.obj != null) {
-          if (receiver.obj instanceof Application || receiver.obj instanceof Service) break;
-        }
+        DownloadReceiver receiver = mDownloadTargets.get(key);
         receiver.removeSchedulerListener();
         receiver.destroy();
         iter.remove();

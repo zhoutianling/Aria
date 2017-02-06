@@ -70,7 +70,7 @@ final class SingleThreadTask implements Runnable {
       } else {
         Log.w(TAG, "该下载不支持断点，即将重新下载");
       }
-      conn = ConnectionHelp.setConnectParam(conn);
+      conn = ConnectionHelp.setConnectParam(mConfigEntity.DOWNLOAD_TASK_ENTITY, conn);
       conn.setConnectTimeout(mConstance.CONNECT_TIME_OUT);
       conn.setReadTimeout(mConstance.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
       is = conn.getInputStream();
@@ -87,7 +87,6 @@ final class SingleThreadTask implements Runnable {
           break;
         }
         if (mConstance.isStop) {
-          Log.i(TAG, "stop");
           break;
         }
         //把下载数据数据写入文件
