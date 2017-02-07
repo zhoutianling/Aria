@@ -16,7 +16,7 @@
 package com.arialyy.aria.util;
 
 import android.util.Log;
-import com.arialyy.aria.core.DownloadManager;
+import com.arialyy.aria.core.AriaManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -67,7 +67,7 @@ public class Configuration {
   }
 
   private Configuration() {
-    mConfigFile = new File(DownloadManager.APP.getFilesDir().getPath() + CONFIG_FILE);
+    mConfigFile = new File(AriaManager.APP.getFilesDir().getPath() + CONFIG_FILE);
     try {
       if (!mConfigFile.exists()) {
         mConfigFile.getParentFile().mkdirs();

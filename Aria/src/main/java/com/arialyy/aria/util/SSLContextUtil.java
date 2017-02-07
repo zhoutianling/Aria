@@ -16,10 +16,7 @@
 package com.arialyy.aria.util;
 
 import android.text.TextUtils;
-import com.arialyy.aria.core.DownloadManager;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import com.arialyy.aria.core.AriaManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -42,8 +39,8 @@ import javax.net.ssl.X509TrustManager;
 
 /**
  * Created by Aria.Lao on 2017/1/11.
+ * SSL证书工具
  */
-
 public class SSLContextUtil {
 
   /**
@@ -61,7 +58,7 @@ public class SSLContextUtil {
     CertificateFactory cf = null;
     try {
       cf = CertificateFactory.getInstance("X.509");
-      InputStream caInput = DownloadManager.APP.getAssets().open(caPath);
+      InputStream caInput = AriaManager.APP.getAssets().open(caPath);
       Certificate ca;
       ca = cf.generateCertificate(caInput);
       System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());

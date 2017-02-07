@@ -7,7 +7,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.OnClick;
-import com.arialyy.aria.core.AMTarget;
+import com.arialyy.aria.core.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
@@ -40,13 +40,13 @@ public class DownloadDialog extends AbsDialog {
   }
 
   private void init() {
-    if (Aria.get(this).taskExists(DOWNLOAD_URL)) {
-      AMTarget target = Aria.download(this).load(DOWNLOAD_URL);
+    if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
+      DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
       int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
     Aria.download(this).addSchedulerListener(new MyDialogDownloadCallback());
-    DownloadEntity entity = Aria.get(this).getDownloadEntity(DOWNLOAD_URL);
+    DownloadEntity entity = Aria.download(this).getDownloadEntity(DOWNLOAD_URL);
     if (entity != null) {
       mSize.setText(CommonUtil.formatFileSize(entity.getFileSize()));
       int state = entity.getState();

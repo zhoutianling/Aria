@@ -26,7 +26,6 @@ import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.widget.PopupWindow;
-import com.arialyy.aria.core.receiver.DownloadReceiver;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.core.task.Task;
 

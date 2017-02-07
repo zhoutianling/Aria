@@ -86,7 +86,7 @@ public class DownloadModule extends BaseModule {
     String[] urls = getContext().getResources().getStringArray(R.array.test_apk_download_url);
     List<DownloadEntity> list = new ArrayList<>();
     for (String url : urls) {
-      DownloadEntity entity = Aria.get(getContext()).getDownloadEntity(url);
+      DownloadEntity entity = Aria.download(getContext()).getDownloadEntity(url);
       if (entity == null) {
         entity = createDownloadEntity(url);
       }

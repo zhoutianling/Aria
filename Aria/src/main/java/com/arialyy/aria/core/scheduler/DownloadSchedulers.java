@@ -18,9 +18,8 @@ package com.arialyy.aria.core.scheduler;
 
 import android.os.CountDownTimer;
 import android.os.Message;
-import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.DownloadManager;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
@@ -75,11 +74,10 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    * 下载器任务监听
    */
   Map<String, OnSchedulerListener> mSchedulerListeners = new ConcurrentHashMap<>();
-  DownloadManager mManager = DownloadManager.getInstance();
   ITaskQueue mQueue;
 
   private DownloadSchedulers() {
-    mQueue = mManager.getTaskQueue();
+    mQueue = AriaManager.getInstance(AriaManager.APP).getTaskQueue();
   }
 
   public static DownloadSchedulers getInstance() {

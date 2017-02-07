@@ -30,7 +30,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
-import com.arialyy.aria.core.AMTarget;
+import com.arialyy.aria.core.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
@@ -161,8 +161,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private void init() {
-    if (Aria.get(this).taskExists(DOWNLOAD_URL)) {
-      AMTarget target = Aria.download(this).load(DOWNLOAD_URL);
+    if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
+      DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
       int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }

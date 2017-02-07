@@ -22,22 +22,20 @@ import com.arialyy.aria.core.command.download.IDownloadCmd;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 /**
  * Created by lyy on 2016/12/5.
  * https://github.com/AriaLyy/Aria
  */
-public class AMTarget {
+public class DownloadTarget {
   DownloadEntity entity;
   String targetName;
   DownloadTaskEntity taskEntity;
 
-  public AMTarget(DownloadEntity entity, String targetName) {
+  public DownloadTarget(DownloadEntity entity, String targetName) {
     this.entity = entity;
     this.targetName = targetName;
     taskEntity = new DownloadTaskEntity(entity);
@@ -49,7 +47,7 @@ public class AMTarget {
    * @param key 头部key
    * @param header 头部value
    */
-  public AMTarget addHeader(@NonNull String key, @NonNull String header) {
+  public DownloadTarget addHeader(@NonNull String key, @NonNull String header) {
     taskEntity.headers.put(key, header);
     return this;
   }
@@ -59,7 +57,7 @@ public class AMTarget {
    *
    * @param headers Map<Key, Value>
    */
-  public AMTarget addHeaders(Map<String, String> headers) {
+  public DownloadTarget addHeaders(Map<String, String> headers) {
     if (headers != null && headers.size() > 0) {
       Set<String> keys = headers.keySet();
       for (String key : keys) {
@@ -72,7 +70,7 @@ public class AMTarget {
   /**
    * 设置文件存储路径
    */
-  public AMTarget setDownloadPath(@NonNull String downloadPath) {
+  public DownloadTarget setDownloadPath(@NonNull String downloadPath) {
     if (TextUtils.isEmpty(downloadPath)) {
       throw new IllegalArgumentException("文件保持路径不能为null");
     }
@@ -81,9 +79,19 @@ public class AMTarget {
   }
 
   /**
+   * 设置请求类型
+   *
+   * @param requestEnum {@link RequestEnum}
+   */
+  public DownloadTarget setRequestMode(RequestEnum requestEnum) {
+    taskEntity.requestEnum = requestEnum;
+    return this;
+  }
+
+  /**
    * 设置文件名
    */
-  public AMTarget setDownloadName(@NonNull String downloadName) {
+  public DownloadTarget setDownloadName(@NonNull String downloadName) {
     if (TextUtils.isEmpty(downloadName)) {
       throw new IllegalArgumentException("文件名不能为null");
     }
@@ -122,7 +130,7 @@ public class AMTarget {
    * 添加任务
    */
   public void add() {
-    DownloadManager.getInstance()
+    AriaManager.getInstance(AriaManager.APP)
         .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_CREATE))
         .exe();
   }
@@ -134,7 +142,7 @@ public class AMTarget {
     List<IDownloadCmd> cmds = new ArrayList<>();
     cmds.add(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_CREATE));
     cmds.add(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_START));
-    DownloadManager.getInstance().setCmds(cmds).exe();
+    AriaManager.getInstance(AriaManager.APP).setCmds(cmds).exe();
     cmds.clear();
   }
 
@@ -142,7 +150,7 @@ public class AMTarget {
    * 停止下载
    */
   public void stop() {
-    DownloadManager.getInstance()
+    AriaManager.getInstance(AriaManager.APP)
         .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_STOP))
         .exe();
   }
@@ -151,7 +159,7 @@ public class AMTarget {
    * 恢复下载
    */
   public void resume() {
-    DownloadManager.getInstance()
+    AriaManager.getInstance(AriaManager.APP)
         .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_START))
         .exe();
   }
@@ -160,7 +168,7 @@ public class AMTarget {
    * 取消下载
    */
   public void cancel() {
-    DownloadManager.getInstance()
+    AriaManager.getInstance(AriaManager.APP)
         .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_CANCEL))
         .exe();
   }
@@ -169,7 +177,7 @@ public class AMTarget {
    * 是否在下载
    */
   public boolean isDownloading() {
-    return DownloadManager.getInstance().getTaskQueue().getTask(entity).isDownloading();
+    return AriaManager.getInstance(AriaManager.APP).getTaskQueue().getTask(entity).isDownloading();
   }
 
   /**

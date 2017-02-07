@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.receiver;
+package com.arialyy.aria.core;
 
 /**
  * Created by Aria.Lao on 2017/2/6.
+ * 上传功能接收器
  */
+public class UploadReceiver implements IReceiver {
 
-public interface IReceiver {
+  @Override public void destroy() {
 
+  }
+
+  @Override public void removeSchedulerListener() {
+
+  }
 }

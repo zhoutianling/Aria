@@ -7,7 +7,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.OnClick;
-import com.arialyy.aria.core.AMTarget;
+import com.arialyy.aria.core.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.DownloadEntity;
 import com.arialyy.aria.core.task.Task;
@@ -32,12 +32,12 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
       "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
 
   @Override protected void init(Bundle savedInstanceState) {
-    if (Aria.get(this).taskExists(DOWNLOAD_URL)) {
-      AMTarget target = Aria.download(this).load(DOWNLOAD_URL);
+    if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
+      DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
       int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
-    DownloadEntity entity = Aria.get(this).getDownloadEntity(DOWNLOAD_URL);
+    DownloadEntity entity = Aria.download(this).getDownloadEntity(DOWNLOAD_URL);
     if (entity != null) {
       mSize.setText(CommonUtil.formatFileSize(entity.getFileSize()));
       int state = entity.getState();

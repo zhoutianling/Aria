@@ -16,12 +16,11 @@
 
 package com.arialyy.aria.core.command.download;
 
-import com.arialyy.aria.core.DownloadManager;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.DownloadTaskEntity;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.core.DownloadEntity;
 
 /**
  * Created by lyy on 2016/8/22.
@@ -50,7 +49,7 @@ public abstract class IDownloadCmd {
     mTargetName = targetName;
     mEntity = entity;
     TAG = CommonUtil.getClassName(this);
-    mQueue = DownloadManager.getInstance().getTaskQueue();
+    mQueue = AriaManager.getInstance(AriaManager.APP).getTaskQueue();
   }
 
   /**
