@@ -30,10 +30,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
-import com.arialyy.aria.core.DownloadTarget;
+import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.DownloadEntity;
-import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.task.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
@@ -76,7 +76,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       super.handleMessage(msg);
       switch (msg.what) {
         case DOWNLOAD_RUNNING:
-          Task task = (Task) msg.obj;
+          DownloadTask task = (DownloadTask) msg.obj;
           long current = task.getCurrentProgress();
           long len = task.getFileSize();
           if (len == 0) {
@@ -208,33 +208,33 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private class MySchedulerListener extends Aria.SimpleSchedulerListener {
-    @Override public void onTaskStart(Task task) {
+    @Override public void onTaskStart(DownloadTask task) {
       mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
           .sendToTarget();
     }
 
-    @Override public void onTaskResume(Task task) {
+    @Override public void onTaskResume(DownloadTask task) {
       super.onTaskResume(task);
       mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getFileSize()).sendToTarget();
     }
 
-    @Override public void onTaskStop(Task task) {
+    @Override public void onTaskStop(DownloadTask task) {
       mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
     }
 
-    @Override public void onTaskCancel(Task task) {
+    @Override public void onTaskCancel(DownloadTask task) {
       mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
     }
 
-    @Override public void onTaskFail(Task task) {
+    @Override public void onTaskFail(DownloadTask task) {
       mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
     }
 
-    @Override public void onTaskComplete(Task task) {
+    @Override public void onTaskComplete(DownloadTask task) {
       mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
     }
 
-    @Override public void onTaskRunning(Task task) {
+    @Override public void onTaskRunning(DownloadTask task) {
       mUpdateHandler.obtainMessage(DOWNLOAD_RUNNING, task).sendToTarget();
     }
   }

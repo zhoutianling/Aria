@@ -23,7 +23,7 @@ import android.content.IntentFilter;
 import android.os.Environment;
 import android.os.Handler;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.AndroidUtils;
 import com.arialyy.frame.util.StringUtil;

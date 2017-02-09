@@ -5,7 +5,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.core.download.task.DownloadTask;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
@@ -40,45 +40,45 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadBinding> {
   }
 
   private class MySchedulerListener extends Aria.SimpleSchedulerListener {
-    @Override public void onTaskPre(Task task) {
+    @Override public void onTaskPre(DownloadTask task) {
       super.onTaskPre(task);
       L.d(TAG, "download pre");
       mAdapter.updateState(task.getDownloadEntity());
     }
 
-    @Override public void onTaskStart(Task task) {
+    @Override public void onTaskStart(DownloadTask task) {
       super.onTaskStart(task);
       L.d(TAG, "download start");
       mAdapter.updateState(task.getDownloadEntity());
     }
 
-    @Override public void onTaskResume(Task task) {
+    @Override public void onTaskResume(DownloadTask task) {
       super.onTaskResume(task);
       L.d(TAG, "download resume");
       mAdapter.updateState(task.getDownloadEntity());
     }
 
-    @Override public void onTaskRunning(Task task) {
+    @Override public void onTaskRunning(DownloadTask task) {
       super.onTaskRunning(task);
       mAdapter.setProgress(task.getDownloadEntity());
     }
 
-    @Override public void onTaskStop(Task task) {
+    @Override public void onTaskStop(DownloadTask task) {
       super.onTaskStop(task);
       mAdapter.updateState(task.getDownloadEntity());
     }
 
-    @Override public void onTaskCancel(Task task) {
+    @Override public void onTaskCancel(DownloadTask task) {
       super.onTaskCancel(task);
       mAdapter.updateState(task.getDownloadEntity());
     }
 
-    @Override public void onTaskComplete(Task task) {
+    @Override public void onTaskComplete(DownloadTask task) {
       super.onTaskComplete(task);
       mAdapter.updateState(task.getDownloadEntity());
     }
 
-    @Override public void onTaskFail(Task task) {
+    @Override public void onTaskFail(DownloadTask task) {
       super.onTaskFail(task);
       L.d(TAG, "download fail");
     }

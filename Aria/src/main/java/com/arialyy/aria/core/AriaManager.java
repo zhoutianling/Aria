@@ -27,9 +27,14 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.PopupWindow;
-import com.arialyy.aria.core.command.download.IDownloadCmd;
-import com.arialyy.aria.core.queue.DownloadTaskQueue;
-import com.arialyy.aria.core.queue.ITaskQueue;
+import com.arialyy.aria.core.download.command.IDownloadCmd;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadReceiver;
+import com.arialyy.aria.core.inf.ICmd;
+import com.arialyy.aria.core.inf.IReceiver;
+import com.arialyy.aria.core.download.queue.DownloadTaskQueue;
+import com.arialyy.aria.core.download.queue.ITaskQueue;
+import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CAConfiguration;
@@ -56,7 +61,7 @@ import java.util.Map;
 
   public static Context APP;
   private ITaskQueue mTaskQueue;
-  private List<IDownloadCmd> mCommands = new ArrayList<>();
+  private List<ICmd> mCommands = new ArrayList<>();
 
   private AriaManager(Context context) {
     DbUtil.init(context.getApplicationContext());
@@ -75,7 +80,11 @@ import java.util.Map;
     return INSTANCE;
   }
 
-  List<DownloadEntity> getAllDownloadEntity() {
+  public Map<String, IReceiver> getReceiver(){
+    return mReceivers;
+  }
+
+  public List<DownloadEntity> getAllDownloadEntity() {
     return DbEntity.findAllData(DownloadEntity.class);
   }
 
@@ -89,7 +98,7 @@ import java.util.Map;
   /**
    * 设置命令
    */
-  AriaManager setCmd(IDownloadCmd command) {
+  public AriaManager setCmd(ICmd command) {
     mCommands.add(command);
     return this;
   }
@@ -97,7 +106,7 @@ import java.util.Map;
   /**
    * 设置一组命令
    */
-  AriaManager setCmds(List<IDownloadCmd> commands) {
+  public <T extends ICmd> AriaManager setCmds(List<T> commands) {
     if (commands != null && commands.size() > 0) {
       mCommands.addAll(commands);
     }
@@ -107,8 +116,8 @@ import java.util.Map;
   /**
    * 执行所有设置的命令
    */
-  synchronized void exe() {
-    for (IDownloadCmd command : mCommands) {
+  public synchronized void exe() {
+    for (ICmd command : mCommands) {
       command.executeCmd();
     }
     mCommands.clear();

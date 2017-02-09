@@ -26,8 +26,9 @@ import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.widget.PopupWindow;
-import com.arialyy.aria.core.scheduler.OnSchedulerListener;
-import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.core.download.DownloadReceiver;
+import com.arialyy.aria.core.download.scheduler.OnSchedulerListener;
+import com.arialyy.aria.core.download.task.DownloadTask;
 
 /**
  * Created by lyy on 2016/12/1.
@@ -143,35 +144,35 @@ import com.arialyy.aria.core.task.Task;
 
   public static class SimpleSchedulerListener implements OnSchedulerListener {
 
-    @Override public void onTaskPre(Task task) {
+    @Override public void onTaskPre(DownloadTask task) {
 
     }
 
-    @Override public void onTaskResume(Task task) {
+    @Override public void onTaskResume(DownloadTask task) {
 
     }
 
-    @Override public void onTaskStart(Task task) {
+    @Override public void onTaskStart(DownloadTask task) {
 
     }
 
-    @Override public void onTaskStop(Task task) {
+    @Override public void onTaskStop(DownloadTask task) {
 
     }
 
-    @Override public void onTaskCancel(Task task) {
+    @Override public void onTaskCancel(DownloadTask task) {
 
     }
 
-    @Override public void onTaskFail(Task task) {
+    @Override public void onTaskFail(DownloadTask task) {
 
     }
 
-    @Override public void onTaskComplete(Task task) {
+    @Override public void onTaskComplete(DownloadTask task) {
 
     }
 
-    @Override public void onTaskRunning(Task task) {
+    @Override public void onTaskRunning(DownloadTask task) {
 
     }
   }

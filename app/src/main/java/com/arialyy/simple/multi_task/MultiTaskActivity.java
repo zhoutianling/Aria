@@ -24,7 +24,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.core.download.task.DownloadTask;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiBinding;
@@ -89,26 +89,26 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
 
   private class DownloadListener extends Aria.SimpleSchedulerListener {
 
-    @Override public void onTaskStart(Task task) {
+    @Override public void onTaskStart(DownloadTask task) {
       super.onTaskStart(task);
       mAdapter.updateBtState(task.getDownloadUrl(), false);
     }
 
-    @Override public void onTaskRunning(Task task) {
+    @Override public void onTaskRunning(DownloadTask task) {
       super.onTaskRunning(task);
     }
 
-    @Override public void onTaskResume(Task task) {
+    @Override public void onTaskResume(DownloadTask task) {
       super.onTaskResume(task);
       mAdapter.updateBtState(task.getDownloadUrl(), false);
     }
 
-    @Override public void onTaskStop(Task task) {
+    @Override public void onTaskStop(DownloadTask task) {
       super.onTaskStop(task);
       mAdapter.updateBtState(task.getDownloadUrl(), true);
     }
 
-    @Override public void onTaskComplete(Task task) {
+    @Override public void onTaskComplete(DownloadTask task) {
       super.onTaskComplete(task);
       mAdapter.updateBtState(task.getDownloadUrl(), true);
     }

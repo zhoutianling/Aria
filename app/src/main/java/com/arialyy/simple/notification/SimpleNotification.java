@@ -5,7 +5,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.core.download.task.DownloadTask;
 import com.arialyy.simple.R;
 
 /**
@@ -59,19 +59,19 @@ public class SimpleNotification {
       mManager = manager;
     }
 
-    @Override public void onTaskStart(Task task) {
+    @Override public void onTaskStart(DownloadTask task) {
       super.onTaskStart(task);
     }
 
-    @Override public void onTaskPre(Task task) {
+    @Override public void onTaskPre(DownloadTask task) {
       super.onTaskPre(task);
     }
 
-    @Override public void onTaskStop(Task task) {
+    @Override public void onTaskStop(DownloadTask task) {
       super.onTaskStop(task);
     }
 
-    @Override public void onTaskRunning(Task task) {
+    @Override public void onTaskRunning(DownloadTask task) {
       super.onTaskRunning(task);
       long len = task.getFileSize();
       int p = (int) (task.getCurrentProgress() * 100 / len);
@@ -81,7 +81,7 @@ public class SimpleNotification {
       }
     }
 
-    @Override public void onTaskComplete(Task task) {
+    @Override public void onTaskComplete(DownloadTask task) {
       super.onTaskComplete(task);
       if (mBuilder != null) {
         mBuilder.setProgress(100, 100, false);
@@ -89,7 +89,7 @@ public class SimpleNotification {
       }
     }
 
-    @Override public void onTaskCancel(Task task) {
+    @Override public void onTaskCancel(DownloadTask task) {
       super.onTaskCancel(task);
     }
   }

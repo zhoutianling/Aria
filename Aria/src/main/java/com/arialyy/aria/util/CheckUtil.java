@@ -18,7 +18,8 @@ package com.arialyy.aria.util;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.exception.FileException;
 import java.io.File;
 import java.util.regex.Matcher;
@@ -74,20 +75,31 @@ public class CheckUtil {
   }
 
   /**
+   * 检查上传实体是否合法
+   */
+  public static void checkUploadEntity(UploadEntity entity) {
+    if (entity == null) {
+      throw new NullPointerException("上传实体不能为空");
+    }
+    if (TextUtils.isEmpty(entity.getFilePath())) {
+      throw new IllegalArgumentException("上传文件路径不能为空");
+    } else if (TextUtils.isEmpty(entity.getFileName())) {
+      throw new IllegalArgumentException("上传文件名不能为空");
+    }
+  }
+
+  /**
    * 检测下载实体是否合法
    *
    * @param entity 下载实体
    * @return 合法(true)
    */
-  public static boolean checkDownloadEntity(DownloadEntity entity) {
+  public static void checkDownloadEntity(DownloadEntity entity) {
     if (entity == null) {
-      Log.w(TAG, "下载实体不能为空");
-      return false;
+      throw new NullPointerException("下载实体不能为空");
     } else if (TextUtils.isEmpty(entity.getDownloadUrl())) {
-      Log.w(TAG, "下载链接不能为空");
-      return false;
+      throw new IllegalArgumentException("下载链接不能为空");
     } else if (TextUtils.isEmpty(entity.getFileName())) {
-      //Log.w(TAG, "文件名不能为空");
       throw new FileException("文件名不能为null");
     } else if (TextUtils.isEmpty(entity.getDownloadPath())) {
       throw new FileException("文件保存路径不能为null");
@@ -102,6 +114,5 @@ public class CheckUtil {
       dPath += fileName;
       entity.setDownloadPath(dPath);
     }
-    return true;
   }
 }

@@ -9,10 +9,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.OnClick;
-import com.arialyy.aria.core.DownloadTarget;
+import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.DownloadEntity;
-import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.task.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.core.AbsPopupWindow;
 import com.arialyy.simple.R;
@@ -88,26 +88,26 @@ public class DownloadPopupWindow extends AbsPopupWindow {
 
   private class MyDialogDownloadCallback extends Aria.SimpleSchedulerListener {
 
-    @Override public void onTaskPre(Task task) {
+    @Override public void onTaskPre(DownloadTask task) {
       super.onTaskPre(task);
       mSize.setText(CommonUtil.formatFileSize(task.getFileSize()));
       setBtState(false);
     }
 
-    @Override public void onTaskStop(Task task) {
+    @Override public void onTaskStop(DownloadTask task) {
       super.onTaskStop(task);
       setBtState(true);
       mSpeed.setText("0.0kb/s");
     }
 
-    @Override public void onTaskCancel(Task task) {
+    @Override public void onTaskCancel(DownloadTask task) {
       super.onTaskCancel(task);
       setBtState(true);
       mPb.setProgress(0);
       mSpeed.setText("0.0kb/s");
     }
 
-    @Override public void onTaskRunning(Task task) {
+    @Override public void onTaskRunning(DownloadTask task) {
       super.onTaskRunning(task);
       long current = task.getCurrentProgress();
       long len     = task.getFileSize();
