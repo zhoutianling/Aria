@@ -23,8 +23,8 @@ public class upload extends BaseActivity<ActivityUploadBinding>{
     entity.setFilePath("/sdcard/Download/test.pdf");
     entity.setFileName("test.pdf");
     UploadTaskEntity taskEntity = new UploadTaskEntity(entity);
-    taskEntity.uploadUrl = "http://172.21.1.160:8080/upload";
-    taskEntity.uploadKey = "file";
+    taskEntity.uploadUrl = "http://192.168.1.9:8080/upload/sign_file";
+    taskEntity.attachment = "file";
     UploadUtil util = new UploadUtil(taskEntity, new IUploadListener() {
       @Override public void onFail() {
 
