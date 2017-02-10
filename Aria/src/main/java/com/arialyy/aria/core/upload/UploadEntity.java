@@ -11,6 +11,7 @@ public class UploadEntity {
 
   private String filePath;  //文件路径
   private String fileName;  //文件名
+  private long fileSize;    //文件大小
 
   public String getFilePath() {
     return filePath;

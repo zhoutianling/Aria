@@ -3,6 +3,7 @@ package com.arialyy.aria.core.upload;
 import android.util.Log;
 import com.arialyy.aria.util.CheckUtil;
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -22,20 +23,24 @@ import java.util.UUID;
  * 上传工具
  */
 public class UploadUtil implements Runnable {
-  private static final String TAG      = "UploadUtil";
-  private final        String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
-  private final        String PREFIX   = "--", LINE_END = "\r\n";
-  private UploadEntity      mUploadEntity;
-  private UploadTaskEntity  mTaskEntity;
-  private IUploadListener   mListener;
-  private PrintWriter       mWriter;
-  private OutputStream      mOutputStream;
+  private static final String TAG = "UploadUtil";
+  private final String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
+  private final String PREFIX = "--", LINE_END = "\r\n";
+  private UploadEntity mUploadEntity;
+  private UploadTaskEntity mTaskEntity;
+  private IUploadListener mListener;
+  private PrintWriter mWriter;
+  private OutputStream mOutputStream;
   private HttpURLConnection mHttpConn;
+  private long mCurrentLocation = 0;
 
   public UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
     mTaskEntity = taskEntity;
     CheckUtil.checkUploadEntity(taskEntity.uploadEntity);
     mUploadEntity = taskEntity.uploadEntity;
+    if (listener == null) {
+      throw new IllegalArgumentException("上传监听不能为空");
+    }
     mListener = listener;
   }
 
@@ -44,22 +49,27 @@ public class UploadUtil implements Runnable {
   }
 
   @Override public void run() {
-    File file = new File(mUploadEntity.getFilePath());
-    if (!file.exists()) {
+    File uploadFile = new File(mUploadEntity.getFilePath());
+    if (!uploadFile.exists()) {
       Log.e(TAG, "【" + mUploadEntity.getFilePath() + "】，文件不存在。");
       mListener.onFail();
       return;
     }
+
+    mListener.onPre();
 
     URL url = null;
     try {
       url = new URL(mTaskEntity.uploadUrl);
       mHttpConn = (HttpURLConnection) url.openConnection();
       mHttpConn.setUseCaches(false);
-      mHttpConn.setDoOutput(true); // indicates POST method
+      mHttpConn.setDoOutput(true);
       mHttpConn.setDoInput(true);
       mHttpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
       mHttpConn.setRequestProperty("User-Agent", "CodeJava Agent");
+      //内部缓冲区---分段上传防止oom
+      //System.setProperty("http.keepAlive", "false");
+      mHttpConn.setChunkedStreamingMode(1024);
 
       //添加Http请求头部
       Set<String> keys = mTaskEntity.headers.keySet();
@@ -75,10 +85,9 @@ public class UploadUtil implements Runnable {
       for (String key : keys) {
         addFormField(key, mTaskEntity.formFields.get(key));
       }
-
-      addFilePart(mTaskEntity.attachment, new File(mUploadEntity.getFilePath()));
+      mListener.onStart(uploadFile.length());
+      addFilePart(mTaskEntity.attachment, uploadFile);
       Log.d(TAG, finish() + "");
-      finish();
     } catch (MalformedURLException e) {
       e.printStackTrace();
     } catch (IOException e) {
@@ -89,7 +98,7 @@ public class UploadUtil implements Runnable {
   /**
    * 添加文件上传表单字段
    */
-  public void addFormField(String name, String value) {
+  private void addFormField(String name, String value) {
     mWriter.append(PREFIX).append(BOUNDARY).append(LINE_END);
     mWriter.append("Content-Disposition: form-data; name=\"")
         .append(name)
@@ -109,7 +118,7 @@ public class UploadUtil implements Runnable {
    * @param fieldName 文件上传attachment
    * @throws IOException
    */
-  public void addFilePart(String fieldName, File uploadFile) throws IOException {
+  private void addFilePart(String fieldName, File uploadFile) throws IOException {
     String fileName = uploadFile.getName();
     mWriter.append(PREFIX).append(BOUNDARY).append(LINE_END);
     mWriter.append("Content-Disposition: form-data; name=\"")
@@ -126,14 +135,16 @@ public class UploadUtil implements Runnable {
     mWriter.flush();
 
     FileInputStream inputStream = new FileInputStream(uploadFile);
-    byte[] buffer = new byte[4096];
+    byte[] buffer = new byte[1024];
     int bytesRead = -1;
     while ((bytesRead = inputStream.read(buffer)) != -1) {
+      mCurrentLocation += bytesRead;
       mOutputStream.write(buffer, 0, bytesRead);
+      mListener.onProgress(mCurrentLocation);
     }
     mOutputStream.flush();
     inputStream.close();
-
+    mListener.onComplete();
     mWriter.append(LINE_END);
     mWriter.flush();
   }
@@ -143,14 +154,13 @@ public class UploadUtil implements Runnable {
    *
    * @throws IOException
    */
-  public String finish() throws IOException {
+  private String finish() throws IOException {
     StringBuilder response = new StringBuilder();
 
     mWriter.append(LINE_END).flush();
     mWriter.append(PREFIX).append(BOUNDARY).append(PREFIX).append(LINE_END);
     mWriter.close();
 
-    // checks server's status code first
     int status = mHttpConn.getResponseCode();
     if (status == HttpURLConnection.HTTP_OK) {
       BufferedReader reader = new BufferedReader(new InputStreamReader(mHttpConn.getInputStream()));
@@ -166,6 +176,4 @@ public class UploadUtil implements Runnable {
 
     return response.toString();
   }
-
-
 }

@@ -17,6 +17,15 @@
         style="?buttonBarButtonStyle"
         />
 
+    <com.arialyy.simple.widget.HorizontalProgressBarWithNumber
+        android:id="@+id/pb"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_margin="16dp"
+        android:max="100"
+        style="?android:attr/progressBarStyleHorizontal"
+        />
+
   </LinearLayout>
 
 </layout>

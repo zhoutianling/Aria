@@ -19,7 +19,7 @@ package com.arialyy.aria.core.download.task;
 /**
  * 下载监听
  */
-public interface IDownloadListener {
+interface IDownloadListener {
 
   /**
    * 支持断点回调
