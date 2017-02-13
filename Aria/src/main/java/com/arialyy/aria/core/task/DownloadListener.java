@@ -15,7 +15,7 @@
  */
 
 
-package com.arialyy.aria.core.download.task;
+package com.arialyy.aria.core.task;
 
 class DownloadListener implements IDownloadListener {
 

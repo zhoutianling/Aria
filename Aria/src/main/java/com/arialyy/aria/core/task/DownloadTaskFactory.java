@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.task;
+package com.arialyy.aria.core.task;
 
 import android.content.Context;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.scheduler.IDownloadSchedulers;
+import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
 
 /**
  * Created by lyy on 2016/8/18.

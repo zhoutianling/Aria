@@ -10,7 +10,7 @@ import butterknife.OnClick;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.task.DownloadTask;
+import com.arialyy.aria.core.task.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.core.AbsDialog;
 import com.arialyy.simple.R;

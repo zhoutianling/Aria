@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.scheduler;
+package com.arialyy.aria.core.scheduler;
 
 import android.os.CountDownTimer;
 import android.os.Message;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.queue.ITaskQueue;
+import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.task.DownloadTask;
+import com.arialyy.aria.core.task.DownloadTask;
 import com.arialyy.aria.util.Configuration;
 import java.util.Iterator;
 import java.util.Map;

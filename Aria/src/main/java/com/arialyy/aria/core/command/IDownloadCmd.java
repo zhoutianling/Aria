@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.command;
+package com.arialyy.aria.core.command;
 
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.queue.ITaskQueue;
+import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.inf.ICmd;
+import com.arialyy.aria.core.task.DownloadTask;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 
@@ -27,28 +30,20 @@ import com.arialyy.aria.util.CommonUtil;
  * Created by lyy on 2016/8/22.
  * 下载命令
  */
-public abstract class IDownloadCmd implements ICmd{
+public abstract class IDownloadCmd<T extends ITaskEntity> implements ICmd {
   ITaskQueue mQueue;
-  DownloadTaskEntity mEntity;
+  T mEntity;
   String TAG;
   String mTargetName;
 
   /**
-   * @param entity 下载实体
-   */
-  IDownloadCmd(DownloadTaskEntity entity) {
-    this(null, entity);
-  }
-
-  /**
    * @param targetName 产生任务的对象名
    */
-  IDownloadCmd(String targetName, DownloadTaskEntity entity) {
-    CheckUtil.checkDownloadEntity(entity.downloadEntity);
+  IDownloadCmd(String targetName, T entity) {
+    CheckUtil.checkTaskEntity(entity);
     mTargetName = targetName;
     mEntity = entity;
     TAG = CommonUtil.getClassName(this);
     mQueue = AriaManager.getInstance(AriaManager.APP).getTaskQueue();
   }
-
 }

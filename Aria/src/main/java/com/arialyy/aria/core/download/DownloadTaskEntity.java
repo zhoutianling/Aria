@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.core.inf.ITaskEntity;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ import java.util.Map;
  * Created by Aria.Lao on 2017/1/23.
  * 下载任务实体
  */
-public class DownloadTaskEntity {
+public class DownloadTaskEntity implements ITaskEntity {
 
   public DownloadEntity downloadEntity;
   public RequestEnum requestEnum = RequestEnum.GET;

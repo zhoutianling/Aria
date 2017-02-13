@@ -3,7 +3,6 @@ package com.arialyy.aria.core.upload;
 import android.util.Log;
 import com.arialyy.aria.util.CheckUtil;
 import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -67,8 +66,8 @@ public class UploadUtil implements Runnable {
       mHttpConn.setDoInput(true);
       mHttpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
       mHttpConn.setRequestProperty("User-Agent", "CodeJava Agent");
+      mHttpConn.setRequestProperty("Range", "bytes=" + 0 + "-" + "100");
       //内部缓冲区---分段上传防止oom
-      //System.setProperty("http.keepAlive", "false");
       mHttpConn.setChunkedStreamingMode(1024);
 
       //添加Http请求头部

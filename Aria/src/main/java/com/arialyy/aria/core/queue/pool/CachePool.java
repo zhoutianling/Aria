@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.queue.pool;
+package com.arialyy.aria.core.queue.pool;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.download.queue.IPool;
-import com.arialyy.aria.core.download.task.DownloadTask;
+import com.arialyy.aria.core.queue.IPool;
+import com.arialyy.aria.core.task.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;

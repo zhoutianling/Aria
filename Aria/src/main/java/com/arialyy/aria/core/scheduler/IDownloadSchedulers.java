@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.scheduler;
+package com.arialyy.aria.core.scheduler;
 
 import android.os.Handler;
 import com.arialyy.aria.core.download.DownloadEntity;

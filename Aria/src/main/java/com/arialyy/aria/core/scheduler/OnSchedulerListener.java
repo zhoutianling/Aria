@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download.scheduler;
+package com.arialyy.aria.core.scheduler;
 
-import com.arialyy.aria.core.download.task.DownloadTask;
+import com.arialyy.aria.core.task.DownloadTask;
 
 /**
  * Target处理任务监听

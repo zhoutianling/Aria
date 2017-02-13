@@ -14,35 +14,43 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.command;
+package com.arialyy.aria.core.command;
 
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.task.DownloadTask;
+import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.task.DownloadTask;
 
 /**
  * Created by lyy on 2016/9/20.
  * 取消命令
  */
-class CancelCmd extends IDownloadCmd {
-
-  CancelCmd(DownloadTaskEntity entity) {
-    super(entity);
-  }
-
-  CancelCmd(String targetName, DownloadTaskEntity entity) {
+class CancelCmd<T extends ITaskEntity> extends IDownloadCmd<T> {
+  CancelCmd(String targetName, T entity) {
     super(targetName, entity);
   }
 
   @Override public void executeCmd() {
-    DownloadTask task = mQueue.getTask(mEntity.downloadEntity);
-    if (task == null) {
-      task = mQueue.createTask(mTargetName, mEntity);
-    }
-    if (task != null) {
-      if (mTargetName != null) {
-        task.setTargetName(mTargetName);
-      }
-      mQueue.cancelTask(task);
-    }
+
   }
+
+  //CancelCmd(DownloadTaskEntity entity) {
+  //  super(entity);
+  //}
+  //
+  //CancelCmd(String targetName, DownloadTaskEntity entity) {
+  //  super(targetName, entity);
+  //}
+  //
+  //@Override public void executeCmd() {
+  //  DownloadTask task = mQueue.getTask(mEntity.downloadEntity);
+  //  if (task == null) {
+  //    task = mQueue.createTask(mTargetName, mEntity);
+  //  }
+  //  if (task != null) {
+  //    if (mTargetName != null) {
+  //      task.setTargetName(mTargetName);
+  //    }
+  //    mQueue.cancelTask(task);
+  //  }
+  //}
 }

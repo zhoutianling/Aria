@@ -14,32 +14,41 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.command;
+package com.arialyy.aria.core.command;
 
 import android.util.Log;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.task.DownloadTask;
+import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.task.DownloadTask;
 
 /**
  * Created by lyy on 2016/8/22.
  * 添加任务的命令
  */
-class AddCmd extends IDownloadCmd {
+class AddCmd<T extends ITaskEntity> extends IDownloadCmd<T> {
 
-  AddCmd(DownloadTaskEntity entity) {
-    super(entity);
-  }
-
-  AddCmd(String targetName, DownloadTaskEntity entity) {
+  AddCmd(String targetName, T entity) {
     super(targetName, entity);
   }
 
   @Override public void executeCmd() {
-    DownloadTask task = mQueue.getTask(mEntity.downloadEntity);
-    if (task == null) {
-      mQueue.createTask(mTargetName, mEntity);
-    } else {
-      Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
-    }
+
   }
+
+  //AddCmd(DownloadTaskEntity entity) {
+  //  super(entity);
+  //}
+  //
+  //AddCmd(String targetName, DownloadTaskEntity entity) {
+  //  super(targetName, entity);
+  //}
+  //
+  //@Override public void executeCmd() {
+  //  DownloadTask task = mQueue.getTask(mEntity.downloadEntity);
+  //  if (task == null) {
+  //    mQueue.createTask(mTargetName, mEntity);
+  //  } else {
+  //    Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
+  //  }
+  //}
 }

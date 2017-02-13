@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.command;
+package com.arialyy.aria.core.command;
 
-import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.ITaskEntity;
 
 /**
  * Created by Lyy on 2016/9/23.
@@ -30,7 +30,7 @@ public class CmdFactory {
   /**
    * 启动任务
    */
-  public static final int TASK_START  = 0x123;
+  public static final int TASK_START = 0x123;
   /**
    * 恢复任务
    */
@@ -42,10 +42,10 @@ public class CmdFactory {
   /**
    * 停止任务
    */
-  public static final int TASK_STOP   = 0x125;
+  public static final int TASK_STOP = 0x125;
   public static final int TASK_SINGLE = 0x126;
 
-  private static final    Object     LOCK     = new Object();
+  private static final Object LOCK = new Object();
   private static volatile CmdFactory INSTANCE = null;
 
   private CmdFactory() {
@@ -62,35 +62,12 @@ public class CmdFactory {
   }
 
   /**
-   * @param entity 下载实体
-   * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
-   * #TASK_STOP}
-   */
-  public IDownloadCmd createCmd(DownloadTaskEntity entity, int type) {
-    switch (type) {
-      case TASK_CREATE:
-        return createAddCmd(entity);
-      case TASK_RESUME:
-      case TASK_START:
-        return createStartCmd(entity);
-      case TASK_CANCEL:
-        return createCancelCmd(entity);
-      case TASK_STOP:
-        return createStopCmd(entity);
-      case TASK_SINGLE:
-        //return new SingleCmd(entity);
-      default:
-        return null;
-    }
-  }
-
-  /**
    * @param target 创建任务的对象
    * @param entity 下载实体
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}
    */
-  public IDownloadCmd createCmd(String target, DownloadTaskEntity entity, int type) {
+  public <T extends ITaskEntity> IDownloadCmd createCmd(String target, T entity, int type) {
     switch (type) {
       case TASK_CREATE:
         return createAddCmd(target, entity);
@@ -113,35 +90,17 @@ public class CmdFactory {
    *
    * @return {@link StopCmd}
    */
-  private StopCmd createStopCmd(String target, DownloadTaskEntity entity) {
+  private <T extends ITaskEntity> StopCmd createStopCmd(String target, T entity) {
     return new StopCmd(target, entity);
   }
 
   /**
-   * 创建停止命令
-   *
-   * @return {@link StopCmd}
-   */
-  private StopCmd createStopCmd(DownloadTaskEntity entity) {
-    return new StopCmd(entity);
-  }
-
-  /**
    * 创建下载任务命令
    *
    * @return {@link AddCmd}
    */
-  private AddCmd createAddCmd(String target, DownloadTaskEntity entity) {
+  private <T extends ITaskEntity> AddCmd createAddCmd(String target, T entity) {
     return new AddCmd(target, entity);
-  }
-
-  /**
-   * 创建下载任务命令
-   *
-   * @return {@link AddCmd}
-   */
-  private AddCmd createAddCmd(DownloadTaskEntity entity) {
-    return new AddCmd(entity);
   }
 
   /**
@@ -149,7 +108,7 @@ public class CmdFactory {
    *
    * @return {@link StartCmd}
    */
-  private StartCmd createStartCmd(String target, DownloadTaskEntity entity) {
+  private <T extends ITaskEntity> StartCmd createStartCmd(String target, T entity) {
     return new StartCmd(target, entity);
   }
 
@@ -158,25 +117,7 @@ public class CmdFactory {
    *
    * @return {@link StartCmd}
    */
-  private StartCmd createStartCmd(DownloadTaskEntity entity) {
-    return new StartCmd(entity);
-  }
-
-  /**
-   * 创建 取消下载的命令
-   *
-   * @return {@link CancelCmd}
-   */
-  private CancelCmd createCancelCmd(String target, DownloadTaskEntity entity) {
+  private <T extends ITaskEntity> CancelCmd createCancelCmd(String target, T entity) {
     return new CancelCmd(target, entity);
-  }
-
-  /**
-   * 创建 取消下载的命令
-   *
-   * @return {@link CancelCmd}
-   */
-  private CancelCmd createCancelCmd(DownloadTaskEntity entity) {
-    return new CancelCmd(entity);
   }
 }

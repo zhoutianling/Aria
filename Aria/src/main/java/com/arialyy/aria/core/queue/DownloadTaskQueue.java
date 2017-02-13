@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.queue;
+package com.arialyy.aria.core.queue;
 
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.queue.pool.CachePool;
-import com.arialyy.aria.core.download.queue.pool.ExecutePool;
-import com.arialyy.aria.core.download.scheduler.DownloadSchedulers;
-import com.arialyy.aria.core.download.task.DownloadTask;
-import com.arialyy.aria.core.download.task.DownloadTaskFactory;
+import com.arialyy.aria.core.queue.pool.CachePool;
+import com.arialyy.aria.core.queue.pool.ExecutePool;
+import com.arialyy.aria.core.scheduler.DownloadSchedulers;
+import com.arialyy.aria.core.task.DownloadTask;
+import com.arialyy.aria.core.task.DownloadTaskFactory;
 import com.arialyy.aria.util.Configuration;
 
 /**

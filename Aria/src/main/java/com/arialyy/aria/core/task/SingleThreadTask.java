@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download.task;
+package com.arialyy.aria.core.task;
 
 import android.util.Log;
 import com.arialyy.aria.util.CommonUtil;

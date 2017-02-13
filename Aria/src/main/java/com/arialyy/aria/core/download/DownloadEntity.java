@@ -19,6 +19,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.arialyy.aria.core.inf.ITaskEntity;
 import com.arialyy.aria.orm.Ignore;
 import com.arialyy.aria.orm.DbEntity;
 
@@ -28,7 +29,7 @@ import com.arialyy.aria.orm.DbEntity;
  * ！！！ 注意：CREATOR要进行@Ignore注解
  * ！！！并且需要Parcelable时需要手动填写rowID;
  */
-public class DownloadEntity extends DbEntity implements Parcelable {
+public class DownloadEntity extends DbEntity implements Parcelable{
   /**
    * 其它状态
    */

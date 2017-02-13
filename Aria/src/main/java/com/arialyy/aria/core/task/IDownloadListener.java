@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.task;
+package com.arialyy.aria.core.task;
 
 /**
  * 下载监听

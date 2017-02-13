@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.queue;
+package com.arialyy.aria.core.queue;
 
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.task.DownloadTask;
+import com.arialyy.aria.core.task.DownloadTask;
 
 /**
  * Created by lyy on 2016/8/16.
  * 任务功能接口
  */
 public interface ITaskQueue extends IDownloader {
-
-  ///**
-  // * 获取调度器
-  // */
-  //public IDownloadSchedulers getDownloadSchedulers();
 
   /**
    * 任务池队列大小

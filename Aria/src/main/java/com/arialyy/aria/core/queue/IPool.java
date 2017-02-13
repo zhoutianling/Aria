@@ -15,9 +15,9 @@
  */
 
 
-package com.arialyy.aria.core.download.queue;
+package com.arialyy.aria.core.queue;
 
-import com.arialyy.aria.core.download.task.DownloadTask;
+import com.arialyy.aria.core.task.DownloadTask;
 
 /**
  * Created by lyy on 2016/8/14.

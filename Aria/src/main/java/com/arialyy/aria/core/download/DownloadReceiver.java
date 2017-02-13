@@ -18,10 +18,10 @@ package com.arialyy.aria.core.download;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.IReceiver;
-import com.arialyy.aria.core.download.command.CmdFactory;
-import com.arialyy.aria.core.download.command.IDownloadCmd;
-import com.arialyy.aria.core.download.scheduler.DownloadSchedulers;
-import com.arialyy.aria.core.download.scheduler.OnSchedulerListener;
+import com.arialyy.aria.core.command.CmdFactory;
+import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.core.scheduler.DownloadSchedulers;
+import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
@@ -70,15 +70,13 @@ public class DownloadReceiver implements IReceiver {
   /**
    * 移除回调
    */
-  @Override
-  public void removeSchedulerListener() {
+  @Override public void removeSchedulerListener() {
     if (listener != null) {
       DownloadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
     }
   }
 
-  @Override
-  public void destroy() {
+  @Override public void destroy() {
     targetName = null;
     listener = null;
   }
@@ -114,8 +112,8 @@ public class DownloadReceiver implements IReceiver {
     List<IDownloadCmd> stopCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       if (entity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
-        stopCmds.add(
-            CommonUtil.createDownloadCmd(new DownloadTaskEntity(entity), CmdFactory.TASK_STOP));
+        stopCmds.add(CommonUtil.createDownloadCmd(targetName, new DownloadTaskEntity(entity),
+            CmdFactory.TASK_STOP));
       }
     }
     ariaManager.setCmds(stopCmds).exe();
@@ -129,8 +127,8 @@ public class DownloadReceiver implements IReceiver {
     List<DownloadEntity> allEntity = ariaManager.getAllDownloadEntity();
     List<IDownloadCmd> cancelCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
-      cancelCmds.add(
-          CommonUtil.createDownloadCmd(new DownloadTaskEntity(entity), CmdFactory.TASK_CANCEL));
+      cancelCmds.add(CommonUtil.createDownloadCmd(targetName, new DownloadTaskEntity(entity),
+          CmdFactory.TASK_CANCEL));
     }
     ariaManager.setCmds(cancelCmds).exe();
     Set<String> keys = ariaManager.getReceiver().keySet();

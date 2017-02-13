@@ -19,7 +19,10 @@ package com.arialyy.aria.util;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.ITaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.exception.FileException;
 import java.io.File;
 import java.util.regex.Matcher;
@@ -72,6 +75,17 @@ public class CheckUtil {
    */
   public static void checkDownloadUrl(String downloadUrl) {
     if (TextUtils.isEmpty(downloadUrl)) throw new IllegalArgumentException("下载链接不能为null");
+  }
+
+  /**
+   * 检查任务实体
+   */
+  public static void checkTaskEntity(ITaskEntity entity) {
+    if (entity instanceof DownloadTaskEntity) {
+      checkDownloadEntity(((DownloadTaskEntity) entity).downloadEntity);
+    } else if (entity instanceof UploadTaskEntity) {
+      checkUploadEntity(((UploadTaskEntity) entity).uploadEntity);
+    }
   }
 
   /**
