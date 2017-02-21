@@ -52,7 +52,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   private static final String DOWNLOAD_URL      =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
-      "https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
+      //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
+      "http://static.gaoshouyou.com/d/21/e8/61218d78d0e8b79df68dbc18dd484c97.apk";
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
   @Bind(R.id.start)       Button                          mStart;
   @Bind(R.id.stop)        Button                          mStop;

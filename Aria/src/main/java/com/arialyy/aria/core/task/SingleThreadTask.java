@@ -31,12 +31,14 @@ import java.util.Properties;
  * 下载线程
  */
 final class SingleThreadTask implements Runnable {
-  private static final String TAG = "SingleThreadTask";
+  private static final String TAG      = "SingleThreadTask";
+  // TODO: 2017/2/22 不能使用1024 否则最大速度不能超过3m
+  private static final int    BUF_SIZE = 8196;
   private DownloadUtil.ConfigEntity mConfigEntity;
-  private String mConfigFPath;
-  private long mChildCurrentLocation = 0;
-  private static final Object LOCK = new Object();
-  private IDownloadListener mListener;
+  private String                    mConfigFPath;
+  private              long   mChildCurrentLocation = 0;
+  private static final Object LOCK                  = new Object();
+  private IDownloadListener      mListener;
   private DownloadStateConstance mConstance;
 
   SingleThreadTask(DownloadStateConstance constance, IDownloadListener listener,
@@ -78,7 +80,7 @@ final class SingleThreadTask implements Runnable {
       RandomAccessFile file = new RandomAccessFile(mConfigEntity.TEMP_FILE, "rwd");
       //设置每条线程写入文件的位置
       file.seek(mConfigEntity.START_LOCATION);
-      byte[] buffer = new byte[1024];
+      byte[] buffer = new byte[BUF_SIZE];
       int len;
       //当前子线程的下载位置
       mChildCurrentLocation = mConfigEntity.START_LOCATION;
