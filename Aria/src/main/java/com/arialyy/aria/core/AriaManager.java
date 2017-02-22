@@ -49,12 +49,12 @@ import java.util.Set;
  * Aria管理器，任务操作在这里执行
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH) public class AriaManager {
-  private static final String TAG = "AriaManager";
-  private static final Object LOCK = new Object();
-  private static volatile AriaManager INSTANCE = null;
-  private Map<String, AMReceiver> mTargets = new HashMap<>();
+  private static final    String                  TAG      = "AriaManager";
+  private static final    Object                  LOCK     = new Object();
+  private static volatile AriaManager             INSTANCE = null;
+  private                 Map<String, AMReceiver> mTargets = new HashMap<>();
   private DownloadManager mManager;
-  private LifeCallback mLifeCallback;
+  private LifeCallback    mLifeCallback;
 
   private AriaManager(Context context) {
     regAppLifeCallback(context);
@@ -218,7 +218,10 @@ import java.util.Set;
         }
         handlePopupWindowLift((PopupWindow) obj);
       }
-    } else {
+    }
+    if (obj instanceof Activity || obj instanceof Service) {
+      key = clsName;
+    } else if (obj instanceof Application) {
       key = clsName;
     }
     if (TextUtils.isEmpty(key)) {
