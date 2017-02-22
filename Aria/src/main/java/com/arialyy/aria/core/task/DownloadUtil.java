@@ -20,6 +20,7 @@ import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
@@ -34,27 +35,27 @@ import java.util.concurrent.Executors;
  * Created by lyy on 2015/8/25.
  * 下载工具类
  */
-final class DownloadUtil implements IDownloadUtil, Runnable {
+public class DownloadUtil implements IDownloadUtil, Runnable {
   private static final String TAG = "DownloadUtil";
   /**
    * 线程数
    */
-  private final int THREAD_NUM;
+  private final int               THREAD_NUM;
   //下载监听
-  private IDownloadListener mListener;
-  private int mConnectTimeOut = 5000 * 4; //连接超时时间
-  private int mReadTimeOut = 5000 * 20; //流读取的超时时间
-  private boolean isNewTask = true;
+  private       IDownloadListener mListener;
+  private int     mConnectTimeOut     = 5000 * 4; //连接超时时间
+  private int     mReadTimeOut        = 5000 * 20; //流读取的超时时间
+  private boolean isNewTask           = true;
   private boolean isSupportBreakpoint = true;
-  private Context mContext;
-  private DownloadEntity mDownloadEntity;
+  private Context         mContext;
+  private DownloadEntity  mDownloadEntity;
   private ExecutorService mFixedThreadPool;
-  private File mDownloadFile; //下载的文件
-  private File mConfigFile;//下载信息配置文件
+  private File            mDownloadFile; //下载的文件
+  private File            mConfigFile;//下载信息配置文件
   private SparseArray<Runnable> mTask = new SparseArray<>();
   private DownloadStateConstance mConstance;
 
-  DownloadUtil(Context context, DownloadEntity entity, IDownloadListener downloadListener) {
+  public DownloadUtil(Context context, DownloadEntity entity, IDownloadListener downloadListener) {
     this(context, entity, downloadListener, 3);
   }
 
@@ -259,7 +260,10 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
     int fileLength = conn.getContentLength();
     //必须建一个文件
     CommonUtil.createFile(mDownloadFile.getPath());
-    RandomAccessFile file = new RandomAccessFile(mDownloadFile.getPath(), "rwd");
+    //RandomAccessFile file = new RandomAccessFile(mDownloadFile.getPath(), "rwd");
+    ////设置文件长度
+    //file.setLength(fileLength);
+    BufferedRandomAccessFile file = new BufferedRandomAccessFile(mDownloadFile.getPath(), "rwd", 8192);
     //设置文件长度
     file.setLength(fileLength);
     mListener.onPostPre(fileLength);
@@ -358,12 +362,12 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
    */
   final static class ConfigEntity {
     //文件大小
-    long FILE_SIZE;
+    long   FILE_SIZE;
     String DOWNLOAD_URL;
-    int THREAD_ID;
-    long START_LOCATION;
-    long END_LOCATION;
-    File TEMP_FILE;
+    int    THREAD_ID;
+    long   START_LOCATION;
+    long   END_LOCATION;
+    File   TEMP_FILE;
     boolean isSupportBreakpoint = true;
     String CONFIG_FILE_PATH;
   }

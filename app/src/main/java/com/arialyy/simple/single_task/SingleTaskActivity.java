@@ -33,6 +33,8 @@ import butterknife.Bind;
 import com.arialyy.aria.core.AMTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.task.DownloadUtil;
+import com.arialyy.aria.core.task.IDownloadListener;
 import com.arialyy.aria.core.task.Task;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
@@ -198,6 +200,67 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
         .setDownloadName("test.apk")
         .start();
+    //DownloadEntity entity = new DownloadEntity();
+    //entity.setDownloadUrl(DOWNLOAD_URL);
+    //entity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
+    //entity.setFileName("test.apk");
+    //DownloadUtil util = new DownloadUtil(this, entity, new IDownloadListener() {
+    //  long fileSize = 1;
+    //  @Override public void supportBreakpoint(boolean support) {
+    //
+    //  }
+    //
+    //  @Override public void onCancel() {
+    //
+    //  }
+    //
+    //  @Override public void onFail() {
+    //
+    //  }
+    //
+    //  @Override public void onPre() {
+    //
+    //  }
+    //
+    //  @Override public void onPostPre(long fileSize) {
+    //    this.fileSize = fileSize;
+    //  }
+    //
+    //  @Override public void onProgress(long currentLocation) {
+    //    long current = currentLocation;
+    //    long len = fileSize;
+    //    if (len == 0) {
+    //      mPb.setProgress(0);
+    //    } else {
+    //      mPb.setProgress((int) ((current * 100) / len));
+    //    }
+    //  }
+    //
+    //  @Override public void onChildComplete(long finishLocation) {
+    //
+    //  }
+    //
+    //  @Override public void onStart(long startLocation) {
+    //
+    //  }
+    //
+    //  @Override public void onChildResume(long resumeLocation) {
+    //
+    //  }
+    //
+    //  @Override public void onResume(long resumeLocation) {
+    //
+    //  }
+    //
+    //  @Override public void onStop(long stopLocation) {
+    //
+    //  }
+    //
+    //  @Override public void onComplete() {
+    //
+    //  }
+    //});
+    //util.startDownload();
   }
 
   private void stop() {
