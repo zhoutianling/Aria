@@ -81,8 +81,8 @@ final class SingleThreadTask implements Runnable {
       conn.setReadTimeout(mConstance.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
       is = conn.getInputStream();
       //创建可设置位置的文件
-      BufferedRandomAccessFile
-          file = new BufferedRandomAccessFile(mConfigEntity.TEMP_FILE, "rwd", 8192);
+      BufferedRandomAccessFile file =
+          new BufferedRandomAccessFile(mConfigEntity.TEMP_FILE, "rwd", 8192);
       //设置文件长度
       file.seek(mConfigEntity.START_LOCATION);
 
@@ -181,16 +181,16 @@ final class SingleThreadTask implements Runnable {
    * 下载中
    */
   private void progress(long len) {
-    //synchronized (LOCK) {
+    synchronized (LOCK) {
       mChildCurrentLocation += len;
       mConstance.CURRENT_LOCATION += len;
-      //mListener.onProgress(mConstance.CURRENT_LOCATION);
-    //mHandler.post(t);
-    //handler.obtainMessage().sendToTarget();
-    //}
-    mHandler.sendEmptyMessage(1);
+      mListener.onProgress(mConstance.CURRENT_LOCATION);
+      //mHandler.sendEmptyMessage(1);
+      //mHandler.post(t);
+    }
   }
-  Handler mHandler = new Handler(Looper.getMainLooper()){
+
+  Handler mHandler = new Handler(Looper.getMainLooper()) {
     @Override public void handleMessage(Message msg) {
       super.handleMessage(msg);
       mListener.onProgress(mConstance.CURRENT_LOCATION);
