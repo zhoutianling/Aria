@@ -31,6 +31,10 @@ import java.util.regex.Pattern;
 public class CheckUtil {
   private static final String TAG = "CheckUtil";
 
+  public static void checkNull(Object obj) {
+    if (obj == null) throw new IllegalArgumentException("不能传入空对象");
+  }
+
   /**
    * 检查sql的expression是否合法
    */
