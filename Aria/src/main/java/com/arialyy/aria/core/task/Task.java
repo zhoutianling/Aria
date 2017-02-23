@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.DownloadManager;
+import com.arialyy.aria.core.TaskEntity;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
 import com.arialyy.aria.core.DownloadEntity;
@@ -196,20 +197,9 @@ public class Task {
       return this;
     }
 
-    ///**
-    // * 设置自定义下载工具
-    // *
-    // * @param downloadUtil {@link IDownloadUtil}
-    // */
-    //public Builder setDownloadUtil(IDownloadUtil downloadUtil) {
-    //  this.downloadUtil = downloadUtil;
-    //  return this;
-    //}
-
     public Task build() {
       Task task = new Task(context, downloadEntity, outHandler);
       task.setTargetName(targetName);
-      //Log.w(TAG, "downloadEntity hashcode ==> " + downloadEntity.hashCode());
       downloadEntity.save();
       return task;
     }

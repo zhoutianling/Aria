@@ -15,9 +15,7 @@
  */
 package com.arialyy.aria.core;
 
-import android.os.Build;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.util.CheckUtil;

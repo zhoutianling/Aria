@@ -217,6 +217,10 @@ import java.util.Set;
           key = clsName;
         }
         handlePopupWindowLift((PopupWindow) obj);
+      } else if (obj instanceof Service) {
+        key = clsName;
+      } else if (obj instanceof Application) {
+        key = clsName;
       }
     } else {
       key = clsName;
