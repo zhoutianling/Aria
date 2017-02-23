@@ -19,6 +19,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
 import com.arialyy.aria.orm.Ignore;
 import com.arialyy.aria.orm.DbEntity;
@@ -29,43 +30,7 @@ import com.arialyy.aria.orm.DbEntity;
  * ！！！ 注意：CREATOR要进行@Ignore注解
  * ！！！并且需要Parcelable时需要手动填写rowID;
  */
-public class DownloadEntity extends DbEntity implements Parcelable{
-  /**
-   * 其它状态
-   */
-  @Ignore public static final int STATE_OTHER        = -1;
-  /**
-   * 失败状态
-   */
-  @Ignore public static final int STATE_FAIL         = 0;
-  /**
-   * 完成状态
-   */
-  @Ignore public static final int STATE_COMPLETE     = 1;
-  /**
-   * 停止状态
-   */
-  @Ignore public static final int STATE_STOP         = 2;
-  /**
-   * 未开始状态
-   */
-  @Ignore public static final int STATE_WAIT         = 3;
-  /**
-   * 下载中
-   */
-  @Ignore public static final int STATE_DOWNLOAD_ING = 4;
-  /**
-   * 预处理
-   */
-  @Ignore public static final int STATE_PRE          = 5;
-  /**
-   * 预处理完成
-   */
-  @Ignore public static final int STATE_POST_PRE     = 6;
-  /**
-   * 取消下载
-   */
-  @Ignore public static final int STATE_CANCEL       = 7;
+public class DownloadEntity extends DbEntity implements Parcelable, IEntity{
   @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
     @Override public DownloadEntity createFromParcel(Parcel source) {
       return new DownloadEntity(source);

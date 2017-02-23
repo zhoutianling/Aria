@@ -125,7 +125,7 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
         break;
       case DownloadEntity.STATE_PRE:
       case DownloadEntity.STATE_POST_PRE:
-      case DownloadEntity.STATE_DOWNLOAD_ING:
+      case DownloadEntity.STATE_RUNNING:
         str = "暂停";
         color = android.R.color.holo_red_light;
         break;
@@ -176,7 +176,7 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
         case DownloadEntity.STATE_COMPLETE:
           start(entity);
           break;
-        case DownloadEntity.STATE_DOWNLOAD_ING:
+        case DownloadEntity.STATE_RUNNING:
           stop(entity);
           break;
       }

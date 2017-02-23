@@ -33,7 +33,7 @@ import butterknife.Bind;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.task.DownloadTask;
+import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;

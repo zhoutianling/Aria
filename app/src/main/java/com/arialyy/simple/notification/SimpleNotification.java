@@ -5,7 +5,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.task.DownloadTask;
+import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.simple.R;
 
 /**

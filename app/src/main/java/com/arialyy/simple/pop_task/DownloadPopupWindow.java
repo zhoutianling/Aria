@@ -12,7 +12,7 @@ import butterknife.OnClick;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.task.DownloadTask;
+import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.core.AbsPopupWindow;
 import com.arialyy.simple.R;
@@ -52,7 +52,7 @@ public class DownloadPopupWindow extends AbsPopupWindow {
     if (entity != null) {
       mSize.setText(CommonUtil.formatFileSize(entity.getFileSize()));
       int state = entity.getState();
-      setBtState(state != DownloadEntity.STATE_DOWNLOAD_ING);
+      setBtState(state != DownloadEntity.STATE_RUNNING);
     } else {
       setBtState(true);
     }

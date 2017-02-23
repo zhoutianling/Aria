@@ -14,18 +14,16 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.task;
+package com.arialyy.aria.core.download;
 
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Properties;
@@ -265,7 +263,8 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
     int fileLength = conn.getContentLength();
     //必须建一个文件
     CommonUtil.createFile(mDownloadFile.getPath());
-    RandomAccessFile file = new RandomAccessFile(mDownloadFile.getPath(), "rwd");
+    BufferedRandomAccessFile file =
+        new BufferedRandomAccessFile(new File(mDownloadFile.getPath()), "rwd", 8192);
     //设置文件长度
     file.setLength(fileLength);
     mListener.onPostPre(fileLength);

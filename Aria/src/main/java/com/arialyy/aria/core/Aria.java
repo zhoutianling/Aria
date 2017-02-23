@@ -28,7 +28,7 @@ import android.os.Build;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
-import com.arialyy.aria.core.task.DownloadTask;
+import com.arialyy.aria.core.download.DownloadTask;
 
 /**
  * Created by lyy on 2016/12/1.

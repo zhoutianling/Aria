@@ -15,7 +15,7 @@
  */
 package com.arialyy.aria.core.scheduler;
 
-import com.arialyy.aria.core.task.DownloadTask;
+import com.arialyy.aria.core.download.DownloadTask;
 
 /**
  * Target处理任务监听

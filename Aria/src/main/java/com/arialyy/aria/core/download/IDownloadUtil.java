@@ -15,7 +15,7 @@
  */
 
 
-package com.arialyy.aria.core.task;
+package com.arialyy.aria.core.download;
 
 /**
  * Created by “AriaLyy@outlook.com” on 2016/10/31.

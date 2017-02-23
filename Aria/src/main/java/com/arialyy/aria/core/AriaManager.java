@@ -20,6 +20,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
+import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -57,16 +58,14 @@ import java.util.Map;
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
   Map<String, IReceiver> mReceivers = new HashMap<>();
   private LifeCallback mLifeCallback;
+  DownloadTaskQueue mDTaskQueue;
 
   public static Context APP;
-  private ITaskQueue mTaskQueue;
   private List<ICmd> mCommands = new ArrayList<>();
 
   private AriaManager(Context context) {
     DbUtil.init(context.getApplicationContext());
     APP = context;
-    DownloadTaskQueue.Builder builder = new DownloadTaskQueue.Builder(context);
-    mTaskQueue = builder.build();
     regAppLifeCallback(context);
   }
 
@@ -79,7 +78,7 @@ import java.util.Map;
     return INSTANCE;
   }
 
-  public Map<String, IReceiver> getReceiver(){
+  public Map<String, IReceiver> getReceiver() {
     return mReceivers;
   }
 
@@ -90,8 +89,8 @@ import java.util.Map;
   /**
    * 获取任务队列
    */
-  public ITaskQueue getTaskQueue() {
-    return mTaskQueue;
+  public DownloadTaskQueue getTaskQueue() {
+    return mDTaskQueue;
   }
 
   /**
@@ -193,7 +192,7 @@ import java.util.Map;
       Log.w(TAG, "最大任务数不能小于 1");
       return this;
     }
-    mTaskQueue.setDownloadNum(maxDownloadNum);
+    mDTaskQueue.setDownloadNum(maxDownloadNum);
     return this;
   }
 
@@ -247,6 +246,10 @@ import java.util.Map;
         } else {
           key = clsName;
         }
+      } else if (obj instanceof Service) {
+        key = clsName;
+      } else if (obj instanceof Application) {
+        key = clsName;
       }
     } else {
       key = clsName;

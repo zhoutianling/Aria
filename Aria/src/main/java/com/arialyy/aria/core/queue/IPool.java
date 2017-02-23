@@ -17,24 +17,24 @@
 
 package com.arialyy.aria.core.queue;
 
-import com.arialyy.aria.core.task.DownloadTask;
+import com.arialyy.aria.core.inf.ITask;
 
 /**
  * Created by lyy on 2016/8/14.
  * 任务池
  */
-public interface IPool {
+public interface IPool<T extends ITask> {
   /**
    * 将下载任务添加到任务池中
    */
-  public boolean putTask(DownloadTask task);
+  public boolean putTask(T task);
 
   /**
    * 按照队列原则取出下载任务
    *
    * @return 返回null或者下载任务
    */
-  public DownloadTask pollTask();
+  public T pollTask();
 
   /**
    * 通过下载链接获取下载任务，当任务不为空时，队列将删除该下载任务
@@ -42,7 +42,7 @@ public interface IPool {
    * @param downloadUrl 下载链接
    * @return 返回null或者下载任务
    */
-  public DownloadTask getTask(String downloadUrl);
+  public T getTask(String downloadUrl);
 
   /**
    * 删除任务池中的下载任务
@@ -50,7 +50,7 @@ public interface IPool {
    * @param task 下载任务
    * @return true:移除成功
    */
-  public boolean removeTask(DownloadTask task);
+  public boolean removeTask(T task);
 
   /**
    * 通过下载链接移除下载任务

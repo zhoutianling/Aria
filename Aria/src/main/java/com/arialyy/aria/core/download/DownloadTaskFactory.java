@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.task;
+package com.arialyy.aria.core.download;
 
 import android.content.Context;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
 
 /**
@@ -49,18 +48,17 @@ public class DownloadTaskFactory {
    * @param entity 下载任务实体{@link DownloadTaskEntity}
    * @param schedulers {@link IDownloadSchedulers}
    */
-  public DownloadTask createTask(Context context, DownloadTaskEntity entity,
-      IDownloadSchedulers schedulers) {
-    return createTask("", context, entity, schedulers);
+  public DownloadTask createTask(DownloadTaskEntity entity, IDownloadSchedulers schedulers) {
+    return createTask("", entity, schedulers);
   }
 
   /**
    * @param entity 下载任务实体{@link DownloadTaskEntity}
    * @param schedulers {@link IDownloadSchedulers}
    */
-  public DownloadTask createTask(String targetName, Context context, DownloadTaskEntity entity,
+  public DownloadTask createTask(String targetName, DownloadTaskEntity entity,
       IDownloadSchedulers schedulers) {
-    DownloadTask.Builder builder = new DownloadTask.Builder(targetName, context, entity);
+    DownloadTask.Builder builder = new DownloadTask.Builder(targetName, entity);
     builder.setOutHandler(schedulers);
     return builder.build();
   }

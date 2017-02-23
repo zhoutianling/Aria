@@ -111,7 +111,7 @@ public class DownloadReceiver implements IReceiver {
     List<DownloadEntity> allEntity = ariaManager.getAllDownloadEntity();
     List<IDownloadCmd> stopCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
-      if (entity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
+      if (entity.getState() == DownloadEntity.STATE_RUNNING) {
         stopCmds.add(CommonUtil.createDownloadCmd(targetName, new DownloadTaskEntity(entity),
             CmdFactory.TASK_STOP));
       }

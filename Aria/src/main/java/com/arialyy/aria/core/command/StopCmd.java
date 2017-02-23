@@ -16,12 +16,7 @@
 
 package com.arialyy.aria.core.command;
 
-import android.text.TextUtils;
-import android.util.Log;
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
-import com.arialyy.aria.core.task.DownloadTask;
 
 /**
  * Created by lyy on 2016/9/20.
@@ -48,7 +43,7 @@ class StopCmd<T extends ITaskEntity> extends IDownloadCmd<T> {
   //@Override public void executeCmd() {
   //  DownloadTask task = mQueue.getTask(mEntity.downloadEntity);
   //  if (task == null) {
-  //    if (mEntity.downloadEntity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
+  //    if (mEntity.downloadEntity.getState() == DownloadEntity.STATE_RUNNING) {
   //      task = mQueue.createTask(mTargetName, mEntity);
   //      mQueue.stopTask(task);
   //    } else {

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.task;
+package com.arialyy.aria.core.download;
 
 import android.util.Log;
+import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,6 +31,7 @@ import java.util.Properties;
  * 下载线程
  */
 final class SingleThreadTask implements Runnable {
+  private static final int BUF_SIZE = 8192;
   private static final String TAG = "SingleThreadTask";
   private DownloadUtil.ConfigEntity mConfigEntity;
   private String mConfigFPath;
@@ -75,10 +76,11 @@ final class SingleThreadTask implements Runnable {
       conn.setReadTimeout(mConstance.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
       is = conn.getInputStream();
       //创建可设置位置的文件
-      RandomAccessFile file = new RandomAccessFile(mConfigEntity.TEMP_FILE, "rwd");
+      BufferedRandomAccessFile file =
+          new BufferedRandomAccessFile(mConfigEntity.TEMP_FILE, "rwd", BUF_SIZE);
       //设置每条线程写入文件的位置
       file.seek(mConfigEntity.START_LOCATION);
-      byte[] buffer = new byte[1024];
+      byte[] buffer = new byte[BUF_SIZE];
       int len;
       //当前子线程的下载位置
       mChildCurrentLocation = mConfigEntity.START_LOCATION;

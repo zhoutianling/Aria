@@ -17,12 +17,9 @@
 package com.arialyy.aria.core.command;
 
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.inf.ICmd;
-import com.arialyy.aria.core.task.DownloadTask;
-import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 

@@ -16,35 +16,38 @@
 
 package com.arialyy.aria.core.queue;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.CachePool;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
-import com.arialyy.aria.core.task.DownloadTask;
-import com.arialyy.aria.core.task.DownloadTaskFactory;
+import com.arialyy.aria.core.download.DownloadTaskFactory;
 import com.arialyy.aria.util.Configuration;
 
 /**
  * Created by lyy on 2016/8/17.
  * 下载任务队列
  */
-public class DownloadTaskQueue implements ITaskQueue {
-  private static final String      TAG          = "DownloadTaskQueue";
-  private              CachePool   mCachePool   = CachePool.getInstance();
-  private              ExecutePool mExecutePool = ExecutePool.getInstance();
-  private Context mContext;
-  //private IDownloadSchedulers mSchedulers;
+public class DownloadTaskQueue
+    extends AbsTaskQueue<DownloadTask, DownloadTaskEntity, DownloadEntity> {
+  private static final String TAG = "DownloadTaskQueue";
+  private static volatile DownloadTaskQueue INSTANCE = null;
+  private static final Object LOCK = new Object();
 
-  private DownloadTaskQueue() {
+  public static DownloadTaskQueue getInstance() {
+    if (INSTANCE == null) {
+      synchronized (LOCK) {
+        INSTANCE = new DownloadTaskQueue();
+      }
+    }
+    return INSTANCE;
   }
 
-  private DownloadTaskQueue(Context context) {
-    super();
-    mContext = context;
+  private DownloadTaskQueue() {
   }
 
   /**
@@ -88,7 +91,7 @@ public class DownloadTaskQueue implements ITaskQueue {
   }
 
   @Override public void stopTask(DownloadTask task) {
-    if (!task.isDownloading()) Log.w(TAG, "停止任务失败，【任务已经停止】");
+    if (!task.isRunning()) Log.w(TAG, "停止任务失败，【任务已经停止】");
     if (mExecutePool.removeTask(task)) {
       task.stop();
     } else {
@@ -106,7 +109,7 @@ public class DownloadTaskQueue implements ITaskQueue {
       Log.w(TAG, "重试下载失败，task 为null");
       return;
     }
-    if (!task.isDownloading()) {
+    if (!task.isRunning()) {
       task.start();
     } else {
       Log.w(TAG, "任务没有完全停止，重试下载失败");
@@ -138,8 +141,7 @@ public class DownloadTaskQueue implements ITaskQueue {
     if (diff >= 1) {
       for (int i = 0; i < diff; i++) {
         DownloadTask nextTask = getNextTask();
-        if (nextTask != null
-            && nextTask.getDownloadEntity().getState() == DownloadEntity.STATE_WAIT) {
+        if (nextTask != null && nextTask.getDownloadEntity().getState() == IEntity.STATE_WAIT) {
           startTask(nextTask);
         }
       }
@@ -149,11 +151,10 @@ public class DownloadTaskQueue implements ITaskQueue {
   @Override public DownloadTask createTask(String target, DownloadTaskEntity entity) {
     DownloadTask task;
     if (TextUtils.isEmpty(target)) {
-      task =
-          DownloadTaskFactory.getInstance().createTask(mContext, entity, DownloadSchedulers.getInstance());
+      task = DownloadTaskFactory.getInstance().createTask(entity, DownloadSchedulers.getInstance());
     } else {
       task = DownloadTaskFactory.getInstance()
-          .createTask(target, mContext, entity, DownloadSchedulers.getInstance());
+          .createTask(target, entity, DownloadSchedulers.getInstance());
     }
     mCachePool.putTask(task);
     return task;
@@ -180,18 +181,5 @@ public class DownloadTaskQueue implements ITaskQueue {
 
   @Override public DownloadTask getNextTask() {
     return mCachePool.pollTask();
-  }
-
-  public static class Builder {
-    Context context;
-
-    public Builder(Context context) {
-      this.context = context.getApplicationContext();
-    }
-
-    public DownloadTaskQueue build() {
-      DownloadTaskQueue queue = new DownloadTaskQueue(context);
-      return queue;
-    }
   }
 }

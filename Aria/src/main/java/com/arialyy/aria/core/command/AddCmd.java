@@ -16,10 +16,7 @@
 
 package com.arialyy.aria.core.command;
 
-import android.util.Log;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
-import com.arialyy.aria.core.task.DownloadTask;
 
 /**
  * Created by lyy on 2016/8/22.

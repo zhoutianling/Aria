@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.task;
+package com.arialyy.aria.core.download;
 
-import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.util.CAConfiguration;
 import com.arialyy.aria.util.SSLContextUtil;
 import java.io.IOException;

@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.task;
+package com.arialyy.aria.core.download;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.Configuration;
@@ -34,7 +35,7 @@ import java.lang.ref.WeakReference;
  * Created by lyy on 2016/8/11.
  * 下载任务类
  */
-public class DownloadTask {
+public class DownloadTask implements ITask {
   public static final String TAG = "DownloadTask";
   /**
    * 产生该任务对象的hash码
@@ -44,14 +45,14 @@ public class DownloadTask {
   private DownloadTaskEntity mTaskEntity;
   private IDownloadListener mListener;
   private Handler mOutHandler;
-  private Context mContext;
   private IDownloadUtil mUtil;
+  private Context mContext;
 
-  private DownloadTask(Context context, DownloadTaskEntity taskEntity, Handler outHandler) {
-    mContext = context.getApplicationContext();
+  private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
     mTaskEntity = taskEntity;
     mEntity = taskEntity.downloadEntity;
     mOutHandler = outHandler;
+    mContext = AriaManager.APP;
     init();
   }
 
@@ -63,35 +64,57 @@ public class DownloadTask {
   /**
    * 获取下载速度
    */
-  public long getSpeed() {
+  @Override public long getSpeed() {
     return mEntity.getSpeed();
   }
 
   /**
    * 获取文件大小
    */
-  public long getFileSize() {
+  @Override public long getFileSize() {
     return mEntity.getFileSize();
   }
 
   /**
    * 获取当前下载进度
    */
-  public long getCurrentProgress() {
+  @Override public long getCurrentProgress() {
     return mEntity.getCurrentProgress();
   }
 
   /**
    * 获取当前下载任务的下载地址
+   *
+   * @see DownloadTask#getKey()
    */
-  public String getDownloadUrl() {
+  @Deprecated public String getDownloadUrl() {
     return mEntity.getDownloadUrl();
+  }
+
+  @Override public String getKey() {
+    return getDownloadUrl();
+  }
+
+  /**
+   * 任务下载状态
+   *
+   * @see DownloadTask#isRunning()
+   */
+  @Deprecated public boolean isDownloading() {
+    return mUtil.isDownloading();
+  }
+  @Override public boolean isRunning() {
+    return isDownloading();
+  }
+
+  @Override public IEntity getEntity() {
+    return mEntity;
   }
 
   /**
    * 开始下载
    */
-  public void start() {
+  @Override public void start() {
     if (mUtil.isDownloading()) {
       Log.d(TAG, "任务正在下载");
     } else {
@@ -117,7 +140,7 @@ public class DownloadTask {
   /**
    * 停止下载
    */
-  public void stop() {
+  @Override public void stop() {
     if (mUtil.isDownloading()) {
       mUtil.stopDownload();
     } else {
@@ -135,16 +158,9 @@ public class DownloadTask {
   }
 
   /**
-   * 任务下载状态
-   */
-  public boolean isDownloading() {
-    return mUtil.isDownloading();
-  }
-
-  /**
    * 取消下载
    */
-  public void cancel() {
+  @Override public void cancel() {
     if (mUtil.isDownloading()) {
       mUtil.cancelDownload();
     } else {
@@ -166,18 +182,13 @@ public class DownloadTask {
   static class Builder {
     DownloadTaskEntity taskEntity;
     Handler outHandler;
-    Context context;
     int threadNum = 3;
     String targetName;
 
-    public Builder(Context context, DownloadTaskEntity downloadEntity) {
-      this("", context, downloadEntity);
-    }
 
-    Builder(String targetName, Context context, DownloadTaskEntity taskEntity) {
+    Builder(String targetName, DownloadTaskEntity taskEntity) {
       CheckUtil.checkDownloadEntity(taskEntity.downloadEntity);
       this.targetName = targetName;
-      this.context = context;
       this.taskEntity = taskEntity;
     }
 
@@ -200,7 +211,7 @@ public class DownloadTask {
     }
 
     public DownloadTask build() {
-      DownloadTask task = new DownloadTask(context, taskEntity, outHandler);
+      DownloadTask task = new DownloadTask(taskEntity, outHandler);
       task.setTargetName(targetName);
       taskEntity.downloadEntity.save();
       return task;
@@ -249,14 +260,14 @@ public class DownloadTask {
 
     @Override public void onResume(long resumeLocation) {
       super.onResume(resumeLocation);
-      downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
+      downloadEntity.setState(DownloadEntity.STATE_RUNNING);
       sendInState2Target(DownloadSchedulers.RESUME);
       sendIntent(Aria.ACTION_RESUME, resumeLocation);
     }
 
     @Override public void onStart(long startLocation) {
       super.onStart(startLocation);
-      downloadEntity.setState(DownloadEntity.STATE_DOWNLOAD_ING);
+      downloadEntity.setState(DownloadEntity.STATE_RUNNING);
       sendInState2Target(DownloadSchedulers.START);
       sendIntent(Aria.ACTION_START, startLocation);
     }

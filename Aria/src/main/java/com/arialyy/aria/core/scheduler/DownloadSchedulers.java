@@ -22,7 +22,7 @@ import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.task.DownloadTask;
+import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.util.Configuration;
 import java.util.Iterator;
 import java.util.Map;

@@ -18,9 +18,9 @@ package com.arialyy.aria.core.queue.pool;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.task.DownloadTask;
-import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.queue.IPool;
+import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.Configuration;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,37 +31,37 @@ import java.util.concurrent.TimeUnit;
  * Created by lyy on 2016/8/15.
  * 任务执行池，所有当前下载任务都该任务池中，默认下载大小为2
  */
-public class ExecutePool implements IPool {
-  private static final    String      TAG      = "ExecutePool";
-  private static final    Object      LOCK     = new Object();
-  private static final    long        TIME_OUT = 1000;
+public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
+  private static final String TAG = "ExecutePool";
+  private static final Object LOCK = new Object();
+  private static final long TIME_OUT = 1000;
   private static volatile ExecutePool INSTANCE = null;
-  private ArrayBlockingQueue<DownloadTask> mExecuteQueue;
-  private Map<String, DownloadTask>        mExecuteArray;
-  private int                      mSize;
+  private ArrayBlockingQueue<TASK> mExecuteQueue;
+  private Map<String, TASK> mExecuteArray;
+  private int mSize;
 
-  private ExecutePool() {
+  public ExecutePool() {
     mSize = Configuration.getInstance().getDownloadNum();
     mExecuteQueue = new ArrayBlockingQueue<>(mSize);
     mExecuteArray = new HashMap<>();
   }
 
-  public static ExecutePool getInstance() {
-    if (INSTANCE == null) {
-      synchronized (LOCK) {
-        INSTANCE = new ExecutePool();
-      }
-    }
-    return INSTANCE;
-  }
+  //public static ExecutePool getInstance() {
+  //  if (INSTANCE == null) {
+  //    synchronized (LOCK) {
+  //      INSTANCE = new ExecutePool();
+  //    }
+  //  }
+  //  return INSTANCE;
+  //}
 
-  @Override public boolean putTask(DownloadTask task) {
+  @Override public boolean putTask(TASK task) {
     synchronized (LOCK) {
       if (task == null) {
         Log.e(TAG, "下载任务不能为空！！");
         return false;
       }
-      String url = task.getDownloadEntity().getDownloadUrl();
+      String url = task.getKey();
       if (mExecuteQueue.contains(task)) {
         Log.e(TAG, "队列中已经包含了该任务，任务下载链接【" + url + "】");
         return false;
@@ -85,8 +85,8 @@ public class ExecutePool implements IPool {
    */
   public void setDownloadNum(int downloadNum) {
     try {
-      ArrayBlockingQueue<DownloadTask> temp = new ArrayBlockingQueue<>(downloadNum);
-      DownloadTask task;
+      ArrayBlockingQueue<TASK> temp = new ArrayBlockingQueue<>(downloadNum);
+      TASK task;
       while ((task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS)) != null) {
         temp.offer(task);
       }
@@ -103,9 +103,9 @@ public class ExecutePool implements IPool {
    *
    * @param newTask 新下载任务
    */
-  private boolean putNewTask(DownloadTask newTask) {
-    String  url = newTask.getDownloadEntity().getDownloadUrl();
-    boolean s   = mExecuteQueue.offer(newTask);
+  private boolean putNewTask(TASK newTask) {
+    String url = newTask.getKey();
+    boolean s = mExecuteQueue.offer(newTask);
     Log.w(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
     if (s) {
       newTask.start();
@@ -119,14 +119,14 @@ public class ExecutePool implements IPool {
    */
   private boolean pollFirstTask() {
     try {
-      DownloadTask oldTask = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
+      TASK oldTask = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
       if (oldTask == null) {
         Log.e(TAG, "移除任务失败");
         return false;
       }
       oldTask.stop();
       //            wait(200);
-      String key = CommonUtil.keyToHashKey(oldTask.getDownloadEntity().getDownloadUrl());
+      String key = CommonUtil.keyToHashKey(oldTask.getKey());
       mExecuteArray.remove(key);
     } catch (InterruptedException e) {
       e.printStackTrace();
@@ -135,13 +135,13 @@ public class ExecutePool implements IPool {
     return true;
   }
 
-  @Override public DownloadTask pollTask() {
+  @Override public TASK pollTask() {
     synchronized (LOCK) {
       try {
-        DownloadTask task = null;
+        TASK task = null;
         task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
         if (task != null) {
-          String url = task.getDownloadEntity().getDownloadUrl();
+          String url = task.getKey();
           mExecuteArray.remove(CommonUtil.keyToHashKey(url));
         }
         return task;
@@ -152,7 +152,7 @@ public class ExecutePool implements IPool {
     }
   }
 
-  @Override public DownloadTask getTask(String downloadUrl) {
+  @Override public TASK getTask(String downloadUrl) {
     synchronized (LOCK) {
       if (TextUtils.isEmpty(downloadUrl)) {
         Log.e(TAG, "请传入有效的下载链接");
@@ -163,13 +163,13 @@ public class ExecutePool implements IPool {
     }
   }
 
-  @Override public boolean removeTask(DownloadTask task) {
+  @Override public boolean removeTask(TASK task) {
     synchronized (LOCK) {
       if (task == null) {
         Log.e(TAG, "任务不能为空");
         return false;
       } else {
-        String key = CommonUtil.keyToHashKey(task.getDownloadEntity().getDownloadUrl());
+        String key = CommonUtil.keyToHashKey(task.getKey());
         mExecuteArray.remove(key);
         return mExecuteQueue.remove(task);
       }
@@ -182,8 +182,8 @@ public class ExecutePool implements IPool {
         Log.e(TAG, "请传入有效的下载链接");
         return false;
       }
-      String key  = CommonUtil.keyToHashKey(downloadUrl);
-      DownloadTask task = mExecuteArray.get(key);
+      String key = CommonUtil.keyToHashKey(downloadUrl);
+      TASK task = mExecuteArray.get(key);
       mExecuteArray.remove(key);
       return mExecuteQueue.remove(task);
     }
