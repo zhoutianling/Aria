@@ -82,7 +82,7 @@ final class SingleThreadTask implements Runnable {
       is = conn.getInputStream();
       //创建可设置位置的文件
       BufferedRandomAccessFile file =
-          new BufferedRandomAccessFile(mConfigEntity.TEMP_FILE, "rwd", 8192);
+          new BufferedRandomAccessFile(mConfigEntity.TEMP_FILE, "rwd", BUF_SIZE);
       //设置文件长度
       file.seek(mConfigEntity.START_LOCATION);
 
