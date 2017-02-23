@@ -28,6 +28,7 @@ import android.os.Build;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.util.CheckUtil;
 
 /**
  * Created by lyy on 2016/12/1.
@@ -98,12 +99,12 @@ import com.arialyy.aria.core.task.Task;
   private Aria() {
   }
 
+
   /**
    * 接受Activity、Service、Application
    */
   public static AMReceiver whit(Context context) {
-    //if (context == null) throw new IllegalArgumentException("context 不能为 null");
-    checkNull(context);
+    CheckUtil.checkNull(context);
     if (context instanceof Activity
         || context instanceof Service
         || context instanceof Application) {
@@ -117,7 +118,7 @@ import com.arialyy.aria.core.task.Task;
    * 处理Fragment
    */
   public static AMReceiver whit(Fragment fragment) {
-    checkNull(fragment);
+    CheckUtil.checkNull(fragment);
     return AriaManager.getInstance(
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
             : fragment.getActivity()).get(fragment);
@@ -127,7 +128,7 @@ import com.arialyy.aria.core.task.Task;
    * 处理Fragment
    */
   public static AMReceiver whit(android.support.v4.app.Fragment fragment) {
-    checkNull(fragment);
+    CheckUtil.checkNull(fragment);
     return AriaManager.getInstance(
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
             : fragment.getActivity()).get(fragment);
@@ -137,7 +138,7 @@ import com.arialyy.aria.core.task.Task;
    * 处理Fragment、或者DialogFragment
    */
   public static AMReceiver whit(DialogFragment dialog) {
-    checkNull(dialog);
+    CheckUtil.checkNull(dialog);
     return AriaManager.getInstance(
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? dialog.getContext() : dialog.getActivity())
         .get(dialog);
@@ -147,7 +148,7 @@ import com.arialyy.aria.core.task.Task;
    * 处理popupwindow
    */
   public static AMReceiver whit(PopupWindow popupWindow) {
-    checkNull(popupWindow);
+    CheckUtil.checkNull(popupWindow);
     return AriaManager.getInstance(popupWindow.getContentView().getContext()).get(popupWindow);
   }
 
@@ -155,7 +156,7 @@ import com.arialyy.aria.core.task.Task;
    * 处理Dialog
    */
   public static AMReceiver whit(Dialog dialog) {
-    checkNull(dialog);
+    CheckUtil.checkNull(dialog);
     return AriaManager.getInstance(dialog.getContext()).get(dialog);
   }
 
@@ -177,7 +178,7 @@ import com.arialyy.aria.core.task.Task;
    * 处理Dialog的通用任务
    */
   public static AriaManager get(Dialog dialog) {
-    checkNull(dialog);
+    CheckUtil.checkNull(dialog);
     return AriaManager.getInstance(dialog.getContext());
   }
 
@@ -185,7 +186,7 @@ import com.arialyy.aria.core.task.Task;
    * 处理Dialog的通用任务
    */
   public static AriaManager get(PopupWindow popupWindow) {
-    checkNull(popupWindow);
+    CheckUtil.checkNull(popupWindow);
     return AriaManager.getInstance(popupWindow.getContentView().getContext());
   }
 
@@ -193,7 +194,7 @@ import com.arialyy.aria.core.task.Task;
    * 处理Fragment的通用任务
    */
   public static AriaManager get(Fragment fragment) {
-    checkNull(fragment);
+    CheckUtil.checkNull(fragment);
     return AriaManager.getInstance(
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
             : fragment.getActivity());
@@ -203,14 +204,10 @@ import com.arialyy.aria.core.task.Task;
    * 处理Fragment的通用任务
    */
   public static AriaManager get(android.support.v4.app.Fragment fragment) {
-    checkNull(fragment);
+    CheckUtil.checkNull(fragment);
     return AriaManager.getInstance(
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
             : fragment.getActivity());
-  }
-
-  private static void checkNull(Object obj) {
-    if (obj == null) throw new IllegalArgumentException("不能传入空对象");
   }
 
   public static class SimpleSchedulerListener implements OnSchedulerListener {
