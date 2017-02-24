@@ -87,6 +87,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
         INSTANCE = new DownloadSchedulers();
       }
     }
+
     return INSTANCE;
   }
 
