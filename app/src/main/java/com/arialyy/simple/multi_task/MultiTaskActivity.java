@@ -87,7 +87,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     }
   }
 
-  private class DownloadListener extends Aria.SimpleSchedulerListener {
+  private class DownloadListener extends Aria.DownloadSchedulerListener {
 
     @Override public void onTaskStart(DownloadTask task) {
       super.onTaskStart(task);

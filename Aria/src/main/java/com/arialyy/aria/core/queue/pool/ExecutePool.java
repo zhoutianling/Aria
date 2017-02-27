@@ -19,7 +19,6 @@ package com.arialyy.aria.core.queue.pool;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.inf.ITask;
-import com.arialyy.aria.core.queue.IPool;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.Configuration;
 import java.util.HashMap;
@@ -35,7 +34,6 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   private static final String TAG = "ExecutePool";
   private static final Object LOCK = new Object();
   private static final long TIME_OUT = 1000;
-  private static volatile ExecutePool INSTANCE = null;
   private ArrayBlockingQueue<TASK> mExecuteQueue;
   private Map<String, TASK> mExecuteArray;
   private int mSize;
@@ -45,15 +43,6 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
     mExecuteQueue = new ArrayBlockingQueue<>(mSize);
     mExecuteArray = new HashMap<>();
   }
-
-  //public static ExecutePool getInstance() {
-  //  if (INSTANCE == null) {
-  //    synchronized (LOCK) {
-  //      INSTANCE = new ExecutePool();
-  //    }
-  //  }
-  //  return INSTANCE;
-  //}
 
   @Override public boolean putTask(TASK task) {
     synchronized (LOCK) {

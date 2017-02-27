@@ -39,7 +39,7 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadBinding> {
     Aria.download(this).addSchedulerListener(new MySchedulerListener());
   }
 
-  private class MySchedulerListener extends Aria.SimpleSchedulerListener {
+  private class MySchedulerListener extends Aria.DownloadSchedulerListener {
     @Override public void onTaskPre(DownloadTask task) {
       super.onTaskPre(task);
       L.d(TAG, "download pre");

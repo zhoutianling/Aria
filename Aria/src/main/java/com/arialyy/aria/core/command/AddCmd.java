@@ -29,7 +29,12 @@ class AddCmd<T extends ITaskEntity> extends IDownloadCmd<T> {
   }
 
   @Override public void executeCmd() {
-
+    //  DownloadTask task = mQueue.getTask(mEntity.downloadEntity);
+    //  if (task == null) {
+    //    mQueue.createTask(mTargetName, mEntity);
+    //  } else {
+    //    Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
+    //  }
   }
 
   //AddCmd(DownloadTaskEntity entity) {

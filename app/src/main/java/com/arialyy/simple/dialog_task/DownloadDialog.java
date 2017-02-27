@@ -84,7 +84,7 @@ public class DownloadDialog extends AbsDialog {
     mStop.setEnabled(!startEnable);
   }
 
-  private class MyDialogDownloadCallback extends Aria.SimpleSchedulerListener {
+  private class MyDialogDownloadCallback extends Aria.DownloadSchedulerListener {
 
     @Override public void onTaskPre(DownloadTask task) {
       super.onTaskPre(task);

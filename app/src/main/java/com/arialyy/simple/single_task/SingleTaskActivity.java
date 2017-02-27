@@ -207,7 +207,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     Aria.download(this).load(DOWNLOAD_URL).cancel();
   }
 
-  private class MySchedulerListener extends Aria.SimpleSchedulerListener {
+  private class MySchedulerListener extends Aria.DownloadSchedulerListener {
     @Override public void onTaskStart(DownloadTask task) {
       mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
           .sendToTarget();

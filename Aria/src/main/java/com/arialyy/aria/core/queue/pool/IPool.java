@@ -15,7 +15,7 @@
  */
 
 
-package com.arialyy.aria.core.queue;
+package com.arialyy.aria.core.queue.pool;
 
 import com.arialyy.aria.core.inf.ITask;
 

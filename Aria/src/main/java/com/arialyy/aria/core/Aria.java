@@ -29,6 +29,7 @@ import android.widget.PopupWindow;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.upload.UploadTask;
 
 /**
  * Created by lyy on 2016/12/1.
@@ -142,7 +143,48 @@ import com.arialyy.aria.core.download.DownloadTask;
     }
   }
 
-  public static class SimpleSchedulerListener implements OnSchedulerListener {
+  /**
+   * 上传任务状态监听
+   */
+  public static class UploadSchedulerListener implements OnSchedulerListener<UploadTask> {
+
+    @Override public void onTaskPre(UploadTask task) {
+
+    }
+
+    @Override public void onTaskResume(UploadTask task) {
+
+    }
+
+    @Override public void onTaskStart(UploadTask task) {
+
+    }
+
+    @Override public void onTaskStop(UploadTask task) {
+
+    }
+
+    @Override public void onTaskCancel(UploadTask task) {
+
+    }
+
+    @Override public void onTaskFail(UploadTask task) {
+
+    }
+
+    @Override public void onTaskComplete(UploadTask task) {
+
+    }
+
+    @Override public void onTaskRunning(UploadTask task) {
+
+    }
+  }
+
+  /**
+   * 下载任务状态监听
+   */
+  public static class DownloadSchedulerListener implements OnSchedulerListener<DownloadTask> {
 
     @Override public void onTaskPre(DownloadTask task) {
 

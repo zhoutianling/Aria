@@ -33,7 +33,6 @@ import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.inf.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
-import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.DbUtil;
@@ -56,9 +55,8 @@ import java.util.Map;
   private static final String UPLOAD = "_upload";
   private static final Object LOCK = new Object();
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
-  Map<String, IReceiver> mReceivers = new HashMap<>();
-  private LifeCallback mLifeCallback;
-  DownloadTaskQueue mDTaskQueue;
+  private Map<String, IReceiver> mReceivers = new HashMap<>();
+  private DownloadTaskQueue mDTaskQueue;
 
   public static Context APP;
   private List<ICmd> mCommands = new ArrayList<>();
@@ -267,7 +265,7 @@ import java.util.Map;
   private void regAppLifeCallback(Context context) {
     Context app = context.getApplicationContext();
     if (app instanceof Application) {
-      mLifeCallback = new LifeCallback();
+      LifeCallback mLifeCallback = new LifeCallback();
       ((Application) app).registerActivityLifecycleCallbacks(mLifeCallback);
     }
   }
