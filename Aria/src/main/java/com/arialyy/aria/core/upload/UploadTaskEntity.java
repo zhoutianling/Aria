@@ -1,6 +1,7 @@
 package com.arialyy.aria.core.upload;
 
 import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,5 +28,9 @@ public class UploadTaskEntity implements ITaskEntity {
 
   public UploadTaskEntity(UploadEntity downloadEntity) {
     this.uploadEntity = downloadEntity;
+  }
+
+  @Override public IEntity getEntity() {
+    return uploadEntity;
   }
 }

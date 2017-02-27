@@ -20,7 +20,7 @@ import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
@@ -141,7 +141,7 @@ public class DownloadTarget {
    * 开始下载
    */
   public void start() {
-    List<IDownloadCmd> cmds = new ArrayList<>();
+    List<AbsCmd> cmds = new ArrayList<>();
     cmds.add(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_CREATE));
     cmds.add(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_START));
     AriaManager.getInstance(AriaManager.APP).setCmds(cmds).exe();
@@ -179,7 +179,7 @@ public class DownloadTarget {
    * 是否在下载
    */
   public boolean isDownloading() {
-    return AriaManager.getInstance(AriaManager.APP).getTaskQueue().getTask(entity).isDownloading();
+    return AriaManager.getInstance(AriaManager.APP).getDownloadTaskQueue().getTask(entity).isDownloading();
   }
 
   /**

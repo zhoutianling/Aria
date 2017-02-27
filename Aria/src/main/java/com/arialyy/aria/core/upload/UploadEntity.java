@@ -61,7 +61,7 @@ public class UploadEntity extends DbEntity implements IEntity, Parcelable {
     this.failNum = failNum;
   }
 
-  public int getState() {
+  @Override public int getState() {
     return state;
   }
 
@@ -114,8 +114,7 @@ public class UploadEntity extends DbEntity implements IEntity, Parcelable {
     this.failNum = in.readInt();
   }
 
-  @Ignore
-  public static final Creator<UploadEntity> CREATOR = new Creator<UploadEntity>() {
+  @Ignore public static final Creator<UploadEntity> CREATOR = new Creator<UploadEntity>() {
     @Override public UploadEntity createFromParcel(Parcel source) {
       return new UploadEntity(source);
     }

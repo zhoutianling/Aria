@@ -36,7 +36,7 @@ public class UploadTask implements ITask {
     mUtil = new UploadUtil(mTaskEntity, mListener);
   }
 
-  void setTargetName(String targetName) {
+  @Override public void setTargetName(String targetName) {
     mTargetName = targetName;
   }
 

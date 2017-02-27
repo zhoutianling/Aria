@@ -33,4 +33,6 @@ public interface ITask {
   public long getFileSize();
 
   public long getCurrentProgress();
+
+  public void setTargetName(String targetName);
 }

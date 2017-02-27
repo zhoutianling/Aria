@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,5 +33,9 @@ public class DownloadTaskEntity implements ITaskEntity {
 
   public DownloadTaskEntity(DownloadEntity downloadEntity) {
     this.downloadEntity = downloadEntity;
+  }
+
+  @Override public IEntity getEntity() {
+    return downloadEntity;
   }
 }

@@ -19,7 +19,7 @@ import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.util.CheckUtil;
@@ -109,7 +109,7 @@ public class DownloadReceiver implements IReceiver {
   public void stopAllTask() {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
     List<DownloadEntity> allEntity = ariaManager.getAllDownloadEntity();
-    List<IDownloadCmd> stopCmds = new ArrayList<>();
+    List<AbsCmd> stopCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       if (entity.getState() == DownloadEntity.STATE_RUNNING) {
         stopCmds.add(CommonUtil.createDownloadCmd(targetName, new DownloadTaskEntity(entity),
@@ -125,7 +125,7 @@ public class DownloadReceiver implements IReceiver {
   public void cancelAllTask() {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
     List<DownloadEntity> allEntity = ariaManager.getAllDownloadEntity();
-    List<IDownloadCmd> cancelCmds = new ArrayList<>();
+    List<AbsCmd> cancelCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       cancelCmds.add(CommonUtil.createDownloadCmd(targetName, new DownloadTaskEntity(entity),
           CmdFactory.TASK_CANCEL));

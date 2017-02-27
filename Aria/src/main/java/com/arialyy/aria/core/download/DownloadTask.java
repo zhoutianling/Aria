@@ -133,6 +133,7 @@ public class DownloadTask implements ITask {
     return mTargetName;
   }
 
+  @Override
   public void setTargetName(String targetName) {
     this.mTargetName = targetName;
   }

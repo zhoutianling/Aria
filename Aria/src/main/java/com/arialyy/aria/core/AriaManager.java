@@ -33,6 +33,7 @@ import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.inf.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.DbUtil;
@@ -56,7 +57,6 @@ import java.util.Map;
   private static final Object LOCK = new Object();
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
   private Map<String, IReceiver> mReceivers = new HashMap<>();
-  private DownloadTaskQueue mDTaskQueue;
 
   public static Context APP;
   private List<ICmd> mCommands = new ArrayList<>();
@@ -82,13 +82,6 @@ import java.util.Map;
 
   public List<DownloadEntity> getAllDownloadEntity() {
     return DbEntity.findAllData(DownloadEntity.class);
-  }
-
-  /**
-   * 获取任务队列
-   */
-  public DownloadTaskQueue getTaskQueue() {
-    return mDTaskQueue;
   }
 
   /**
@@ -190,7 +183,7 @@ import java.util.Map;
       Log.w(TAG, "最大任务数不能小于 1");
       return this;
     }
-    mDTaskQueue.setDownloadNum(maxDownloadNum);
+    DownloadTaskQueue.getInstance().setDownloadNum(maxDownloadNum);
     return this;
   }
 

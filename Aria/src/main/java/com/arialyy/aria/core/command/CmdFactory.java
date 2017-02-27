@@ -67,7 +67,7 @@ public class CmdFactory {
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}
    */
-  public <T extends ITaskEntity> IDownloadCmd createCmd(String target, T entity, int type) {
+  public <T extends ITaskEntity> AbsCmd createCmd(String target, T entity, int type) {
     switch (type) {
       case TASK_CREATE:
         return createAddCmd(target, entity);

@@ -16,20 +16,37 @@
 
 package com.arialyy.aria.core.command;
 
+import android.text.TextUtils;
+import android.util.Log;
+import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.ITaskEntity;
 
 /**
  * Created by lyy on 2016/9/20.
  * 停止命令
  */
-class StopCmd<T extends ITaskEntity> extends IDownloadCmd<T> {
+class StopCmd<T extends ITaskEntity> extends AbsCmd<T> {
 
   StopCmd(String targetName, T entity) {
     super(targetName, entity);
   }
 
   @Override public void executeCmd() {
-
+    ITask task = mQueue.getTask(mEntity.getEntity());
+    if (task == null) {
+      if (mEntity.getEntity().getState() == IEntity.STATE_RUNNING) {
+        task = mQueue.createTask(mTargetName, mEntity);
+        mQueue.stopTask(task);
+      } else {
+        Log.w(TAG, "停止命令执行失败，【调度器中没有该任务】");
+      }
+    } else {
+      if (!TextUtils.isEmpty(mTargetName)) {
+        task.setTargetName(mTargetName);
+      }
+      mQueue.stopTask(task);
+    }
   }
 
   //StopCmd(DownloadTaskEntity entity) {

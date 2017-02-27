@@ -129,6 +129,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity{
     this.fileSize = fileSize;
   }
 
+  @Override
   public int getState() {
     return state;
   }

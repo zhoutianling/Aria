@@ -16,19 +16,29 @@
 
 package com.arialyy.aria.core.command;
 
+import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.ITaskEntity;
 
 /**
  * Created by lyy on 2016/9/20.
  * 取消命令
  */
-class CancelCmd<T extends ITaskEntity> extends IDownloadCmd<T> {
+class CancelCmd<T extends ITaskEntity> extends AbsCmd<T> {
   CancelCmd(String targetName, T entity) {
     super(targetName, entity);
   }
 
   @Override public void executeCmd() {
-
+    ITask task = mQueue.getTask(mEntity.getEntity());
+    if (task == null) {
+      task = mQueue.createTask(mTargetName, mEntity);
+    }
+    if (task != null) {
+      if (mTargetName != null) {
+        task.setTargetName(mTargetName);
+      }
+      mQueue.cancelTask(task);
+    }
   }
 
   //CancelCmd(DownloadTaskEntity entity) {

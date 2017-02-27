@@ -16,20 +16,28 @@
 
 package com.arialyy.aria.core.command;
 
+import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.ITaskEntity;
 
 /**
  * Created by lyy on 2016/8/22.
  * 开始命令
  */
-class StartCmd<T extends ITaskEntity> extends IDownloadCmd<T> {
+class StartCmd<T extends ITaskEntity> extends AbsCmd<T> {
 
   StartCmd(String targetName, T entity) {
     super(targetName, entity);
   }
 
   @Override public void executeCmd() {
-
+    ITask task = mQueue.getTask(mEntity.getEntity());
+    if (task == null) {
+      task = mQueue.createTask(mTargetName, mEntity);
+    }
+    if (task != null) {
+      task.setTargetName(mTargetName);
+      mQueue.startTask(task);
+    }
   }
 
   //StartCmd(DownloadTaskEntity entity) {
