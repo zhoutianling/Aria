@@ -57,13 +57,12 @@ import java.util.Map;
   private static final Object LOCK = new Object();
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
   private Map<String, IReceiver> mReceivers = new HashMap<>();
-
   public static Context APP;
   private List<ICmd> mCommands = new ArrayList<>();
 
   private AriaManager(Context context) {
     DbUtil.init(context.getApplicationContext());
-    APP = context;
+    APP = context.getApplicationContext();
     regAppLifeCallback(context);
   }
 
@@ -78,10 +77,6 @@ import java.util.Map;
 
   public Map<String, IReceiver> getReceiver() {
     return mReceivers;
-  }
-
-  public List<DownloadEntity> getAllDownloadEntity() {
-    return DbEntity.findAllData(DownloadEntity.class);
   }
 
   /**
@@ -121,6 +116,17 @@ import java.util.Map;
       receiver = putReceiver(true, obj);
     }
     return (receiver instanceof DownloadReceiver) ? (DownloadReceiver) receiver : null;
+  }
+
+  /**
+   * 处理上传操作
+   */
+  UploadReceiver upload(Object obj) {
+    IReceiver receiver = mReceivers.get(getKey(false, obj));
+    if (receiver == null) {
+      receiver = putReceiver(true, obj);
+    }
+    return (receiver instanceof UploadReceiver) ? (UploadReceiver) receiver : null;
   }
 
   /**
@@ -205,7 +211,8 @@ import java.util.Map;
         receiver = dReceiver;
       } else {
         UploadReceiver uReceiver = new UploadReceiver();
-
+        uReceiver.targetName = obj.getClass().getName();
+        mReceivers.put(key, uReceiver);
         receiver = uReceiver;
       }
     }

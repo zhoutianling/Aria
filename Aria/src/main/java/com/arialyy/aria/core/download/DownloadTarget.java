@@ -17,27 +17,19 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.RequestEnum;
-import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.command.AbsCmd;
+import com.arialyy.aria.core.inf.AbsTarget;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.util.CheckUtil;
-import com.arialyy.aria.util.CommonUtil;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by lyy on 2016/12/5.
  * https://github.com/AriaLyy/Aria
  */
-public class DownloadTarget {
-  DownloadEntity entity;
-  String targetName;
-  DownloadTaskEntity taskEntity;
+public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity> {
 
-  public DownloadTarget(DownloadEntity entity, String targetName) {
+  DownloadTarget(DownloadEntity entity, String targetName) {
     this.entity = entity;
     this.targetName = targetName;
     taskEntity = new DownloadTaskEntity(entity);
@@ -50,7 +42,7 @@ public class DownloadTarget {
    * @param header 头部value
    */
   public DownloadTarget addHeader(@NonNull String key, @NonNull String header) {
-    taskEntity.headers.put(key, header);
+    super._addHeader(key, header);
     return this;
   }
 
@@ -60,12 +52,17 @@ public class DownloadTarget {
    * @param headers Map<Key, Value>
    */
   public DownloadTarget addHeaders(Map<String, String> headers) {
-    if (headers != null && headers.size() > 0) {
-      Set<String> keys = headers.keySet();
-      for (String key : keys) {
-        taskEntity.headers.put(key, headers.get(key));
-      }
-    }
+    super._addHeaders(headers);
+    return this;
+  }
+
+  /**
+   * 设置请求类型
+   *
+   * @param requestEnum {@link RequestEnum}
+   */
+  public DownloadTarget setRequestMode(RequestEnum requestEnum) {
+    super._setRequestMode(requestEnum);
     return this;
   }
 
@@ -81,16 +78,6 @@ public class DownloadTarget {
   }
 
   /**
-   * 设置请求类型
-   *
-   * @param requestEnum {@link RequestEnum}
-   */
-  public DownloadTarget setRequestMode(RequestEnum requestEnum) {
-    taskEntity.requestEnum = requestEnum;
-    return this;
-  }
-
-  /**
    * 设置文件名
    */
   public DownloadTarget setDownloadName(@NonNull String downloadName) {
@@ -101,27 +88,6 @@ public class DownloadTarget {
     return this;
   }
 
-  /**
-   * 获取下载文件大小
-   */
-  public long getFileSize() {
-    DownloadEntity entity = getDownloadEntity(this.entity.getDownloadUrl());
-    if (entity == null) {
-      throw new NullPointerException("下载管理器中没有改任务");
-    }
-    return entity.getFileSize();
-  }
-
-  /**
-   * 获取当前下载进度，如果下載实体存在，则返回当前进度
-   */
-  public long getCurrentProgress() {
-    DownloadEntity entity = getDownloadEntity(this.entity.getDownloadUrl());
-    if (entity == null) {
-      throw new NullPointerException("下载管理器中没有改任务");
-    }
-    return entity.getCurrentProgress();
-  }
 
   private DownloadEntity getDownloadEntity(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
@@ -129,64 +95,9 @@ public class DownloadTarget {
   }
 
   /**
-   * 添加任务
-   */
-  public void add() {
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_CREATE))
-        .exe();
-  }
-
-  /**
-   * 开始下载
-   */
-  public void start() {
-    List<AbsCmd> cmds = new ArrayList<>();
-    cmds.add(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_CREATE));
-    cmds.add(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_START));
-    AriaManager.getInstance(AriaManager.APP).setCmds(cmds).exe();
-    cmds.clear();
-  }
-
-  /**
-   * 停止下载
-   */
-  public void stop() {
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_STOP))
-        .exe();
-  }
-
-  /**
-   * 恢复下载
-   */
-  public void resume() {
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_START))
-        .exe();
-  }
-
-  /**
-   * 取消下载
-   */
-  public void cancel() {
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createDownloadCmd(targetName, taskEntity, CmdFactory.TASK_CANCEL))
-        .exe();
-  }
-
-  /**
    * 是否在下载
    */
   public boolean isDownloading() {
-    return AriaManager.getInstance(AriaManager.APP).getDownloadTaskQueue().getTask(entity).isDownloading();
-  }
-
-  /**
-   * 重新下载
-   */
-  public void reStart() {
-    cancel();
-    start();
+    return DownloadTaskQueue.getInstance().getTask(entity).isRunning();
   }
 }

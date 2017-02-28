@@ -15,10 +15,12 @@
  */
 package com.arialyy.aria.core.inf;
 
+import java.util.List;
+
 /**
  * Created by Aria.Lao on 2017/2/6.
  */
-public interface IReceiver {
+public interface IReceiver<ENTITY extends IEntity> {
   /**
    * Receiver 销毁
    */
@@ -28,4 +30,26 @@ public interface IReceiver {
    * 移除事件回调
    */
   public void removeSchedulerListener();
+
+  /**
+   * 停止所有任务
+   */
+  public void stopAllTask();
+
+  /**
+   * 删除所有任务
+   */
+  public void removeAllTask();
+
+  /**
+   * 任务是否存在
+   *
+   * @param key 下载时为下载路径，上传时为文件路径
+   */
+  public boolean taskExists(String key);
+
+  /**
+   * 获取任务列表
+   */
+  public List<ENTITY> getTaskList();
 }

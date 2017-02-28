@@ -18,8 +18,6 @@ package com.arialyy.aria.core.scheduler;
 import android.os.CountDownTimer;
 import android.os.Message;
 import android.util.Log;
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadEntity;

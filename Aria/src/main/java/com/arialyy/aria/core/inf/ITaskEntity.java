@@ -15,12 +15,24 @@
  */
 package com.arialyy.aria.core.inf;
 
+import com.arialyy.aria.core.RequestEnum;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Created by Aria.Lao on 2017/2/23.
  */
 
-public interface ITaskEntity {
+public abstract class ITaskEntity {
+  /**
+   * http 请求头
+   */
+  public Map<String, String> headers = new HashMap<>();
 
-  public IEntity getEntity();
+  /**
+   * 网络请求类型
+   */
+  public RequestEnum requestEnum = RequestEnum.GET;
 
+  public abstract IEntity getEntity();
 }

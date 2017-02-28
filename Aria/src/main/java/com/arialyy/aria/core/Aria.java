@@ -29,6 +29,7 @@ import android.widget.PopupWindow;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
 import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.core.upload.UploadTask;
 
 /**
@@ -37,13 +38,22 @@ import com.arialyy.aria.core.upload.UploadTask;
  * Aria启动，管理全局任务
  * <pre>
  *   <code>
- *   //启动下载
+ *   //下载
  *   Aria.download(this)
  *       .load(DOWNLOAD_URL)     //下载地址，必填
  *       //文件保存路径，必填
  *       .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
  *       .setDownloadName("test.apk")    //文件名，必填
  *       .start();
+ *   </code>
+ *   <code>
+ *    //上传
+ *    Aria.upload(this)
+ *        .load(filePath)     //文件路径，必填
+ *        .setUploadUrl(uploadUrl)  //上传路径，必填
+ *        .setFileName(fileName)    //文件名
+ *        .setAttachment(fileKey)   //服务器读取文件的key
+ *        .start();
  *   </code>
  * </pre>
  */
@@ -107,6 +117,15 @@ import com.arialyy.aria.core.upload.UploadTask;
    */
   public static DownloadReceiver download(Object obj) {
     return get(obj).download(obj);
+  }
+
+  /**
+   * 初始化上传
+   *
+   * @param obj 支持类型有【Activity、Service、Application、DialogFragment、Fragment、PopupWindow、Dialog】
+   */
+  public static UploadReceiver upload(Object obj) {
+    return get(obj).upload(obj);
   }
 
   /**
