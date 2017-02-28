@@ -25,7 +25,7 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadBinding> {
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
-    mAdapter = new DownloadAdapter(this, Aria.download(this).getDownloadList());
+    mAdapter = new DownloadAdapter(this, Aria.download(this).getTaskList());
     mList.setLayoutManager(new LinearLayoutManager(this));
     mList.setAdapter(mAdapter);
   }
