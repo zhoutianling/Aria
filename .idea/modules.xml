@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Aria.iml" filepath="$PROJECT_DIR$/Aria.iml" />
       <module fileurl="file://$PROJECT_DIR$/Aria/Aria.iml" filepath="$PROJECT_DIR$/Aria/Aria.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Aria/Aria-Aria.iml" filepath="$PROJECT_DIR$/Aria/Aria-Aria.iml" />
       <module fileurl="file://$PROJECT_DIR$/AriaPrj.iml" filepath="$PROJECT_DIR$/AriaPrj.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
