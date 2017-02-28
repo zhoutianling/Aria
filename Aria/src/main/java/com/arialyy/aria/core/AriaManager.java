@@ -33,7 +33,7 @@ import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.inf.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
-import com.arialyy.aria.core.queue.ITaskQueue;
+import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.DbUtil;
@@ -56,16 +56,13 @@ import java.util.Map;
   private static final String UPLOAD = "_upload";
   private static final Object LOCK = new Object();
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
-  Map<String, IReceiver> mReceivers = new HashMap<>();
-  private LifeCallback mLifeCallback;
-  DownloadTaskQueue mDTaskQueue;
-
+  private Map<String, IReceiver> mReceivers = new HashMap<>();
   public static Context APP;
   private List<ICmd> mCommands = new ArrayList<>();
 
   private AriaManager(Context context) {
     DbUtil.init(context.getApplicationContext());
-    APP = context;
+    APP = context.getApplicationContext();
     regAppLifeCallback(context);
   }
 
@@ -80,17 +77,6 @@ import java.util.Map;
 
   public Map<String, IReceiver> getReceiver() {
     return mReceivers;
-  }
-
-  public List<DownloadEntity> getAllDownloadEntity() {
-    return DbEntity.findAllData(DownloadEntity.class);
-  }
-
-  /**
-   * 获取任务队列
-   */
-  public DownloadTaskQueue getTaskQueue() {
-    return mDTaskQueue;
   }
 
   /**
@@ -130,6 +116,17 @@ import java.util.Map;
       receiver = putReceiver(true, obj);
     }
     return (receiver instanceof DownloadReceiver) ? (DownloadReceiver) receiver : null;
+  }
+
+  /**
+   * 处理上传操作
+   */
+  UploadReceiver upload(Object obj) {
+    IReceiver receiver = mReceivers.get(getKey(false, obj));
+    if (receiver == null) {
+      receiver = putReceiver(true, obj);
+    }
+    return (receiver instanceof UploadReceiver) ? (UploadReceiver) receiver : null;
   }
 
   /**
@@ -192,7 +189,7 @@ import java.util.Map;
       Log.w(TAG, "最大任务数不能小于 1");
       return this;
     }
-    mDTaskQueue.setDownloadNum(maxDownloadNum);
+    DownloadTaskQueue.getInstance().setDownloadNum(maxDownloadNum);
     return this;
   }
 
@@ -214,7 +211,8 @@ import java.util.Map;
         receiver = dReceiver;
       } else {
         UploadReceiver uReceiver = new UploadReceiver();
-
+        uReceiver.targetName = obj.getClass().getName();
+        mReceivers.put(key, uReceiver);
         receiver = uReceiver;
       }
     }
@@ -267,7 +265,7 @@ import java.util.Map;
   private void regAppLifeCallback(Context context) {
     Context app = context.getApplicationContext();
     if (app instanceof Application) {
-      mLifeCallback = new LifeCallback();
+      LifeCallback mLifeCallback = new LifeCallback();
       ((Application) app).registerActivityLifecycleCallbacks(mLifeCallback);
     }
   }

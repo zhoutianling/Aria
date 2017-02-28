@@ -25,7 +25,6 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.CachePool;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
-import com.arialyy.aria.core.download.DownloadTaskFactory;
 import com.arialyy.aria.util.Configuration;
 
 /**
@@ -149,14 +148,14 @@ public class DownloadTaskQueue
   }
 
   @Override public DownloadTask createTask(String target, DownloadTaskEntity entity) {
-    DownloadTask task;
-    if (TextUtils.isEmpty(target)) {
-      task = DownloadTaskFactory.getInstance().createTask(entity, DownloadSchedulers.getInstance());
-    } else {
-      task = DownloadTaskFactory.getInstance()
+    DownloadTask task = null;
+    if (!TextUtils.isEmpty(target)) {
+      task = (DownloadTask) TaskFactory.getInstance()
           .createTask(target, entity, DownloadSchedulers.getInstance());
+      mCachePool.putTask(task);
+    } else {
+      Log.e(TAG, "target name 为 null是！！");
     }
-    mCachePool.putTask(task);
     return task;
   }
 

@@ -42,26 +42,26 @@ import com.arialyy.simple.databinding.ActivitySingleBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
-  public static final  int    DOWNLOAD_PRE      = 0x01;
-  public static final  int    DOWNLOAD_STOP     = 0x02;
-  public static final  int    DOWNLOAD_FAILE    = 0x03;
-  public static final  int    DOWNLOAD_CANCEL   = 0x04;
-  public static final  int    DOWNLOAD_RESUME   = 0x05;
-  public static final  int    DOWNLOAD_COMPLETE = 0x06;
-  public static final  int    DOWNLOAD_RUNNING  = 0x07;
+  public static final int DOWNLOAD_PRE = 0x01;
+  public static final int DOWNLOAD_STOP = 0x02;
+  public static final int DOWNLOAD_FAILE = 0x03;
+  public static final int DOWNLOAD_CANCEL = 0x04;
+  public static final int DOWNLOAD_RESUME = 0x05;
+  public static final int DOWNLOAD_COMPLETE = 0x06;
+  public static final int DOWNLOAD_RUNNING = 0x07;
 
-  private static final String DOWNLOAD_URL      =
+  private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       "https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
-  @Bind(R.id.start)       Button                          mStart;
-  @Bind(R.id.stop)        Button                          mStop;
-  @Bind(R.id.cancel)      Button                          mCancel;
-  @Bind(R.id.size)        TextView                        mSize;
-  @Bind(R.id.toolbar)     Toolbar                         toolbar;
-  @Bind(R.id.speed)       TextView                        mSpeed;
-  @Bind(R.id.img)         ImageView                       mImg;
-  private                 DownloadEntity                  mEntity;
+  @Bind(R.id.start) Button mStart;
+  @Bind(R.id.stop) Button mStop;
+  @Bind(R.id.cancel) Button mCancel;
+  @Bind(R.id.size) TextView mSize;
+  @Bind(R.id.toolbar) Toolbar toolbar;
+  @Bind(R.id.speed) TextView mSpeed;
+  @Bind(R.id.img) ImageView mImg;
+  private DownloadEntity mEntity;
   private BroadcastReceiver mReceiver = new BroadcastReceiver() {
     @Override public void onReceive(Context context, Intent intent) {
       String action = intent.getAction();
@@ -163,7 +163,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private void init() {
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
       DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
-      int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
+      int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
   }
@@ -207,7 +207,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     Aria.download(this).load(DOWNLOAD_URL).cancel();
   }
 
-  private class MySchedulerListener extends Aria.SimpleSchedulerListener {
+  private class MySchedulerListener extends Aria.DownloadSchedulerListener {
     @Override public void onTaskStart(DownloadTask task) {
       mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
           .sendToTarget();

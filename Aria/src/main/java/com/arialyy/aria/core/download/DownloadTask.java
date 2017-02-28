@@ -25,7 +25,7 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
-import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
+import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.Configuration;
@@ -133,6 +133,7 @@ public class DownloadTask implements ITask {
     return mTargetName;
   }
 
+  @Override
   public void setTargetName(String targetName) {
     this.mTargetName = targetName;
   }
@@ -179,14 +180,14 @@ public class DownloadTask implements ITask {
     }
   }
 
-  static class Builder {
+  public static class Builder {
     DownloadTaskEntity taskEntity;
     Handler outHandler;
     int threadNum = 3;
     String targetName;
 
 
-    Builder(String targetName, DownloadTaskEntity taskEntity) {
+    public Builder(String targetName, DownloadTaskEntity taskEntity) {
       CheckUtil.checkDownloadEntity(taskEntity.downloadEntity);
       this.targetName = targetName;
       this.taskEntity = taskEntity;
@@ -195,9 +196,9 @@ public class DownloadTask implements ITask {
     /**
      * 设置自定义Handler处理下载状态时间
      *
-     * @param schedulers {@link IDownloadSchedulers}
+     * @param schedulers {@link ISchedulers}
      */
-    Builder setOutHandler(IDownloadSchedulers schedulers) {
+    public Builder setOutHandler(ISchedulers schedulers) {
       this.outHandler = new Handler(schedulers);
       return this;
     }

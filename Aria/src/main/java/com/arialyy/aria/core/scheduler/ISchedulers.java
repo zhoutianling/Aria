@@ -18,12 +18,45 @@ package com.arialyy.aria.core.scheduler;
 
 import android.os.Handler;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.inf.ITask;
 
 /**
  * Created by “AriaLyy@outlook.com” on 2016/11/2.
- * 下载调度器接口
+ * 调度器功能接口
  */
-public interface IDownloadSchedulers extends Handler.Callback {
+public interface ISchedulers<Task extends ITask> extends Handler.Callback {
+  /**
+   * 任务预加载
+   */
+  public static final int PRE = 0;
+  /**
+   * 任务开始
+   */
+  public static final int START = 1;
+  /**
+   * 任务停止
+   */
+  public static final int STOP = 2;
+  /**
+   * 任务失败
+   */
+  public static final int FAIL = 3;
+  /**
+   * 任务取消
+   */
+  public static final int CANCEL = 4;
+  /**
+   * 任务完成
+   */
+  public static final int COMPLETE = 5;
+  /**
+   * 任务处理中
+   */
+  public static final int RUNNING = 6;
+  /**
+   * 恢复任务
+   */
+  public static final int RESUME = 7;
 
   /**
    * 注册下载器监听，一个观察者只能注册一次监听
@@ -31,25 +64,12 @@ public interface IDownloadSchedulers extends Handler.Callback {
    * @param targetName 观察者，创建该监听器的对象类名
    * @param schedulerListener {@link OnSchedulerListener}
    */
-  public void addSchedulerListener(String targetName, OnSchedulerListener schedulerListener);
+  public void addSchedulerListener(String targetName, OnSchedulerListener<Task> schedulerListener);
 
   /**
    * @param targetName 观察者，创建该监听器的对象类名
    * 取消注册监听器
    */
-  public void removeSchedulerListener(String targetName, OnSchedulerListener schedulerListener);
+  public void removeSchedulerListener(String targetName, OnSchedulerListener<Task> schedulerListener);
 
-  /**
-   * 处理下载任务下载失败的情形
-   *
-   * @param entity 下载实体
-   */
-  public void handleFailTask(DownloadEntity entity);
-
-  /**
-   * 启动下一个任务，条件：任务停止，取消下载，任务完成
-   *
-   * @param entity 通过Handler传递的下载实体
-   */
-  public void startNextTask(DownloadEntity entity);
 }

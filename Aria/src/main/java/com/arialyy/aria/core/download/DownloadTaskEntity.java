@@ -15,22 +15,22 @@
  */
 package com.arialyy.aria.core.download;
 
-import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Created by Aria.Lao on 2017/1/23.
  * 下载任务实体
  */
-public class DownloadTaskEntity implements ITaskEntity {
+public class DownloadTaskEntity extends ITaskEntity {
 
   public DownloadEntity downloadEntity;
-  public RequestEnum requestEnum = RequestEnum.GET;
-  public Map<String, String> headers = new HashMap<>();
 
   public DownloadTaskEntity(DownloadEntity downloadEntity) {
     this.downloadEntity = downloadEntity;
+  }
+
+  @Override public IEntity getEntity() {
+    return downloadEntity;
   }
 }

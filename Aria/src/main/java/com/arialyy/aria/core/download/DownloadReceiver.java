@@ -19,9 +19,10 @@ import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.OnSchedulerListener;
+import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
@@ -32,10 +33,10 @@ import java.util.Set;
  * Created by lyy on 2016/12/5.
  * 下载功能接收器
  */
-public class DownloadReceiver implements IReceiver {
+public class DownloadReceiver implements IReceiver<DownloadEntity> {
   private static final String TAG = "DownloadReceiver";
   public String targetName;
-  public OnSchedulerListener listener;
+  public OnSchedulerListener<DownloadTask> listener;
 
   /**
    * {@link #load(String)}，请使用该方法
@@ -61,7 +62,7 @@ public class DownloadReceiver implements IReceiver {
   /**
    * 添加调度器回调
    */
-  public DownloadReceiver addSchedulerListener(OnSchedulerListener listener) {
+  public DownloadReceiver addSchedulerListener(OnSchedulerListener<DownloadTask> listener) {
     this.listener = listener;
     DownloadSchedulers.getInstance().addSchedulerListener(targetName, listener);
     return this;
@@ -82,13 +83,6 @@ public class DownloadReceiver implements IReceiver {
   }
 
   /**
-   * 获取下载列表
-   */
-  public List<DownloadEntity> getDownloadList() {
-    return DownloadEntity.findAllData(DownloadEntity.class);
-  }
-
-  /**
    * 通过下载链接获取下载实体
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
@@ -99,20 +93,24 @@ public class DownloadReceiver implements IReceiver {
   /**
    * 下载任务是否存在
    */
-  public boolean taskExists(String downloadUrl) {
+  @Override public boolean taskExists(String downloadUrl) {
     return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl) != null;
+  }
+
+  @Override public List<DownloadEntity> getTaskList() {
+    return DownloadEntity.findAllData(DownloadEntity.class);
   }
 
   /**
    * 停止所有正在下载的任务
    */
-  public void stopAllTask() {
+  @Override public void stopAllTask() {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    List<DownloadEntity> allEntity = ariaManager.getAllDownloadEntity();
-    List<IDownloadCmd> stopCmds = new ArrayList<>();
+    List<DownloadEntity> allEntity = DbEntity.findAllData(DownloadEntity.class);
+    List<AbsCmd> stopCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
       if (entity.getState() == DownloadEntity.STATE_RUNNING) {
-        stopCmds.add(CommonUtil.createDownloadCmd(targetName, new DownloadTaskEntity(entity),
+        stopCmds.add(CommonUtil.createCmd(targetName, new DownloadTaskEntity(entity),
             CmdFactory.TASK_STOP));
       }
     }
@@ -122,12 +120,12 @@ public class DownloadReceiver implements IReceiver {
   /**
    * 删除所有任务
    */
-  public void cancelAllTask() {
+  @Override public void removeAllTask() {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    List<DownloadEntity> allEntity = ariaManager.getAllDownloadEntity();
-    List<IDownloadCmd> cancelCmds = new ArrayList<>();
+    List<DownloadEntity> allEntity = DbEntity.findAllData(DownloadEntity.class);
+    List<AbsCmd> cancelCmds = new ArrayList<>();
     for (DownloadEntity entity : allEntity) {
-      cancelCmds.add(CommonUtil.createDownloadCmd(targetName, new DownloadTaskEntity(entity),
+      cancelCmds.add(CommonUtil.createCmd(targetName, new DownloadTaskEntity(entity),
           CmdFactory.TASK_CANCEL));
     }
     ariaManager.setCmds(cancelCmds).exe();

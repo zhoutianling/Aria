@@ -88,7 +88,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
     mStop.setEnabled(!startEnable);
   }
 
-  private class MyDialogDownloadCallback extends Aria.SimpleSchedulerListener {
+  private class MyDialogDownloadCallback extends Aria.DownloadSchedulerListener {
 
     @Override public void onTaskPre(DownloadTask task) {
       super.onTaskPre(task);

@@ -16,10 +16,13 @@
 
 package com.arialyy.aria.core.command;
 
-import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.inf.ICmd;
+import com.arialyy.aria.core.queue.UploadTaskQueue;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 
@@ -27,7 +30,7 @@ import com.arialyy.aria.util.CommonUtil;
  * Created by lyy on 2016/8/22.
  * 下载命令
  */
-public abstract class IDownloadCmd<T extends ITaskEntity> implements ICmd {
+public abstract class AbsCmd<T extends ITaskEntity> implements ICmd {
   ITaskQueue mQueue;
   T mEntity;
   String TAG;
@@ -36,11 +39,15 @@ public abstract class IDownloadCmd<T extends ITaskEntity> implements ICmd {
   /**
    * @param targetName 产生任务的对象名
    */
-  IDownloadCmd(String targetName, T entity) {
+  AbsCmd(String targetName, T entity) {
     CheckUtil.checkTaskEntity(entity);
     mTargetName = targetName;
     mEntity = entity;
     TAG = CommonUtil.getClassName(this);
-    mQueue = AriaManager.getInstance(AriaManager.APP).getTaskQueue();
+    if (entity instanceof DownloadTaskEntity) {
+      mQueue = DownloadTaskQueue.getInstance();
+    } else if (entity instanceof UploadTaskEntity) {
+      mQueue = UploadTaskQueue.getInstance();
+    }
   }
 }

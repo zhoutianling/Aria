@@ -32,6 +32,8 @@ public class UploadUtil implements Runnable {
   private OutputStream mOutputStream;
   private HttpURLConnection mHttpConn;
   private long mCurrentLocation = 0;
+  private boolean isCancel = false;
+  private boolean isRunning = false;
 
   public UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
     mTaskEntity = taskEntity;
@@ -44,14 +46,21 @@ public class UploadUtil implements Runnable {
   }
 
   public void start() {
+    isCancel = false;
+    isRunning = false;
     new Thread(this).start();
+  }
+
+  public void cancel(){
+    isCancel = true;
+    isRunning = false;
   }
 
   @Override public void run() {
     File uploadFile = new File(mUploadEntity.getFilePath());
     if (!uploadFile.exists()) {
       Log.e(TAG, "【" + mUploadEntity.getFilePath() + "】，文件不存在。");
-      mListener.onFail();
+      fail();
       return;
     }
 
@@ -66,7 +75,7 @@ public class UploadUtil implements Runnable {
       mHttpConn.setDoInput(true);
       mHttpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
       mHttpConn.setRequestProperty("User-Agent", "CodeJava Agent");
-      mHttpConn.setRequestProperty("Range", "bytes=" + 0 + "-" + "100");
+      //mHttpConn.setRequestProperty("Range", "bytes=" + 0 + "-" + "100");
       //内部缓冲区---分段上传防止oom
       mHttpConn.setChunkedStreamingMode(1024);
 
@@ -89,9 +98,21 @@ public class UploadUtil implements Runnable {
       Log.d(TAG, finish() + "");
     } catch (MalformedURLException e) {
       e.printStackTrace();
+      fail();
     } catch (IOException e) {
       e.printStackTrace();
+      fail();
     }
+  }
+
+  public boolean isRunning() {
+    return isRunning;
+  }
+
+  private void fail() {
+    mWriter.flush();
+    mWriter.close();
+    mListener.onFail();
   }
 
   /**
@@ -139,13 +160,23 @@ public class UploadUtil implements Runnable {
     while ((bytesRead = inputStream.read(buffer)) != -1) {
       mCurrentLocation += bytesRead;
       mOutputStream.write(buffer, 0, bytesRead);
+      if (isCancel) {
+        break;
+      }
+      isRunning = true;
       mListener.onProgress(mCurrentLocation);
     }
+
     mOutputStream.flush();
     inputStream.close();
-    mListener.onComplete();
     mWriter.append(LINE_END);
     mWriter.flush();
+    isRunning = false;
+    if (isCancel) {
+      mListener.onCancel();
+      return;
+    }
+    mListener.onComplete();
   }
 
   /**
@@ -172,6 +203,9 @@ public class UploadUtil implements Runnable {
     } else {
       throw new IOException("Server returned non-OK status: " + status);
     }
+
+    mWriter.flush();
+    mWriter.close();
 
     return response.toString();
   }

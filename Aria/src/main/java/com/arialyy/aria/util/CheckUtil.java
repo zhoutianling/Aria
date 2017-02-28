@@ -78,6 +78,13 @@ public class CheckUtil {
   }
 
   /**
+   * 检测上传地址是否为null
+   */
+  public static void checkUploadPath(String uploadPath) {
+    if (TextUtils.isEmpty(uploadPath)) throw new IllegalArgumentException("上传地址不能为null");
+  }
+
+  /**
    * 检查任务实体
    */
   public static void checkTaskEntity(ITaskEntity entity) {

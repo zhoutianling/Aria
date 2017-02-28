@@ -19,7 +19,6 @@ package com.arialyy.aria.core.queue.pool;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.inf.ITask;
-import com.arialyy.aria.core.queue.IPool;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -34,7 +33,6 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
   private static final    String    TAG      = "CachePool";
   private static final    Object    LOCK     = new Object();
   private static final    int       MAX_NUM  = Integer.MAX_VALUE;  //最大下载任务数
-  private static volatile CachePool INSTANCE = null;
   private static final    long      TIME_OUT = 1000;
   private Map<String, TASK>         mCacheArray;
   private LinkedBlockingQueue<TASK> mCacheQueue;
@@ -43,15 +41,6 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
     mCacheQueue = new LinkedBlockingQueue<>(MAX_NUM);
     mCacheArray = new HashMap<>();
   }
-
-  //public static CachePool getInstance() {
-  //  if (INSTANCE == null) {
-  //    synchronized (LOCK) {
-  //      INSTANCE = new CachePool();
-  //    }
-  //  }
-  //  return INSTANCE;
-  //}
 
   @Override public boolean putTask(TASK task) {
     synchronized (LOCK) {

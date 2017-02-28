@@ -21,9 +21,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.inf.ITaskEntity;
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,7 +40,7 @@ import java.util.Properties;
 public class CommonUtil {
   private static final String TAG = "util";
 
-  public static <T extends ITaskEntity> IDownloadCmd createDownloadCmd(String target, T entity, int cmd) {
+  public static <T extends ITaskEntity> AbsCmd createCmd(String target, T entity, int cmd) {
     return CmdFactory.getInstance().createCmd(target, entity, cmd);
   }
 

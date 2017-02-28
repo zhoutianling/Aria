@@ -50,7 +50,7 @@ public class SimpleNotification {
     Aria.download(mContext).load(DOWNLOAD_URL).stop();
   }
 
-  private static class DownloadCallback extends Aria.SimpleSchedulerListener {
+  private static class DownloadCallback extends Aria.DownloadSchedulerListener {
     NotificationCompat.Builder mBuilder;
     NotificationManager mManager;
 
