@@ -122,8 +122,8 @@ final class UploadUtil implements Runnable {
   }
 
   private void fail() {
-    mWriter.flush();
-    mWriter.close();
+    //mWriter.flush();
+    //mWriter.close();
     mListener.onFail();
   }
 
@@ -180,6 +180,7 @@ final class UploadUtil implements Runnable {
     }
 
     mOutputStream.flush();
+    mOutputStream.close();
     inputStream.close();
     mWriter.append(LINE_END);
     mWriter.flush();

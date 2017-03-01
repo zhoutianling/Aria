@@ -45,11 +45,11 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
           break;
         case RUNNING:
           int p = (int) (task.getCurrentProgress() * 100 / task.getFileSize());
-          L.d(TAG, "p ==> " + p);
           mPb.setProgress(p);
           break;
         case COMPLETE:
           T.showShort(UploadActivity.this, "上传完成");
+          mPb.setProgress(100);
           break;
       }
     }
@@ -62,7 +62,7 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
   @OnClick(R.id.upload) void upload() {
     Aria.upload(this)
         .load(FILE_PATH)
-        .setUploadUrl("http://172.18.104.50:8080/UploadActivity/sign_file")
+        .setUploadUrl("http://172.18.104.50:8080/upload/sign_file")
         .setAttachment("file")
         .start();
   }
