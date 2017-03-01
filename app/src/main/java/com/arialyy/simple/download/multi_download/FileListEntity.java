@@ -1,4 +1,4 @@
-package com.arialyy.simple.multi_task;
+package com.arialyy.simple.download.multi_download;
 
 /**
  * Created by AriaL on 2017/1/6.

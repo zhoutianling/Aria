@@ -1,4 +1,4 @@
-package com.arialyy.simple.notification;
+package com.arialyy.simple.download;
 
 import android.app.NotificationManager;
 import android.content.Context;

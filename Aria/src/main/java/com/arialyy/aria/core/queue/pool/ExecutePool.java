@@ -47,12 +47,12 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   @Override public boolean putTask(TASK task) {
     synchronized (LOCK) {
       if (task == null) {
-        Log.e(TAG, "下载任务不能为空！！");
+        Log.e(TAG, "任务不能为空！！");
         return false;
       }
       String url = task.getKey();
       if (mExecuteQueue.contains(task)) {
-        Log.e(TAG, "队列中已经包含了该任务，任务下载链接【" + url + "】");
+        Log.e(TAG, "队列中已经包含了该任务，任务key【" + url + "】");
         return false;
       } else {
         if (mExecuteQueue.size() >= mSize) {
@@ -144,7 +144,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   @Override public TASK getTask(String downloadUrl) {
     synchronized (LOCK) {
       if (TextUtils.isEmpty(downloadUrl)) {
-        Log.e(TAG, "请传入有效的下载链接");
+        Log.e(TAG, "请传入有效的任务key");
         return null;
       }
       String key = CommonUtil.keyToHashKey(downloadUrl);
@@ -168,7 +168,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   @Override public boolean removeTask(String downloadUrl) {
     synchronized (LOCK) {
       if (TextUtils.isEmpty(downloadUrl)) {
-        Log.e(TAG, "请传入有效的下载链接");
+        Log.e(TAG, "请传入有效的任务key");
         return false;
       }
       String key = CommonUtil.keyToHashKey(downloadUrl);

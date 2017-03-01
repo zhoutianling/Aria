@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.arialyy.aria.core.upload;
 
 import android.util.Log;
@@ -21,7 +36,7 @@ import java.util.UUID;
  * Created by Aria.Lao on 2017/2/9.
  * 上传工具
  */
-public class UploadUtil implements Runnable {
+final class UploadUtil implements Runnable {
   private static final String TAG = "UploadUtil";
   private final String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
   private final String PREFIX = "--", LINE_END = "\r\n";
@@ -35,7 +50,7 @@ public class UploadUtil implements Runnable {
   private boolean isCancel = false;
   private boolean isRunning = false;
 
-  public UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
+  UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
     mTaskEntity = taskEntity;
     CheckUtil.checkUploadEntity(taskEntity.uploadEntity);
     mUploadEntity = taskEntity.uploadEntity;
@@ -51,7 +66,7 @@ public class UploadUtil implements Runnable {
     new Thread(this).start();
   }
 
-  public void cancel(){
+  public void cancel() {
     isCancel = true;
     isRunning = false;
   }
@@ -96,16 +111,13 @@ public class UploadUtil implements Runnable {
       mListener.onStart(uploadFile.length());
       addFilePart(mTaskEntity.attachment, uploadFile);
       Log.d(TAG, finish() + "");
-    } catch (MalformedURLException e) {
-      e.printStackTrace();
-      fail();
     } catch (IOException e) {
       e.printStackTrace();
       fail();
     }
   }
 
-  public boolean isRunning() {
+  boolean isRunning() {
     return isRunning;
   }
 
@@ -200,8 +212,6 @@ public class UploadUtil implements Runnable {
       }
       reader.close();
       mHttpConn.disconnect();
-    } else {
-      throw new IOException("Server returned non-OK status: " + status);
     }
 
     mWriter.flush();

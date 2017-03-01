@@ -124,7 +124,7 @@ import java.util.Map;
   UploadReceiver upload(Object obj) {
     IReceiver receiver = mReceivers.get(getKey(false, obj));
     if (receiver == null) {
-      receiver = putReceiver(true, obj);
+      receiver = putReceiver(false, obj);
     }
     return (receiver instanceof UploadReceiver) ? (UploadReceiver) receiver : null;
   }

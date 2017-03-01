@@ -1,4 +1,4 @@
-package com.arialyy.simple.multi_task;
+package com.arialyy.simple.download.multi_download;
 
 import android.content.Context;
 import android.view.View;

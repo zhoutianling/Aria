@@ -41,11 +41,11 @@ public class UploadTask implements ITask {
   }
 
   @Override public String getKey() {
-    return null;
+    return mUploadEntity.getFilePath();
   }
 
   @Override public boolean isRunning() {
-    return false;
+    return mUtil.isRunning();
   }
 
   public UploadEntity getUploadEntity() {
@@ -197,7 +197,7 @@ public class UploadTask implements ITask {
      */
     private void sendInState2Target(int state) {
       if (outHandler.get() != null) {
-        outHandler.get().obtainMessage(state, task).sendToTarget();
+        outHandler.get().obtainMessage(state, task.get()).sendToTarget();
       }
     }
 

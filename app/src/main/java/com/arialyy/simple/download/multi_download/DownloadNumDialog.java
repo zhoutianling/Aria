@@ -15,7 +15,7 @@
  */
 
 
-package com.arialyy.simple.multi_task;
+package com.arialyy.simple.download.multi_download;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.arialyy.simple.multi_task;
+package com.arialyy.simple.download.multi_download;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,7 +28,7 @@ import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiBinding;
-import com.arialyy.simple.module.DownloadModule;
+import com.arialyy.simple.download.DownloadModule;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +65,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
         Aria.download(this).stopAllTask();
         break;
       case R.id.turn:
-        startActivity(new Intent(this, DownloadActivity.class));
+        startActivity(new Intent(this, MultiDownloadActivity.class));
         break;
     }
   }

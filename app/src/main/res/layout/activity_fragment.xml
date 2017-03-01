@@ -8,7 +8,7 @@
       >
     <fragment
         android:id="@+id/fragment1"
-        android:name="com.arialyy.simple.fragment_task.DownloadFragment"
+        android:name="com.arialyy.simple.download.fragment_download.DownloadFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />

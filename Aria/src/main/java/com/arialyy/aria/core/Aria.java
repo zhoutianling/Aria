@@ -51,8 +51,7 @@ import com.arialyy.aria.core.upload.UploadTask;
  *    Aria.upload(this)
  *        .load(filePath)     //文件路径，必填
  *        .setUploadUrl(uploadUrl)  //上传路径，必填
- *        .setFileName(fileName)    //文件名
- *        .setAttachment(fileKey)   //服务器读取文件的key
+ *        .setAttachment(fileKey)   //服务器读取文件的key，必填
  *        .start();
  *   </code>
  * </pre>

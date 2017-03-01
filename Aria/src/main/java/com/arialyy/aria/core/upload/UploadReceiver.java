@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.command.CmdFactory;
@@ -29,6 +30,8 @@ import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Aria.Lao on 2017/2/6.
@@ -50,6 +53,11 @@ public class UploadReceiver implements IReceiver<UploadEntity> {
     if (entity == null) {
       entity = new UploadEntity();
     }
+    String regex = "[/|\\\\|//]";
+    Pattern p = Pattern.compile(regex);
+    String[] strs = p.split(filePath);
+    String fileName = strs[strs.length - 1];
+    entity.setFileName(fileName);
     entity.setFilePath(filePath);
     return new UploadTarget(entity, targetName);
   }
