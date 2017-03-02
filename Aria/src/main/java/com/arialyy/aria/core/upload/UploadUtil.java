@@ -26,7 +26,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Set;
@@ -36,21 +35,19 @@ import java.util.UUID;
  * Created by Aria.Lao on 2017/2/9.
  * 上传工具
  */
-final class UploadUtil implements Runnable {
+public class UploadUtil implements Runnable {
   private static final String TAG = "UploadUtil";
   private final String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
   private final String PREFIX = "--", LINE_END = "\r\n";
   private UploadEntity mUploadEntity;
   private UploadTaskEntity mTaskEntity;
   private IUploadListener mListener;
-  private PrintWriter mWriter;
-  private OutputStream mOutputStream;
   private HttpURLConnection mHttpConn;
   private long mCurrentLocation = 0;
   private boolean isCancel = false;
   private boolean isRunning = false;
 
-  UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
+  public UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
     mTaskEntity = taskEntity;
     CheckUtil.checkUploadEntity(taskEntity.uploadEntity);
     mUploadEntity = taskEntity.uploadEntity;
@@ -81,15 +78,16 @@ final class UploadUtil implements Runnable {
 
     mListener.onPre();
 
-    URL url = null;
+    URL url;
     try {
       url = new URL(mTaskEntity.uploadUrl);
       mHttpConn = (HttpURLConnection) url.openConnection();
       mHttpConn.setUseCaches(false);
       mHttpConn.setDoOutput(true);
       mHttpConn.setDoInput(true);
-      mHttpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);
-      mHttpConn.setRequestProperty("User-Agent", "CodeJava Agent");
+      mHttpConn.setRequestProperty("Content-Type",
+          mTaskEntity.contentType + "; boundary=" + BOUNDARY);
+      mHttpConn.setRequestProperty("User-Agent", mTaskEntity.userAgent);
       //mHttpConn.setRequestProperty("Range", "bytes=" + 0 + "-" + "100");
       //内部缓冲区---分段上传防止oom
       mHttpConn.setChunkedStreamingMode(1024);
@@ -100,17 +98,18 @@ final class UploadUtil implements Runnable {
         mHttpConn.setRequestProperty(key, mTaskEntity.headers.get(key));
       }
 
-      mOutputStream = mHttpConn.getOutputStream();
-      mWriter = new PrintWriter(new OutputStreamWriter(mOutputStream, mTaskEntity.charset), true);
+      OutputStream outputStream = mHttpConn.getOutputStream();
+      PrintWriter writer =
+          new PrintWriter(new OutputStreamWriter(outputStream, mTaskEntity.charset), true);
 
       //添加文件上传表单字段
       keys = mTaskEntity.formFields.keySet();
       for (String key : keys) {
-        addFormField(key, mTaskEntity.formFields.get(key));
+        addFormField(writer, key, mTaskEntity.formFields.get(key));
       }
       mListener.onStart(uploadFile.length());
-      addFilePart(mTaskEntity.attachment, uploadFile);
-      Log.d(TAG, finish() + "");
+      uploadFile(writer, outputStream, mTaskEntity.attachment, uploadFile);
+      Log.d(TAG, finish(writer) + "");
     } catch (IOException e) {
       e.printStackTrace();
       fail();
@@ -122,56 +121,55 @@ final class UploadUtil implements Runnable {
   }
 
   private void fail() {
-    //mWriter.flush();
-    //mWriter.close();
     mListener.onFail();
   }
 
   /**
    * 添加文件上传表单字段
    */
-  private void addFormField(String name, String value) {
-    mWriter.append(PREFIX).append(BOUNDARY).append(LINE_END);
-    mWriter.append("Content-Disposition: form-data; name=\"")
+  private void addFormField(PrintWriter writer, String name, String value) {
+    writer.append(PREFIX).append(BOUNDARY).append(LINE_END);
+    writer.append("Content-Disposition: form-data; name=\"")
         .append(name)
         .append("\"")
         .append(LINE_END);
-    mWriter.append("Content-Type: text/plain; charset=")
+    writer.append("Content-Type: text/plain; charset=")
         .append(mTaskEntity.charset)
         .append(LINE_END);
-    mWriter.append(LINE_END);
-    mWriter.append(value).append(LINE_END);
-    mWriter.flush();
+    writer.append(LINE_END);
+    writer.append(value).append(LINE_END);
+    writer.flush();
   }
 
   /**
    * 上传文件
    *
-   * @param fieldName 文件上传attachment
+   * @param attachment 文件上传attachment
    * @throws IOException
    */
-  private void addFilePart(String fieldName, File uploadFile) throws IOException {
-    String fileName = uploadFile.getName();
-    mWriter.append(PREFIX).append(BOUNDARY).append(LINE_END);
-    mWriter.append("Content-Disposition: form-data; name=\"")
-        .append(fieldName)
+  private void uploadFile(PrintWriter writer, OutputStream outputStream, String attachment,
+      File uploadFile) throws IOException {
+    writer.append(PREFIX).append(BOUNDARY).append(LINE_END);
+    writer.append("Content-Disposition: form-data; name=\"")
+        .append(attachment)
         .append("\"; filename=\"")
-        .append(fileName)
+        .append(mTaskEntity.uploadEntity.getFileName())
         .append("\"")
         .append(LINE_END);
-    mWriter.append("Content-Type: ")
-        .append(URLConnection.guessContentTypeFromName(fileName))
+    writer.append("Content-Type: ")
+        //.append(URLConnection.guessContentTypeFromName(mTaskEntity.uploadEntity.getFileName()))
+        .append(mTaskEntity.contentType)
         .append(LINE_END);
-    mWriter.append("Content-Transfer-Encoding: binary").append(LINE_END);
-    mWriter.append(LINE_END);
-    mWriter.flush();
+    writer.append("Content-Transfer-Encoding: binary").append(LINE_END);
+    writer.append(LINE_END);
+    writer.flush();
 
     FileInputStream inputStream = new FileInputStream(uploadFile);
-    byte[] buffer = new byte[1024];
-    int bytesRead = -1;
+    byte[] buffer = new byte[4096];
+    int bytesRead;
     while ((bytesRead = inputStream.read(buffer)) != -1) {
       mCurrentLocation += bytesRead;
-      mOutputStream.write(buffer, 0, bytesRead);
+      outputStream.write(buffer, 0, bytesRead);
       if (isCancel) {
         break;
       }
@@ -179,11 +177,11 @@ final class UploadUtil implements Runnable {
       mListener.onProgress(mCurrentLocation);
     }
 
-    mOutputStream.flush();
-    mOutputStream.close();
+    outputStream.flush();
+    outputStream.close();
     inputStream.close();
-    mWriter.append(LINE_END);
-    mWriter.flush();
+    writer.append(LINE_END);
+    writer.flush();
     isRunning = false;
     if (isCancel) {
       mListener.onCancel();
@@ -197,26 +195,28 @@ final class UploadUtil implements Runnable {
    *
    * @throws IOException
    */
-  private String finish() throws IOException {
+  private String finish(PrintWriter writer) throws IOException {
     StringBuilder response = new StringBuilder();
 
-    mWriter.append(LINE_END).flush();
-    mWriter.append(PREFIX).append(BOUNDARY).append(PREFIX).append(LINE_END);
-    mWriter.close();
+    writer.append(LINE_END).flush();
+    writer.append(PREFIX).append(BOUNDARY).append(PREFIX).append(LINE_END);
+    writer.close();
 
     int status = mHttpConn.getResponseCode();
     if (status == HttpURLConnection.HTTP_OK) {
       BufferedReader reader = new BufferedReader(new InputStreamReader(mHttpConn.getInputStream()));
-      String line = null;
+      String line;
       while ((line = reader.readLine()) != null) {
         response.append(line);
       }
       reader.close();
       mHttpConn.disconnect();
+    } else {
+      Log.w(TAG, "state_code = " + status);
     }
 
-    mWriter.flush();
-    mWriter.close();
+    writer.flush();
+    writer.close();
 
     return response.toString();
   }

@@ -34,6 +34,14 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
   }
 
   /**
+   * 设置userAgent
+   */
+  public UploadTarget setUserAngent(@NonNull String userAgent) {
+    taskEntity.userAgent = userAgent;
+    return this;
+  }
+
+  /**
    * 设置上传路径
    *
    * @param uploadUrl 上传路径

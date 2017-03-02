@@ -30,6 +30,7 @@ public class UploadTaskEntity extends ITaskEntity {
   public String attachment;  //文件上传需要的key
   public String contentType = "multipart/form-data"; //上传的文件类型
   public String charset = "utf-8";
+  public String userAgent = "User-Agent";
 
   /**
    * 文件上传表单
