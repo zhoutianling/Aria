@@ -57,6 +57,7 @@ public class UploadTask implements ITask {
   }
 
   @Override public void start() {
+    Log.d(TAG, "task_start");
     if (mUtil.isRunning()) {
       Log.d(TAG, "任务正在下载");
     } else {

@@ -73,80 +73,85 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
     //test();
   }
 
-  private void test(){
-    String charset = "UTF-8";
-    File uploadFile1 = new File("/sdcard/Download/test.zip");
-    String requestURL = "http://172.18.104.50:8080/UploadActivity/sign_file";
+  private void test() {
+    //String charset = "UTF-8";
+    //File uploadFile1 = new File("/sdcard/Download/test.zip");
+    //String requestURL = "http://172.18.104.50:8080/upload/sign_file";
+    ////String requestURL = "http://172.18.104.50:8080/greeting";
+    //
+    //try {
+    //  MultipartUtility multipart = new MultipartUtility(requestURL, charset);
+    //
+    //  //multipart.addHeaderField("Test-Header", "Header-Value");
+    //
+    //  multipart.addFilePart("file", uploadFile1);
+    //  List<String> response = multipart.finish();
+    //
+    //  System.out.println("SERVER REPLIED:");
+    //
+    //  for (String line : response) {
+    //    System.out.println(line);
+    //  }
+    //} catch (IOException ex) {
+    //  System.err.println(ex);
+    //}
 
-    try {
-      MultipartUtility multipart = new MultipartUtility(requestURL, charset);
+    UploadEntity entity = new UploadEntity();
+    entity.setFilePath("/sdcard/Download/test.zip");
+    entity.setFileName("test.pdf");
+    UploadTaskEntity taskEntity = new UploadTaskEntity(entity);
+    taskEntity.uploadUrl = "http://172.18.104.50:8080/upload/sign_file";
+    taskEntity.attachment = "file";
+    UploadUtil util = new UploadUtil(taskEntity, new IUploadListener() {
+      long fileSize = 0;
 
-      //multipart.addHeaderField("Test-Header", "Header-Value");
+      @Override public void onPre() {
 
-      multipart.addFilePart("file", uploadFile1);
-      List<String> response = multipart.finish();
-
-      System.out.println("SERVER REPLIED:");
-
-      for (String line : response) {
-        System.out.println(line);
       }
-    } catch (IOException ex) {
-      System.err.println(ex);
-    }
 
-    //UploadEntity entity = new UploadEntity();
-    //entity.setFilePath("/sdcard/Download/test.zip");
-    //entity.setFileName("test.pdf");
-    //UploadTaskEntity taskEntity = new UploadTaskEntity(entity);
-    //taskEntity.uploadUrl = "http://172.18.104.50:8080/UploadActivity/sign_file";
-    //taskEntity.attachment = "file";
-    //UploadUtil util = new UploadUtil(taskEntity, new IUploadListener() {
-    //  long fileSize = 0;
-    //
-    //  @Override public void onPre() {
-    //
-    //  }
-    //
-    //  @Override public void onStart(long fileSize) {
-    //    this.fileSize = fileSize;
-    //  }
-    //
-    //  @Override public void onResume(long resumeLocation) {
-    //
-    //  }
-    //
-    //  @Override public void onStop(long stopLocation) {
-    //
-    //  }
-    //
-    //  @Override public void onProgress(long currentLocation) {
-    //    int p = (int) (currentLocation * 100 / fileSize);
-    //    mPb.setProgress(p);
-    //  }
-    //
-    //  @Override public void onCancel() {
-    //
-    //  }
-    //
-    //  @Override public void onComplete() {
-    //
-    //  }
-    //
-    //  @Override public void onFail() {
-    //
-    //  }
-    //});
-    //util.start();
+      @Override public void onStart(long fileSize) {
+        this.fileSize = fileSize;
+      }
+
+      @Override public void onResume(long resumeLocation) {
+
+      }
+
+      @Override public void onStop(long stopLocation) {
+
+      }
+
+      @Override public void onProgress(long currentLocation) {
+        int p = (int) (currentLocation * 100 / fileSize);
+        mPb.setProgress(p);
+      }
+
+      @Override public void onCancel() {
+
+      }
+
+      @Override public void onComplete() {
+
+      }
+
+      @Override public void onFail() {
+
+      }
+    });
+    util.start();
   }
 
   @OnClick(R.id.upload) void upload() {
-    //Aria.upload(this)
-    //    .load(FILE_PATH)
-    //    .setUploadUrl("http://172.18.104.50:8080/upload/sign_file")
-    //    .setAttachment("file")
-    //    .start();
-    test();
+    Aria.upload(this)
+        .load(FILE_PATH)
+        .setUploadUrl("http://172.18.104.50:8080/upload/sign_file")
+        .setAttachment("file")
+        .start();
+    //new Thread(new Runnable() {
+    //  @Override public void run() {
+    //    test();
+    //  }
+    //}).start();
   }
 
   @OnClick(R.id.stop) void stop() {

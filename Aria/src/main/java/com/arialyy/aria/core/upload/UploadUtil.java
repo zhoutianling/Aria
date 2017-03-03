@@ -58,6 +58,7 @@ public class UploadUtil implements Runnable {
   }
 
   public void start() {
+    Log.d(TAG, "start");
     isCancel = false;
     isRunning = false;
     new Thread(this).start();
@@ -69,6 +70,7 @@ public class UploadUtil implements Runnable {
   }
 
   @Override public void run() {
+    Log.e(TAG, "run");
     File uploadFile = new File(mUploadEntity.getFilePath());
     if (!uploadFile.exists()) {
       Log.e(TAG, "【" + mUploadEntity.getFilePath() + "】，文件不存在。");
@@ -149,6 +151,7 @@ public class UploadUtil implements Runnable {
    */
   private void uploadFile(PrintWriter writer, OutputStream outputStream, String attachment,
       File uploadFile) throws IOException {
+    Log.e(TAG, "uploadFile");
     writer.append(PREFIX).append(BOUNDARY).append(LINE_END);
     writer.append("Content-Disposition: form-data; name=\"")
         .append(attachment)
@@ -157,8 +160,7 @@ public class UploadUtil implements Runnable {
         .append("\"")
         .append(LINE_END);
     writer.append("Content-Type: ")
-        //.append(URLConnection.guessContentTypeFromName(mTaskEntity.uploadEntity.getFileName()))
-        .append(mTaskEntity.contentType)
+        .append(URLConnection.guessContentTypeFromName(mTaskEntity.uploadEntity.getFileName()))
         .append(LINE_END);
     writer.append("Content-Transfer-Encoding: binary").append(LINE_END);
     writer.append(LINE_END);
@@ -178,7 +180,7 @@ public class UploadUtil implements Runnable {
     }
 
     outputStream.flush();
-    outputStream.close();
+    //outputStream.close(); //不能调用，否则服务器端异常
     inputStream.close();
     writer.append(LINE_END);
     writer.flush();
