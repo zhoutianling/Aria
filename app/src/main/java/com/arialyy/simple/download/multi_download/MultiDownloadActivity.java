@@ -1,26 +1,28 @@
-package com.arialyy.simple.multi_task;
+package com.arialyy.simple.download.multi_download;
 
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
-import com.arialyy.simple.databinding.ActivityDownloadBinding;
+import com.arialyy.simple.databinding.ActivityMultiDownloadBinding;
 
 /**
  * Created by AriaL on 2017/1/6.
  */
 
-public class DownloadActivity extends BaseActivity<ActivityDownloadBinding> {
-  @Bind(R.id.list) RecyclerView    mList;
-  private          DownloadAdapter mAdapter;
+public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBinding> {
+  @Bind(R.id.list) RecyclerView mList;
+  @Bind(R.id.toolbar) Toolbar mBar;
+  private DownloadAdapter mAdapter;
 
   @Override protected int setLayoutId() {
-    return R.layout.activity_download;
+    return R.layout.activity_multi_download;
   }
 
   @Override protected void init(Bundle savedInstanceState) {
@@ -28,6 +30,7 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadBinding> {
     mAdapter = new DownloadAdapter(this, Aria.download(this).getTaskList());
     mList.setLayoutManager(new LinearLayoutManager(this));
     mList.setAdapter(mAdapter);
+    mBar.setTitle("多任务下载");
   }
 
   @Override protected void dataCallback(int result, Object data) {

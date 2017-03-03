@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.arialyy.simple.module;
+package com.arialyy.simple.download;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,8 +29,7 @@ import com.arialyy.frame.util.AndroidUtils;
 import com.arialyy.frame.util.StringUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
-import com.arialyy.simple.multi_task.FileListEntity;
-import com.arialyy.simple.single_task.SingleTaskActivity;
+import com.arialyy.simple.download.multi_download.FileListEntity;
 import com.arialyy.simple.base.BaseModule;
 import java.io.File;
 import java.util.ArrayList;

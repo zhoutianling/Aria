@@ -1,4 +1,4 @@
-package com.arialyy.simple.fragment_task;
+package com.arialyy.simple.download.fragment_download;
 
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;

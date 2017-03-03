@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.arialyy.simple.single_task;
+package com.arialyy.simple.download;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
