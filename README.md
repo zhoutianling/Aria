@@ -1,6 +1,6 @@
 # Aria
 ![图标](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/app/src/main/res/mipmap-hdpi/ic_launcher.png)</br>
-Aria，致力于让下载傻瓜化</br>
+Aria，让下载更简单。</br>
 + Aria有以下特点：
  - 简单
  - 可在Dialog、popupWindow等组件中使用
