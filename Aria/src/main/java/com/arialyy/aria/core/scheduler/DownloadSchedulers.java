@@ -38,44 +38,44 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 任务预加载
    */
-  public static final int PRE = 0;
+  public static final     int                PRE      = 0;
   /**
    * 任务开始
    */
-  public static final int START = 1;
+  public static final     int                START    = 1;
   /**
    * 任务停止
    */
-  public static final int STOP = 2;
+  public static final     int                STOP     = 2;
   /**
    * 任务失败
    */
-  public static final int FAIL = 3;
+  public static final     int                FAIL     = 3;
   /**
    * 任务取消
    */
-  public static final int CANCEL = 4;
+  public static final     int                CANCEL   = 4;
   /**
    * 任务完成
    */
-  public static final int COMPLETE = 5;
+  public static final     int                COMPLETE = 5;
   /**
    * 下载中
    */
-  public static final int RUNNING = 6;
+  public static final     int                RUNNING  = 6;
   /**
    * 恢复下载
    */
-  public static final int RESUME = 7;
-  private static final String TAG = "DownloadSchedulers";
-  private static final Object LOCK = new Object();
+  public static final     int                RESUME   = 7;
+  private static final    String             TAG      = "DownloadSchedulers";
+  private static final    Object             LOCK     = new Object();
   private static volatile DownloadSchedulers INSTANCE = null;
 
   /**
    * 下载器任务监听
    */
   Map<String, OnSchedulerListener> mSchedulerListeners = new ConcurrentHashMap<>();
-  DownloadManager mManager = DownloadManager.getInstance();
+  DownloadManager                  mManager            = DownloadManager.getInstance();
   ITaskQueue mQueue;
 
   private DownloadSchedulers() {
@@ -130,8 +130,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
         startNextTask(entity);
         break;
       case FAIL:
-        mQueue.removeTask(entity);
-        handleFailTask(entity);
+        handleFailTask(task);
         break;
     }
     return true;
@@ -192,9 +191,9 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 处理下载任务下载失败的情形
    *
-   * @param entity 失败实体
+   * @param task 下载任务
    */
-  @Override public void handleFailTask(final DownloadEntity entity) {
+  @Override public void handleFailTask(final Task task) {
     final Configuration config = Configuration.getInstance();
     CountDownTimer timer = new CountDownTimer(config.getReTryInterval(), 1000) {
       @Override public void onTick(long millisUntilFinished) {
@@ -202,6 +201,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
       }
 
       @Override public void onFinish() {
+        DownloadEntity entity = task.getDownloadEntity();
         if (entity.getFailNum() <= config.getReTryNum()) {
           Task task = mQueue.getTask(entity);
           mQueue.reTryStart(task);
@@ -211,6 +211,7 @@ public class DownloadSchedulers implements IDownloadSchedulers {
             e.printStackTrace();
           }
         } else {
+          mQueue.removeTask(entity);
           startNextTask(entity);
         }
       }
