@@ -16,6 +16,7 @@
 
 package com.arialyy.aria.core.scheduler;
 
+import android.os.CountDownTimer;
 import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
@@ -37,44 +38,44 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 任务预加载
    */
-  public static final int PRE = 0;
+  public static final     int                PRE      = 0;
   /**
    * 任务开始
    */
-  public static final int START = 1;
+  public static final     int                START    = 1;
   /**
    * 任务停止
    */
-  public static final int STOP = 2;
+  public static final     int                STOP     = 2;
   /**
    * 任务失败
    */
-  public static final int FAIL = 3;
+  public static final     int                FAIL     = 3;
   /**
    * 任务取消
    */
-  public static final int CANCEL = 4;
+  public static final     int                CANCEL   = 4;
   /**
    * 任务完成
    */
-  public static final int COMPLETE = 5;
+  public static final     int                COMPLETE = 5;
   /**
    * 下载中
    */
-  public static final int RUNNING = 6;
+  public static final     int                RUNNING  = 6;
   /**
    * 恢复下载
    */
-  public static final int RESUME = 7;
-  private static final String TAG = "DownloadSchedulers";
-  private static final Object LOCK = new Object();
+  public static final     int                RESUME   = 7;
+  private static final    String             TAG      = "DownloadSchedulers";
+  private static final    Object             LOCK     = new Object();
   private static volatile DownloadSchedulers INSTANCE = null;
 
   /**
    * 下载器任务监听
    */
   Map<String, OnSchedulerListener> mSchedulerListeners = new ConcurrentHashMap<>();
-  DownloadManager mManager = DownloadManager.getInstance();
+  DownloadManager                  mManager            = DownloadManager.getInstance();
   ITaskQueue mQueue;
 
   private DownloadSchedulers() {
@@ -120,16 +121,16 @@ public class DownloadSchedulers implements IDownloadSchedulers {
       case STOP:
       case CANCEL:
         mQueue.removeTask(entity);
-        mQueue.removeTask(entity);
-        if (mQueue.size() != Configuration.getInstance().getDownloadNum()) {
+        if (mQueue.size() < Configuration.getInstance().getDownloadNum()) {
           startNextTask(entity);
         }
         break;
       case COMPLETE:
+        mQueue.removeTask(entity);
         startNextTask(entity);
         break;
       case FAIL:
-        handleFailTask(entity);
+        handleFailTask(task);
         break;
     }
     return true;
@@ -154,10 +155,8 @@ public class DownloadSchedulers implements IDownloadSchedulers {
 
   private void callback(int state, Task task, OnSchedulerListener listener) {
     if (listener != null) {
-      //Task task = mQueue.getTask(entity);
       if (task == null) {
-        //Log.e(TAG, "队列中没有下载链接【" + entity.getDownloadUrl() + "】的任务");
-        Log.e(TAG, "传递的下载任务");
+        Log.e(TAG, "TASK 为null，回调失败");
         return;
       }
       switch (state) {
@@ -192,12 +191,17 @@ public class DownloadSchedulers implements IDownloadSchedulers {
   /**
    * 处理下载任务下载失败的情形
    *
-   * @param entity 失败实体
+   * @param task 下载任务
    */
-  @Override public void handleFailTask(final DownloadEntity entity) {
-    new Thread(new Runnable() {
-      @Override public void run() {
-        final Configuration config = Configuration.getInstance();
+  @Override public void handleFailTask(final Task task) {
+    final Configuration config = Configuration.getInstance();
+    CountDownTimer timer = new CountDownTimer(config.getReTryInterval(), 1000) {
+      @Override public void onTick(long millisUntilFinished) {
+
+      }
+
+      @Override public void onFinish() {
+        DownloadEntity entity = task.getDownloadEntity();
         if (entity.getFailNum() <= config.getReTryNum()) {
           Task task = mQueue.getTask(entity);
           mQueue.reTryStart(task);
@@ -207,10 +211,12 @@ public class DownloadSchedulers implements IDownloadSchedulers {
             e.printStackTrace();
           }
         } else {
+          mQueue.removeTask(entity);
           startNextTask(entity);
         }
       }
-    }).start();
+    };
+    timer.start();
   }
 
   /**
@@ -219,7 +225,6 @@ public class DownloadSchedulers implements IDownloadSchedulers {
    * @param entity 通过Handler传递的下载实体
    */
   @Override public void startNextTask(DownloadEntity entity) {
-    mQueue.removeTask(entity);
     Task newTask = mQueue.getNextTask();
     if (newTask == null) {
       Log.w(TAG, "没有下一任务");

@@ -19,6 +19,7 @@ package com.arialyy.aria.util;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.exception.FileException;
 import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,6 +30,10 @@ import java.util.regex.Pattern;
  */
 public class CheckUtil {
   private static final String TAG = "CheckUtil";
+
+  public static void checkNull(Object obj) {
+    if (obj == null) throw new IllegalArgumentException("不能传入空对象");
+  }
 
   /**
    * 检查sql的expression是否合法
@@ -80,9 +85,9 @@ public class CheckUtil {
       return false;
     } else if (TextUtils.isEmpty(entity.getFileName())) {
       //Log.w(TAG, "文件名不能为空");
-      throw new IllegalArgumentException("文件名不能为null");
+      throw new FileException("文件名不能为null");
     } else if (TextUtils.isEmpty(entity.getDownloadPath())) {
-      throw new IllegalArgumentException("文件保存路径不能为null");
+      throw new FileException("文件保存路径不能为null");
     }
     String fileName = entity.getFileName();
     if (fileName.contains(" ")) {

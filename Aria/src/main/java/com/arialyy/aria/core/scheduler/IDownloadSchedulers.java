@@ -18,6 +18,7 @@ package com.arialyy.aria.core.scheduler;
 
 import android.os.Handler;
 import com.arialyy.aria.core.DownloadEntity;
+import com.arialyy.aria.core.task.Task;
 
 /**
  * Created by “AriaLyy@outlook.com” on 2016/11/2.
@@ -42,9 +43,9 @@ public interface IDownloadSchedulers extends Handler.Callback {
   /**
    * 处理下载任务下载失败的情形
    *
-   * @param entity 下载实体
+   * @param task 下载任务
    */
-  public void handleFailTask(DownloadEntity entity);
+  public void handleFailTask(Task task);
 
   /**
    * 启动下一个任务，条件：任务停止，取消下载，任务完成

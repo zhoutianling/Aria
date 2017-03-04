@@ -33,9 +33,9 @@ import com.arialyy.aria.util.Configuration;
  * 下载任务队列
  */
 public class DownloadTaskQueue implements ITaskQueue {
-  private static final String TAG = "DownloadTaskQueue";
-  private CachePool mCachePool = CachePool.getInstance();
-  private ExecutePool mExecutePool = ExecutePool.getInstance();
+  private static final String      TAG          = "DownloadTaskQueue";
+  private              CachePool   mCachePool   = CachePool.getInstance();
+  private              ExecutePool mExecutePool = ExecutePool.getInstance();
   private Context mContext;
   //private IDownloadSchedulers mSchedulers;
 
@@ -89,21 +89,15 @@ public class DownloadTaskQueue implements ITaskQueue {
 
   @Override public void stopTask(Task task) {
     if (!task.isDownloading()) Log.w(TAG, "停止任务失败，【任务已经停止】");
-    task.stop();
-    //if (task.isDownloading()) {
-    //  if (mExecutePool.removeTask(task)) {
-    //    task.stop();
-    //  }
-    //} else {
-    //  task.stop();
-    //  Log.w(TAG, "停止任务失败，【任务已经停止】");
-    //}
+    if (mExecutePool.removeTask(task)) {
+      task.stop();
+    } else {
+      task.stop();
+      Log.w(TAG, "停止任务失败，【任务已经停止】");
+    }
   }
 
   @Override public void cancelTask(Task task) {
-    //if (mExecutePool.removeTask(task) || mCachePool.removeTask(task)) {
-    //  task.cancel();
-    //}
     task.cancel();
   }
 
@@ -118,10 +112,6 @@ public class DownloadTaskQueue implements ITaskQueue {
       Log.w(TAG, "任务没有完全停止，重试下载失败");
     }
   }
-
-  //@Override public IDownloadSchedulers getDownloadSchedulers() {
-  //  return mSchedulers;
-  //}
 
   @Override public int size() {
     return mExecutePool.size();
@@ -159,12 +149,10 @@ public class DownloadTaskQueue implements ITaskQueue {
   @Override public Task createTask(String target, DownloadEntity entity) {
     Task task;
     if (TextUtils.isEmpty(target)) {
-      //task = TaskFactory.getInstance().createTask(mContext, entity, mSchedulers);
       task =
           TaskFactory.getInstance().createTask(mContext, entity, DownloadSchedulers.getInstance());
     } else {
       task = TaskFactory.getInstance()
-          //.createTask(target.getClass().getName(), mContext, entity, mSchedulers);
           .createTask(target, mContext, entity, DownloadSchedulers.getInstance());
     }
     mCachePool.putTask(task);
@@ -183,13 +171,10 @@ public class DownloadTaskQueue implements ITaskQueue {
     Task task = mExecutePool.getTask(entity.getDownloadUrl());
     if (task != null) {
       Log.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
-    } else {
-      task = mCachePool.getTask(entity.getDownloadUrl());
     }
+    task = mCachePool.getTask(entity.getDownloadUrl());
     if (task != null) {
       Log.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
-    } else {
-      Log.w(TAG, "没有找到下载链接为【" + entity.getDownloadUrl() + "】的任务");
     }
   }
 
@@ -197,29 +182,15 @@ public class DownloadTaskQueue implements ITaskQueue {
     return mCachePool.pollTask();
   }
 
-  //@Override public void setScheduler(IDownloadSchedulers schedulers) {
-  //  mSchedulers = schedulers;
-  //}
-
   public static class Builder {
     Context context;
-    IDownloadSchedulers schedulers;
 
     public Builder(Context context) {
       this.context = context.getApplicationContext();
     }
 
-    //public Builder setDownloadSchedulers(IDownloadSchedulers schedulers) {
-    //  this.schedulers = schedulers;
-    //  return this;
-    //}
-
     public DownloadTaskQueue build() {
       DownloadTaskQueue queue = new DownloadTaskQueue(context);
-      //if (schedulers == null) {
-      //  schedulers = DownloadSchedulers.getInstance();
-      //}
-      //queue.setScheduler(schedulers);
       return queue;
     }
   }

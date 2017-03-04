@@ -73,11 +73,4 @@ public interface ITaskQueue extends IDownloader {
    * @return 下载任务 or null
    */
   public Task getNextTask();
-
-  ///**
-  // * 设置下载调度器
-  // *
-  // * @param schedulers 下载调度器{@link IDownloadSchedulers}
-  // */
-  //public void setScheduler(IDownloadSchedulers schedulers);
 }

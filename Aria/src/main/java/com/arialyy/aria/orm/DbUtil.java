@@ -113,7 +113,6 @@ public class DbUtil {
       params[i] = "'" + expression[i + 1] + "'";
     }
     sql = String.format(sql, params);
-    Log.d(TAG, sql);
     print(DEL_DATA, sql);
     mDb.execSQL(sql);
     close();
@@ -185,7 +184,6 @@ public class DbUtil {
       params[i] = "'" + expression[i + 1] + "'";
     }
     sql = String.format(sql, params);
-    Log.d(TAG, sql);
     print(FIND_DATA, sql);
     Cursor cursor = mDb.rawQuery(sql, null);
     return cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
