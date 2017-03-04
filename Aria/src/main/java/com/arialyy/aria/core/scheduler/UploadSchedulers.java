@@ -33,10 +33,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * 上传任务调度器
  */
 public class UploadSchedulers implements ISchedulers<UploadTask> {
-  private static final String TAG = "UploadSchedulers";
-  private static final Object LOCK = new Object();
-  private static volatile UploadSchedulers INSTANCE = null;
-  private Map<String, OnSchedulerListener<UploadTask>> mSchedulerListeners =
+  private static final    String                                       TAG                 =
+      "UploadSchedulers";
+  private static final    Object                                       LOCK                =
+      new Object();
+  private static volatile UploadSchedulers                             INSTANCE            = null;
+  private                 Map<String, OnSchedulerListener<UploadTask>> mSchedulerListeners =
       new ConcurrentHashMap<>();
   private UploadTaskQueue mQueue;
 
@@ -68,7 +70,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
     }
   }
 
-  private void handleFailTask(final UploadEntity entity) {
+  private void handleFailTask(final UploadTask task) {
     final Configuration config = Configuration.getInstance();
     CountDownTimer timer = new CountDownTimer(config.getReTryInterval(), 1000) {
       @Override public void onTick(long millisUntilFinished) {
@@ -76,6 +78,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
       }
 
       @Override public void onFinish() {
+        UploadEntity entity = task.getUploadEntity();
         if (entity.getFailNum() <= config.getReTryNum()) {
           UploadTask task = mQueue.getTask(entity);
           mQueue.reTryStart(task);
@@ -85,6 +88,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
             e.printStackTrace();
           }
         } else {
+          mQueue.removeTask(entity);
           startNextTask();
         }
       }
@@ -176,8 +180,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
         startNextTask();
         break;
       case FAIL:
-        mQueue.removeTask(entity);
-        handleFailTask(entity);
+        handleFailTask(task);
         break;
     }
     return true;

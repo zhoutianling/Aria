@@ -178,7 +178,7 @@ public class UploadUtil implements Runnable {
     }
 
     outputStream.flush();
-    outputStream.close();
+    //outputStream.close();
     inputStream.close();
     writer.append(LINE_END);
     writer.flush();

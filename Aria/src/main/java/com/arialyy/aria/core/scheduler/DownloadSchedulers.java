@@ -34,8 +34,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DownloadSchedulers implements ISchedulers<DownloadTask> {
 
-  private static final String TAG = "DownloadSchedulers";
-  private static final Object LOCK = new Object();
+  private static final    String             TAG      = "DownloadSchedulers";
+  private static final    Object             LOCK     = new Object();
   private static volatile DownloadSchedulers INSTANCE = null;
 
   /**
@@ -94,8 +94,8 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
         startNextTask();
         break;
       case FAIL:
-        mQueue.removeTask(entity);
-        handleFailTask(entity);
+        //mQueue.removeTask(entity);
+        handleFailTask(task);
         break;
     }
     return true;
@@ -156,9 +156,9 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
   /**
    * 处理下载任务下载失败的情形
    *
-   * @param entity 失败实体
+   * @param task 下载任务
    */
-  private void handleFailTask(final DownloadEntity entity) {
+  private void handleFailTask(final DownloadTask task) {
     final Configuration config = Configuration.getInstance();
     CountDownTimer timer = new CountDownTimer(config.getReTryInterval(), 1000) {
       @Override public void onTick(long millisUntilFinished) {
@@ -166,7 +166,8 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
       }
 
       @Override public void onFinish() {
-        if (entity.getFailNum() <= config.getReTryNum()) {
+        DownloadEntity entity = task.getDownloadEntity();
+        if (entity.getFailNum() < config.getReTryNum()) {
           DownloadTask task = mQueue.getTask(entity);
           mQueue.reTryStart(task);
           try {
@@ -175,6 +176,7 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
             e.printStackTrace();
           }
         } else {
+          mQueue.removeTask(entity);
           startNextTask();
         }
       }

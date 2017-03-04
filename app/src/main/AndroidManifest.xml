@@ -23,6 +23,7 @@
       </intent-filter>
     </activity>
 
+    <activity android:name=".download.DownloadActivity"/>
     <activity android:name=".upload.UploadActivity"/>
     <activity android:name=".download.SingleTaskActivity"/>
     <activity android:name=".download.multi_download.MultiTaskActivity"/>
