@@ -84,7 +84,7 @@ public class Configuration {
   private void init() {
     Map<String, String> config = new WeakHashMap<>();
     config.put(DOWNLOAD_NUM, 2 + "");
-    config.put(RE_TRY_NUM, 3 + "");
+    config.put(RE_TRY_NUM, 10 + "");
     config.put(OPEN_BROADCAST, false + "");
     config.put(RE_TRY_INTERVAL, 4000 + "");
     config.put(DOWNLOAD_TIME_OUT, 10000 + "");
