@@ -152,6 +152,7 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
     //    test();
     //  }
     //}).start();
+    //test();
   }
 
   @OnClick(R.id.stop) void stop() {

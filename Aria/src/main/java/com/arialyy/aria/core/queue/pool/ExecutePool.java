@@ -97,7 +97,6 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
     boolean s = mExecuteQueue.offer(newTask);
     Log.w(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
     if (s) {
-      newTask.start();
       mExecuteArray.put(CommonUtil.keyToHashKey(url), newTask);
     }
     return s;
@@ -114,7 +113,6 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
         return false;
       }
       oldTask.stop();
-      //            wait(200);
       String key = CommonUtil.keyToHashKey(oldTask.getKey());
       mExecuteArray.remove(key);
     } catch (InterruptedException e) {
