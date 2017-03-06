@@ -29,33 +29,38 @@ import java.util.WeakHashMap;
  * 信息配置
  */
 public class Configuration {
-  private static final String TAG               = "Configuration";
-  private static final String CONFIG_FILE       = "/Aria/ADConfig.properties";
+  private static final String TAG = "Configuration";
+  private static final String CONFIG_FILE = "/Aria/ADConfig.properties";
   /**
    * 当前调度器最大下载数，默认最大下载数为 “2”
    */
-  private static final String DOWNLOAD_NUM      = "DOWNLOAD_NUM";
+  private static final String DOWNLOAD_NUM = "DOWNLOAD_NUM";
   /**
    * 失败重试次数，默认最多重试 10 次
    */
-  private static final String RE_TRY_NUM        = "RE_TRY_NUM";
+  private static final String RE_TRY_NUM = "RE_TRY_NUM";
   /**
    * 是否打开下载广播，默认 false
    */
-  private static final String OPEN_BROADCAST    = "OPEN_BROADCAST";
+  private static final String OPEN_BROADCAST = "OPEN_BROADCAST";
   /**
    * 失败重试间隔时间，默认 4000 ms
    */
-  private static final String RE_TRY_INTERVAL   = "RE_TRY_INTERVAL";
+  private static final String RE_TRY_INTERVAL = "RE_TRY_INTERVAL";
   /**
    * 超时时间，默认 10000 ms
    */
   private static final String DOWNLOAD_TIME_OUT = "DOWNLOAD_TIME_OUT";
+  /**
+   * 设置最大速度
+   */
+  private static final String MAX_SPEED = "MAX_SPEED";
+
   public static boolean isOpenBreadCast = false;
 
-  private static       Configuration INSTANCE    = null;
-  private              File          mConfigFile = null;
-  private static final Object        LOCK        = new Object();
+  private static Configuration INSTANCE = null;
+  private File mConfigFile = null;
+  private static final Object LOCK = new Object();
 
   public static Configuration getInstance() {
     if (INSTANCE == null) {
@@ -73,7 +78,7 @@ public class Configuration {
         mConfigFile.getParentFile().mkdirs();
         mConfigFile.createNewFile();
         init();
-      }else {
+      } else {
         isOpenBreadCast = isOpenBroadcast();
       }
     } catch (IOException e) {
@@ -88,6 +93,7 @@ public class Configuration {
     config.put(OPEN_BROADCAST, false + "");
     config.put(RE_TRY_INTERVAL, 4000 + "");
     config.put(DOWNLOAD_TIME_OUT, 10000 + "");
+    config.put(MAX_SPEED, 64 + "");
     saveConfig(config);
   }
 
@@ -95,8 +101,8 @@ public class Configuration {
     if (config == null || config.size() == 0) {
       return;
     }
-    Properties  properties = CommonUtil.loadConfig(mConfigFile);
-    Set<String> keys       = config.keySet();
+    Properties properties = CommonUtil.loadConfig(mConfigFile);
+    Set<String> keys = config.keySet();
     for (String key : keys) {
       properties.setProperty(key, config.get(key));
     }
@@ -107,6 +113,20 @@ public class Configuration {
     Map<String, String> map = new WeakHashMap<>();
     map.put(key, value);
     saveConfig(map);
+  }
+
+  /**
+   * 设置最大下载速度
+   */
+  public void setMaxSpeed(Speed speed) {
+    save(MAX_SPEED, speed.buf + "");
+  }
+
+  /**
+   * 获取最大速度
+   */
+  public int getMaxSpeed() {
+    return Integer.parseInt(CommonUtil.loadConfig(mConfigFile).getProperty(MAX_SPEED, "8192"));
   }
 
   /**

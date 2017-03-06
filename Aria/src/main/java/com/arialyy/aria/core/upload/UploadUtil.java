@@ -35,7 +35,7 @@ import java.util.UUID;
  * Created by Aria.Lao on 2017/2/9.
  * 上传工具
  */
-public class UploadUtil implements Runnable {
+final class UploadUtil implements Runnable {
   private static final String TAG = "UploadUtil";
   private final String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
   private final String PREFIX = "--", LINE_END = "\r\n";
@@ -46,8 +46,9 @@ public class UploadUtil implements Runnable {
   private long mCurrentLocation = 0;
   private boolean isCancel = false;
   private boolean isRunning = false;
+  private OutputStream mOutputStream;
 
-  public UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
+  UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
     mTaskEntity = taskEntity;
     CheckUtil.checkUploadEntity(taskEntity.uploadEntity);
     mUploadEntity = taskEntity.uploadEntity;
@@ -100,9 +101,9 @@ public class UploadUtil implements Runnable {
         mHttpConn.setRequestProperty(key, mTaskEntity.headers.get(key));
       }
 
-      OutputStream outputStream = mHttpConn.getOutputStream();
+      mOutputStream = mHttpConn.getOutputStream();
       PrintWriter writer =
-          new PrintWriter(new OutputStreamWriter(outputStream, mTaskEntity.charset), true);
+          new PrintWriter(new OutputStreamWriter(mOutputStream, mTaskEntity.charset), true);
 
       //添加文件上传表单字段
       keys = mTaskEntity.formFields.keySet();
@@ -110,7 +111,7 @@ public class UploadUtil implements Runnable {
         addFormField(writer, key, mTaskEntity.formFields.get(key));
       }
       mListener.onStart(uploadFile.length());
-      uploadFile(writer, outputStream, mTaskEntity.attachment, uploadFile);
+      uploadFile(writer, mTaskEntity.attachment, uploadFile);
       Log.d(TAG, finish(writer) + "");
     } catch (IOException e) {
       e.printStackTrace();
@@ -149,8 +150,8 @@ public class UploadUtil implements Runnable {
    * @param attachment 文件上传attachment
    * @throws IOException
    */
-  private void uploadFile(PrintWriter writer, OutputStream outputStream, String attachment,
-      File uploadFile) throws IOException {
+  private void uploadFile(PrintWriter writer, String attachment, File uploadFile)
+      throws IOException {
     Log.e(TAG, "uploadFile");
     writer.append(PREFIX).append(BOUNDARY).append(LINE_END);
     writer.append("Content-Disposition: form-data; name=\"")
@@ -171,7 +172,7 @@ public class UploadUtil implements Runnable {
     int bytesRead;
     while ((bytesRead = inputStream.read(buffer)) != -1) {
       mCurrentLocation += bytesRead;
-      outputStream.write(buffer, 0, bytesRead);
+      mOutputStream.write(buffer, 0, bytesRead);
       if (isCancel) {
         break;
       }
@@ -179,7 +180,7 @@ public class UploadUtil implements Runnable {
       mListener.onProgress(mCurrentLocation);
     }
 
-    outputStream.flush();
+    mOutputStream.flush();
     //outputStream.close(); //不能调用，否则服务器端异常
     inputStream.close();
     writer.append(LINE_END);
@@ -219,7 +220,7 @@ public class UploadUtil implements Runnable {
 
     writer.flush();
     writer.close();
-
+    mOutputStream.close();
     return response.toString();
   }
 }

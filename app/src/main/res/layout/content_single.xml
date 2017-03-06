@@ -81,10 +81,54 @@
         />
   </LinearLayout>
 
-  <ImageView
-      android:id="@+id/img"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
+  <TextView
+      android:id="@+id/speed_hint"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
       android:layout_below="@+id/handle_bar"
       />
+
+  <RadioGroup
+      android:id="@+id/speeds"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/speed_hint"
+      android:orientation="horizontal"
+      >
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="256kb"
+        />
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="512kb"
+        />
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="1mb"
+        />
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="2mb"
+        />
+
+    <RadioButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="max"
+        />
+
+  </RadioGroup>
+
 </RelativeLayout>

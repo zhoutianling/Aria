@@ -6,28 +6,18 @@ import android.os.Message;
 import butterknife.Bind;
 import butterknife.OnClick;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.upload.IUploadListener;
-import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
-import com.arialyy.aria.core.upload.UploadTaskEntity;
-import com.arialyy.aria.core.upload.UploadUtil;
-import com.arialyy.aria.util.MultipartUtility;
 import com.arialyy.frame.util.FileUtil;
-import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityUploadMeanBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
-import java.io.File;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.List;
 
 /**
  * Created by Aria.Lao on 2017/2/9.
  */
-
 public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
   @Bind(R.id.pb) HorizontalProgressBarWithNumber mPb;
   private static final int START = 0;
@@ -70,75 +60,6 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
-    //test();
-  }
-
-  private void test() {
-    //String charset = "UTF-8";
-    //File uploadFile1 = new File("/sdcard/Download/test.zip");
-    //String requestURL = "http://172.18.104.50:8080/upload/sign_file";
-    ////String requestURL = "http://172.18.104.50:8080/greeting";
-    //
-    //try {
-    //  MultipartUtility multipart = new MultipartUtility(requestURL, charset);
-    //
-    //  //multipart.addHeaderField("Test-Header", "Header-Value");
-    //
-    //  multipart.addFilePart("file", uploadFile1);
-    //  List<String> response = multipart.finish();
-    //
-    //  System.out.println("SERVER REPLIED:");
-    //
-    //  for (String line : response) {
-    //    System.out.println(line);
-    //  }
-    //} catch (IOException ex) {
-    //  System.err.println(ex);
-    //}
-
-    UploadEntity entity = new UploadEntity();
-    entity.setFilePath("/sdcard/Download/test.zip");
-    entity.setFileName("test.pdf");
-    UploadTaskEntity taskEntity = new UploadTaskEntity(entity);
-    taskEntity.uploadUrl = "http://172.18.104.50:8080/upload/sign_file";
-    taskEntity.attachment = "file";
-    UploadUtil util = new UploadUtil(taskEntity, new IUploadListener() {
-      long fileSize = 0;
-
-      @Override public void onPre() {
-
-      }
-
-      @Override public void onStart(long fileSize) {
-        this.fileSize = fileSize;
-      }
-
-      @Override public void onResume(long resumeLocation) {
-
-      }
-
-      @Override public void onStop(long stopLocation) {
-
-      }
-
-      @Override public void onProgress(long currentLocation) {
-        int p = (int) (currentLocation * 100 / fileSize);
-        mPb.setProgress(p);
-      }
-
-      @Override public void onCancel() {
-
-      }
-
-      @Override public void onComplete() {
-
-      }
-
-      @Override public void onFail() {
-
-      }
-    });
-    util.start();
   }
 
   @OnClick(R.id.upload) void upload() {
@@ -147,12 +68,6 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
         .setUploadUrl("http://172.18.104.50:8080/upload/sign_file")
         .setAttachment("file")
         .start();
-    //new Thread(new Runnable() {
-    //  @Override public void run() {
-    //    test();
-    //  }
-    //}).start();
-    //test();
   }
 
   @OnClick(R.id.stop) void stop() {

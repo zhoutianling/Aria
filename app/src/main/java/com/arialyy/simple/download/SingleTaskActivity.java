@@ -27,6 +27,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
@@ -35,6 +36,7 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.Speed;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
@@ -42,27 +44,27 @@ import com.arialyy.simple.databinding.ActivitySingleBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
-  public static final int DOWNLOAD_PRE      = 0x01;
-  public static final int DOWNLOAD_STOP     = 0x02;
-  public static final int DOWNLOAD_FAILE    = 0x03;
-  public static final int DOWNLOAD_CANCEL   = 0x04;
-  public static final int DOWNLOAD_RESUME   = 0x05;
+  public static final int DOWNLOAD_PRE = 0x01;
+  public static final int DOWNLOAD_STOP = 0x02;
+  public static final int DOWNLOAD_FAILE = 0x03;
+  public static final int DOWNLOAD_CANCEL = 0x04;
+  public static final int DOWNLOAD_RESUME = 0x05;
   public static final int DOWNLOAD_COMPLETE = 0x06;
-  public static final int DOWNLOAD_RUNNING  = 0x07;
+  public static final int DOWNLOAD_RUNNING = 0x07;
 
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      "http://1_static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
-  @Bind(R.id.start)       Button                          mStart;
-  @Bind(R.id.stop)        Button                          mStop;
-  @Bind(R.id.cancel)      Button                          mCancel;
-  @Bind(R.id.size)        TextView                        mSize;
-  @Bind(R.id.toolbar)     Toolbar                         toolbar;
-  @Bind(R.id.speed)       TextView                        mSpeed;
-  @Bind(R.id.img)         ImageView                       mImg;
-  private                 DownloadEntity                  mEntity;
+  @Bind(R.id.start) Button mStart;
+  @Bind(R.id.stop) Button mStop;
+  @Bind(R.id.cancel) Button mCancel;
+  @Bind(R.id.size) TextView mSize;
+  @Bind(R.id.toolbar) Toolbar toolbar;
+  @Bind(R.id.speed) TextView mSpeed;
+  @Bind(R.id.speeds) RadioGroup mRg;
+  private DownloadEntity mEntity;
   private BroadcastReceiver mReceiver = new BroadcastReceiver() {
     @Override public void onReceive(Context context, Intent intent) {
       String action = intent.getAction();
@@ -167,6 +169,33 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
+    mRg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+      @Override public void onCheckedChanged(RadioGroup group, int checkedId) {
+        switch (checkedId) {
+          case 1:
+            Aria.get(this).setMaxSpeed(Speed.KB_256);
+            break;
+          case 2:
+            Aria.get(this).setMaxSpeed(Speed.KB_512);
+            break;
+          case 3:
+            Aria.get(this).setMaxSpeed(Speed.MB_1);
+            break;
+          case 4:
+            Aria.get(this).setMaxSpeed(Speed.MB_2);
+            break;
+          case 5:
+            Aria.get(this).setMaxSpeed(Speed.MAX);
+            break;
+        }
+        stop();
+        new Handler().postDelayed(new Runnable() {
+          @Override public void run() {
+            start();
+          }
+        }, 2000);
+      }
+    });
   }
 
   public void onClick(View view) {

@@ -39,6 +39,7 @@ import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CAConfiguration;
 import com.arialyy.aria.util.Configuration;
+import com.arialyy.aria.util.Speed;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -77,6 +78,13 @@ import java.util.Map;
 
   public Map<String, IReceiver> getReceiver() {
     return mReceivers;
+  }
+
+  /**
+   * 设置最大下载速度
+   */
+  public void setMaxSpeed(Speed speed) {
+    Configuration.getInstance().setMaxSpeed(speed);
   }
 
   /**

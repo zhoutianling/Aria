@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 import android.util.Log;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,12 +32,13 @@ import java.util.Properties;
  * 下载线程
  */
 final class SingleThreadTask implements Runnable {
-  private static final int BUF_SIZE = 8192;
   private static final String TAG = "SingleThreadTask";
   private DownloadUtil.ConfigEntity mConfigEntity;
   private String mConfigFPath;
   private long mChildCurrentLocation = 0;
   private static final Object LOCK = new Object();
+  private int mBufSize = 8192;
+  //private int mBufSize = 64;
   private IDownloadListener mListener;
   private DownloadStateConstance mConstance;
 
@@ -48,6 +50,7 @@ final class SingleThreadTask implements Runnable {
     if (mConfigEntity.isSupportBreakpoint) {
       mConfigFPath = downloadInfo.CONFIG_FILE_PATH;
     }
+    //mBufSize = Configuration.getInstance().getMaxSpeed();
   }
 
   @Override public void run() {
@@ -77,10 +80,10 @@ final class SingleThreadTask implements Runnable {
       is = conn.getInputStream();
       //创建可设置位置的文件
       BufferedRandomAccessFile file =
-          new BufferedRandomAccessFile(mConfigEntity.TEMP_FILE, "rwd", BUF_SIZE);
+          new BufferedRandomAccessFile(mConfigEntity.TEMP_FILE, "rwd", mBufSize);
       //设置每条线程写入文件的位置
       file.seek(mConfigEntity.START_LOCATION);
-      byte[] buffer = new byte[BUF_SIZE];
+      byte[] buffer = new byte[mBufSize];
       int len;
       //当前子线程的下载位置
       mChildCurrentLocation = mConfigEntity.START_LOCATION;
