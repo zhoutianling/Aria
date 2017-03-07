@@ -17,7 +17,7 @@ Aria，让下载更简单。</br>
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:2.4.2'
+compile 'com.arialyy.aria:Aria:2.4.3'
 ```
 
 ## 示例
@@ -133,16 +133,15 @@ Aria支持https下载，如果你希望使用自己的ca证书，那么你需要
   ```
 
 ***
+
 ## 开发日志
+ + v_2.4.3 修复404链接卡顿的问题
  + v_2.4.2 修复失败重试无效的bug
  + v_2.4.1 修复下载慢的问题，修复application、service 不能使用的问题
  + v_2.4.0 支持https链接下载
  + v_2.3.8 修复数据错乱的bug、添加fragment支持
  + v_2.3.6 添加dialog、popupWindow支持
- + v_2.3.3
-  - 添加断点支持
-  - 修改下载逻辑，让使用更加简单
-  - 修复一个内存泄露的bug
+ + v_2.3.3 添加断点支持、修改下载逻辑，让使用更加简单、修复一个内存泄露的bug
  + v_2.3.1 重命名为Aria，下载流程简化
  + v_2.1.1 增加，选择最大下载任务数接口
 
