@@ -216,6 +216,7 @@ final class UploadUtil implements Runnable {
       mHttpConn.disconnect();
     } else {
       Log.w(TAG, "state_code = " + status);
+      mListener.onFail();
     }
 
     writer.flush();
