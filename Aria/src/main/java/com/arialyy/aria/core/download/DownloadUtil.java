@@ -40,6 +40,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
    * 线程数
    */
   private final int THREAD_NUM;
+  private static final long SUB_LEN = 1024 * 100;
   //下载监听
   private IDownloadListener mListener;
   private int mConnectTimeOut = 5000 * 4; //连接超时时间
