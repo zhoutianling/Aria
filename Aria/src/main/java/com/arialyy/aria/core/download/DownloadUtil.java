@@ -250,7 +250,8 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
     //不支持断点只能单线程下载
     if (!isSupportBreakpoint) {
       ConfigEntity entity = new ConfigEntity();
-      entity.FILE_SIZE = conn.getContentLength();
+      long len = conn.getContentLength();
+      entity.FILE_SIZE = len;
       entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
       entity.TEMP_FILE = mDownloadFile;
       entity.THREAD_ID = 0;
@@ -261,6 +262,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
       entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
       SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
       mFixedThreadPool.execute(task);
+      mListener.onPostPre(len);
       mListener.onStart(0);
       return;
     }

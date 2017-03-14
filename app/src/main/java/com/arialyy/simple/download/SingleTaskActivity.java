@@ -44,27 +44,29 @@ import com.arialyy.simple.databinding.ActivitySingleBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
-  public static final int DOWNLOAD_PRE = 0x01;
-  public static final int DOWNLOAD_STOP = 0x02;
-  public static final int DOWNLOAD_FAILE = 0x03;
-  public static final int DOWNLOAD_CANCEL = 0x04;
-  public static final int DOWNLOAD_RESUME = 0x05;
+  public static final int DOWNLOAD_PRE      = 0x01;
+  public static final int DOWNLOAD_STOP     = 0x02;
+  public static final int DOWNLOAD_FAILE    = 0x03;
+  public static final int DOWNLOAD_CANCEL   = 0x04;
+  public static final int DOWNLOAD_RESUME   = 0x05;
   public static final int DOWNLOAD_COMPLETE = 0x06;
-  public static final int DOWNLOAD_RUNNING = 0x07;
+  public static final int DOWNLOAD_RUNNING  = 0x07;
 
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+  //不支持断点的链接
+  //http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
-  @Bind(R.id.start) Button mStart;
-  @Bind(R.id.stop) Button mStop;
-  @Bind(R.id.cancel) Button mCancel;
-  @Bind(R.id.size) TextView mSize;
-  @Bind(R.id.toolbar) Toolbar toolbar;
-  @Bind(R.id.speed) TextView mSpeed;
-  @Bind(R.id.speeds) RadioGroup mRg;
-  private DownloadEntity mEntity;
+  @Bind(R.id.start)       Button                          mStart;
+  @Bind(R.id.stop)        Button                          mStop;
+  @Bind(R.id.cancel)      Button                          mCancel;
+  @Bind(R.id.size)        TextView                        mSize;
+  @Bind(R.id.toolbar)     Toolbar                         toolbar;
+  @Bind(R.id.speed)       TextView                        mSpeed;
+  @Bind(R.id.speeds)      RadioGroup                      mRg;
+  private                 DownloadEntity                  mEntity;
   private BroadcastReceiver mReceiver = new BroadcastReceiver() {
     @Override public void onReceive(Context context, Intent intent) {
       String action = intent.getAction();
