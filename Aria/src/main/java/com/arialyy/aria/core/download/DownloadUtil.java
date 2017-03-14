@@ -226,8 +226,11 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
         mListener.supportBreakpoint(false);
         Log.w(TAG, "该下载链接不支持断点下载");
         handleBreakpoint(conn);
+      } else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
+        Log.w(TAG, "任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，错误码：404");
+        mListener.onCancel();
       } else {
-        failDownload("任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，返回码：" + code);
+        failDownload("任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，错误码：" + code);
       }
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"
