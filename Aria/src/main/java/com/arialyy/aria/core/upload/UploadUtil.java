@@ -80,7 +80,6 @@ final class UploadUtil implements Runnable {
     }
 
     mListener.onPre();
-
     URL url;
     try {
       url = new URL(mTaskEntity.uploadUrl);
