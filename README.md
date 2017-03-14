@@ -145,6 +145,10 @@ Aria支持https下载，如果你希望使用自己的ca证书，那么你需要
  + v_2.3.1 重命名为Aria，下载流程简化
  + v_2.1.1 增加，选择最大下载任务数接口
 
+## Aria交流群
+有兴趣的朋友可以一起来交流^_^</br>
+![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/master/img/qq_qun.png)
+
 License
 -------
 
