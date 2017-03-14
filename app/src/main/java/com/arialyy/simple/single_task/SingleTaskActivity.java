@@ -55,7 +55,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL      =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      "http://static.gaoshouyou.com/d/21/e8/61218d78d0e8b79df68dbc18dd484c97.apk";
+      //"http://static.gaoshouyou.com/d/21/e8/61218d78d0e8b79df68dbc18dd484c97.apk";
+      "http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
   @Bind(R.id.start)       Button                          mStart;
   @Bind(R.id.stop)        Button                          mStop;
@@ -200,67 +201,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
         .setDownloadName("test.apk")
         .start();
-    //DownloadEntity entity = new DownloadEntity();
-    //entity.setDownloadUrl(DOWNLOAD_URL);
-    //entity.setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
-    //entity.setFileName("test.apk");
-    //DownloadUtil util = new DownloadUtil(this, entity, new IDownloadListener() {
-    //  long fileSize = 1;
-    //  @Override public void supportBreakpoint(boolean support) {
-    //
-    //  }
-    //
-    //  @Override public void onCancel() {
-    //
-    //  }
-    //
-    //  @Override public void onFail() {
-    //
-    //  }
-    //
-    //  @Override public void onPre() {
-    //
-    //  }
-    //
-    //  @Override public void onPostPre(long fileSize) {
-    //    this.fileSize = fileSize;
-    //  }
-    //
-    //  @Override public void onProgress(long currentLocation) {
-    //    long current = currentLocation;
-    //    long len = fileSize;
-    //    if (len == 0) {
-    //      mPb.setProgress(0);
-    //    } else {
-    //      mPb.setProgress((int) ((current * 100) / len));
-    //    }
-    //  }
-    //
-    //  @Override public void onChildComplete(long finishLocation) {
-    //
-    //  }
-    //
-    //  @Override public void onStart(long startLocation) {
-    //
-    //  }
-    //
-    //  @Override public void onChildResume(long resumeLocation) {
-    //
-    //  }
-    //
-    //  @Override public void onResume(long resumeLocation) {
-    //
-    //  }
-    //
-    //  @Override public void onStop(long stopLocation) {
-    //
-    //  }
-    //
-    //  @Override public void onComplete() {
-    //
-    //  }
-    //});
-    //util.startDownload();
   }
 
   private void stop() {
