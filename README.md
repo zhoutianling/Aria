@@ -17,7 +17,7 @@ Aria，致力于让下载傻瓜化</br>
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:2.4.2'
+compile 'com.arialyy.aria:Aria:2.4.4'
 ```
 
 ## 示例
