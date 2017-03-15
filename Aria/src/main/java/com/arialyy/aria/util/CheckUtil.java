@@ -17,14 +17,12 @@
 package com.arialyy.aria.util;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.exception.FileException;
-import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -89,20 +87,40 @@ public class CheckUtil {
    */
   public static void checkTaskEntity(ITaskEntity entity) {
     if (entity instanceof DownloadTaskEntity) {
-      checkDownloadEntity(((DownloadTaskEntity) entity).downloadEntity);
+      checkDownloadTaskEntity(((DownloadTaskEntity) entity).downloadEntity);
     } else if (entity instanceof UploadTaskEntity) {
-      checkUploadEntity(((UploadTaskEntity) entity).uploadEntity);
+      checkUploadTaskEntity(((UploadTaskEntity) entity).uploadEntity);
+    }
+  }
+
+  /**
+   * 检查命令实体
+   */
+  public static void checkCmdEntity(ITaskEntity entity) {
+    if (entity instanceof DownloadTaskEntity) {
+      DownloadEntity entity1 = ((DownloadTaskEntity) entity).downloadEntity;
+      if (entity1 == null) {
+        throw new NullPointerException("下载实体不能为空");
+      } else if (TextUtils.isEmpty(entity1.getDownloadUrl())) {
+        throw new IllegalArgumentException("下载链接不能为空");
+      }
+    } else if (entity instanceof UploadTaskEntity) {
+      UploadEntity entity1 = ((UploadTaskEntity) entity).uploadEntity;
+      if (entity1 == null) {
+        throw new NullPointerException("上传实体不能为空");
+      } else if (TextUtils.isEmpty(entity1.getFilePath())) {
+        throw new IllegalArgumentException("上传文件路径不能为空");
+      }
     }
   }
 
   /**
    * 检查上传实体是否合法
    */
-  public static void checkUploadEntity(UploadEntity entity) {
+  public static void checkUploadTaskEntity(UploadEntity entity) {
     if (entity == null) {
       throw new NullPointerException("上传实体不能为空");
-    }
-    if (TextUtils.isEmpty(entity.getFilePath())) {
+    } else if (TextUtils.isEmpty(entity.getFilePath())) {
       throw new IllegalArgumentException("上传文件路径不能为空");
     } else if (TextUtils.isEmpty(entity.getFileName())) {
       throw new IllegalArgumentException("上传文件名不能为空");
@@ -115,7 +133,7 @@ public class CheckUtil {
    * @param entity 下载实体
    * @return 合法(true)
    */
-  public static void checkDownloadEntity(DownloadEntity entity) {
+  public static void checkDownloadTaskEntity(DownloadEntity entity) {
     if (entity == null) {
       throw new NullPointerException("下载实体不能为空");
     } else if (TextUtils.isEmpty(entity.getDownloadUrl())) {
@@ -124,16 +142,6 @@ public class CheckUtil {
       throw new FileException("文件名不能为null");
     } else if (TextUtils.isEmpty(entity.getDownloadPath())) {
       throw new FileException("文件保存路径不能为null");
-    }
-    String fileName = entity.getFileName();
-    if (fileName.contains(" ")) {
-      fileName = fileName.replace(" ", "_");
-    }
-    String dPath = entity.getDownloadPath();
-    File file = new File(dPath);
-    if (file.isDirectory()) {
-      dPath += fileName;
-      entity.setDownloadPath(dPath);
     }
   }
 }

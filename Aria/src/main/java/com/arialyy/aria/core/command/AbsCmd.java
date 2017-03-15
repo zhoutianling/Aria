@@ -40,7 +40,7 @@ public abstract class AbsCmd<T extends ITaskEntity> implements ICmd {
    * @param targetName 产生任务的对象名
    */
   AbsCmd(String targetName, T entity) {
-    CheckUtil.checkTaskEntity(entity);
+    CheckUtil.checkCmdEntity(entity);
     mTargetName = targetName;
     mEntity = entity;
     TAG = CommonUtil.getClassName(this);

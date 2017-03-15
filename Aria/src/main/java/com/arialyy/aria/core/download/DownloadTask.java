@@ -188,7 +188,7 @@ public class DownloadTask implements ITask {
 
 
     public Builder(String targetName, DownloadTaskEntity taskEntity) {
-      CheckUtil.checkDownloadEntity(taskEntity.downloadEntity);
+      CheckUtil.checkDownloadTaskEntity(taskEntity.downloadEntity);
       this.targetName = targetName;
       this.taskEntity = taskEntity;
     }
