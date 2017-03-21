@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">DownloadUtil</string>
+  <string name="app_name">Aria</string>
 
   <string name="error_entity_null">下载实体不能为空</string>
   <string name="error_download_url_null">下载链接不能为空</string>
