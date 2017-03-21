@@ -62,7 +62,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
             .start();
         break;
       case R.id.stop:
-        Aria.download(this).load(DOWNLOAD_URL).stop();
+        Aria.download(this).load(DOWNLOAD_URL).pause();
         break;
       case R.id.cancel:
         Aria.download(this).load(DOWNLOAD_URL).cancel();

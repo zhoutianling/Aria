@@ -227,12 +227,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     Aria.download(this)
         .load(DOWNLOAD_URL)
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
-        .setDownloadName("test.apk")
         .start();
   }
 
   private void stop() {
-    Aria.download(this).load(DOWNLOAD_URL).stop();
+    Aria.download(this).load(DOWNLOAD_URL).pause();
   }
 
   private void cancel() {

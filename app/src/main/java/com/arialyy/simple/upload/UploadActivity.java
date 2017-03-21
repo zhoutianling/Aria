@@ -71,7 +71,7 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
   }
 
   @OnClick(R.id.stop) void stop() {
-    Aria.upload(this).load(FILE_PATH).stop();
+    Aria.upload(this).load(FILE_PATH).cancel();
   }
 
   @OnClick(R.id.remove) void remove() {

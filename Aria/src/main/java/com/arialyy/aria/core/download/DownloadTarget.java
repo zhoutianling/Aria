@@ -21,6 +21,7 @@ import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.util.CheckUtil;
+import java.io.File;
 import java.util.Map;
 
 /**
@@ -33,6 +34,14 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
     this.entity = entity;
     this.targetName = targetName;
     taskEntity = new DownloadTaskEntity(entity);
+  }
+
+  @Override public void pause() {
+    super.pause();
+  }
+
+  @Override public void resume() {
+    super.resume();
   }
 
   /**
@@ -73,13 +82,16 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
     if (TextUtils.isEmpty(downloadPath)) {
       throw new IllegalArgumentException("文件保持路径不能为null");
     }
+    File file = new File(downloadPath);
     entity.setDownloadPath(downloadPath);
+    entity.setFileName(file.getName());
     return this;
   }
 
   /**
    * 设置文件名
    */
+  @Deprecated
   public DownloadTarget setDownloadName(@NonNull String downloadName) {
     if (TextUtils.isEmpty(downloadName)) {
       throw new IllegalArgumentException("文件名不能为null");
@@ -87,7 +99,6 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
     entity.setFileName(downloadName);
     return this;
   }
-
 
   private DownloadEntity getDownloadEntity(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);

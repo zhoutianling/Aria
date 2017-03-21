@@ -187,7 +187,7 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
     }
 
     private void stop(DownloadEntity entity) {
-      Aria.download(getContext()).load(entity).stop();
+      Aria.download(getContext()).load(entity).pause();
     }
   }
 
