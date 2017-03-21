@@ -25,7 +25,7 @@ compile 'com.arialyy.aria:Aria:2.4.4'
 ![Dialog使用](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/dialog_use.gif "")
 
 ## 性能
-![性能展示](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/performance.png)
+![性能展示](https://github.com/AriaLyy/DownloadUtil/blob/master/img/performance.png)
 
 ***
 ## 使用
