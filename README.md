@@ -24,7 +24,7 @@ compile 'com.arialyy.aria:Aria:2.4.4'
 ![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/download_img.gif)
 ![Dialog使用](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/dialog_use.gif "")
 
-## 性能展示
+## 性能
 ![性能展示](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/performance.png)
 
 ***
