@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.simple.widget;
 
 import android.content.Context;
@@ -27,53 +26,50 @@ import android.widget.ProgressBar;
 import com.arialyy.simple.R;
 
 public class HorizontalProgressBarWithNumber extends ProgressBar {
-  private static final int   DEFAULT_TEXT_SIZE                     = 10;
-  private static final int   DEFAULT_TEXT_COLOR                    = 0XFFFC00D1;
-  private static final int   DEFAULT_COLOR_UNREACHED_COLOR         = 0xFFd3d6da;
-  private static final int   DEFAULT_HEIGHT_REACHED_PROGRESS_BAR   = 2;
-  private static final int   DEFAULT_HEIGHT_UNREACHED_PROGRESS_BAR = 2;
-  private static final int   DEFAULT_SIZE_TEXT_OFFSET              = 10;
+  private static final int DEFAULT_TEXT_SIZE = 10;
+  private static final int DEFAULT_TEXT_COLOR = 0XFFFC00D1;
+  private static final int DEFAULT_COLOR_UNREACHED_COLOR = 0xFFd3d6da;
+  private static final int DEFAULT_HEIGHT_REACHED_PROGRESS_BAR = 2;
+  private static final int DEFAULT_HEIGHT_UNREACHED_PROGRESS_BAR = 2;
+  private static final int DEFAULT_SIZE_TEXT_OFFSET = 10;
   /**
    * painter of all drawing things
    */
-  protected            Paint mPaint                                = new Paint();
+  protected Paint mPaint = new Paint();
   /**
    * color of progress number
    */
-  protected            int   mTextColor                            = DEFAULT_TEXT_COLOR;
+  protected int mTextColor = DEFAULT_TEXT_COLOR;
   /**
    * size of text (sp)
    */
-  protected            int   mTextSize                             = sp2px(DEFAULT_TEXT_SIZE);
+  protected int mTextSize = sp2px(DEFAULT_TEXT_SIZE);
   /**
    * offset of draw progress
    */
-  protected            int   mTextOffset                           =
-      dp2px(DEFAULT_SIZE_TEXT_OFFSET);
+  protected int mTextOffset = dp2px(DEFAULT_SIZE_TEXT_OFFSET);
   /**
    * height of reached progress bar
    */
-  protected            int   mReachedProgressBarHeight             =
-      dp2px(DEFAULT_HEIGHT_REACHED_PROGRESS_BAR);
+  protected int mReachedProgressBarHeight = dp2px(DEFAULT_HEIGHT_REACHED_PROGRESS_BAR);
   /**
    * color of reached bar
    */
-  protected            int   mReachedBarColor                      = DEFAULT_TEXT_COLOR;
+  protected int mReachedBarColor = DEFAULT_TEXT_COLOR;
   /**
    * color of unreached bar
    */
-  protected            int   mUnReachedBarColor                    = DEFAULT_COLOR_UNREACHED_COLOR;
+  protected int mUnReachedBarColor = DEFAULT_COLOR_UNREACHED_COLOR;
   /**
    * height of unreached progress bar
    */
-  protected            int   mUnReachedProgressBarHeight           =
-      dp2px(DEFAULT_HEIGHT_UNREACHED_PROGRESS_BAR);
+  protected int mUnReachedProgressBarHeight = dp2px(DEFAULT_HEIGHT_UNREACHED_PROGRESS_BAR);
   /**
    * view width except padding
    */
   protected int mRealWidth;
-  protected              boolean mIfDrawText = true;
-  protected static final int     VISIBLE     = 0;
+  protected boolean mIfDrawText = true;
+  protected static final int VISIBLE = 0;
 
   public HorizontalProgressBarWithNumber(Context context, AttributeSet attrs) {
     this(context, attrs, 0);
@@ -87,14 +83,14 @@ public class HorizontalProgressBarWithNumber extends ProgressBar {
   }
 
   @Override protected synchronized void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    int width  = MeasureSpec.getSize(widthMeasureSpec);
+    int width = MeasureSpec.getSize(widthMeasureSpec);
     int height = measureHeight(heightMeasureSpec);
     setMeasuredDimension(width, height);
     mRealWidth = getMeasuredWidth() - getPaddingRight() - getPaddingLeft();
   }
 
   private int measureHeight(int measureSpec) {
-    int result   = 0;
+    int result = 0;
     int specMode = MeasureSpec.getMode(measureSpec);
     int specSize = MeasureSpec.getSize(measureSpec);
     if (specMode == MeasureSpec.EXACTLY) {
@@ -148,12 +144,12 @@ public class HorizontalProgressBarWithNumber extends ProgressBar {
   @Override protected synchronized void onDraw(Canvas canvas) {
     canvas.save();
     canvas.translate(getPaddingLeft(), getHeight() / 2);
-    boolean noNeedBg     = false;
-    float   radio        = getProgress() * 1.0f / getMax();
-    float   progressPosX = (int) (mRealWidth * radio);
-    String  text         = getProgress() + "%";
+    boolean noNeedBg = false;
+    float radio = getProgress() * 1.0f / getMax();
+    float progressPosX = (int) (mRealWidth * radio);
+    String text = getProgress() + "%";
     // mPaint.getTextBounds(text, 0, text.length(), mTextBound);
-    float textWidth  = mPaint.measureText(text);
+    float textWidth = mPaint.measureText(text);
     float textHeight = (mPaint.descent() + mPaint.ascent()) / 2;
     if (progressPosX + textWidth > mRealWidth) {
       progressPosX = mRealWidth - textWidth;

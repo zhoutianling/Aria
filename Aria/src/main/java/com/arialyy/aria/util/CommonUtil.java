@@ -50,7 +50,7 @@ public class CommonUtil {
   public static Intent createIntent(String packageName, String action) {
     Uri.Builder builder = new Uri.Builder();
     builder.scheme(packageName);
-    Uri    uri    = builder.build();
+    Uri uri = builder.build();
     Intent intent = new Intent(action);
     intent.setData(uri);
     return intent;
@@ -65,7 +65,7 @@ public class CommonUtil {
    * @return 成功标志
    */
   public static Boolean putString(String preName, Context context, String key, String value) {
-    SharedPreferences        pre    = context.getSharedPreferences(preName, Context.MODE_PRIVATE);
+    SharedPreferences pre = context.getSharedPreferences(preName, Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = pre.edit();
     editor.putString(key, value);
     return editor.commit();
@@ -298,9 +298,9 @@ public class CommonUtil {
    * 读取下载配置文件
    */
   public static Properties loadConfig(File file) {
-    Properties      properties = new Properties();
-    FileInputStream fis        = null;
-    if (!file.exists()){
+    Properties properties = new Properties();
+    FileInputStream fis = null;
+    if (!file.exists()) {
       createFile(file.getPath());
     }
     try {

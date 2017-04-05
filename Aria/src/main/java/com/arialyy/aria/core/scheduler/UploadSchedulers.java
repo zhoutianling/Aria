@@ -33,12 +33,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * 上传任务调度器
  */
 public class UploadSchedulers implements ISchedulers<UploadTask> {
-  private static final    String                                       TAG                 =
-      "UploadSchedulers";
-  private static final    Object                                       LOCK                =
-      new Object();
-  private static volatile UploadSchedulers                             INSTANCE            = null;
-  private                 Map<String, OnSchedulerListener<UploadTask>> mSchedulerListeners =
+  private static final String TAG = "UploadSchedulers";
+  private static final Object LOCK = new Object();
+  private static volatile UploadSchedulers INSTANCE = null;
+  private Map<String, ISchedulerListener<UploadTask>> mSchedulerListeners =
       new ConcurrentHashMap<>();
   private UploadTaskQueue mQueue;
 
@@ -57,15 +55,15 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
   }
 
   @Override public void addSchedulerListener(String targetName,
-      OnSchedulerListener<UploadTask> schedulerListener) {
+      ISchedulerListener<UploadTask> schedulerListener) {
     mSchedulerListeners.put(targetName, schedulerListener);
   }
 
   @Override public void removeSchedulerListener(String targetName,
-      OnSchedulerListener<UploadTask> schedulerListener) {
-    for (Iterator<Map.Entry<String, OnSchedulerListener<UploadTask>>> iter =
+      ISchedulerListener<UploadTask> schedulerListener) {
+    for (Iterator<Map.Entry<String, ISchedulerListener<UploadTask>>> iter =
         mSchedulerListeners.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry<String, OnSchedulerListener<UploadTask>> entry = iter.next();
+      Map.Entry<String, ISchedulerListener<UploadTask>> entry = iter.next();
       if (entry.getKey().equals(targetName)) iter.remove();
     }
   }
@@ -124,7 +122,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
     }
   }
 
-  private void callback(int state, UploadTask task, OnSchedulerListener<UploadTask> listener) {
+  private void callback(int state, UploadTask task, ISchedulerListener<UploadTask> listener) {
     if (listener != null) {
       if (task == null) {
         Log.e(TAG, "TASK 为null，回调失败");

@@ -39,8 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * 下载列表适配器
  */
 final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter.MyHolder> {
-  private static final String               TAG        = "DownloadAdapter";
-  private              Map<String, Integer> mPositions = new ConcurrentHashMap<>();
+  private static final String TAG = "DownloadAdapter";
+  private Map<String, Integer> mPositions = new ConcurrentHashMap<>();
 
   DownloadAdapter(Context context, List<DownloadEntity> data) {
     super(context, data);
@@ -192,14 +192,14 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
   }
 
   class MyHolder extends AbsHolder {
-    @Bind(R.id.progressBar)   HorizontalProgressBarWithNumber progress;
-    @Bind(R.id.bt)            Button                          bt;
-    @Bind(R.id.speed)         TextView                        speed;
-    @Bind(R.id.fileSize)      TextView                        fileSize;
-    @Bind(R.id.del)           TextView                        cancel;
-    @Bind(R.id.name)          TextView                        name;
-    @Bind(R.id.download_url)  TextView                        url;
-    @Bind(R.id.download_path) TextView                        path;
+    @Bind(R.id.progressBar) HorizontalProgressBarWithNumber progress;
+    @Bind(R.id.bt) Button bt;
+    @Bind(R.id.speed) TextView speed;
+    @Bind(R.id.fileSize) TextView fileSize;
+    @Bind(R.id.del) TextView cancel;
+    @Bind(R.id.name) TextView name;
+    @Bind(R.id.download_url) TextView url;
+    @Bind(R.id.download_path) TextView path;
 
     MyHolder(View itemView) {
       super(itemView);

@@ -27,9 +27,9 @@ import java.util.List;
  * 所有数据库实体父类
  */
 public class DbEntity {
-  private static final Object LOCK  = new Object();
-  protected            int    rowID = -1;
-  private              DbUtil mUtil = DbUtil.getInstance();
+  private static final Object LOCK = new Object();
+  protected int rowID = -1;
+  private DbUtil mUtil = DbUtil.getInstance();
 
   protected DbEntity() {
 
@@ -75,7 +75,7 @@ public class DbEntity {
    * @return 没有数据返回null
    */
   public static <T extends DbEntity> T findData(Class<T> clazz, String... expression) {
-    DbUtil  util  = DbUtil.getInstance();
+    DbUtil util = DbUtil.getInstance();
     List<T> datas = util.findData(clazz, expression);
     return datas == null ? null : datas.size() > 0 ? datas.get(0) : null;
   }
@@ -150,15 +150,15 @@ public class DbEntity {
 
   private <T extends DbEntity> T findData(Class<T> clazz, @NonNull String[] wheres,
       @NonNull String[] values) {
-    DbUtil  util = DbUtil.getInstance();
+    DbUtil util = DbUtil.getInstance();
     List<T> list = util.findData(clazz, wheres, values);
     return list == null ? null : list.get(0);
   }
 
   private void updateRowID() {
     try {
-      Field[]      fields = CommonUtil.getFields(getClass());
-      List<String> where  = new ArrayList<>();
+      Field[] fields = CommonUtil.getFields(getClass());
+      List<String> where = new ArrayList<>();
       List<String> values = new ArrayList<>();
       for (Field field : fields) {
         field.setAccessible(true);

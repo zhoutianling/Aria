@@ -103,6 +103,8 @@ public class CheckUtil {
         throw new NullPointerException("下载实体不能为空");
       } else if (TextUtils.isEmpty(entity1.getDownloadUrl())) {
         throw new IllegalArgumentException("下载链接不能为空");
+      } else if (TextUtils.isEmpty(entity1.getDownloadPath())) {
+        throw new IllegalArgumentException("保存路径不能为空");
       }
     } else if (entity instanceof UploadTaskEntity) {
       UploadEntity entity1 = ((UploadTaskEntity) entity).uploadEntity;

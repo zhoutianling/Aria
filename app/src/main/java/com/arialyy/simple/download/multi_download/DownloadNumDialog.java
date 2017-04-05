@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.simple.download.multi_download;
 
 import android.annotation.SuppressLint;

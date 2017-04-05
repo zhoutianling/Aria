@@ -42,7 +42,6 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
   }
 
   @Override public void startTask(UploadTask task) {
-    Log.e(TAG, "startTask");
     if (mExecutePool.putTask(task)) {
       mCachePool.removeTask(task);
       //task.getEntity().setFailNum(0);

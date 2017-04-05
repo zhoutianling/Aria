@@ -28,6 +28,7 @@ public interface ITask {
 
   /**
    * 是否真正执行
+   *
    * @return true，正在执行；
    */
   public boolean isRunning();

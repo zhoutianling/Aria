@@ -13,54 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.arialyy.aria.core.scheduler;
 
-package com.arialyy.aria.core.download;
+import com.arialyy.aria.core.inf.ITask;
 
 /**
- * Created by “AriaLyy@outlook.com” on 2016/10/31.
- * 抽象的下载接口
+ * Target处理任务监听
  */
-interface IDownloadUtil {
+public interface ISchedulerListener<TASK extends ITask> {
+  /**
+   * 任务预加载
+   */
+  public void onTaskPre(TASK task);
 
   /**
-   * 获取当前下载位置
+   * 任务恢复下载
    */
-  public long getCurrentLocation();
+  public void onTaskResume(TASK task);
 
   /**
-   * 是否正在下载
-   *
-   * @return true, 正在下载
+   * 任务开始
    */
-  public boolean isDownloading();
+  public void onTaskStart(TASK task);
 
   /**
-   * 取消下载
+   * 任务停止
    */
-  public void cancelDownload();
+  public void onTaskStop(TASK task);
 
   /**
-   * 停止下载
+   * 任务取消
    */
-  public void stopDownload();
+  public void onTaskCancel(TASK task);
 
   /**
-   * 开始下载
+   * 任务下载失败
    */
-  public void startDownload();
+  public void onTaskFail(TASK task);
 
   /**
-   * 从上次断点恢复下载
+   * 任务完成
    */
-  public void resumeDownload();
+  public void onTaskComplete(TASK task);
 
   /**
-   * 删除下载记录文件
+   * 任务执行中
    */
-  public void delConfigFile();
-
-  /**
-   * 删除temp文件
-   */
-  public void delTempFile();
+  public void onTaskRunning(TASK task);
 }

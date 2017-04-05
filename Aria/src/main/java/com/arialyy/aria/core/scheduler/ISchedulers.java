@@ -17,7 +17,6 @@
 package com.arialyy.aria.core.scheduler;
 
 import android.os.Handler;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.ITask;
 
 /**
@@ -25,6 +24,10 @@ import com.arialyy.aria.core.inf.ITask;
  * 调度器功能接口
  */
 public interface ISchedulers<Task extends ITask> extends Handler.Callback {
+  /**
+   * 断点支持
+   */
+  public static final int SUPPORT_BREAK_POINT = 8;
   /**
    * 任务预加载
    */
@@ -62,14 +65,14 @@ public interface ISchedulers<Task extends ITask> extends Handler.Callback {
    * 注册下载器监听，一个观察者只能注册一次监听
    *
    * @param targetName 观察者，创建该监听器的对象类名
-   * @param schedulerListener {@link OnSchedulerListener}
+   * @param schedulerListener {@link ISchedulerListener}
    */
-  public void addSchedulerListener(String targetName, OnSchedulerListener<Task> schedulerListener);
+  public void addSchedulerListener(String targetName, ISchedulerListener<Task> schedulerListener);
 
   /**
    * @param targetName 观察者，创建该监听器的对象类名
    * 取消注册监听器
    */
-  public void removeSchedulerListener(String targetName, OnSchedulerListener<Task> schedulerListener);
-
+  public void removeSchedulerListener(String targetName,
+      ISchedulerListener<Task> schedulerListener);
 }

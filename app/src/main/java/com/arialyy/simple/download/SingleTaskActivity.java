@@ -26,7 +26,6 @@ import android.os.Message;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +37,7 @@ import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.Speed;
 import com.arialyy.frame.util.show.L;
+import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
@@ -239,6 +239,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private class MySchedulerListener extends Aria.DownloadSchedulerListener {
+
+    @Override public void onNoSupportBreakPoint(DownloadTask task) {
+      super.onNoSupportBreakPoint(task);
+      T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
+    }
+
     @Override public void onTaskStart(DownloadTask task) {
       mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
           .sendToTarget();

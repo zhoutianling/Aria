@@ -29,6 +29,8 @@
     <activity android:name=".download.multi_download.MultiTaskActivity"/>
     <activity android:name=".download.fragment_download.FragmentActivity"/>
     <activity android:name=".download.multi_download.MultiDownloadActivity"/>
+
+    <service android:name=".download.service_download.DownloadService"/>
   </application>
 
 </manifest>

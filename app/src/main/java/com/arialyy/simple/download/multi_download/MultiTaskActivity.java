@@ -36,9 +36,9 @@ import java.util.List;
  * Created by Lyy on 2016/9/27.
  */
 public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
-  @Bind(R.id.list)    RecyclerView    mList;
-  @Bind(R.id.toolbar) Toolbar         mBar;
-  private             FileListAdapter mAdapter;
+  @Bind(R.id.list) RecyclerView mList;
+  @Bind(R.id.toolbar) Toolbar mBar;
+  private FileListAdapter mAdapter;
   List<FileListEntity> mData = new ArrayList<>();
 
   @Override protected int setLayoutId() {

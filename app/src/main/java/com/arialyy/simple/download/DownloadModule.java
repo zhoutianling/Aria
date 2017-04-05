@@ -44,9 +44,12 @@ public class DownloadModule extends BaseModule {
 
   public DownloadModule(Context context) {
     super(context);
-    mTestDownloadUrl.add("http://static.gaoshouyou.com/d/e6/f5/4de6329f9cf5dc3a1d1e6bbcca0d003c.apk");
-    mTestDownloadUrl.add("http://static.gaoshouyou.com/d/6e/e5/ff6ecaaf45e532e6d07747af82357472.apk");
-    mTestDownloadUrl.add("http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk");
+    mTestDownloadUrl.add(
+        "http://static.gaoshouyou.com/d/e6/f5/4de6329f9cf5dc3a1d1e6bbcca0d003c.apk");
+    mTestDownloadUrl.add(
+        "http://static.gaoshouyou.com/d/6e/e5/ff6ecaaf45e532e6d07747af82357472.apk");
+    mTestDownloadUrl.add(
+        "http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk");
   }
 
   public String getRadomUrl() {
@@ -55,7 +58,7 @@ public class DownloadModule extends BaseModule {
     return mTestDownloadUrl.get(i);
   }
 
-  public DownloadEntity createRandomDownloadEntity(){
+  public DownloadEntity createRandomDownloadEntity() {
     return createDownloadEntity(getRadomUrl());
   }
 

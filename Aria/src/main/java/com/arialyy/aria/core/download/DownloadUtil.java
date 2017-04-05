@@ -46,16 +46,16 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
   private static final long SUB_LEN = 1024 * 1024;
   //下载监听
   private IDownloadListener mListener;
-  private int     mConnectTimeOut     = 5000 * 4; //连接超时时间
-  private int     mReadTimeOut        = 5000 * 20; //流读取的超时时间
-  private boolean isNewTask           = true;
+  private int mConnectTimeOut = 5000 * 4; //连接超时时间
+  private int mReadTimeOut = 5000 * 20; //流读取的超时时间
+  private boolean isNewTask = true;
   private boolean isSupportBreakpoint = true;
-  private Context            mContext;
-  private DownloadEntity     mDownloadEntity;
+  private Context mContext;
+  private DownloadEntity mDownloadEntity;
   private DownloadTaskEntity mDownloadTaskEntity;
-  private ExecutorService    mFixedThreadPool;
-  private File               mDownloadFile; //下载的文件
-  private File               mConfigFile;//下载信息配置文件
+  private ExecutorService mFixedThreadPool;
+  private File mDownloadFile; //下载的文件
+  private File mConfigFile;//下载信息配置文件
   private SparseArray<Runnable> mTask = new SparseArray<>();
   private DownloadStateConstance mConstance;
 
@@ -303,7 +303,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
   /**
    * 处理不支持断点的下载
    */
-  private void handleNoSupportBreakpointDownload(HttpURLConnection conn){
+  private void handleNoSupportBreakpointDownload(HttpURLConnection conn) {
     ConfigEntity entity = new ConfigEntity();
     long len = conn.getContentLength();
     entity.FILE_SIZE = len;
@@ -315,7 +315,10 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
     entity.CONFIG_FILE_PATH = mConfigFile.getPath();
     entity.isSupportBreakpoint = isSupportBreakpoint;
     entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
+    THREAD_NUM = 1;
+    mConstance.THREAD_NUM = THREAD_NUM;
     SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
+    mTask.put(0, task);
     mFixedThreadPool.execute(task);
     mListener.onPostPre(len);
     mListener.onStart(0);
@@ -415,13 +418,13 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
    */
   final static class ConfigEntity {
     //文件大小
-    int                THREAD_ID;
-    long               FILE_SIZE;
-    long               START_LOCATION;
-    long               END_LOCATION;
-    File               TEMP_FILE;
-    String             DOWNLOAD_URL;
-    String             CONFIG_FILE_PATH;
+    int THREAD_ID;
+    long FILE_SIZE;
+    long START_LOCATION;
+    long END_LOCATION;
+    File TEMP_FILE;
+    String DOWNLOAD_URL;
+    String CONFIG_FILE_PATH;
     DownloadTaskEntity DOWNLOAD_TASK_ENTITY;
     boolean isSupportBreakpoint = true;
   }

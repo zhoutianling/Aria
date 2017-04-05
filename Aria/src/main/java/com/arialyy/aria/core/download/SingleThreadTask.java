@@ -72,7 +72,7 @@ final class SingleThreadTask implements Runnable {
         conn.setRequestProperty("Range",
             "bytes=" + mConfigEntity.START_LOCATION + "-" + mConfigEntity.END_LOCATION);
       } else {
-        Log.w(TAG, "该下载不支持断点，即将重新下载");
+        Log.w(TAG, "该下载不支持断点");
       }
       conn = ConnectionHelp.setConnectParam(mConfigEntity.DOWNLOAD_TASK_ENTITY, conn);
       conn.setConnectTimeout(mConstance.CONNECT_TIME_OUT);

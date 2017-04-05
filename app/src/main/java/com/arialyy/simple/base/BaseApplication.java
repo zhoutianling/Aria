@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.simple.base;
 
 import android.app.Application;

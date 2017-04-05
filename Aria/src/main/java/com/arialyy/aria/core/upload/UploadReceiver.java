@@ -16,13 +16,12 @@
 package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IReceiver;
-import com.arialyy.aria.core.scheduler.OnSchedulerListener;
+import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
@@ -30,7 +29,6 @@ import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -40,7 +38,7 @@ import java.util.regex.Pattern;
 public class UploadReceiver implements IReceiver<UploadEntity> {
   private static final String TAG = "DownloadReceiver";
   public String targetName;
-  public OnSchedulerListener<UploadTask> listener;
+  public ISchedulerListener<UploadTask> listener;
 
   /**
    * 加载任务
@@ -118,7 +116,7 @@ public class UploadReceiver implements IReceiver<UploadEntity> {
   /**
    * 添加调度器回调
    */
-  public UploadReceiver addSchedulerListener(OnSchedulerListener<UploadTask> listener) {
+  public UploadReceiver addSchedulerListener(ISchedulerListener<UploadTask> listener) {
     this.listener = listener;
     UploadSchedulers.getInstance().addSchedulerListener(targetName, listener);
     return this;

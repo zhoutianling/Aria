@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.arialyy.simple.download;
 
 import android.content.Context;
@@ -21,11 +37,11 @@ import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
  */
 public class DownloadDialog extends AbsDialog {
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
-  @Bind(R.id.start)       Button                          mStart;
-  @Bind(R.id.stop)        Button                          mStop;
-  @Bind(R.id.cancel)      Button                          mCancel;
-  @Bind(R.id.size)        TextView                        mSize;
-  @Bind(R.id.speed)       TextView                        mSpeed;
+  @Bind(R.id.start) Button mStart;
+  @Bind(R.id.stop) Button mStop;
+  @Bind(R.id.cancel) Button mCancel;
+  @Bind(R.id.size) TextView mSize;
+  @Bind(R.id.speed) TextView mSpeed;
 
   private static final String DOWNLOAD_URL =
       "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
@@ -42,7 +58,7 @@ public class DownloadDialog extends AbsDialog {
   private void init() {
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
       DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
-      int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
+      int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
     Aria.download(this).addSchedulerListener(new MyDialogDownloadCallback());
@@ -107,7 +123,7 @@ public class DownloadDialog extends AbsDialog {
     @Override public void onTaskRunning(DownloadTask task) {
       super.onTaskRunning(task);
       long current = task.getCurrentProgress();
-      long len     = task.getFileSize();
+      long len = task.getFileSize();
       if (len == 0) {
         mPb.setProgress(0);
       } else {

@@ -59,7 +59,6 @@ final class UploadUtil implements Runnable {
   }
 
   public void start() {
-    Log.d(TAG, "start");
     isCancel = false;
     isRunning = false;
     new Thread(this).start();
@@ -71,7 +70,6 @@ final class UploadUtil implements Runnable {
   }
 
   @Override public void run() {
-    Log.e(TAG, "run");
     File uploadFile = new File(mUploadEntity.getFilePath());
     if (!uploadFile.exists()) {
       Log.e(TAG, "【" + mUploadEntity.getFilePath() + "】，文件不存在。");
@@ -123,7 +121,14 @@ final class UploadUtil implements Runnable {
   }
 
   private void fail() {
-    mListener.onFail();
+    try {
+      mListener.onFail();
+      if (mOutputStream != null) {
+        mOutputStream.close();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   /**
@@ -151,7 +156,6 @@ final class UploadUtil implements Runnable {
    */
   private void uploadFile(PrintWriter writer, String attachment, File uploadFile)
       throws IOException {
-    Log.e(TAG, "uploadFile");
     writer.append(PREFIX).append(BOUNDARY).append(LINE_END);
     writer.append("Content-Disposition: form-data; name=\"")
         .append(attachment)

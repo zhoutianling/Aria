@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.core.download;
 
 class DownloadListener implements IDownloadListener {

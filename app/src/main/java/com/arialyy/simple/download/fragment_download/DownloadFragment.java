@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.arialyy.simple.download.fragment_download;
 
 import android.os.Bundle;
@@ -34,7 +50,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
   @Override protected void init(Bundle savedInstanceState) {
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
       DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
-      int      p      = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
+      int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
     DownloadEntity entity = Aria.download(this).getDownloadEntity(DOWNLOAD_URL);
@@ -112,7 +128,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
     @Override public void onTaskRunning(DownloadTask task) {
       super.onTaskRunning(task);
       long current = task.getCurrentProgress();
-      long len     = task.getFileSize();
+      long len = task.getFileSize();
       if (len == 0) {
         mPb.setProgress(0);
       } else {

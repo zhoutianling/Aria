@@ -25,23 +25,23 @@ public interface IEntity {
   /**
    * 其它状态
    */
-  @Ignore public static final int STATE_OTHER        = -1;
+  @Ignore public static final int STATE_OTHER = -1;
   /**
    * 失败状态
    */
-  @Ignore public static final int STATE_FAIL         = 0;
+  @Ignore public static final int STATE_FAIL = 0;
   /**
    * 完成状态
    */
-  @Ignore public static final int STATE_COMPLETE     = 1;
+  @Ignore public static final int STATE_COMPLETE = 1;
   /**
    * 停止状态
    */
-  @Ignore public static final int STATE_STOP         = 2;
+  @Ignore public static final int STATE_STOP = 2;
   /**
    * 未开始状态
    */
-  @Ignore public static final int STATE_WAIT         = 3;
+  @Ignore public static final int STATE_WAIT = 3;
   /**
    * 下载中
    */
@@ -49,16 +49,15 @@ public interface IEntity {
   /**
    * 预处理
    */
-  @Ignore public static final int STATE_PRE          = 5;
+  @Ignore public static final int STATE_PRE = 5;
   /**
    * 预处理完成
    */
-  @Ignore public static final int STATE_POST_PRE     = 6;
+  @Ignore public static final int STATE_POST_PRE = 6;
   /**
    * 取消下载
    */
-  @Ignore public static final int STATE_CANCEL       = 7;
+  @Ignore public static final int STATE_CANCEL = 7;
 
   public int getState();
-
 }

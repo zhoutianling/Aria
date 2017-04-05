@@ -18,46 +18,12 @@ package com.arialyy.aria.core.scheduler;
 import com.arialyy.aria.core.inf.ITask;
 
 /**
- * Target处理任务监听
+ * Created by Aria.Lao on 2017/4/5.
  */
-public interface OnSchedulerListener<TASK extends ITask> {
-  /**
-   * 任务预加载
-   */
-  public void onTaskPre(TASK task);
+public interface IDownloadSchedulerListener<TASK extends ITask> extends ISchedulerListener<TASK> {
 
   /**
-   * 任务恢复下载
+   * 支持断点的回调
    */
-  public void onTaskResume(TASK task);
-
-  /**
-   * 任务开始
-   */
-  public void onTaskStart(TASK task);
-
-  /**
-   * 任务停止
-   */
-  public void onTaskStop(TASK task);
-
-  /**
-   * 任务取消
-   */
-  public void onTaskCancel(TASK task);
-
-  /**
-   * 任务下载失败
-   */
-  public void onTaskFail(TASK task);
-
-  /**
-   * 任务完成
-   */
-  public void onTaskComplete(TASK task);
-
-  /**
-   * 任务执行中
-   */
-  public void onTaskRunning(TASK task);
+  public void onNoSupportBreakPoint(TASK task);
 }

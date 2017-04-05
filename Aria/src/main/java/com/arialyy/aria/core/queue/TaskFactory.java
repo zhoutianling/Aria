@@ -57,13 +57,14 @@ public class TaskFactory {
    * @param <SCHEDULER> {@link DownloadSchedulers}
    * @return {@link DownloadTask}、{@link UploadTask}
    */
-  <ENTITY extends ITaskEntity, SCHEDULER extends ISchedulers> ITask createTask(
-      String targetName, ENTITY entity, SCHEDULER schedulers) {
+  <ENTITY extends ITaskEntity, SCHEDULER extends ISchedulers> ITask createTask(String targetName,
+      ENTITY entity, SCHEDULER schedulers) {
     if (entity instanceof DownloadTaskEntity) {
       return createDownloadTask(targetName, (DownloadTaskEntity) entity, schedulers);
     } else if (entity instanceof UploadTaskEntity) {
       return createUploadTask(targetName, (UploadTaskEntity) entity, schedulers);
-    } return null;
+    }
+    return null;
   }
 
   /**

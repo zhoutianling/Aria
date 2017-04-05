@@ -103,11 +103,12 @@ public class DownloadTask implements ITask {
   @Deprecated public boolean isDownloading() {
     return mUtil.isDownloading();
   }
+
   @Override public boolean isRunning() {
     return isDownloading();
   }
 
-  @Override public IEntity getEntity() {
+  @Override public DownloadEntity getEntity() {
     return mEntity;
   }
 
@@ -133,8 +134,7 @@ public class DownloadTask implements ITask {
     return mTargetName;
   }
 
-  @Override
-  public void setTargetName(String targetName) {
+  @Override public void setTargetName(String targetName) {
     this.mTargetName = targetName;
   }
 
@@ -185,7 +185,6 @@ public class DownloadTask implements ITask {
     Handler outHandler;
     int threadNum = 3;
     String targetName;
-
 
     public Builder(String targetName, DownloadTaskEntity taskEntity) {
       CheckUtil.checkDownloadTaskEntity(taskEntity.downloadEntity);
@@ -243,6 +242,12 @@ public class DownloadTask implements ITask {
       this.downloadEntity = this.task.getDownloadEntity();
       sendIntent = CommonUtil.createIntent(context.getPackageName(), Aria.ACTION_RUNNING);
       sendIntent.putExtra(Aria.ENTITY, downloadEntity);
+    }
+
+    @Override public void supportBreakpoint(boolean support) {
+      super.supportBreakpoint(support);
+      sendInState2Target(ISchedulers.SUPPORT_BREAK_POINT);
+      sendIntent(Aria.ACTION_SUPPORT_BREAK_POINT, -1);
     }
 
     @Override public void onPre() {
@@ -342,14 +347,13 @@ public class DownloadTask implements ITask {
       downloadEntity.setDownloadComplete(action.equals(Aria.ACTION_COMPLETE));
       downloadEntity.setCurrentProgress(location);
       downloadEntity.update();
+      if (!Configuration.isOpenBreadCast) return;
       Intent intent = CommonUtil.createIntent(context.getPackageName(), action);
       intent.putExtra(Aria.ENTITY, downloadEntity);
       if (location != -1) {
         intent.putExtra(Aria.CURRENT_LOCATION, location);
       }
-      if (Configuration.isOpenBreadCast) {
-        context.sendBroadcast(intent);
-      }
+      context.sendBroadcast(intent);
     }
   }
 }

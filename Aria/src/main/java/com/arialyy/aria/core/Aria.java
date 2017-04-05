@@ -27,7 +27,9 @@ import android.content.Context;
 import android.os.Build;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.download.DownloadReceiver;
-import com.arialyy.aria.core.scheduler.OnSchedulerListener;
+import com.arialyy.aria.core.scheduler.DownloadSchedulers;
+import com.arialyy.aria.core.scheduler.IDownloadSchedulerListener;
+import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -56,6 +58,10 @@ import com.arialyy.aria.core.upload.UploadTask;
  * </pre>
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) public class Aria {
+  /**
+   * 不支持断点
+   */
+  public static final String ACTION_SUPPORT_BREAK_POINT = "ACTION_SUPPORT_BREAK_POINT";
   /**
    * 预处理完成
    */
@@ -163,7 +169,7 @@ import com.arialyy.aria.core.upload.UploadTask;
   /**
    * 上传任务状态监听
    */
-  public static class UploadSchedulerListener implements OnSchedulerListener<UploadTask> {
+  public static class UploadSchedulerListener implements ISchedulerListener<UploadTask> {
 
     @Override public void onTaskPre(UploadTask task) {
 
@@ -201,7 +207,8 @@ import com.arialyy.aria.core.upload.UploadTask;
   /**
    * 下载任务状态监听
    */
-  public static class DownloadSchedulerListener implements OnSchedulerListener<DownloadTask> {
+  public static class DownloadSchedulerListener implements
+      IDownloadSchedulerListener<DownloadTask> {
 
     @Override public void onTaskPre(DownloadTask task) {
 
@@ -232,6 +239,10 @@ import com.arialyy.aria.core.upload.UploadTask;
     }
 
     @Override public void onTaskRunning(DownloadTask task) {
+
+    }
+
+    @Override public void onNoSupportBreakPoint(DownloadTask task) {
 
     }
   }

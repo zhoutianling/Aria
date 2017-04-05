@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
@@ -30,7 +29,7 @@ import com.arialyy.aria.orm.DbEntity;
  * ！！！ 注意：CREATOR要进行@Ignore注解
  * ！！！并且需要Parcelable时需要手动填写rowID;
  */
-public class DownloadEntity extends DbEntity implements Parcelable, IEntity{
+public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
   @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
     @Override public DownloadEntity createFromParcel(Parcel source) {
       return new DownloadEntity(source);
@@ -40,16 +39,16 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity{
       return new DownloadEntity[size];
     }
   };
-  @Ignore private long    speed              = 0; //下载速度
-  @Ignore private         int     failNum            = 0;
-  private         String  downloadUrl        = ""; //下载路径
-  private         String  downloadPath       = ""; //保存路径
-  private         String  fileName           = ""; //文件名
-  private         String  str                = ""; //其它字段
-  private         long    fileSize           = 1;
-  private         int     state              = STATE_WAIT;
-  private         boolean isDownloadComplete = false;   //是否下载完成
-  private         long    currentProgress    = 0;    //当前下载进度
+  @Ignore private long speed = 0; //下载速度
+  @Ignore private int failNum = 0;
+  private String downloadUrl = ""; //下载路径
+  private String downloadPath = ""; //保存路径
+  private String fileName = ""; //文件名
+  private String str = ""; //其它字段
+  private long fileSize = 1;
+  private int state = STATE_WAIT;
+  private boolean isDownloadComplete = false;   //是否下载完成
+  private long currentProgress = 0;    //当前下载进度
   private long completeTime;  //完成时间
 
   public DownloadEntity() {
@@ -129,8 +128,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity{
     this.fileSize = fileSize;
   }
 
-  @Override
-  public int getState() {
+  @Override public int getState() {
     return state;
   }
 
@@ -167,16 +165,26 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity{
   }
 
   @Override public String toString() {
-    return "DownloadEntity{" +
-        "downloadUrl='" + downloadUrl + '\'' +
-        ", downloadPath='" + downloadPath + '\'' +
-        ", completeTime=" + completeTime +
-        ", fileSize=" + fileSize +
-        ", state=" + state +
-        ", isDownloadComplete=" + isDownloadComplete +
-        ", currentProgress=" + currentProgress +
-        ", failNum=" + failNum +
-        '}';
+    return "DownloadEntity{"
+        + "downloadUrl='"
+        + downloadUrl
+        + '\''
+        + ", downloadPath='"
+        + downloadPath
+        + '\''
+        + ", completeTime="
+        + completeTime
+        + ", fileSize="
+        + fileSize
+        + ", state="
+        + state
+        + ", isDownloadComplete="
+        + isDownloadComplete
+        + ", currentProgress="
+        + currentProgress
+        + ", failNum="
+        + failNum
+        + '}';
   }
 
   @Override public int describeContents() {

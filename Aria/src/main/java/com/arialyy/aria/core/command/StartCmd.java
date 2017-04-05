@@ -31,7 +31,6 @@ class StartCmd<T extends ITaskEntity> extends AbsCmd<T> {
   }
 
   @Override public void executeCmd() {
-    Log.d(TAG, "startCmd");
     ITask task = mQueue.getTask(mEntity.getEntity());
     if (task == null) {
       task = mQueue.createTask(mTargetName, mEntity);

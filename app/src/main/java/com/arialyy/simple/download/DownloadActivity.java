@@ -33,6 +33,7 @@ import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityDownloadMeanBinding;
 import com.arialyy.simple.download.fragment_download.FragmentActivity;
 import com.arialyy.simple.download.multi_download.MultiTaskActivity;
+import com.arialyy.simple.download.service_download.DownloadService;
 
 /**
  * Created by Lyy on 2016/10/13.
@@ -84,6 +85,9 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadMeanBinding> 
 
   public void onClick(View view) {
     switch (view.getId()) {
+      case R.id.service:
+        startService(new Intent(this, DownloadService.class));
+        break;
       case R.id.single_task:
         startActivity(new Intent(this, SingleTaskActivity.class));
         break;

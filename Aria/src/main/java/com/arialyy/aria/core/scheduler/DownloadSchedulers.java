@@ -34,14 +34,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DownloadSchedulers implements ISchedulers<DownloadTask> {
 
-  private static final    String             TAG      = "DownloadSchedulers";
-  private static final    Object             LOCK     = new Object();
+  private static final String TAG = "DownloadSchedulers";
+  private static final Object LOCK = new Object();
   private static volatile DownloadSchedulers INSTANCE = null;
 
   /**
    * 下载器任务监听
    */
-  private Map<String, OnSchedulerListener<DownloadTask>> mSchedulerListeners =
+  private Map<String, IDownloadSchedulerListener<DownloadTask>> mSchedulerListeners =
       new ConcurrentHashMap<>();
   private DownloadTaskQueue mQueue;
 
@@ -59,16 +59,17 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
   }
 
   @Override public void addSchedulerListener(String targetName,
-      OnSchedulerListener<DownloadTask> schedulerListener) {
-    mSchedulerListeners.put(targetName, schedulerListener);
+      ISchedulerListener<DownloadTask> schedulerListener) {
+    mSchedulerListeners.put(targetName,
+        (IDownloadSchedulerListener<DownloadTask>) schedulerListener);
   }
 
   @Override public void removeSchedulerListener(String targetName,
-      OnSchedulerListener<DownloadTask> schedulerListener) {
+      ISchedulerListener<DownloadTask> schedulerListener) {
     //该内存溢出解决方案：http://stackoverflow.com/questions/14585829/how-safe-is-to-delete-already-removed-concurrenthashmap-element
-    for (Iterator<Map.Entry<String, OnSchedulerListener<DownloadTask>>> iter =
+    for (Iterator<Map.Entry<String, IDownloadSchedulerListener<DownloadTask>>> iter =
         mSchedulerListeners.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry<String, OnSchedulerListener<DownloadTask>> entry = iter.next();
+      Map.Entry<String, IDownloadSchedulerListener<DownloadTask>> entry = iter.next();
       if (entry.getKey().equals(targetName)) iter.remove();
     }
   }
@@ -118,7 +119,8 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
     }
   }
 
-  private void callback(int state, DownloadTask task, OnSchedulerListener<DownloadTask> listener) {
+  private void callback(int state, DownloadTask task,
+      IDownloadSchedulerListener<DownloadTask> listener) {
     if (listener != null) {
       if (task == null) {
         Log.e(TAG, "TASK 为null，回调失败");
@@ -148,6 +150,9 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
           break;
         case FAIL:
           listener.onTaskFail(task);
+          break;
+        case SUPPORT_BREAK_POINT:
+          listener.onNoSupportBreakPoint(task);
           break;
       }
     }
