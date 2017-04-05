@@ -131,9 +131,9 @@ public class CheckUtil {
 
   /**
    * 检测下载实体是否合法
+   * 合法(true)
    *
    * @param entity 下载实体
-   * @return 合法(true)
    */
   public static void checkDownloadTaskEntity(DownloadEntity entity) {
     if (entity == null) {

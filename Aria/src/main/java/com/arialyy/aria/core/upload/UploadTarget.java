@@ -72,7 +72,7 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
   /**
    * 设置上传文件类型
    *
-   * @param contentType <code>"multipart/form-data"<code/>
+   * @param contentType tip：multipart/form-data
    */
   public UploadTarget setContentType(String contentType) {
     taskEntity.contentType = contentType;
@@ -93,7 +93,7 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
   /**
    * 给url请求添加头部
    *
-   * @param headers Map<Key, Value>
+   * @param headers key为http头部的key，Value为http头对应的配置
    */
   public UploadTarget addHeaders(Map<String, String> headers) {
     super._addHeaders(headers);

@@ -8,6 +8,7 @@ Aria，让上传、下载更容易实现</br>
  - 支持多任务自动调度
  - 可以直接获取速度
  - 支持https地址下载
+ - 支持上传操作
 
 Aria怎样使用？
 * [下载](#使用)
@@ -18,12 +19,12 @@ Aria怎样使用？
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:2.4.0'
+compile 'com.arialyy.aria:Aria:3.0.0'
 ```
 
 ## 示例
-![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/download_img.gif)
-![Dialog使用](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/img/dialog_use.gif "")
+![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/master/img/download_img.gif)
+![上传](https://github.com/AriaLyy/DownloadUtil/blob/master/img/sing_upload.gif)
 
 ## 性能
 ![性能展示](https://github.com/AriaLyy/DownloadUtil/blob/master/img/performance.png)
@@ -103,7 +104,7 @@ compile 'com.arialyy.aria:Aria:2.4.0'
   ```
 
 ### 关于下载的其它api
-[Download API]()
+[Download API](https://github.com/AriaLyy/Aria/blob/master/DownloadApi.md)
 
 **tips:为了防止内存泄露的情况，事件类需要使用staic进行修饰**
 
@@ -135,17 +136,22 @@ compile 'com.arialyy.aria:Aria:2.4.0'
      .cancel();
  ```
 
+## 其他
+ 有任何问题，可以在[issues](https://github.com/AriaLyy/Aria/issues)给我留言反馈。
+
 ***
 ## 开发日志
- + v_2.4.0 支持https链接下载
- + v_2.3.8 修复数据错乱的bug、添加fragment支持
- + v_2.3.6 添加dialog、popupWindow支持
- + v_2.3.3
-  - 添加断点支持
-  - 修改下载逻辑，让使用更加简单
-  - 修复一个内存泄露的bug
- + v_2.3.1 重命名为Aria，下载流程简化
- + v_2.1.1 增加，选择最大下载任务数接口
+  + v_3.0.0 添加上传任务支持，修复一些已发现的bug
+  + v_2.4.4 修复不支持断点的下载链接拿不到文件大小的问题
+  + v_2.4.3 修复404链接卡顿的问题
+  + v_2.4.2 修复失败重试无效的bug
+  + v_2.4.1 修复下载慢的问题，修复application、service 不能使用的问题
+  + v_2.4.0 支持https链接下载
+  + v_2.3.8 修复数据错乱的bug、添加fragment支持
+  + v_2.3.6 添加dialog、popupWindow支持
+  + v_2.3.3 添加断点支持、修改下载逻辑，让使用更加简单、修复一个内存泄露的bug
+  + v_2.3.1 重命名为Aria，下载流程简化
+  + v_2.1.1 增加，选择最大下载任务数接口
 
 License
 -------

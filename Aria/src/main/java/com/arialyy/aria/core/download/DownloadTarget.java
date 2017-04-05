@@ -58,7 +58,7 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
   /**
    * 给url请求添加头部
    *
-   * @param headers Map<Key, Value>
+   * @param headers key为http头部的key，Value为http头对应的配置
    */
   public DownloadTarget addHeaders(Map<String, String> headers) {
     super._addHeaders(headers);

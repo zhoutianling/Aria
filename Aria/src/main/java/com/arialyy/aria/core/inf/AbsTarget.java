@@ -97,8 +97,6 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
 
   /**
    * 给url请求添加头部
-   *
-   * @param headers Map<Key, Value>
    */
   protected void _addHeaders(Map<String, String> headers) {
     if (headers != null && headers.size() > 0) {
