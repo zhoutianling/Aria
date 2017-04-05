@@ -141,7 +141,7 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
   /**
    * 停止下载
    */
-  public void stop() {
+  protected void pause() {
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_STOP))
         .exe();
@@ -150,7 +150,7 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
   /**
    * 恢复下载
    */
-  public void resume() {
+  protected void resume() {
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_START))
         .exe();
@@ -168,7 +168,7 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
   /**
    * 重新下载
    */
-  public void reStart() {
+  void reStart() {
     cancel();
     start();
   }

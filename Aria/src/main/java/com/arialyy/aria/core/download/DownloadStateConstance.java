@@ -20,20 +20,19 @@ package com.arialyy.aria.core.download;
  * 下载状态常量
  */
 final class DownloadStateConstance {
-  int CANCEL_NUM = 0;
-  int STOP_NUM = 0;
-  int FAIL_NUM = 0;
-  int CONNECT_TIME_OUT = 5000 * 4; //连接超时时间
-  int READ_TIME_OUT = 1000 * 20; //流读取的超时时间
-  int COMPLETE_THREAD_NUM = 0;
-  int THREAD_NUM = 3;
-  long CURRENT_LOCATION = 0;
-  boolean isDownloading = false;
-  boolean isCancel = false;
-  boolean isStop = false;
+  int     CANCEL_NUM          = 0;
+  int     STOP_NUM            = 0;
+  int     FAIL_NUM            = 0;
+  int     CONNECT_TIME_OUT    = 5000 * 4; //连接超时时间
+  int     READ_TIME_OUT       = 1000 * 20; //流读取的超时时间
+  int     COMPLETE_THREAD_NUM = 0;
+  int     THREAD_NUM          = 3;
+  long    CURRENT_LOCATION    = 0;
+  boolean isDownloading       = false;
+  boolean isCancel            = false;
+  boolean isStop              = false;
 
-  DownloadStateConstance(int num) {
-    THREAD_NUM = num;
+  DownloadStateConstance() {
   }
 
   void cleanState() {
@@ -46,7 +45,7 @@ final class DownloadStateConstance {
     FAIL_NUM = 0;
   }
 
-  void setThreadNum(int threadNum){
+  void setThreadNum(int threadNum) {
     THREAD_NUM = threadNum;
   }
 

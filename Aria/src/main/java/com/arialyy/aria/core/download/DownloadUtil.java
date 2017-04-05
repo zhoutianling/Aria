@@ -39,20 +39,23 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
   /**
    * 线程数
    */
-  private final int THREAD_NUM;
-  private static final long SUB_LEN = 1024 * 100;
+  private int THREAD_NUM;
+  /**
+   * 小于1m的文件不启用多线程
+   */
+  private static final long SUB_LEN = 1024 * 1024;
   //下载监听
   private IDownloadListener mListener;
-  private int mConnectTimeOut = 5000 * 4; //连接超时时间
-  private int mReadTimeOut = 5000 * 20; //流读取的超时时间
-  private boolean isNewTask = true;
+  private int     mConnectTimeOut     = 5000 * 4; //连接超时时间
+  private int     mReadTimeOut        = 5000 * 20; //流读取的超时时间
+  private boolean isNewTask           = true;
   private boolean isSupportBreakpoint = true;
-  private Context mContext;
-  private DownloadEntity mDownloadEntity;
+  private Context            mContext;
+  private DownloadEntity     mDownloadEntity;
   private DownloadTaskEntity mDownloadTaskEntity;
-  private ExecutorService mFixedThreadPool;
-  private File mDownloadFile; //下载的文件
-  private File mConfigFile;//下载信息配置文件
+  private ExecutorService    mFixedThreadPool;
+  private File               mDownloadFile; //下载的文件
+  private File               mConfigFile;//下载信息配置文件
   private SparseArray<Runnable> mTask = new SparseArray<>();
   private DownloadStateConstance mConstance;
 
@@ -69,7 +72,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
     mListener = downloadListener;
     THREAD_NUM = threadNum;
     mFixedThreadPool = Executors.newFixedThreadPool(Integer.MAX_VALUE);
-    mConstance = new DownloadStateConstance(THREAD_NUM);
+    mConstance = new DownloadStateConstance();
     init();
   }
 
@@ -246,51 +249,17 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
    * 处理断点
    */
   private void handleBreakpoint(HttpURLConnection conn) throws IOException {
-
     //不支持断点只能单线程下载
     if (!isSupportBreakpoint) {
-      ConfigEntity entity = new ConfigEntity();
-      long len = conn.getContentLength();
-      entity.FILE_SIZE = len;
-      entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
-      entity.TEMP_FILE = mDownloadFile;
-      entity.THREAD_ID = 0;
-      entity.START_LOCATION = 0;
-      entity.END_LOCATION = entity.FILE_SIZE;
-      entity.CONFIG_FILE_PATH = mConfigFile.getPath();
-      entity.isSupportBreakpoint = isSupportBreakpoint;
-      entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
-      SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
-      mFixedThreadPool.execute(task);
-      mListener.onPostPre(len);
-      mListener.onStart(0);
+      handleNoSupportBreakpointDownload(conn);
       return;
     }
     int fileLength = conn.getContentLength();
-    //必须建一个文件
-    CommonUtil.createFile(mDownloadFile.getPath());
-    BufferedRandomAccessFile file =
-        new BufferedRandomAccessFile(new File(mDownloadFile.getPath()), "rwd", 8192);
-    //设置文件长度
-    file.setLength(fileLength);
-    mListener.onPostPre(fileLength);
-    //分配每条线程的下载区间
-    Properties pro = null;
-    pro = CommonUtil.loadConfig(mConfigFile);
-    if (pro.isEmpty()) {
-      isNewTask = true;
-    } else {
-      for (int i = 0; i < THREAD_NUM; i++) {
-        if (pro.getProperty(mDownloadFile.getName() + "_record_" + i) == null) {
-          Object state = pro.getProperty(mDownloadFile.getName() + "_state_" + i);
-          if (state != null && Integer.parseInt(state + "") == 1) {
-            continue;
-          }
-          isNewTask = true;
-          break;
-        }
-      }
+    if (fileLength < SUB_LEN) {
+      THREAD_NUM = 1;
+      mConstance.THREAD_NUM = THREAD_NUM;
     }
+    Properties pro = createConfigFile(fileLength);
     int blockSize = fileLength / THREAD_NUM;
     int[] recordL = new int[THREAD_NUM];
     int rl = 0;
@@ -301,19 +270,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
       long startL = i * blockSize, endL = (i + 1) * blockSize;
       Object state = pro.getProperty(mDownloadFile.getName() + "_state_" + i);
       if (state != null && Integer.parseInt(state + "") == 1) {  //该线程已经完成
-        mConstance.CURRENT_LOCATION += endL - startL;
-        Log.d(TAG, "++++++++++ 线程_" + i + "_已经下载完成 ++++++++++");
-        mConstance.COMPLETE_THREAD_NUM++;
-        mConstance.STOP_NUM++;
-        mConstance.CANCEL_NUM++;
-        if (mConstance.isComplete()) {
-          if (mConfigFile.exists()) {
-            mConfigFile.delete();
-          }
-          mListener.onComplete();
-          mConstance.isDownloading = false;
-          return;
-        }
+        if (resumeRecordLocation(i, startL, endL)) return;
         continue;
       }
       //分配下载位置
@@ -338,19 +295,107 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
         //如果整个文件的大小不为线程个数的整数倍，则最后一个线程的结束位置即为文件的总长度
         endL = fileLength;
       }
-      ConfigEntity entity = new ConfigEntity();
-      entity.FILE_SIZE = fileLength;
-      entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
-      entity.TEMP_FILE = mDownloadFile;
-      entity.THREAD_ID = i;
-      entity.START_LOCATION = startL;
-      entity.END_LOCATION = endL;
-      entity.CONFIG_FILE_PATH = mConfigFile.getPath();
-      entity.isSupportBreakpoint = isSupportBreakpoint;
-      entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
-      SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
-      mTask.put(i, task);
+      addSingleTask(i, startL, endL, fileLength);
     }
+    startSingleTask(recordL);
+  }
+
+  /**
+   * 处理不支持断点的下载
+   */
+  private void handleNoSupportBreakpointDownload(HttpURLConnection conn){
+    ConfigEntity entity = new ConfigEntity();
+    long len = conn.getContentLength();
+    entity.FILE_SIZE = len;
+    entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
+    entity.TEMP_FILE = mDownloadFile;
+    entity.THREAD_ID = 0;
+    entity.START_LOCATION = 0;
+    entity.END_LOCATION = entity.FILE_SIZE;
+    entity.CONFIG_FILE_PATH = mConfigFile.getPath();
+    entity.isSupportBreakpoint = isSupportBreakpoint;
+    entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
+    SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
+    mFixedThreadPool.execute(task);
+    mListener.onPostPre(len);
+    mListener.onStart(0);
+  }
+
+  /**
+   * 创建配置文件
+   */
+  private Properties createConfigFile(long fileLength) throws IOException {
+    Properties pro = null;
+    //必须建一个文件
+    CommonUtil.createFile(mDownloadFile.getPath());
+    BufferedRandomAccessFile file =
+        new BufferedRandomAccessFile(new File(mDownloadFile.getPath()), "rwd", 8192);
+    //设置文件长度
+    file.setLength(fileLength);
+    mListener.onPostPre(fileLength);
+    //分配每条线程的下载区间
+    pro = CommonUtil.loadConfig(mConfigFile);
+    if (pro.isEmpty()) {
+      isNewTask = true;
+    } else {
+      for (int i = 0; i < THREAD_NUM; i++) {
+        if (pro.getProperty(mDownloadFile.getName() + "_record_" + i) == null) {
+          Object state = pro.getProperty(mDownloadFile.getName() + "_state_" + i);
+          if (state != null && Integer.parseInt(state + "") == 1) {
+            continue;
+          }
+          isNewTask = true;
+          break;
+        }
+      }
+    }
+    return pro;
+  }
+
+  /**
+   * 恢复记录地址
+   *
+   * @return true 表示下载完成
+   */
+  private boolean resumeRecordLocation(int i, long startL, long endL) {
+    mConstance.CURRENT_LOCATION += endL - startL;
+    Log.d(TAG, "++++++++++ 线程_" + i + "_已经下载完成 ++++++++++");
+    mConstance.COMPLETE_THREAD_NUM++;
+    mConstance.STOP_NUM++;
+    mConstance.CANCEL_NUM++;
+    if (mConstance.isComplete()) {
+      if (mConfigFile.exists()) {
+        mConfigFile.delete();
+      }
+      mListener.onComplete();
+      mConstance.isDownloading = false;
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * 创建单线程任务
+   */
+  private void addSingleTask(int i, long startL, long endL, long fileLength) {
+    ConfigEntity entity = new ConfigEntity();
+    entity.FILE_SIZE = fileLength;
+    entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
+    entity.TEMP_FILE = mDownloadFile;
+    entity.THREAD_ID = i;
+    entity.START_LOCATION = startL;
+    entity.END_LOCATION = endL;
+    entity.CONFIG_FILE_PATH = mConfigFile.getPath();
+    entity.isSupportBreakpoint = isSupportBreakpoint;
+    entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
+    SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
+    mTask.put(i, task);
+  }
+
+  /**
+   * 启动单线程下载任务
+   */
+  private void startSingleTask(int[] recordL) {
     if (mConstance.CURRENT_LOCATION > 0) {
       mListener.onResume(mConstance.CURRENT_LOCATION);
     } else {
@@ -370,14 +415,14 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
    */
   final static class ConfigEntity {
     //文件大小
-    long FILE_SIZE;
-    String DOWNLOAD_URL;
-    int THREAD_ID;
-    long START_LOCATION;
-    long END_LOCATION;
-    File TEMP_FILE;
-    boolean isSupportBreakpoint = true;
-    String CONFIG_FILE_PATH;
+    int                THREAD_ID;
+    long               FILE_SIZE;
+    long               START_LOCATION;
+    long               END_LOCATION;
+    File               TEMP_FILE;
+    String             DOWNLOAD_URL;
+    String             CONFIG_FILE_PATH;
     DownloadTaskEntity DOWNLOAD_TASK_ENTITY;
+    boolean isSupportBreakpoint = true;
   }
 }
