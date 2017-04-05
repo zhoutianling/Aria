@@ -16,20 +16,49 @@
 
 package com.arialyy.aria.core.queue;
 
-import com.arialyy.aria.core.DownloadEntity;
-import com.arialyy.aria.core.scheduler.IDownloadSchedulers;
-import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.inf.ITask;
+import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTask;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 
 /**
  * Created by lyy on 2016/8/16.
  * 任务功能接口
  */
-public interface ITaskQueue extends IDownloader {
+public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity, ENTITY extends IEntity> {
 
-  ///**
-  // * 获取调度器
-  // */
-  //public IDownloadSchedulers getDownloadSchedulers();
+  /**
+   * 开始任务
+   *
+   * @param task {@link DownloadTask}、{@link UploadTask}
+   */
+  public void startTask(TASK task);
+
+  /**
+   * 停止任务
+   *
+   * @param task {@link DownloadTask}、{@link UploadTask}
+   */
+  public void stopTask(TASK task);
+
+  /**
+   * 取消任务
+   *
+   * @param task {@link DownloadTask}、{@link UploadTask}
+   */
+  public void cancelTask(TASK task);
+
+  /**
+   * 重试下载
+   *
+   * @param task {@link DownloadTask}、{@link UploadTask}
+   */
+  public void reTryStart(TASK task);
 
   /**
    * 任务池队列大小
@@ -44,33 +73,33 @@ public interface ITaskQueue extends IDownloader {
   public void setDownloadNum(int downloadNum);
 
   /**
-   * 创建一个新的下载任务，创建时只是将新任务存储到缓存池
+   * 创建一个新的任务，创建时只是将新任务存储到缓存池
    *
-   * @param entity 下载实体{@link DownloadEntity}
+   * @param entity 任务实体{@link DownloadTaskEntity}、{@link UploadTaskEntity}
    * @param targetName 生成该任务的对象
-   * @return {@link Task}
+   * @return {@link DownloadTask}、{@link UploadTask}
    */
-  public Task createTask(String targetName, DownloadEntity entity);
+  public TASK createTask(String targetName, TASK_ENTITY entity);
 
   /**
-   * 通过下载链接从缓存池或任务池搜索下载任务，如果缓存池或任务池都没有任务，则创建新任务
+   * 通过工作实体缓存池或任务池搜索下载任务，如果缓存池或任务池都没有任务，则创建新任务
    *
-   * @param entity 下载实体{@link DownloadEntity}
-   * @return {@link Task}
+   * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}
+   * @return {@link DownloadTask}、{@link UploadTask}
    */
-  public Task getTask(DownloadEntity entity);
+  public TASK getTask(ENTITY entity);
 
   /**
-   * 通过下载链接删除任务
+   * 通过工作实体删除任务
    *
-   * @param entity 下载实体{@link DownloadEntity}
+   * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}
    */
-  public void removeTask(DownloadEntity entity);
+  public void removeTask(ENTITY entity);
 
   /**
    * 获取缓存池的下一个任务
    *
    * @return 下载任务 or null
    */
-  public Task getNextTask();
+  public TASK getNextTask();
 }

@@ -26,9 +26,12 @@ import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.widget.PopupWindow;
-import com.arialyy.aria.core.scheduler.OnSchedulerListener;
-import com.arialyy.aria.core.task.Task;
-import com.arialyy.aria.util.CheckUtil;
+import com.arialyy.aria.core.download.DownloadReceiver;
+import com.arialyy.aria.core.scheduler.IDownloadSchedulerListener;
+import com.arialyy.aria.core.scheduler.ISchedulerListener;
+import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.upload.UploadReceiver;
+import com.arialyy.aria.core.upload.UploadTask;
 
 /**
  * Created by lyy on 2016/12/1.
@@ -36,17 +39,28 @@ import com.arialyy.aria.util.CheckUtil;
  * Aria启动，管理全局任务
  * <pre>
  *   <code>
- *   //启动下载
- *   Aria.whit(this)
+ *   //下载
+ *   Aria.download(this)
  *       .load(DOWNLOAD_URL)     //下载地址，必填
  *       //文件保存路径，必填
  *       .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
- *       .setDownloadName("test.apk")    //文件名，必填
  *       .start();
+ *   </code>
+ *   <code>
+ *    //上传
+ *    Aria.upload(this)
+ *        .load(filePath)     //文件路径，必填
+ *        .setUploadUrl(uploadUrl)  //上传路径，必填
+ *        .setAttachment(fileKey)   //服务器读取文件的key，必填
+ *        .start();
  *   </code>
  * </pre>
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) public class Aria {
+  /**
+   * 不支持断点
+   */
+  public static final String ACTION_SUPPORT_BREAK_POINT = "ACTION_SUPPORT_BREAK_POINT";
   /**
    * 预处理完成
    */
@@ -99,148 +113,135 @@ import com.arialyy.aria.util.CheckUtil;
   private Aria() {
   }
 
-
   /**
-   * 接受Activity、Service、Application
+   * 初始化下载
+   *
+   * @param obj 支持类型有【Activity、Service、Application、DialogFragment、Fragment、PopupWindow、Dialog】
    */
-  public static AMReceiver whit(Context context) {
-    CheckUtil.checkNull(context);
-    if (context instanceof Activity
-        || context instanceof Service
-        || context instanceof Application) {
-      return AriaManager.getInstance(context).get(context);
-    } else {
-      throw new IllegalArgumentException("这是不支持的context");
-    }
+  public static DownloadReceiver download(Object obj) {
+    return get(obj).download(obj);
   }
 
   /**
-   * 处理Fragment
+   * 初始化上传
+   *
+   * @param obj 支持类型有【Activity、Service、Application、DialogFragment、Fragment、PopupWindow、Dialog】
    */
-  public static AMReceiver whit(Fragment fragment) {
-    CheckUtil.checkNull(fragment);
-    return AriaManager.getInstance(
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
-            : fragment.getActivity()).get(fragment);
-  }
-
-  /**
-   * 处理Fragment
-   */
-  public static AMReceiver whit(android.support.v4.app.Fragment fragment) {
-    CheckUtil.checkNull(fragment);
-    return AriaManager.getInstance(
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
-            : fragment.getActivity()).get(fragment);
-  }
-
-  /**
-   * 处理Fragment、或者DialogFragment
-   */
-  public static AMReceiver whit(DialogFragment dialog) {
-    CheckUtil.checkNull(dialog);
-    return AriaManager.getInstance(
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? dialog.getContext() : dialog.getActivity())
-        .get(dialog);
-  }
-
-  /**
-   * 处理popupwindow
-   */
-  public static AMReceiver whit(PopupWindow popupWindow) {
-    CheckUtil.checkNull(popupWindow);
-    return AriaManager.getInstance(popupWindow.getContentView().getContext()).get(popupWindow);
-  }
-
-  /**
-   * 处理Dialog
-   */
-  public static AMReceiver whit(Dialog dialog) {
-    CheckUtil.checkNull(dialog);
-    return AriaManager.getInstance(dialog.getContext()).get(dialog);
+  public static UploadReceiver upload(Object obj) {
+    return get(obj).upload(obj);
   }
 
   /**
    * 处理通用事件
+   *
+   * @param obj 支持类型有【Activity、Service、Application、DialogFragment、Fragment、PopupWindow、Dialog】
    */
-  public static AriaManager get(Context context) {
-    if (context == null) throw new IllegalArgumentException("context 不能为 null");
-    if (context instanceof Activity
-        || context instanceof Service
-        || context instanceof Application) {
-      return AriaManager.getInstance(context);
+  public static AriaManager get(Object obj) {
+    if (obj instanceof Activity || obj instanceof Service || obj instanceof Application) {
+      return AriaManager.getInstance((Context) obj);
+    } else if (obj instanceof DialogFragment) {
+      DialogFragment dialog = (DialogFragment) obj;
+      return AriaManager.getInstance(
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? dialog.getContext()
+              : dialog.getActivity());
+    } else if (obj instanceof android.support.v4.app.Fragment) {
+      android.support.v4.app.Fragment fragment = (android.support.v4.app.Fragment) obj;
+      return AriaManager.getInstance(
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
+              : fragment.getActivity());
+    } else if (obj instanceof Fragment) {
+      Fragment fragment = (Fragment) obj;
+      return AriaManager.getInstance(
+          Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
+              : fragment.getActivity());
+    } else if (obj instanceof PopupWindow) {
+      PopupWindow popupWindow = (PopupWindow) obj;
+      return AriaManager.getInstance(popupWindow.getContentView().getContext());
+    } else if (obj instanceof Dialog) {
+      Dialog dialog = (Dialog) obj;
+      return AriaManager.getInstance(dialog.getContext());
     } else {
-      throw new IllegalArgumentException("这是不支持的context");
+      throw new IllegalArgumentException("不支持的类型");
     }
   }
 
   /**
-   * 处理Dialog的通用任务
+   * 上传任务状态监听
    */
-  public static AriaManager get(Dialog dialog) {
-    CheckUtil.checkNull(dialog);
-    return AriaManager.getInstance(dialog.getContext());
+  public static class UploadSchedulerListener implements ISchedulerListener<UploadTask> {
+
+    @Override public void onTaskPre(UploadTask task) {
+
+    }
+
+    @Override public void onTaskResume(UploadTask task) {
+
+    }
+
+    @Override public void onTaskStart(UploadTask task) {
+
+    }
+
+    @Override public void onTaskStop(UploadTask task) {
+
+    }
+
+    @Override public void onTaskCancel(UploadTask task) {
+
+    }
+
+    @Override public void onTaskFail(UploadTask task) {
+
+    }
+
+    @Override public void onTaskComplete(UploadTask task) {
+
+    }
+
+    @Override public void onTaskRunning(UploadTask task) {
+
+    }
   }
 
   /**
-   * 处理Dialog的通用任务
+   * 下载任务状态监听
    */
-  public static AriaManager get(PopupWindow popupWindow) {
-    CheckUtil.checkNull(popupWindow);
-    return AriaManager.getInstance(popupWindow.getContentView().getContext());
-  }
+  public static class DownloadSchedulerListener
+      implements IDownloadSchedulerListener<DownloadTask> {
 
-  /**
-   * 处理Fragment的通用任务
-   */
-  public static AriaManager get(Fragment fragment) {
-    CheckUtil.checkNull(fragment);
-    return AriaManager.getInstance(
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
-            : fragment.getActivity());
-  }
-
-  /**
-   * 处理Fragment的通用任务
-   */
-  public static AriaManager get(android.support.v4.app.Fragment fragment) {
-    CheckUtil.checkNull(fragment);
-    return AriaManager.getInstance(
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? fragment.getContext()
-            : fragment.getActivity());
-  }
-
-  public static class SimpleSchedulerListener implements OnSchedulerListener {
-
-    @Override public void onTaskPre(Task task) {
+    @Override public void onTaskPre(DownloadTask task) {
 
     }
 
-    @Override public void onTaskResume(Task task) {
+    @Override public void onTaskResume(DownloadTask task) {
 
     }
 
-    @Override public void onTaskStart(Task task) {
+    @Override public void onTaskStart(DownloadTask task) {
 
     }
 
-    @Override public void onTaskStop(Task task) {
+    @Override public void onTaskStop(DownloadTask task) {
 
     }
 
-    @Override public void onTaskCancel(Task task) {
+    @Override public void onTaskCancel(DownloadTask task) {
 
     }
 
-    @Override public void onTaskFail(Task task) {
+    @Override public void onTaskFail(DownloadTask task) {
 
     }
 
-    @Override public void onTaskComplete(Task task) {
+    @Override public void onTaskComplete(DownloadTask task) {
 
     }
 
-    @Override public void onTaskRunning(Task task) {
+    @Override public void onTaskRunning(DownloadTask task) {
+
+    }
+
+    @Override public void onNoSupportBreakPoint(DownloadTask task) {
 
     }
   }

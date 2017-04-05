@@ -18,9 +18,8 @@ package com.arialyy.aria.core.queue.pool;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.queue.IPool;
+import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.core.task.Task;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -30,36 +29,26 @@ import java.util.concurrent.TimeUnit;
  * Created by lyy on 2016/8/14.
  * 任务缓存池，所有下载任务最先缓存在这个池中
  */
-public class CachePool implements IPool {
-  private static final    String    TAG      = "CachePool";
-  private static final    Object    LOCK     = new Object();
-  private static final    int       MAX_NUM  = Integer.MAX_VALUE;  //最大下载任务数
-  private static volatile CachePool INSTANCE = null;
-  private static final    long      TIME_OUT = 1000;
-  private Map<String, Task>         mCacheArray;
-  private LinkedBlockingQueue<Task> mCacheQueue;
+public class CachePool<TASK extends ITask> implements IPool<TASK> {
+  private static final String TAG = "CachePool";
+  private static final Object LOCK = new Object();
+  private static final int MAX_NUM = Integer.MAX_VALUE;  //最大下载任务数
+  private static final long TIME_OUT = 1000;
+  private Map<String, TASK> mCacheArray;
+  private LinkedBlockingQueue<TASK> mCacheQueue;
 
-  private CachePool() {
+  public CachePool() {
     mCacheQueue = new LinkedBlockingQueue<>(MAX_NUM);
     mCacheArray = new HashMap<>();
   }
 
-  public static CachePool getInstance() {
-    if (INSTANCE == null) {
-      synchronized (LOCK) {
-        INSTANCE = new CachePool();
-      }
-    }
-    return INSTANCE;
-  }
-
-  @Override public boolean putTask(Task task) {
+  @Override public boolean putTask(TASK task) {
     synchronized (LOCK) {
       if (task == null) {
         Log.e(TAG, "下载任务不能为空！！");
         return false;
       }
-      String url = task.getDownloadEntity().getDownloadUrl();
+      String url = task.getKey();
       if (mCacheQueue.contains(task)) {
         Log.w(TAG, "队列中已经包含了该任务，任务下载链接【" + url + "】");
         return false;
@@ -74,13 +63,13 @@ public class CachePool implements IPool {
     }
   }
 
-  @Override public Task pollTask() {
+  @Override public TASK pollTask() {
     synchronized (LOCK) {
       try {
-        Task task = null;
+        TASK task = null;
         task = mCacheQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
         if (task != null) {
-          String url = task.getDownloadEntity().getDownloadUrl();
+          String url = task.getKey();
           mCacheArray.remove(CommonUtil.keyToHashKey(url));
         }
         return task;
@@ -91,7 +80,7 @@ public class CachePool implements IPool {
     return null;
   }
 
-  @Override public Task getTask(String downloadUrl) {
+  @Override public TASK getTask(String downloadUrl) {
     synchronized (LOCK) {
       if (TextUtils.isEmpty(downloadUrl)) {
         Log.e(TAG, "请传入有效的下载链接");
@@ -102,13 +91,13 @@ public class CachePool implements IPool {
     }
   }
 
-  @Override public boolean removeTask(Task task) {
+  @Override public boolean removeTask(TASK task) {
     synchronized (LOCK) {
       if (task == null) {
         Log.e(TAG, "任务不能为空");
         return false;
       } else {
-        String key = CommonUtil.keyToHashKey(task.getDownloadEntity().getDownloadUrl());
+        String key = CommonUtil.keyToHashKey(task.getKey());
         mCacheArray.remove(key);
         return mCacheQueue.remove(task);
       }
@@ -121,8 +110,8 @@ public class CachePool implements IPool {
         Log.e(TAG, "请传入有效的下载链接");
         return false;
       }
-      String key  = CommonUtil.keyToHashKey(downloadUrl);
-      Task   task = mCacheArray.get(key);
+      String key = CommonUtil.keyToHashKey(downloadUrl);
+      TASK task = mCacheArray.get(key);
       mCacheArray.remove(key);
       return mCacheQueue.remove(task);
     }

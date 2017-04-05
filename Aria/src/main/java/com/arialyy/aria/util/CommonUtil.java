@@ -22,8 +22,8 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.util.Log;
 import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.DownloadEntity;
-import com.arialyy.aria.core.command.IDownloadCmd;
+import com.arialyy.aria.core.command.AbsCmd;
+import com.arialyy.aria.core.inf.ITaskEntity;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -40,12 +40,8 @@ import java.util.Properties;
 public class CommonUtil {
   private static final String TAG = "util";
 
-  public static IDownloadCmd createCmd(String target, DownloadEntity entity, int cmd) {
+  public static <T extends ITaskEntity> AbsCmd createCmd(String target, T entity, int cmd) {
     return CmdFactory.getInstance().createCmd(target, entity, cmd);
-  }
-
-  public static IDownloadCmd createCmd(DownloadEntity entity, int cmd) {
-    return CmdFactory.getInstance().createCmd(entity, cmd);
   }
 
   /**
@@ -54,7 +50,7 @@ public class CommonUtil {
   public static Intent createIntent(String packageName, String action) {
     Uri.Builder builder = new Uri.Builder();
     builder.scheme(packageName);
-    Uri    uri    = builder.build();
+    Uri uri = builder.build();
     Intent intent = new Intent(action);
     intent.setData(uri);
     return intent;
@@ -69,7 +65,7 @@ public class CommonUtil {
    * @return 成功标志
    */
   public static Boolean putString(String preName, Context context, String key, String value) {
-    SharedPreferences        pre    = context.getSharedPreferences(preName, Context.MODE_PRIVATE);
+    SharedPreferences pre = context.getSharedPreferences(preName, Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = pre.edit();
     editor.putString(key, value);
     return editor.commit();
@@ -302,9 +298,11 @@ public class CommonUtil {
    * 读取下载配置文件
    */
   public static Properties loadConfig(File file) {
-    Properties      properties = new Properties();
-    FileInputStream fis        = null;
-
+    Properties properties = new Properties();
+    FileInputStream fis = null;
+    if (!file.exists()) {
+      createFile(file.getPath());
+    }
     try {
       fis = new FileInputStream(file);
       properties.load(fis);

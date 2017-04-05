@@ -18,7 +18,10 @@
 
 package com.arialyy.aria.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Arrays;
 
 //import org.apache.log4j.Logger;
@@ -38,9 +41,9 @@ import java.util.Arrays;
 
 public final class BufferedRandomAccessFile extends RandomAccessFile {
   //private static final Logger logger_ = Logger.getLogger(BufferedRandomAccessFile.class);
-  static final        int  LogBuffSz_ = 16; // 64K buffer
-  public static final int  BuffSz_    = (1 << LogBuffSz_);
-  static final        long BuffMask_  = ~(((long) BuffSz_) - 1L);
+  static final int LogBuffSz_ = 16; // 64K buffer
+  public static final int BuffSz_ = (1 << LogBuffSz_);
+  static final long BuffMask_ = ~(((long) BuffSz_) - 1L);
 
   /*
    * This implementation is based on the buffer implementation in Modula-3's
@@ -48,12 +51,12 @@ public final class BufferedRandomAccessFile extends RandomAccessFile {
    */
   private boolean dirty_; // true iff unflushed bytes exist
   private boolean closed_; // true iff the file is closed
-  private long    curr_; // current position in file
-  private long    lo_, hi_; // bounds on characters in "buff"
-  private byte[]  buff_; // local buffer
-  private long    maxHi_; // this.lo + this.buff.length
+  private long curr_; // current position in file
+  private long lo_, hi_; // bounds on characters in "buff"
+  private byte[] buff_; // local buffer
+  private long maxHi_; // this.lo + this.buff.length
   private boolean hitEOF_; // buffer contains last file block?
-  private long    diskPos_; // disk position
+  private long diskPos_; // disk position
 
     /*
      * To describe the above fields, we introduce the following abstractions for

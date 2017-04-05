@@ -13,7 +13,6 @@
       android:label="@string/app_name"
       android:supportsRtl="true"
       android:theme="@style/AppTheme.NoActionBar">
-    <!--android:name=".activity.SingleTaskActivity"-->
     <activity
         android:name=".MainActivity"
         android:label="@string/app_name">
@@ -24,10 +23,14 @@
       </intent-filter>
     </activity>
 
-    <activity android:name=".single_task.SingleTaskActivity"/>
-    <activity android:name=".multi_task.MultiTaskActivity"/>
-    <activity android:name=".fragment_task.FragmentActivity"/>
-    <activity android:name=".multi_task.DownloadActivity"/>
+    <activity android:name=".download.DownloadActivity"/>
+    <activity android:name=".upload.UploadActivity"/>
+    <activity android:name=".download.SingleTaskActivity"/>
+    <activity android:name=".download.multi_download.MultiTaskActivity"/>
+    <activity android:name=".download.fragment_download.FragmentActivity"/>
+    <activity android:name=".download.multi_download.MultiDownloadActivity"/>
+
+    <service android:name=".download.service_download.DownloadService"/>
   </application>
 
 </manifest>

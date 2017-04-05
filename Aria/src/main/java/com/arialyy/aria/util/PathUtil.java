@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-
 package com.arialyy.aria.util;
 
 import android.os.Environment;

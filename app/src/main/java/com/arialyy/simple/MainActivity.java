@@ -16,99 +16,38 @@
 
 package com.arialyy.simple;
 
-import android.Manifest;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import butterknife.Bind;
-import com.arialyy.frame.permission.OnPermissionCallback;
-import com.arialyy.frame.permission.PermissionManager;
-import com.arialyy.frame.util.show.T;
+import butterknife.OnClick;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
-import com.arialyy.simple.dialog_task.DownloadDialog;
-import com.arialyy.simple.fragment_task.FragmentActivity;
-import com.arialyy.simple.multi_task.MultiTaskActivity;
-import com.arialyy.simple.notification.SimpleNotification;
-import com.arialyy.simple.pop_task.DownloadPopupWindow;
-import com.arialyy.simple.single_task.SingleTaskActivity;
+import com.arialyy.simple.download.DownloadActivity;
+import com.arialyy.simple.upload.UploadActivity;
 
 /**
- * Created by Lyy on 2016/10/13.
+ * Created by Aria.Lao on 2017/3/1.
  */
 public class MainActivity extends BaseActivity<ActivityMainBinding> {
+
   @Bind(R.id.toolbar) Toolbar mBar;
-  @Bind(R.id.single_task) Button mSigleBt;
-  @Bind(R.id.multi_task) Button mMultiBt;
-  @Bind(R.id.dialog_task) Button mDialogBt;
-  @Bind(R.id.pop_task) Button mPopBt;
+
+  @Override protected void init(Bundle savedInstanceState) {
+    super.init(savedInstanceState);
+    mBar.setTitle("Aria  Demo");
+  }
 
   @Override protected int setLayoutId() {
     return R.layout.activity_main;
   }
 
-  @Override protected void init(Bundle savedInstanceState) {
-    super.init(savedInstanceState);
-    setSupportActionBar(mBar);
-    mBar.setTitle("多线程多任务下载");
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-      setEnable(true);
-    } else {  //6.0处理
-      boolean hasPermission = PermissionManager.getInstance()
-          .checkPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-      if (hasPermission) {
-        setEnable(true);
-      } else {
-        setEnable(false);
-        PermissionManager.getInstance().requestPermission(this, new OnPermissionCallback() {
-          @Override public void onSuccess(String... permissions) {
-            setEnable(true);
-          }
-
-          @Override public void onFail(String... permissions) {
-            T.showShort(MainActivity.this, "没有文件读写权限");
-            setEnable(false);
-          }
-        }, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-      }
-    }
+  @OnClick(R.id.download) public void downloadDemo() {
+    startActivity(new Intent(this, DownloadActivity.class));
   }
 
-  private void setEnable(boolean enable) {
-    mSigleBt.setEnabled(enable);
-    mMultiBt.setEnabled(enable);
-    mDialogBt.setEnabled(enable);
-    mPopBt.setEnabled(enable);
-  }
-
-  public void onClick(View view) {
-    switch (view.getId()) {
-      case R.id.single_task:
-        startActivity(new Intent(this, SingleTaskActivity.class));
-        break;
-      case R.id.multi_task:
-        startActivity(new Intent(this, MultiTaskActivity.class));
-        break;
-      case R.id.dialog_task:
-        DownloadDialog dialog = new DownloadDialog(this);
-        dialog.show();
-        break;
-      case R.id.pop_task:
-        DownloadPopupWindow pop = new DownloadPopupWindow(this);
-        //pop.showAsDropDown(mRootView);
-        pop.showAtLocation(mRootView, Gravity.CENTER_VERTICAL, 0, 0);
-        break;
-      case R.id.fragment_task:
-        startActivity(new Intent(this, FragmentActivity.class));
-        break;
-      case R.id.notification:
-        SimpleNotification notification = new SimpleNotification(this);
-        notification.start();
-        break;
-    }
+  @OnClick(R.id.upload) public void uploadDemo() {
+    startActivity(new Intent(this, UploadActivity.class));
   }
 }

@@ -18,30 +18,24 @@ package com.arialyy.aria.core.command;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.DownloadEntity;
-import com.arialyy.aria.core.task.Task;
+import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.inf.ITask;
+import com.arialyy.aria.core.inf.ITaskEntity;
 
 /**
  * Created by lyy on 2016/9/20.
  * 停止命令
  */
-class StopCmd extends IDownloadCmd {
+class StopCmd<T extends ITaskEntity> extends AbsCmd<T> {
 
-  /**
-   * @param entity 下载实体
-   */
-  StopCmd(String target, DownloadEntity entity) {
-    super(target, entity);
-  }
-
-  StopCmd(DownloadEntity entity) {
-    super(entity);
+  StopCmd(String targetName, T entity) {
+    super(targetName, entity);
   }
 
   @Override public void executeCmd() {
-    Task task = mQueue.getTask(mEntity);
+    ITask task = mQueue.getTask(mEntity.getEntity());
     if (task == null) {
-      if (mEntity.getState() == DownloadEntity.STATE_DOWNLOAD_ING) {
+      if (mEntity.getEntity().getState() == IEntity.STATE_RUNNING) {
         task = mQueue.createTask(mTargetName, mEntity);
         mQueue.stopTask(task);
       } else {
@@ -54,4 +48,29 @@ class StopCmd extends IDownloadCmd {
       mQueue.stopTask(task);
     }
   }
+
+  //StopCmd(DownloadTaskEntity entity) {
+  //  super(entity);
+  //}
+  //
+  //StopCmd(String targetName, DownloadTaskEntity entity) {
+  //  super(targetName, entity);
+  //}
+  //
+  //@Override public void executeCmd() {
+  //  DownloadTask task = mQueue.getTask(mEntity.downloadEntity);
+  //  if (task == null) {
+  //    if (mEntity.downloadEntity.getState() == DownloadEntity.STATE_RUNNING) {
+  //      task = mQueue.createTask(mTargetName, mEntity);
+  //      mQueue.stopTask(task);
+  //    } else {
+  //      Log.w(TAG, "停止命令执行失败，【调度器中没有该任务】");
+  //    }
+  //  } else {
+  //    if (!TextUtils.isEmpty(mTargetName)) {
+  //      task.setTargetName(mTargetName);
+  //    }
+  //    mQueue.stopTask(task);
+  //  }
+  //}
 }

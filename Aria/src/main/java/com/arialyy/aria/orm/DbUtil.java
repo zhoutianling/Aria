@@ -34,19 +34,19 @@ import java.util.List;
  * 数据库操作工具
  */
 public class DbUtil {
-  private static final    String TAG           = "DbUtil";
-  private static final    Object LOCK          = new Object();
-  private volatile static DbUtil INSTANCE      = null;
-  private                 int    CREATE_TABLE  = 0;
-  private                 int    TABLE_EXISTS  = 1;
-  private                 int    INSERT_DATA   = 2;
-  private                 int    MODIFY_DATA   = 3;
-  private                 int    FIND_DATA     = 4;
-  private                 int    FIND_ALL_DATA = 5;
-  private                 int    DEL_DATA      = 6;
-  private                 int    ROW_ID        = 7;
+  private static final String TAG = "DbUtil";
+  private static final Object LOCK = new Object();
+  private volatile static DbUtil INSTANCE = null;
+  private int CREATE_TABLE = 0;
+  private int TABLE_EXISTS = 1;
+  private int INSERT_DATA = 2;
+  private int MODIFY_DATA = 3;
+  private int FIND_DATA = 4;
+  private int FIND_ALL_DATA = 5;
+  private int DEL_DATA = 6;
+  private int ROW_ID = 7;
   private SQLiteDatabase mDb;
-  private SqlHelper      mHelper;
+  private SqlHelper mHelper;
 
   private DbUtil() {
 
@@ -123,8 +123,8 @@ public class DbUtil {
    */
   synchronized void modifyData(DbEntity dbEntity) {
     mDb = mHelper.getWritableDatabase();
-    Class<?> clazz  = dbEntity.getClass();
-    Field[]  fields = CommonUtil.getFields(clazz);
+    Class<?> clazz = dbEntity.getClass();
+    Field[] fields = CommonUtil.getFields(clazz);
     if (fields != null && fields.length > 0) {
       StringBuilder sb = new StringBuilder();
       sb.append("UPDATE ").append(CommonUtil.getClassName(dbEntity)).append(" SET ");
@@ -398,8 +398,8 @@ public class DbUtil {
   synchronized int[] getRowId(Class clazz) {
     mDb = mHelper.getReadableDatabase();
     Cursor cursor = mDb.rawQuery("SELECT rowid, * FROM " + CommonUtil.getClassName(clazz), null);
-    int[]  ids    = new int[cursor.getCount()];
-    int    i      = 0;
+    int[] ids = new int[cursor.getCount()];
+    int i = 0;
     while (cursor.moveToNext()) {
       ids[i] = cursor.getInt(cursor.getColumnIndex("rowid"));
       i++;
@@ -430,8 +430,8 @@ public class DbUtil {
       i++;
     }
     print(ROW_ID, sb.toString());
-    Cursor c  = mDb.rawQuery(sb.toString(), null);
-    int    id = c.getColumnIndex("rowid");
+    Cursor c = mDb.rawQuery(sb.toString(), null);
+    int id = c.getColumnIndex("rowid");
     c.close();
     close();
     return id;
@@ -442,7 +442,7 @@ public class DbUtil {
    */
   private synchronized <T extends DbEntity> List<T> newInstanceEntity(Class<T> clazz,
       Cursor cursor) {
-    Field[] fields  = CommonUtil.getFields(clazz);
+    Field[] fields = CommonUtil.getFields(clazz);
     List<T> entitys = new ArrayList<>();
     if (fields != null && fields.length > 0) {
       try {
@@ -453,8 +453,8 @@ public class DbUtil {
             if (ignoreField(field)) {
               continue;
             }
-            Class<?> type   = field.getType();
-            int      column = cursor.getColumnIndex(field.getName());
+            Class<?> type = field.getType();
+            int column = cursor.getColumnIndex(field.getName());
             if (type == String.class) {
               field.set(entity, cursor.getString(column));
             } else if (type == int.class || type == Integer.class) {
