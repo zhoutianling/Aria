@@ -257,7 +257,10 @@ import java.util.Map;
       } else if (obj instanceof Application) {
         key = clsName;
       }
-    } else {
+    }
+    if (obj instanceof Activity || obj instanceof Service) {
+      key = clsName;
+    } else if (obj instanceof Application) {
       key = clsName;
     }
     if (TextUtils.isEmpty(key)) {

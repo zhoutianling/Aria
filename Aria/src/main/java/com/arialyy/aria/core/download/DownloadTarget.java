@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
@@ -42,6 +43,13 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
 
   @Override public void resume() {
     super.resume();
+  }
+
+  /**
+   * 重定向后，新url的key，默认为location
+   */
+  public void setRedirectUrlKey(String redirectUrlKey) {
+    super._setRedirectUrlKey(redirectUrlKey);
   }
 
   /**

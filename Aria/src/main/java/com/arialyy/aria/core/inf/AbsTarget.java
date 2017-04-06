@@ -16,6 +16,8 @@
 package com.arialyy.aria.core.inf;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.core.command.AbsCmd;
@@ -36,6 +38,17 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
   protected ENTITY entity;
   protected TASK_ENTITY taskEntity;
   protected String targetName;
+
+  /**
+   * 重定向后，新url的key，默认为location
+   */
+  protected void _setRedirectUrlKey(String redirectUrlKey) {
+    if (TextUtils.isEmpty(redirectUrlKey)) {
+      Log.w("AbsTarget", "重定向后，新url的key不能为null");
+      return;
+    }
+    taskEntity.redirectUrlKey = redirectUrlKey;
+  }
 
   /**
    * 获取任务文件大小

@@ -13,31 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.inf;
+package com.arialyy.aria.orm;
 
-import com.arialyy.aria.core.RequestEnum;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Aria.Lao on 2017/2/23.
+ * Created by Aria.Lao on 2017/4/6.
+ * DB映射表
  */
+public class DBMapping {
+  static Map<String, String> mapping = new HashMap<>();
 
-public abstract class ITaskEntity {
-  /**
-   * http 请求头
-   */
-  public Map<String, String> headers = new HashMap<>();
-
-  /**
-   * 网络请求类型
-   */
-  public RequestEnum requestEnum = RequestEnum.GET;
-
-  /**
-   * 重定向后，新url的key
-   */
-  public String redirectUrlKey = "location";
-
-  public abstract IEntity getEntity();
+  static {
+    mapping.put("DownloadEntity", "com.arialyy.aria.core.download.DownloadEntity");
+    mapping.put("UploadEntity", "com.arialyy.aria.core.upload.UploadEntity");
+  }
 }

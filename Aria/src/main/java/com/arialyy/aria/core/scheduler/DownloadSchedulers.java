@@ -95,7 +95,6 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
         startNextTask();
         break;
       case FAIL:
-        //mQueue.removeTask(entity);
         handleFailTask(task);
         break;
     }

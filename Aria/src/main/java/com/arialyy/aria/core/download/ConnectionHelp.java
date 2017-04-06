@@ -77,6 +77,9 @@ class ConnectionHelp {
         "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
     ////用于处理Disconnect 不起作用问题
     //conn.setRequestProperty("Connection", "close");
+    conn.setRequestProperty("Connection", "Keep-Alive");
+    //302获取重定向地址
+    conn.setInstanceFollowRedirects(false);
     return conn;
   }
 }

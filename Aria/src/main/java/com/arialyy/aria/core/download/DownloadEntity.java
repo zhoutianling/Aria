@@ -30,15 +30,6 @@ import com.arialyy.aria.orm.DbEntity;
  * ！！！并且需要Parcelable时需要手动填写rowID;
  */
 public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
-  @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
-    @Override public DownloadEntity createFromParcel(Parcel source) {
-      return new DownloadEntity(source);
-    }
-
-    @Override public DownloadEntity[] newArray(int size) {
-      return new DownloadEntity[size];
-    }
-  };
   @Ignore private long speed = 0; //下载速度
   @Ignore private int failNum = 0;
   private String downloadUrl = ""; //下载路径
@@ -50,23 +41,10 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
   private boolean isDownloadComplete = false;   //是否下载完成
   private long currentProgress = 0;    //当前下载进度
   private long completeTime;  //完成时间
+  private boolean isRedirect = false;
+  private String redirectUrl = ""; //重定向链接
 
   public DownloadEntity() {
-  }
-
-  protected DownloadEntity(Parcel in) {
-    this.downloadUrl = in.readString();
-    this.downloadPath = in.readString();
-    this.fileName = in.readString();
-    this.str = in.readString();
-    this.completeTime = in.readLong();
-    this.fileSize = in.readLong();
-    this.state = in.readInt();
-    this.isDownloadComplete = in.readByte() != 0;
-    this.currentProgress = in.readLong();
-    this.failNum = in.readInt();
-    this.speed = in.readLong();
-    this.rowID = in.readInt();
   }
 
   public String getStr() {
@@ -164,16 +142,40 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     return (DownloadEntity) super.clone();
   }
 
+  public boolean isRedirect() {
+    return isRedirect;
+  }
+
+  public void setRedirect(boolean redirect) {
+    isRedirect = redirect;
+  }
+
+  public String getRedirectUrl() {
+    return redirectUrl;
+  }
+
+  public void setRedirectUrl(String redirectUrl) {
+    this.redirectUrl = redirectUrl;
+  }
+
   @Override public String toString() {
     return "DownloadEntity{"
-        + "downloadUrl='"
+        + "speed="
+        + speed
+        + ", failNum="
+        + failNum
+        + ", downloadUrl='"
         + downloadUrl
         + '\''
         + ", downloadPath='"
         + downloadPath
         + '\''
-        + ", completeTime="
-        + completeTime
+        + ", fileName='"
+        + fileName
+        + '\''
+        + ", str='"
+        + str
+        + '\''
         + ", fileSize="
         + fileSize
         + ", state="
@@ -182,8 +184,13 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
         + isDownloadComplete
         + ", currentProgress="
         + currentProgress
-        + ", failNum="
-        + failNum
+        + ", completeTime="
+        + completeTime
+        + ", isRedirect="
+        + isRedirect
+        + ", redirectUrl='"
+        + redirectUrl
+        + '\''
         + '}';
   }
 
@@ -192,17 +199,44 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
   }
 
   @Override public void writeToParcel(Parcel dest, int flags) {
+    dest.writeLong(this.speed);
+    dest.writeInt(this.failNum);
     dest.writeString(this.downloadUrl);
     dest.writeString(this.downloadPath);
     dest.writeString(this.fileName);
     dest.writeString(this.str);
-    dest.writeLong(this.completeTime);
     dest.writeLong(this.fileSize);
     dest.writeInt(this.state);
     dest.writeByte(this.isDownloadComplete ? (byte) 1 : (byte) 0);
     dest.writeLong(this.currentProgress);
-    dest.writeInt(this.failNum);
-    dest.writeLong(this.speed);
-    dest.writeInt(this.rowID);
+    dest.writeLong(this.completeTime);
+    dest.writeByte(this.isRedirect ? (byte) 1 : (byte) 0);
+    dest.writeString(this.redirectUrl);
   }
+
+  protected DownloadEntity(Parcel in) {
+    this.speed = in.readLong();
+    this.failNum = in.readInt();
+    this.downloadUrl = in.readString();
+    this.downloadPath = in.readString();
+    this.fileName = in.readString();
+    this.str = in.readString();
+    this.fileSize = in.readLong();
+    this.state = in.readInt();
+    this.isDownloadComplete = in.readByte() != 0;
+    this.currentProgress = in.readLong();
+    this.completeTime = in.readLong();
+    this.isRedirect = in.readByte() != 0;
+    this.redirectUrl = in.readString();
+  }
+
+  @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
+    @Override public DownloadEntity createFromParcel(Parcel source) {
+      return new DownloadEntity(source);
+    }
+
+    @Override public DownloadEntity[] newArray(int size) {
+      return new DownloadEntity[size];
+    }
+  };
 }

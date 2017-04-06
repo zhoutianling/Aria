@@ -21,6 +21,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -37,12 +38,12 @@ public class DbUtil {
   private static final String TAG = "DbUtil";
   private static final Object LOCK = new Object();
   private volatile static DbUtil INSTANCE = null;
-  private int CREATE_TABLE = 0;
-  private int TABLE_EXISTS = 1;
-  private int INSERT_DATA = 2;
-  private int MODIFY_DATA = 3;
-  private int FIND_DATA = 4;
-  private int FIND_ALL_DATA = 5;
+  private static final int CREATE_TABLE = 0;
+  private static final int TABLE_EXISTS = 1;
+  private static final int INSERT_DATA = 2;
+  private static final int MODIFY_DATA = 3;
+  private static final int FIND_DATA = 4;
+  private static final int FIND_ALL_DATA = 5;
   private int DEL_DATA = 6;
   private int ROW_ID = 7;
   private SQLiteDatabase mDb;
@@ -53,6 +54,11 @@ public class DbUtil {
   }
 
   private DbUtil(Context context) {
+    //mHelper = new SqlHelper(context.getApplicationContext(), new SqlHelper.UpgradeListener() {
+    //  @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    //
+    //  }
+    //});
     mHelper = new SqlHelper(context.getApplicationContext());
   }
 
@@ -136,9 +142,10 @@ public class DbUtil {
         }
         sb.append(i > 0 ? ", " : "");
         try {
+          Object value = field.get(dbEntity);
           sb.append(field.getName())
               .append("='")
-              .append(field.get(dbEntity).toString())
+              .append(value == null ? "" : value.toString())
               .append("'");
         } catch (IllegalAccessException e) {
           e.printStackTrace();
@@ -156,15 +163,24 @@ public class DbUtil {
    * 遍历所有数据
    */
   synchronized <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
-    if (!tableExists(clazz)) {
-      createTable(clazz);
+    if (mDb == null || !mDb.isOpen()) {
+      mDb = mHelper.getReadableDatabase();
     }
-    mDb = mHelper.getReadableDatabase();
+    return findAllData(mDb, clazz);
+  }
+
+  /**
+   * 遍历所有数据
+   */
+  static synchronized <T extends DbEntity> List<T> findAllData(SQLiteDatabase db, Class<T> clazz) {
+    if (!tableExists(db, clazz)) {
+      createTable(db, clazz, null);
+    }
     StringBuilder sb = new StringBuilder();
     sb.append("SELECT rowid, * FROM ").append(CommonUtil.getClassName(clazz));
     print(FIND_ALL_DATA, sb.toString());
-    Cursor cursor = mDb.rawQuery(sb.toString(), null);
-    return cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
+    Cursor cursor = db.rawQuery(sb.toString(), null);
+    return cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
   }
 
   /**
@@ -186,7 +202,7 @@ public class DbUtil {
     sql = String.format(sql, params);
     print(FIND_DATA, sql);
     Cursor cursor = mDb.rawQuery(sql, null);
-    return cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
+    return cursor.getCount() > 0 ? newInstanceEntity(mDb, clazz, cursor) : null;
   }
 
   /**
@@ -215,18 +231,17 @@ public class DbUtil {
     }
     print(FIND_DATA, sb.toString());
     Cursor cursor = mDb.rawQuery(sb.toString(), null);
-    return cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
+    return cursor.getCount() > 0 ? newInstanceEntity(mDb, clazz, cursor) : null;
   }
 
   /**
    * 插入数据
    */
-  synchronized void insertData(DbEntity dbEntity) {
+  static synchronized void insertData(SQLiteDatabase db, DbEntity dbEntity) {
     Class<?> clazz = dbEntity.getClass();
-    if (!tableExists(clazz)) {
-      createTable(clazz);
+    if (!tableExists(db, clazz)) {
+      createTable(db, clazz, null);
     }
-    mDb = mHelper.getWritableDatabase();
     Field[] fields = CommonUtil.getFields(clazz);
     if (fields != null && fields.length > 0) {
       StringBuilder sb = new StringBuilder();
@@ -259,8 +274,18 @@ public class DbUtil {
       }
       sb.append(")");
       print(INSERT_DATA, sb.toString());
-      mDb.execSQL(sb.toString());
+      db.execSQL(sb.toString());
     }
+  }
+
+  /**
+   * 插入数据
+   */
+  synchronized void insertData(DbEntity dbEntity) {
+    if (mDb == null || !mDb.isOpen()) {
+      mDb = mHelper.getReadableDatabase();
+    }
+    insertData(mDb, dbEntity);
     close();
   }
 
@@ -271,6 +296,10 @@ public class DbUtil {
     if (mDb == null || !mDb.isOpen()) {
       mDb = mHelper.getReadableDatabase();
     }
+    return tableExists(mDb, clazz);
+  }
+
+  static synchronized boolean tableExists(SQLiteDatabase db, Class clazz) {
     Cursor cursor = null;
     try {
       StringBuilder sb = new StringBuilder();
@@ -278,7 +307,7 @@ public class DbUtil {
       sb.append(CommonUtil.getClassName(clazz));
       sb.append("'");
       print(TABLE_EXISTS, sb.toString());
-      cursor = mDb.rawQuery(sb.toString(), null);
+      cursor = db.rawQuery(sb.toString(), null);
       if (cursor != null && cursor.moveToNext()) {
         int count = cursor.getInt(0);
         if (count > 0) {
@@ -289,22 +318,20 @@ public class DbUtil {
       e.printStackTrace();
     } finally {
       if (cursor != null) cursor.close();
-      close();
+      if (db != null) {
+        db.close();
+      }
     }
     return false;
   }
 
-  /**
-   * 创建表
-   */
-  private synchronized void createTable(Class clazz) {
-    if (mDb == null || !mDb.isOpen()) {
-      mDb = mHelper.getWritableDatabase();
-    }
+  static synchronized void createTable(SQLiteDatabase db, Class clazz, String tableName) {
     Field[] fields = CommonUtil.getFields(clazz);
     if (fields != null && fields.length > 0) {
       StringBuilder sb = new StringBuilder();
-      sb.append("create table ").append(CommonUtil.getClassName(clazz)).append("(");
+      sb.append("create table ")
+          .append(TextUtils.isEmpty(tableName) ? CommonUtil.getClassName(clazz) : tableName)
+          .append("(");
       for (Field field : fields) {
         field.setAccessible(true);
         if (ignoreField(field)) {
@@ -336,15 +363,31 @@ public class DbUtil {
       String str = sb.toString();
       str = str.substring(0, str.length() - 1) + ");";
       print(CREATE_TABLE, str);
-      mDb.execSQL(str);
+      db.execSQL(str);
     }
-    close();
+    if (db != null) {
+      db.close();
+    }
+  }
+
+  synchronized void createTable(Class clazz, String tableName) {
+    if (mDb == null || !mDb.isOpen()) {
+      mDb = mHelper.getWritableDatabase();
+    }
+    createTable(mDb, clazz, tableName);
+  }
+
+  /**
+   * 创建表
+   */
+  private synchronized void createTable(Class clazz) {
+    createTable(clazz, null);
   }
 
   /**
    * @return true 忽略该字段
    */
-  private boolean ignoreField(Field field) {
+  static boolean ignoreField(Field field) {
     // field.isSynthetic(), 使用as热启动App时，AS会自动给你的clss添加change字段
     Ignore ignore = field.getAnnotation(Ignore.class);
     return (ignore != null && ignore.value()) || field.isSynthetic();
@@ -355,28 +398,28 @@ public class DbUtil {
    *
    * @param type {@link DbUtil}
    */
-  private void print(int type, String sql) {
+  private static void print(int type, String sql) {
     if (true) {
       return;
     }
     String str = "";
     switch (type) {
-      case 0:
+      case CREATE_TABLE:
         str = "创建表 >>>> ";
         break;
-      case 1:
+      case TABLE_EXISTS:
         str = "表是否存在 >>>> ";
         break;
-      case 2:
+      case INSERT_DATA:
         str = "插入数据 >>>> ";
         break;
-      case 3:
+      case MODIFY_DATA:
         str = "修改数据 >>>> ";
         break;
-      case 4:
+      case FIND_DATA:
         str = "查询一行数据 >>>> ";
         break;
-      case 5:
+      case FIND_ALL_DATA:
         str = "遍历整个数据库 >>>> ";
         break;
     }
@@ -440,8 +483,8 @@ public class DbUtil {
   /**
    * 根据数据游标创建一个具体的对象
    */
-  private synchronized <T extends DbEntity> List<T> newInstanceEntity(Class<T> clazz,
-      Cursor cursor) {
+  private static synchronized <T extends DbEntity> List<T> newInstanceEntity(SQLiteDatabase db,
+      Class<T> clazz, Cursor cursor) {
     Field[] fields = CommonUtil.getFields(clazz);
     List<T> entitys = new ArrayList<>();
     if (fields != null && fields.length > 0) {
@@ -486,7 +529,10 @@ public class DbUtil {
       }
     }
     cursor.close();
-    close();
+    //close();
+    if (db != null) {
+      db.close();
+    }
     return entitys;
   }
 }

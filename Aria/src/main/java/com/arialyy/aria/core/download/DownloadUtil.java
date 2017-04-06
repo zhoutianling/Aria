@@ -34,7 +34,7 @@ import java.util.concurrent.Executors;
  * Created by lyy on 2015/8/25.
  * 下载工具类
  */
-final class DownloadUtil implements IDownloadUtil, Runnable {
+public class DownloadUtil implements IDownloadUtil, Runnable {
   private static final String TAG = "DownloadUtil";
   /**
    * 线程数
@@ -207,34 +207,7 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       conn.setConnectTimeout(mConnectTimeOut * 4);
       conn.connect();
-      int len = conn.getContentLength();
-      //if (len < 0) {  //网络被劫持时会出现这个问题
-      //  failDownload("下载失败，网络被劫持");
-      //  return;
-      //}
-      int code = conn.getResponseCode();
-      //https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81
-      //206支持断点
-      if (code == HttpURLConnection.HTTP_PARTIAL) {
-        isSupportBreakpoint = true;
-        mListener.supportBreakpoint(true);
-        handleBreakpoint(conn);
-      } else if (code == HttpURLConnection.HTTP_OK || len < 0) {
-        //在conn.setRequestProperty("Range", "bytes=" + 0 + "-");下，200为不支持断点状态
-        if (len < 0) {
-          failDownload("任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，文件长度小于0");
-          return;
-        }
-        isSupportBreakpoint = false;
-        mListener.supportBreakpoint(false);
-        Log.w(TAG, "该下载链接不支持断点下载");
-        handleBreakpoint(conn);
-      } else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
-        Log.w(TAG, "任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，错误码：404");
-        mListener.onCancel();
-      } else {
-        failDownload("任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，错误码：" + code);
-      }
+      handleConnect(conn);
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"
           + mDownloadEntity.getDownloadUrl()
@@ -243,6 +216,76 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
           + "】"
           + CommonUtil.getPrintException(e));
     }
+  }
+
+  /**
+   * 处理状态吗
+   */
+  private void handleConnect(HttpURLConnection conn) throws IOException {
+    int len = conn.getContentLength();
+    //if (len < 0) {  //网络被劫持时会出现这个问题
+    //  failDownload("下载失败，网络被劫持");
+    //  return;
+    //}
+    int code = conn.getResponseCode();
+    //https://zh.wikipedia.org/wiki/HTTP%E7%8A%B6%E6%80%81%E7%A0%81
+    //206支持断点
+    if (code == HttpURLConnection.HTTP_PARTIAL) {
+      if (!checkLen(len)) return;
+      isSupportBreakpoint = true;
+      mListener.supportBreakpoint(true);
+      handleBreakpoint(conn);
+    } else if (code == HttpURLConnection.HTTP_OK) {
+      //在conn.setRequestProperty("Range", "bytes=" + 0 + "-");下，200为不支持断点状态
+      if (!checkLen(len)) return;
+      isSupportBreakpoint = false;
+      mListener.supportBreakpoint(false);
+      Log.w(TAG, "该下载链接不支持断点下载");
+      handleBreakpoint(conn);
+    } else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
+      Log.w(TAG, "任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，错误码：404");
+      mListener.onCancel();
+    } else if (code == HttpURLConnection.HTTP_MOVED_TEMP
+        || code == HttpURLConnection.HTTP_MOVED_PERM
+        || code == HttpURLConnection.HTTP_SEE_OTHER) {
+      handle302Turn(conn);
+    } else {
+      failDownload("任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，错误码：" + code);
+    }
+  }
+
+  /**
+   * 检查长度是否合法
+   *
+   * @param len 从服务器获取的文件长度
+   * @return true, 合法
+   */
+  private boolean checkLen(long len) {
+    if (len < 0) {
+      failDownload("任务【" + mDownloadEntity.getDownloadUrl() + "】下载失败，文件长度小于0");
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * 处理30x跳转
+   */
+  private void handle302Turn(HttpURLConnection conn) throws IOException {
+    String newUrl = conn.getHeaderField(mDownloadTaskEntity.redirectUrlKey);
+    Log.d(TAG, "30x跳转，新url为【" + newUrl + "】");
+    mDownloadEntity.setRedirect(true);
+    mDownloadEntity.setRedirectUrl(newUrl);
+    mDownloadEntity.update();
+    String cookies = conn.getHeaderField("Set-Cookie");
+    conn = (HttpURLConnection) new URL(newUrl).openConnection();
+    conn = ConnectionHelp.setConnectParam(mDownloadTaskEntity, conn);
+    conn.setRequestProperty("Cookie", cookies);
+    conn.setRequestProperty("Range", "bytes=" + 0 + "-");
+    conn.setConnectTimeout(mConnectTimeOut * 4);
+    conn.connect();
+
+    handleConnect(conn);
   }
 
   /**
@@ -307,7 +350,9 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
     ConfigEntity entity = new ConfigEntity();
     long len = conn.getContentLength();
     entity.FILE_SIZE = len;
-    entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
+    //entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
+    entity.DOWNLOAD_URL = mDownloadEntity.isRedirect() ? mDownloadEntity.getRedirectUrl()
+        : mDownloadEntity.getDownloadUrl();
     entity.TEMP_FILE = mDownloadFile;
     entity.THREAD_ID = 0;
     entity.START_LOCATION = 0;
@@ -383,7 +428,9 @@ final class DownloadUtil implements IDownloadUtil, Runnable {
   private void addSingleTask(int i, long startL, long endL, long fileLength) {
     ConfigEntity entity = new ConfigEntity();
     entity.FILE_SIZE = fileLength;
-    entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
+    //entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
+    entity.DOWNLOAD_URL = mDownloadEntity.isRedirect() ? mDownloadEntity.getRedirectUrl()
+        : mDownloadEntity.getDownloadUrl();
     entity.TEMP_FILE = mDownloadFile;
     entity.THREAD_ID = i;
     entity.START_LOCATION = startL;

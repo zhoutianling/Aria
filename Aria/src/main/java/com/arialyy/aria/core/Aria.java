@@ -27,7 +27,6 @@ import android.content.Context;
 import android.os.Build;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.download.DownloadReceiver;
-import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulerListener;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.download.DownloadTask;
@@ -207,8 +206,8 @@ import com.arialyy.aria.core.upload.UploadTask;
   /**
    * 下载任务状态监听
    */
-  public static class DownloadSchedulerListener implements
-      IDownloadSchedulerListener<DownloadTask> {
+  public static class DownloadSchedulerListener
+      implements IDownloadSchedulerListener<DownloadTask> {
 
     @Override public void onTaskPre(DownloadTask task) {
 

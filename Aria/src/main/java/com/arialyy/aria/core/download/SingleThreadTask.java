@@ -15,6 +15,9 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
@@ -32,7 +35,9 @@ import java.util.Properties;
  * 下载线程
  */
 final class SingleThreadTask implements Runnable {
-  private static final String TAG = "SingleThreadTask";
+  private static final String TAG      = "SingleThreadTask";
+  // TODO: 2017/2/22 不能使用1024 否则最大速度不能超过3m
+  private static final int    BUF_SIZE = 8192;
   private DownloadUtil.ConfigEntity mConfigEntity;
   private String mConfigFPath;
   private long mChildCurrentLocation = 0;
@@ -181,8 +186,32 @@ final class SingleThreadTask implements Runnable {
       mChildCurrentLocation += len;
       mConstance.CURRENT_LOCATION += len;
       mListener.onProgress(mConstance.CURRENT_LOCATION);
+      //mHandler.sendEmptyMessage(1);
+      //mHandler.post(t);
     }
   }
+
+  Handler mHandler = new Handler(Looper.getMainLooper()) {
+    @Override public void handleMessage(Message msg) {
+      super.handleMessage(msg);
+      mListener.onProgress(mConstance.CURRENT_LOCATION);
+    }
+  };
+
+  Thread t = new Thread(new Runnable() {
+    @Override public void run() {
+      mListener.onProgress(mConstance.CURRENT_LOCATION);
+    }
+  });
+
+  //Handler handler = new Handler(){
+  //  @Override public void handleMessage(Message msg) {
+  //    super.handleMessage(msg);
+  //    mListener.onProgress(mConstance.CURRENT_LOCATION);
+  //  }
+  //};
+
+  Thread thread = new Thread();
 
   /**
    * 取消下载

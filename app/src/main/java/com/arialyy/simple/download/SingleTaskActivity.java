@@ -57,7 +57,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
       //不支持断点的链接
-      "http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
+      //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
+      "http://172.18.104.50:8080/download/_302turn";
   @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;

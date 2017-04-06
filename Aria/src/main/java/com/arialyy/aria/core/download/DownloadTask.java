@@ -246,8 +246,10 @@ public class DownloadTask implements ITask {
 
     @Override public void supportBreakpoint(boolean support) {
       super.supportBreakpoint(support);
-      sendInState2Target(ISchedulers.SUPPORT_BREAK_POINT);
-      sendIntent(Aria.ACTION_SUPPORT_BREAK_POINT, -1);
+      if (!support) {
+        sendInState2Target(ISchedulers.SUPPORT_BREAK_POINT);
+        sendIntent(Aria.ACTION_SUPPORT_BREAK_POINT, -1);
+      }
     }
 
     @Override public void onPre() {
