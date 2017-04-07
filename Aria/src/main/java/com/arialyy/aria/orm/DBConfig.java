@@ -15,18 +15,32 @@
  */
 package com.arialyy.aria.orm;
 
+import android.text.TextUtils;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.upload.UploadEntity;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by Aria.Lao on 2017/4/6.
- * DB映射表
+ * 数据库配置信息
  */
-public class DBMapping {
-  static Map<String, String> mapping = new HashMap<>();
+public class DBConfig {
+  static Map<String, Class> mapping = new HashMap<>();
+  static String DB_NAME;
+  static int VERSION = 2;
 
   static {
-    mapping.put("DownloadEntity", "com.arialyy.aria.core.download.DownloadEntity");
-    mapping.put("UploadEntity", "com.arialyy.aria.core.upload.UploadEntity");
+    if (TextUtils.isEmpty(DB_NAME)) {
+      DB_NAME = "AriaLyyDb";
+    }
+    if (VERSION == -1) {
+      VERSION = 1;
+    }
+  }
+
+  static {
+    mapping.put("DownloadEntity", DownloadEntity.class);
+    mapping.put("UploadEntity", UploadEntity.class);
   }
 }

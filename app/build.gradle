@@ -38,4 +38,5 @@ dependencies {
   compile 'com.arialyy.frame:MVVM2:2.2.0'
   compile 'com.arialyy.absadapter:AbsAdapter:1.1.2'
   compile project(':Aria')
+//  compile 'com.arialyy.aria:Aria:3.0.0'
 }

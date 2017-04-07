@@ -29,7 +29,6 @@ import java.util.List;
 public class DbEntity {
   private static final Object LOCK = new Object();
   protected int rowID = -1;
-  private DbUtil mUtil = DbUtil.getInstance();
 
   protected DbEntity() {
 
@@ -84,14 +83,14 @@ public class DbEntity {
    * 获取所有行的rowid
    */
   public int[] getRowIds() {
-    return mUtil.getRowId(getClass());
+    return DbUtil.getInstance().getRowId(getClass());
   }
 
   /**
    * 获取rowid
    */
   public int getRowId(@NonNull Object[] wheres, @NonNull Object[] values) {
-    return mUtil.getRowId(getClass(), wheres, values);
+    return DbUtil.getInstance().getRowId(getClass(), wheres, values);
   }
 
   /**
@@ -117,7 +116,7 @@ public class DbEntity {
    * 修改数据
    */
   public void update() {
-    mUtil.modifyData(this);
+    DbUtil.getInstance().modifyData(this);
   }
 
   /**
@@ -125,7 +124,7 @@ public class DbEntity {
    */
   public void save() {
     synchronized (LOCK) {
-      if (mUtil.tableExists(getClass()) && thisIsExist()) {
+      if (DbUtil.getInstance().tableExists(getClass()) && thisIsExist()) {
         update();
       } else {
         insert();
@@ -144,7 +143,7 @@ public class DbEntity {
    * 插入数据
    */
   public void insert() {
-    mUtil.insertData(this);
+    DbUtil.getInstance().insertData(this);
     updateRowID();
   }
 

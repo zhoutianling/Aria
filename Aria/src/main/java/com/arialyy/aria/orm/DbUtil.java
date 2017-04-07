@@ -38,13 +38,6 @@ public class DbUtil {
   private static final String TAG = "DbUtil";
   private static final Object LOCK = new Object();
   private volatile static DbUtil INSTANCE = null;
-  private static final int CREATE_TABLE = 0;
-  private static final int TABLE_EXISTS = 1;
-  private static final int INSERT_DATA = 2;
-  private static final int MODIFY_DATA = 3;
-  private static final int FIND_DATA = 4;
-  private static final int FIND_ALL_DATA = 5;
-  private int DEL_DATA = 6;
   private int ROW_ID = 7;
   private SQLiteDatabase mDb;
   private SqlHelper mHelper;
@@ -54,12 +47,7 @@ public class DbUtil {
   }
 
   private DbUtil(Context context) {
-    //mHelper = new SqlHelper(context.getApplicationContext(), new SqlHelper.UpgradeListener() {
-    //  @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-    //
-    //  }
-    //});
-    mHelper = new SqlHelper(context.getApplicationContext());
+    mHelper = SqlHelper.init(context.getApplicationContext());
   }
 
   public static DbUtil init(Context context) {
@@ -83,45 +71,10 @@ public class DbUtil {
   /**
    * 删除某条数据
    */
-  @Deprecated private synchronized <T extends DbEntity> void delData(Class<T> clazz,
-      @NonNull Object[] wheres, @NonNull Object[] values) {
-    mDb = mHelper.getWritableDatabase();
-    if (wheres.length <= 0 || values.length <= 0) {
-      Log.e(TAG, "输入删除条件");
-      return;
-    } else if (wheres.length != values.length) {
-      Log.e(TAG, "key 和 vaule 长度不相等");
-      return;
-    }
-    StringBuilder sb = new StringBuilder();
-    sb.append("DELETE FROM ").append(CommonUtil.getClassName(clazz)).append(" WHERE ");
-    int i = 0;
-    for (Object where : wheres) {
-      sb.append(where).append("=").append("'").append(values[i]).append("'");
-      sb.append(i >= wheres.length - 1 ? "" : ",");
-      i++;
-    }
-    print(DEL_DATA, sb.toString());
-    mDb.execSQL(sb.toString());
-    close();
-  }
-
-  /**
-   * 删除某条数据
-   */
   synchronized <T extends DbEntity> void delData(Class<T> clazz, String... expression) {
     CheckUtil.checkSqlExpression(expression);
     mDb = mHelper.getWritableDatabase();
-    String sql = "DELETE FROM " + CommonUtil.getClassName(clazz) + " WHERE " + expression[0] + " ";
-    sql = sql.replace("?", "%s");
-    Object[] params = new String[expression.length - 1];
-    for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + expression[i + 1] + "'";
-    }
-    sql = String.format(sql, params);
-    print(DEL_DATA, sql);
-    mDb.execSQL(sql);
-    close();
+    SqlHelper.delData(mDb, clazz, expression);
   }
 
   /**
@@ -129,34 +82,7 @@ public class DbUtil {
    */
   synchronized void modifyData(DbEntity dbEntity) {
     mDb = mHelper.getWritableDatabase();
-    Class<?> clazz = dbEntity.getClass();
-    Field[] fields = CommonUtil.getFields(clazz);
-    if (fields != null && fields.length > 0) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("UPDATE ").append(CommonUtil.getClassName(dbEntity)).append(" SET ");
-      int i = 0;
-      for (Field field : fields) {
-        field.setAccessible(true);
-        if (ignoreField(field)) {
-          continue;
-        }
-        sb.append(i > 0 ? ", " : "");
-        try {
-          Object value = field.get(dbEntity);
-          sb.append(field.getName())
-              .append("='")
-              .append(value == null ? "" : value.toString())
-              .append("'");
-        } catch (IllegalAccessException e) {
-          e.printStackTrace();
-        }
-        i++;
-      }
-      sb.append(" where rowid=").append(dbEntity.rowID);
-      print(MODIFY_DATA, sb.toString());
-      mDb.execSQL(sb.toString());
-    }
-    close();
+    SqlHelper.modifyData(mDb, dbEntity);
   }
 
   /**
@@ -166,43 +92,15 @@ public class DbUtil {
     if (mDb == null || !mDb.isOpen()) {
       mDb = mHelper.getReadableDatabase();
     }
-    return findAllData(mDb, clazz);
-  }
-
-  /**
-   * 遍历所有数据
-   */
-  static synchronized <T extends DbEntity> List<T> findAllData(SQLiteDatabase db, Class<T> clazz) {
-    if (!tableExists(db, clazz)) {
-      createTable(db, clazz, null);
-    }
-    StringBuilder sb = new StringBuilder();
-    sb.append("SELECT rowid, * FROM ").append(CommonUtil.getClassName(clazz));
-    print(FIND_ALL_DATA, sb.toString());
-    Cursor cursor = db.rawQuery(sb.toString(), null);
-    return cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
+    return SqlHelper.findAllData(mDb, clazz);
   }
 
   /**
    * 条件查寻数据
    */
   synchronized <T extends DbEntity> List<T> findData(Class<T> clazz, String... expression) {
-    if (!tableExists(clazz)) {
-      createTable(clazz);
-    }
     mDb = mHelper.getReadableDatabase();
-    CheckUtil.checkSqlExpression(expression);
-    String sql =
-        "SELECT rowid, * FROM " + CommonUtil.getClassName(clazz) + " WHERE " + expression[0] + " ";
-    sql = sql.replace("?", "%s");
-    Object[] params = new String[expression.length - 1];
-    for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + expression[i + 1] + "'";
-    }
-    sql = String.format(sql, params);
-    print(FIND_DATA, sql);
-    Cursor cursor = mDb.rawQuery(sql, null);
-    return cursor.getCount() > 0 ? newInstanceEntity(mDb, clazz, cursor) : null;
+    return SqlHelper.findData(mDb, clazz, expression);
   }
 
   /**
@@ -210,72 +108,8 @@ public class DbUtil {
    */
   @Deprecated synchronized <T extends DbEntity> List<T> findData(Class<T> clazz,
       @NonNull String[] wheres, @NonNull String[] values) {
-    if (!tableExists(clazz)) {
-      createTable(clazz);
-    }
     mDb = mHelper.getReadableDatabase();
-    if (wheres.length <= 0 || values.length <= 0) {
-      Log.e(TAG, "请输入查询条件");
-      return null;
-    } else if (wheres.length != values.length) {
-      Log.e(TAG, "key 和 vaule 长度不相等");
-      return null;
-    }
-    StringBuilder sb = new StringBuilder();
-    sb.append("SELECT rowid, * FROM ").append(CommonUtil.getClassName(clazz)).append(" where ");
-    int i = 0;
-    for (Object where : wheres) {
-      sb.append(where).append("=").append("'").append(values[i]).append("'");
-      sb.append(i >= wheres.length - 1 ? "" : " AND ");
-      i++;
-    }
-    print(FIND_DATA, sb.toString());
-    Cursor cursor = mDb.rawQuery(sb.toString(), null);
-    return cursor.getCount() > 0 ? newInstanceEntity(mDb, clazz, cursor) : null;
-  }
-
-  /**
-   * 插入数据
-   */
-  static synchronized void insertData(SQLiteDatabase db, DbEntity dbEntity) {
-    Class<?> clazz = dbEntity.getClass();
-    if (!tableExists(db, clazz)) {
-      createTable(db, clazz, null);
-    }
-    Field[] fields = CommonUtil.getFields(clazz);
-    if (fields != null && fields.length > 0) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("INSERT INTO ").append(CommonUtil.getClassName(dbEntity)).append("(");
-      int i = 0;
-      for (Field field : fields) {
-        field.setAccessible(true);
-        if (ignoreField(field)) {
-          continue;
-        }
-        sb.append(i > 0 ? ", " : "");
-        sb.append(field.getName());
-        i++;
-      }
-      sb.append(") VALUES (");
-      i = 0;
-      for (Field field : fields) {
-        field.setAccessible(true);
-        if (ignoreField(field)) {
-          continue;
-        }
-        sb.append(i > 0 ? ", " : "");
-        sb.append("'");
-        try {
-          sb.append(field.get(dbEntity)).append("'");
-        } catch (IllegalAccessException e) {
-          e.printStackTrace();
-        }
-        i++;
-      }
-      sb.append(")");
-      print(INSERT_DATA, sb.toString());
-      db.execSQL(sb.toString());
-    }
+    return SqlHelper.findData(mDb, clazz, wheres, values);
   }
 
   /**
@@ -285,8 +119,7 @@ public class DbUtil {
     if (mDb == null || !mDb.isOpen()) {
       mDb = mHelper.getReadableDatabase();
     }
-    insertData(mDb, dbEntity);
-    close();
+    SqlHelper.insertData(mDb, dbEntity);
   }
 
   /**
@@ -296,85 +129,14 @@ public class DbUtil {
     if (mDb == null || !mDb.isOpen()) {
       mDb = mHelper.getReadableDatabase();
     }
-    return tableExists(mDb, clazz);
-  }
-
-  static synchronized boolean tableExists(SQLiteDatabase db, Class clazz) {
-    Cursor cursor = null;
-    try {
-      StringBuilder sb = new StringBuilder();
-      sb.append("SELECT COUNT(*) AS c FROM sqlite_master WHERE type='table' AND name='");
-      sb.append(CommonUtil.getClassName(clazz));
-      sb.append("'");
-      print(TABLE_EXISTS, sb.toString());
-      cursor = db.rawQuery(sb.toString(), null);
-      if (cursor != null && cursor.moveToNext()) {
-        int count = cursor.getInt(0);
-        if (count > 0) {
-          return true;
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    } finally {
-      if (cursor != null) cursor.close();
-      if (db != null) {
-        db.close();
-      }
-    }
-    return false;
-  }
-
-  static synchronized void createTable(SQLiteDatabase db, Class clazz, String tableName) {
-    Field[] fields = CommonUtil.getFields(clazz);
-    if (fields != null && fields.length > 0) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("create table ")
-          .append(TextUtils.isEmpty(tableName) ? CommonUtil.getClassName(clazz) : tableName)
-          .append("(");
-      for (Field field : fields) {
-        field.setAccessible(true);
-        if (ignoreField(field)) {
-          continue;
-        }
-        sb.append(field.getName());
-        Class<?> type = field.getType();
-        if (type == String.class) {
-          sb.append(" varchar");
-        } else if (type == int.class || type == Integer.class) {
-          sb.append(" interger");
-        } else if (type == float.class || type == Float.class) {
-          sb.append(" float");
-        } else if (type == double.class || type == Double.class) {
-          sb.append(" double");
-        } else if (type == long.class || type == Long.class) {
-          sb.append(" bigint");
-        } else if (type == boolean.class || type == Boolean.class) {
-          sb.append(" boolean");
-        } else if (type == java.util.Date.class || type == java.sql.Date.class) {
-          sb.append(" data");
-        } else if (type == byte.class || type == Byte.class) {
-          sb.append(" blob");
-        } else {
-          continue;
-        }
-        sb.append(",");
-      }
-      String str = sb.toString();
-      str = str.substring(0, str.length() - 1) + ");";
-      print(CREATE_TABLE, str);
-      db.execSQL(str);
-    }
-    if (db != null) {
-      db.close();
-    }
+    return SqlHelper.tableExists(mDb, clazz);
   }
 
   synchronized void createTable(Class clazz, String tableName) {
     if (mDb == null || !mDb.isOpen()) {
       mDb = mHelper.getWritableDatabase();
     }
-    createTable(mDb, clazz, tableName);
+    SqlHelper.createTable(mDb, clazz, tableName);
   }
 
   /**
@@ -382,48 +144,6 @@ public class DbUtil {
    */
   private synchronized void createTable(Class clazz) {
     createTable(clazz, null);
-  }
-
-  /**
-   * @return true 忽略该字段
-   */
-  static boolean ignoreField(Field field) {
-    // field.isSynthetic(), 使用as热启动App时，AS会自动给你的clss添加change字段
-    Ignore ignore = field.getAnnotation(Ignore.class);
-    return (ignore != null && ignore.value()) || field.isSynthetic();
-  }
-
-  /**
-   * 打印数据库日志
-   *
-   * @param type {@link DbUtil}
-   */
-  private static void print(int type, String sql) {
-    if (true) {
-      return;
-    }
-    String str = "";
-    switch (type) {
-      case CREATE_TABLE:
-        str = "创建表 >>>> ";
-        break;
-      case TABLE_EXISTS:
-        str = "表是否存在 >>>> ";
-        break;
-      case INSERT_DATA:
-        str = "插入数据 >>>> ";
-        break;
-      case MODIFY_DATA:
-        str = "修改数据 >>>> ";
-        break;
-      case FIND_DATA:
-        str = "查询一行数据 >>>> ";
-        break;
-      case FIND_ALL_DATA:
-        str = "遍历整个数据库 >>>> ";
-        break;
-    }
-    Log.v(TAG, str + sql);
   }
 
   /**
@@ -472,67 +192,11 @@ public class DbUtil {
       sb.append(i >= wheres.length - 1 ? "" : ",");
       i++;
     }
-    print(ROW_ID, sb.toString());
+    SqlHelper.print(ROW_ID, sb.toString());
     Cursor c = mDb.rawQuery(sb.toString(), null);
     int id = c.getColumnIndex("rowid");
     c.close();
     close();
     return id;
-  }
-
-  /**
-   * 根据数据游标创建一个具体的对象
-   */
-  private static synchronized <T extends DbEntity> List<T> newInstanceEntity(SQLiteDatabase db,
-      Class<T> clazz, Cursor cursor) {
-    Field[] fields = CommonUtil.getFields(clazz);
-    List<T> entitys = new ArrayList<>();
-    if (fields != null && fields.length > 0) {
-      try {
-        while (cursor.moveToNext()) {
-          T entity = clazz.newInstance();
-          for (Field field : fields) {
-            field.setAccessible(true);
-            if (ignoreField(field)) {
-              continue;
-            }
-            Class<?> type = field.getType();
-            int column = cursor.getColumnIndex(field.getName());
-            if (type == String.class) {
-              field.set(entity, cursor.getString(column));
-            } else if (type == int.class || type == Integer.class) {
-              field.setInt(entity, cursor.getInt(column));
-            } else if (type == float.class || type == Float.class) {
-              field.setFloat(entity, cursor.getFloat(column));
-            } else if (type == double.class || type == Double.class) {
-              field.setDouble(entity, cursor.getDouble(column));
-            } else if (type == long.class || type == Long.class) {
-              field.setLong(entity, cursor.getLong(column));
-            } else if (type == boolean.class || type == Boolean.class) {
-              field.setBoolean(entity, !cursor.getString(column).equalsIgnoreCase("false"));
-            } else if (type == java.util.Date.class || type == java.sql.Date.class) {
-              field.set(entity, new Date(cursor.getString(column)));
-            } else if (type == byte[].class) {
-              field.set(entity, cursor.getBlob(column));
-            } else {
-              continue;
-            }
-          }
-          entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
-          entitys.add(entity);
-          //Log.d(TAG, "rowid ==> " + entity.rowID);
-        }
-      } catch (InstantiationException e) {
-        e.printStackTrace();
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      }
-    }
-    cursor.close();
-    //close();
-    if (db != null) {
-      db.close();
-    }
-    return entitys;
   }
 }
