@@ -90,6 +90,14 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity,
   public TASK getTask(ENTITY entity);
 
   /**
+   * 通过工作实体缓存池或任务池搜索下载任务，如果缓存池或任务池都没有任务，则创建新任务
+   *
+   * @param url 链接地址，如果是下载，则为下载链接，如果是上传，为文件保存路径
+   * @return {@link DownloadTask}、{@link UploadTask}
+   */
+  public TASK getTask(String url);
+
+  /**
    * 通过工作实体删除任务
    *
    * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}

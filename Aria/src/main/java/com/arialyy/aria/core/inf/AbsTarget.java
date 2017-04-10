@@ -23,6 +23,7 @@ import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
@@ -72,6 +73,13 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
       return entity.getFileSize();
     }
     return -1;
+  }
+
+  /**
+   * 下载任务是否存在
+   */
+  public boolean taskExists(String downloadUrl) {
+    return false;
   }
 
   /**

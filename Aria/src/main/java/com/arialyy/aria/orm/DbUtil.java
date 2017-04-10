@@ -21,13 +21,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -73,7 +69,7 @@ public class DbUtil {
    */
   synchronized <T extends DbEntity> void delData(Class<T> clazz, String... expression) {
     CheckUtil.checkSqlExpression(expression);
-    mDb = mHelper.getWritableDatabase();
+    checkDb();
     SqlHelper.delData(mDb, clazz, expression);
   }
 
@@ -81,7 +77,7 @@ public class DbUtil {
    * 修改某行数据
    */
   synchronized void modifyData(DbEntity dbEntity) {
-    mDb = mHelper.getWritableDatabase();
+    checkDb();
     SqlHelper.modifyData(mDb, dbEntity);
   }
 
@@ -89,9 +85,7 @@ public class DbUtil {
    * 遍历所有数据
    */
   synchronized <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
-    if (mDb == null || !mDb.isOpen()) {
-      mDb = mHelper.getReadableDatabase();
-    }
+    checkDb();
     return SqlHelper.findAllData(mDb, clazz);
   }
 
@@ -99,7 +93,7 @@ public class DbUtil {
    * 条件查寻数据
    */
   synchronized <T extends DbEntity> List<T> findData(Class<T> clazz, String... expression) {
-    mDb = mHelper.getReadableDatabase();
+    checkDb();
     return SqlHelper.findData(mDb, clazz, expression);
   }
 
@@ -108,7 +102,7 @@ public class DbUtil {
    */
   @Deprecated synchronized <T extends DbEntity> List<T> findData(Class<T> clazz,
       @NonNull String[] wheres, @NonNull String[] values) {
-    mDb = mHelper.getReadableDatabase();
+    checkDb();
     return SqlHelper.findData(mDb, clazz, wheres, values);
   }
 
@@ -116,9 +110,7 @@ public class DbUtil {
    * 插入数据
    */
   synchronized void insertData(DbEntity dbEntity) {
-    if (mDb == null || !mDb.isOpen()) {
-      mDb = mHelper.getReadableDatabase();
-    }
+    checkDb();
     SqlHelper.insertData(mDb, dbEntity);
   }
 
@@ -126,17 +118,19 @@ public class DbUtil {
    * 查找某张表是否存在
    */
   synchronized boolean tableExists(Class clazz) {
-    if (mDb == null || !mDb.isOpen()) {
-      mDb = mHelper.getReadableDatabase();
-    }
+    checkDb();
     return SqlHelper.tableExists(mDb, clazz);
   }
 
   synchronized void createTable(Class clazz, String tableName) {
-    if (mDb == null || !mDb.isOpen()) {
-      mDb = mHelper.getWritableDatabase();
-    }
+    checkDb();
     SqlHelper.createTable(mDb, clazz, tableName);
+  }
+
+  private void checkDb(){
+    if (mDb == null || !mDb.isOpen()) {
+      mDb = mHelper.getReadableDatabase();
+    }
   }
 
   /**
@@ -159,7 +153,7 @@ public class DbUtil {
    * 获取所在行Id
    */
   synchronized int[] getRowId(Class clazz) {
-    mDb = mHelper.getReadableDatabase();
+    checkDb();
     Cursor cursor = mDb.rawQuery("SELECT rowid, * FROM " + CommonUtil.getClassName(clazz), null);
     int[] ids = new int[cursor.getCount()];
     int i = 0;
@@ -176,7 +170,7 @@ public class DbUtil {
    * 获取行Id
    */
   synchronized int getRowId(Class clazz, Object[] wheres, Object[] values) {
-    mDb = mHelper.getReadableDatabase();
+    checkDb();
     if (wheres.length <= 0 || values.length <= 0) {
       Log.e(TAG, "请输入删除条件");
       return -1;

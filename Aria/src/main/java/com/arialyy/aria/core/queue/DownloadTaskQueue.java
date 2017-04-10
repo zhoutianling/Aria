@@ -160,9 +160,13 @@ public class DownloadTaskQueue
   }
 
   @Override public DownloadTask getTask(DownloadEntity entity) {
-    DownloadTask task = mExecutePool.getTask(entity.getDownloadUrl());
+    return getTask(entity.getDownloadUrl());
+  }
+
+  @Override public DownloadTask getTask(String url) {
+    DownloadTask task = mExecutePool.getTask(url);
     if (task == null) {
-      task = mCachePool.getTask(entity.getDownloadUrl());
+      task = mCachePool.getTask(url);
     }
     return task;
   }

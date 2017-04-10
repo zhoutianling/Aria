@@ -75,6 +75,13 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
   }
 
   /**
+   * 下载任务是否存在
+   */
+  @Override public boolean taskExists(String downloadUrl) {
+    return DownloadTaskQueue.getInstance().getTask(downloadUrl) != null;
+  }
+
+  /**
    * 设置请求类型
    *
    * @param requestEnum {@link RequestEnum}

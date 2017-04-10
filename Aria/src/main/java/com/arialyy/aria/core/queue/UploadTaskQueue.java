@@ -96,9 +96,13 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
   }
 
   @Override public UploadTask getTask(UploadEntity entity) {
-    UploadTask task = mExecutePool.getTask(entity.getFilePath());
+    return getTask(entity.getFilePath());
+  }
+
+  @Override public UploadTask getTask(String url) {
+    UploadTask task = mExecutePool.getTask(url);
     if (task == null) {
-      task = mCachePool.getTask(entity.getFilePath());
+      task = mCachePool.getTask(url);
     }
     return task;
   }
