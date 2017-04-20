@@ -22,7 +22,7 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
-import com.arialyy.aria.util.Configuration;
+import com.arialyy.aria.util.Configuration_1;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +69,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
   }
 
   private void handleFailTask(final UploadTask task) {
-    final Configuration config = Configuration.getInstance();
+    final Configuration_1 config = Configuration_1.getInstance();
     CountDownTimer timer = new CountDownTimer(config.getReTryInterval(), 1000) {
       @Override public void onTick(long millisUntilFinished) {
 
@@ -169,7 +169,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
       case STOP:
       case CANCEL:
         mQueue.removeTask(entity);
-        if (mQueue.size() < Configuration.getInstance().getDownloadNum()) {
+        if (mQueue.size() < Configuration_1.getInstance().getDownloadNum()) {
           startNextTask();
         }
         break;

@@ -28,17 +28,14 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.PopupWindow;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.inf.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
-import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadReceiver;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CAConfiguration;
-import com.arialyy.aria.util.Configuration;
+import com.arialyy.aria.util.Configuration_1;
 import com.arialyy.aria.util.Speed;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,6 +57,7 @@ import java.util.Map;
   private Map<String, IReceiver> mReceivers = new HashMap<>();
   public static Context APP;
   private List<ICmd> mCommands = new ArrayList<>();
+  private Configuration mConfig;
 
   private AriaManager(Context context) {
     DbUtil.init(context.getApplicationContext());
@@ -84,7 +82,7 @@ import java.util.Map;
    * 设置最大下载速度
    */
   public void setMaxSpeed(Speed speed) {
-    Configuration.getInstance().setMaxSpeed(speed);
+    Configuration_1.getInstance().setMaxSpeed(speed);
   }
 
   /**
@@ -159,7 +157,7 @@ import java.util.Map;
    * 设置下载超时时间
    */
   @Deprecated private AriaManager setTimeOut(int timeOut) {
-    Configuration.getInstance().setTimeOut(timeOut);
+    Configuration_1.getInstance().setTimeOut(timeOut);
     return this;
   }
 
@@ -167,7 +165,7 @@ import java.util.Map;
    * 设置失败重试次数
    */
   public AriaManager setReTryNum(int reTryNum) {
-    Configuration.getInstance().setReTryNum(reTryNum);
+    Configuration_1.getInstance().setReTryNum(reTryNum);
     return this;
   }
 
@@ -175,7 +173,7 @@ import java.util.Map;
    * 设置失败重试间隔
    */
   public AriaManager setReTryInterval(int interval) {
-    Configuration.getInstance().setReTryInterval(interval);
+    Configuration_1.getInstance().setReTryInterval(interval);
     return this;
   }
 
@@ -183,7 +181,7 @@ import java.util.Map;
    * 是否打开下载广播
    */
   public AriaManager openBroadcast(boolean open) {
-    Configuration.getInstance().setOpenBroadcast(open);
+    Configuration_1.getInstance().setOpenBroadcast(open);
     return this;
   }
 

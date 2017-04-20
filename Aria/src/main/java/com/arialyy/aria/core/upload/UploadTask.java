@@ -26,7 +26,7 @@ import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Configuration;
+import com.arialyy.aria.util.Configuration_1;
 import java.lang.ref.WeakReference;
 
 /**
@@ -220,7 +220,7 @@ public class UploadTask implements ITask {
       entity.setComplete(action.equals(Aria.ACTION_COMPLETE));
       entity.setCurrentProgress(location);
       entity.update();
-      if (!Configuration.isOpenBreadCast) return;
+      if (!Configuration_1.isOpenBreadCast) return;
       Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), action);
       intent.putExtra(Aria.ENTITY, entity);
       if (location != -1) {

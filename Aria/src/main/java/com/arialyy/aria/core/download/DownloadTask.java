@@ -22,13 +22,12 @@ import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Configuration;
+import com.arialyy.aria.util.Configuration_1;
 import java.lang.ref.WeakReference;
 
 /**
@@ -349,7 +348,7 @@ public class DownloadTask implements ITask {
       downloadEntity.setDownloadComplete(action.equals(Aria.ACTION_COMPLETE));
       downloadEntity.setCurrentProgress(location);
       downloadEntity.update();
-      if (!Configuration.isOpenBreadCast) return;
+      if (!Configuration_1.isOpenBreadCast) return;
       Intent intent = CommonUtil.createIntent(context.getPackageName(), action);
       intent.putExtra(Aria.ENTITY, downloadEntity);
       if (location != -1) {

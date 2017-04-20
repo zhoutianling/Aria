@@ -22,7 +22,7 @@ import android.util.Log;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
-import com.arialyy.aria.util.Configuration;
+import com.arialyy.aria.util.Configuration_1;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -86,7 +86,7 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
       case STOP:
       case CANCEL:
         mQueue.removeTask(entity);
-        if (mQueue.size() < Configuration.getInstance().getDownloadNum()) {
+        if (mQueue.size() < Configuration_1.getInstance().getDownloadNum()) {
           startNextTask();
         }
         break;
@@ -163,7 +163,7 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
    * @param task 下载任务
    */
   private void handleFailTask(final DownloadTask task) {
-    final Configuration config = Configuration.getInstance();
+    final Configuration_1 config = Configuration_1.getInstance();
     CountDownTimer timer = new CountDownTimer(config.getReTryInterval(), 1000) {
       @Override public void onTick(long millisUntilFinished) {
 
