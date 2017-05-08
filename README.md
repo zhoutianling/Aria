@@ -136,6 +136,12 @@ compile 'com.arialyy.aria:Aria:3.0.2'
      .load(filePath)
      .cancel();
  ```
+ 
+## 混淆配置
+```
+-dontwarn com.arialyy.aria.**
+-keep class com.arialyy.aria.**{*;}
+```
 
 ## 其他
  有任何问题，可以在[issues](https://github.com/AriaLyy/Aria/issues)给我留言反馈。
