@@ -31,6 +31,7 @@ class AddCmd<T extends ITaskEntity> extends AbsCmd<T> {
   }
 
   @Override public void executeCmd() {
+    if (!cancelExe) return;
     ITask task = mQueue.getTask(mEntity.getEntity());
     if (task == null) {
       mQueue.createTask(mTargetName, mEntity);
@@ -39,20 +40,4 @@ class AddCmd<T extends ITaskEntity> extends AbsCmd<T> {
     }
   }
 
-  //AddCmd(DownloadTaskEntity entity) {
-  //  super(entity);
-  //}
-  //
-  //AddCmd(String targetName, DownloadTaskEntity entity) {
-  //  super(targetName, entity);
-  //}
-  //
-  //@Override public void executeCmd() {
-  //  DownloadTask task = mQueue.getTask(mEntity.downloadEntity);
-  //  if (task == null) {
-  //    mQueue.createTask(mTargetName, mEntity);
-  //  } else {
-  //    Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
-  //  }
-  //}
 }

@@ -17,6 +17,7 @@
 package com.arialyy.aria.util;
 
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
@@ -95,31 +96,39 @@ public class CheckUtil {
 
   /**
    * 检查命令实体
+   *
+   * @param checkPath 删除命令不需要检查下载路径和文件名
    */
-  public static void checkCmdEntity(ITaskEntity entity) {
+  public static boolean checkCmdEntity(ITaskEntity entity, boolean checkPath) {
+    boolean b = false;
     if (entity instanceof DownloadTaskEntity) {
       DownloadEntity entity1 = ((DownloadTaskEntity) entity).downloadEntity;
       if (entity1 == null) {
-        throw new NullPointerException("下载实体不能为空");
-      } else if (TextUtils.isEmpty(entity1.getDownloadUrl())) {
-        throw new IllegalArgumentException("下载链接不能为空");
-      } else if (TextUtils.isEmpty(entity1.getDownloadPath())) {
-        throw new IllegalArgumentException("保存路径不能为空");
+        Log.e(TAG, "下载实体不能为空");
+      } else if (checkPath && TextUtils.isEmpty(entity1.getDownloadUrl())) {
+        Log.e(TAG, "下载链接不能为空");
+      } else if (checkPath && TextUtils.isEmpty(entity1.getDownloadPath())) {
+        Log.e(TAG, "保存路径不能为空");
+      } else {
+        b = true;
       }
     } else if (entity instanceof UploadTaskEntity) {
       UploadEntity entity1 = ((UploadTaskEntity) entity).uploadEntity;
       if (entity1 == null) {
-        throw new NullPointerException("上传实体不能为空");
+        Log.e(TAG, "上传实体不能为空");
       } else if (TextUtils.isEmpty(entity1.getFilePath())) {
-        throw new IllegalArgumentException("上传文件路径不能为空");
+        Log.e(TAG, "上传文件路径不能为空");
+      } else {
+        b = true;
       }
     }
+    return b;
   }
 
   /**
    * 检查上传实体是否合法
    */
-  public static void checkUploadTaskEntity(UploadEntity entity) {
+  private static void checkUploadTaskEntity(UploadEntity entity) {
     if (entity == null) {
       throw new NullPointerException("上传实体不能为空");
     } else if (TextUtils.isEmpty(entity.getFilePath())) {
@@ -135,7 +144,7 @@ public class CheckUtil {
    *
    * @param entity 下载实体
    */
-  public static void checkDownloadTaskEntity(DownloadEntity entity) {
+  private static void checkDownloadTaskEntity(DownloadEntity entity) {
     if (entity == null) {
       throw new NullPointerException("下载实体不能为空");
     } else if (TextUtils.isEmpty(entity.getDownloadUrl())) {

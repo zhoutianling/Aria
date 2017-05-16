@@ -52,6 +52,17 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
   }
 
   /**
+   * 删除记录
+   */
+  public void removeRecord() {
+    if (entity instanceof DownloadEntity) {
+      ((DownloadEntity) entity).deleteData();
+    } else if (entity instanceof UploadEntity) {
+      ((UploadEntity) entity).deleteData();
+    }
+  }
+
+  /**
    * 获取任务文件大小
    *
    * @return -1，没有找到该任务

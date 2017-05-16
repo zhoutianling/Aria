@@ -55,6 +55,10 @@ public class UploadTask implements ITask {
     mTargetName = targetName;
   }
 
+  @Override public void removeRecord() {
+    mUploadEntity.deleteData();
+  }
+
   @Override public String getKey() {
     return mUploadEntity.getFilePath();
   }
@@ -87,9 +91,8 @@ public class UploadTask implements ITask {
   }
 
   @Override public void cancel() {
-    if (mUtil.isRunning()) {
-      mUtil.cancel();
-    } else {
+
+    if (!mUploadEntity.isComplete()) {
       // 如果任务不是下载状态
       mUtil.cancel();
       mUploadEntity.deleteData();
@@ -101,6 +104,21 @@ public class UploadTask implements ITask {
       intent.putExtra(Aria.ENTITY, mUploadEntity);
       AriaManager.APP.sendBroadcast(intent);
     }
+
+    //if (mUtil.isRunning()) {
+    //  mUtil.cancel();
+    //} else {
+    //  // 如果任务不是下载状态
+    //  mUtil.cancel();
+    //  mUploadEntity.deleteData();
+    //  if (mOutHandler != null) {
+    //    mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
+    //  }
+    //  //发送取消下载的广播
+    //  Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_CANCEL);
+    //  intent.putExtra(Aria.ENTITY, mUploadEntity);
+    //  AriaManager.APP.sendBroadcast(intent);
+    //}
   }
 
   public String getTargetName() {

@@ -31,6 +31,7 @@ class StartCmd<T extends ITaskEntity> extends AbsCmd<T> {
   }
 
   @Override public void executeCmd() {
+    if (!cancelExe) return;
     ITask task = mQueue.getTask(mEntity.getEntity());
     if (task == null) {
       task = mQueue.createTask(mTargetName, mEntity);
@@ -41,22 +42,4 @@ class StartCmd<T extends ITaskEntity> extends AbsCmd<T> {
     }
   }
 
-  //StartCmd(DownloadTaskEntity entity) {
-  //  super(entity);
-  //}
-  //
-  //StartCmd(String targetName, DownloadTaskEntity entity) {
-  //  super(targetName, entity);
-  //}
-  //
-  //@Override public void executeCmd() {
-  //  DownloadTask task = mQueue.getTask(mEntity.downloadEntity);
-  //  if (task == null) {
-  //    task = mQueue.createTask(mTargetName, mEntity);
-  //  }
-  //  if (task != null) {
-  //    task.setTargetName(mTargetName);
-  //    mQueue.startTask(task);
-  //  }
-  //}
 }
