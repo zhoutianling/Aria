@@ -22,13 +22,12 @@ import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Configuration;
+import com.arialyy.aria.util.Configuration_1;
 import java.lang.ref.WeakReference;
 
 /**
@@ -138,6 +137,10 @@ public class DownloadTask implements ITask {
     this.mTargetName = targetName;
   }
 
+  @Override public void removeRecord() {
+    mEntity.deleteData();
+  }
+
   /**
    * 停止下载
    */
@@ -162,10 +165,7 @@ public class DownloadTask implements ITask {
    * 取消下载
    */
   @Override public void cancel() {
-    if (mUtil.isDownloading()) {
-      mUtil.cancelDownload();
-    } else {
-      // 如果任务不是下载状态
+    if (!mEntity.isDownloadComplete()) {
       mUtil.cancelDownload();
       mUtil.delConfigFile();
       mUtil.delTempFile();
@@ -178,6 +178,22 @@ public class DownloadTask implements ITask {
       intent.putExtra(Aria.ENTITY, mEntity);
       mContext.sendBroadcast(intent);
     }
+    //if (mEntity.isDownloadComplete()) {
+    //  //mUtil.cancelDownload();
+    //} else {
+    //  // 如果任务不是下载状态
+    //  mUtil.cancelDownload();
+    //  mUtil.delConfigFile();
+    //  mUtil.delTempFile();
+    //  mEntity.deleteData();
+    //  if (mOutHandler != null) {
+    //    mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
+    //  }
+    //  //发送取消下载的广播
+    //  Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_CANCEL);
+    //  intent.putExtra(Aria.ENTITY, mEntity);
+    //  mContext.sendBroadcast(intent);
+    //}
   }
 
   public static class Builder {
@@ -187,7 +203,8 @@ public class DownloadTask implements ITask {
     String targetName;
 
     public Builder(String targetName, DownloadTaskEntity taskEntity) {
-      CheckUtil.checkDownloadTaskEntity(taskEntity.downloadEntity);
+      //CheckUtil.checkDownloadTaskEntity(taskEntity.downloadEntity);
+      CheckUtil.checkTaskEntity(taskEntity);
       this.targetName = targetName;
       this.taskEntity = taskEntity;
     }
@@ -349,7 +366,7 @@ public class DownloadTask implements ITask {
       downloadEntity.setDownloadComplete(action.equals(Aria.ACTION_COMPLETE));
       downloadEntity.setCurrentProgress(location);
       downloadEntity.update();
-      if (!Configuration.isOpenBreadCast) return;
+      if (!Configuration_1.isOpenBreadCast) return;
       Intent intent = CommonUtil.createIntent(context.getPackageName(), action);
       intent.putExtra(Aria.ENTITY, downloadEntity);
       if (location != -1) {

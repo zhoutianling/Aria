@@ -33,6 +33,7 @@ class StopCmd<T extends ITaskEntity> extends AbsCmd<T> {
   }
 
   @Override public void executeCmd() {
+    if (!cancelExe) return;
     ITask task = mQueue.getTask(mEntity.getEntity());
     if (task == null) {
       if (mEntity.getEntity().getState() == IEntity.STATE_RUNNING) {
@@ -48,29 +49,4 @@ class StopCmd<T extends ITaskEntity> extends AbsCmd<T> {
       mQueue.stopTask(task);
     }
   }
-
-  //StopCmd(DownloadTaskEntity entity) {
-  //  super(entity);
-  //}
-  //
-  //StopCmd(String targetName, DownloadTaskEntity entity) {
-  //  super(targetName, entity);
-  //}
-  //
-  //@Override public void executeCmd() {
-  //  DownloadTask task = mQueue.getTask(mEntity.downloadEntity);
-  //  if (task == null) {
-  //    if (mEntity.downloadEntity.getState() == DownloadEntity.STATE_RUNNING) {
-  //      task = mQueue.createTask(mTargetName, mEntity);
-  //      mQueue.stopTask(task);
-  //    } else {
-  //      Log.w(TAG, "停止命令执行失败，【调度器中没有该任务】");
-  //    }
-  //  } else {
-  //    if (!TextUtils.isEmpty(mTargetName)) {
-  //      task.setTargetName(mTargetName);
-  //    }
-  //    mQueue.stopTask(task);
-  //  }
-  //}
 }

@@ -21,7 +21,6 @@ import android.os.Message;
 import android.util.Log;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Configuration;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,7 +54,7 @@ final class SingleThreadTask implements Runnable {
     if (mConfigEntity.isSupportBreakpoint) {
       mConfigFPath = downloadInfo.CONFIG_FILE_PATH;
     }
-    //mBufSize = Configuration.getInstance().getMaxSpeed();
+    //mBufSize = Configuration_1.getInstance().getMaxSpeed();
   }
 
   @Override public void run() {

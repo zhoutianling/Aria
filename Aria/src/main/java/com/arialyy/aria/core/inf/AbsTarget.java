@@ -23,6 +23,7 @@ import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
@@ -51,6 +52,17 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
   }
 
   /**
+   * 删除记录
+   */
+  public void removeRecord() {
+    if (entity instanceof DownloadEntity) {
+      ((DownloadEntity) entity).deleteData();
+    } else if (entity instanceof UploadEntity) {
+      ((UploadEntity) entity).deleteData();
+    }
+  }
+
+  /**
    * 获取任务文件大小
    *
    * @return -1，没有找到该任务
@@ -72,6 +84,13 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
       return entity.getFileSize();
     }
     return -1;
+  }
+
+  /**
+   * 下载任务是否存在
+   */
+  public boolean taskExists(String downloadUrl) {
+    return false;
   }
 
   /**

@@ -20,7 +20,7 @@ Aria怎样使用？
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:3.0.2'
+compile 'com.arialyy.aria:Aria:3.0.3'
 ```
 
 ## 示例
@@ -149,6 +149,7 @@ compile 'com.arialyy.aria:Aria:3.0.2'
 ***
 
 ## 开发日志
+  + v_3.0.3 修复暂停后删除任务，闪退问题，添加删除记录的api
   + v_3.0.2 支持30x重定向链接下载
   + v_3.0.0 添加上传任务支持，修复一些已发现的bug
   + v_2.4.4 修复不支持断点的下载链接拿不到文件大小的问题

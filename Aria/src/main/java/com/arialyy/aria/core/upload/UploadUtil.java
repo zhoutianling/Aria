@@ -50,7 +50,7 @@ final class UploadUtil implements Runnable {
 
   UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
     mTaskEntity = taskEntity;
-    CheckUtil.checkUploadTaskEntity(taskEntity.uploadEntity);
+    CheckUtil.checkTaskEntity(taskEntity);
     mUploadEntity = taskEntity.uploadEntity;
     if (listener == null) {
       throw new IllegalArgumentException("上传监听不能为空");

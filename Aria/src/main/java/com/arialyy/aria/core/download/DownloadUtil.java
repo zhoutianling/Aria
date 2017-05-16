@@ -65,7 +65,8 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
 
   DownloadUtil(Context context, DownloadTaskEntity entity, IDownloadListener downloadListener,
       int threadNum) {
-    CheckUtil.checkDownloadTaskEntity(entity.downloadEntity);
+    //CheckUtil.checkDownloadTaskEntity(entity.downloadEntity);
+    CheckUtil.checkTaskEntity(entity);
     mDownloadEntity = entity.downloadEntity;
     mContext = context.getApplicationContext();
     mDownloadTaskEntity = entity;

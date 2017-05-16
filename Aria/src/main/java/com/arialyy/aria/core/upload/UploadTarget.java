@@ -101,6 +101,13 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
   }
 
   /**
+   * 下载任务是否存在
+   */
+  @Override public boolean taskExists(String downloadUrl) {
+    return UploadTaskQueue.getInstance().getTask(downloadUrl) != null;
+  }
+
+  /**
    * 设置请求类型
    *
    * @param requestEnum {@link RequestEnum}

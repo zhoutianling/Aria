@@ -25,7 +25,7 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.CachePool;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
-import com.arialyy.aria.util.Configuration;
+import com.arialyy.aria.util.Configuration_1;
 
 /**
  * Created by lyy on 2016/8/17.
@@ -121,7 +121,7 @@ public class DownloadTaskQueue
 
   @Override public void setDownloadNum(int downloadNum) {
     //原始长度
-    int size = Configuration.getInstance().getDownloadNum();
+    int size = Configuration_1.getInstance().getDownloadNum();
     int diff = downloadNum - size;
     if (size == downloadNum) {
       Log.d(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");
@@ -160,9 +160,13 @@ public class DownloadTaskQueue
   }
 
   @Override public DownloadTask getTask(DownloadEntity entity) {
-    DownloadTask task = mExecutePool.getTask(entity.getDownloadUrl());
+    return getTask(entity.getDownloadUrl());
+  }
+
+  @Override public DownloadTask getTask(String url) {
+    DownloadTask task = mExecutePool.getTask(url);
     if (task == null) {
-      task = mCachePool.getTask(entity.getDownloadUrl());
+      task = mCachePool.getTask(url);
     }
     return task;
   }

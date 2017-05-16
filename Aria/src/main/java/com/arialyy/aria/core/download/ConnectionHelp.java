@@ -43,7 +43,7 @@ class ConnectionHelp {
     if (urlConn instanceof HttpsURLConnection) {
       conn = (HttpsURLConnection) urlConn;
       SSLContext sslContext =
-          SSLContextUtil.getSSLContext(CAConfiguration.CA_ALIAS, CAConfiguration.CA_ALIAS);
+          SSLContextUtil.getSSLContext(CAConfiguration.CA_ALIAS, CAConfiguration.CA_PATH);
       if (sslContext == null) {
         sslContext = SSLContextUtil.getDefaultSLLContext();
       }

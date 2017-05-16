@@ -48,8 +48,9 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
   /**
    * 重定向后，新url的key，默认为location
    */
-  public void setRedirectUrlKey(String redirectUrlKey) {
+  public DownloadTarget setRedirectUrlKey(String redirectUrlKey) {
     super._setRedirectUrlKey(redirectUrlKey);
+    return this;
   }
 
   /**
@@ -71,6 +72,13 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
   public DownloadTarget addHeaders(Map<String, String> headers) {
     super._addHeaders(headers);
     return this;
+  }
+
+  /**
+   * 下载任务是否存在
+   */
+  @Override public boolean taskExists(String downloadUrl) {
+    return DownloadTaskQueue.getInstance().getTask(downloadUrl) != null;
   }
 
   /**

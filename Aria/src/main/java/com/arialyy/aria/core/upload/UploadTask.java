@@ -26,7 +26,7 @@ import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Configuration;
+import com.arialyy.aria.util.Configuration_1;
 import java.lang.ref.WeakReference;
 
 /**
@@ -53,6 +53,10 @@ public class UploadTask implements ITask {
 
   @Override public void setTargetName(String targetName) {
     mTargetName = targetName;
+  }
+
+  @Override public void removeRecord() {
+    mUploadEntity.deleteData();
   }
 
   @Override public String getKey() {
@@ -87,9 +91,8 @@ public class UploadTask implements ITask {
   }
 
   @Override public void cancel() {
-    if (mUtil.isRunning()) {
-      mUtil.cancel();
-    } else {
+
+    if (!mUploadEntity.isComplete()) {
       // 如果任务不是下载状态
       mUtil.cancel();
       mUploadEntity.deleteData();
@@ -101,6 +104,21 @@ public class UploadTask implements ITask {
       intent.putExtra(Aria.ENTITY, mUploadEntity);
       AriaManager.APP.sendBroadcast(intent);
     }
+
+    //if (mUtil.isRunning()) {
+    //  mUtil.cancel();
+    //} else {
+    //  // 如果任务不是下载状态
+    //  mUtil.cancel();
+    //  mUploadEntity.deleteData();
+    //  if (mOutHandler != null) {
+    //    mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
+    //  }
+    //  //发送取消下载的广播
+    //  Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_CANCEL);
+    //  intent.putExtra(Aria.ENTITY, mUploadEntity);
+    //  AriaManager.APP.sendBroadcast(intent);
+    //}
   }
 
   public String getTargetName() {
@@ -220,7 +238,7 @@ public class UploadTask implements ITask {
       entity.setComplete(action.equals(Aria.ACTION_COMPLETE));
       entity.setCurrentProgress(location);
       entity.update();
-      if (!Configuration.isOpenBreadCast) return;
+      if (!Configuration_1.isOpenBreadCast) return;
       Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), action);
       intent.putExtra(Aria.ENTITY, entity);
       if (location != -1) {

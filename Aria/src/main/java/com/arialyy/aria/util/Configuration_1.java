@@ -28,8 +28,8 @@ import java.util.WeakHashMap;
  * Created by AriaL on 2016/12/8.
  * 信息配置
  */
-public class Configuration {
-  private static final String TAG = "Configuration";
+public class Configuration_1 {
+  private static final String TAG = "Configuration_1";
   private static final String CONFIG_FILE = "/Aria/ADConfig.properties";
   /**
    * 当前调度器最大下载数，默认最大下载数为 “2”
@@ -58,20 +58,20 @@ public class Configuration {
 
   public static boolean isOpenBreadCast = false;
 
-  private static Configuration INSTANCE = null;
+  private static Configuration_1 INSTANCE = null;
   private File mConfigFile = null;
   private static final Object LOCK = new Object();
 
-  public static Configuration getInstance() {
+  public static Configuration_1 getInstance() {
     if (INSTANCE == null) {
       synchronized (LOCK) {
-        INSTANCE = new Configuration();
+        INSTANCE = new Configuration_1();
       }
     }
     return INSTANCE;
   }
 
-  private Configuration() {
+  private Configuration_1() {
     mConfigFile = new File(AriaManager.APP.getFilesDir().getPath() + CONFIG_FILE);
     try {
       if (!mConfigFile.exists()) {
