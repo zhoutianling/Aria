@@ -22,6 +22,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import butterknife.Bind;
 import butterknife.OnClick;
+import com.arialyy.aria.core.Aria;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
 import com.arialyy.simple.download.DownloadActivity;

@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
@@ -26,7 +27,6 @@ import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Configuration_1;
 import java.lang.ref.WeakReference;
 
 /**
@@ -104,21 +104,6 @@ public class UploadTask implements ITask {
       intent.putExtra(Aria.ENTITY, mUploadEntity);
       AriaManager.APP.sendBroadcast(intent);
     }
-
-    //if (mUtil.isRunning()) {
-    //  mUtil.cancel();
-    //} else {
-    //  // 如果任务不是下载状态
-    //  mUtil.cancel();
-    //  mUploadEntity.deleteData();
-    //  if (mOutHandler != null) {
-    //    mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
-    //  }
-    //  //发送取消下载的广播
-    //  Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_CANCEL);
-    //  intent.putExtra(Aria.ENTITY, mUploadEntity);
-    //  AriaManager.APP.sendBroadcast(intent);
-    //}
   }
 
   public String getTargetName() {
@@ -146,6 +131,8 @@ public class UploadTask implements ITask {
     boolean isFirst = true;
     UploadEntity entity;
     Intent sendIntent;
+    boolean isOpenBroadCast = false;
+    Context context;
 
     UListener(Handler outHandle, UploadTask task) {
       this.outHandler = new WeakReference<>(outHandle);
@@ -153,6 +140,8 @@ public class UploadTask implements ITask {
       entity = this.task.get().getUploadEntity();
       sendIntent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_RUNNING);
       sendIntent.putExtra(Aria.ENTITY, entity);
+      context = AriaManager.APP;
+      isOpenBroadCast = AriaManager.getInstance(context).getUploadConfig().isOpenBreadCast();
     }
 
     @Override public void onPre() {
@@ -238,13 +227,13 @@ public class UploadTask implements ITask {
       entity.setComplete(action.equals(Aria.ACTION_COMPLETE));
       entity.setCurrentProgress(location);
       entity.update();
-      if (!Configuration_1.isOpenBreadCast) return;
-      Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), action);
+      if (!isOpenBroadCast) return;
+      Intent intent = CommonUtil.createIntent(context.getPackageName(), action);
       intent.putExtra(Aria.ENTITY, entity);
       if (location != -1) {
         intent.putExtra(Aria.CURRENT_LOCATION, location);
       }
-      AriaManager.APP.sendBroadcast(intent);
+      context.sendBroadcast(intent);
     }
   }
 

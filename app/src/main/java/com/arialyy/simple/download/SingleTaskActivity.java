@@ -56,7 +56,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-      //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
+  //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
   //不支持断点的链接
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   //"http://172.18.104.50:8080/download/_302turn";
@@ -164,7 +164,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     setSupportActionBar(toolbar);
     toolbar.setTitle("单任务下载");
     init();
-    Aria.get(this).openBroadcast(true);
+    Aria.get(this).getDownloadConfig().setOpenBreadCast(true);
   }
 
   private void init() {
@@ -173,33 +173,33 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
-    mRg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-      @Override public void onCheckedChanged(RadioGroup group, int checkedId) {
-        switch (checkedId) {
-          case 1:
-            Aria.get(this).setMaxSpeed(Speed.KB_256);
-            break;
-          case 2:
-            Aria.get(this).setMaxSpeed(Speed.KB_512);
-            break;
-          case 3:
-            Aria.get(this).setMaxSpeed(Speed.MB_1);
-            break;
-          case 4:
-            Aria.get(this).setMaxSpeed(Speed.MB_2);
-            break;
-          case 5:
-            Aria.get(this).setMaxSpeed(Speed.MAX);
-            break;
-        }
-        stop();
-        new Handler().postDelayed(new Runnable() {
-          @Override public void run() {
-            start();
-          }
-        }, 2000);
-      }
-    });
+    //mRg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+    //  @Override public void onCheckedChanged(RadioGroup group, int checkedId) {
+    //    switch (checkedId) {
+    //      case 1:
+    //        Aria.get(this).setMaxSpeed(Speed.KB_256);
+    //        break;
+    //      case 2:
+    //        Aria.get(this).setMaxSpeed(Speed.KB_512);
+    //        break;
+    //      case 3:
+    //        Aria.get(this).setMaxSpeed(Speed.MB_1);
+    //        break;
+    //      case 4:
+    //        Aria.get(this).setMaxSpeed(Speed.MB_2);
+    //        break;
+    //      case 5:
+    //        Aria.get(this).setMaxSpeed(Speed.MAX);
+    //        break;
+    //    }
+    //    stop();
+    //    new Handler().postDelayed(new Runnable() {
+    //      @Override public void run() {
+    //        start();
+    //      }
+    //    }, 2000);
+    //  }
+    //});
   }
 
   public void onClick(View view) {

@@ -18,9 +18,9 @@ package com.arialyy.aria.core.queue.pool;
 
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Configuration_1;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -37,9 +37,15 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   private ArrayBlockingQueue<TASK> mExecuteQueue;
   private Map<String, TASK> mExecuteArray;
   private int mSize;
+  private boolean isDownload;
 
-  public ExecutePool() {
-    mSize = Configuration_1.getInstance().getDownloadNum();
+  public ExecutePool(boolean isDownload) {
+    this.isDownload = isDownload;
+    if (isDownload) {
+      mSize = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
+    } else {
+      mSize = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getMaxTaskNum();
+    }
     mExecuteQueue = new ArrayBlockingQueue<>(mSize);
     mExecuteArray = new HashMap<>();
   }
@@ -81,7 +87,11 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
       }
       mExecuteQueue = temp;
       mSize = downloadNum;
-      Configuration_1.getInstance().setDownloadNum(mSize);
+      if (isDownload) {
+        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setMaxTaskNum(downloadNum);
+      } else {
+        AriaManager.getInstance(AriaManager.APP).getUploadConfig().setMaxTaskNum(downloadNum);
+      }
     } catch (InterruptedException e) {
       e.printStackTrace();
     }

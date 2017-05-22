@@ -147,10 +147,6 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
     });
   }
 
-  public void setDownloadNum(int num) {
-    Aria.get(getContext()).setMaxDownloadNum(num);
-  }
-
   private String covertCurrentSize(long currentSize) {
     String size = CommonUtil.formatFileSize(currentSize);
     return size.substring(0, size.length() - 1);
