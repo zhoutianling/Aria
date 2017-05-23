@@ -44,7 +44,15 @@ public interface ITask {
 
   public void cancel();
 
+  /**
+   * 原始byte速度
+   */
   public long getSpeed();
+
+  /**
+   * 转换单位后的速度
+   */
+  public String getConvertSpeed();
 
   public long getFileSize();
 

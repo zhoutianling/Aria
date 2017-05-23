@@ -80,7 +80,20 @@ public class ConfigHelper extends DefaultHandler {
           String caPath = attributes.getValue("path");
           loadCA(caName, caPath);
           break;
+        case "convertSpeed":
+          loadConvertSpeed(value);
+          break;
       }
+    }
+  }
+
+  private void loadConvertSpeed(String value) {
+    boolean open = Boolean.parseBoolean(value);
+    if (isDownloadConfig) {
+      mDownloadConfig.isConvertSpeed = open;
+    }
+    if (isUploadConfig) {
+      mUploadConfig.isConvertSpeed = open;
     }
   }
 

@@ -32,7 +32,7 @@
     <ca name="" path=""/>
 
     <!--是否需要转换速度单位，转换完成后为：1b/s、1k/s、1m/s、1g/s、1t/s，如果不需要将返回byte长度-->
-    <cnvertSpeed value="false"/>
+    <convertSpeed value="true"/>
 
   </download>
 

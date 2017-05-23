@@ -134,7 +134,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
       } else {
         mPb.setProgress((int) ((current * 100) / len));
       }
-      mSpeed.setText(CommonUtil.formatFileSize(task.getSpeed()) + "/s");
+      mSpeed.setText(task.getConvertSpeed());
     }
   }
 }

@@ -34,7 +34,16 @@ public class UploadEntity extends DbEntity implements IEntity, Parcelable {
   private long currentProgress = 0;
   private boolean isComplete = false;
   @Ignore private long speed = 0; //下载速度
+  @Ignore private String convertSpeed = "0/s";
   @Ignore private int failNum = 0;
+
+  public String getConvertSpeed() {
+    return convertSpeed;
+  }
+
+  public void setConvertSpeed(String convertSpeed) {
+    this.convertSpeed = convertSpeed;
+  }
 
   public boolean isComplete() {
     return isComplete;
@@ -115,6 +124,7 @@ public class UploadEntity extends DbEntity implements IEntity, Parcelable {
     dest.writeLong(this.currentProgress);
     dest.writeByte(this.isComplete ? (byte) 1 : (byte) 0);
     dest.writeLong(this.speed);
+    dest.writeString(this.convertSpeed);
     dest.writeInt(this.failNum);
   }
 
@@ -126,6 +136,7 @@ public class UploadEntity extends DbEntity implements IEntity, Parcelable {
     this.currentProgress = in.readLong();
     this.isComplete = in.readByte() != 0;
     this.speed = in.readLong();
+    this.convertSpeed = in.readString();
     this.failNum = in.readInt();
   }
 

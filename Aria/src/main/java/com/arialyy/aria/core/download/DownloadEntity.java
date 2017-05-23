@@ -31,6 +31,7 @@ import com.arialyy.aria.orm.DbEntity;
  */
 public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
   @Ignore private long speed = 0; //下载速度
+  @Ignore private String convertSpeed = "0b/s";
   @Ignore private int failNum = 0;
   private String downloadUrl = ""; //下载路径
   private String downloadPath = ""; //保存路径
@@ -43,17 +44,8 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
   private long completeTime;  //完成时间
   private boolean isRedirect = false;
   private String redirectUrl = ""; //重定向链接
-  private int threadNum;  //下载线程数
 
   public DownloadEntity() {
-  }
-
-  public int getThreadNum() {
-    return threadNum;
-  }
-
-  public void setThreadNum(int threadNum) {
-    this.threadNum = threadNum;
   }
 
   public String getStr() {
@@ -131,6 +123,14 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     isDownloadComplete = downloadComplete;
   }
 
+  public String getConvertSpeed() {
+    return convertSpeed;
+  }
+
+  public void setConvertSpeed(String convertSpeed) {
+    this.convertSpeed = convertSpeed;
+  }
+
   public long getSpeed() {
     return speed;
   }
@@ -171,6 +171,9 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     return "DownloadEntity{"
         + "speed="
         + speed
+        + ", convertSpeed='"
+        + convertSpeed
+        + '\''
         + ", failNum="
         + failNum
         + ", downloadUrl='"
@@ -200,8 +203,6 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
         + ", redirectUrl='"
         + redirectUrl
         + '\''
-        + ", threadNum="
-        + threadNum
         + '}';
   }
 
@@ -211,6 +212,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
 
   @Override public void writeToParcel(Parcel dest, int flags) {
     dest.writeLong(this.speed);
+    dest.writeString(this.convertSpeed);
     dest.writeInt(this.failNum);
     dest.writeString(this.downloadUrl);
     dest.writeString(this.downloadPath);
@@ -223,11 +225,11 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     dest.writeLong(this.completeTime);
     dest.writeByte(this.isRedirect ? (byte) 1 : (byte) 0);
     dest.writeString(this.redirectUrl);
-    dest.writeInt(this.threadNum);
   }
 
   protected DownloadEntity(Parcel in) {
     this.speed = in.readLong();
+    this.convertSpeed = in.readString();
     this.failNum = in.readInt();
     this.downloadUrl = in.readString();
     this.downloadPath = in.readString();
@@ -240,7 +242,6 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     this.completeTime = in.readLong();
     this.isRedirect = in.readByte() != 0;
     this.redirectUrl = in.readString();
-    this.threadNum = in.readInt();
   }
 
   @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {

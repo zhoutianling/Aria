@@ -91,7 +91,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           } else {
             mPb.setProgress((int) ((current * 100) / len));
           }
-          mSpeed.setText(CommonUtil.formatFileSize(task.getSpeed()) + "/s");
+          mSpeed.setText(task.getConvertSpeed());
           break;
         case DOWNLOAD_PRE:
           mSize.setText(CommonUtil.formatFileSize((Long) msg.obj));

@@ -110,14 +110,14 @@ public class DownloadDialog extends AbsDialog {
     @Override public void onTaskStop(DownloadTask task) {
       super.onTaskStop(task);
       setBtState(true);
-      mSpeed.setText("0.0kb/s");
+      mSpeed.setText(task.getConvertSpeed());
     }
 
     @Override public void onTaskCancel(DownloadTask task) {
       super.onTaskCancel(task);
       setBtState(true);
       mPb.setProgress(0);
-      mSpeed.setText("0.0kb/s");
+      mSpeed.setText(task.getConvertSpeed());
     }
 
     @Override public void onTaskRunning(DownloadTask task) {
@@ -129,7 +129,7 @@ public class DownloadDialog extends AbsDialog {
       } else {
         mPb.setProgress((int) ((current * 100) / len));
       }
-      mSpeed.setText(CommonUtil.formatFileSize(task.getSpeed()) + "/s");
+      mSpeed.setText(task.getConvertSpeed());
     }
   }
 }
