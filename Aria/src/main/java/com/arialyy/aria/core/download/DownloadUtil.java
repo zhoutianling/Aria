@@ -19,6 +19,7 @@ package com.arialyy.aria.core.download;
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -34,7 +35,7 @@ import java.util.concurrent.Executors;
  * Created by lyy on 2015/8/25.
  * 下载工具类
  */
-public class DownloadUtil implements IDownloadUtil, Runnable {
+class DownloadUtil implements IDownloadUtil, Runnable {
   private static final String TAG = "DownloadUtil";
   /**
    * 线程数
@@ -46,8 +47,7 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
   private static final long SUB_LEN = 1024 * 1024;
   //下载监听
   private IDownloadListener mListener;
-  private int mConnectTimeOut = 5000 * 4; //连接超时时间
-  private int mReadTimeOut = 5000 * 20; //流读取的超时时间
+  private int mConnectTimeOut = 0; //连接超时时间
   private boolean isNewTask = true;
   private boolean isSupportBreakpoint = true;
   private Context mContext;
@@ -57,34 +57,29 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
   private File mDownloadFile; //下载的文件
   private File mConfigFile;//下载信息配置文件
   private SparseArray<Runnable> mTask = new SparseArray<>();
-  private DownloadStateConstance mConstance;
+  private DownloadStateConstance CONSTANCE;
 
   DownloadUtil(Context context, DownloadTaskEntity entity, IDownloadListener downloadListener) {
-    this(context, entity, downloadListener, 3);
-  }
-
-  DownloadUtil(Context context, DownloadTaskEntity entity, IDownloadListener downloadListener,
-      int threadNum) {
-    //CheckUtil.checkDownloadTaskEntity(entity.downloadEntity);
     CheckUtil.checkTaskEntity(entity);
     mDownloadEntity = entity.downloadEntity;
     mContext = context.getApplicationContext();
     mDownloadTaskEntity = entity;
     mListener = downloadListener;
-    THREAD_NUM = threadNum;
+    // 线程下载数改变后，新的下载才会生效
     mFixedThreadPool = Executors.newFixedThreadPool(Integer.MAX_VALUE);
-    mConstance = new DownloadStateConstance();
+    CONSTANCE = new DownloadStateConstance();
     init();
   }
 
   private void init() {
+    mConnectTimeOut = AriaManager.getInstance(mContext).getDownloadConfig().getConnectTimeOut();
     mDownloadFile = new File(mDownloadTaskEntity.downloadEntity.getDownloadPath());
     //读取已完成的线程数
     mConfigFile = new File(
         mContext.getFilesDir().getPath() + "/temp/" + mDownloadFile.getName() + ".properties");
     try {
       if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
-        isNewTask = true;
+        handleNewTask();
         CommonUtil.createFile(mConfigFile.getPath());
       } else {
         isNewTask = !mDownloadFile.exists();
@@ -100,36 +95,22 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
   }
 
   /**
-   * 设置连接超时时间
-   */
-  public void setConnectTimeOut(int timeOut) {
-    mConnectTimeOut = timeOut;
-  }
-
-  /**
-   * 设置流读取的超时时间
-   */
-  public void setReadTimeOut(int readTimeOut) {
-    mReadTimeOut = readTimeOut;
-  }
-
-  /**
    * 获取当前下载位置
    */
   @Override public long getCurrentLocation() {
-    return mConstance.CURRENT_LOCATION;
+    return CONSTANCE.CURRENT_LOCATION;
   }
 
   @Override public boolean isDownloading() {
-    return mConstance.isDownloading;
+    return CONSTANCE.isDownloading;
   }
 
   /**
    * 取消下载
    */
   @Override public void cancelDownload() {
-    mConstance.isCancel = true;
-    mConstance.isDownloading = false;
+    CONSTANCE.isCancel = true;
+    CONSTANCE.isDownloading = false;
     mFixedThreadPool.shutdown();
     for (int i = 0; i < THREAD_NUM; i++) {
       SingleThreadTask task = (SingleThreadTask) mTask.get(i);
@@ -143,8 +124,8 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
    * 停止下载
    */
   @Override public void stopDownload() {
-    mConstance.isStop = true;
-    mConstance.isDownloading = false;
+    CONSTANCE.isStop = true;
+    CONSTANCE.isDownloading = false;
     mFixedThreadPool.shutdown();
     for (int i = 0; i < THREAD_NUM; i++) {
       SingleThreadTask task = (SingleThreadTask) mTask.get(i);
@@ -184,7 +165,7 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
    * 多线程断点续传下载文件，开始下载
    */
   @Override public void startDownload() {
-    mConstance.cleanState();
+    CONSTANCE.cleanState();
     mListener.onPre();
     new Thread(this).start();
   }
@@ -195,7 +176,7 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
 
   private void failDownload(String msg) {
     Log.e(TAG, msg);
-    mConstance.isDownloading = false;
+    CONSTANCE.isDownloading = false;
     stopDownload();
     mListener.onFail();
   }
@@ -206,7 +187,7 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
       HttpURLConnection conn = ConnectionHelp.handleConnection(url);
       conn = ConnectionHelp.setConnectParam(mDownloadTaskEntity, conn);
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
-      conn.setConnectTimeout(mConnectTimeOut * 4);
+      conn.setConnectTimeout(mConnectTimeOut);
       conn.connect();
       handleConnect(conn);
     } catch (IOException e) {
@@ -283,7 +264,7 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
     conn = ConnectionHelp.setConnectParam(mDownloadTaskEntity, conn);
     conn.setRequestProperty("Cookie", cookies);
     conn.setRequestProperty("Range", "bytes=" + 0 + "-");
-    conn.setConnectTimeout(mConnectTimeOut * 4);
+    conn.setConnectTimeout(mConnectTimeOut);
     conn.connect();
 
     handleConnect(conn);
@@ -301,7 +282,7 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
     int fileLength = conn.getContentLength();
     if (fileLength < SUB_LEN) {
       THREAD_NUM = 1;
-      mConstance.THREAD_NUM = THREAD_NUM;
+      CONSTANCE.THREAD_NUM = THREAD_NUM;
     }
     Properties pro = createConfigFile(fileLength);
     int blockSize = fileLength / THREAD_NUM;
@@ -322,14 +303,14 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
       //如果有记录，则恢复下载
       if (!isNewTask && record != null && Long.parseLong(record + "") > 0) {
         Long r = Long.parseLong(record + "");
-        mConstance.CURRENT_LOCATION += r - startL;
+        CONSTANCE.CURRENT_LOCATION += r - startL;
         Log.d(TAG, "++++++++++ 线程_" + i + "_恢复下载 ++++++++++");
         mListener.onChildResume(r);
         startL = r;
         recordL[rl] = i;
         rl++;
       } else {
-        isNewTask = true;
+        handleNewTask();
       }
       if (isNewTask) {
         recordL[rl] = i;
@@ -351,7 +332,6 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
     ConfigEntity entity = new ConfigEntity();
     long len = conn.getContentLength();
     entity.FILE_SIZE = len;
-    //entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
     entity.DOWNLOAD_URL = mDownloadEntity.isRedirect() ? mDownloadEntity.getRedirectUrl()
         : mDownloadEntity.getDownloadUrl();
     entity.TEMP_FILE = mDownloadFile;
@@ -362,8 +342,8 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
     entity.isSupportBreakpoint = isSupportBreakpoint;
     entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
     THREAD_NUM = 1;
-    mConstance.THREAD_NUM = THREAD_NUM;
-    SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
+    CONSTANCE.THREAD_NUM = THREAD_NUM;
+    SingleThreadTask task = new SingleThreadTask(CONSTANCE, mListener, entity);
     mTask.put(0, task);
     mFixedThreadPool.execute(task);
     mListener.onPostPre(len);
@@ -385,15 +365,16 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
     //分配每条线程的下载区间
     pro = CommonUtil.loadConfig(mConfigFile);
     if (pro.isEmpty()) {
-      isNewTask = true;
+      handleNewTask();
     } else {
+      THREAD_NUM = pro.keySet().size();
       for (int i = 0; i < THREAD_NUM; i++) {
         if (pro.getProperty(mDownloadFile.getName() + "_record_" + i) == null) {
           Object state = pro.getProperty(mDownloadFile.getName() + "_state_" + i);
           if (state != null && Integer.parseInt(state + "") == 1) {
             continue;
           }
-          isNewTask = true;
+          handleNewTask();
           break;
         }
       }
@@ -402,22 +383,30 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
   }
 
   /**
+   * 处理新任务
+   */
+  private void handleNewTask() {
+    isNewTask = true;
+    THREAD_NUM = AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
+  }
+
+  /**
    * 恢复记录地址
    *
    * @return true 表示下载完成
    */
   private boolean resumeRecordLocation(int i, long startL, long endL) {
-    mConstance.CURRENT_LOCATION += endL - startL;
+    CONSTANCE.CURRENT_LOCATION += endL - startL;
     Log.d(TAG, "++++++++++ 线程_" + i + "_已经下载完成 ++++++++++");
-    mConstance.COMPLETE_THREAD_NUM++;
-    mConstance.STOP_NUM++;
-    mConstance.CANCEL_NUM++;
-    if (mConstance.isComplete()) {
+    CONSTANCE.COMPLETE_THREAD_NUM++;
+    CONSTANCE.STOP_NUM++;
+    CONSTANCE.CANCEL_NUM++;
+    if (CONSTANCE.isComplete()) {
       if (mConfigFile.exists()) {
         mConfigFile.delete();
       }
       mListener.onComplete();
-      mConstance.isDownloading = false;
+      CONSTANCE.isDownloading = false;
       return true;
     }
     return false;
@@ -439,7 +428,8 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
     entity.CONFIG_FILE_PATH = mConfigFile.getPath();
     entity.isSupportBreakpoint = isSupportBreakpoint;
     entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
-    SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
+    CONSTANCE.THREAD_NUM = THREAD_NUM;
+    SingleThreadTask task = new SingleThreadTask(CONSTANCE, mListener, entity);
     mTask.put(i, task);
   }
 
@@ -447,10 +437,10 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
    * 启动单线程下载任务
    */
   private void startSingleTask(int[] recordL) {
-    if (mConstance.CURRENT_LOCATION > 0) {
-      mListener.onResume(mConstance.CURRENT_LOCATION);
+    if (CONSTANCE.CURRENT_LOCATION > 0) {
+      mListener.onResume(CONSTANCE.CURRENT_LOCATION);
     } else {
-      mListener.onStart(mConstance.CURRENT_LOCATION);
+      mListener.onStart(CONSTANCE.CURRENT_LOCATION);
     }
     for (int l : recordL) {
       if (l == -1) continue;

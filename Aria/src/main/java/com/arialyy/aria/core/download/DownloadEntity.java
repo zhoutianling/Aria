@@ -43,8 +43,17 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
   private long completeTime;  //完成时间
   private boolean isRedirect = false;
   private String redirectUrl = ""; //重定向链接
+  private int threadNum;  //下载线程数
 
   public DownloadEntity() {
+  }
+
+  public int getThreadNum() {
+    return threadNum;
+  }
+
+  public void setThreadNum(int threadNum) {
+    this.threadNum = threadNum;
   }
 
   public String getStr() {
@@ -191,6 +200,8 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
         + ", redirectUrl='"
         + redirectUrl
         + '\''
+        + ", threadNum="
+        + threadNum
         + '}';
   }
 
@@ -212,6 +223,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     dest.writeLong(this.completeTime);
     dest.writeByte(this.isRedirect ? (byte) 1 : (byte) 0);
     dest.writeString(this.redirectUrl);
+    dest.writeInt(this.threadNum);
   }
 
   protected DownloadEntity(Parcel in) {
@@ -228,6 +240,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     this.completeTime = in.readLong();
     this.isRedirect = in.readByte() != 0;
     this.redirectUrl = in.readString();
+    this.threadNum = in.readInt();
   }
 
   @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {

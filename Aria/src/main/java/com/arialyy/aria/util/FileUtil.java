@@ -15,27 +15,128 @@
  */
 package com.arialyy.aria.util;
 
-import android.content.Context;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
+import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.window.FileEntity;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Aria.Lao on 2017/3/21.
  */
-
 public class FileUtil {
 
-  Context mContext;
+  private static final String TAG = "FileUtil";
 
-  public FileUtil(Context context) {
-    mContext = context;
+  /**
+   * 通过流创建文件
+   */
+  public static void createFileFormInputStream(InputStream is, String path) {
+    try {
+      FileOutputStream fos = new FileOutputStream(path);
+      byte[] buf = new byte[1376];
+      while (is.read(buf) > 0) {
+        fos.write(buf, 0, buf.length);
+      }
+      is.close();
+      fos.flush();
+      fos.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * 校验文件MD5码
+   */
+  public static boolean checkMD5(String md5, File updateFile) {
+    if (TextUtils.isEmpty(md5) || updateFile == null) {
+      Log.e(TAG, "MD5 string empty or updateFile null");
+      return false;
+    }
+
+    String calculatedDigest = getFileMD5(updateFile);
+    if (calculatedDigest == null) {
+      Log.e(TAG, "calculatedDigest null");
+      return false;
+    }
+    return calculatedDigest.equalsIgnoreCase(md5);
+  }
+
+  /**
+   * 校验文件MD5码
+   */
+  public static boolean checkMD5(String md5, InputStream is) {
+    if (TextUtils.isEmpty(md5) || is == null) {
+      Log.e(TAG, "MD5 string empty or updateFile null");
+      return false;
+    }
+
+    String calculatedDigest = getFileMD5(is);
+    if (calculatedDigest == null) {
+      Log.e(TAG, "calculatedDigest null");
+      return false;
+    }
+    return calculatedDigest.equalsIgnoreCase(md5);
+  }
+
+  /**
+   * 获取文件MD5码
+   */
+  public static String getFileMD5(File updateFile) {
+    InputStream is;
+    try {
+      is = new FileInputStream(updateFile);
+    } catch (FileNotFoundException e) {
+      Log.e(TAG, "Exception while getting FileInputStream", e);
+      return null;
+    }
+
+    return getFileMD5(is);
+  }
+
+  /**
+   * 获取文件MD5码
+   */
+  public static String getFileMD5(InputStream is) {
+    MessageDigest digest;
+    try {
+      digest = MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException e) {
+      Log.e(TAG, "Exception while getting digest", e);
+      return null;
+    }
+
+    byte[] buffer = new byte[8192];
+    int read;
+    try {
+      while ((read = is.read(buffer)) > 0) {
+        digest.update(buffer, 0, read);
+      }
+      byte[] md5sum = digest.digest();
+      BigInteger bigInt = new BigInteger(1, md5sum);
+      String output = bigInt.toString(16);
+      // Fill to 32 chars
+      output = String.format("%32s", output).replace(' ', '0');
+      return output;
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to process file for MD5", e);
+    } finally {
+      try {
+        is.close();
+      } catch (IOException e) {
+        Log.e(TAG, "Exception on closing MD5 input stream", e);
+      }
+    }
   }
 
   /**
@@ -53,67 +154,5 @@ public class FileUtil {
       list.add(entity);
     }
     return list;
-  }
-
-  /**
-   * 获取文件类型
-   */
-  public FileType getFileType(String path) {
-    String exName = getExName(path);
-    String type = "";
-    FileType fType = null;
-    if (exName.equalsIgnoreCase("apk")) {
-      fType = new FileType("应用", getApkIcon(path));
-    } else if (exName.equalsIgnoreCase("img")
-        || exName.equalsIgnoreCase("png")
-        || exName.equalsIgnoreCase("jpg")
-        || exName.equalsIgnoreCase("jepg")) {
-      //fType = new FileType("图片", )
-    } else if (exName.equalsIgnoreCase("mp3") || exName.equalsIgnoreCase("wm")) {
-      //fType = new FileType("音乐", );
-    } else if (exName.equalsIgnoreCase("mp4")
-        || exName.equalsIgnoreCase("rm")
-        || exName.equalsIgnoreCase("rmvb")) {
-      //fType = new FileType("视频", );
-    }
-    return fType;
-  }
-
-  /**
-   * 获取扩展名
-   */
-  public String getExName(String path) {
-    int separatorIndex = path.lastIndexOf(".");
-    return (separatorIndex < 0) ? path : path.substring(separatorIndex + 1, path.length());
-  }
-
-  /**
-   * 获取apk文件的icon
-   *
-   * @param path apk文件路径
-   */
-  public Drawable getApkIcon(String path) {
-    PackageManager pm = mContext.getPackageManager();
-    PackageInfo info = pm.getPackageArchiveInfo(path, PackageManager.GET_ACTIVITIES);
-    if (info != null) {
-      ApplicationInfo appInfo = info.applicationInfo;
-      //android有bug，需要下面这两句话来修复才能获取apk图片
-      appInfo.sourceDir = path;
-      appInfo.publicSourceDir = path;
-      //			    String packageName = appInfo.packageName;  //得到安装包名称
-      //	            String version=info.versionName;       //得到版本信息
-      return pm.getApplicationIcon(appInfo);
-    }
-    return null;
-  }
-
-  class FileType {
-    String name;
-    Drawable icon;
-
-    public FileType(String name, Drawable icon) {
-      this.name = name;
-      this.icon = icon;
-    }
   }
 }

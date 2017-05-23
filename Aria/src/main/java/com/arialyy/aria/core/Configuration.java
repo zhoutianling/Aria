@@ -15,7 +15,6 @@
  */
 package com.arialyy.aria.core;
 
-import android.util.Log;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.ReflectionUtil;
@@ -32,6 +31,7 @@ import java.util.Properties;
 class Configuration {
   static final String DOWNLOAD_CONFIG_FILE = "/Aria/DownloadConfig.properties";
   static final String UPLOAD_CONFIG_FILE = "/Aria/UploadConfig.properties";
+  static final String XML_FILE = "/Aria/aria_config.xml";
 
   /**
    * 通用配置
@@ -57,11 +57,11 @@ class Configuration {
     /**
      * 设置重试间隔，单位为毫秒，默认2000毫秒
      */
-    long reTryInterval = 2000;
+    int reTryInterval = 2000;
     /**
      * 设置url连接超时时间，单位为毫秒，默认5000毫秒
      */
-    long connectTimeOut = 5000;
+    int connectTimeOut = 5000;
 
     public boolean isOpenBreadCast() {
       return isOpenBreadCast;
@@ -95,21 +95,21 @@ class Configuration {
       return this;
     }
 
-    public long getReTryInterval() {
+    public int getReTryInterval() {
       return reTryInterval;
     }
 
-    public BaseConfig setReTryInterval(long reTryInterval) {
+    public BaseConfig setReTryInterval(int reTryInterval) {
       this.reTryInterval = reTryInterval;
       saveKey("reTryInterval", reTryInterval + "");
       return this;
     }
 
-    public long getConnectTimeOut() {
+    public int getConnectTimeOut() {
       return connectTimeOut;
     }
 
-    public BaseConfig setConnectTimeOut(long connectTimeOut) {
+    public BaseConfig setConnectTimeOut(int connectTimeOut) {
       this.connectTimeOut = connectTimeOut;
       saveKey("connectTimeOut", connectTimeOut + "");
       return this;
@@ -203,7 +203,7 @@ class Configuration {
     /**
      * 设置IO流读取时间，单位为毫秒，默认20000毫秒，该时间不能少于10000毫秒
      */
-    long iOTimeOut = 20 * 1000;
+    int iOTimeOut = 20 * 1000;
     /**
      * 设置写文件buff大小，该数值大小不能小于2048，数值变小，下载速度会变慢
      */
@@ -221,11 +221,11 @@ class Configuration {
      */
     int threadNum = 3;
 
-    public long getiOTimeOut() {
+    public int getIOTimeOut() {
       return iOTimeOut;
     }
 
-    public DownloadConfig setiOTimeOut(long iOTimeOut) {
+    public DownloadConfig setIOTimeOut(int iOTimeOut) {
       this.iOTimeOut = iOTimeOut;
       saveKey("iOTimeOut", iOTimeOut + "");
       return this;

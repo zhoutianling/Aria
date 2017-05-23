@@ -33,6 +33,7 @@ import com.arialyy.aria.core.inf.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.orm.DbUtil;
+import com.arialyy.aria.util.FileUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,13 +67,7 @@ import org.xml.sax.SAXException;
     DbUtil.init(context.getApplicationContext());
     APP = context.getApplicationContext();
     regAppLifeCallback(context);
-    File dFile = new File(APP.getFilesDir().getPath() + Configuration.DOWNLOAD_CONFIG_FILE);
-    File uFile = new File(APP.getFilesDir().getPath() +Configuration.UPLOAD_CONFIG_FILE);
-    if (!dFile.exists() || !uFile.exists()) {
-      loadConfig();
-    }
-    mDConfig = Configuration.DownloadConfig.getInstance();
-    mUConfig = Configuration.UploadConfig.getInstance();
+    initConfig();
   }
 
   public static AriaManager getInstance(Context context) {
@@ -98,7 +93,7 @@ import org.xml.sax.SAXException;
       SAXParser parser = factory.newSAXParser();
       parser.parse(APP.getAssets().open("aria_config.xml"), helper);
     } catch (ParserConfigurationException | IOException | SAXException e) {
-      e.printStackTrace();
+      Log.d(TAG, e.toString());
     }
   }
 
@@ -106,7 +101,7 @@ import org.xml.sax.SAXException;
    * 如果需要在代码中修改下载配置，请使用以下方法
    *
    * @<code> //修改最大任务队列数
-   * Aria.get(this).getDownloadConfig().setMaxTaskNum(3).saveAll();
+   * Aria.get(this).getDownloadConfig().setMaxTaskNum(3);
    * </code>
    */
   public Configuration.DownloadConfig getDownloadConfig() {
@@ -117,7 +112,7 @@ import org.xml.sax.SAXException;
    * 如果需要在代码中修改下载配置，请使用以下方法
    *
    * @<code> //修改最大任务队列数
-   * Aria.get(this).getUploadConfig().setMaxTaskNum(3).saveAll();
+   * Aria.get(this).getUploadConfig().setMaxTaskNum(3);
    * </code>
    */
   public Configuration.UploadConfig getUploadConfig() {
@@ -241,6 +236,29 @@ import org.xml.sax.SAXException;
     }
     key += isDownload ? DOWNLOAD : UPLOAD;
     return key;
+  }
+
+  /**
+   * 初始化配置文件
+   */
+  private void initConfig() {
+    //File dFile = new File(APP.getFilesDir().getPath() + Configuration.DOWNLOAD_CONFIG_FILE);
+    //File uFile = new File(APP.getFilesDir().getPath() + Configuration.UPLOAD_CONFIG_FILE);
+    File xmlFile = new File(APP.getFilesDir().getPath() + Configuration.XML_FILE);
+    if (!xmlFile.exists()) {
+      loadConfig();
+    } else {
+      try {
+        String md5Code = FileUtil.getFileMD5(xmlFile);
+        if (!FileUtil.checkMD5(md5Code, APP.getAssets().open("aria_config.xml"))) {
+          loadConfig();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    mDConfig = Configuration.DownloadConfig.getInstance();
+    mUConfig = Configuration.UploadConfig.getInstance();
   }
 
   /**
