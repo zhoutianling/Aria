@@ -4,14 +4,14 @@ Aria项目源于15年工作中遇到的一个文件下载管理的需求，当�
 
 Aria有以下特点：
  + 简单、方便
-  - 可以在Activity、Service、Fragment、Dialog、popupWindow、Notification等组件中使用
-  - 支持任务自动调度，使用者不需要关心任务状态切换的逻辑
-  - [通过Aria的事件，能很容易获取当前下载任务的下载状态](#二、下载状态获取)
-  - [一句代码就可以动态设置最大下载数](#通过代码修改Aria参数)
-  - [一句代码加可以获取当前的下载速度](#其它好用的API)
-  - [通过修改配置文件很容易就能修改下载线程数](#通过文件修改Aria配置参数)
+   - 可以在Activity、Service、Fragment、Dialog、popupWindow、Notification等组件中使用
+   - 支持任务自动调度，使用者不需要关心任务状态切换的逻辑
+   - [通过Aria的事件，能很容易获取当前下载任务的下载状态](#二、下载状态获取)
+   - [一句代码就可以动态设置最大下载数](#通过代码修改Aria参数)
+   - [一句代码加可以获取当前的下载速度](#其它好用的API)
+   - [通过修改配置文件很容易就能修改下载线程数](#通过文件修改Aria配置参数)
  + 支持https地址下载
-  - 在配置文件中很容易就可以设置CA证书的信息
+   - 在配置文件中很容易就可以设置CA证书的信息
  + 支持300、301、302重定向下载链接下载
  + 支持上传操作
 
@@ -203,6 +203,14 @@ Aria.download(this).removeAllTask();
   long speed = task.getSpeed();
 }
 ```
+* 获取下载的文件大小
+同样的，你也可以在DownloadTask对象中获取下载的文件大小
+```
+@Override public void onTaskRunning(DownloadTask task) {
+  //获取文件大小
+  long fileSize = task.getFileSize();
+}
+```
 
 **tips:为了防止内存泄露的情况，事件类需要使用staic进行修饰**
 
@@ -238,7 +246,7 @@ Aria.download(this).removeAllTask();
 ***
 
 ## 后续版本开发规划
-* 实现上传队列调度功能
+* ~~实现上传队列调度功能~~
 
 ## 开发日志
   + v_3.1.0 添加Aria配置文件，优化代码
