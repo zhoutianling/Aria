@@ -7,7 +7,7 @@ Aria有以下特点：
    - 可以在Activity、Service、Fragment、Dialog、popupWindow、Notification等组件中使用
    - 支持任务自动调度，使用者不需要关心任务状态切换的逻辑
    - [通过Aria的事件，能很容易获取当前下载任务的下载状态](#二、下载状态获取)
-   - [一句代码就可以动态设置最大下载数](#代码)
+   - [一句代码就可以动态设置最大下载数](#通过代码修改Aria参数)
    - [一句代码加可以获取当前的下载速度](#其它好用的API)
    - [通过修改配置文件很容易就能修改下载线程数](#通过文件修改Aria配置参数)
  + 支持https地址下载
@@ -172,7 +172,7 @@ compile 'com.arialyy.aria:Aria:3.1.0'
 </aria>
 ```
 
-#### 代码
+#### 通过代码修改Aria参数
 除了文件方式外修改Aria参数外，同样的，你也可以在代码中动态修改Aria参数</br>
 通过`Aria.get(this).getDownloadConfig()`或`Aria.get(this).getUploadConfig()`直接获取配置文件，然后修改参数</br>
 如以下所示：
