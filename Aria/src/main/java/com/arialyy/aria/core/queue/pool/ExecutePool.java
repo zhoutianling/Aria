@@ -37,10 +37,8 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   private ArrayBlockingQueue<TASK> mExecuteQueue;
   private Map<String, TASK> mExecuteArray;
   private int mSize;
-  private boolean isDownload;
 
   public ExecutePool(boolean isDownload) {
-    this.isDownload = isDownload;
     if (isDownload) {
       mSize = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
     } else {
@@ -87,11 +85,6 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
       }
       mExecuteQueue = temp;
       mSize = downloadNum;
-      if (isDownload) {
-        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setMaxTaskNum(downloadNum);
-      } else {
-        AriaManager.getInstance(AriaManager.APP).getUploadConfig().setMaxTaskNum(downloadNum);
-      }
     } catch (InterruptedException e) {
       e.printStackTrace();
     }

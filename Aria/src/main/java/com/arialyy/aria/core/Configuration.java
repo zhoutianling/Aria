@@ -15,6 +15,8 @@
  */
 package com.arialyy.aria.core;
 
+import android.util.Log;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.ReflectionUtil;
 import java.io.File;
@@ -35,6 +37,10 @@ class Configuration {
    * 通用配置
    */
   public static class BaseConfig {
+    /**
+     * 旧任务数
+     */
+    public static int oldMaxTaskNum = 2;
 
     /**
      * 是否发送任务广播，true，发送
@@ -63,6 +69,7 @@ class Configuration {
 
     public BaseConfig setOpenBreadCast(boolean openBreadCast) {
       isOpenBreadCast = openBreadCast;
+      saveKey("isOpenBreadCast", openBreadCast + "");
       return this;
     }
 
@@ -71,7 +78,10 @@ class Configuration {
     }
 
     public BaseConfig setMaxTaskNum(int maxTaskNum) {
+      oldMaxTaskNum = this.maxTaskNum;
       this.maxTaskNum = maxTaskNum;
+      saveKey("maxTaskNum", maxTaskNum + "");
+      DownloadTaskQueue.getInstance().setDownloadNum(maxTaskNum);
       return this;
     }
 
@@ -81,6 +91,7 @@ class Configuration {
 
     public BaseConfig setReTryNum(int reTryNum) {
       this.reTryNum = reTryNum;
+      saveKey("reTryNum", reTryNum + "");
       return this;
     }
 
@@ -90,6 +101,7 @@ class Configuration {
 
     public BaseConfig setReTryInterval(long reTryInterval) {
       this.reTryInterval = reTryInterval;
+      saveKey("reTryInterval", reTryInterval + "");
       return this;
     }
 
@@ -99,7 +111,23 @@ class Configuration {
 
     public BaseConfig setConnectTimeOut(long connectTimeOut) {
       this.connectTimeOut = connectTimeOut;
+      saveKey("connectTimeOut", connectTimeOut + "");
       return this;
+    }
+
+    /**
+     * 保存key
+     */
+    void saveKey(String key, String value) {
+      boolean isDownload = this instanceof DownloadConfig;
+      File file = new File(
+          AriaManager.APP.getFilesDir().getPath() + (isDownload ? DOWNLOAD_CONFIG_FILE
+              : UPLOAD_CONFIG_FILE));
+      if (file.exists()) {
+        Properties properties = CommonUtil.loadConfig(file);
+        properties.setProperty(key, value);
+        CommonUtil.saveConfig(file, properties);
+      }
     }
 
     /**
@@ -145,7 +173,7 @@ class Configuration {
     /**
      * 保存配置
      */
-    public void save() {
+    void saveAll() {
       List<Field> fields = ReflectionUtil.getAllFields(getClass());
       boolean isDownload = this instanceof DownloadConfig;
       try {
@@ -199,6 +227,7 @@ class Configuration {
 
     public DownloadConfig setiOTimeOut(long iOTimeOut) {
       this.iOTimeOut = iOTimeOut;
+      saveKey("iOTimeOut", iOTimeOut + "");
       return this;
     }
 
@@ -208,6 +237,7 @@ class Configuration {
 
     public DownloadConfig setBuffSize(int buffSize) {
       this.buffSize = buffSize;
+      saveKey("buffSize", buffSize + "");
       return this;
     }
 
@@ -217,6 +247,7 @@ class Configuration {
 
     public DownloadConfig setCaPath(String caPath) {
       this.caPath = caPath;
+      saveKey("caPath", caPath);
       return this;
     }
 
@@ -226,6 +257,7 @@ class Configuration {
 
     public DownloadConfig setCaName(String caName) {
       this.caName = caName;
+      saveKey("caName", caName);
       return this;
     }
 

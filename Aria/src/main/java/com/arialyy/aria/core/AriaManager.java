@@ -26,6 +26,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.inf.ICmd;
@@ -65,8 +66,8 @@ import org.xml.sax.SAXException;
     DbUtil.init(context.getApplicationContext());
     APP = context.getApplicationContext();
     regAppLifeCallback(context);
-    File dFile = new File(Configuration.DOWNLOAD_CONFIG_FILE);
-    File uFile = new File(Configuration.UPLOAD_CONFIG_FILE);
+    File dFile = new File(APP.getFilesDir().getPath() + Configuration.DOWNLOAD_CONFIG_FILE);
+    File uFile = new File(APP.getFilesDir().getPath() +Configuration.UPLOAD_CONFIG_FILE);
     if (!dFile.exists() || !uFile.exists()) {
       loadConfig();
     }
@@ -105,7 +106,7 @@ import org.xml.sax.SAXException;
    * 如果需要在代码中修改下载配置，请使用以下方法
    *
    * @<code> //修改最大任务队列数
-   * Aria.get(this).getDownloadConfig().setMaxTaskNum(3).save();
+   * Aria.get(this).getDownloadConfig().setMaxTaskNum(3).saveAll();
    * </code>
    */
   public Configuration.DownloadConfig getDownloadConfig() {
@@ -116,7 +117,7 @@ import org.xml.sax.SAXException;
    * 如果需要在代码中修改下载配置，请使用以下方法
    *
    * @<code> //修改最大任务队列数
-   * Aria.get(this).getUploadConfig().setMaxTaskNum(3).save();
+   * Aria.get(this).getUploadConfig().setMaxTaskNum(3).saveAll();
    * </code>
    */
   public Configuration.UploadConfig getUploadConfig() {

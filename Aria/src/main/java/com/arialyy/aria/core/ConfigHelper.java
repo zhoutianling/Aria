@@ -215,7 +215,7 @@ public class ConfigHelper extends DefaultHandler {
 
   @Override public void endDocument() throws SAXException {
     super.endDocument();
-    mDownloadConfig.save();
-    mUploadConfig.save();
+    mDownloadConfig.saveAll();
+    mUploadConfig.saveAll();
   }
 }

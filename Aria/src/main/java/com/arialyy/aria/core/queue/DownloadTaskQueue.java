@@ -122,7 +122,7 @@ public class DownloadTaskQueue
 
   @Override public void setDownloadNum(int downloadNum) {
     //原始长度
-    int size = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getMaxTaskNum();
+    int size = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().oldMaxTaskNum;
     int diff = downloadNum - size;
     if (size == downloadNum) {
       Log.d(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");
