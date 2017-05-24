@@ -25,7 +25,7 @@ Aria怎样使用？
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:3.1.0'
+compile 'com.arialyy.aria:Aria:3.1.1'
 ```
 
 ## 示例
@@ -203,12 +203,16 @@ Aria.download(this).removeAllTask();
   long speed = task.getSpeed();
 }
 ```
-* 获取下载的文件大小
+* 获取下载的文件大小、当前进度百分比
 同样的，你也可以在DownloadTask对象中获取下载的文件大小
 ```
 @Override public void onTaskRunning(DownloadTask task) {
   //获取文件大小
   long fileSize = task.getFileSize();
+  //获取单位转换后的文件大小
+  String fileSize1 = task.getConvertFileSize();
+  //当前进度百分比
+  int percent = task.getPercent();
 }
 ```
 

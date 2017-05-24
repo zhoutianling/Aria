@@ -54,7 +54,20 @@ public interface ITask {
    */
   public String getConvertSpeed();
 
+  /**
+   * 获取百分比进度
+   */
+  public int getPercent();
+
+  /**
+   * 原始文件byte长度
+   */
   public long getFileSize();
+
+  /**
+   * 转换单位后的文件长度
+   */
+  public String getConvertFileSize();
 
   public long getCurrentProgress();
 
