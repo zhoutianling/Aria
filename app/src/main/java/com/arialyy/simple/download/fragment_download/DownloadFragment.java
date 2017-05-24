@@ -45,7 +45,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
   @Bind(R.id.speed) TextView mSpeed;
 
   private static final String DOWNLOAD_URL =
-      "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
+      "http://rs.0.gaoshouyou.com/d/90/d7/7490c6fd6cd733bef336e766778507c5.apk";
 
   @Override protected void init(Bundle savedInstanceState) {
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
@@ -74,7 +74,6 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
         Aria.download(this)
             .load(DOWNLOAD_URL)
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/daialog.apk")
-            .setDownloadName("daialog.apk")
             .start();
         break;
       case R.id.stop:
@@ -134,7 +133,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
       } else {
         mPb.setProgress((int) ((current * 100) / len));
       }
-      mSpeed.setText(CommonUtil.formatFileSize(task.getSpeed()) + "/s");
+      mSpeed.setText(task.getConvertSpeed());
     }
   }
 }

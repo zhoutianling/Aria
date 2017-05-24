@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
@@ -26,7 +27,6 @@ import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Configuration_1;
 import java.lang.ref.WeakReference;
 
 /**
@@ -36,19 +36,17 @@ import java.lang.ref.WeakReference;
 public class UploadTask implements ITask {
   private static final String TAG = "UploadTask";
   private Handler mOutHandler;
-  private UploadTaskEntity mTaskEntity;
   private UploadEntity mUploadEntity;
   private String mTargetName;
 
   private UploadUtil mUtil;
   private UListener mListener;
 
-  UploadTask(UploadTaskEntity taskEntity, Handler outHandler) {
-    mTaskEntity = taskEntity;
+  private UploadTask(UploadTaskEntity taskEntity, Handler outHandler) {
     mOutHandler = outHandler;
-    mUploadEntity = mTaskEntity.uploadEntity;
+    mUploadEntity = taskEntity.uploadEntity;
     mListener = new UListener(mOutHandler, this);
-    mUtil = new UploadUtil(mTaskEntity, mListener);
+    mUtil = new UploadUtil(taskEntity, mListener);
   }
 
   @Override public void setTargetName(String targetName) {
@@ -104,29 +102,53 @@ public class UploadTask implements ITask {
       intent.putExtra(Aria.ENTITY, mUploadEntity);
       AriaManager.APP.sendBroadcast(intent);
     }
-
-    //if (mUtil.isRunning()) {
-    //  mUtil.cancel();
-    //} else {
-    //  // 如果任务不是下载状态
-    //  mUtil.cancel();
-    //  mUploadEntity.deleteData();
-    //  if (mOutHandler != null) {
-    //    mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
-    //  }
-    //  //发送取消下载的广播
-    //  Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_CANCEL);
-    //  intent.putExtra(Aria.ENTITY, mUploadEntity);
-    //  AriaManager.APP.sendBroadcast(intent);
-    //}
   }
 
   public String getTargetName() {
     return mTargetName;
   }
 
+  /**
+   * @return 返回原始byte速度，需要你在配置文件中配置
+   * <pre>
+   *  {@code
+   *   <xml>
+   *    <upload>
+   *      ...
+   *      <convertSpeed value="false"/>
+   *    </upload>
+   *
+   *    或在代码中设置
+   *    Aria.get(this).getUploadConfig().setConvertSpeed(false);
+   *   </xml>
+   *  }
+   * </pre>
+   * 才能生效
+   */
   @Override public long getSpeed() {
     return mUploadEntity.getSpeed();
+  }
+
+  /**
+   * @return 返回转换单位后的速度，需要你在配置文件中配置，转换完成后为：1b/s、1k/s、1m/s、1g/s、1t/s
+   * <pre>
+   *   {@code
+   *   <xml>
+   *    <upload>
+   *      ...
+   *      <convertSpeed value="true"/>
+   *    </upload>
+   *
+   *    或在代码中设置
+   *    Aria.get(this).getUploadConfig().setConvertSpeed(true);
+   *   </xml>
+   *   }
+   * </pre>
+   *
+   * 才能生效
+   */
+  @Override public String getConvertSpeed() {
+    return mUploadEntity.getConvertSpeed();
   }
 
   @Override public long getFileSize() {
@@ -144,39 +166,46 @@ public class UploadTask implements ITask {
     long lastTime = 0;
     long INTERVAL_TIME = 1000;   //1m更新周期
     boolean isFirst = true;
-    UploadEntity entity;
+    UploadEntity uploadEntity;
     Intent sendIntent;
+    boolean isOpenBroadCast = false;
+    boolean isConvertSpeed = false;
+    Context context;
 
     UListener(Handler outHandle, UploadTask task) {
       this.outHandler = new WeakReference<>(outHandle);
       this.task = new WeakReference<>(task);
-      entity = this.task.get().getUploadEntity();
+      uploadEntity = this.task.get().getUploadEntity();
       sendIntent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_RUNNING);
-      sendIntent.putExtra(Aria.ENTITY, entity);
+      sendIntent.putExtra(Aria.ENTITY, uploadEntity);
+      context = AriaManager.APP;
+      final AriaManager manager = AriaManager.getInstance(context);
+      isOpenBroadCast = manager.getUploadConfig().isOpenBreadCast();
+      isConvertSpeed = manager.getUploadConfig().isConvertSpeed();
     }
 
     @Override public void onPre() {
-      entity.setState(IEntity.STATE_PRE);
+      uploadEntity.setState(IEntity.STATE_PRE);
       sendIntent(Aria.ACTION_PRE, -1);
       sendInState2Target(ISchedulers.PRE);
     }
 
     @Override public void onStart(long fileSize) {
-      entity.setFileSize(fileSize);
-      entity.setState(IEntity.STATE_RUNNING);
+      uploadEntity.setFileSize(fileSize);
+      uploadEntity.setState(IEntity.STATE_RUNNING);
       sendIntent(Aria.ACTION_PRE, -1);
       sendInState2Target(ISchedulers.START);
     }
 
     @Override public void onResume(long resumeLocation) {
-      entity.setState(DownloadEntity.STATE_RUNNING);
+      uploadEntity.setState(DownloadEntity.STATE_RUNNING);
       sendInState2Target(DownloadSchedulers.RESUME);
       sendIntent(Aria.ACTION_RESUME, resumeLocation);
     }
 
     @Override public void onStop(long stopLocation) {
-      entity.setState(DownloadEntity.STATE_STOP);
-      entity.setSpeed(0);
+      uploadEntity.setState(DownloadEntity.STATE_STOP);
+      handleSpeed(0);
       sendInState2Target(DownloadSchedulers.STOP);
       sendIntent(Aria.ACTION_STOP, stopLocation);
     }
@@ -188,12 +217,11 @@ public class UploadTask implements ITask {
         sendIntent.putExtra(Aria.CURRENT_SPEED, speed);
         lastTime = System.currentTimeMillis();
         if (isFirst) {
-          entity.setSpeed(0);
+          speed = 0;
           isFirst = false;
-        } else {
-          entity.setSpeed(speed);
         }
-        entity.setCurrentProgress(currentLocation);
+        handleSpeed(speed);
+        uploadEntity.setCurrentProgress(currentLocation);
         lastLen = currentLocation;
         sendInState2Target(DownloadSchedulers.RUNNING);
         AriaManager.APP.sendBroadcast(sendIntent);
@@ -201,26 +229,35 @@ public class UploadTask implements ITask {
     }
 
     @Override public void onCancel() {
-      entity.setState(DownloadEntity.STATE_CANCEL);
+      uploadEntity.setState(DownloadEntity.STATE_CANCEL);
+      handleSpeed(0);
       sendInState2Target(DownloadSchedulers.CANCEL);
       sendIntent(Aria.ACTION_CANCEL, -1);
-      entity.deleteData();
+      uploadEntity.deleteData();
     }
 
     @Override public void onComplete() {
-      entity.setState(DownloadEntity.STATE_COMPLETE);
-      entity.setComplete(true);
-      entity.setSpeed(0);
+      uploadEntity.setState(DownloadEntity.STATE_COMPLETE);
+      uploadEntity.setComplete(true);
+      handleSpeed(0);
       sendInState2Target(DownloadSchedulers.COMPLETE);
-      sendIntent(Aria.ACTION_COMPLETE, entity.getFileSize());
+      sendIntent(Aria.ACTION_COMPLETE, uploadEntity.getFileSize());
     }
 
     @Override public void onFail() {
-      entity.setFailNum(entity.getFailNum() + 1);
-      entity.setState(DownloadEntity.STATE_FAIL);
-      entity.setSpeed(0);
+      uploadEntity.setFailNum(uploadEntity.getFailNum() + 1);
+      uploadEntity.setState(DownloadEntity.STATE_FAIL);
+      handleSpeed(0);
       sendInState2Target(DownloadSchedulers.FAIL);
       sendIntent(Aria.ACTION_FAIL, -1);
+    }
+
+    private void handleSpeed(long speed) {
+      if (isConvertSpeed) {
+        uploadEntity.setConvertSpeed(CommonUtil.formatFileSize(speed) + "/s");
+      } else {
+        uploadEntity.setSpeed(speed);
+      }
     }
 
     /**
@@ -235,16 +272,16 @@ public class UploadTask implements ITask {
     }
 
     private void sendIntent(String action, long location) {
-      entity.setComplete(action.equals(Aria.ACTION_COMPLETE));
-      entity.setCurrentProgress(location);
-      entity.update();
-      if (!Configuration_1.isOpenBreadCast) return;
-      Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), action);
-      intent.putExtra(Aria.ENTITY, entity);
+      uploadEntity.setComplete(action.equals(Aria.ACTION_COMPLETE));
+      uploadEntity.setCurrentProgress(location);
+      uploadEntity.update();
+      if (!isOpenBroadCast) return;
+      Intent intent = CommonUtil.createIntent(context.getPackageName(), action);
+      intent.putExtra(Aria.ENTITY, uploadEntity);
       if (location != -1) {
         intent.putExtra(Aria.CURRENT_LOCATION, location);
       }
-      AriaManager.APP.sendBroadcast(intent);
+      context.sendBroadcast(intent);
     }
   }
 

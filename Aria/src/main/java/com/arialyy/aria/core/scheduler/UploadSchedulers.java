@@ -18,11 +18,11 @@ package com.arialyy.aria.core.scheduler;
 import android.os.CountDownTimer;
 import android.os.Message;
 import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
-import com.arialyy.aria.util.Configuration_1;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -69,19 +69,21 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
   }
 
   private void handleFailTask(final UploadTask task) {
-    final Configuration_1 config = Configuration_1.getInstance();
-    CountDownTimer timer = new CountDownTimer(config.getReTryInterval(), 1000) {
+    final long interval =
+        AriaManager.getInstance(AriaManager.APP).getUploadConfig().getReTryInterval();
+    final int reTryNum = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getReTryNum();
+    CountDownTimer timer = new CountDownTimer(interval, 1000) {
       @Override public void onTick(long millisUntilFinished) {
 
       }
 
       @Override public void onFinish() {
         UploadEntity entity = task.getUploadEntity();
-        if (entity.getFailNum() <= config.getReTryNum()) {
+        if (entity.getFailNum() <= reTryNum) {
           UploadTask task = mQueue.getTask(entity);
           mQueue.reTryStart(task);
           try {
-            Thread.sleep(config.getReTryInterval());
+            Thread.sleep(interval);
           } catch (InterruptedException e) {
             e.printStackTrace();
           }
@@ -169,7 +171,9 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
       case STOP:
       case CANCEL:
         mQueue.removeTask(entity);
-        if (mQueue.size() < Configuration_1.getInstance().getDownloadNum()) {
+        if (mQueue.size() < AriaManager.getInstance(AriaManager.APP)
+            .getUploadConfig()
+            .getMaxTaskNum()) {
           startNextTask();
         }
         break;

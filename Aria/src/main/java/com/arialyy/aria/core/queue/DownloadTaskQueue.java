@@ -18,6 +18,7 @@ package com.arialyy.aria.core.queue;
 
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -25,7 +26,6 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.CachePool;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
-import com.arialyy.aria.util.Configuration_1;
 
 /**
  * Created by lyy on 2016/8/17.
@@ -36,6 +36,7 @@ public class DownloadTaskQueue
   private static final String TAG = "DownloadTaskQueue";
   private static volatile DownloadTaskQueue INSTANCE = null;
   private static final Object LOCK = new Object();
+  private ExecutePool<DownloadTask> mExecutePool = new ExecutePool<>(true);
 
   public static DownloadTaskQueue getInstance() {
     if (INSTANCE == null) {
@@ -121,7 +122,7 @@ public class DownloadTaskQueue
 
   @Override public void setDownloadNum(int downloadNum) {
     //原始长度
-    int size = Configuration_1.getInstance().getDownloadNum();
+    int size = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().oldMaxTaskNum;
     int diff = downloadNum - size;
     if (size == downloadNum) {
       Log.d(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");

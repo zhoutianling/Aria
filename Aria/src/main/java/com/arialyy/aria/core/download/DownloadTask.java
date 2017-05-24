@@ -27,7 +27,6 @@ import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Configuration_1;
 import java.lang.ref.WeakReference;
 
 /**
@@ -41,30 +40,59 @@ public class DownloadTask implements ITask {
    */
   private String mTargetName;
   private DownloadEntity mEntity;
-  private DownloadTaskEntity mTaskEntity;
   private IDownloadListener mListener;
   private Handler mOutHandler;
   private IDownloadUtil mUtil;
   private Context mContext;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
-    mTaskEntity = taskEntity;
     mEntity = taskEntity.downloadEntity;
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
-    init();
-  }
-
-  private void init() {
     mListener = new DListener(mContext, this, mOutHandler);
-    mUtil = new DownloadUtil(mContext, mTaskEntity, mListener);
+    mUtil = new DownloadUtil(mContext, taskEntity, mListener);
   }
 
   /**
-   * 获取下载速度
+   * @return 返回原始byte速度，需要你在配置文件中配置
+   * <pre>
+   *   {@code
+   *    <xml>
+   *      <download>
+   *        ...
+   *        <convertSpeed value="false"/>
+   *      </download>
+   *
+   *      或在代码中设置
+   *      Aria.get(this).getDownloadConfig().setConvertSpeed(false);
+   *    </xml>
+   *   }
+   * </pre>
+   * 才能生效
    */
   @Override public long getSpeed() {
     return mEntity.getSpeed();
+  }
+
+  /**
+   * @return 返回转换单位后的速度，需要你在配置文件中配置，转换完成后为：1b/s、1k/s、1m/s、1g/s、1t/s
+   * <pre>
+   *   {@code
+   *    <xml>
+   *      <download>
+   *        ...
+   *        <convertSpeed value="true"/>
+   *      </download>
+   *
+   *      或在代码中设置
+   *      Aria.get(this).getDownloadConfig().setConvertSpeed(true);
+   *    </xml>
+   *   }
+   * </pre>
+   * 才能生效
+   */
+  @Override public String getConvertSpeed() {
+    return mEntity.getConvertSpeed();
   }
 
   /**
@@ -178,32 +206,14 @@ public class DownloadTask implements ITask {
       intent.putExtra(Aria.ENTITY, mEntity);
       mContext.sendBroadcast(intent);
     }
-    //if (mEntity.isDownloadComplete()) {
-    //  //mUtil.cancelDownload();
-    //} else {
-    //  // 如果任务不是下载状态
-    //  mUtil.cancelDownload();
-    //  mUtil.delConfigFile();
-    //  mUtil.delTempFile();
-    //  mEntity.deleteData();
-    //  if (mOutHandler != null) {
-    //    mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
-    //  }
-    //  //发送取消下载的广播
-    //  Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_CANCEL);
-    //  intent.putExtra(Aria.ENTITY, mEntity);
-    //  mContext.sendBroadcast(intent);
-    //}
   }
 
   public static class Builder {
     DownloadTaskEntity taskEntity;
     Handler outHandler;
-    int threadNum = 3;
     String targetName;
 
     public Builder(String targetName, DownloadTaskEntity taskEntity) {
-      //CheckUtil.checkDownloadTaskEntity(taskEntity.downloadEntity);
       CheckUtil.checkTaskEntity(taskEntity);
       this.targetName = targetName;
       this.taskEntity = taskEntity;
@@ -216,14 +226,6 @@ public class DownloadTask implements ITask {
      */
     public Builder setOutHandler(ISchedulers schedulers) {
       this.outHandler = new Handler(schedulers);
-      return this;
-    }
-
-    /**
-     * 设置线程数
-     */
-    public Builder setThreadNum(int threadNum) {
-      this.threadNum = threadNum;
       return this;
     }
 
@@ -243,13 +245,14 @@ public class DownloadTask implements ITask {
     WeakReference<DownloadTask> wTask;
     Context context;
     Intent sendIntent;
-    long INTERVAL = 1024 * 10;   //10k大小的间隔
     long lastLen = 0;   //上一次发送长度
     long lastTime = 0;
     long INTERVAL_TIME = 1000;   //1m更新周期
     boolean isFirst = true;
     DownloadEntity downloadEntity;
     DownloadTask task;
+    boolean isOpenBroadCast = false;
+    boolean isConvertSpeed = false;
 
     DListener(Context context, DownloadTask task, Handler outHandler) {
       this.context = context;
@@ -259,6 +262,9 @@ public class DownloadTask implements ITask {
       this.downloadEntity = this.task.getDownloadEntity();
       sendIntent = CommonUtil.createIntent(context.getPackageName(), Aria.ACTION_RUNNING);
       sendIntent.putExtra(Aria.ENTITY, downloadEntity);
+      final AriaManager manager = AriaManager.getInstance(context);
+      isOpenBroadCast = manager.getDownloadConfig().isOpenBreadCast();
+      isConvertSpeed = manager.getDownloadConfig().isConvertSpeed();
     }
 
     @Override public void supportBreakpoint(boolean support) {
@@ -305,11 +311,10 @@ public class DownloadTask implements ITask {
         sendIntent.putExtra(Aria.CURRENT_SPEED, speed);
         lastTime = System.currentTimeMillis();
         if (isFirst) {
-          downloadEntity.setSpeed(0);
+          speed = 0;
           isFirst = false;
-        } else {
-          downloadEntity.setSpeed(speed);
         }
+        handleSpeed(speed);
         downloadEntity.setCurrentProgress(currentLocation);
         lastLen = currentLocation;
         sendInState2Target(DownloadSchedulers.RUNNING);
@@ -320,7 +325,7 @@ public class DownloadTask implements ITask {
     @Override public void onStop(long stopLocation) {
       super.onStop(stopLocation);
       downloadEntity.setState(DownloadEntity.STATE_STOP);
-      downloadEntity.setSpeed(0);
+      handleSpeed(0);
       sendInState2Target(DownloadSchedulers.STOP);
       sendIntent(Aria.ACTION_STOP, stopLocation);
     }
@@ -328,6 +333,7 @@ public class DownloadTask implements ITask {
     @Override public void onCancel() {
       super.onCancel();
       downloadEntity.setState(DownloadEntity.STATE_CANCEL);
+      handleSpeed(0);
       sendInState2Target(DownloadSchedulers.CANCEL);
       sendIntent(Aria.ACTION_CANCEL, -1);
       downloadEntity.deleteData();
@@ -337,7 +343,7 @@ public class DownloadTask implements ITask {
       super.onComplete();
       downloadEntity.setState(DownloadEntity.STATE_COMPLETE);
       downloadEntity.setDownloadComplete(true);
-      downloadEntity.setSpeed(0);
+      handleSpeed(0);
       sendInState2Target(DownloadSchedulers.COMPLETE);
       sendIntent(Aria.ACTION_COMPLETE, downloadEntity.getFileSize());
     }
@@ -346,9 +352,17 @@ public class DownloadTask implements ITask {
       super.onFail();
       downloadEntity.setFailNum(downloadEntity.getFailNum() + 1);
       downloadEntity.setState(DownloadEntity.STATE_FAIL);
-      downloadEntity.setSpeed(0);
+      handleSpeed(0);
       sendInState2Target(DownloadSchedulers.FAIL);
       sendIntent(Aria.ACTION_FAIL, -1);
+    }
+
+    private void handleSpeed(long speed) {
+      if (isConvertSpeed) {
+        downloadEntity.setConvertSpeed(CommonUtil.formatFileSize(speed) + "/s");
+      } else {
+        downloadEntity.setSpeed(speed);
+      }
     }
 
     /**
@@ -366,7 +380,7 @@ public class DownloadTask implements ITask {
       downloadEntity.setDownloadComplete(action.equals(Aria.ACTION_COMPLETE));
       downloadEntity.setCurrentProgress(location);
       downloadEntity.update();
-      if (!Configuration_1.isOpenBreadCast) return;
+      if (!isOpenBroadCast) return;
       Intent intent = CommonUtil.createIntent(context.getPackageName(), action);
       intent.putExtra(Aria.ENTITY, downloadEntity);
       if (location != -1) {

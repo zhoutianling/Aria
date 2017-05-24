@@ -31,6 +31,7 @@ import com.arialyy.aria.orm.DbEntity;
  */
 public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
   @Ignore private long speed = 0; //下载速度
+  @Ignore private String convertSpeed = "0b/s";
   @Ignore private int failNum = 0;
   private String downloadUrl = ""; //下载路径
   private String downloadPath = ""; //保存路径
@@ -122,6 +123,14 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     isDownloadComplete = downloadComplete;
   }
 
+  public String getConvertSpeed() {
+    return convertSpeed;
+  }
+
+  public void setConvertSpeed(String convertSpeed) {
+    this.convertSpeed = convertSpeed;
+  }
+
   public long getSpeed() {
     return speed;
   }
@@ -162,6 +171,9 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     return "DownloadEntity{"
         + "speed="
         + speed
+        + ", convertSpeed='"
+        + convertSpeed
+        + '\''
         + ", failNum="
         + failNum
         + ", downloadUrl='"
@@ -200,6 +212,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
 
   @Override public void writeToParcel(Parcel dest, int flags) {
     dest.writeLong(this.speed);
+    dest.writeString(this.convertSpeed);
     dest.writeInt(this.failNum);
     dest.writeString(this.downloadUrl);
     dest.writeString(this.downloadPath);
@@ -216,6 +229,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
 
   protected DownloadEntity(Parcel in) {
     this.speed = in.readLong();
+    this.convertSpeed = in.readString();
     this.failNum = in.readInt();
     this.downloadUrl = in.readString();
     this.downloadPath = in.readString();

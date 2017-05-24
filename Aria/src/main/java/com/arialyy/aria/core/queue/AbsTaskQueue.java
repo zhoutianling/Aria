@@ -28,5 +28,4 @@ import com.arialyy.aria.core.queue.pool.ExecutePool;
 abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity, ENTITY extends IEntity>
     implements ITaskQueue<TASK, TASK_ENTITY, ENTITY> {
   CachePool<TASK> mCachePool = new CachePool<>();
-  ExecutePool<TASK> mExecutePool = new ExecutePool<>();
 }

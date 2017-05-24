@@ -66,11 +66,11 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity,
   public int size();
 
   /**
-   * 设置下载任务数
+   * 设置最大任务数
    *
-   * @param downloadNum 下载任务数
+   * @param newMaxNum 下载任务数
    */
-  public void setDownloadNum(int downloadNum);
+  public void setDownloadNum(int newMaxNum);
 
   /**
    * 创建一个新的任务，创建时只是将新任务存储到缓存池

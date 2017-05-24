@@ -19,10 +19,10 @@ package com.arialyy.aria.core.scheduler;
 import android.os.CountDownTimer;
 import android.os.Message;
 import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
-import com.arialyy.aria.util.Configuration_1;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -86,7 +86,9 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
       case STOP:
       case CANCEL:
         mQueue.removeTask(entity);
-        if (mQueue.size() < Configuration_1.getInstance().getDownloadNum()) {
+        if (mQueue.size() < AriaManager.getInstance(AriaManager.APP)
+            .getUploadConfig()
+            .getMaxTaskNum()) {
           startNextTask();
         }
         break;
@@ -163,19 +165,22 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
    * @param task 下载任务
    */
   private void handleFailTask(final DownloadTask task) {
-    final Configuration_1 config = Configuration_1.getInstance();
-    CountDownTimer timer = new CountDownTimer(config.getReTryInterval(), 1000) {
+    final long interval =
+        AriaManager.getInstance(AriaManager.APP).getUploadConfig().getReTryInterval();
+    final int reTryNum = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getReTryNum();
+
+    CountDownTimer timer = new CountDownTimer(interval, 1000) {
       @Override public void onTick(long millisUntilFinished) {
 
       }
 
       @Override public void onFinish() {
         DownloadEntity entity = task.getDownloadEntity();
-        if (entity.getFailNum() < config.getReTryNum()) {
+        if (entity.getFailNum() < reTryNum) {
           DownloadTask task = mQueue.getTask(entity);
           mQueue.reTryStart(task);
           try {
-            Thread.sleep(config.getReTryInterval());
+            Thread.sleep(interval);
           } catch (InterruptedException e) {
             e.printStackTrace();
           }

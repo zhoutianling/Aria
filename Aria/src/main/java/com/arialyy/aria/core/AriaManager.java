@@ -31,17 +31,20 @@ import android.widget.PopupWindow;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.inf.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
-import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.orm.DbUtil;
-import com.arialyy.aria.util.CAConfiguration;
-import com.arialyy.aria.util.Configuration_1;
-import com.arialyy.aria.util.Speed;
+import com.arialyy.aria.util.FileUtil;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import org.xml.sax.SAXException;
 
 /**
  * Created by lyy on 2016/12/1.
@@ -57,12 +60,14 @@ import java.util.Map;
   private Map<String, IReceiver> mReceivers = new HashMap<>();
   public static Context APP;
   private List<ICmd> mCommands = new ArrayList<>();
-  private Configuration mConfig;
+  private Configuration.DownloadConfig mDConfig;
+  private Configuration.UploadConfig mUConfig;
 
   private AriaManager(Context context) {
     DbUtil.init(context.getApplicationContext());
     APP = context.getApplicationContext();
     regAppLifeCallback(context);
+    initConfig();
   }
 
   public static AriaManager getInstance(Context context) {
@@ -79,10 +84,43 @@ import java.util.Map;
   }
 
   /**
-   * 设置最大下载速度
+   * 加载配置文件
    */
-  public void setMaxSpeed(Speed speed) {
-    Configuration_1.getInstance().setMaxSpeed(speed);
+  private void loadConfig() {
+    try {
+      ConfigHelper helper = new ConfigHelper();
+      SAXParserFactory factory = SAXParserFactory.newInstance();
+      SAXParser parser = factory.newSAXParser();
+      parser.parse(APP.getAssets().open("aria_config.xml"), helper);
+    } catch (ParserConfigurationException | IOException | SAXException e) {
+      Log.e(TAG, e.toString());
+    }
+  }
+
+  /**
+   * 如果需要在代码中修改下载配置，请使用以下方法
+   * <pre>
+   *   <code>
+   *     //修改最大任务队列数
+   *     Aria.get(this).getDownloadConfig().setMaxTaskNum(3);
+   *   </code>
+   * </pre>
+   */
+  public Configuration.DownloadConfig getDownloadConfig() {
+    return mDConfig;
+  }
+
+  /**
+   * 如果需要在代码中修改下载配置，请使用以下方法
+   * <pre>
+   *   <code>
+   *     //修改最大任务队列数
+   *     Aria.get(this).getUploadConfig().setMaxTaskNum(3);
+   *   </code>
+   * </pre>
+   */
+  public Configuration.UploadConfig getUploadConfig() {
+    return mUConfig;
   }
 
   /**
@@ -133,70 +171,6 @@ import java.util.Map;
       receiver = putReceiver(false, obj);
     }
     return (receiver instanceof UploadReceiver) ? (UploadReceiver) receiver : null;
-  }
-
-  /**
-   * 设置CA证书信息
-   *
-   * @param caAlias ca证书别名
-   * @param caPath assets 文件夹下的ca证书完整路径
-   */
-  public void setCAInfo(String caAlias, String caPath) {
-    if (TextUtils.isEmpty(caAlias)) {
-      Log.e(TAG, "ca证书别名不能为null");
-      return;
-    } else if (TextUtils.isEmpty(caPath)) {
-      Log.e(TAG, "ca证书路径不能为null");
-      return;
-    }
-    CAConfiguration.CA_ALIAS = caAlias;
-    CAConfiguration.CA_PATH = caPath;
-  }
-
-  /**
-   * 设置下载超时时间
-   */
-  @Deprecated private AriaManager setTimeOut(int timeOut) {
-    Configuration_1.getInstance().setTimeOut(timeOut);
-    return this;
-  }
-
-  /**
-   * 设置失败重试次数
-   */
-  public AriaManager setReTryNum(int reTryNum) {
-    Configuration_1.getInstance().setReTryNum(reTryNum);
-    return this;
-  }
-
-  /**
-   * 设置失败重试间隔
-   */
-  public AriaManager setReTryInterval(int interval) {
-    Configuration_1.getInstance().setReTryInterval(interval);
-    return this;
-  }
-
-  /**
-   * 是否打开下载广播
-   */
-  public AriaManager openBroadcast(boolean open) {
-    Configuration_1.getInstance().setOpenBroadcast(open);
-    return this;
-  }
-
-  /**
-   * 设置最大下载数，最大下载数不能小于1
-   *
-   * @param maxDownloadNum 最大下载数
-   */
-  public AriaManager setMaxDownloadNum(int maxDownloadNum) {
-    if (maxDownloadNum < 1) {
-      Log.w(TAG, "最大任务数不能小于 1");
-      return this;
-    }
-    DownloadTaskQueue.getInstance().setDownloadNum(maxDownloadNum);
-    return this;
   }
 
   private IReceiver putReceiver(boolean isDownload, Object obj) {
@@ -266,6 +240,27 @@ import java.util.Map;
     }
     key += isDownload ? DOWNLOAD : UPLOAD;
     return key;
+  }
+
+  /**
+   * 初始化配置文件
+   */
+  private void initConfig() {
+    File xmlFile = new File(APP.getFilesDir().getPath() + Configuration.XML_FILE);
+    if (!xmlFile.exists()) {
+      loadConfig();
+    } else {
+      try {
+        String md5Code = FileUtil.getFileMD5(xmlFile);
+        if (!FileUtil.checkMD5(md5Code, APP.getAssets().open("aria_config.xml"))) {
+          loadConfig();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    mDConfig = Configuration.DownloadConfig.getInstance();
+    mUConfig = Configuration.UploadConfig.getInstance();
   }
 
   /**

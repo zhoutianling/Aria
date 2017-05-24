@@ -103,7 +103,6 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
     long size = item.getFileSize();
     int current = 0;
     long progress = item.getCurrentProgress();
-    long speed = item.getSpeed();
     current = size == 0 ? 0 : (int) (progress * 100 / size);
     holder.progress.setProgress(current);
     BtClickListener listener = new BtClickListener(item);
@@ -136,7 +135,7 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
     }
     holder.bt.setText(str);
     holder.bt.setTextColor(getColor(color));
-    holder.speed.setText(CommonUtil.formatFileSize(speed) + "/s");
+    holder.speed.setText(item.getConvertSpeed());
     holder.fileSize.setText(covertCurrentSize(progress) + "/" + CommonUtil.formatFileSize(size));
     holder.cancel.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
@@ -145,10 +144,6 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
         Aria.download(getContext()).load(item).cancel();
       }
     });
-  }
-
-  public void setDownloadNum(int num) {
-    Aria.get(getContext()).setMaxDownloadNum(num);
   }
 
   private String covertCurrentSize(long currentSize) {

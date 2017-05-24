@@ -83,7 +83,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
   @Override protected void dataCallback(int result, Object data) {
     super.dataCallback(result, data);
     if (result == DownloadNumDialog.RESULT_CODE) {
-      Aria.get(this).setMaxDownloadNum(Integer.parseInt(data + ""));
+      Aria.get(this).getDownloadConfig().setMaxTaskNum(Integer.parseInt(data + ""));
     }
   }
 
