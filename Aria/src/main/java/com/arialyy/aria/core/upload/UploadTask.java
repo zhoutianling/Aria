@@ -151,6 +151,30 @@ public class UploadTask implements ITask {
     return mUploadEntity.getConvertSpeed();
   }
 
+  /**
+   * 获取百分比进度
+   *
+   * @return 返回百分比进度，如果文件长度为0，返回0
+   */
+  @Override public int getPercent() {
+    if (mUploadEntity.getFileSize() == 0) {
+      return 0;
+    }
+    return (int) (mUploadEntity.getCurrentProgress() * 100 / mUploadEntity.getFileSize());
+  }
+
+  /**
+   * 转换单位后的文件长度
+   *
+   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1k、1m、1g、1t
+   */
+  @Override public String getConvertFileSize() {
+    if (mUploadEntity.getFileSize() == 0) {
+      return "0m";
+    }
+    return CommonUtil.formatFileSize(mUploadEntity.getFileSize());
+  }
+
   @Override public long getFileSize() {
     return mUploadEntity.getFileSize();
   }
