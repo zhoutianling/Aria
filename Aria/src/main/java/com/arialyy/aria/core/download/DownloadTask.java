@@ -56,13 +56,17 @@ public class DownloadTask implements ITask {
   /**
    * @return 返回原始byte速度，需要你在配置文件中配置
    * <pre>
-   *   <download>
-   *    ...
-   *    <convertSpeed value="false"/>
-   *   </download>
+   *   {@code
+   *    <xml>
+   *      <download>
+   *        ...
+   *        <convertSpeed value="false"/>
+   *      </download>
    *
-   *  或在代码中设置
-   *  Aria.get(this).getDownloadConfig().setConvertSpeed(false);
+   *      或在代码中设置
+   *      Aria.get(this).getDownloadConfig().setConvertSpeed(false);
+   *    </xml>
+   *   }
    * </pre>
    * 才能生效
    */
@@ -73,13 +77,17 @@ public class DownloadTask implements ITask {
   /**
    * @return 返回转换单位后的速度，需要你在配置文件中配置，转换完成后为：1b/s、1k/s、1m/s、1g/s、1t/s
    * <pre>
-   *   <download>
-   *    ...
-   *    <convertSpeed value="true"/>
-   *   </download>
+   *   {@code
+   *    <xml>
+   *      <download>
+   *        ...
+   *        <convertSpeed value="true"/>
+   *      </download>
    *
-   *  或在代码中设置
-   *  Aria.get(this).getDownloadConfig().setConvertSpeed(true);
+   *      或在代码中设置
+   *      Aria.get(this).getDownloadConfig().setConvertSpeed(true);
+   *    </xml>
+   *   }
    * </pre>
    * 才能生效
    */

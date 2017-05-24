@@ -44,7 +44,7 @@ public class DownloadDialog extends AbsDialog {
   @Bind(R.id.speed) TextView mSpeed;
 
   private static final String DOWNLOAD_URL =
-      "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
+      "http://clashroyalecdn.static.kunlun.com/Clash_Royale-1.2.6-kunlun_landing_page-release.apk.apk";
 
   public DownloadDialog(Context context) {
     super(context);

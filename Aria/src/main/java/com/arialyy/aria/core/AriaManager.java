@@ -93,16 +93,18 @@ import org.xml.sax.SAXException;
       SAXParser parser = factory.newSAXParser();
       parser.parse(APP.getAssets().open("aria_config.xml"), helper);
     } catch (ParserConfigurationException | IOException | SAXException e) {
-      Log.d(TAG, e.toString());
+      Log.e(TAG, e.toString());
     }
   }
 
   /**
    * 如果需要在代码中修改下载配置，请使用以下方法
-   *
-   * @<code> //修改最大任务队列数
-   * Aria.get(this).getDownloadConfig().setMaxTaskNum(3);
-   * </code>
+   * <pre>
+   *   <code>
+   *     //修改最大任务队列数
+   *     Aria.get(this).getDownloadConfig().setMaxTaskNum(3);
+   *   </code>
+   * </pre>
    */
   public Configuration.DownloadConfig getDownloadConfig() {
     return mDConfig;
@@ -110,10 +112,12 @@ import org.xml.sax.SAXException;
 
   /**
    * 如果需要在代码中修改下载配置，请使用以下方法
-   *
-   * @<code> //修改最大任务队列数
-   * Aria.get(this).getUploadConfig().setMaxTaskNum(3);
-   * </code>
+   * <pre>
+   *   <code>
+   *     //修改最大任务队列数
+   *     Aria.get(this).getUploadConfig().setMaxTaskNum(3);
+   *   </code>
+   * </pre>
    */
   public Configuration.UploadConfig getUploadConfig() {
     return mUConfig;
@@ -242,8 +246,6 @@ import org.xml.sax.SAXException;
    * 初始化配置文件
    */
   private void initConfig() {
-    //File dFile = new File(APP.getFilesDir().getPath() + Configuration.DOWNLOAD_CONFIG_FILE);
-    //File uFile = new File(APP.getFilesDir().getPath() + Configuration.UPLOAD_CONFIG_FILE);
     File xmlFile = new File(APP.getFilesDir().getPath() + Configuration.XML_FILE);
     if (!xmlFile.exists()) {
       loadConfig();

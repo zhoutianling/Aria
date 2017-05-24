@@ -111,13 +111,17 @@ public class UploadTask implements ITask {
   /**
    * @return 返回原始byte速度，需要你在配置文件中配置
    * <pre>
-   *   <upload>
-   *    ...
-   *    <convertSpeed value="false"/>
-   *   </upload>
+   *  {@code
+   *   <xml>
+   *    <upload>
+   *      ...
+   *      <convertSpeed value="false"/>
+   *    </upload>
    *
-   *  或在代码中设置
-   *  Aria.get(this).getUploadConfig().setConvertSpeed(false);
+   *    或在代码中设置
+   *    Aria.get(this).getUploadConfig().setConvertSpeed(false);
+   *   </xml>
+   *  }
    * </pre>
    * 才能生效
    */
@@ -128,13 +132,17 @@ public class UploadTask implements ITask {
   /**
    * @return 返回转换单位后的速度，需要你在配置文件中配置，转换完成后为：1b/s、1k/s、1m/s、1g/s、1t/s
    * <pre>
-   *   <upload>
-   *    ...
-   *    <convertSpeed value="true"/>
-   *   </upload>
+   *   {@code
+   *   <xml>
+   *    <upload>
+   *      ...
+   *      <convertSpeed value="true"/>
+   *    </upload>
    *
-   *  或在代码中设置
-   *  Aria.get(this).getUploadConfig().setConvertSpeed(true);
+   *    或在代码中设置
+   *    Aria.get(this).getUploadConfig().setConvertSpeed(true);
+   *   </xml>
+   *   }
    * </pre>
    *
    * 才能生效

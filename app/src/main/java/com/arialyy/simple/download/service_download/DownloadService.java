@@ -31,11 +31,7 @@ import com.arialyy.frame.util.show.T;
 public class DownloadService extends Service {
 
   private static final String DOWNLOAD_URL =
-      //"http://kotlinlang.org/docs/kotlin-docs.pdf";
-      //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      //"http://static.gaoshouyou.com/d/21/e8/61218d78d0e8b79df68dbc18dd484c97.apk";
-      //不支持断点的链接
-      "http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
+      "http://rs.0.gaoshouyou.com/d/df/db/03df9eab61dbc48a5939f671f05f1cdf.apk";
   private DownloadNotification mNotify;
 
   @Nullable @Override public IBinder onBind(Intent intent) {
