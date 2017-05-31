@@ -110,7 +110,7 @@ compile 'com.arialyy.aria:Aria:3.1.1'
   }
   ```
  
-### 使用广播接收器接收Aria的下载事件
+### 使用广播接收器接收Aria的任务下载状态
 有的时候，你可能希望在广播中接收Aria的下载事件，那么你需要
 * 在[配置文件](#配置文件设置参数)中把` <openBroadcast value="false"/>`中的value改为true
 * [点击该链接查看注册Aria广播的方式](https://github.com/AriaLyy/Aria/blob/master/BroadCast.md)
@@ -261,7 +261,9 @@ Aria.download(this).removeAllTask();
 ***
 
 ## 后续版本开发规划
+* ~~下载任务可以设置优先级~~
 * ~~实现上传队列调度功能~~
+
 
 ## 开发日志
   + v_3.1.0 添加Aria配置文件，优化代码
