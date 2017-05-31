@@ -4,14 +4,14 @@ Aria项目源于15年工作中遇到的一个文件下载管理的需求，当�
 
 Aria有以下特点：
  + 简单、方便
-  - 可以在Activity、Service、Fragment、Dialog、popupWindow、Notification等组件中使用
-  - 支持任务自动调度，使用者不需要关心任务状态切换的逻辑
-  - [通过Aria的事件，能很容易获取当前下载任务的下载状态](#二、下载状态获取)
-  - [一句代码就可以动态设置最大下载数](#通过代码修改Aria参数)
-  - [一句代码加可以获取当前的下载速度](#其它好用的API)
-  - [通过修改配置文件很容易就能修改下载线程数](#通过文件修改Aria配置参数)
+   - 可以在Activity、Service、Fragment、Dialog、popupWindow、Notification等组件中使用
+   - 支持任务自动调度，使用者不需要关心任务状态切换的逻辑
+   - [通过Aria的事件，能很容易获取当前下载任务的下载状态](#下载状态获取)
+   - [一句代码加可以获取当前的下载速度](#常用接口)
+   - [一句代码就可以动态设置最大下载数](#代码中设置参数)
+   - [通过修改配置文件很容易就能修改下载线程数](#配置文件设置参数)
  + 支持https地址下载
-  - 在配置文件中很容易就可以设置CA证书的信息
+   - 在配置文件中很容易就可以设置CA证书的信息
  + 支持300、301、302重定向下载链接下载
  + 支持上传操作
 
@@ -25,7 +25,7 @@ Aria怎样使用？
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:3.1.0'
+compile 'com.arialyy.aria:Aria:3.1.1'
 ```
 
 ## 示例
@@ -77,7 +77,7 @@ compile 'com.arialyy.aria:Aria:3.1.0'
   Aria.download(this).load(DOWNLOAD_URL).cancel();
   ```
 
-### 二、下载状态获取
+### 下载状态获取
 如果你希望读取下载进度或下载信息，那么你需要创建事件类，并在onResume(Activity、Fragment)或构造函数(Dialog、PopupWindow)，将该事件类注册到Aria管理器。
 * 创建事件类
 
@@ -110,8 +110,8 @@ compile 'com.arialyy.aria:Aria:3.1.0'
   }
   ```
 
-### 三、Aria参数配置
-#### 通过文件修改Aria配置参数
+### Aria参数配置
+#### 配置文件设置参数
 创建`aria_config.xml`文件，将其放在`assets`目录下，添加以下内容
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -172,7 +172,7 @@ compile 'com.arialyy.aria:Aria:3.1.0'
 </aria>
 ```
 
-#### 通过代码修改Aria参数
+#### 代码中设置参数
 除了文件方式外修改Aria参数外，同样的，你也可以在代码中动态修改Aria参数</br>
 通过`Aria.get(this).getDownloadConfig()`或`Aria.get(this).getUploadConfig()`直接获取配置文件，然后修改参数</br>
 如以下所示：
@@ -182,7 +182,7 @@ compile 'com.arialyy.aria:Aria:3.1.0'
 Aria.get(this).getDownloadConfig().setMaxTaskNum(3);
 ```
 
-### 其它好用的API
+### 常用接口
 * 停止所有任务
 
 ```java
@@ -194,13 +194,25 @@ Aria.download(this).stopAllTask();
 Aria.download(this).removeAllTask();
 ```
 * 获取当前任务的下载速度
-速度参数有点特殊，需要[下载事件支持](#下载事件监听)
+速度参数有点特殊，需要[下载事件支持](#下载状态获取)
 ``` java
 @Override public void onTaskRunning(DownloadTask task) {
   //如果你打开了速度单位转换配置，将可以通过以下方法获取带单位的下载速度，如：1 m/s
   String convertSpeed = task.getConvertSpeed();
   //如果你有自己的单位格式，可以通过以下方法获取原始byte长度
   long speed = task.getSpeed();
+}
+```
+* 获取下载的文件大小、当前进度百分比
+同样的，你也可以在DownloadTask对象中获取下载的文件大小
+```
+@Override public void onTaskRunning(DownloadTask task) {
+  //获取文件大小
+  long fileSize = task.getFileSize();
+  //获取单位转换后的文件大小
+  String fileSize1 = task.getConvertFileSize();
+  //当前进度百分比
+  int percent = task.getPercent();
 }
 ```
 
@@ -238,7 +250,7 @@ Aria.download(this).removeAllTask();
 ***
 
 ## 后续版本开发规划
-* 实现上传队列调度功能
+* ~~实现上传队列调度功能~~
 
 ## 开发日志
   + v_3.1.0 添加Aria配置文件，优化代码

@@ -56,13 +56,17 @@ public class DownloadTask implements ITask {
   /**
    * @return 返回原始byte速度，需要你在配置文件中配置
    * <pre>
-   *   <download>
-   *    ...
-   *    <convertSpeed value="false"/>
-   *   </download>
+   *   {@code
+   *    <xml>
+   *      <download>
+   *        ...
+   *        <convertSpeed value="false"/>
+   *      </download>
    *
-   *  或在代码中设置
-   *  Aria.get(this).getDownloadConfig().setConvertSpeed(false);
+   *      或在代码中设置
+   *      Aria.get(this).getDownloadConfig().setConvertSpeed(false);
+   *    </xml>
+   *   }
    * </pre>
    * 才能生效
    */
@@ -73,13 +77,17 @@ public class DownloadTask implements ITask {
   /**
    * @return 返回转换单位后的速度，需要你在配置文件中配置，转换完成后为：1b/s、1k/s、1m/s、1g/s、1t/s
    * <pre>
-   *   <download>
-   *    ...
-   *    <convertSpeed value="true"/>
-   *   </download>
+   *   {@code
+   *    <xml>
+   *      <download>
+   *        ...
+   *        <convertSpeed value="true"/>
+   *      </download>
    *
-   *  或在代码中设置
-   *  Aria.get(this).getDownloadConfig().setConvertSpeed(true);
+   *      或在代码中设置
+   *      Aria.get(this).getDownloadConfig().setConvertSpeed(true);
+   *    </xml>
+   *   }
    * </pre>
    * 才能生效
    */
@@ -88,10 +96,34 @@ public class DownloadTask implements ITask {
   }
 
   /**
+   * 获取百分比进度
+   *
+   * @return 返回百分比进度，如果文件长度为0，返回0
+   */
+  @Override public int getPercent() {
+    if (mEntity.getFileSize() == 0) {
+      return 0;
+    }
+    return (int) (mEntity.getCurrentProgress() * 100 / mEntity.getFileSize());
+  }
+
+  /**
    * 获取文件大小
    */
   @Override public long getFileSize() {
     return mEntity.getFileSize();
+  }
+
+  /**
+   * 转换单位后的文件长度
+   *
+   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1k、1m、1g、1t
+   */
+  @Override public String getConvertFileSize() {
+    if (mEntity.getFileSize() == 0) {
+      return "0m";
+    }
+    return CommonUtil.formatFileSize(mEntity.getFileSize());
   }
 
   /**

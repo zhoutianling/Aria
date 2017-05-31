@@ -111,13 +111,17 @@ public class UploadTask implements ITask {
   /**
    * @return 返回原始byte速度，需要你在配置文件中配置
    * <pre>
-   *   <upload>
-   *    ...
-   *    <convertSpeed value="false"/>
-   *   </upload>
+   *  {@code
+   *   <xml>
+   *    <upload>
+   *      ...
+   *      <convertSpeed value="false"/>
+   *    </upload>
    *
-   *  或在代码中设置
-   *  Aria.get(this).getUploadConfig().setConvertSpeed(false);
+   *    或在代码中设置
+   *    Aria.get(this).getUploadConfig().setConvertSpeed(false);
+   *   </xml>
+   *  }
    * </pre>
    * 才能生效
    */
@@ -128,19 +132,47 @@ public class UploadTask implements ITask {
   /**
    * @return 返回转换单位后的速度，需要你在配置文件中配置，转换完成后为：1b/s、1k/s、1m/s、1g/s、1t/s
    * <pre>
-   *   <upload>
-   *    ...
-   *    <convertSpeed value="true"/>
-   *   </upload>
+   *   {@code
+   *   <xml>
+   *    <upload>
+   *      ...
+   *      <convertSpeed value="true"/>
+   *    </upload>
    *
-   *  或在代码中设置
-   *  Aria.get(this).getUploadConfig().setConvertSpeed(true);
+   *    或在代码中设置
+   *    Aria.get(this).getUploadConfig().setConvertSpeed(true);
+   *   </xml>
+   *   }
    * </pre>
    *
    * 才能生效
    */
   @Override public String getConvertSpeed() {
     return mUploadEntity.getConvertSpeed();
+  }
+
+  /**
+   * 获取百分比进度
+   *
+   * @return 返回百分比进度，如果文件长度为0，返回0
+   */
+  @Override public int getPercent() {
+    if (mUploadEntity.getFileSize() == 0) {
+      return 0;
+    }
+    return (int) (mUploadEntity.getCurrentProgress() * 100 / mUploadEntity.getFileSize());
+  }
+
+  /**
+   * 转换单位后的文件长度
+   *
+   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1k、1m、1g、1t
+   */
+  @Override public String getConvertFileSize() {
+    if (mUploadEntity.getFileSize() == 0) {
+      return "0m";
+    }
+    return CommonUtil.formatFileSize(mUploadEntity.getFileSize());
   }
 
   @Override public long getFileSize() {

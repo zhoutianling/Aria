@@ -1,7 +1,7 @@
 ## 关于Aria，你还需要知道的一些东西
 - 设置下载任务数，Aria默认下载任务为**2**
 
-  ```java
+  ```java  
   Aria.get(getContext()).setMaxDownloadNum(num);
   ```
 - 停止所有下载
