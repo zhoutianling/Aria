@@ -39,6 +39,7 @@ public class UploadTask implements ITask {
   private UploadEntity mUploadEntity;
   private String mTargetName;
 
+
   private UploadUtil mUtil;
   private UListener mListener;
 
