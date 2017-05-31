@@ -7,8 +7,8 @@ android {
   defaultConfig {
     minSdkVersion 9
     targetSdkVersion 23
-    versionCode 311
-    versionName "3.1.1"
+    versionCode 312
+    versionName "3.1.2"
   }
   buildTypes {
     release {
@@ -23,4 +23,4 @@ dependencies {
   testCompile 'junit:junit:4.12'
   compile 'com.android.support:appcompat-v7:23.1.1'
 }
-apply from: 'jcenter.gradle'
+//apply from: 'jcenter.gradle'
