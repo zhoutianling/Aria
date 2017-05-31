@@ -86,7 +86,7 @@ class Configuration {
       oldMaxTaskNum = this.maxTaskNum;
       this.maxTaskNum = maxTaskNum;
       saveKey("maxTaskNum", maxTaskNum + "");
-      DownloadTaskQueue.getInstance().setDownloadNum(maxTaskNum);
+      DownloadTaskQueue.getInstance().setMaxTaskNum(maxTaskNum);
       return this;
     }
 

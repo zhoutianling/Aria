@@ -99,7 +99,7 @@ public class UploadTask implements ITask {
       }
       //发送取消下载的广播
       Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_CANCEL);
-      intent.putExtra(Aria.ENTITY, mUploadEntity);
+      intent.putExtra(Aria.UPLOAD_ENTITY, mUploadEntity);
       AriaManager.APP.sendBroadcast(intent);
     }
   }
@@ -201,7 +201,7 @@ public class UploadTask implements ITask {
       this.task = new WeakReference<>(task);
       uploadEntity = this.task.get().getUploadEntity();
       sendIntent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_RUNNING);
-      sendIntent.putExtra(Aria.ENTITY, uploadEntity);
+      sendIntent.putExtra(Aria.UPLOAD_ENTITY, uploadEntity);
       context = AriaManager.APP;
       final AriaManager manager = AriaManager.getInstance(context);
       isOpenBroadCast = manager.getUploadConfig().isOpenBreadCast();
@@ -301,7 +301,7 @@ public class UploadTask implements ITask {
       uploadEntity.update();
       if (!isOpenBroadCast) return;
       Intent intent = CommonUtil.createIntent(context.getPackageName(), action);
-      intent.putExtra(Aria.ENTITY, uploadEntity);
+      intent.putExtra(Aria.UPLOAD_ENTITY, uploadEntity);
       if (location != -1) {
         intent.putExtra(Aria.CURRENT_LOCATION, location);
       }
