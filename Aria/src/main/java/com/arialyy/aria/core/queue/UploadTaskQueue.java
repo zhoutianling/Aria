@@ -18,7 +18,6 @@ package com.arialyy.aria.core.queue;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.core.upload.UploadEntity;
@@ -44,45 +43,8 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
     return INSTANCE;
   }
 
-  @Override public void startTask(UploadTask task) {
-    if (mExecutePool.putTask(task)) {
-      mCachePool.removeTask(task);
-      //task.getEntity().setFailNum(0);
-      task.start();
-    }
-  }
 
-  @Override public void stopTask(UploadTask task) {
-    if (!task.isRunning()) Log.w(TAG, "停止任务失败，【任务已经停止】");
-    if (mExecutePool.removeTask(task)) {
-      task.stop();
-    } else {
-      task.stop();
-      Log.w(TAG, "停止任务失败，【任务已经停止】");
-    }
-  }
-
-  @Override public void cancelTask(UploadTask task) {
-    task.cancel();
-  }
-
-  @Override public void reTryStart(UploadTask task) {
-    if (task == null) {
-      Log.w(TAG, "重试下载失败，task 为null");
-      return;
-    }
-    if (!task.isRunning()) {
-      task.start();
-    } else {
-      Log.w(TAG, "任务没有完全停止，重试下载失败");
-    }
-  }
-
-  @Override public int size() {
-    return mExecutePool.size();
-  }
-
-  @Override public void setDownloadNum(int downloadNum) {
+  @Override public void setMaxTaskNum(int newMaxNum) {
 
   }
 
@@ -102,14 +64,6 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
     return getTask(entity.getFilePath());
   }
 
-  @Override public UploadTask getTask(String url) {
-    UploadTask task = mExecutePool.getTask(url);
-    if (task == null) {
-      task = mCachePool.getTask(url);
-    }
-    return task;
-  }
-
   @Override public void removeTask(UploadEntity entity) {
     UploadTask task = mExecutePool.getTask(entity.getFilePath());
     if (task != null) {
@@ -121,7 +75,4 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
     }
   }
 
-  @Override public UploadTask getNextTask() {
-    return mCachePool.pollTask();
-  }
 }

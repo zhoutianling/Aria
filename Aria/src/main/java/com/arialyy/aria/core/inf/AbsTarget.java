@@ -41,6 +41,13 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
   protected String targetName;
 
   /**
+   * 将该任务优先级提到最高
+   */
+  protected void setToFirst(){
+
+  }
+
+  /**
    * 重定向后，新url的key，默认为location
    */
   protected void _setRedirectUrlKey(String redirectUrlKey) {

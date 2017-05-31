@@ -208,7 +208,7 @@ public class DownloadTask implements ITask {
       // 发送停止下载的广播
       Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_STOP);
       intent.putExtra(Aria.CURRENT_LOCATION, mEntity.getCurrentProgress());
-      intent.putExtra(Aria.ENTITY, mEntity);
+      intent.putExtra(Aria.DOWNLOAD_ENTITY, mEntity);
       mContext.sendBroadcast(intent);
     }
   }
@@ -227,7 +227,7 @@ public class DownloadTask implements ITask {
       }
       //发送取消下载的广播
       Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_CANCEL);
-      intent.putExtra(Aria.ENTITY, mEntity);
+      intent.putExtra(Aria.DOWNLOAD_ENTITY, mEntity);
       mContext.sendBroadcast(intent);
     }
   }
@@ -285,7 +285,7 @@ public class DownloadTask implements ITask {
       this.task = wTask.get();
       this.downloadEntity = this.task.getDownloadEntity();
       sendIntent = CommonUtil.createIntent(context.getPackageName(), Aria.ACTION_RUNNING);
-      sendIntent.putExtra(Aria.ENTITY, downloadEntity);
+      sendIntent.putExtra(Aria.DOWNLOAD_ENTITY, downloadEntity);
       final AriaManager manager = AriaManager.getInstance(context);
       isOpenBroadCast = manager.getDownloadConfig().isOpenBreadCast();
       isConvertSpeed = manager.getDownloadConfig().isConvertSpeed();
@@ -406,7 +406,7 @@ public class DownloadTask implements ITask {
       downloadEntity.update();
       if (!isOpenBroadCast) return;
       Intent intent = CommonUtil.createIntent(context.getPackageName(), action);
-      intent.putExtra(Aria.ENTITY, downloadEntity);
+      intent.putExtra(Aria.DOWNLOAD_ENTITY, downloadEntity);
       if (location != -1) {
         intent.putExtra(Aria.CURRENT_LOCATION, location);
       }

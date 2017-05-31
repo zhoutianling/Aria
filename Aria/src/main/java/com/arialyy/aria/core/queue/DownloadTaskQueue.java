@@ -23,7 +23,6 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.queue.pool.CachePool;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 
@@ -36,7 +35,6 @@ public class DownloadTaskQueue
   private static final String TAG = "DownloadTaskQueue";
   private static volatile DownloadTaskQueue INSTANCE = null;
   private static final Object LOCK = new Object();
-  private ExecutePool<DownloadTask> mExecutePool = new ExecutePool<>(true);
 
   public static DownloadTaskQueue getInstance() {
     if (INSTANCE == null) {
@@ -48,79 +46,10 @@ public class DownloadTaskQueue
   }
 
   private DownloadTaskQueue() {
+    mExecutePool = new ExecutePool<>(true);
   }
 
-  /**
-   * 获取任务执行池
-   */
-  public ExecutePool getExecutePool() {
-    return mExecutePool;
-  }
-
-  /**
-   * 获取缓存池
-   */
-  public CachePool getCachePool() {
-    return mCachePool;
-  }
-
-  /**
-   * 获取当前运行的任务数
-   *
-   * @return 当前正在执行的任务数
-   */
-  public int getCurrentTaskNum() {
-    return mExecutePool.size();
-  }
-
-  /**
-   * 获取缓存任务数
-   *
-   * @return 获取缓存的任务数
-   */
-  public int getCacheTaskNum() {
-    return mCachePool.size();
-  }
-
-  @Override public void startTask(DownloadTask task) {
-    if (mExecutePool.putTask(task)) {
-      mCachePool.removeTask(task);
-      task.getDownloadEntity().setFailNum(0);
-      task.start();
-    }
-  }
-
-  @Override public void stopTask(DownloadTask task) {
-    if (!task.isRunning()) Log.w(TAG, "停止任务失败，【任务已经停止】");
-    if (mExecutePool.removeTask(task)) {
-      task.stop();
-    } else {
-      task.stop();
-      Log.w(TAG, "停止任务失败，【任务已经停止】");
-    }
-  }
-
-  @Override public void cancelTask(DownloadTask task) {
-    task.cancel();
-  }
-
-  @Override public void reTryStart(DownloadTask task) {
-    if (task == null) {
-      Log.w(TAG, "重试下载失败，task 为null");
-      return;
-    }
-    if (!task.isRunning()) {
-      task.start();
-    } else {
-      Log.w(TAG, "任务没有完全停止，重试下载失败");
-    }
-  }
-
-  @Override public int size() {
-    return mExecutePool.size();
-  }
-
-  @Override public void setDownloadNum(int downloadNum) {
+  @Override public void setMaxTaskNum(int downloadNum) {
     //原始长度
     int size = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().oldMaxTaskNum;
     int diff = downloadNum - size;
@@ -164,14 +93,6 @@ public class DownloadTaskQueue
     return getTask(entity.getDownloadUrl());
   }
 
-  @Override public DownloadTask getTask(String url) {
-    DownloadTask task = mExecutePool.getTask(url);
-    if (task == null) {
-      task = mCachePool.getTask(url);
-    }
-    return task;
-  }
-
   @Override public void removeTask(DownloadEntity entity) {
     DownloadTask task = mExecutePool.getTask(entity.getDownloadUrl());
     if (task != null) {
@@ -183,7 +104,4 @@ public class DownloadTaskQueue
     }
   }
 
-  @Override public DownloadTask getNextTask() {
-    return mCachePool.pollTask();
-  }
 }

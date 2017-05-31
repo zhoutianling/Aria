@@ -81,7 +81,7 @@ public class UploadEntity extends DbEntity implements IEntity, Parcelable {
     return failNum;
   }
 
-  public void setFailNum(int failNum) {
+  @Override public void setFailNum(int failNum) {
     this.failNum = failNum;
   }
 

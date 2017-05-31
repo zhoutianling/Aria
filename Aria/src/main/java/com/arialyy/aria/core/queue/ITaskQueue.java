@@ -37,40 +37,45 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity,
    *
    * @param task {@link DownloadTask}、{@link UploadTask}
    */
-  public void startTask(TASK task);
+  void startTask(TASK task);
 
   /**
    * 停止任务
    *
    * @param task {@link DownloadTask}、{@link UploadTask}
    */
-  public void stopTask(TASK task);
+  void stopTask(TASK task);
 
   /**
    * 取消任务
    *
    * @param task {@link DownloadTask}、{@link UploadTask}
    */
-  public void cancelTask(TASK task);
+  void cancelTask(TASK task);
 
   /**
    * 重试下载
    *
    * @param task {@link DownloadTask}、{@link UploadTask}
    */
-  public void reTryStart(TASK task);
+  void reTryStart(TASK task);
 
   /**
    * 任务池队列大小
    */
-  public int size();
+  int executePoolSize();
+
+  /**
+   * 任务缓存池大小
+   */
+  int cachePoolSize();
 
   /**
    * 设置最大任务数
    *
    * @param newMaxNum 下载任务数
    */
-  public void setDownloadNum(int newMaxNum);
+  void setMaxTaskNum(int newMaxNum);
 
   /**
    * 创建一个新的任务，创建时只是将新任务存储到缓存池
@@ -79,7 +84,7 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity,
    * @param targetName 生成该任务的对象
    * @return {@link DownloadTask}、{@link UploadTask}
    */
-  public TASK createTask(String targetName, TASK_ENTITY entity);
+  TASK createTask(String targetName, TASK_ENTITY entity);
 
   /**
    * 通过工作实体缓存池或任务池搜索下载任务，如果缓存池或任务池都没有任务，则创建新任务
@@ -87,7 +92,7 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity,
    * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}
    * @return {@link DownloadTask}、{@link UploadTask}
    */
-  public TASK getTask(ENTITY entity);
+  TASK getTask(ENTITY entity);
 
   /**
    * 通过工作实体缓存池或任务池搜索下载任务，如果缓存池或任务池都没有任务，则创建新任务
@@ -95,19 +100,19 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity,
    * @param url 链接地址，如果是下载，则为下载链接，如果是上传，为文件保存路径
    * @return {@link DownloadTask}、{@link UploadTask}
    */
-  public TASK getTask(String url);
+  TASK getTask(String url);
 
   /**
    * 通过工作实体删除任务
    *
    * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}
    */
-  public void removeTask(ENTITY entity);
+  void removeTask(ENTITY entity);
 
   /**
    * 获取缓存池的下一个任务
    *
    * @return 下载任务 or null
    */
-  public TASK getNextTask();
+  TASK getNextTask();
 }

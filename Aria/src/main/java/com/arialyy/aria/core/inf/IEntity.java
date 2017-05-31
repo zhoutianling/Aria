@@ -60,4 +60,6 @@ public interface IEntity {
   @Ignore public static final int STATE_CANCEL = 7;
 
   public int getState();
+
+  public void setFailNum(int failNum);
 }

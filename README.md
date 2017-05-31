@@ -25,7 +25,7 @@ Aria怎样使用？
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:3.1.1'
+compile 'com.arialyy.aria:Aria:3.1.2'
 ```
 
 ## 示例
@@ -266,6 +266,7 @@ Aria.download(this).removeAllTask();
 
 
 ## 开发日志
+  + v_3.1.2 优化代码结构
   + v_3.1.0 添加Aria配置文件，优化代码
   + v_3.0.3 修复暂停后删除任务，闪退问题，添加删除记录的api
   + v_3.0.2 支持30x重定向链接下载

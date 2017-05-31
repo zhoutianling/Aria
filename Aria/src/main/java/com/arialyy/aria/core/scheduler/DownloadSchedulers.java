@@ -86,7 +86,7 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
       case STOP:
       case CANCEL:
         mQueue.removeTask(entity);
-        if (mQueue.size() < AriaManager.getInstance(AriaManager.APP)
+        if (mQueue.executePoolSize() < AriaManager.getInstance(AriaManager.APP)
             .getUploadConfig()
             .getMaxTaskNum()) {
           startNextTask();

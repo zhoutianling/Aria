@@ -69,6 +69,7 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     return failNum;
   }
 
+  @Override
   public void setFailNum(int failNum) {
     this.failNum = failNum;
   }

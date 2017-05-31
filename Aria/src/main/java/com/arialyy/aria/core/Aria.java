@@ -100,7 +100,11 @@ import com.arialyy.aria.core.upload.UploadTask;
   /**
    * 下载实体
    */
-  public static final String ENTITY = "DOWNLOAD_ENTITY";
+  public static final String DOWNLOAD_ENTITY = "DOWNLOAD_ENTITY";
+  /**
+   * 上传实体
+   */
+  public static final String UPLOAD_ENTITY = "UPLOAD_ENTITY";
   /**
    * 位置
    */

@@ -6,7 +6,7 @@ private BroadcastReceiver mReceiver = new BroadcastReceiver() {
     @Override public void onReceive(Context context, Intent intent) {
       String action = intent.getAction();
       //可以通过intent获取到下载实体，下载实体中包含了各种下载状态
-      DownloadEntity entity = intent.getParcelableExtra(Aria.ENTITY);
+      DownloadEntity entity = intent.getParcelableExtra(Aria.DOWNLOAD_ENTITY);
       switch (action) {
         case Aria.ACTION_PRE:  //预处理
           break;
