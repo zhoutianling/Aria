@@ -25,7 +25,7 @@ Aria怎样使用？
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:3.1.2'
+compile 'com.arialyy.aria:Aria:3.1.3'
 ```
 
 ## 示例
