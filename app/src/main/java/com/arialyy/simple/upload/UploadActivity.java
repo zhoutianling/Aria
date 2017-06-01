@@ -81,7 +81,7 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
   @OnClick(R.id.upload) void upload() {
     Aria.upload(this)
         .load(FILE_PATH)
-        .setUploadUrl("http://172.18.104.50:8080/upload/sign_file")
+        .setUploadUrl("http://172.18.104.228:8080/upload/sign_file")
         .setAttachment("file")
         .start();
   }

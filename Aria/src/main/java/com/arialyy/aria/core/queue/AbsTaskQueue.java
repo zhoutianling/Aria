@@ -31,7 +31,7 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity,
     implements ITaskQueue<TASK, TASK_ENTITY, ENTITY> {
   private final String TAG = "AbsTaskQueue";
   CachePool<TASK> mCachePool = new CachePool<>();
-  ExecutePool<TASK> mExecutePool = null;
+  ExecutePool<TASK> mExecutePool;
 
   /**
    * 获取任务执行池

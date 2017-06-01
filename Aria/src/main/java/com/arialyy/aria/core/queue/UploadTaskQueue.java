@@ -32,7 +32,6 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
   private static final String TAG = "UploadTaskQueue";
   private static volatile UploadTaskQueue INSTANCE = null;
   private static final Object LOCK = new Object();
-  private ExecutePool<UploadTask> mExecutePool = new ExecutePool<>(false);
 
   public static UploadTaskQueue getInstance() {
     if (INSTANCE == null) {
@@ -43,6 +42,9 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
     return INSTANCE;
   }
 
+  private UploadTaskQueue() {
+    mExecutePool = new ExecutePool<>(false);
+  }
 
   @Override public void setMaxTaskNum(int newMaxNum) {
 
@@ -74,5 +76,4 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
       Log.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
     }
   }
-
 }
