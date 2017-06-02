@@ -24,6 +24,7 @@ import butterknife.OnClick;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.frame.util.FileUtil;
+import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
@@ -35,6 +36,7 @@ import java.lang.ref.WeakReference;
  * Created by Aria.Lao on 2017/2/9.
  */
 public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
+  private static final String TAG = "UploadActivity";
   @Bind(R.id.pb) HorizontalProgressBarWithNumber mPb;
   private static final int START = 0;
   private static final int STOP = 1;
@@ -104,6 +106,16 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
 
     UploadListener(Handler handler) {
       this.handler = new WeakReference<>(handler);
+    }
+
+    @Override public void onPre(String url) {
+      super.onPre(url);
+      L.e(TAG, "url ==> " + url);
+    }
+
+    @Override public void onTaskPre(UploadTask task) {
+      super.onTaskPre(task);
+      L.d(TAG, "fileSize = " + task.getConvertFileSize());
     }
 
     @Override public void onTaskStart(UploadTask task) {

@@ -22,7 +22,13 @@ import com.arialyy.aria.core.inf.ITask;
  */
 public interface ISchedulerListener<TASK extends ITask> {
   /**
-   * 任务预加载
+   * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态。
+   * 在这个回调中，任务是获取不到文件大小，下载速度等参数
+   */
+  public void onPre(String url);
+
+  /**
+   * 任务预加载完成
    */
   public void onTaskPre(TASK task);
 

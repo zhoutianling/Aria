@@ -45,7 +45,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
   @Bind(R.id.speed) TextView mSpeed;
 
   private static final String DOWNLOAD_URL =
-      "http://rs.0.gaoshouyou.com/d/90/d7/7490c6fd6cd733bef336e766778507c5.apk";
+      "http://static.ilongyuan.cn/rayark/RayarkFZ_2.0.7.apk";
 
   @Override protected void init(Bundle savedInstanceState) {
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
@@ -73,7 +73,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
       case R.id.start:
         Aria.download(this)
             .load(DOWNLOAD_URL)
-            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/daialog.apk")
+            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/兰空VOEZ.apk")
             .start();
         break;
       case R.id.stop:

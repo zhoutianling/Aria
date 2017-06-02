@@ -24,6 +24,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
@@ -242,6 +243,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private class MySchedulerListener extends Aria.DownloadSchedulerListener {
+
+    @Override public void onPre(String url) {
+      super.onPre(url);
+      Log.d(TAG, "url ==> " + url);
+    }
 
     @Override public void onNoSupportBreakPoint(DownloadTask task) {
       super.onNoSupportBreakPoint(task);

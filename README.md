@@ -25,7 +25,7 @@ Aria怎样使用？
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:3.1.3'
+compile 'com.arialyy.aria:Aria:3.1.4'
 ```
 
 ## 示例
@@ -266,6 +266,7 @@ Aria.download(this).removeAllTask();
 
 
 ## 开发日志
+  + v_3.1.4 修复快速切换，暂停、恢复功能时，概率性出现的重新下载问题，添加onPre()回调，onPre()用于请求地址之前执行界面UI更新操作。
   + v_3.1.2 优化代码结构
   + v_3.1.0 添加Aria配置文件，优化代码
   + v_3.0.3 修复暂停后删除任务，闪退问题，添加删除记录的api

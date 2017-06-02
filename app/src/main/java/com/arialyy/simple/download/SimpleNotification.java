@@ -30,7 +30,7 @@ import com.arialyy.simple.R;
 
 public class SimpleNotification {
   private static final String DOWNLOAD_URL =
-      "http://static.gaoshouyou.com/d/6e/e5/ff6ecaaf45e532e6d07747af82357472.apk";
+      "http://static.gaoshouyou.com/d/cb/38/f0cb1b2c57388fe14342eecd64bbae65.apk";
 
   private NotificationManager mManager;
   private Context mContext;
@@ -58,7 +58,7 @@ public class SimpleNotification {
         .load(DOWNLOAD_URL)
         .setDownloadName("notification_test.apk")
         .setDownloadPath(
-            Environment.getExternalStorageDirectory() + "/Download/notification_test.apk")
+            Environment.getExternalStorageDirectory() + "/Download/消灭星星.apk")
         .start();
   }
 

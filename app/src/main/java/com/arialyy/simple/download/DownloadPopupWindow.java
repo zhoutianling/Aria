@@ -46,7 +46,7 @@ public class DownloadPopupWindow extends AbsPopupWindow {
   @Bind(R.id.speed) TextView mSpeed;
 
   private static final String DOWNLOAD_URL =
-      "http://static.gaoshouyou.com/d/3a/93/573ae1db9493a801c24bf66128b11e39.apk";
+      "http://static.gaoshouyou.com/d/25/57/2e25bd9d4557ba31e9beebacfaf9e804.apk";
 
   public DownloadPopupWindow(Context context) {
     super(context, new ColorDrawable(Color.WHITE));
@@ -79,7 +79,7 @@ public class DownloadPopupWindow extends AbsPopupWindow {
       case R.id.start:
         Aria.download(this)
             .load(DOWNLOAD_URL)
-            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/daialog.apk")
+            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/消消乐.apk")
             .start();
         break;
       case R.id.stop:

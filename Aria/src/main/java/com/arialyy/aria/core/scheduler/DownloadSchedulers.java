@@ -128,6 +128,12 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
         return;
       }
       switch (state) {
+        case PRE:
+          listener.onPre(task.getKey());
+          break;
+        case POST_PRE:
+          listener.onTaskPre(task);
+          break;
         case RUNNING:
           listener.onTaskRunning(task);
           break;
@@ -139,9 +145,6 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
           break;
         case RESUME:
           listener.onTaskResume(task);
-          break;
-        case PRE:
-          listener.onTaskPre(task);
           break;
         case CANCEL:
           listener.onTaskCancel(task);

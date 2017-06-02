@@ -24,7 +24,11 @@ public class UploadListener implements IUploadListener {
 
   }
 
-  @Override public void onStart(long fileSize) {
+  @Override public void onPostPre(long fileSize) {
+
+  }
+
+  @Override public void onStart() {
 
   }
 

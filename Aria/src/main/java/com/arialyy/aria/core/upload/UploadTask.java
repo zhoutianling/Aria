@@ -214,10 +214,17 @@ public class UploadTask implements ITask {
       sendInState2Target(ISchedulers.PRE);
     }
 
-    @Override public void onStart(long fileSize) {
+    @Override public void onPostPre(long fileSize) {
+      super.onPostPre(fileSize);
       uploadEntity.setFileSize(fileSize);
+      uploadEntity.setState(IEntity.STATE_POST_PRE);
+      sendIntent(Aria.ACTION_POST_PRE, 0);
+      sendInState2Target(ISchedulers.POST_PRE);
+    }
+
+    @Override public void onStart() {
       uploadEntity.setState(IEntity.STATE_RUNNING);
-      sendIntent(Aria.ACTION_PRE, -1);
+      sendIntent(Aria.ACTION_START, 0);
       sendInState2Target(ISchedulers.START);
     }
 

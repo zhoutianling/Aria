@@ -61,7 +61,7 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
   private class MySchedulerListener extends Aria.DownloadSchedulerListener {
     @Override public void onTaskPre(DownloadTask task) {
       super.onTaskPre(task);
-      L.d(TAG, "download pre");
+      L.d(TAG, "download onPre");
       mAdapter.updateState(task.getDownloadEntity());
     }
 

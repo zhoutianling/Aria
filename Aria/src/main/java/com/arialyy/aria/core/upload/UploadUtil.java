@@ -99,6 +99,8 @@ final class UploadUtil implements Runnable {
       }
 
       mOutputStream = mHttpConn.getOutputStream();
+      mListener.onPostPre(uploadFile.length());
+
       PrintWriter writer =
           new PrintWriter(new OutputStreamWriter(mOutputStream, mTaskEntity.charset), true);
 
@@ -107,7 +109,7 @@ final class UploadUtil implements Runnable {
       for (String key : keys) {
         addFormField(writer, key, mTaskEntity.formFields.get(key));
       }
-      mListener.onStart(uploadFile.length());
+      mListener.onStart();
       uploadFile(writer, mTaskEntity.attachment, uploadFile);
       Log.d(TAG, finish(writer) + "");
     } catch (IOException e) {

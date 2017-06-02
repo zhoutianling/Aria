@@ -70,7 +70,7 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
       notifyDataSetChanged();
     } else {
       int position = indexItem(entity.getDownloadUrl());
-      if (position == -1) {
+      if (position == -1 || position >= mData.size()) {
         return;
       }
       mData.set(position, entity);
@@ -81,7 +81,7 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
   public synchronized void setProgress(DownloadEntity entity) {
     String url = entity.getDownloadUrl();
     int position = indexItem(url);
-    if (position == -1) {
+    if (position == -1 || position >= mData.size()) {
       return;
     }
 
@@ -169,6 +169,7 @@ final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter
         case DownloadEntity.STATE_FAIL:
         case DownloadEntity.STATE_STOP:
         case DownloadEntity.STATE_COMPLETE:
+        case DownloadEntity.STATE_POST_PRE:
           start(entity);
           break;
         case DownloadEntity.STATE_RUNNING:

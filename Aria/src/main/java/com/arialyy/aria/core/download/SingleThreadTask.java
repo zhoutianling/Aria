@@ -113,8 +113,7 @@ final class SingleThreadTask implements Runnable {
       //支持断点的处理
       if (mConfigEntity.isSupportBreakpoint) {
         Log.i(TAG, "线程【" + mConfigEntity.THREAD_ID + "】下载完毕");
-        writeConfig(mConfigEntity.TEMP_FILE.getName() + "_state_" + mConfigEntity.THREAD_ID,
-            1 + "");
+        writeConfig(mConfigEntity.TEMP_FILE.getName() + "_state_" + mConfigEntity.THREAD_ID, 1);
         mListener.onChildComplete(mConfigEntity.END_LOCATION);
         CONSTANCE.COMPLETE_THREAD_NUM++;
         if (CONSTANCE.isComplete()) {
@@ -151,13 +150,12 @@ final class SingleThreadTask implements Runnable {
       try {
         if (mConfigEntity.isSupportBreakpoint) {
           CONSTANCE.STOP_NUM++;
-          String location = String.valueOf(mChildCurrentLocation);
           Log.d(TAG, "thread_"
               + mConfigEntity.THREAD_ID
               + "_stop, stop location ==> "
               + mChildCurrentLocation);
           writeConfig(mConfigEntity.TEMP_FILE.getName() + "_record_" + mConfigEntity.THREAD_ID,
-              location);
+              mChildCurrentLocation);
           if (CONSTANCE.isStop()) {
             Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
             CONSTANCE.isDownloading = false;
@@ -226,10 +224,8 @@ final class SingleThreadTask implements Runnable {
           Log.e(TAG, CommonUtil.getPrintException(ex));
         }
         if (mConfigEntity.isSupportBreakpoint) {
-          if (currentLocation != -1) {
-            String location = String.valueOf(currentLocation);
-            writeConfig(dEntity.TEMP_FILE.getName() + "_record_" + dEntity.THREAD_ID, location);
-          }
+          writeConfig(dEntity.TEMP_FILE.getName() + "_record_" + dEntity.THREAD_ID,
+              currentLocation);
           if (CONSTANCE.isFail()) {
             Log.d(TAG, "++++++++++++++++ onFail +++++++++++++++++");
             mListener.onFail();
@@ -247,10 +243,12 @@ final class SingleThreadTask implements Runnable {
   /**
    * 将记录写入到配置文件
    */
-  private void writeConfig(String key, String record) throws IOException {
-    File configFile = new File(mConfigFPath);
-    Properties pro = CommonUtil.loadConfig(configFile);
-    pro.setProperty(key, record);
-    CommonUtil.saveConfig(configFile, pro);
+  private void writeConfig(String key, long record) throws IOException {
+    if (record != -1 && record != 0) {
+      File configFile = new File(mConfigFPath);
+      Properties pro = CommonUtil.loadConfig(configFile);
+      pro.setProperty(key, String.valueOf(record));
+      CommonUtil.saveConfig(configFile, pro);
+    }
   }
 }

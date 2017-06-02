@@ -178,7 +178,7 @@ public class DownloadModule extends BaseModule {
           case Aria.ACTION_POST_PRE:
             DownloadEntity entity = intent.getParcelableExtra(Aria.DOWNLOAD_ENTITY);
             len = entity.getFileSize();
-            L.d(TAG, "download pre");
+            L.d(TAG, "download onPre");
             handler.obtainMessage(SingleTaskActivity.DOWNLOAD_PRE, len).sendToTarget();
             break;
           case Aria.ACTION_START:

@@ -174,6 +174,15 @@ import com.arialyy.aria.core.upload.UploadTask;
    */
   public static class UploadSchedulerListener implements ISchedulerListener<UploadTask> {
 
+    /**
+     * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态。
+     *
+     * @param url 任务上传地址
+     */
+    @Override public void onPre(String url) {
+
+    }
+
     @Override public void onTaskPre(UploadTask task) {
 
     }
@@ -212,6 +221,14 @@ import com.arialyy.aria.core.upload.UploadTask;
    */
   public static class DownloadSchedulerListener
       implements IDownloadSchedulerListener<DownloadTask> {
+    /**
+     * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态。
+     *
+     * @param url 任务下载地址
+     */
+    @Override public void onPre(String url) {
+
+    }
 
     @Override public void onTaskPre(DownloadTask task) {
 

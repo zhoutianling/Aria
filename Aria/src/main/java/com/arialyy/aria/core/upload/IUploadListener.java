@@ -27,9 +27,14 @@ public interface IUploadListener {
   public void onPre();
 
   /**
+   * 预处理完成
+   */
+  public void onPostPre(long fileSize);
+
+  /**
    * 开始上传
    */
-  public void onStart(long fileSize);
+  public void onStart();
 
   /**
    * 恢复上传

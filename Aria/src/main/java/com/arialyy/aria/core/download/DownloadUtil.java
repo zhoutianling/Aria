@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -367,7 +368,18 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     if (pro.isEmpty()) {
       handleNewTask();
     } else {
-      THREAD_NUM = pro.keySet().size();
+      Set<Object> keys = pro.keySet();
+      int num = 0;
+      for (Object key : keys) {
+        if (String.valueOf(key).contains("_record_")) {
+          num++;
+        }
+      }
+      if (num == 0){
+        handleNewTask();
+        return pro;
+      }
+      THREAD_NUM = num;
       for (int i = 0; i < THREAD_NUM; i++) {
         if (pro.getProperty(mDownloadFile.getName() + "_record_" + i) == null) {
           Object state = pro.getProperty(mDownloadFile.getName() + "_state_" + i);

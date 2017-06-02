@@ -44,7 +44,7 @@ public class DownloadDialog extends AbsDialog {
   @Bind(R.id.speed) TextView mSpeed;
 
   private static final String DOWNLOAD_URL =
-      "http://clashroyalecdn.static.kunlun.com/Clash_Royale-1.2.6-kunlun_landing_page-release.apk.apk";
+      "http://static.gaoshouyou.com/d/4b/d7/e04b308d9cd7f0ad4cac18d1a514544c.apk";
 
   public DownloadDialog(Context context) {
     super(context);
@@ -77,7 +77,7 @@ public class DownloadDialog extends AbsDialog {
       case R.id.start:
         Aria.download(this)
             .load(DOWNLOAD_URL)
-            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/daialog.apk")
+            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/飞机大战.apk")
             .start();
         break;
       case R.id.stop:
@@ -122,14 +122,10 @@ public class DownloadDialog extends AbsDialog {
 
     @Override public void onTaskRunning(DownloadTask task) {
       super.onTaskRunning(task);
-      long current = task.getCurrentProgress();
-      long len = task.getFileSize();
-      if (len == 0) {
-        mPb.setProgress(0);
-      } else {
-        mPb.setProgress((int) ((current * 100) / len));
+      if (task.getKey().equals(DOWNLOAD_URL)) {
+        mPb.setProgress(task.getPercent());
+        mSpeed.setText(task.getConvertSpeed());
       }
-      mSpeed.setText(task.getConvertSpeed());
     }
   }
 }

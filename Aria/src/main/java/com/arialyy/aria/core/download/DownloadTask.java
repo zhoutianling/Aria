@@ -302,6 +302,7 @@ public class DownloadTask implements ITask {
     @Override public void onPre() {
       super.onPre();
       downloadEntity.setState(DownloadEntity.STATE_PRE);
+      sendInState2Target(ISchedulers.PRE);
       sendIntent(Aria.ACTION_PRE, -1);
     }
 
@@ -309,21 +310,21 @@ public class DownloadTask implements ITask {
       super.onPostPre(fileSize);
       downloadEntity.setFileSize(fileSize);
       downloadEntity.setState(DownloadEntity.STATE_POST_PRE);
-      sendInState2Target(DownloadSchedulers.PRE);
+      sendInState2Target(ISchedulers.POST_PRE);
       sendIntent(Aria.ACTION_POST_PRE, -1);
     }
 
     @Override public void onResume(long resumeLocation) {
       super.onResume(resumeLocation);
       downloadEntity.setState(DownloadEntity.STATE_RUNNING);
-      sendInState2Target(DownloadSchedulers.RESUME);
+      sendInState2Target(ISchedulers.RESUME);
       sendIntent(Aria.ACTION_RESUME, resumeLocation);
     }
 
     @Override public void onStart(long startLocation) {
       super.onStart(startLocation);
       downloadEntity.setState(DownloadEntity.STATE_RUNNING);
-      sendInState2Target(DownloadSchedulers.START);
+      sendInState2Target(ISchedulers.START);
       sendIntent(Aria.ACTION_START, startLocation);
     }
 
@@ -341,7 +342,7 @@ public class DownloadTask implements ITask {
         handleSpeed(speed);
         downloadEntity.setCurrentProgress(currentLocation);
         lastLen = currentLocation;
-        sendInState2Target(DownloadSchedulers.RUNNING);
+        sendInState2Target(ISchedulers.RUNNING);
         context.sendBroadcast(sendIntent);
       }
     }
@@ -350,7 +351,7 @@ public class DownloadTask implements ITask {
       super.onStop(stopLocation);
       downloadEntity.setState(DownloadEntity.STATE_STOP);
       handleSpeed(0);
-      sendInState2Target(DownloadSchedulers.STOP);
+      sendInState2Target(ISchedulers.STOP);
       sendIntent(Aria.ACTION_STOP, stopLocation);
     }
 
@@ -358,7 +359,7 @@ public class DownloadTask implements ITask {
       super.onCancel();
       downloadEntity.setState(DownloadEntity.STATE_CANCEL);
       handleSpeed(0);
-      sendInState2Target(DownloadSchedulers.CANCEL);
+      sendInState2Target(ISchedulers.CANCEL);
       sendIntent(Aria.ACTION_CANCEL, -1);
       downloadEntity.deleteData();
     }
@@ -368,7 +369,7 @@ public class DownloadTask implements ITask {
       downloadEntity.setState(DownloadEntity.STATE_COMPLETE);
       downloadEntity.setDownloadComplete(true);
       handleSpeed(0);
-      sendInState2Target(DownloadSchedulers.COMPLETE);
+      sendInState2Target(ISchedulers.COMPLETE);
       sendIntent(Aria.ACTION_COMPLETE, downloadEntity.getFileSize());
     }
 
@@ -377,7 +378,7 @@ public class DownloadTask implements ITask {
       downloadEntity.setFailNum(downloadEntity.getFailNum() + 1);
       downloadEntity.setState(DownloadEntity.STATE_FAIL);
       handleSpeed(0);
-      sendInState2Target(DownloadSchedulers.FAIL);
+      sendInState2Target(ISchedulers.FAIL);
       sendIntent(Aria.ACTION_FAIL, -1);
     }
 

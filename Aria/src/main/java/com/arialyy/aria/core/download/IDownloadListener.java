@@ -39,7 +39,7 @@ interface IDownloadListener {
   public void onFail();
 
   /**
-   * 预处理
+   * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态
    */
   public void onPre();
 

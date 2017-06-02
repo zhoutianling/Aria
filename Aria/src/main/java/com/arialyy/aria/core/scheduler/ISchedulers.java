@@ -27,39 +27,44 @@ public interface ISchedulers<Task extends ITask> extends Handler.Callback {
   /**
    * 断点支持
    */
-  public static final int SUPPORT_BREAK_POINT = 8;
+  public static final int SUPPORT_BREAK_POINT = 9;
   /**
    * 任务预加载
    */
   public static final int PRE = 0;
   /**
+   * 任务预加载完成
+   */
+  public static final int POST_PRE = 1;
+
+  /**
    * 任务开始
    */
-  public static final int START = 1;
+  public static final int START = 2;
   /**
    * 任务停止
    */
-  public static final int STOP = 2;
+  public static final int STOP = 3;
   /**
    * 任务失败
    */
-  public static final int FAIL = 3;
+  public static final int FAIL = 4;
   /**
    * 任务取消
    */
-  public static final int CANCEL = 4;
+  public static final int CANCEL = 5;
   /**
    * 任务完成
    */
-  public static final int COMPLETE = 5;
+  public static final int COMPLETE = 6;
   /**
    * 任务处理中
    */
-  public static final int RUNNING = 6;
+  public static final int RUNNING = 7;
   /**
    * 恢复任务
    */
-  public static final int RESUME = 7;
+  public static final int RESUME = 8;
 
   /**
    * 注册下载器监听，一个观察者只能注册一次监听
