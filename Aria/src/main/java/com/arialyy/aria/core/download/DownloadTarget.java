@@ -66,6 +66,19 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
     return this;
   }
 
+  @Override public int getPercent() {
+    DownloadEntity entity = DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?",
+        this.entity.getDownloadUrl());
+    if (entity == null) {
+      Log.e("DownloadTarget", "下载管理器中没有该任务");
+      return 0;
+    }
+    if (entity.getFileSize() != 0) {
+      return (int) (entity.getCurrentProgress() * 100 / entity.getFileSize());
+    }
+    return super.getPercent();
+  }
+
   /**
    * 给url请求添加头部
    *

@@ -165,9 +165,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   private void init() {
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
-      DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
-      int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
-      mPb.setProgress(p);
+      mPb.setProgress(Aria.download(this).load(DOWNLOAD_URL).getPercent());
     }
   }
 

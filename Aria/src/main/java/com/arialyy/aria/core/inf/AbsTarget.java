@@ -109,6 +109,15 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
   }
 
   /**
+   * 获取任务进度百分比
+   *
+   * @return 返回任务进度
+   */
+  protected int getPercent() {
+    return 0;
+  }
+
+  /**
    * 获取当前任务进度，如果任务存在，则返回当前进度
    *
    * @return -1，没有找到该任务
@@ -118,14 +127,16 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
       DownloadEntity entity = DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?",
           ((DownloadEntity) this.entity).getDownloadUrl());
       if (entity == null) {
-        throw new NullPointerException("下载管理器中没有该任务");
+        Log.e("DownloadTarget", "下载管理器中没有该任务");
+        return -1;
       }
       return entity.getCurrentProgress();
     } else if (entity instanceof UploadEntity) {
       UploadEntity entity = DbEntity.findData(UploadEntity.class, "filePath=?",
           ((UploadEntity) this.entity).getFilePath());
       if (entity == null) {
-        throw new NullPointerException("没有找到该任务");
+        Log.e("DownloadTarget", "下载管理器中没有该任务");
+        return -1;
       }
       return entity.getCurrentProgress();
     }

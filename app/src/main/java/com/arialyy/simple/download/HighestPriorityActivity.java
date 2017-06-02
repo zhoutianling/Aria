@@ -52,9 +52,7 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
 
   private void initWidget() {
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
-      DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
-      int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
-      mPb.setProgress(p);
+      mPb.setProgress(Aria.download(this).load(DOWNLOAD_URL).getPercent());
     }
     mAdapter = new DownloadAdapter(this, getModule(DownloadModule.class).getDownloadTaskList());
     mList.setLayoutManager(new LinearLayoutManager(this));
