@@ -17,7 +17,7 @@
 package com.arialyy.aria.util;
 
 /**
- * Created by Aria.Lao on 2017/1/11.
+ * Created by lyy on 2017/1/11.
  */
 
 public class CAConfiguration {

@@ -16,7 +16,7 @@
 package com.arialyy.aria.core.inf;
 
 /**
- * Created by Aria.Lao on 2017/2/9.
+ * Created by lyy on 2017/2/9.
  */
 
 public interface ICmd {

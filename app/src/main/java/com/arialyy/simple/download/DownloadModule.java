@@ -52,6 +52,13 @@ public class DownloadModule extends BaseModule {
         "http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk");
   }
 
+  /**
+   * 获取下载列表
+   */
+  public List<DownloadEntity> getDownloadTaskList() {
+    return Aria.download(getContext()).getTaskList();
+  }
+
   public String getRadomUrl() {
     Random random = new Random();
     int i = random.nextInt(2);

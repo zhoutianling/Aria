@@ -18,7 +18,7 @@ package com.arialyy.aria.core.scheduler;
 import com.arialyy.aria.core.inf.ITask;
 
 /**
- * Created by Aria.Lao on 2017/4/5.
+ * Created by lyy on 2017/4/5.
  */
 public interface IDownloadSchedulerListener<TASK extends ITask> extends ISchedulerListener<TASK> {
 

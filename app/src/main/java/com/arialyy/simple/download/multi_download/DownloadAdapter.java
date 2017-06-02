@@ -38,11 +38,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by Lyy on 2016/9/27.
  * 下载列表适配器
  */
-final class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter.MyHolder> {
+public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter.MyHolder> {
   private static final String TAG = "DownloadAdapter";
   private Map<String, Integer> mPositions = new ConcurrentHashMap<>();
 
-  DownloadAdapter(Context context, List<DownloadEntity> data) {
+  public DownloadAdapter(Context context, List<DownloadEntity> data) {
     super(context, data);
     int i = 0;
     for (DownloadEntity entity : data) {

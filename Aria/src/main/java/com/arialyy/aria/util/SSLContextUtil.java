@@ -38,7 +38,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 /**
- * Created by Aria.Lao on 2017/1/11.
+ * Created by lyy on 2017/1/11.
  * SSL证书工具
  */
 public class SSLContextUtil {

@@ -33,7 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by Aria.Lao on 2017/2/28.
+ * Created by lyy on 2017/2/28.
  */
 public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> {
   protected ENTITY entity;
@@ -41,10 +41,18 @@ public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> 
   protected String targetName;
 
   /**
-   * 将该任务优先级提到最高
+   * 将任务设置为最高优先级任务，最高优先级任务有以下特点：
+   * 1、在下载队列中，有且只有一个最高优先级任务
+   * 2、最高优先级任务会一直存在，直到用户手动暂停或任务完成
+   * 3、任务调度器不会暂停最高优先级任务
+   * 4、用户手动暂停或任务完成后，第二次重新执行该任务，该命令将失效
+   * 5、如果下载队列中已经满了，则会停止队尾的任务
+   * 6、把任务设置为最高优先级任务后，将自动执行任务，不需要重新调用start()启动任务
    */
-  protected void setToFirst(){
-
+  protected void setHighestPriority() {
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_HIGHEST_PRIORITY))
+        .exe();
   }
 
   /**

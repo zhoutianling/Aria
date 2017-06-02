@@ -44,6 +44,7 @@ public class DownloadTask implements ITask {
   private Handler mOutHandler;
   private IDownloadUtil mUtil;
   private Context mContext;
+  private boolean isHeighestTask = false;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
     mEntity = taskEntity.downloadEntity;
@@ -140,6 +141,14 @@ public class DownloadTask implements ITask {
    */
   @Deprecated public String getDownloadUrl() {
     return mEntity.getDownloadUrl();
+  }
+
+  @Override public void setHighestPriority(boolean isHighestPriority) {
+    isHeighestTask = isHighestPriority;
+  }
+
+  @Override public boolean isHighestPriorityTask() {
+    return isHeighestTask;
   }
 
   @Override public String getKey() {

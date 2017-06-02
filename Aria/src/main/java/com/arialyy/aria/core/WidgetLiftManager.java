@@ -24,7 +24,7 @@ import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 
 /**
- * Created by Aria.Lao on 2017/2/7.
+ * Created by lyy on 2017/2/7.
  * 为组件添加生命周期
  */
 final class WidgetLiftManager {

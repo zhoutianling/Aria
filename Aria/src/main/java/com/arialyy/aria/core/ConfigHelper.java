@@ -22,7 +22,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Created by Aria.Lao on 2017/5/22.
+ * Created by lyy on 2017/5/22.
  * 读取配置文件
  */
 public class ConfigHelper extends DefaultHandler {

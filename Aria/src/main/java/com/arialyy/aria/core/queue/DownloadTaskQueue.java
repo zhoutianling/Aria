@@ -25,6 +25,8 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 /**
  * Created by lyy on 2016/8/17.
@@ -49,16 +51,40 @@ public class DownloadTaskQueue
     mExecutePool = new ExecutePool<>(true);
   }
 
+  @Override public void setTaskHighestPriority(DownloadTask task) {
+    int maxSize = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
+    int currentSize = mExecutePool.size();
+    if (currentSize == 0 || currentSize < maxSize) {
+      startTask(task);
+    } else {
+      Set<DownloadTask> tempTasks = new LinkedHashSet<>();
+      for (int i = 0; i < maxSize; i++) {
+        DownloadTask oldTsk = mExecutePool.pollTask();
+        if (oldTsk != null && oldTsk.isRunning()) {
+          oldTsk.stop();
+          tempTasks.add(oldTsk);
+        }
+      }
+      startTask(task);
+      int i = 0, len = tempTasks.size() - 1;
+      for (DownloadTask oldTask : tempTasks) {
+        if (i < len) {
+          startTask(oldTask);
+        }
+        i++;
+      }
+    }
+  }
+
   @Override public void setMaxTaskNum(int downloadNum) {
-    //原始长度
-    int size = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().oldMaxTaskNum;
-    int diff = downloadNum - size;
-    if (size == downloadNum) {
+    int oldMaxSize = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().oldMaxTaskNum;
+    int diff = downloadNum - oldMaxSize;
+    if (oldMaxSize == downloadNum) {
       Log.d(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");
       return;
     }
     //设置的任务数小于配置任务数
-    if (diff <= -1 && mExecutePool.size() >= size) {
+    if (diff <= -1 && mExecutePool.size() >= oldMaxSize) {
       for (int i = 0, len = Math.abs(diff); i < len; i++) {
         DownloadTask eTask = mExecutePool.pollTask();
         if (eTask != null) {
@@ -103,5 +129,4 @@ public class DownloadTaskQueue
       Log.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
     }
   }
-
 }

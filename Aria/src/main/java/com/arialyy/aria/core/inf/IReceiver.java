@@ -18,7 +18,7 @@ package com.arialyy.aria.core.inf;
 import java.util.List;
 
 /**
- * Created by Aria.Lao on 2017/2/6.
+ * Created by lyy on 2017/2/6.
  */
 public interface IReceiver<ENTITY extends IEntity> {
   /**

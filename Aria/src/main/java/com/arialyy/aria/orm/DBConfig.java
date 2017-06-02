@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Aria.Lao on 2017/4/6.
+ * Created by lyy on 2017/4/6.
  * 数据库配置信息
  */
 public class DBConfig {

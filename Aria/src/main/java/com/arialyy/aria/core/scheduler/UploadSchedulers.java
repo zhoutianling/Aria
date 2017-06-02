@@ -29,7 +29,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by Aria.Lao on 2017/2/27.
+ * Created by lyy on 2017/2/27.
  * 上传任务调度器
  */
 public class UploadSchedulers implements ISchedulers<UploadTask> {

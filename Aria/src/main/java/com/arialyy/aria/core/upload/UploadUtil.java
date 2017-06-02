@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Created by Aria.Lao on 2017/2/9.
+ * Created by lyy on 2017/2/9.
  * 上传工具
  */
 final class UploadUtil implements Runnable {

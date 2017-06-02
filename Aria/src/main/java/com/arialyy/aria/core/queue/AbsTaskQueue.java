@@ -24,7 +24,7 @@ import com.arialyy.aria.core.queue.pool.CachePool;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 
 /**
- * Created by Aria.Lao on 2017/2/23.
+ * Created by lyy on 2017/2/23.
  * 任务队列
  */
 abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity, ENTITY extends IEntity>
@@ -63,6 +63,10 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity,
    */
   @Override public int executePoolSize() {
     return mExecutePool.size();
+  }
+
+  @Override public void setTaskHighestPriority(TASK task) {
+
   }
 
   @Override public TASK getTask(String url) {

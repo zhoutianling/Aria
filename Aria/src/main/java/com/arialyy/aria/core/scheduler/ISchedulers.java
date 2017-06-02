@@ -20,7 +20,7 @@ import android.os.Handler;
 import com.arialyy.aria.core.inf.ITask;
 
 /**
- * Created by “AriaLyy@outlook.com” on 2016/11/2.
+ * Created by lyy on 2016/11/2.
  * 调度器功能接口
  */
 public interface ISchedulers<Task extends ITask> extends Handler.Callback {

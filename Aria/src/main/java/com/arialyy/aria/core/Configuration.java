@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Properties;
 
 /**
- * Created by AriaL on 2016/12/8.
+ * Created by lyy on 2016/12/8.
  * 信息配置
  */
 class Configuration {

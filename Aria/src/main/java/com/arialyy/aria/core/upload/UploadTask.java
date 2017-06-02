@@ -30,7 +30,7 @@ import com.arialyy.aria.util.CommonUtil;
 import java.lang.ref.WeakReference;
 
 /**
- * Created by Aria.Lao on 2017/2/23.
+ * Created by lyy on 2017/2/23.
  * 上传任务
  */
 public class UploadTask implements ITask {
@@ -41,6 +41,7 @@ public class UploadTask implements ITask {
 
   private UploadUtil mUtil;
   private UListener mListener;
+  private boolean isHeighestTask = false;
 
   private UploadTask(UploadTaskEntity taskEntity, Handler outHandler) {
     mOutHandler = outHandler;
@@ -55,6 +56,14 @@ public class UploadTask implements ITask {
 
   @Override public void removeRecord() {
     mUploadEntity.deleteData();
+  }
+
+  @Override public void setHighestPriority(boolean isHighestPriority) {
+    isHeighestTask = isHighestPriority;
+  }
+
+  @Override public boolean isHighestPriorityTask() {
+    return isHeighestTask;
   }
 
   @Override public String getKey() {

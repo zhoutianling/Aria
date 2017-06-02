@@ -97,17 +97,18 @@ public class CheckUtil {
   /**
    * 检查命令实体
    *
-   * @param checkPath 删除命令不需要检查下载路径和文件名
+   * @param checkType 删除命令和停止命令不需要检查下载链接和保存路径
+   * @return {@code false}实体无效
    */
-  public static boolean checkCmdEntity(ITaskEntity entity, boolean checkPath) {
+  public static boolean checkCmdEntity(ITaskEntity entity, boolean checkType) {
     boolean b = false;
     if (entity instanceof DownloadTaskEntity) {
       DownloadEntity entity1 = ((DownloadTaskEntity) entity).downloadEntity;
       if (entity1 == null) {
         Log.e(TAG, "下载实体不能为空");
-      } else if (checkPath && TextUtils.isEmpty(entity1.getDownloadUrl())) {
+      } else if (checkType && TextUtils.isEmpty(entity1.getDownloadUrl())) {
         Log.e(TAG, "下载链接不能为空");
-      } else if (checkPath && TextUtils.isEmpty(entity1.getDownloadPath())) {
+      } else if (checkType && TextUtils.isEmpty(entity1.getDownloadPath())) {
         Log.e(TAG, "保存路径不能为空");
       } else {
         b = true;

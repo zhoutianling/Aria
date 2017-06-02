@@ -38,13 +38,13 @@ public abstract class AbsCmd<T extends ITaskEntity> implements ICmd {
   /**
    * 能否执行命令
    */
-  boolean cancelExe = true;
+  boolean canExeCmd = true;
 
   /**
    * @param targetName 产生任务的对象名
    */
   AbsCmd(String targetName, T entity) {
-    cancelExe = CheckUtil.checkCmdEntity(entity,
+    canExeCmd = CheckUtil.checkCmdEntity(entity,
         !(this instanceof CancelCmd) || !(this instanceof StopCmd));
     mTargetName = targetName;
     mEntity = entity;

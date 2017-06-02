@@ -27,7 +27,7 @@ import com.arialyy.aria.util.CommonUtil;
 import java.util.List;
 
 /**
- * Created by AriaLyy on 2015/2/11.
+ * Created by lyy on 2015/2/11.
  * 数据库操作工具
  */
 public class DbUtil {

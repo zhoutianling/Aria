@@ -16,7 +16,7 @@
 
 package com.arialyy.aria.core.command;
 
-import android.util.Log;
+import android.text.TextUtils;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.ITaskEntity;
 
@@ -31,15 +31,16 @@ class StartCmd<T extends ITaskEntity> extends AbsCmd<T> {
   }
 
   @Override public void executeCmd() {
-    if (!cancelExe) return;
+    if (!canExeCmd) return;
     ITask task = mQueue.getTask(mEntity.getEntity());
     if (task == null) {
       task = mQueue.createTask(mTargetName, mEntity);
     }
     if (task != null) {
-      task.setTargetName(mTargetName);
+      if (!TextUtils.isEmpty(mTargetName)) {
+        task.setTargetName(mTargetName);
+      }
       mQueue.startTask(task);
     }
   }
-
 }

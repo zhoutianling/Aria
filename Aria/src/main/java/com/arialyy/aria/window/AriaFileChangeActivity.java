@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by Aria.Lao on 2017/3/21.
+ * Created by lyy on 2017/3/21.
  * 文件选择
  */
-public class AriaFileChangeActivity extends FragmentActivity {
+class AriaFileChangeActivity extends FragmentActivity {
   final String ROOT_PAT = Environment.getExternalStorageDirectory().getPath();
   ListView mList;
   FileChangeAdapter mAdapter;

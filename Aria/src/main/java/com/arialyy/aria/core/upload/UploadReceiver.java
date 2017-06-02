@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
- * Created by Aria.Lao on 2017/2/6.
+ * Created by lyy on 2017/2/6.
  * 上传功能接收器
  */
 public class UploadReceiver implements IReceiver<UploadEntity> {

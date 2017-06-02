@@ -43,6 +43,11 @@ public class CmdFactory {
    * 停止任务
    */
   public static final int TASK_STOP = 0x125;
+  /**
+   * 设置任务为最高优先级
+   */
+  public static final int TASK_HIGHEST_PRIORITY = 0x128;
+
   public static final int TASK_SINGLE = 0x126;
 
   private static final Object LOCK = new Object();
@@ -65,59 +70,25 @@ public class CmdFactory {
    * @param target 创建任务的对象
    * @param entity 下载实体
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
-   * #TASK_STOP}
+   * #TASK_STOP}、{@link #TASK_HIGHEST_PRIORITY}
    */
   public <T extends ITaskEntity> AbsCmd createCmd(String target, T entity, int type) {
     switch (type) {
       case TASK_CREATE:
-        return createAddCmd(target, entity);
+        return new AddCmd(target, entity);
       case TASK_RESUME:
       case TASK_START:
-        return createStartCmd(target, entity);
+        return new StartCmd(target, entity);
       case TASK_CANCEL:
-        return createCancelCmd(target, entity);
+        return new CancelCmd(target, entity);
       case TASK_STOP:
-        return createStopCmd(target, entity);
+        return new StopCmd(target, entity);
+      case TASK_HIGHEST_PRIORITY:
+        return new HighestPriorityCmd(target, entity);
       case TASK_SINGLE:
         //return new SingleCmd(target, entity);
       default:
         return null;
     }
-  }
-
-  /**
-   * 创建停止命令
-   *
-   * @return {@link StopCmd}
-   */
-  private <T extends ITaskEntity> StopCmd createStopCmd(String target, T entity) {
-    return new StopCmd(target, entity);
-  }
-
-  /**
-   * 创建下载任务命令
-   *
-   * @return {@link AddCmd}
-   */
-  private <T extends ITaskEntity> AddCmd createAddCmd(String target, T entity) {
-    return new AddCmd(target, entity);
-  }
-
-  /**
-   * 创建启动下载命令
-   *
-   * @return {@link StartCmd}
-   */
-  private <T extends ITaskEntity> StartCmd createStartCmd(String target, T entity) {
-    return new StartCmd(target, entity);
-  }
-
-  /**
-   * 创建启动下载命令
-   *
-   * @return {@link StartCmd}
-   */
-  private <T extends ITaskEntity> CancelCmd createCancelCmd(String target, T entity) {
-    return new CancelCmd(target, entity);
   }
 }

@@ -16,10 +16,22 @@
 package com.arialyy.aria.core.inf;
 
 /**
- * Created by Aria.Lao on 2017/2/13.
+ * Created by lyy on 2017/2/13.
  */
 
 public interface ITask {
+
+  /**
+   * 设置任务为最高优先级任务，在下载队列中，有且只有一个最高优先级任务
+   */
+  public void setHighestPriority(boolean isHighestPriority);
+
+  /**
+   * 该任务是否是最高优先级任务
+   *
+   * @return {@code true} 任务为最高优先级任务
+   */
+  public boolean isHighestPriorityTask();
 
   /**
    * 唯一标识符，DownloadTask 为下载地址，UploadTask 为文件路径

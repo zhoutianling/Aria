@@ -16,7 +16,7 @@
 package com.arialyy.aria.exception;
 
 /**
- * Created by Aria.Lao on 2017/1/18.
+ * Created by lyy on 2017/1/18.
  * Aria 文件异常
  */
 public class FileException extends NullPointerException {

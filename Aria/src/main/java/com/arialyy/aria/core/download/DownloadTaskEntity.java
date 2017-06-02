@@ -19,7 +19,7 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITaskEntity;
 
 /**
- * Created by Aria.Lao on 2017/1/23.
+ * Created by lyy on 2017/1/23.
  * 下载任务实体
  */
 public class DownloadTaskEntity extends ITaskEntity {

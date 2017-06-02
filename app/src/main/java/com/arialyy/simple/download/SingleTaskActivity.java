@@ -151,11 +151,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     //registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
   }
 
-  @Override protected void onDestroy() {
-    super.onDestroy();
-    //unregisterReceiver(mReceiver);
-  }
-
   @Override protected int setLayoutId() {
     return R.layout.activity_single;
   }
@@ -174,33 +169,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
-    //mRg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-    //  @Override public void onCheckedChanged(RadioGroup group, int checkedId) {
-    //    switch (checkedId) {
-    //      case 1:
-    //        Aria.get(this).setMaxSpeed(Speed.KB_256);
-    //        break;
-    //      case 2:
-    //        Aria.get(this).setMaxSpeed(Speed.KB_512);
-    //        break;
-    //      case 3:
-    //        Aria.get(this).setMaxSpeed(Speed.MB_1);
-    //        break;
-    //      case 4:
-    //        Aria.get(this).setMaxSpeed(Speed.MB_2);
-    //        break;
-    //      case 5:
-    //        Aria.get(this).setMaxSpeed(Speed.MAX);
-    //        break;
-    //    }
-    //    stop();
-    //    new Handler().postDelayed(new Runnable() {
-    //      @Override public void run() {
-    //        start();
-    //      }
-    //    }, 2000);
-    //  }
-    //});
   }
 
   public void onClick(View view) {
@@ -208,38 +176,21 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       case R.id.start:
         String text = ((TextView) view).getText().toString();
         if (text.equals("重新开始？") || text.equals("开始")) {
-          start();
+          Aria.download(this)
+              .load(DOWNLOAD_URL)
+              .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
+              .start();
         } else if (text.equals("恢复")) {
-          resume();
+          Aria.download(this).load(DOWNLOAD_URL).resume();
         }
         break;
       case R.id.stop:
-        stop();
+        Aria.download(this).load(DOWNLOAD_URL).pause();
         break;
       case R.id.cancel:
-        cancel();
+        Aria.download(this).load(DOWNLOAD_URL).cancel();
         break;
     }
-  }
-
-  private void resume() {
-    Aria.download(this).load(DOWNLOAD_URL).resume();
-  }
-
-  private void start() {
-    Aria.download(this)
-        .load(DOWNLOAD_URL)
-        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
-        .start();
-  }
-
-  private void stop() {
-    Aria.download(this).load(DOWNLOAD_URL).pause();
-    //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
-  }
-
-  private void cancel() {
-    Aria.download(this).load(DOWNLOAD_URL).cancel();
   }
 
   private class MySchedulerListener extends Aria.DownloadSchedulerListener {
@@ -255,8 +206,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     }
 
     @Override public void onTaskStart(DownloadTask task) {
-      mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
-          .sendToTarget();
+      //通过下载地址可以判断任务是否是你指定的任务
+      if (task.getKey().equals(DOWNLOAD_URL)) {
+        mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
+            .sendToTarget();
+      }
     }
 
     @Override public void onTaskResume(DownloadTask task) {

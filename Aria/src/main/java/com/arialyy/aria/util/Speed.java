@@ -16,7 +16,7 @@
 package com.arialyy.aria.util;
 
 /**
- * Created by Aria.Lao on 2017/3/6.
+ * Created by lyy on 2017/3/6.
  */
 public enum Speed {
   /**

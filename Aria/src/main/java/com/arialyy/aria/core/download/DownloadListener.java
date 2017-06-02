@@ -16,6 +16,9 @@
 
 package com.arialyy.aria.core.download;
 
+/**
+ * @author lyy
+ */
 class DownloadListener implements IDownloadListener {
 
   @Override public void onResume(long resumeLocation) {

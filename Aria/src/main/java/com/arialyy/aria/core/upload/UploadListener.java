@@ -16,7 +16,7 @@
 package com.arialyy.aria.core.upload;
 
 /**
- * Created by Aria.Lao on 2017/2/23.
+ * Created by lyy on 2017/2/23.
  */
 
 public class UploadListener implements IUploadListener {

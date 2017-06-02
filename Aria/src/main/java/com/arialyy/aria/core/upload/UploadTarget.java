@@ -23,7 +23,7 @@ import com.arialyy.aria.orm.DbEntity;
 import java.util.Map;
 
 /**
- * Created by Aria.Lao on 2017/2/28.
+ * Created by lyy on 2017/2/28.
  */
 public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
 

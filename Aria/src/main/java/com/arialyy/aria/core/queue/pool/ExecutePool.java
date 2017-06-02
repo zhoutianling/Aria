@@ -115,6 +115,9 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
         Log.e(TAG, "移除任务失败");
         return false;
       }
+      if (oldTask.isHighestPriorityTask()) {
+        return false;
+      }
       oldTask.stop();
       String key = CommonUtil.keyToHashKey(oldTask.getKey());
       mExecuteArray.remove(key);

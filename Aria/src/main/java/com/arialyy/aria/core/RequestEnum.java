@@ -16,7 +16,7 @@
 package com.arialyy.aria.core;
 
 /**
- * Created by Aria.Lao on 2017/1/23.
+ * Created by lyy on 2017/1/23.
  * url请求方式，目前支持GET、POST
  */
 public enum RequestEnum {

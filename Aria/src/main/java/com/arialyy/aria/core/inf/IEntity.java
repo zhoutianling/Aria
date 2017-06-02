@@ -18,7 +18,7 @@ package com.arialyy.aria.core.inf;
 import com.arialyy.aria.orm.Ignore;
 
 /**
- * Created by Aria.Lao on 2017/2/23.
+ * Created by lyy on 2017/2/23.
  */
 
 public interface IEntity {

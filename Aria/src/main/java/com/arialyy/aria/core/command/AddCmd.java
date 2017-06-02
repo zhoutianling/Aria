@@ -31,7 +31,7 @@ class AddCmd<T extends ITaskEntity> extends AbsCmd<T> {
   }
 
   @Override public void executeCmd() {
-    if (!cancelExe) return;
+    if (!canExeCmd) return;
     ITask task = mQueue.getTask(mEntity.getEntity());
     if (task == null) {
       mQueue.createTask(mTargetName, mEntity);

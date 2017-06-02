@@ -17,7 +17,7 @@
 package com.arialyy.aria.core.download;
 
 /**
- * Created by “AriaLyy@outlook.com” on 2016/10/31.
+ * Created by lyy on 2016/10/31.
  * 抽象的下载接口
  */
 interface IDownloadUtil {

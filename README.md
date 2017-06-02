@@ -84,7 +84,11 @@ compile 'com.arialyy.aria:Aria:3.1.4'
   ```java
   final static class MySchedulerListener extends Aria.DownloadSchedulerListener{
     @Override public void onTaskPre(DownloadTask task) {
-      super.onTaskPre(task);
+      //通过下载地址可以判断任务是否是你指定的任务
+      if (task.getKey().equals(DOWNLOAD_URL)) {
+          mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
+          .sendToTarget();
+      }
     }
 
     @Override public void onTaskStop(DownloadTask task) {
@@ -98,6 +102,8 @@ compile 'com.arialyy.aria:Aria:3.1.4'
     @Override public void onTaskRunning(DownloadTask task) {
       super.onTaskRunning(task);
     }
+
+    ...
   }
   ```
 

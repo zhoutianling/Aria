@@ -244,7 +244,7 @@ final class SingleThreadTask implements Runnable {
    * 将记录写入到配置文件
    */
   private void writeConfig(String key, long record) throws IOException {
-    if (record != -1 && record != 0) {
+    if (record > 0) {
       File configFile = new File(mConfigFPath);
       Properties pro = CommonUtil.loadConfig(configFile);
       pro.setProperty(key, String.valueOf(record));

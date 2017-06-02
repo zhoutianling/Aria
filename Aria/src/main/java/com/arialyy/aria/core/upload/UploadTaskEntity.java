@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Aria.Lao on 2017/2/9.
+ * Created by lyy on 2017/2/9.
  * 上传任务实体
  */
 public class UploadTaskEntity extends ITaskEntity {

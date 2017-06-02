@@ -25,7 +25,7 @@ import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 
 /**
- * Created by Aria.Lao on 2017/2/27.
+ * Created by lyy on 2017/2/27.
  * 上传任务队列
  */
 public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, UploadEntity> {

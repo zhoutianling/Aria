@@ -22,7 +22,7 @@ import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.Ignore;
 
 /**
- * Created by Aria.Lao on 2017/2/9.
+ * Created by lyy on 2017/2/9.
  * 上传文件实体
  */
 public class UploadEntity extends DbEntity implements IEntity, Parcelable {

@@ -33,6 +33,12 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity, ENTITY extends IEntity> {
 
   /**
+   * 设置任务为最高优先级任务
+   * @param task {@link DownloadTask}、{@link UploadTask}
+   */
+  void setTaskHighestPriority(TASK task);
+
+  /**
    * 开始任务
    *
    * @param task {@link DownloadTask}、{@link UploadTask}

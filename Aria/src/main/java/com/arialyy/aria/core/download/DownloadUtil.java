@@ -430,7 +430,6 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   private void addSingleTask(int i, long startL, long endL, long fileLength) {
     ConfigEntity entity = new ConfigEntity();
     entity.FILE_SIZE = fileLength;
-    //entity.DOWNLOAD_URL = mDownloadEntity.getDownloadUrl();
     entity.DOWNLOAD_URL = mDownloadEntity.isRedirect() ? mDownloadEntity.getRedirectUrl()
         : mDownloadEntity.getDownloadUrl();
     entity.TEMP_FILE = mDownloadFile;
