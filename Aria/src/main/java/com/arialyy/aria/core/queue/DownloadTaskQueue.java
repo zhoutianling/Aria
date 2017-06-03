@@ -59,7 +59,7 @@ public class DownloadTaskQueue
       Set<String> keys = exeTasks.keySet();
       for (String key : keys) {
         DownloadTask temp = exeTasks.get(key);
-        if (temp != null && temp.isRunning() &&  temp.isHighestPriorityTask() && !temp.getKey()
+        if (temp != null && temp.isRunning() && temp.isHighestPriorityTask() && !temp.getKey()
             .equals(task.getKey())) {
           Log.e(TAG, "设置最高优先级任务失败，失败原因【任务中已经有最高优先级任务，请等待上一个最高优先级任务完成，或手动暂停该任务】");
           task.setHighestPriority(false);
@@ -76,18 +76,26 @@ public class DownloadTaskQueue
       for (int i = 0; i < maxSize; i++) {
         DownloadTask oldTsk = mExecutePool.pollTask();
         if (oldTsk != null && oldTsk.isRunning()) {
-          oldTsk.stop();
+          if (i == maxSize - 1) {
+            oldTsk.stop();
+            break;
+          }
           tempTasks.add(oldTsk);
         }
       }
       startTask(task);
-      int i = 0, len = tempTasks.size() - 1;
-      for (DownloadTask oldTask : tempTasks) {
-        if (i < len) {
-          startTask(oldTask);
-        }
-        i++;
+
+      for (DownloadTask temp : tempTasks){
+        mExecutePool.putTask(temp);
       }
+
+      //int i = 0, len = tempTasks.size() - 1;
+      //for (DownloadTask oldTask : tempTasks) {
+      //  if (i < len) {
+      //    startTask(oldTask);
+      //  }
+      //  i++;
+      //}
     }
   }
 

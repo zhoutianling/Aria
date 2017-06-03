@@ -21,7 +21,6 @@ import android.util.Log;
 import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
-import com.arialyy.aria.util.CheckUtil;
 import java.io.File;
 import java.util.Map;
 
@@ -67,8 +66,6 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
   }
 
   @Override public int getPercent() {
-    DownloadEntity entity = DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?",
-        this.entity.getDownloadUrl());
     if (entity == null) {
       Log.e("DownloadTarget", "下载管理器中没有该任务");
       return 0;
@@ -103,8 +100,8 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
   /**
    * 下载任务是否存在
    */
-  @Override public boolean taskExists(String downloadUrl) {
-    return DownloadTaskQueue.getInstance().getTask(downloadUrl) != null;
+  @Override public boolean taskExists() {
+    return DownloadTaskQueue.getInstance().getTask(entity.getDownloadUrl()) != null;
   }
 
   /**
@@ -141,15 +138,15 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
     return this;
   }
 
-  private DownloadEntity getDownloadEntity(String downloadUrl) {
-    CheckUtil.checkDownloadUrl(downloadUrl);
-    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+  private DownloadEntity getDownloadEntity() {
+    return entity;
   }
 
   /**
    * 是否在下载
    */
   public boolean isDownloading() {
-    return DownloadTaskQueue.getInstance().getTask(entity).isRunning();
+    DownloadTask task = DownloadTaskQueue.getInstance().getTask(entity);
+    return task != null && task.isRunning();
   }
 }

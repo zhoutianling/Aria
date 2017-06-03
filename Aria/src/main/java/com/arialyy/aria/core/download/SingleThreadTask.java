@@ -112,7 +112,8 @@ final class SingleThreadTask implements Runnable {
       }
       //支持断点的处理
       if (mConfigEntity.isSupportBreakpoint) {
-        Log.i(TAG, "线程【" + mConfigEntity.THREAD_ID + "】下载完毕");
+        Log.i(TAG,
+            "任务【" + mConfigEntity.TEMP_FILE.getName() + "】线程【" + mConfigEntity.THREAD_ID + "】下载完毕");
         writeConfig(mConfigEntity.TEMP_FILE.getName() + "_state_" + mConfigEntity.THREAD_ID, 1);
         mListener.onChildComplete(mConfigEntity.END_LOCATION);
         CONSTANCE.COMPLETE_THREAD_NUM++;
@@ -130,14 +131,11 @@ final class SingleThreadTask implements Runnable {
         mListener.onComplete();
       }
     } catch (MalformedURLException e) {
-      CONSTANCE.FAIL_NUM++;
       failDownload(mConfigEntity, mChildCurrentLocation, "下载链接异常", e);
     } catch (IOException e) {
-      CONSTANCE.FAIL_NUM++;
       failDownload(mConfigEntity, mChildCurrentLocation, "下载失败【" + mConfigEntity.DOWNLOAD_URL + "】",
           e);
     } catch (Exception e) {
-      CONSTANCE.FAIL_NUM++;
       failDownload(mConfigEntity, mChildCurrentLocation, "获取流失败", e);
     }
   }
@@ -218,6 +216,7 @@ final class SingleThreadTask implements Runnable {
       Exception ex) {
     synchronized (LOCK) {
       try {
+        CONSTANCE.FAIL_NUM++;
         CONSTANCE.isDownloading = false;
         CONSTANCE.isStop = true;
         if (ex != null) {

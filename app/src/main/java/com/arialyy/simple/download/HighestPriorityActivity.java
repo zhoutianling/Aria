@@ -13,6 +13,7 @@ import android.widget.TextView;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.frame.util.show.L;
@@ -52,18 +53,22 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
-    setTitle("最高优先级任务演示");
+    setTitle("最高优先级任务");
     getBinding().setTaskName("任务名：" + mTaskName + " （最高优先级任务）");
     initWidget();
   }
 
   private void initWidget() {
-    if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
-      mPb.setProgress(Aria.download(this).load(DOWNLOAD_URL).getPercent());
-      if (Aria.download(this).load(DOWNLOAD_URL).getTaskState() == IEntity.STATE_STOP) {
-        mStart.setText("恢复");
-      }
+    DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
+    mPb.setProgress(target.getPercent());
+    if (target.getTaskState() == IEntity.STATE_STOP) {
+      mStart.setText("恢复");
+      mStart.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
+      setBtState(true);
+    }else if (target.isDownloading()){
+      setBtState(false);
     }
+    mSize.setText(target.getConvertFileSize());
     List<DownloadEntity> temp = Aria.download(this).getTaskList();
     if (temp != null && !temp.isEmpty()) {
       for (DownloadEntity entity : temp) {
@@ -83,8 +88,7 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
   }
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
-    MenuInflater inflater = getMenuInflater();
-    inflater.inflate(R.menu.menu_highest_priority, menu);
+    getMenuInflater().inflate(R.menu.menu_highest_priority, menu);
     return super.onCreateOptionsMenu(menu);
   }
 
@@ -183,6 +187,7 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
       if (task.getKey().equals(DOWNLOAD_URL)) {
         setBtState(true);
         mStart.setText("恢复");
+        mStart.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
       }
       mAdapter.updateState(task.getDownloadEntity());
     }
@@ -190,6 +195,8 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
     @Override public void onTaskCancel(DownloadTask task) {
       if (task.getKey().equals(DOWNLOAD_URL)) {
         setBtState(true);
+        mStart.setText("开始");
+        mPb.setProgress(0);
       }
       mAdapter.updateState(task.getDownloadEntity());
     }
@@ -205,6 +212,9 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
     @Override public void onTaskComplete(DownloadTask task) {
       if (task.getKey().equals(DOWNLOAD_URL)) {
         setBtState(true);
+        mStart.setText("重新开始");
+        mStart.setTextColor(getResources().getColor(android.R.color.holo_green_light));
+        mPb.setProgress(100);
       }
       mAdapter.updateState(task.getDownloadEntity());
     }

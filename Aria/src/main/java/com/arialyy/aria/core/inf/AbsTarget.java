@@ -23,9 +23,7 @@ import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.upload.UploadEntity;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -89,31 +87,39 @@ public abstract class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITas
   /**
    * 获取任务文件大小
    *
-   * @return -1，没有找到该任务
+   * @return 文件大小
    */
   public long getFileSize() {
     if (entity instanceof DownloadEntity) {
-      DownloadEntity entity = DbEntity.findData(DownloadEntity.class, "downloadUrl=?",
-          ((DownloadEntity) this.entity).getDownloadUrl());
-      if (entity == null) {
-        throw new NullPointerException("没有找到该任务");
-      }
+      DownloadEntity entity = (DownloadEntity) this.entity;
       return entity.getFileSize();
     } else if (entity instanceof UploadEntity) {
-      UploadEntity entity = DbEntity.findData(UploadEntity.class, "filePath=?",
-          ((UploadEntity) this.entity).getFilePath());
-      if (entity == null) {
-        throw new NullPointerException("没有找到该任务");
-      }
+      UploadEntity entity = (UploadEntity) this.entity;
       return entity.getFileSize();
     }
-    return -1;
+    return 0;
+  }
+
+  /**
+   * 获取单位转换后的文件大小
+   *
+   * @return 文件大小{@code xxx mb}
+   */
+  public String getConvertFileSize() {
+    if (entity instanceof DownloadEntity) {
+      DownloadEntity entity = (DownloadEntity) this.entity;
+      return CommonUtil.formatFileSize(entity.getFileSize());
+    } else if (entity instanceof UploadEntity) {
+      UploadEntity entity = (UploadEntity) this.entity;
+      return CommonUtil.formatFileSize(entity.getFileSize());
+    }
+    return "0b";
   }
 
   /**
    * 下载任务是否存在
    */
-  public boolean taskExists(String downloadUrl) {
+  public boolean taskExists() {
     return false;
   }
 
@@ -127,26 +133,16 @@ public abstract class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITas
   }
 
   /**
-   * 获取当前任务进度，如果任务存在，则返回当前进度
+   * 获取任务进度，如果任务存在，则返回当前进度
    *
-   * @return -1，没有找到该任务
+   * @return 该任务进度
    */
   public long getCurrentProgress() {
     if (entity instanceof DownloadEntity) {
-      DownloadEntity entity = DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?",
-          ((DownloadEntity) this.entity).getDownloadUrl());
-      if (entity == null) {
-        Log.e("DownloadTarget", "下载管理器中没有该任务");
-        return -1;
-      }
+      DownloadEntity entity = (DownloadEntity) this.entity;
       return entity.getCurrentProgress();
     } else if (entity instanceof UploadEntity) {
-      UploadEntity entity = DbEntity.findData(UploadEntity.class, "filePath=?",
-          ((UploadEntity) this.entity).getFilePath());
-      if (entity == null) {
-        Log.e("DownloadTarget", "下载管理器中没有该任务");
-        return -1;
-      }
+      UploadEntity entity = (UploadEntity) this.entity;
       return entity.getCurrentProgress();
     }
     return -1;

@@ -25,6 +25,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
@@ -42,6 +44,7 @@ import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
+import com.arialyy.simple.common.MsgDialog;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
@@ -53,6 +56,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public static final int DOWNLOAD_RESUME = 0x05;
   public static final int DOWNLOAD_COMPLETE = 0x06;
   public static final int DOWNLOAD_RUNNING = 0x07;
+  public static final int DOWNLOAD_START = 0x08;
 
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
@@ -95,9 +99,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           mSpeed.setText(task.getConvertSpeed());
           break;
         case DOWNLOAD_PRE:
-          mSize.setText(CommonUtil.formatFileSize((Long) msg.obj));
           setBtState(false);
-          //mStart.setText("暂停");
+          break;
+        case DOWNLOAD_START:
+          mSize.setText(CommonUtil.formatFileSize((Long) msg.obj));
           break;
         case DOWNLOAD_FAILE:
           Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
@@ -115,9 +120,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           setBtState(true);
           break;
         case DOWNLOAD_RESUME:
-          //Toast.makeText(SingleTaskActivity.this,
-          //    "恢复下载，恢复位置 ==> " + CommonUtil.formatFileSize((Long) msg.obj), Toast.LENGTH_SHORT)
-          //    .show();
           mStart.setText("暂停");
           setBtState(false);
           break;
@@ -146,6 +148,22 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     //registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
   }
 
+  @Override public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu_single_task_activity, menu);
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override public boolean onMenuItemClick(MenuItem item) {
+    if (item.getItemId() == R.id.help) {
+      String msg = "一些小知识点：\n"
+          + "1、你可以通过task.getKey().equals(DOWNLOAD_URL)判断是否是当前页面的下载，以防止progress乱跳\n"
+          + "2、当遇到网络慢的情况时，你可以先使用onPre()更新UI界面，待连接成功时，再在onTaskPre()获取完整的task数据，然后给UI界面设置正确的数据\n"
+          + "3、你可以在界面初始化时通过Aria.download(this).load(DOWNLOAD_URL).getPercent()等方法快速获取相关任务的一些数据";
+      showMsgDialog("tip", msg);
+    }
+    return true;
+  }
+
   @Override protected int setLayoutId() {
     return R.layout.activity_single;
   }
@@ -153,12 +171,16 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
     setTitle("单任务下载");
-    if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
-      mPb.setProgress(Aria.download(this).load(DOWNLOAD_URL).getPercent());
-      if (Aria.download(this).load(DOWNLOAD_URL).getTaskState() == IEntity.STATE_STOP) {
-        mStart.setText("恢复");
-      }
+    DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
+    mPb.setProgress(target.getPercent());
+    if (target.getTaskState() == IEntity.STATE_STOP) {
+      mStart.setText("恢复");
+      mStart.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
+      setBtState(true);
+    } else if (target.isDownloading()) {
+      setBtState(false);
     }
+    mSize.setText(target.getConvertFileSize());
     Aria.get(this).getDownloadConfig().setOpenBreadCast(true);
   }
 
@@ -187,7 +209,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private class MySchedulerListener extends Aria.DownloadSchedulerListener {
 
     @Override public void onPre(DownloadTask task) {
-      super.onPre(task);
+      if (task.getKey().equals(DOWNLOAD_URL)) {
+        mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
+            .sendToTarget();
+      }
     }
 
     @Override public void onNoSupportBreakPoint(DownloadTask task) {
@@ -198,34 +223,45 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     @Override public void onTaskStart(DownloadTask task) {
       //通过下载地址可以判断任务是否是你指定的任务
       if (task.getKey().equals(DOWNLOAD_URL)) {
-        mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
+        mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getDownloadEntity().getFileSize())
             .sendToTarget();
       }
     }
 
     @Override public void onTaskResume(DownloadTask task) {
-      super.onTaskResume(task);
-      mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getFileSize()).sendToTarget();
+      if (task.getKey().equals(DOWNLOAD_URL)) {
+        mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getFileSize()).sendToTarget();
+      }
     }
 
     @Override public void onTaskStop(DownloadTask task) {
-      mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
+      if (task.getKey().equals(DOWNLOAD_URL)) {
+        mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
+      }
     }
 
     @Override public void onTaskCancel(DownloadTask task) {
-      mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
+      if (task.getKey().equals(DOWNLOAD_URL)) {
+        mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
+      }
     }
 
     @Override public void onTaskFail(DownloadTask task) {
-      mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
+      if (task.getKey().equals(DOWNLOAD_URL)) {
+        mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
+      }
     }
 
     @Override public void onTaskComplete(DownloadTask task) {
-      mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
+      if (task.getKey().equals(DOWNLOAD_URL)) {
+        mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
+      }
     }
 
     @Override public void onTaskRunning(DownloadTask task) {
-      mUpdateHandler.obtainMessage(DOWNLOAD_RUNNING, task).sendToTarget();
+      if (task.getKey().equals(DOWNLOAD_URL)) {
+        mUpdateHandler.obtainMessage(DOWNLOAD_RUNNING, task).sendToTarget();
+      }
     }
   }
 }

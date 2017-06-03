@@ -103,8 +103,8 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
   /**
    * 下载任务是否存在
    */
-  @Override public boolean taskExists(String downloadUrl) {
-    return UploadTaskQueue.getInstance().getTask(downloadUrl) != null;
+  @Override public boolean taskExists() {
+    return UploadTaskQueue.getInstance().getTask(entity.getFilePath()) != null;
   }
 
   /**
@@ -117,14 +117,15 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
     return this;
   }
 
-  private UploadEntity getDownloadEntity(@NonNull String filePath) {
-    return DbEntity.findData(UploadEntity.class, "filePath=?", filePath);
+  private UploadEntity getDownloadEntity() {
+    return entity;
   }
 
   /**
    * 是否在下载
    */
   public boolean isUploading() {
-    return UploadTaskQueue.getInstance().getTask(entity).isRunning();
+    UploadTask task = UploadTaskQueue.getInstance().getTask(entity);
+    return task != null && task.isRunning();
   }
 }
