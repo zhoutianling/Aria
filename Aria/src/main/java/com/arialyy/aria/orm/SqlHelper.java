@@ -97,7 +97,6 @@ final class SqlHelper extends SQLiteOpenHelper {
     for (String tableName : tables) {
       Class clazz = DBConfig.mapping.get(tableName);
       if (tableExists(db, clazz)) {
-        //db = checkDb(db);
         String countColumnSql = "SELECT rowid FROM " + tableName;
         Cursor cursor = db.rawQuery(countColumnSql, null);
         int dbColumnNum = cursor.getColumnCount();
@@ -370,8 +369,10 @@ final class SqlHelper extends SQLiteOpenHelper {
    */
   static synchronized void createTable(SQLiteDatabase db, Class clazz, String tableName) {
     db = checkDb(db);
-    Field[] fields = CommonUtil.getFields(clazz);
-    if (fields != null && fields.length > 0) {
+    //Field[] fields = CommonUtil.getFields(clazz);
+    List<Field> fields = CommonUtil.getAllFields(clazz);
+    //Field[] fields = CommonUtil.getAllFields(clazz);
+    if (fields != null && fields.size() > 0) {
       StringBuilder sb = new StringBuilder();
       sb.append("create table ")
           .append(TextUtils.isEmpty(tableName) ? CommonUtil.getClassName(clazz) : tableName)
@@ -486,7 +487,6 @@ final class SqlHelper extends SQLiteOpenHelper {
           }
           entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
           entitys.add(entity);
-          //Log.d(TAG, "rowid ==> " + entity.rowID);
         }
         cursor.close();
       } catch (InstantiationException e) {
@@ -515,7 +515,11 @@ final class SqlHelper extends SQLiteOpenHelper {
   static boolean ignoreField(Field field) {
     // field.isSynthetic(), 使用as热启动App时，AS会自动给你的clss添加change字段
     Ignore ignore = field.getAnnotation(Ignore.class);
-    return (ignore != null && ignore.value()) || field.isSynthetic() || Modifier.isStatic(
-        field.getModifiers()) || Modifier.isFinal(field.getModifiers());
+    int modifiers = field.getModifiers();
+    return (ignore != null && ignore.value())
+        || field.getName().equals("rowID")
+        || field.isSynthetic()
+        || Modifier.isStatic(modifiers)
+        || Modifier.isFinal(modifiers);
   }
 }

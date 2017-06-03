@@ -17,7 +17,6 @@ package com.arialyy.aria.core;
 
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.ReflectionUtil;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -155,7 +154,7 @@ class Configuration {
               : UPLOAD_CONFIG_FILE));
       if (file.exists()) {
         Properties properties = CommonUtil.loadConfig(file);
-        List<Field> fields = ReflectionUtil.getAllFields(getClass());
+        List<Field> fields = CommonUtil.getAllFields(getClass());
         try {
           for (Field field : fields) {
             int m = field.getModifiers();
@@ -189,7 +188,7 @@ class Configuration {
      * 保存配置
      */
     void saveAll() {
-      List<Field> fields = ReflectionUtil.getAllFields(getClass());
+      List<Field> fields = CommonUtil.getAllFields(getClass());
       boolean isDownload = this instanceof DownloadConfig;
       try {
         File file = new File(

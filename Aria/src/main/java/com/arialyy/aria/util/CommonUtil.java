@@ -20,25 +20,134 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.inf.ITaskEntity;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
  * Created by lyy on 2016/1/22.
  */
 public class CommonUtil {
-  private static final String TAG = "util";
+  private static final String TAG = "CommonUtil";
+
+  /**
+   * 通过流创建文件
+   */
+  public static void createFileFormInputStream(InputStream is, String path) {
+    try {
+      FileOutputStream fos = new FileOutputStream(path);
+      byte[] buf = new byte[1376];
+      while (is.read(buf) > 0) {
+        fos.write(buf, 0, buf.length);
+      }
+      is.close();
+      fos.flush();
+      fos.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * 校验文件MD5码
+   */
+  public static boolean checkMD5(String md5, File updateFile) {
+    if (TextUtils.isEmpty(md5) || updateFile == null) {
+      Log.e(TAG, "MD5 string empty or updateFile null");
+      return false;
+    }
+
+    String calculatedDigest = getFileMD5(updateFile);
+    if (calculatedDigest == null) {
+      Log.e(TAG, "calculatedDigest null");
+      return false;
+    }
+    return calculatedDigest.equalsIgnoreCase(md5);
+  }
+
+  /**
+   * 校验文件MD5码
+   */
+  public static boolean checkMD5(String md5, InputStream is) {
+    if (TextUtils.isEmpty(md5) || is == null) {
+      Log.e(TAG, "MD5 string empty or updateFile null");
+      return false;
+    }
+
+    String calculatedDigest = getFileMD5(is);
+    if (calculatedDigest == null) {
+      Log.e(TAG, "calculatedDigest null");
+      return false;
+    }
+    return calculatedDigest.equalsIgnoreCase(md5);
+  }
+
+  /**
+   * 获取文件MD5码
+   */
+  public static String getFileMD5(File updateFile) {
+    InputStream is;
+    try {
+      is = new FileInputStream(updateFile);
+    } catch (FileNotFoundException e) {
+      Log.e(TAG, "Exception while getting FileInputStream", e);
+      return null;
+    }
+
+    return getFileMD5(is);
+  }
+
+  /**
+   * 获取文件MD5码
+   */
+  public static String getFileMD5(InputStream is) {
+    MessageDigest digest;
+    try {
+      digest = MessageDigest.getInstance("MD5");
+    } catch (NoSuchAlgorithmException e) {
+      Log.e(TAG, "Exception while getting digest", e);
+      return null;
+    }
+
+    byte[] buffer = new byte[8192];
+    int read;
+    try {
+      while ((read = is.read(buffer)) > 0) {
+        digest.update(buffer, 0, read);
+      }
+      byte[] md5sum = digest.digest();
+      BigInteger bigInt = new BigInteger(1, md5sum);
+      String output = bigInt.toString(16);
+      // Fill to 32 chars
+      output = String.format("%32s", output).replace(' ', '0');
+      return output;
+    } catch (IOException e) {
+      throw new RuntimeException("Unable to process file for MD5", e);
+    } finally {
+      try {
+        is.close();
+      } catch (IOException e) {
+        Log.e(TAG, "Exception on closing MD5 input stream", e);
+      }
+    }
+  }
 
   public static <T extends ITaskEntity> AbsCmd createCmd(String target, T entity, int cmd) {
     return CmdFactory.getInstance().createCmd(target, entity, cmd);
@@ -81,6 +190,19 @@ public class CommonUtil {
   public static String getString(String preName, Context context, String key) {
     SharedPreferences pre = context.getSharedPreferences(preName, Context.MODE_PRIVATE);
     return pre.getString(key, "");
+  }
+
+  /**
+   * 获取所有字段，包括父类的字段
+   */
+  public static List<Field> getAllFields(Class clazz) {
+    List<Field> fields = new ArrayList<>();
+    Class personClazz = clazz.getSuperclass();
+    if (personClazz != null) {
+      Collections.addAll(fields, personClazz.getDeclaredFields());
+    }
+    Collections.addAll(fields, clazz.getDeclaredFields());
+    return fields;
   }
 
   /**

@@ -43,6 +43,8 @@ import javax.net.ssl.X509TrustManager;
  */
 public class SSLContextUtil {
 
+  public static String CA_PATH, CA_ALIAS;
+
   /**
    * 颁发服务器证书的 CA 未知
    *

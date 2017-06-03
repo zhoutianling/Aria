@@ -13,32 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.util;
+package com.arialyy.aria.core.inf;
+
+import com.arialyy.aria.orm.DbEntity;
 
 /**
- * Created by lyy on 2017/3/6.
+ * Created by AriaL on 2017/6/3.
  */
-public enum Speed {
-  /**
-   * 最大速度为256kb
-   */
-  KB_256(64), /**
-   * 最大速度为512kb
-   */
-  KB_512(128), /**
-   * 最大速度为1mb
-   */
-  MB_1(256), /**
-   * 最大速度为2mb
-   */
-  MB_2(1024), /**
-   * 最大速度为10mb
-   */
-  MAX(8192);
-  int buf;
-
-  Speed(int buf) {
-    this.buf = buf;
-  }
+public abstract class AbsEntity extends DbEntity implements IEntity {
 
 }

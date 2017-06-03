@@ -33,7 +33,7 @@ import com.arialyy.aria.core.inf.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.orm.DbUtil;
-import com.arialyy.aria.util.FileUtil;
+import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -251,8 +251,8 @@ import org.xml.sax.SAXException;
       loadConfig();
     } else {
       try {
-        String md5Code = FileUtil.getFileMD5(xmlFile);
-        if (!FileUtil.checkMD5(md5Code, APP.getAssets().open("aria_config.xml"))) {
+        String md5Code = CommonUtil.getFileMD5(xmlFile);
+        if (!CommonUtil.checkMD5(md5Code, APP.getAssets().open("aria_config.xml"))) {
           loadConfig();
         }
       } catch (IOException e) {

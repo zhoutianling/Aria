@@ -39,12 +39,10 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Speed;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
-import com.arialyy.simple.common.MsgDialog;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
