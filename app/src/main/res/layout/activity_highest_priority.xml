@@ -35,12 +35,18 @@
         android:layout_below="@+id/name"
         />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/task"
+        android:background="@android:color/darker_gray"
+        />
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_below="@+id/task"
-        android:layout_margin="16dp"
         />
 
   </RelativeLayout>

@@ -34,7 +34,6 @@ import com.arialyy.simple.databinding.ActivityMultiDownloadBinding;
 
 public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBinding> {
   @Bind(R.id.list) RecyclerView mList;
-  @Bind(R.id.toolbar) Toolbar mBar;
   private DownloadAdapter mAdapter;
 
   @Override protected int setLayoutId() {
@@ -43,14 +42,10 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
+    setTitle("下载列表");
     mAdapter = new DownloadAdapter(this, Aria.download(this).getTaskList());
     mList.setLayoutManager(new LinearLayoutManager(this));
     mList.setAdapter(mAdapter);
-    mBar.setTitle("多任务下载");
-  }
-
-  @Override protected void dataCallback(int result, Object data) {
-
   }
 
   @Override protected void onResume() {

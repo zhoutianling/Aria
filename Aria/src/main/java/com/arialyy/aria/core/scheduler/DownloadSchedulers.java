@@ -129,7 +129,7 @@ public class DownloadSchedulers implements ISchedulers<DownloadTask> {
       }
       switch (state) {
         case PRE:
-          listener.onPre(task.getKey());
+          listener.onPre(task);
           break;
         case POST_PRE:
           listener.onTaskPre(task);

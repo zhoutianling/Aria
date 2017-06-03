@@ -76,7 +76,7 @@ public class DownloadTask implements ITask {
   }
 
   /**
-   * @return 返回转换单位后的速度，需要你在配置文件中配置，转换完成后为：1b/s、1k/s、1m/s、1g/s、1t/s
+   * @return 返回转换单位后的速度，需要你在配置文件中配置，转换完成后为：1b/s、1kb/s、1mb/s、1gb/s、1tb/s
    * <pre>
    *   {@code
    *    <xml>
@@ -118,11 +118,11 @@ public class DownloadTask implements ITask {
   /**
    * 转换单位后的文件长度
    *
-   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1k、1m、1g、1t
+   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1kb、1mb、1gb、1tb
    */
   @Override public String getConvertFileSize() {
     if (mEntity.getFileSize() == 0) {
-      return "0m";
+      return "0mb";
     }
     return CommonUtil.formatFileSize(mEntity.getFileSize());
   }
@@ -132,6 +132,18 @@ public class DownloadTask implements ITask {
    */
   @Override public long getCurrentProgress() {
     return mEntity.getCurrentProgress();
+  }
+
+  /**
+   * 获取单位转换后的进度
+   *
+   * @return 如：已经下载3mb的大小，则返回{@code 3mb}
+   */
+  @Override public String getConvertCurrentProgress() {
+    if (mEntity.getCurrentProgress() == 0) {
+      return "0b";
+    }
+    return CommonUtil.formatFileSize(mEntity.getCurrentProgress());
   }
 
   /**

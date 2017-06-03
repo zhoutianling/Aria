@@ -33,11 +33,11 @@ import com.arialyy.simple.upload.UploadActivity;
  */
 public class MainActivity extends BaseActivity<ActivityMainBinding> {
 
-  @Bind(R.id.toolbar) Toolbar mBar;
-
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
+    setSupportActionBar(mBar);
     mBar.setTitle("Aria  Demo");
+    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
   }
 
   @Override protected int setLayoutId() {

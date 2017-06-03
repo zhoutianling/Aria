@@ -4,20 +4,27 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.download.DownloadTarget;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityHighestPriorityBinding;
 import com.arialyy.simple.download.multi_download.DownloadAdapter;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Created by lyy on 2017/6/2.
@@ -29,14 +36,15 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
   @Bind(R.id.size) TextView mSize;
-  @Bind(R.id.toolbar) Toolbar toolbar;
   @Bind(R.id.speed) TextView mSpeed;
   @Bind(R.id.list) RecyclerView mList;
 
-  private String mTaskName = "狂野飙车8";
+  private String mTaskName = "光明大陆";
   private static final String DOWNLOAD_URL =
-      "http://static.gaoshouyou.com/d/82/ff/df82ed0af4ff4c1746cb191cf765aa8f.apk";
+      "https://res5.d.cn/6f78ee3bcfdd033e64892a8553a95814cf5b4a62b12a76d9eb2a694905f0dc30fa5c7f728806a4ee0b3479e7b26a38707dac92b136add91191ac1219aadb4a3aa70bfa6d06d2d8db.apk";
   private DownloadAdapter mAdapter;
+  private List<DownloadEntity> mData = new ArrayList<>();
+  private Set<String> mRecord = new HashSet<>();
 
   @Override protected int setLayoutId() {
     return R.layout.activity_highest_priority;
@@ -44,17 +52,27 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
-    setSupportActionBar(toolbar);
-    toolbar.setTitle("最高优先级任务演示");
-    getBinding().setTaskName("任务名：" + mTaskName + " （该任务是最高优先级任务）");
+    setTitle("最高优先级任务演示");
+    getBinding().setTaskName("任务名：" + mTaskName + " （最高优先级任务）");
     initWidget();
   }
 
   private void initWidget() {
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
       mPb.setProgress(Aria.download(this).load(DOWNLOAD_URL).getPercent());
+      if (Aria.download(this).load(DOWNLOAD_URL).getTaskState() == IEntity.STATE_STOP) {
+        mStart.setText("恢复");
+      }
     }
-    mAdapter = new DownloadAdapter(this, getModule(DownloadModule.class).getDownloadTaskList());
+    List<DownloadEntity> temp = Aria.download(this).getTaskList();
+    if (temp != null && !temp.isEmpty()) {
+      for (DownloadEntity entity : temp) {
+        if (entity.getDownloadUrl().equals(DOWNLOAD_URL)) continue;
+        mData.add(entity);
+        mRecord.add(entity.getDownloadUrl());
+      }
+    }
+    mAdapter = new DownloadAdapter(this, mData);
     mList.setLayoutManager(new LinearLayoutManager(this));
     mList.setAdapter(mAdapter);
   }
@@ -62,6 +80,41 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
   @Override protected void onResume() {
     super.onResume();
     Aria.download(this).addSchedulerListener(new MySchedulerListener());
+  }
+
+  @Override public boolean onCreateOptionsMenu(Menu menu) {
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.menu_highest_priority, menu);
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override public boolean onMenuItemClick(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.add_task:
+        List<DownloadEntity> temp = getModule(DownloadModule.class).getHighestTestList();
+        for (DownloadEntity entity : temp) {
+          String url = entity.getDownloadUrl();
+          if (mRecord.contains(url)) {
+            continue;
+          }
+          mAdapter.addDownloadEntity(entity);
+          mRecord.add(url);
+        }
+        mAdapter.notifyDataSetChanged();
+        break;
+      case R.id.help:
+        String title = "最高优先级任务介绍";
+        String msg = " 将任务设置为最高优先级任务，最高优先级任务有以下特点：\n"
+            + " 1、在下载队列中，有且只有一个最高优先级任务\n"
+            + " 2、最高优先级任务会一直存在，直到用户手动暂停或任务完成\n"
+            + " 3、任务调度器不会暂停最高优先级任务\n"
+            + " 4、用户手动暂停或任务完成后，第二次重新执行该任务，该命令将失效\n"
+            + " 5、如果下载队列中已经满了，则会停止队尾的任务\n"
+            + " 6、把任务设置为最高优先级任务后，将自动执行任务，不需要重新调用start()启动任务";
+        showMsgDialog(title, msg);
+        break;
+    }
+    return true;
   }
 
   public void onClick(View view) {
@@ -99,45 +152,46 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
 
   private class MySchedulerListener extends Aria.DownloadSchedulerListener {
 
+    @Override public void onPre(DownloadTask task) {
+      super.onPre(task);
+      mAdapter.updateState(task.getDownloadEntity());
+    }
+
     @Override public void onTaskPre(DownloadTask task) {
       super.onTaskPre(task);
       if (task.getKey().equals(DOWNLOAD_URL)) {
         mSize.setText(task.getConvertFileSize());
-      } else {
-        mAdapter.updateState(task.getDownloadEntity());
       }
+      mAdapter.updateState(task.getDownloadEntity());
     }
 
     @Override public void onTaskStart(DownloadTask task) {
       if (task.getKey().equals(DOWNLOAD_URL)) {
         setBtState(false);
-      } else {
-        mAdapter.updateState(task.getDownloadEntity());
       }
+      mAdapter.updateState(task.getDownloadEntity());
     }
 
     @Override public void onTaskResume(DownloadTask task) {
       if (task.getKey().equals(DOWNLOAD_URL)) {
         setBtState(false);
-      } else {
-        mAdapter.updateState(task.getDownloadEntity());
       }
+      mAdapter.updateState(task.getDownloadEntity());
     }
 
     @Override public void onTaskStop(DownloadTask task) {
       if (task.getKey().equals(DOWNLOAD_URL)) {
         setBtState(true);
-      } else {
-        mAdapter.updateState(task.getDownloadEntity());
+        mStart.setText("恢复");
       }
+      mAdapter.updateState(task.getDownloadEntity());
     }
 
     @Override public void onTaskCancel(DownloadTask task) {
       if (task.getKey().equals(DOWNLOAD_URL)) {
         setBtState(true);
-      } else {
-        mAdapter.updateState(task.getDownloadEntity());
       }
+      mAdapter.updateState(task.getDownloadEntity());
     }
 
     @Override public void onTaskFail(DownloadTask task) {
@@ -152,16 +206,15 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
       if (task.getKey().equals(DOWNLOAD_URL)) {
         setBtState(true);
       }
+      mAdapter.updateState(task.getDownloadEntity());
     }
 
     @Override public void onTaskRunning(DownloadTask task) {
       if (task.getKey().equals(DOWNLOAD_URL)) {
-        setBtState(true);
         mPb.setProgress(task.getPercent());
         mSpeed.setText(task.getConvertSpeed());
-      } else {
-        mAdapter.setProgress(task.getDownloadEntity());
       }
+      mAdapter.setProgress(task.getDownloadEntity());
     }
   }
 }

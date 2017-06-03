@@ -31,7 +31,7 @@
     <!--设置https ca 证书信息；path 为assets目录下的CA证书完整路径，name 为CA证书名-->
     <ca name="" path=""/>
 
-    <!--是否需要转换速度单位，转换完成后为：1b/s、1k/s、1m/s、1g/s、1t/s，如果不需要将返回byte长度-->
+    <!--是否需要转换速度单位，转换完成后为：1b/s、1kb/s、1mb/s、1gb/s、1tb/s，如果不需要将返回byte长度-->
     <convertSpeed value="true"/>
 
   </download>

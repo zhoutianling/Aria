@@ -87,6 +87,7 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity,
 
   @Override public void stopTask(TASK task) {
     if (!task.isRunning()) Log.w(TAG, "停止任务失败，【任务已经停止】");
+    task.setHighestPriority(false);
     if (mExecutePool.removeTask(task)) {
       task.stop();
     } else {

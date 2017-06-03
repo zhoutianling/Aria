@@ -26,6 +26,7 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -52,6 +53,20 @@ public class DownloadTaskQueue
   }
 
   @Override public void setTaskHighestPriority(DownloadTask task) {
+    task.setHighestPriority(true);
+    Map<String, DownloadTask> exeTasks = mExecutePool.getAllTask();
+    if (exeTasks != null && !exeTasks.isEmpty()) {
+      Set<String> keys = exeTasks.keySet();
+      for (String key : keys) {
+        DownloadTask temp = exeTasks.get(key);
+        if (temp != null && temp.isRunning() &&  temp.isHighestPriorityTask() && !temp.getKey()
+            .equals(task.getKey())) {
+          Log.e(TAG, "设置最高优先级任务失败，失败原因【任务中已经有最高优先级任务，请等待上一个最高优先级任务完成，或手动暂停该任务】");
+          task.setHighestPriority(false);
+          return;
+        }
+      }
+    }
     int maxSize = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
     int currentSize = mExecutePool.size();
     if (currentSize == 0 || currentSize < maxSize) {

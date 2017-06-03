@@ -47,9 +47,8 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
-    setSupportActionBar(mBar);
-    mBar.setTitle("多任务下载");
-    mData.addAll(getModule(DownloadModule.class).createFileList());
+    setTitle("多任务下载");
+    mData.addAll(getModule(DownloadModule.class).createMultiTestList());
     mAdapter = new FileListAdapter(this, mData);
     mList.setLayoutManager(new LinearLayoutManager(this));
     mList.setAdapter(mAdapter);

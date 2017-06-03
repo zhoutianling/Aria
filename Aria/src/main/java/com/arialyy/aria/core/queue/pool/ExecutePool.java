@@ -23,6 +23,7 @@ import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -35,7 +36,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   private static final Object LOCK = new Object();
   private static final long TIME_OUT = 1000;
   private ArrayBlockingQueue<TASK> mExecuteQueue;
-  private Map<String, TASK> mExecuteArray;
+  private Map<String, TASK> mExecuteMap;
   private int mSize;
 
   public ExecutePool(boolean isDownload) {
@@ -45,7 +46,14 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
       mSize = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getMaxTaskNum();
     }
     mExecuteQueue = new ArrayBlockingQueue<>(mSize);
-    mExecuteArray = new HashMap<>();
+    mExecuteMap = new HashMap<>();
+  }
+
+  /**
+   * 获取所有正在执行的任务
+   */
+  public Map<String, TASK> getAllTask() {
+    return mExecuteMap;
   }
 
   @Override public boolean putTask(TASK task) {
@@ -60,6 +68,10 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
         return false;
       } else {
         if (mExecuteQueue.size() >= mSize) {
+          Set<String> keys = mExecuteMap.keySet();
+          for (String key : keys) {
+            if (mExecuteMap.get(key).isHighestPriorityTask()) return false;
+          }
           if (pollFirstTask()) {
             return putNewTask(task);
           }
@@ -100,7 +112,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
     boolean s = mExecuteQueue.offer(newTask);
     Log.w(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
     if (s) {
-      mExecuteArray.put(CommonUtil.keyToHashKey(url), newTask);
+      mExecuteMap.put(CommonUtil.keyToHashKey(url), newTask);
     }
     return s;
   }
@@ -120,7 +132,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
       }
       oldTask.stop();
       String key = CommonUtil.keyToHashKey(oldTask.getKey());
-      mExecuteArray.remove(key);
+      mExecuteMap.remove(key);
     } catch (InterruptedException e) {
       e.printStackTrace();
       return false;
@@ -135,7 +147,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
         task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
         if (task != null) {
           String url = task.getKey();
-          mExecuteArray.remove(CommonUtil.keyToHashKey(url));
+          mExecuteMap.remove(CommonUtil.keyToHashKey(url));
         }
         return task;
       } catch (InterruptedException e) {
@@ -152,7 +164,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
         return null;
       }
       String key = CommonUtil.keyToHashKey(downloadUrl);
-      return mExecuteArray.get(key);
+      return mExecuteMap.get(key);
     }
   }
 
@@ -163,7 +175,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
         return false;
       } else {
         String key = CommonUtil.keyToHashKey(task.getKey());
-        mExecuteArray.remove(key);
+        mExecuteMap.remove(key);
         return mExecuteQueue.remove(task);
       }
     }
@@ -176,8 +188,8 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
         return false;
       }
       String key = CommonUtil.keyToHashKey(downloadUrl);
-      TASK task = mExecuteArray.get(key);
-      mExecuteArray.remove(key);
+      TASK task = mExecuteMap.get(key);
+      mExecuteMap.remove(key);
       return mExecuteQueue.remove(task);
     }
   }

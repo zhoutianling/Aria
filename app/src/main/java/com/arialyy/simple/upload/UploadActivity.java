@@ -108,9 +108,8 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
       this.handler = new WeakReference<>(handler);
     }
 
-    @Override public void onPre(String url) {
-      super.onPre(url);
-      L.e(TAG, "url ==> " + url);
+    @Override public void onPre(UploadTask task) {
+      super.onPre(task);
     }
 
     @Override public void onTaskPre(UploadTask task) {

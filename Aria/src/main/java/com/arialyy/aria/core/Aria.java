@@ -177,9 +177,9 @@ import com.arialyy.aria.core.upload.UploadTask;
     /**
      * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态。
      *
-     * @param url 任务上传地址
+     * @param task 上传文物实体
      */
-    @Override public void onPre(String url) {
+    @Override public void onPre(UploadTask task) {
 
     }
 
@@ -223,10 +223,11 @@ import com.arialyy.aria.core.upload.UploadTask;
       implements IDownloadSchedulerListener<DownloadTask> {
     /**
      * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态。
+     * 需要注意的是，在该回调中，是得不到文件长度的，如果需要获取文件长度，需要在onTaskPre中获取
      *
-     * @param url 任务下载地址
+     * @param task 下载任务
      */
-    @Override public void onPre(String url) {
+    @Override public void onPre(DownloadTask task) {
 
     }
 

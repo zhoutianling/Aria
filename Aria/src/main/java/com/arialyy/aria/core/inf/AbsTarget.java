@@ -35,10 +35,19 @@ import java.util.Set;
 /**
  * Created by lyy on 2017/2/28.
  */
-public class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> {
+public abstract class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> {
   protected ENTITY entity;
   protected TASK_ENTITY taskEntity;
   protected String targetName;
+
+  /**
+   * 获取任务状态
+   *
+   * @return {@link IEntity}
+   */
+  public int getTaskState() {
+    return entity.getState();
+  }
 
   /**
    * 将任务设置为最高优先级任务，最高优先级任务有以下特点：

@@ -39,7 +39,6 @@ import com.arialyy.simple.download.service_download.DownloadService;
  * Created by Lyy on 2016/10/13.
  */
 public class DownloadActivity extends BaseActivity<ActivityDownloadMeanBinding> {
-  @Bind(R.id.toolbar) Toolbar mBar;
   @Bind(R.id.single_task) Button mSigleBt;
   @Bind(R.id.multi_task) Button mMultiBt;
   @Bind(R.id.dialog_task) Button mDialogBt;
@@ -51,8 +50,7 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadMeanBinding> 
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
-    setSupportActionBar(mBar);
-    mBar.setTitle("多线程多任务下载");
+    setTitle("Aria下载");
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
       setEnable(true);
     } else {  //6.0处理
@@ -85,6 +83,9 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadMeanBinding> 
 
   public void onClick(View view) {
     switch (view.getId()) {
+      case R.id.highest_priority:
+        startActivity(new Intent(this, HighestPriorityActivity.class));
+        break;
       case R.id.service:
         startService(new Intent(this, DownloadService.class));
         break;
@@ -100,7 +101,6 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadMeanBinding> 
         break;
       case R.id.pop_task:
         DownloadPopupWindow pop = new DownloadPopupWindow(this);
-        //pop.showAsDropDown(mRootView);
         pop.showAtLocation(mRootView, Gravity.CENTER_VERTICAL, 0, 0);
         break;
       case R.id.fragment_task:

@@ -32,4 +32,16 @@
     <item>http://rs.0.gaoshouyou.com/d/e7/3d/73e716d3353de5b479fcf7da8d36a5ef.apk</item>
   </string-array>
 
+  <string-array name="highest_names">
+    <item>豪门足球风云</item>
+    <item>碧蓝航线</item>
+    <item>天龙八部手游</item>
+  </string-array>
+
+  <string-array name="highest_urls">
+    <item>https://res5.d.cn/6f78ee3bcfdd033e0193c05c74acd280a32d5c1d8da7a68963da81a1403751e88e8f115ea475566c54456b74d82098c836577f54711a35bbb149e0bd88dc15c48845327fae8652cc.apk</item>
+    <item>https://res5.d.cn/6f78ee3bcfdd033e1861859eaef45235b089f60f2e08c0e0e4fc8959d94de1e358a5149b4bec8519eabc62a53eebea280a05ef2d902d3153ae1dec4cb07b505e90a9f50af7dd14c4.apk</item>
+    <item>https://res5.d.cn/6f78ee3bcfdd033ef8e38596afb298d87de07e5f0f1f91f22acd57750f8ae68270531e2b266ea41c86cd196da839a0afef1952dde89773c7e26b9019249503174ca0513fa0a36a6472c4202bbf94da382964a0478471b753ebd95b67aac7ad89.apk</item>
+  </string-array>
+
 </resources>

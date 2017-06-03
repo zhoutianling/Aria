@@ -47,7 +47,7 @@ final class HighestPriorityCmd<T extends ITaskEntity> extends AbsCmd<T> {
       if (!TextUtils.isEmpty(mTargetName)) {
         task.setTargetName(mTargetName);
       }
-      task.setHighestPriority(true);
+      mQueue.setTaskHighestPriority(task);
     }
   }
 }

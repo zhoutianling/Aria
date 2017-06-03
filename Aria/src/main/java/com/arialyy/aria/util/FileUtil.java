@@ -17,7 +17,6 @@ package com.arialyy.aria.util;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.window.FileEntity;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -27,8 +26,6 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by lyy on 2017/3/21.
@@ -137,22 +134,5 @@ public class FileUtil {
         Log.e(TAG, "Exception on closing MD5 input stream", e);
       }
     }
-  }
-
-  /**
-   * 文件列表
-   */
-  public List<FileEntity> loadFiles(String path) {
-    File file = new File(path);
-    File[] files = file.listFiles();
-    List<FileEntity> list = new ArrayList<>();
-    for (File f : files) {
-      FileEntity entity = new FileEntity();
-      entity.fileName = f.getName();
-      //entity.fileInfo = getFileType(f.getPath());
-      //entity.fileDrawable = getApkIcon(mContext, f.getPath());
-      list.add(entity);
-    }
-    return list;
   }
 }

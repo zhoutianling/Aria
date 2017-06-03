@@ -81,7 +81,16 @@ public interface ITask {
    */
   public String getConvertFileSize();
 
+  /**
+   * 获取当前进度
+   */
   public long getCurrentProgress();
+
+  /**
+   * 获取单位转换后的进度
+   * @return 返回 3mb
+   */
+  public String getConvertCurrentProgress();
 
   public void setTargetName(String targetName);
 

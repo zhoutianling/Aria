@@ -55,6 +55,11 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     return new MyHolder(convertView);
   }
 
+  public void addDownloadEntity(DownloadEntity entity) {
+    mData.add(entity);
+    mPositions.put(entity.getDownloadUrl(), mPositions.size());
+  }
+
   @Override protected int setLayoutId(int type) {
     return R.layout.item_download;
   }
@@ -148,7 +153,7 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
 
   private String covertCurrentSize(long currentSize) {
     String size = CommonUtil.formatFileSize(currentSize);
-    return size.substring(0, size.length() - 1);
+    return size.substring(0, size.length() - 2);
   }
 
   private int getColor(int color) {

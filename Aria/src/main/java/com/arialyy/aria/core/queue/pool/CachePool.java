@@ -34,12 +34,19 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
   private static final Object LOCK = new Object();
   private static final int MAX_NUM = Integer.MAX_VALUE;  //最大下载任务数
   private static final long TIME_OUT = 1000;
-  private Map<String, TASK> mCacheArray;
+  private Map<String, TASK> mCacheMap;
   private LinkedBlockingQueue<TASK> mCacheQueue;
 
   public CachePool() {
     mCacheQueue = new LinkedBlockingQueue<>(MAX_NUM);
-    mCacheArray = new HashMap<>();
+    mCacheMap = new HashMap<>();
+  }
+
+  /**
+   * 获取所有正在执行的任务
+   */
+  public Map<String, TASK> getAllTask() {
+    return mCacheMap;
   }
 
   @Override public boolean putTask(TASK task) {
@@ -56,7 +63,7 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
         boolean s = mCacheQueue.offer(task);
         Log.d(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
         if (s) {
-          mCacheArray.put(CommonUtil.keyToHashKey(url), task);
+          mCacheMap.put(CommonUtil.keyToHashKey(url), task);
         }
         return s;
       }
@@ -70,7 +77,7 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
         task = mCacheQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
         if (task != null) {
           String url = task.getKey();
-          mCacheArray.remove(CommonUtil.keyToHashKey(url));
+          mCacheMap.remove(CommonUtil.keyToHashKey(url));
         }
         return task;
       } catch (InterruptedException e) {
@@ -87,7 +94,7 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
         return null;
       }
       String key = CommonUtil.keyToHashKey(downloadUrl);
-      return mCacheArray.get(key);
+      return mCacheMap.get(key);
     }
   }
 
@@ -98,7 +105,7 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
         return false;
       } else {
         String key = CommonUtil.keyToHashKey(task.getKey());
-        mCacheArray.remove(key);
+        mCacheMap.remove(key);
         return mCacheQueue.remove(task);
       }
     }
@@ -111,8 +118,8 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
         return false;
       }
       String key = CommonUtil.keyToHashKey(downloadUrl);
-      TASK task = mCacheArray.get(key);
-      mCacheArray.remove(key);
+      TASK task = mCacheMap.get(key);
+      mCacheMap.remove(key);
       return mCacheQueue.remove(task);
     }
   }

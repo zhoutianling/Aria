@@ -20,6 +20,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.os.Environment;
 import android.os.Handler;
 import com.arialyy.aria.core.Aria;
@@ -33,6 +34,7 @@ import com.arialyy.simple.download.multi_download.FileListEntity;
 import com.arialyy.simple.base.BaseModule;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -40,39 +42,29 @@ import java.util.Random;
  * Created by Lyy on 2016/9/27.
  */
 public class DownloadModule extends BaseModule {
-  private List<String> mTestDownloadUrl = new ArrayList<>();
 
   public DownloadModule(Context context) {
     super(context);
-    mTestDownloadUrl.add(
-        "http://static.gaoshouyou.com/d/e6/f5/4de6329f9cf5dc3a1d1e6bbcca0d003c.apk");
-    mTestDownloadUrl.add(
-        "http://static.gaoshouyou.com/d/6e/e5/ff6ecaaf45e532e6d07747af82357472.apk");
-    mTestDownloadUrl.add(
-        "http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk");
   }
 
   /**
-   * 获取下载列表
+   * 最高优先级任务测试列表
    */
-  public List<DownloadEntity> getDownloadTaskList() {
-    return Aria.download(getContext()).getTaskList();
-  }
-
-  public String getRadomUrl() {
-    Random random = new Random();
-    int i = random.nextInt(2);
-    return mTestDownloadUrl.get(i);
-  }
-
-  public DownloadEntity createRandomDownloadEntity() {
-    return createDownloadEntity(getRadomUrl());
+  public List<DownloadEntity> getHighestTestList() {
+    List<DownloadEntity> list = new LinkedList<>();
+    Resources res = getContext().getResources();
+    String[] urls = res.getStringArray(R.array.highest_urls);
+    String[] names = res.getStringArray(R.array.highest_names);
+    for (int i = 0, len = urls.length; i < len; i++) {
+      list.add(createDownloadEntity(urls[i], names[i]));
+    }
+    return list;
   }
 
   /**
    * 创建下载地址
    */
-  public List<FileListEntity> createFileList() {
+  public List<FileListEntity> createMultiTestList() {
     String[] names = getContext().getResources().getStringArray(R.array.file_nams);
     String[] downloadUrl = getContext().getResources().getStringArray(R.array.download_url);
     List<FileListEntity> list = new ArrayList<>();
@@ -89,68 +81,15 @@ public class DownloadModule extends BaseModule {
   }
 
   /**
-   * 设置下载数据
+   * 创建下载实体，Aria也可以通过下载实体启动下载
    */
-  public List<DownloadEntity> getDownloadData() {
-    String[] urls = getContext().getResources().getStringArray(R.array.test_apk_download_url);
-    List<DownloadEntity> list = new ArrayList<>();
-    for (String url : urls) {
-      DownloadEntity entity = Aria.download(getContext()).getDownloadEntity(url);
-      if (entity == null) {
-        entity = createDownloadEntity(url);
-      }
-      list.add(entity);
-    }
-    return list;
-  }
-
-  /**
-   * 过滤任务
-   *
-   * @param sqlEntity 数据库的下载实体
-   * @param createdEntity 通过下载链接生成的下载实体
-   */
-  private List<DownloadEntity> filter(List<DownloadEntity> sqlEntity,
-      List<DownloadEntity> createdEntity) {
-    List<DownloadEntity> list = new ArrayList<>();
-    list.addAll(sqlEntity);
-    for (DownloadEntity cEntity : createdEntity) {
-      int count = 0;
-      for (DownloadEntity sEntity : sqlEntity) {
-        if (cEntity.getDownloadUrl().equals(sEntity.getDownloadUrl())) {
-          break;
-        }
-        count++;
-        if (count == createdEntity.size()) {
-          list.add(cEntity);
-        }
-      }
-    }
-    return list;
-  }
-
-  private DownloadEntity createDownloadEntity(String url) {
-    String fileName = CommonUtil.keyToHashCode(url) + ".apk";
+  private DownloadEntity createDownloadEntity(String downloadUrl, String name) {
+    String path = Environment.getExternalStorageDirectory() + "/download/" + name + ".apk";
     DownloadEntity entity = new DownloadEntity();
-    entity.setDownloadUrl(url);
-    entity.setDownloadPath(getDownloadPath(url));
-    entity.setFileName(fileName);
-    //entity.setFileName("taskName_________" + i);
+    entity.setFileName(name);
+    entity.setDownloadUrl(downloadUrl);
+    entity.setDownloadPath(path);
     return entity;
-  }
-
-  /**
-   * 创建下载列表
-   */
-  private List<DownloadEntity> createNewDownload() {
-    List<DownloadEntity> list = new ArrayList<>();
-    String[] urls = getContext().getResources().getStringArray(R.array.test_apk_download_url);
-    int i = 0;
-    for (String url : urls) {
-      list.add(createDownloadEntity(url));
-      i++;
-    }
-    return list;
   }
 
   /**
@@ -217,19 +156,5 @@ public class DownloadModule extends BaseModule {
         }
       }
     };
-  }
-
-  /**
-   * 设置下载队列
-   */
-  private String getDownloadPath(String url) {
-    String path =
-        Environment.getExternalStorageDirectory().getPath() + "/" + AndroidUtils.getAppName(
-            getContext()) + "downloads/" + StringUtil.keyToHashKey(url) + ".apk";
-    File file = new File(path);
-    if (!file.getParentFile().exists()) {
-      file.getParentFile().mkdirs();
-    }
-    return path;
   }
 }

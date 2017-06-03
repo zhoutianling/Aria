@@ -132,7 +132,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
       }
       switch (state) {
         case PRE:
-          listener.onPre(task.getKey());
+          listener.onPre(task);
           break;
         case POST_PRE:
           listener.onTaskPre(task);

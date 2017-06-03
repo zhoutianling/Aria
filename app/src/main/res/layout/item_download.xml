@@ -2,7 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
+    android:paddingBottom="8dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="8dp"
     >
 
   <RelativeLayout
@@ -45,8 +48,8 @@
         android:id="@+id/speed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignRight="@+id/progressBar"
         android:layout_alignTop="@+id/fileSize"
-        android:layout_centerHorizontal="true"
         android:text="0kb/s"
         android:textColor="@color/black"
         />
@@ -55,8 +58,9 @@
         android:id="@+id/del"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignRight="@+id/progressBar"
         android:layout_alignTop="@+id/fileSize"
+        android:layout_marginLeft="18dp"
+        android:layout_toRightOf="@+id/progressBar"
         android:text="删除"
         android:textColor="@color/bt_selector_cancel"
         />
@@ -67,7 +71,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_below="@+id/bar"
-      android:layout_marginTop="10dp"
+      android:layout_marginTop="5dp"
       android:text="name"
       />
 
@@ -76,7 +80,9 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_below="@+id/name"
-      android:layout_marginTop="10dp"
+      android:layout_marginTop="5dp"
+      android:ellipsize="end"
+      android:maxLines="2"
       />
 
   <TextView
@@ -84,7 +90,7 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_below="@+id/download_url"
-      android:layout_marginTop="10dp"
+      android:layout_marginTop="5dp"
       />
 
 </RelativeLayout>

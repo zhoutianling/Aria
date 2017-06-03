@@ -35,6 +35,7 @@ import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.Speed;
 import com.arialyy.frame.util.show.L;
@@ -66,7 +67,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
   @Bind(R.id.size) TextView mSize;
-  @Bind(R.id.toolbar) Toolbar toolbar;
   @Bind(R.id.speed) TextView mSpeed;
   @Bind(R.id.speeds) RadioGroup mRg;
   private DownloadEntity mEntity;
@@ -140,11 +140,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     mStop.setEnabled(!state);
   }
 
-  @Override protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    init();
-  }
-
   @Override protected void onResume() {
     super.onResume();
     Aria.download(this).addSchedulerListener(new MySchedulerListener());
@@ -157,16 +152,14 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
-    setSupportActionBar(toolbar);
-    toolbar.setTitle("单任务下载");
-    init();
-    Aria.get(this).getDownloadConfig().setOpenBreadCast(true);
-  }
-
-  private void init() {
+    setTitle("单任务下载");
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
       mPb.setProgress(Aria.download(this).load(DOWNLOAD_URL).getPercent());
+      if (Aria.download(this).load(DOWNLOAD_URL).getTaskState() == IEntity.STATE_STOP) {
+        mStart.setText("恢复");
+      }
     }
+    Aria.get(this).getDownloadConfig().setOpenBreadCast(true);
   }
 
   public void onClick(View view) {
@@ -193,9 +186,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   private class MySchedulerListener extends Aria.DownloadSchedulerListener {
 
-    @Override public void onPre(String url) {
-      super.onPre(url);
-      Log.d(TAG, "url ==> " + url);
+    @Override public void onPre(DownloadTask task) {
+      super.onPre(task);
     }
 
     @Override public void onNoSupportBreakPoint(DownloadTask task) {
