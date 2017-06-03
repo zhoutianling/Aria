@@ -33,7 +33,7 @@ import java.util.Set;
 /**
  * Created by lyy on 2017/2/28.
  */
-public abstract class AbsTarget<ENTITY extends IEntity, TASK_ENTITY extends ITaskEntity> {
+public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity> {
   protected ENTITY entity;
   protected TASK_ENTITY taskEntity;
   protected String targetName;

@@ -21,7 +21,7 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
@@ -30,7 +30,7 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
  * Created by lyy on 2016/8/16.
  * 任务功能接口
  */
-public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends ITaskEntity, ENTITY extends IEntity> {
+public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends IEntity> {
 
   /**
    * 设置任务为最高优先级任务

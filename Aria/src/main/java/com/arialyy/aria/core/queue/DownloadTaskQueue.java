@@ -88,14 +88,6 @@ public class DownloadTaskQueue
       for (DownloadTask temp : tempTasks){
         mExecutePool.putTask(temp);
       }
-
-      //int i = 0, len = tempTasks.size() - 1;
-      //for (DownloadTask oldTask : tempTasks) {
-      //  if (i < len) {
-      //    startTask(oldTask);
-      //  }
-      //  i++;
-      //}
     }
   }
 

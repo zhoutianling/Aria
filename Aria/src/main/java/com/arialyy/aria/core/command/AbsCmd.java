@@ -17,7 +17,7 @@
 package com.arialyy.aria.core.command;
 
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.inf.ICmd;
@@ -30,7 +30,7 @@ import com.arialyy.aria.util.CommonUtil;
  * Created by lyy on 2016/8/22.
  * 下载命令
  */
-public abstract class AbsCmd<T extends ITaskEntity> implements ICmd {
+public abstract class AbsCmd<T extends AbsTaskEntity> implements ICmd {
   ITaskQueue mQueue;
   T mEntity;
   String TAG;

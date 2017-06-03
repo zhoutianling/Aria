@@ -15,8 +15,7 @@
  */
 package com.arialyy.aria.core.upload;
 
-import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,7 +23,7 @@ import java.util.Map;
  * Created by lyy on 2017/2/9.
  * 上传任务实体
  */
-public class UploadTaskEntity extends ITaskEntity {
+public class UploadTaskEntity extends AbsTaskEntity {
   public UploadEntity uploadEntity;
   public String uploadUrl; //上传路径
   public String attachment;  //文件上传需要的key
@@ -41,7 +40,7 @@ public class UploadTaskEntity extends ITaskEntity {
     this.uploadEntity = downloadEntity;
   }
 
-  @Override public IEntity getEntity() {
+  @Override public UploadEntity getEntity() {
     return uploadEntity;
   }
 }

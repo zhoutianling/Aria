@@ -16,7 +16,7 @@
 
 package com.arialyy.aria.core.command;
 
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by Lyy on 2016/9/23.
@@ -72,7 +72,7 @@ public class CmdFactory {
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}、{@link #TASK_HIGHEST_PRIORITY}
    */
-  public <T extends ITaskEntity> AbsCmd createCmd(String target, T entity, int type) {
+  public <T extends AbsTaskEntity> AbsCmd createCmd(String target, T entity, int type) {
     switch (type) {
       case TASK_CREATE:
         return new AddCmd(target, entity);

@@ -22,7 +22,7 @@ import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.ITask;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CheckUtil;
@@ -33,18 +33,12 @@ import java.lang.ref.WeakReference;
  * Created by lyy on 2016/8/11.
  * 下载任务类
  */
-public class DownloadTask implements ITask {
+public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
   public static final String TAG = "DownloadTask";
-  /**
-   * 产生该任务对象的hash码
-   */
-  private String mTargetName;
-  private DownloadEntity mEntity;
+
   private IDownloadListener mListener;
   private Handler mOutHandler;
   private IDownloadUtil mUtil;
-  private Context mContext;
-  private boolean isHeighestTask = false;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
     mEntity = taskEntity.downloadEntity;
@@ -55,112 +49,12 @@ public class DownloadTask implements ITask {
   }
 
   /**
-   * @return 返回原始byte速度，需要你在配置文件中配置
-   * <pre>
-   *   {@code
-   *    <xml>
-   *      <download>
-   *        ...
-   *        <convertSpeed value="false"/>
-   *      </download>
-   *
-   *      或在代码中设置
-   *      Aria.get(this).getDownloadConfig().setConvertSpeed(false);
-   *    </xml>
-   *   }
-   * </pre>
-   * 才能生效
-   */
-  @Override public long getSpeed() {
-    return mEntity.getSpeed();
-  }
-
-  /**
-   * @return 返回转换单位后的速度，需要你在配置文件中配置，转换完成后为：1b/s、1kb/s、1mb/s、1gb/s、1tb/s
-   * <pre>
-   *   {@code
-   *    <xml>
-   *      <download>
-   *        ...
-   *        <convertSpeed value="true"/>
-   *      </download>
-   *
-   *      或在代码中设置
-   *      Aria.get(this).getDownloadConfig().setConvertSpeed(true);
-   *    </xml>
-   *   }
-   * </pre>
-   * 才能生效
-   */
-  @Override public String getConvertSpeed() {
-    return mEntity.getConvertSpeed();
-  }
-
-  /**
-   * 获取百分比进度
-   *
-   * @return 返回百分比进度，如果文件长度为0，返回0
-   */
-  @Override public int getPercent() {
-    if (mEntity.getFileSize() == 0) {
-      return 0;
-    }
-    return (int) (mEntity.getCurrentProgress() * 100 / mEntity.getFileSize());
-  }
-
-  /**
-   * 获取文件大小
-   */
-  @Override public long getFileSize() {
-    return mEntity.getFileSize();
-  }
-
-  /**
-   * 转换单位后的文件长度
-   *
-   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1kb、1mb、1gb、1tb
-   */
-  @Override public String getConvertFileSize() {
-    if (mEntity.getFileSize() == 0) {
-      return "0mb";
-    }
-    return CommonUtil.formatFileSize(mEntity.getFileSize());
-  }
-
-  /**
-   * 获取当前下载进度
-   */
-  @Override public long getCurrentProgress() {
-    return mEntity.getCurrentProgress();
-  }
-
-  /**
-   * 获取单位转换后的进度
-   *
-   * @return 如：已经下载3mb的大小，则返回{@code 3mb}
-   */
-  @Override public String getConvertCurrentProgress() {
-    if (mEntity.getCurrentProgress() == 0) {
-      return "0b";
-    }
-    return CommonUtil.formatFileSize(mEntity.getCurrentProgress());
-  }
-
-  /**
    * 获取当前下载任务的下载地址
    *
    * @see DownloadTask#getKey()
    */
   @Deprecated public String getDownloadUrl() {
     return mEntity.getDownloadUrl();
-  }
-
-  @Override public void setHighestPriority(boolean isHighestPriority) {
-    isHeighestTask = isHighestPriority;
-  }
-
-  @Override public boolean isHighestPriorityTask() {
-    return isHeighestTask;
   }
 
   @Override public String getKey() {
@@ -180,9 +74,10 @@ public class DownloadTask implements ITask {
     return isDownloading();
   }
 
-  @Override public DownloadEntity getEntity() {
+  public DownloadEntity getDownloadEntity() {
     return mEntity;
   }
+
 
   /**
    * 开始下载
@@ -196,22 +91,6 @@ public class DownloadTask implements ITask {
       }
       mUtil.startDownload();
     }
-  }
-
-  public DownloadEntity getDownloadEntity() {
-    return mEntity;
-  }
-
-  public String getTargetName() {
-    return mTargetName;
-  }
-
-  @Override public void setTargetName(String targetName) {
-    this.mTargetName = targetName;
-  }
-
-  @Override public void removeRecord() {
-    mEntity.deleteData();
   }
 
   /**

@@ -140,8 +140,8 @@ final class SqlHelper extends SQLiteOpenHelper {
    */
   private int getEntityAttr(Class clazz) {
     int count = 1;
-    Field[] fields = CommonUtil.getFields(clazz);
-    if (fields != null && fields.length > 0) {
+    List<Field> fields = CommonUtil.getAllFields(clazz);
+    if (fields != null && fields.size() > 0) {
       for (Field field : fields) {
         field.setAccessible(true);
         if (ignoreField(field)) {
@@ -258,8 +258,8 @@ final class SqlHelper extends SQLiteOpenHelper {
   static synchronized void modifyData(SQLiteDatabase db, DbEntity dbEntity) {
     db = checkDb(db);
     Class<?> clazz = dbEntity.getClass();
-    Field[] fields = CommonUtil.getFields(clazz);
-    if (fields != null && fields.length > 0) {
+    List<Field> fields = CommonUtil.getAllFields(clazz);
+    if (fields != null && fields.size() > 0) {
       StringBuilder sb = new StringBuilder();
       sb.append("UPDATE ").append(CommonUtil.getClassName(dbEntity)).append(" SET ");
       int i = 0;
@@ -293,8 +293,8 @@ final class SqlHelper extends SQLiteOpenHelper {
   static synchronized void insertData(SQLiteDatabase db, DbEntity dbEntity) {
     db = checkDb(db);
     Class<?> clazz = dbEntity.getClass();
-    Field[] fields = CommonUtil.getFields(clazz);
-    if (fields != null && fields.length > 0) {
+    List<Field> fields = CommonUtil.getAllFields(clazz);
+    if (fields != null && fields.size() > 0) {
       StringBuilder sb = new StringBuilder();
       sb.append("INSERT INTO ").append(CommonUtil.getClassName(dbEntity)).append("(");
       int i = 0;
@@ -369,9 +369,7 @@ final class SqlHelper extends SQLiteOpenHelper {
    */
   static synchronized void createTable(SQLiteDatabase db, Class clazz, String tableName) {
     db = checkDb(db);
-    //Field[] fields = CommonUtil.getFields(clazz);
     List<Field> fields = CommonUtil.getAllFields(clazz);
-    //Field[] fields = CommonUtil.getAllFields(clazz);
     if (fields != null && fields.size() > 0) {
       StringBuilder sb = new StringBuilder();
       sb.append("create table ")
@@ -451,9 +449,9 @@ final class SqlHelper extends SQLiteOpenHelper {
    */
   static synchronized <T extends DbEntity> List<T> newInstanceEntity(Class<T> clazz,
       Cursor cursor) {
-    Field[] fields = CommonUtil.getFields(clazz);
+    List<Field> fields = CommonUtil.getAllFields(clazz);
     List<T> entitys = new ArrayList<>();
-    if (fields != null && fields.length > 0) {
+    if (fields != null && fields.size() > 0) {
       try {
         while (cursor.moveToNext()) {
           T entity = clazz.newInstance();

@@ -24,7 +24,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.command.AbsCmd;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -149,7 +149,7 @@ public class CommonUtil {
     }
   }
 
-  public static <T extends ITaskEntity> AbsCmd createCmd(String target, T entity, int cmd) {
+  public static <T extends AbsTaskEntity> AbsCmd createCmd(String target, T entity, int cmd) {
     return CmdFactory.getInstance().createCmd(target, entity, cmd);
   }
 
@@ -206,7 +206,7 @@ public class CommonUtil {
   }
 
   /**
-   * 获取类里面的所在字段
+   * 获取当前类里面的所在字段
    */
   public static Field[] getFields(Class clazz) {
     Field[] fields = null;

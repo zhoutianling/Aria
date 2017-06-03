@@ -23,7 +23,7 @@ import java.util.Map;
  * Created by lyy on 2017/2/23.
  */
 
-public abstract class ITaskEntity {
+public abstract class AbsTaskEntity {
   /**
    * http 请求头
    */
@@ -39,5 +39,5 @@ public abstract class ITaskEntity {
    */
   public String redirectUrlKey = "location";
 
-  public abstract IEntity getEntity();
+  public abstract AbsEntity getEntity();
 }

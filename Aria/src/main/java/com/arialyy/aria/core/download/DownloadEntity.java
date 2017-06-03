@@ -18,10 +18,8 @@ package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.orm.Ignore;
-import com.arialyy.aria.orm.DbEntity;
 
 /**
  * Created by lyy on 2015/12/25.
@@ -29,50 +27,16 @@ import com.arialyy.aria.orm.DbEntity;
  * ！！！ 注意：CREATOR要进行@Ignore注解
  * ！！！并且需要Parcelable时需要手动填写rowID;
  */
-public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
-  @Ignore private long speed = 0; //下载速度
-  @Ignore private String convertSpeed = "0b/s";
-  @Ignore private int failNum = 0;
+public class DownloadEntity extends AbsEntity implements Parcelable {
   private String downloadUrl = ""; //下载路径
   private String downloadPath = ""; //保存路径
-  private String fileName = ""; //文件名
-  private String str = ""; //其它字段
-  private long fileSize = 1;
-  private int state = STATE_WAIT;
   private boolean isDownloadComplete = false;   //是否下载完成
-  private long currentProgress = 0;    //当前下载进度
-  private long completeTime;  //完成时间
-  private boolean isRedirect = false;
+  private boolean isRedirect = false; //是否重定向
   private String redirectUrl = ""; //重定向链接
 
   public DownloadEntity() {
   }
 
-  public String getStr() {
-    return str;
-  }
-
-  public void setStr(String str) {
-    this.str = str;
-  }
-
-  public String getFileName() {
-    return fileName;
-  }
-
-  public DownloadEntity setFileName(String fileName) {
-    this.fileName = fileName;
-    return this;
-  }
-
-  public int getFailNum() {
-    return failNum;
-  }
-
-  @Override
-  public void setFailNum(int failNum) {
-    this.failNum = failNum;
-  }
 
   public String getDownloadUrl() {
     return downloadUrl;
@@ -81,14 +45,6 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
   public DownloadEntity setDownloadUrl(String downloadUrl) {
     this.downloadUrl = downloadUrl;
     return this;
-  }
-
-  public long getCompleteTime() {
-    return completeTime;
-  }
-
-  public void setCompleteTime(long completeTime) {
-    this.completeTime = completeTime;
   }
 
   public String getDownloadPath() {
@@ -100,52 +56,12 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     return this;
   }
 
-  public long getFileSize() {
-    return fileSize;
-  }
-
-  public void setFileSize(long fileSize) {
-    this.fileSize = fileSize;
-  }
-
-  @Override public int getState() {
-    return state;
-  }
-
-  public void setState(int state) {
-    this.state = state;
-  }
-
   public boolean isDownloadComplete() {
     return isDownloadComplete;
   }
 
   public void setDownloadComplete(boolean downloadComplete) {
     isDownloadComplete = downloadComplete;
-  }
-
-  public String getConvertSpeed() {
-    return convertSpeed;
-  }
-
-  public void setConvertSpeed(String convertSpeed) {
-    this.convertSpeed = convertSpeed;
-  }
-
-  public long getSpeed() {
-    return speed;
-  }
-
-  public void setSpeed(long speed) {
-    this.speed = speed;
-  }
-
-  public long getCurrentProgress() {
-    return currentProgress;
-  }
-
-  public void setCurrentProgress(long currentProgress) {
-    this.currentProgress = currentProgress;
   }
 
   @Override public DownloadEntity clone() throws CloneNotSupportedException {
@@ -168,79 +84,24 @@ public class DownloadEntity extends DbEntity implements Parcelable, IEntity {
     this.redirectUrl = redirectUrl;
   }
 
-  @Override public String toString() {
-    return "DownloadEntity{"
-        + "speed="
-        + speed
-        + ", convertSpeed='"
-        + convertSpeed
-        + '\''
-        + ", failNum="
-        + failNum
-        + ", downloadUrl='"
-        + downloadUrl
-        + '\''
-        + ", downloadPath='"
-        + downloadPath
-        + '\''
-        + ", fileName='"
-        + fileName
-        + '\''
-        + ", str='"
-        + str
-        + '\''
-        + ", fileSize="
-        + fileSize
-        + ", state="
-        + state
-        + ", isDownloadComplete="
-        + isDownloadComplete
-        + ", currentProgress="
-        + currentProgress
-        + ", completeTime="
-        + completeTime
-        + ", isRedirect="
-        + isRedirect
-        + ", redirectUrl='"
-        + redirectUrl
-        + '\''
-        + '}';
-  }
-
   @Override public int describeContents() {
     return 0;
   }
 
   @Override public void writeToParcel(Parcel dest, int flags) {
-    dest.writeLong(this.speed);
-    dest.writeString(this.convertSpeed);
-    dest.writeInt(this.failNum);
+    super.writeToParcel(dest, flags);
     dest.writeString(this.downloadUrl);
     dest.writeString(this.downloadPath);
-    dest.writeString(this.fileName);
-    dest.writeString(this.str);
-    dest.writeLong(this.fileSize);
-    dest.writeInt(this.state);
     dest.writeByte(this.isDownloadComplete ? (byte) 1 : (byte) 0);
-    dest.writeLong(this.currentProgress);
-    dest.writeLong(this.completeTime);
     dest.writeByte(this.isRedirect ? (byte) 1 : (byte) 0);
     dest.writeString(this.redirectUrl);
   }
 
   protected DownloadEntity(Parcel in) {
-    this.speed = in.readLong();
-    this.convertSpeed = in.readString();
-    this.failNum = in.readInt();
+    super(in);
     this.downloadUrl = in.readString();
     this.downloadPath = in.readString();
-    this.fileName = in.readString();
-    this.str = in.readString();
-    this.fileSize = in.readLong();
-    this.state = in.readInt();
     this.isDownloadComplete = in.readByte() != 0;
-    this.currentProgress = in.readLong();
-    this.completeTime = in.readLong();
     this.isRedirect = in.readByte() != 0;
     this.redirectUrl = in.readString();
   }

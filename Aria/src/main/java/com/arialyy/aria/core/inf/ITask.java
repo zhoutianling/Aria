@@ -19,7 +19,7 @@ package com.arialyy.aria.core.inf;
  * Created by lyy on 2017/2/13.
  */
 
-public interface ITask {
+public interface ITask<ENTITY extends AbsEntity> {
 
   /**
    * 设置任务为最高优先级任务，在下载队列中，有且只有一个最高优先级任务
@@ -48,7 +48,7 @@ public interface ITask {
   /**
    * 获取工具实体
    */
-  public IEntity getEntity();
+  public ENTITY getEntity();
 
   public void start();
 

@@ -19,7 +19,7 @@ package com.arialyy.aria.core.queue;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.ITask;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -57,7 +57,7 @@ public class TaskFactory {
    * @param <SCHEDULER> {@link DownloadSchedulers}
    * @return {@link DownloadTask}、{@link UploadTask}
    */
-  <ENTITY extends ITaskEntity, SCHEDULER extends ISchedulers> ITask createTask(String targetName,
+  <ENTITY extends AbsTaskEntity, SCHEDULER extends ISchedulers> ITask createTask(String targetName,
       ENTITY entity, SCHEDULER schedulers) {
     if (entity instanceof DownloadTaskEntity) {
       return createDownloadTask(targetName, (DownloadTaskEntity) entity, schedulers);

@@ -18,13 +18,13 @@ package com.arialyy.aria.core.command;
 
 import android.util.Log;
 import com.arialyy.aria.core.inf.ITask;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by lyy on 2016/8/22.
  * 添加任务的命令
  */
-class AddCmd<T extends ITaskEntity> extends AbsCmd<T> {
+class AddCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   AddCmd(String targetName, T entity) {
     super(targetName, entity);

@@ -20,7 +20,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.exception.FileException;
@@ -86,7 +86,7 @@ public class CheckUtil {
   /**
    * 检查任务实体
    */
-  public static void checkTaskEntity(ITaskEntity entity) {
+  public static void checkTaskEntity(AbsTaskEntity entity) {
     if (entity instanceof DownloadTaskEntity) {
       checkDownloadTaskEntity(((DownloadTaskEntity) entity).downloadEntity);
     } else if (entity instanceof UploadTaskEntity) {
@@ -100,7 +100,7 @@ public class CheckUtil {
    * @param checkType 删除命令和停止命令不需要检查下载链接和保存路径
    * @return {@code false}实体无效
    */
-  public static boolean checkCmdEntity(ITaskEntity entity, boolean checkType) {
+  public static boolean checkCmdEntity(AbsTaskEntity entity, boolean checkType) {
     boolean b = false;
     if (entity instanceof DownloadTaskEntity) {
       DownloadEntity entity1 = ((DownloadTaskEntity) entity).downloadEntity;

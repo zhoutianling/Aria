@@ -17,7 +17,7 @@ package com.arialyy.aria.core.command;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.ITask;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by lyy on 2017/6/2.
@@ -29,7 +29,7 @@ import com.arialyy.aria.core.inf.ITaskEntity;
  * 5、如果下载队列中已经满了，则会停止队尾的任务
  * 6、把任务设置为最高优先级任务后，将自动执行任务，不需要重新调用start()启动任务
  */
-final class HighestPriorityCmd<T extends ITaskEntity> extends AbsCmd<T> {
+final class HighestPriorityCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
   /**
    * @param targetName 产生任务的对象名
    */

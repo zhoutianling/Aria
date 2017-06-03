@@ -18,13 +18,13 @@ package com.arialyy.aria.core.command;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.ITask;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by lyy on 2016/8/22.
  * 开始命令
  */
-class StartCmd<T extends ITaskEntity> extends AbsCmd<T> {
+class StartCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   StartCmd(String targetName, T entity) {
     super(targetName, entity);

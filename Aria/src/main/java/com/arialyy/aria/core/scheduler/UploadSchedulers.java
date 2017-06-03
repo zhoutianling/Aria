@@ -78,7 +78,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
       }
 
       @Override public void onFinish() {
-        UploadEntity entity = task.getUploadEntity();
+        UploadEntity entity = task.getEntity();
         if (entity.getFailNum() <= reTryNum) {
           UploadTask task = mQueue.getTask(entity);
           mQueue.reTryStart(task);
@@ -102,7 +102,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
       Log.w(TAG, "没有下一任务");
       return;
     }
-    if (newTask.getUploadEntity().getState() == IEntity.STATE_WAIT) {
+    if (newTask.getEntity().getState() == IEntity.STATE_WAIT) {
       mQueue.startTask(newTask);
     }
   }
@@ -169,7 +169,7 @@ public class UploadSchedulers implements ISchedulers<UploadTask> {
       return true;
     }
     callback(msg.what, task);
-    UploadEntity entity = task.getUploadEntity();
+    UploadEntity entity = task.getEntity();
     switch (msg.what) {
       case STOP:
       case CANCEL:

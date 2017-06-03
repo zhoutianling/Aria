@@ -20,13 +20,13 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by lyy on 2016/9/20.
  * 停止命令
  */
-class StopCmd<T extends ITaskEntity> extends AbsCmd<T> {
+class StopCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   StopCmd(String targetName, T entity) {
     super(targetName, entity);

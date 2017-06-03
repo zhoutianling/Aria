@@ -18,13 +18,13 @@ package com.arialyy.aria.core.command;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.ITask;
-import com.arialyy.aria.core.inf.ITaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by lyy on 2016/9/20.
  * 取消命令
  */
-class CancelCmd<T extends ITaskEntity> extends AbsCmd<T> {
+class CancelCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
   CancelCmd(String targetName, T entity) {
     super(targetName, entity);
   }

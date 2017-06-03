@@ -22,8 +22,8 @@ import android.util.Log;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CommonUtil;
@@ -33,53 +33,26 @@ import java.lang.ref.WeakReference;
  * Created by lyy on 2017/2/23.
  * 上传任务
  */
-public class UploadTask implements ITask {
+public class UploadTask extends AbsTask<UploadTaskEntity, UploadEntity> {
   private static final String TAG = "UploadTask";
   private Handler mOutHandler;
-  private UploadEntity mUploadEntity;
-  private String mTargetName;
 
   private UploadUtil mUtil;
   private UListener mListener;
-  private boolean isHeighestTask = false;
 
   private UploadTask(UploadTaskEntity taskEntity, Handler outHandler) {
     mOutHandler = outHandler;
-    mUploadEntity = taskEntity.uploadEntity;
+    mEntity = taskEntity.uploadEntity;
     mListener = new UListener(mOutHandler, this);
     mUtil = new UploadUtil(taskEntity, mListener);
   }
 
-  @Override public void setTargetName(String targetName) {
-    mTargetName = targetName;
-  }
-
-  @Override public void removeRecord() {
-    mUploadEntity.deleteData();
-  }
-
-  @Override public void setHighestPriority(boolean isHighestPriority) {
-    isHeighestTask = isHighestPriority;
-  }
-
-  @Override public boolean isHighestPriorityTask() {
-    return isHeighestTask;
-  }
-
   @Override public String getKey() {
-    return mUploadEntity.getFilePath();
+    return mEntity.getFilePath();
   }
 
   @Override public boolean isRunning() {
     return mUtil.isRunning();
-  }
-
-  public UploadEntity getUploadEntity() {
-    return mUploadEntity;
-  }
-
-  @Override public IEntity getEntity() {
-    return mUploadEntity;
   }
 
   @Override public void start() {
@@ -99,109 +72,18 @@ public class UploadTask implements ITask {
 
   @Override public void cancel() {
 
-    if (!mUploadEntity.isComplete()) {
+    if (!mEntity.isComplete()) {
       // 如果任务不是下载状态
       mUtil.cancel();
-      mUploadEntity.deleteData();
+      mEntity.deleteData();
       if (mOutHandler != null) {
         mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
       }
       //发送取消下载的广播
       Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_CANCEL);
-      intent.putExtra(Aria.UPLOAD_ENTITY, mUploadEntity);
+      intent.putExtra(Aria.UPLOAD_ENTITY, mEntity);
       AriaManager.APP.sendBroadcast(intent);
     }
-  }
-
-  public String getTargetName() {
-    return mTargetName;
-  }
-
-  /**
-   * @return 返回原始byte速度，需要你在配置文件中配置
-   * <pre>
-   *  {@code
-   *   <xml>
-   *    <upload>
-   *      ...
-   *      <convertSpeed value="false"/>
-   *    </upload>
-   *
-   *    或在代码中设置
-   *    Aria.get(this).getUploadConfig().setConvertSpeed(false);
-   *   </xml>
-   *  }
-   * </pre>
-   * 才能生效
-   */
-  @Override public long getSpeed() {
-    return mUploadEntity.getSpeed();
-  }
-
-  /**
-   * @return 返回转换单位后的速度，需要你在配置文件中配置，转换完成后为：1b/s、1kb/s、1mb/s、1gb/s、1tb/s
-   * <pre>
-   *   {@code
-   *   <xml>
-   *    <upload>
-   *      ...
-   *      <convertSpeed value="true"/>
-   *    </upload>
-   *
-   *    或在代码中设置
-   *    Aria.get(this).getUploadConfig().setConvertSpeed(true);
-   *   </xml>
-   *   }
-   * </pre>
-   *
-   * 才能生效
-   */
-  @Override public String getConvertSpeed() {
-    return mUploadEntity.getConvertSpeed();
-  }
-
-  /**
-   * 获取百分比进度
-   *
-   * @return 返回百分比进度，如果文件长度为0，返回0
-   */
-  @Override public int getPercent() {
-    if (mUploadEntity.getFileSize() == 0) {
-      return 0;
-    }
-    return (int) (mUploadEntity.getCurrentProgress() * 100 / mUploadEntity.getFileSize());
-  }
-
-  /**
-   * 转换单位后的文件长度
-   *
-   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1kb、1mb、1gb、1tb
-   */
-  @Override public String getConvertFileSize() {
-    if (mUploadEntity.getFileSize() == 0) {
-      return "0m";
-    }
-    return CommonUtil.formatFileSize(mUploadEntity.getFileSize());
-  }
-
-  @Override public long getFileSize() {
-    return mUploadEntity.getFileSize();
-  }
-
-  @Override public long getCurrentProgress() {
-    return mUploadEntity.getCurrentProgress();
-  }
-
-  /**
-   * 获取单位转换后的进度
-   *
-   * @return 如：已经下载3mb的大小，则返回{@code 3mb}
-   */
-  @Override public String getConvertCurrentProgress() {
-    if (mUploadEntity.getCurrentProgress() == 0) {
-      return "0b";
-    }
-    return CommonUtil.formatFileSize(mUploadEntity.getCurrentProgress());
   }
 
   private static class UListener extends UploadListener {
@@ -220,7 +102,7 @@ public class UploadTask implements ITask {
     UListener(Handler outHandle, UploadTask task) {
       this.outHandler = new WeakReference<>(outHandle);
       this.task = new WeakReference<>(task);
-      uploadEntity = this.task.get().getUploadEntity();
+      uploadEntity = this.task.get().getEntity();
       sendIntent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_RUNNING);
       sendIntent.putExtra(Aria.UPLOAD_ENTITY, uploadEntity);
       context = AriaManager.APP;
