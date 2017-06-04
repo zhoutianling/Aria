@@ -61,7 +61,6 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   private DownloadStateConstance CONSTANCE;
 
   DownloadUtil(Context context, DownloadTaskEntity entity, IDownloadListener downloadListener) {
-    CheckUtil.checkTaskEntity(entity);
     mDownloadEntity = entity.downloadEntity;
     mContext = context.getApplicationContext();
     mDownloadTaskEntity = entity;
@@ -77,7 +76,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     mDownloadFile = new File(mDownloadTaskEntity.downloadEntity.getDownloadPath());
     //读取已完成的线程数
     mConfigFile = new File(
-        mContext.getFilesDir().getPath() + "/temp/" + mDownloadFile.getName() + ".properties");
+        mContext.getFilesDir().getPath() + AriaManager.DOWNLOAD_TEMP_DIR + mDownloadFile.getName() + ".properties");
     try {
       if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
         handleNewTask();

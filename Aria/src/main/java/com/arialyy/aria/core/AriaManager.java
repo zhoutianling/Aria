@@ -56,6 +56,8 @@ import org.xml.sax.SAXException;
   private static final String DOWNLOAD = "_download";
   private static final String UPLOAD = "_upload";
   private static final Object LOCK = new Object();
+  public static final String DOWNLOAD_TEMP_DIR = "/Aria/temp/download/";
+  public static final String UPLOAD_TEMP_DIR = "/Aria/temp/upload/";
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
   private Map<String, IReceiver> mReceivers = new HashMap<>();
   public static Context APP;
@@ -247,6 +249,7 @@ import org.xml.sax.SAXException;
    */
   private void initConfig() {
     File xmlFile = new File(APP.getFilesDir().getPath() + Configuration.XML_FILE);
+    File tempDir = new File(APP.getFilesDir().getPath() + "/temp");
     if (!xmlFile.exists()) {
       loadConfig();
     } else {
@@ -261,6 +264,11 @@ import org.xml.sax.SAXException;
     }
     mDConfig = Configuration.DownloadConfig.getInstance();
     mUConfig = Configuration.UploadConfig.getInstance();
+    if (tempDir.exists()) {
+      File newDir = new File(APP.getFilesDir().getPath() + DOWNLOAD_TEMP_DIR);
+      newDir.mkdirs();
+      tempDir.renameTo(newDir);
+    }
   }
 
   /**

@@ -114,7 +114,7 @@ final class SingleThreadTask implements Runnable {
       if (mConfigEntity.isSupportBreakpoint) {
         Log.i(TAG,
             "任务【" + mConfigEntity.TEMP_FILE.getName() + "】线程【" + mConfigEntity.THREAD_ID + "】下载完毕");
-        writeConfig(mConfigEntity.TEMP_FILE.getName() + "_state_" + mConfigEntity.THREAD_ID, 1);
+        writeConfig(1);
         mListener.onChildComplete(mConfigEntity.END_LOCATION);
         CONSTANCE.COMPLETE_THREAD_NUM++;
         if (CONSTANCE.isComplete()) {
@@ -131,12 +131,11 @@ final class SingleThreadTask implements Runnable {
         mListener.onComplete();
       }
     } catch (MalformedURLException e) {
-      failDownload(mConfigEntity, mChildCurrentLocation, "下载链接异常", e);
+      failDownload(mChildCurrentLocation, "下载链接异常", e);
     } catch (IOException e) {
-      failDownload(mConfigEntity, mChildCurrentLocation, "下载失败【" + mConfigEntity.DOWNLOAD_URL + "】",
-          e);
+      failDownload(mChildCurrentLocation, "下载失败【" + mConfigEntity.DOWNLOAD_URL + "】", e);
     } catch (Exception e) {
-      failDownload(mConfigEntity, mChildCurrentLocation, "获取流失败", e);
+      failDownload(mChildCurrentLocation, "获取流失败", e);
     }
   }
 
@@ -152,8 +151,7 @@ final class SingleThreadTask implements Runnable {
               + mConfigEntity.THREAD_ID
               + "_stop, stop location ==> "
               + mChildCurrentLocation);
-          writeConfig(mConfigEntity.TEMP_FILE.getName() + "_record_" + mConfigEntity.THREAD_ID,
-              mChildCurrentLocation);
+          writeConfig(mChildCurrentLocation);
           if (CONSTANCE.isStop()) {
             Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
             CONSTANCE.isDownloading = false;
@@ -212,19 +210,17 @@ final class SingleThreadTask implements Runnable {
   /**
    * 下载失败
    */
-  private void failDownload(DownloadUtil.ConfigEntity dEntity, long currentLocation, String msg,
-      Exception ex) {
+  private void failDownload(long currentLocation, String msg, Exception ex) {
     synchronized (LOCK) {
       try {
         CONSTANCE.FAIL_NUM++;
         CONSTANCE.isDownloading = false;
         CONSTANCE.isStop = true;
         if (ex != null) {
-          Log.e(TAG, CommonUtil.getPrintException(ex));
+          Log.e(TAG, msg + "\n" + CommonUtil.getPrintException(ex));
         }
         if (mConfigEntity.isSupportBreakpoint) {
-          writeConfig(dEntity.TEMP_FILE.getName() + "_record_" + dEntity.THREAD_ID,
-              currentLocation);
+          writeConfig(currentLocation);
           if (CONSTANCE.isFail()) {
             Log.d(TAG, "++++++++++++++++ onFail +++++++++++++++++");
             mListener.onFail();
@@ -242,8 +238,9 @@ final class SingleThreadTask implements Runnable {
   /**
    * 将记录写入到配置文件
    */
-  private void writeConfig(String key, long record) throws IOException {
+  private void writeConfig(long record) throws IOException {
     if (record > 0) {
+      String key = mConfigEntity.TEMP_FILE.getName() + "_record_" + mConfigEntity.THREAD_ID;
       File configFile = new File(mConfigFPath);
       Properties pro = CommonUtil.loadConfig(configFile);
       pro.setProperty(key, String.valueOf(record));

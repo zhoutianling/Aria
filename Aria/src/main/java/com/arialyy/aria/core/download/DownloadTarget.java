@@ -129,12 +129,25 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
 
   /**
    * 设置文件名
+   *
+   * @deprecated {@link #setFileName(String)}
    */
   @Deprecated public DownloadTarget setDownloadName(@NonNull String downloadName) {
     if (TextUtils.isEmpty(downloadName)) {
       throw new IllegalArgumentException("文件名不能为null");
     }
     entity.setFileName(downloadName);
+    return this;
+  }
+
+  /**
+   * 设置文件名
+   */
+  public DownloadTarget setFileName(@NonNull String fileName) {
+    if (TextUtils.isEmpty(fileName)) {
+      throw new IllegalArgumentException("文件名不能为null");
+    }
+    entity.setFileName(fileName);
     return this;
   }
 
