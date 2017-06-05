@@ -273,7 +273,7 @@ Aria.download(this).load(DOWNLOAD_URL).setDownloadPath(PATH).setHighestPriority(
 ***
 
 ## 后续版本开发规划
-* ~~下载任务可以设置优先级~~
+* ~~http、scoket断点上传~~
 * ~~实现上传队列调度功能~~
 
 
