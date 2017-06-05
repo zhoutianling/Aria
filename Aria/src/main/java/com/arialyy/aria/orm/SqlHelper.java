@@ -497,7 +497,7 @@ final class SqlHelper extends SQLiteOpenHelper {
   }
 
   private static void close(SQLiteDatabase db) {
-    if (db != null && db.isOpen()) db.close();
+    //if (db != null && db.isOpen()) db.close();
   }
 
   private static SQLiteDatabase checkDb(SQLiteDatabase db) {

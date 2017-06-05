@@ -85,7 +85,7 @@ public class DownloadTaskQueue
       }
       startTask(task);
 
-      for (DownloadTask temp : tempTasks){
+      for (DownloadTask temp : tempTasks) {
         mExecutePool.putTask(temp);
       }
     }

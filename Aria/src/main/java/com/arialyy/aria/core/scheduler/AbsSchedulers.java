@@ -38,20 +38,19 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
 
   protected QUEUE mQueue;
 
-  private Map<String, IDownloadSchedulerListener<TASK>> mSchedulerListeners =
-      new ConcurrentHashMap<>();
+  private Map<String, ISchedulerListener<TASK>> mSchedulerListeners = new ConcurrentHashMap<>();
 
   @Override
   public void addSchedulerListener(String targetName, ISchedulerListener<TASK> schedulerListener) {
-    mSchedulerListeners.put(targetName, (IDownloadSchedulerListener<TASK>) schedulerListener);
+    mSchedulerListeners.put(targetName, schedulerListener);
   }
 
   @Override public void removeSchedulerListener(String targetName,
       ISchedulerListener<TASK> schedulerListener) {
     //该内存泄露解决方案：http://stackoverflow.com/questions/14585829/how-safe-is-to-delete-already-removed-concurrenthashmap-element
-    for (Iterator<Map.Entry<String, IDownloadSchedulerListener<TASK>>> iter =
+    for (Iterator<Map.Entry<String, ISchedulerListener<TASK>>> iter =
         mSchedulerListeners.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry<String, IDownloadSchedulerListener<TASK>> entry = iter.next();
+      Map.Entry<String, ISchedulerListener<TASK>> entry = iter.next();
       if (entry.getKey().equals(targetName)) iter.remove();
     }
   }
@@ -99,7 +98,7 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
     }
   }
 
-  private void callback(int state, TASK task, IDownloadSchedulerListener<TASK> listener) {
+  private void callback(int state, TASK task, ISchedulerListener<TASK> listener) {
     if (listener != null) {
       if (task == null) {
         Log.e(TAG, "TASK 为null，回调失败");
@@ -134,7 +133,9 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
           listener.onTaskFail(task);
           break;
         case SUPPORT_BREAK_POINT:
-          listener.onNoSupportBreakPoint(task);
+          if (listener instanceof IDownloadSchedulerListener) {
+            ((IDownloadSchedulerListener<TASK>) listener).onNoSupportBreakPoint(task);
+          }
           break;
       }
     }
