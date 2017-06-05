@@ -22,6 +22,11 @@ package com.arialyy.aria.core.inf;
 public interface ITask<ENTITY extends AbsEntity> {
 
   /**
+   * 暂停任务，并让任务处于等待状态
+   */
+  public void stopAndWait();
+
+  /**
    * 设置任务为最高优先级任务，在下载队列中，有且只有一个最高优先级任务
    */
   public void setHighestPriority(boolean isHighestPriority);
@@ -88,6 +93,7 @@ public interface ITask<ENTITY extends AbsEntity> {
 
   /**
    * 获取单位转换后的进度
+   *
    * @return 返回 3mb
    */
   public String getConvertCurrentProgress();

@@ -16,6 +16,7 @@
 
 package com.arialyy.aria.core.queue;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.ITask;
@@ -32,7 +33,6 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 public class TaskFactory {
   private static final String TAG = "TaskFactory";
 
-  private static final Object LOCK = new Object();
   private static volatile TaskFactory INSTANCE = null;
 
   private TaskFactory() {
@@ -41,7 +41,7 @@ public class TaskFactory {
 
   public static TaskFactory getInstance() {
     if (INSTANCE == null) {
-      synchronized (LOCK) {
+      synchronized (AriaManager.LOCK) {
         INSTANCE = new TaskFactory();
       }
     }

@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   private static final String TAG = "ExecutePool";
-  private static final Object LOCK = new Object();
   private static final long TIME_OUT = 1000;
   private ArrayBlockingQueue<TASK> mExecuteQueue;
   private Map<String, TASK> mExecuteMap;
@@ -57,7 +56,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   @Override public boolean putTask(TASK task) {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       if (task == null) {
         Log.e(TAG, "任务不能为空！！");
         return false;
@@ -141,7 +140,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   @Override public TASK pollTask() {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       try {
         TASK task = null;
         task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
@@ -158,7 +157,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   @Override public TASK getTask(String downloadUrl) {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       if (TextUtils.isEmpty(downloadUrl)) {
         Log.e(TAG, "请传入有效的任务key");
         return null;
@@ -169,7 +168,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   @Override public boolean removeTask(TASK task) {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       if (task == null) {
         Log.e(TAG, "任务不能为空");
         return false;
@@ -182,7 +181,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   @Override public boolean removeTask(String downloadUrl) {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       if (TextUtils.isEmpty(downloadUrl)) {
         Log.e(TAG, "请传入有效的任务key");
         return false;

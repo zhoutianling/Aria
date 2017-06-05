@@ -16,6 +16,7 @@
 
 package com.arialyy.aria.core.scheduler;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -29,7 +30,6 @@ public class DownloadSchedulers
     extends AbsSchedulers<DownloadTaskEntity, DownloadEntity, DownloadTask, DownloadTaskQueue> {
 
   private static final String TAG = "DownloadSchedulers";
-  private static final Object LOCK = new Object();
   private static volatile DownloadSchedulers INSTANCE = null;
 
   private DownloadSchedulers() {
@@ -38,7 +38,7 @@ public class DownloadSchedulers
 
   public static DownloadSchedulers getInstance() {
     if (INSTANCE == null) {
-      synchronized (LOCK) {
+      synchronized (AriaManager.LOCK) {
         INSTANCE = new DownloadSchedulers();
       }
     }

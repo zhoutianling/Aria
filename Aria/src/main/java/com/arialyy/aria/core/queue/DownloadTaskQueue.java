@@ -37,11 +37,10 @@ public class DownloadTaskQueue
     extends AbsTaskQueue<DownloadTask, DownloadTaskEntity, DownloadEntity> {
   private static final String TAG = "DownloadTaskQueue";
   private static volatile DownloadTaskQueue INSTANCE = null;
-  private static final Object LOCK = new Object();
 
   public static DownloadTaskQueue getInstance() {
     if (INSTANCE == null) {
-      synchronized (LOCK) {
+      synchronized (AriaManager.LOCK) {
         INSTANCE = new DownloadTaskQueue();
       }
     }
@@ -77,7 +76,8 @@ public class DownloadTaskQueue
         DownloadTask oldTsk = mExecutePool.pollTask();
         if (oldTsk != null && oldTsk.isRunning()) {
           if (i == maxSize - 1) {
-            oldTsk.stop();
+            oldTsk.stopAndWait();
+            mCachePool.putTaskToFirst(oldTsk);
             break;
           }
           tempTasks.add(oldTsk);

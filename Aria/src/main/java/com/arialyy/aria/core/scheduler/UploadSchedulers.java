@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.scheduler;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -27,7 +28,6 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 public class UploadSchedulers
     extends AbsSchedulers<UploadTaskEntity, UploadEntity, UploadTask, UploadTaskQueue> {
   private static final String TAG = "UploadSchedulers";
-  private static final Object LOCK = new Object();
   private static volatile UploadSchedulers INSTANCE = null;
 
   private UploadSchedulers() {
@@ -36,7 +36,7 @@ public class UploadSchedulers
 
   public static UploadSchedulers getInstance() {
     if (INSTANCE == null) {
-      synchronized (LOCK) {
+      synchronized (AriaManager.LOCK) {
         INSTANCE = new UploadSchedulers();
       }
     }

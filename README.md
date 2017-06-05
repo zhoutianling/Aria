@@ -159,7 +159,7 @@ compile 'com.arialyy.aria:Aria:3.1.4'
     <ca name="" path=""/>
 
     <!--是否需要转换速度单位，转换完成后为：1b/s、1kb/s、1mb/s、1gb/s、1tb/s，如果不需要将返回byte长度-->
-    <cnvertSpeed value="false"/>
+    <convertSpeed value="false"/>
 
   </download>
 
@@ -226,6 +226,11 @@ Aria.download(this).removeAllTask();
   int percent = task.getPercent();
 }
 ```
+* 设置高优先级任务
+如果你希望优先下载某一个任务，你可以
+``` java
+Aria.download(this).load(DOWNLOAD_URL).setDownloadPath(PATH).setHighestPriority();
+```
 
 **tips:为了防止内存泄露的情况，事件类需要使用staic进行修饰**
 
@@ -272,8 +277,8 @@ Aria.download(this).removeAllTask();
 
 
 ## 开发日志
+  + v_3.1.5 优化代码结构，增加优先下载任务功能。
   + v_3.1.4 修复快速切换，暂停、恢复功能时，概率性出现的重新下载问题，添加onPre()回调，onPre()用于请求地址之前执行界面UI更新操作。
-  + v_3.1.2 优化代码结构
   + v_3.1.0 添加Aria配置文件，优化代码
   + v_3.0.3 修复暂停后删除任务，闪退问题，添加删除记录的api
   + v_3.0.2 支持30x重定向链接下载

@@ -16,6 +16,7 @@
 
 package com.arialyy.aria.core.command;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
@@ -50,7 +51,6 @@ public class CmdFactory {
 
   public static final int TASK_SINGLE = 0x126;
 
-  private static final Object LOCK = new Object();
   private static volatile CmdFactory INSTANCE = null;
 
   private CmdFactory() {
@@ -59,7 +59,7 @@ public class CmdFactory {
 
   public static CmdFactory getInstance() {
     if (INSTANCE == null) {
-      synchronized (LOCK) {
+      synchronized (AriaManager.LOCK) {
         INSTANCE = new CmdFactory();
       }
     }

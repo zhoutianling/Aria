@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.List;
@@ -32,7 +33,6 @@ import java.util.List;
  */
 public class DbUtil {
   private static final String TAG = "DbUtil";
-  private static final Object LOCK = new Object();
   private volatile static DbUtil INSTANCE = null;
   private int ROW_ID = 7;
   private SQLiteDatabase mDb;
@@ -48,7 +48,7 @@ public class DbUtil {
 
   public static DbUtil init(Context context) {
     if (context instanceof Application) {
-      synchronized (LOCK) {
+      synchronized (AriaManager.LOCK) {
         if (INSTANCE == null) {
           INSTANCE = new DbUtil(context);
         }

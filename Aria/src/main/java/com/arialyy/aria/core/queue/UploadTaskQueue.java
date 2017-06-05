@@ -18,6 +18,7 @@ package com.arialyy.aria.core.queue;
 
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.core.upload.UploadEntity;
@@ -31,11 +32,10 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, UploadEntity> {
   private static final String TAG = "UploadTaskQueue";
   private static volatile UploadTaskQueue INSTANCE = null;
-  private static final Object LOCK = new Object();
 
   public static UploadTaskQueue getInstance() {
     if (INSTANCE == null) {
-      synchronized (LOCK) {
+      synchronized (AriaManager.LOCK) {
         INSTANCE = new UploadTaskQueue();
       }
     }

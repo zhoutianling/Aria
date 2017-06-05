@@ -66,7 +66,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     mDownloadTaskEntity = entity;
     mListener = downloadListener;
     // 线程下载数改变后，新的下载才会生效
-    mFixedThreadPool = Executors.newFixedThreadPool(Integer.MAX_VALUE);
+    //mFixedThreadPool = Executors.newFixedThreadPool(Integer.MAX_VALUE);
     CONSTANCE = new DownloadStateConstance();
     init();
   }
@@ -75,8 +75,10 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     mConnectTimeOut = AriaManager.getInstance(mContext).getDownloadConfig().getConnectTimeOut();
     mDownloadFile = new File(mDownloadTaskEntity.downloadEntity.getDownloadPath());
     //读取已完成的线程数
-    mConfigFile = new File(
-        mContext.getFilesDir().getPath() + AriaManager.DOWNLOAD_TEMP_DIR + mDownloadFile.getName() + ".properties");
+    mConfigFile = new File(mContext.getFilesDir().getPath()
+        + AriaManager.DOWNLOAD_TEMP_DIR
+        + mDownloadFile.getName()
+        + ".properties");
     try {
       if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
         handleNewTask();
@@ -111,7 +113,9 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   @Override public void cancelDownload() {
     CONSTANCE.isCancel = true;
     CONSTANCE.isDownloading = false;
-    mFixedThreadPool.shutdown();
+    if (mFixedThreadPool != null) {
+      mFixedThreadPool.shutdown();
+    }
     for (int i = 0; i < THREAD_NUM; i++) {
       SingleThreadTask task = (SingleThreadTask) mTask.get(i);
       if (task != null) {
@@ -126,7 +130,9 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   @Override public void stopDownload() {
     CONSTANCE.isStop = true;
     CONSTANCE.isDownloading = false;
-    mFixedThreadPool.shutdown();
+    if (mFixedThreadPool != null) {
+      mFixedThreadPool.shutdown();
+    }
     for (int i = 0; i < THREAD_NUM; i++) {
       SingleThreadTask task = (SingleThreadTask) mTask.get(i);
       if (task != null) {
@@ -304,7 +310,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
       if (!isNewTask && record != null && Long.parseLong(record + "") > 0) {
         Long r = Long.parseLong(record + "");
         CONSTANCE.CURRENT_LOCATION += r - startL;
-        Log.d(TAG, "++++++++++ 线程_" + i + "_恢复下载 ++++++++++");
+        Log.d(TAG, "任务【" + mDownloadEntity.getFileName() + "】线程__" + i + "__恢复下载");
         mListener.onChildResume(r);
         startL = r;
         recordL[rl] = i;
@@ -374,7 +380,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
           num++;
         }
       }
-      if (num == 0){
+      if (num == 0) {
         handleNewTask();
         return pro;
       }
@@ -386,9 +392,10 @@ class DownloadUtil implements IDownloadUtil, Runnable {
             continue;
           }
           handleNewTask();
-          break;
+          return pro;
         }
       }
+      isNewTask = false;
     }
     return pro;
   }
@@ -452,10 +459,11 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     } else {
       mListener.onStart(CONSTANCE.CURRENT_LOCATION);
     }
+    mFixedThreadPool = Executors.newFixedThreadPool(recordL.length);
     for (int l : recordL) {
       if (l == -1) continue;
       Runnable task = mTask.get(l);
-      if (task != null && !mFixedThreadPool.isShutdown()) {
+      if (task != null) {
         mFixedThreadPool.execute(task);
       }
     }

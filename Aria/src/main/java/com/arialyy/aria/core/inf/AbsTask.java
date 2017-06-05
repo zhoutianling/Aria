@@ -33,6 +33,10 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity, ENTITY extends 
   protected Context mContext;
   private boolean isHeighestTask = false;
 
+  @Override public void stopAndWait() {
+
+  }
+
   /**
    * @return 返回原始byte速度，需要你在配置文件中配置
    * <pre>

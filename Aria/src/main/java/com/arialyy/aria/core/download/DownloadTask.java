@@ -23,6 +23,7 @@ import android.util.Log;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CheckUtil;
@@ -39,6 +40,7 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
   private IDownloadListener mListener;
   private Handler mOutHandler;
   private IDownloadUtil mUtil;
+  private boolean isWait = false;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
     mEntity = taskEntity.downloadEntity;
@@ -78,15 +80,23 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     return mEntity;
   }
 
+  /**
+   * 暂停任务，并让任务处于等待状态
+   */
+  @Override public void stopAndWait() {
+    super.stopAndWait();
+    stop(true);
+  }
 
   /**
    * 开始下载
    */
   @Override public void start() {
+    isWait = false;
     if (mUtil.isDownloading()) {
       Log.d(TAG, "任务正在下载");
     } else {
-      if (mListener == null) {
+      if (mListener == null || isWait) {
         mListener = new DListener(mContext, this, mOutHandler);
       }
       mUtil.startDownload();
@@ -97,10 +107,15 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
    * 停止下载
    */
   @Override public void stop() {
+    stop(false);
+  }
+
+  private void stop(boolean isWait) {
+    this.isWait = isWait;
     if (mUtil.isDownloading()) {
       mUtil.stopDownload();
     } else {
-      mEntity.setState(DownloadEntity.STATE_STOP);
+      mEntity.setState(isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP);
       mEntity.save();
       if (mOutHandler != null) {
         mOutHandler.obtainMessage(DownloadSchedulers.STOP, this).sendToTarget();
@@ -201,7 +216,7 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
 
     @Override public void onPre() {
       super.onPre();
-      downloadEntity.setState(DownloadEntity.STATE_PRE);
+      downloadEntity.setState(IEntity.STATE_PRE);
       sendInState2Target(ISchedulers.PRE);
       sendIntent(Aria.ACTION_PRE, -1);
     }
@@ -209,21 +224,21 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     @Override public void onPostPre(long fileSize) {
       super.onPostPre(fileSize);
       downloadEntity.setFileSize(fileSize);
-      downloadEntity.setState(DownloadEntity.STATE_POST_PRE);
+      downloadEntity.setState(IEntity.STATE_POST_PRE);
       sendInState2Target(ISchedulers.POST_PRE);
       sendIntent(Aria.ACTION_POST_PRE, -1);
     }
 
     @Override public void onResume(long resumeLocation) {
       super.onResume(resumeLocation);
-      downloadEntity.setState(DownloadEntity.STATE_RUNNING);
+      downloadEntity.setState(IEntity.STATE_RUNNING);
       sendInState2Target(ISchedulers.RESUME);
       sendIntent(Aria.ACTION_RESUME, resumeLocation);
     }
 
     @Override public void onStart(long startLocation) {
       super.onStart(startLocation);
-      downloadEntity.setState(DownloadEntity.STATE_RUNNING);
+      downloadEntity.setState(IEntity.STATE_RUNNING);
       sendInState2Target(ISchedulers.START);
       sendIntent(Aria.ACTION_START, startLocation);
     }
@@ -249,7 +264,7 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
 
     @Override public void onStop(long stopLocation) {
       super.onStop(stopLocation);
-      downloadEntity.setState(DownloadEntity.STATE_STOP);
+      downloadEntity.setState(task.isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP);
       handleSpeed(0);
       sendInState2Target(ISchedulers.STOP);
       sendIntent(Aria.ACTION_STOP, stopLocation);
@@ -257,7 +272,7 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
 
     @Override public void onCancel() {
       super.onCancel();
-      downloadEntity.setState(DownloadEntity.STATE_CANCEL);
+      downloadEntity.setState(IEntity.STATE_CANCEL);
       handleSpeed(0);
       sendInState2Target(ISchedulers.CANCEL);
       sendIntent(Aria.ACTION_CANCEL, -1);
@@ -266,7 +281,7 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
 
     @Override public void onComplete() {
       super.onComplete();
-      downloadEntity.setState(DownloadEntity.STATE_COMPLETE);
+      downloadEntity.setState(IEntity.STATE_COMPLETE);
       downloadEntity.setDownloadComplete(true);
       handleSpeed(0);
       sendInState2Target(ISchedulers.COMPLETE);
@@ -276,7 +291,7 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     @Override public void onFail() {
       super.onFail();
       downloadEntity.setFailNum(downloadEntity.getFailNum() + 1);
-      downloadEntity.setState(DownloadEntity.STATE_FAIL);
+      downloadEntity.setState(IEntity.STATE_FAIL);
       handleSpeed(0);
       sendInState2Target(ISchedulers.FAIL);
       sendIntent(Aria.ACTION_FAIL, -1);

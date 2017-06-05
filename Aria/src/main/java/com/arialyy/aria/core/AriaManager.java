@@ -36,6 +36,7 @@ import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -55,7 +56,7 @@ import org.xml.sax.SAXException;
   private static final String TAG = "AriaManager";
   private static final String DOWNLOAD = "_download";
   private static final String UPLOAD = "_upload";
-  private static final Object LOCK = new Object();
+  public static final Object LOCK = new Object();
   public static final String DOWNLOAD_TEMP_DIR = "/Aria/temp/download/";
   public static final String UPLOAD_TEMP_DIR = "/Aria/temp/upload/";
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
@@ -83,20 +84,6 @@ import org.xml.sax.SAXException;
 
   public Map<String, IReceiver> getReceiver() {
     return mReceivers;
-  }
-
-  /**
-   * 加载配置文件
-   */
-  private void loadConfig() {
-    try {
-      ConfigHelper helper = new ConfigHelper();
-      SAXParserFactory factory = SAXParserFactory.newInstance();
-      SAXParser parser = factory.newSAXParser();
-      parser.parse(APP.getAssets().open("aria_config.xml"), helper);
-    } catch (ParserConfigurationException | IOException | SAXException e) {
-      Log.e(TAG, e.toString());
-    }
   }
 
   /**
@@ -255,7 +242,13 @@ import org.xml.sax.SAXException;
     } else {
       try {
         String md5Code = CommonUtil.getFileMD5(xmlFile);
-        if (!CommonUtil.checkMD5(md5Code, APP.getAssets().open("aria_config.xml"))) {
+        File file = new File(APP.getFilesDir().getPath() + "temp.xml");
+        if (file.exists()) {
+          file.delete();
+        }
+        CommonUtil.createFileFormInputStream(APP.getAssets().open("aria_config.xml"),
+            file.getPath());
+        if (!CommonUtil.checkMD5(md5Code, file)) {
           loadConfig();
         }
       } catch (IOException e) {
@@ -268,6 +261,22 @@ import org.xml.sax.SAXException;
       File newDir = new File(APP.getFilesDir().getPath() + DOWNLOAD_TEMP_DIR);
       newDir.mkdirs();
       tempDir.renameTo(newDir);
+    }
+  }
+
+  /**
+   * 加载配置文件
+   */
+  private void loadConfig() {
+    try {
+      ConfigHelper helper = new ConfigHelper();
+      SAXParserFactory factory = SAXParserFactory.newInstance();
+      SAXParser parser = factory.newSAXParser();
+      parser.parse(APP.getAssets().open("aria_config.xml"), helper);
+      CommonUtil.createFileFormInputStream(APP.getAssets().open("aria_config.xml"),
+          APP.getFilesDir().getPath() + Configuration.XML_FILE);
+    } catch (ParserConfigurationException | IOException | SAXException e) {
+      Log.e(TAG, e.toString());
     }
   }
 

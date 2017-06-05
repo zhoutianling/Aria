@@ -22,11 +22,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiDownloadBinding;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by AriaL on 2017/1/6.
@@ -35,6 +38,7 @@ import com.arialyy.simple.databinding.ActivityMultiDownloadBinding;
 public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBinding> {
   @Bind(R.id.list) RecyclerView mList;
   private DownloadAdapter mAdapter;
+  private List<DownloadEntity> mData = new ArrayList<>();
 
   @Override protected int setLayoutId() {
     return R.layout.activity_multi_download;
@@ -43,7 +47,11 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
     setTitle("下载列表");
-    mAdapter = new DownloadAdapter(this, Aria.download(this).getTaskList());
+    List<DownloadEntity> temps = Aria.download(this).getTaskList();
+    if (temps != null && !temps.isEmpty()) {
+      mData.addAll(temps);
+    }
+    mAdapter = new DownloadAdapter(this, mData);
     mList.setLayoutManager(new LinearLayoutManager(this));
     mList.setAdapter(mAdapter);
   }

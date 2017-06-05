@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
@@ -36,7 +37,6 @@ final class SingleThreadTask implements Runnable {
   private DownloadUtil.ConfigEntity mConfigEntity;
   private String mConfigFPath;
   private long mChildCurrentLocation = 0;
-  private static final Object LOCK = new Object();
   private int mBufSize;
   private IDownloadListener mListener;
   private DownloadStateConstance CONSTANCE;
@@ -62,9 +62,11 @@ final class SingleThreadTask implements Runnable {
       URL url = new URL(mConfigEntity.DOWNLOAD_URL);
       conn = ConnectionHelp.handleConnection(url);
       if (mConfigEntity.isSupportBreakpoint) {
-        Log.d(TAG, "线程_"
+        Log.d(TAG, "任务【"
+            + mConfigEntity.TEMP_FILE.getName()
+            + "】线程__"
             + mConfigEntity.THREAD_ID
-            + "_正在下载【开始位置 : "
+            + "__开始下载【开始位置 : "
             + mConfigEntity.START_LOCATION
             + "，结束位置："
             + mConfigEntity.END_LOCATION
@@ -112,9 +114,12 @@ final class SingleThreadTask implements Runnable {
       }
       //支持断点的处理
       if (mConfigEntity.isSupportBreakpoint) {
-        Log.i(TAG,
-            "任务【" + mConfigEntity.TEMP_FILE.getName() + "】线程【" + mConfigEntity.THREAD_ID + "】下载完毕");
-        writeConfig(1);
+        Log.i(TAG, "任务【"
+            + mConfigEntity.TEMP_FILE.getName()
+            + "】线程__"
+            + mConfigEntity.THREAD_ID
+            + "__下载完毕");
+        writeConfig(true, 1);
         mListener.onChildComplete(mConfigEntity.END_LOCATION);
         CONSTANCE.COMPLETE_THREAD_NUM++;
         if (CONSTANCE.isComplete()) {
@@ -143,22 +148,24 @@ final class SingleThreadTask implements Runnable {
    * 停止下载
    */
   protected void stop() {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       try {
         if (mConfigEntity.isSupportBreakpoint) {
           CONSTANCE.STOP_NUM++;
-          Log.d(TAG, "thread_"
+          Log.d(TAG, "任务【"
+              + mConfigEntity.TEMP_FILE.getName()
+              + "】thread__"
               + mConfigEntity.THREAD_ID
-              + "_stop, stop location ==> "
+              + "__停止, stop location ==> "
               + mChildCurrentLocation);
-          writeConfig(mChildCurrentLocation);
+          writeConfig(false, mChildCurrentLocation);
           if (CONSTANCE.isStop()) {
-            Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
+            Log.d(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】已停止");
             CONSTANCE.isDownloading = false;
             mListener.onStop(CONSTANCE.CURRENT_LOCATION);
           }
         } else {
-          Log.d(TAG, "++++++++++++++++ onStop +++++++++++++++++");
+          Log.d(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】已停止");
           CONSTANCE.isDownloading = false;
           mListener.onStop(CONSTANCE.CURRENT_LOCATION);
         }
@@ -172,7 +179,7 @@ final class SingleThreadTask implements Runnable {
    * 下载中
    */
   private void progress(long len) {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       mChildCurrentLocation += len;
       CONSTANCE.CURRENT_LOCATION += len;
       mListener.onProgress(CONSTANCE.CURRENT_LOCATION);
@@ -183,10 +190,14 @@ final class SingleThreadTask implements Runnable {
    * 取消下载
    */
   protected void cancel() {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       if (mConfigEntity.isSupportBreakpoint) {
         CONSTANCE.CANCEL_NUM++;
-        Log.d(TAG, "++++++++++ thread_" + mConfigEntity.THREAD_ID + "_cancel ++++++++++");
+        Log.d(TAG, "任务【"
+            + mConfigEntity.TEMP_FILE.getName()
+            + "】thread__"
+            + mConfigEntity.THREAD_ID
+            + "__取消下载");
         if (CONSTANCE.isCancel()) {
           File configFile = new File(mConfigFPath);
           if (configFile.exists()) {
@@ -195,12 +206,12 @@ final class SingleThreadTask implements Runnable {
           if (mConfigEntity.TEMP_FILE.exists()) {
             mConfigEntity.TEMP_FILE.delete();
           }
-          Log.d(TAG, "++++++++++++++++ onCancel +++++++++++++++++");
+          Log.d(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】已取消");
           CONSTANCE.isDownloading = false;
           mListener.onCancel();
         }
       } else {
-        Log.d(TAG, "++++++++++++++++ onCancel +++++++++++++++++");
+        Log.d(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】已取消");
         CONSTANCE.isDownloading = false;
         mListener.onCancel();
       }
@@ -211,7 +222,7 @@ final class SingleThreadTask implements Runnable {
    * 下载失败
    */
   private void failDownload(long currentLocation, String msg, Exception ex) {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       try {
         CONSTANCE.FAIL_NUM++;
         CONSTANCE.isDownloading = false;
@@ -220,13 +231,13 @@ final class SingleThreadTask implements Runnable {
           Log.e(TAG, msg + "\n" + CommonUtil.getPrintException(ex));
         }
         if (mConfigEntity.isSupportBreakpoint) {
-          writeConfig(currentLocation);
+          writeConfig(false, currentLocation);
           if (CONSTANCE.isFail()) {
-            Log.d(TAG, "++++++++++++++++ onFail +++++++++++++++++");
+            Log.e(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】下载失败");
             mListener.onFail();
           }
         } else {
-          Log.d(TAG, "++++++++++++++++ onFail +++++++++++++++++");
+          Log.e(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】下载失败");
           mListener.onFail();
         }
       } catch (IOException e) {
@@ -238,13 +249,22 @@ final class SingleThreadTask implements Runnable {
   /**
    * 将记录写入到配置文件
    */
-  private void writeConfig(long record) throws IOException {
-    if (record > 0) {
-      String key = mConfigEntity.TEMP_FILE.getName() + "_record_" + mConfigEntity.THREAD_ID;
-      File configFile = new File(mConfigFPath);
-      Properties pro = CommonUtil.loadConfig(configFile);
-      pro.setProperty(key, String.valueOf(record));
-      CommonUtil.saveConfig(configFile, pro);
+  private void writeConfig(boolean isComplete, long record) throws IOException {
+    synchronized (AriaManager.LOCK) {
+      String key = null, value = null;
+      if (0 < record && record < mConfigEntity.END_LOCATION) {
+        key = mConfigEntity.TEMP_FILE.getName() + "_record_" + mConfigEntity.THREAD_ID;
+        value = String.valueOf(record);
+      } else if (record >= mConfigEntity.END_LOCATION || isComplete) {
+        key = mConfigEntity.TEMP_FILE.getName() + "_state_" + mConfigEntity.THREAD_ID;
+        value = "1";
+      }
+      if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)) {
+        File configFile = new File(mConfigFPath);
+        Properties pro = CommonUtil.loadConfig(configFile);
+        pro.setProperty(key, value);
+        CommonUtil.saveConfig(configFile, pro);
+      }
     }
   }
 }

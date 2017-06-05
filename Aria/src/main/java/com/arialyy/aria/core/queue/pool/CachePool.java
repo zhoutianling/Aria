@@ -18,10 +18,13 @@ package com.arialyy.aria.core.queue.pool;
 
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -31,7 +34,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class CachePool<TASK extends ITask> implements IPool<TASK> {
   private static final String TAG = "CachePool";
-  private static final Object LOCK = new Object();
   private static final int MAX_NUM = Integer.MAX_VALUE;  //最大下载任务数
   private static final long TIME_OUT = 1000;
   private Map<String, TASK> mCacheMap;
@@ -49,8 +51,28 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
     return mCacheMap;
   }
 
+  /**
+   * 将任务放在队首
+   */
+  public boolean putTaskToFirst(TASK task) {
+    if (mCacheQueue.isEmpty()) {
+      return putTask(task);
+    } else {
+      Set<TASK> temps = new LinkedHashSet<>();
+      temps.add(task);
+      for (int i = 0, len = size(); i < len; i++) {
+        TASK temp = pollTask();
+        temps.add(temp);
+      }
+      for (TASK t : temps) {
+        putTask(t);
+      }
+      return true;
+    }
+  }
+
   @Override public boolean putTask(TASK task) {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       if (task == null) {
         Log.e(TAG, "下载任务不能为空！！");
         return false;
@@ -71,7 +93,7 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   @Override public TASK pollTask() {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       try {
         TASK task = null;
         task = mCacheQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
@@ -88,7 +110,7 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   @Override public TASK getTask(String downloadUrl) {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       if (TextUtils.isEmpty(downloadUrl)) {
         Log.e(TAG, "请传入有效的下载链接");
         return null;
@@ -99,7 +121,7 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   @Override public boolean removeTask(TASK task) {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       if (task == null) {
         Log.e(TAG, "任务不能为空");
         return false;
@@ -112,7 +134,7 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   @Override public boolean removeTask(String downloadUrl) {
-    synchronized (LOCK) {
+    synchronized (AriaManager.LOCK) {
       if (TextUtils.isEmpty(downloadUrl)) {
         Log.e(TAG, "请传入有效的下载链接");
         return false;

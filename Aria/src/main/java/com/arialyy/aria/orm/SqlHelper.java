@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
@@ -47,11 +48,10 @@ final class SqlHelper extends SQLiteOpenHelper {
   private static final int DEL_DATA = 6;
 
   private static volatile SqlHelper INSTANCE = null;
-  private static final Object LOCK = new Object();
 
   static SqlHelper init(Context context) {
     if (INSTANCE == null) {
-      synchronized (LOCK) {
+      synchronized (AriaManager.LOCK) {
         INSTANCE = new SqlHelper(context.getApplicationContext());
         checkTable(INSTANCE.getWritableDatabase());
       }

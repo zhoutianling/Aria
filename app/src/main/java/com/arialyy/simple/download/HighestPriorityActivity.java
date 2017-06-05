@@ -79,7 +79,7 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
       mStart.setText("恢复");
       mStart.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
       setBtState(true);
-    }else if (target.isDownloading()){
+    } else if (target.isDownloading()) {
       setBtState(false);
     }
     mSize.setText(target.getConvertFileSize());
@@ -127,7 +127,7 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
             + " 2、最高优先级任务会一直存在，直到用户手动暂停或任务完成\n"
             + " 3、任务调度器不会暂停最高优先级任务\n"
             + " 4、用户手动暂停或任务完成后，第二次重新执行该任务，该命令将失效\n"
-            + " 5、如果下载队列中已经满了，则会停止队尾的任务\n"
+            + " 5、如果下载队列中已经满了，则会停止队尾的任务，当高优先级任务完成后，该队尾任务将自动执行\n"
             + " 6、把任务设置为最高优先级任务后，将自动执行任务，不需要重新调用start()启动任务";
         showMsgDialog(title, msg);
         break;

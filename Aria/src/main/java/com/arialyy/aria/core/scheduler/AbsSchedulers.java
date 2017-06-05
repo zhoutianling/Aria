@@ -19,11 +19,13 @@ import android.os.CountDownTimer;
 import android.os.Message;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.queue.ITaskQueue;
+import com.arialyy.aria.core.upload.UploadTask;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -65,6 +67,9 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
     ENTITY entity = task.getEntity();
     switch (msg.what) {
       case STOP:
+        if (task.getEntity().getState() == IEntity.STATE_WAIT) {
+          break;
+        }
       case CANCEL:
         mQueue.removeTask(entity);
         if (mQueue.executePoolSize() < AriaManager.getInstance(AriaManager.APP)
@@ -147,10 +152,17 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
    * @param task 下载任务
    */
   private void handleFailTask(final TASK task) {
-    final long interval =
-        AriaManager.getInstance(AriaManager.APP).getUploadConfig().getReTryInterval();
-    final int reTryNum = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getReTryNum();
+    long interval = 2000;
+    int num = 10;
+    if (task instanceof DownloadTask) {
+      interval = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getReTryInterval();
+      num = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getReTryNum();
+    } else if (task instanceof UploadTask) {
+      interval = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getReTryInterval();
+      num = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getReTryNum();
+    }
 
+    final int reTryNum = num;
     CountDownTimer timer = new CountDownTimer(interval, 1000) {
       @Override public void onTick(long millisUntilFinished) {
 
@@ -161,11 +173,6 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
         if (entity.getFailNum() < reTryNum) {
           TASK task = mQueue.getTask(entity);
           mQueue.reTryStart(task);
-          try {
-            Thread.sleep(interval);
-          } catch (InterruptedException e) {
-            e.printStackTrace();
-          }
         } else {
           mQueue.removeTask(entity);
           startNextTask();
