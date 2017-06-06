@@ -33,6 +33,8 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
+import com.arialyy.annotations.Download;
+import com.arialyy.annotations.Test;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -131,6 +133,15 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       }
     }
   };
+
+  @Download.onPre private void hehe(String str, DownloadTask task) {
+
+  }
+
+  @Test
+  public void gg(){
+
+  }
 
   /**
    * 设置start 和 stop 按钮状态
