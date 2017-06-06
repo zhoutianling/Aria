@@ -1,7 +1,7 @@
 package com.arialyy.compiler;
 
 import com.arialyy.annotations.Download;
-import com.arialyy.annotations.Test;
+import com.arialyy.annotations.Upload;
 import com.google.auto.service.AutoService;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -37,7 +37,16 @@ import javax.lang.model.element.TypeElement;
     annotataions.add(Download.onTaskRunning.class.getCanonicalName());
     annotataions.add(Download.onTaskStart.class.getCanonicalName());
     annotataions.add(Download.onTaskStop.class.getCanonicalName());
-    annotataions.add(Test.class.getCanonicalName());
+    annotataions.add(Upload.onPre.class.getCanonicalName());
+    annotataions.add(Upload.onNoSupportBreakPoint.class.getCanonicalName());
+    annotataions.add(Upload.onTaskCancel.class.getCanonicalName());
+    annotataions.add(Upload.onTaskComplete.class.getCanonicalName());
+    annotataions.add(Upload.onTaskFail.class.getCanonicalName());
+    annotataions.add(Upload.onTaskPre.class.getCanonicalName());
+    annotataions.add(Upload.onTaskResume.class.getCanonicalName());
+    annotataions.add(Upload.onTaskRunning.class.getCanonicalName());
+    annotataions.add(Upload.onTaskStart.class.getCanonicalName());
+    annotataions.add(Upload.onTaskStop.class.getCanonicalName());
     return annotataions;
   }
 
@@ -48,7 +57,9 @@ import javax.lang.model.element.TypeElement;
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     PrintLog.getInstance().info("开始扫描");
-    mHandler.handle(roundEnv);
+    mHandler.clean();
+    mHandler.handleDownload(roundEnv);
+    mHandler.handleUpload(roundEnv);
     return true;
   }
 }
