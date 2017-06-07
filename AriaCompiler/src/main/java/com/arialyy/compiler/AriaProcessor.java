@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.arialyy.compiler;
 
 import com.arialyy.annotations.Download;
@@ -22,7 +37,7 @@ import javax.lang.model.element.TypeElement;
   @Override public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
     PrintLog.init(processingEnv.getMessager());
-    mHandler = new ElementHandle(processingEnv.getFiler());
+    mHandler = new ElementHandle(processingEnv.getFiler(), processingEnv.getElementUtils());
   }
 
   @Override public Set<String> getSupportedAnnotationTypes() {
@@ -43,7 +58,7 @@ import javax.lang.model.element.TypeElement;
     annotataions.add(Upload.onTaskComplete.class.getCanonicalName());
     annotataions.add(Upload.onTaskFail.class.getCanonicalName());
     annotataions.add(Upload.onTaskPre.class.getCanonicalName());
-    annotataions.add(Upload.onTaskResume.class.getCanonicalName());
+    //annotataions.add(Upload.onTaskResume.class.getCanonicalName());
     annotataions.add(Upload.onTaskRunning.class.getCanonicalName());
     annotataions.add(Upload.onTaskStart.class.getCanonicalName());
     annotataions.add(Upload.onTaskStop.class.getCanonicalName());
@@ -56,10 +71,10 @@ import javax.lang.model.element.TypeElement;
 
   @Override
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-    PrintLog.getInstance().info("开始扫描");
     mHandler.clean();
     mHandler.handleDownload(roundEnv);
     mHandler.handleUpload(roundEnv);
+    mHandler.createProxyFile();
     return true;
   }
 }

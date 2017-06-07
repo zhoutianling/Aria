@@ -34,6 +34,7 @@ public class DownloadSchedulers
 
   private DownloadSchedulers() {
     mQueue = DownloadTaskQueue.getInstance();
+    isDownload = true;
   }
 
   public static DownloadSchedulers getInstance() {

@@ -80,4 +80,18 @@ public interface ISchedulers<Task extends ITask> extends Handler.Callback {
    */
   public void removeSchedulerListener(String targetName,
       ISchedulerListener<Task> schedulerListener);
+
+  /**
+   * 将当前类注册到Aria
+   *
+   * @param targetName 类完整路径
+   */
+  public void register(String targetName);
+
+  /**
+   * 移除注册
+   *
+   * @param targetName 类完整路径
+   */
+  public void unRegister(String targetName);
 }

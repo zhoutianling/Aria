@@ -24,6 +24,7 @@ android {
 
   packagingOptions {
     exclude 'META-INF/services/javax.annotation.processing.Processor'
+    exclude 'squareup.javapoet.*'
   }
 }
 
@@ -36,7 +37,6 @@ dependencies {
   compile 'com.google.code.gson:gson:2.7'
   compile 'com.squareup.okhttp3:okhttp:3.2.0'
   compile 'com.arialyy.frame:MVVM2:2.2.0'
-  compile 'com.arialyy.absadapter:AbsAdapter:1.1.2'
   compile project(':Aria')
 //  compile 'com.arialyy.aria:Aria:3.0.0'
 }

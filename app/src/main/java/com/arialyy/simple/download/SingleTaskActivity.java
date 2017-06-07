@@ -34,7 +34,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
 import com.arialyy.annotations.Download;
-import com.arialyy.annotations.Test;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -134,12 +133,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     }
   };
 
-  @Download.onPre private void hehe(String str, DownloadTask task) {
+  @Download.onPre void onPre(DownloadTask task) {
 
   }
 
-  @Test
-  public void gg(){
+  @Download.onTaskStart
+  void onStart(DownloadTask task){
 
   }
 

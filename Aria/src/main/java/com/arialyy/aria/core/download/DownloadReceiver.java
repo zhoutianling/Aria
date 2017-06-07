@@ -69,6 +69,22 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
   }
 
   /**
+   * 将当前类注册到Aria
+   */
+  public DownloadReceiver register() {
+    DownloadSchedulers.getInstance().register(targetName);
+    return this;
+  }
+
+  /**
+   * 取消注册
+   */
+  public DownloadReceiver unRegister() {
+    DownloadSchedulers.getInstance().unRegister(targetName);
+    return this;
+  }
+
+  /**
    * 移除回调
    */
   @Override public void removeSchedulerListener() {

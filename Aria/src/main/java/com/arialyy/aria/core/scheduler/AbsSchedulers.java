@@ -26,27 +26,40 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadTask;
+import com.arialyy.compiler.ProxyConstance;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by AriaL on 2017/6/4.
+ * Created by lyy on 2017/6/4.
  */
 public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity, TASK extends ITask<ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY, ENTITY>>
     implements ISchedulers<TASK> {
   private static final String TAG = "AbsSchedulers";
 
   protected QUEUE mQueue;
+  protected boolean isDownload = true;
 
   private Map<String, ISchedulerListener<TASK>> mSchedulerListeners = new ConcurrentHashMap<>();
 
-  @Override
-  public void addSchedulerListener(String targetName, ISchedulerListener<TASK> schedulerListener) {
+  private Map<String, AbsSchedulerListener<TASK>> mObservers = new ConcurrentHashMap<>();
+
+  /**
+   * @param targetName 观察者，创建该监听器的对象类名
+   * @param schedulerListener {@link ISchedulerListener}
+   * @see #register(String)
+   */
+  @Deprecated @Override public void addSchedulerListener(String targetName,
+      ISchedulerListener<TASK> schedulerListener) {
     mSchedulerListeners.put(targetName, schedulerListener);
   }
 
+  /**
+   * @param targetName 观察者，创建该监听器的对象类名
+   * @see #unRegister(String)
+   */
   @Override public void removeSchedulerListener(String targetName,
       ISchedulerListener<TASK> schedulerListener) {
     //该内存泄露解决方案：http://stackoverflow.com/questions/14585829/how-safe-is-to-delete-already-removed-concurrenthashmap-element
@@ -55,6 +68,46 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
       Map.Entry<String, ISchedulerListener<TASK>> entry = iter.next();
       if (entry.getKey().equals(targetName)) iter.remove();
     }
+  }
+
+  @Override public void register(String targetName) {
+    AbsSchedulerListener<TASK> listener = mObservers.get(targetName);
+    if (listener == null) {
+      mObservers.put(targetName, createListener(targetName));
+    }
+  }
+
+  @Override public void unRegister(String targetName) {
+    for (Iterator<Map.Entry<String, AbsSchedulerListener<TASK>>> iter =
+        mObservers.entrySet().iterator(); iter.hasNext(); ) {
+      Map.Entry<String, AbsSchedulerListener<TASK>> entry = iter.next();
+      if (entry.getKey().equals(targetName)) iter.remove();
+    }
+  }
+
+  /**
+   * 创建代理类
+   *
+   * @param targetName 通过观察者创建对应的Aria事件代理
+   */
+  private AbsSchedulerListener<TASK> createListener(String targetName) {
+    AbsSchedulerListener<TASK> listener = null;
+    try {
+      Class clazz = Class.forName(
+          targetName + (isDownload ? ProxyConstance.DOWNLOAD_PROXY_CLASS_SUFFIX
+              : ProxyConstance.UPLOAD_PROXY_CLASS_SUFFIX));
+      listener = (AbsSchedulerListener<TASK>) clazz.newInstance();
+    } catch (ClassNotFoundException e) {
+      Log.e(TAG, targetName + "，没有Aria的Download或Upload注解方法");
+      //e.printStackTrace();
+    } catch (InstantiationException e) {
+      Log.e(TAG, e.getMessage());
+      //e.printStackTrace();
+    } catch (IllegalAccessException e) {
+      Log.e(TAG, e.getMessage());
+      //e.printStackTrace();
+    }
+    return listener;
   }
 
   @Override public boolean handleMessage(Message msg) {
@@ -98,7 +151,12 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
     if (mSchedulerListeners.size() > 0) {
       Set<String> keys = mSchedulerListeners.keySet();
       for (String key : keys) {
-        callback(state, task, mSchedulerListeners.get(key));
+        if (mSchedulerListeners.size() > 0) {
+          callback(state, task, mSchedulerListeners.get(key));
+        }
+        if (mObservers.size() > 0) {
+          callback(state, task, mObservers.get(key));
+        }
       }
     }
   }
