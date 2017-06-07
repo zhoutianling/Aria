@@ -56,4 +56,12 @@ public class AbsSchedulerListener<TASK extends ITask> implements ISchedulerListe
   @Override public void onTaskRunning(TASK task) {
 
   }
+
+  public void onNoSupportBreakPoint(TASK task) {
+
+  }
+
+  public void setListener(Object obj) {
+
+  }
 }

@@ -120,8 +120,8 @@ class ElementHandle {
    *      obj.onStart((DownloadTask)task);
    *    }
    *
-   *    public void setListener(final SingleTaskActivity obj) {
-   *      this.obj = obj;
+   *    public void setListener(final Object obj) {
+   *      this.obj = (SingleTaskActivity)obj;
    *    }
    * }
    *   </code>
@@ -193,12 +193,13 @@ class ElementHandle {
 
     //添加设置代理的类
     ParameterSpec parameterSpec =
-        ParameterSpec.builder(obj, "obj").addModifiers(Modifier.FINAL).build();
+        ParameterSpec.builder(Object.class, "obj").addModifiers(Modifier.FINAL).build();
     MethodSpec listener = MethodSpec.methodBuilder(ProxyConstance.SET_LISTENER)
         .addModifiers(Modifier.PUBLIC)
         .returns(void.class)
         .addParameter(parameterSpec)
-        .addCode("this.obj = obj;\n")
+        .addAnnotation(Override.class)
+        .addCode("this.obj = (" + entity.className + ")obj;\n")
         .build();
     builder.addJavadoc("该文件为Aria自动生成的代理文件，请不要修改该文件的任何代码！\n");
 

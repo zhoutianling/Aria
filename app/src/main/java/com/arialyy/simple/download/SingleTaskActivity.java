@@ -133,15 +133,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     }
   };
 
-  @Download.onPre void onPre(DownloadTask task) {
-
-  }
-
-  @Download.onTaskStart
-  void onStart(DownloadTask task){
-
-  }
-
   /**
    * 设置start 和 stop 按钮状态
    */
@@ -152,7 +143,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Override protected void onResume() {
     super.onResume();
-    Aria.download(this).addSchedulerListener(new MySchedulerListener());
+    Aria.download(this).register();
+    //Aria.download(this).addSchedulerListener(new MySchedulerListener());
     //registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
   }
 
@@ -170,6 +162,63 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       showMsgDialog("tip", msg);
     }
     return true;
+  }
+
+  @Download.onPre protected void onPre(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
+          .sendToTarget();
+    }
+  }
+
+  @Download.onTaskStart void taskStart(DownloadTask task) {
+    //通过下载地址可以判断任务是否是你指定的任务
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getDownloadEntity().getFileSize())
+          .sendToTarget();
+    }
+  }
+
+  @Download.onTaskRunning protected void running(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.obtainMessage(DOWNLOAD_RUNNING, task).sendToTarget();
+    }
+  }
+
+  @Download.onTaskResume void taskResume(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getFileSize()).sendToTarget();
+    }
+  }
+
+  @Download.onTaskStop void taskStop(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
+    }
+  }
+
+  @Download.onTaskCancel void taskCancel(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
+    }
+  }
+
+  @Download.onTaskFail void taskFail(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
+    }
+  }
+
+  @Download.onTaskComplete void taskComplete(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
+    }
+  }
+
+  @Download.onNoSupportBreakPoint public void onNoSupportBreakPoint(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
+    }
   }
 
   @Override protected int setLayoutId() {
@@ -211,65 +260,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       case R.id.cancel:
         Aria.download(this).load(DOWNLOAD_URL).cancel();
         break;
-    }
-  }
-
-  private class MySchedulerListener extends Aria.DownloadSchedulerListener {
-
-    @Override public void onPre(DownloadTask task) {
-      if (task.getKey().equals(DOWNLOAD_URL)) {
-        mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
-            .sendToTarget();
-      }
-    }
-
-    @Override public void onNoSupportBreakPoint(DownloadTask task) {
-      super.onNoSupportBreakPoint(task);
-      T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
-    }
-
-    @Override public void onTaskStart(DownloadTask task) {
-      //通过下载地址可以判断任务是否是你指定的任务
-      if (task.getKey().equals(DOWNLOAD_URL)) {
-        mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getDownloadEntity().getFileSize())
-            .sendToTarget();
-      }
-    }
-
-    @Override public void onTaskResume(DownloadTask task) {
-      if (task.getKey().equals(DOWNLOAD_URL)) {
-        mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getFileSize()).sendToTarget();
-      }
-    }
-
-    @Override public void onTaskStop(DownloadTask task) {
-      if (task.getKey().equals(DOWNLOAD_URL)) {
-        mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
-      }
-    }
-
-    @Override public void onTaskCancel(DownloadTask task) {
-      if (task.getKey().equals(DOWNLOAD_URL)) {
-        mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
-      }
-    }
-
-    @Override public void onTaskFail(DownloadTask task) {
-      if (task.getKey().equals(DOWNLOAD_URL)) {
-        mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
-      }
-    }
-
-    @Override public void onTaskComplete(DownloadTask task) {
-      if (task.getKey().equals(DOWNLOAD_URL)) {
-        mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
-      }
-    }
-
-    @Override public void onTaskRunning(DownloadTask task) {
-      if (task.getKey().equals(DOWNLOAD_URL)) {
-        mUpdateHandler.obtainMessage(DOWNLOAD_RUNNING, task).sendToTarget();
-      }
     }
   }
 }

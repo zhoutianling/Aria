@@ -176,11 +176,13 @@ import org.xml.sax.SAXException;
       if (isDownload) {
         DownloadReceiver dReceiver = new DownloadReceiver();
         dReceiver.targetName = obj.getClass().getName();
+        dReceiver.obj = obj;
         mReceivers.put(key, dReceiver);
         receiver = dReceiver;
       } else {
         UploadReceiver uReceiver = new UploadReceiver();
         uReceiver.targetName = obj.getClass().getName();
+        uReceiver.obj = obj;
         mReceivers.put(key, uReceiver);
         receiver = uReceiver;
       }
@@ -303,6 +305,7 @@ import org.xml.sax.SAXException;
       if (key.contains(clsName)) {
         IReceiver receiver = mReceivers.get(key);
         receiver.removeSchedulerListener();
+        receiver.unRegister();
         receiver.destroy();
         iter.remove();
         break;

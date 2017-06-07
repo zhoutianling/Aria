@@ -49,7 +49,7 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
   /**
    * @param targetName 观察者，创建该监听器的对象类名
    * @param schedulerListener {@link ISchedulerListener}
-   * @see #register(String)
+   * @see #register(Object)
    */
   @Deprecated @Override public void addSchedulerListener(String targetName,
       ISchedulerListener<TASK> schedulerListener) {
@@ -58,7 +58,7 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
 
   /**
    * @param targetName 观察者，创建该监听器的对象类名
-   * @see #unRegister(String)
+   * @see #unRegister(Object)
    */
   @Override public void removeSchedulerListener(String targetName,
       ISchedulerListener<TASK> schedulerListener) {
@@ -70,18 +70,21 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
     }
   }
 
-  @Override public void register(String targetName) {
+  @Override public void register(Object obj) {
+    String targetName = obj.getClass().getName();
     AbsSchedulerListener<TASK> listener = mObservers.get(targetName);
     if (listener == null) {
-      mObservers.put(targetName, createListener(targetName));
+      listener = createListener(targetName);
+      listener.setListener(obj);
+      mObservers.put(targetName, listener);
     }
   }
 
-  @Override public void unRegister(String targetName) {
+  @Override public void unRegister(Object obj) {
     for (Iterator<Map.Entry<String, AbsSchedulerListener<TASK>>> iter =
         mObservers.entrySet().iterator(); iter.hasNext(); ) {
       Map.Entry<String, AbsSchedulerListener<TASK>> entry = iter.next();
-      if (entry.getKey().equals(targetName)) iter.remove();
+      if (entry.getKey().equals(obj.getClass().getName())) iter.remove();
     }
   }
 
@@ -151,12 +154,12 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
     if (mSchedulerListeners.size() > 0) {
       Set<String> keys = mSchedulerListeners.keySet();
       for (String key : keys) {
-        if (mSchedulerListeners.size() > 0) {
-          callback(state, task, mSchedulerListeners.get(key));
-        }
-        if (mObservers.size() > 0) {
-          callback(state, task, mObservers.get(key));
-        }
+        callback(state, task, mSchedulerListeners.get(key));
+      }
+    } else if (mObservers.size() > 0) {
+      Set<String> keys = mObservers.keySet();
+      for (String key : keys) {
+        callback(state, task, mObservers.get(key));
       }
     }
   }

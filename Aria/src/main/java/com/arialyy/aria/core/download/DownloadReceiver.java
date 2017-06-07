@@ -36,6 +36,7 @@ import java.util.Set;
 public class DownloadReceiver implements IReceiver<DownloadEntity> {
   private static final String TAG = "DownloadReceiver";
   public String targetName;
+  public Object obj;
   public ISchedulerListener<DownloadTask> listener;
 
   /**
@@ -72,16 +73,16 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
    * 将当前类注册到Aria
    */
   public DownloadReceiver register() {
-    DownloadSchedulers.getInstance().register(targetName);
+    DownloadSchedulers.getInstance().register(obj);
     return this;
   }
 
   /**
    * 取消注册
    */
-  public DownloadReceiver unRegister() {
-    DownloadSchedulers.getInstance().unRegister(targetName);
-    return this;
+  @Override
+  public void unRegister() {
+    DownloadSchedulers.getInstance().unRegister(obj);
   }
 
   /**
@@ -149,6 +150,7 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
     for (String key : keys) {
       IReceiver receiver = ariaManager.getReceiver().get(key);
       receiver.removeSchedulerListener();
+      receiver.unRegister();
       ariaManager.getReceiver().remove(key);
     }
   }

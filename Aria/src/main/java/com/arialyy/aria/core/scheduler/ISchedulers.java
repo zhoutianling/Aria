@@ -84,14 +84,14 @@ public interface ISchedulers<Task extends ITask> extends Handler.Callback {
   /**
    * 将当前类注册到Aria
    *
-   * @param targetName 类完整路径
+   * @param obj 观察者类
    */
-  public void register(String targetName);
+  public void register(Object obj);
 
   /**
    * 移除注册
    *
-   * @param targetName 类完整路径
+   * @param obj 观察者类
    */
-  public void unRegister(String targetName);
+  public void unRegister(Object obj);
 }
