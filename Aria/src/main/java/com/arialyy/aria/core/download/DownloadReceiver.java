@@ -62,8 +62,11 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
 
   /**
    * 添加调度器回调
+   *
+   * @see #register()
    */
-  public DownloadReceiver addSchedulerListener(ISchedulerListener<DownloadTask> listener) {
+  @Deprecated public DownloadReceiver addSchedulerListener(
+      ISchedulerListener<DownloadTask> listener) {
     this.listener = listener;
     DownloadSchedulers.getInstance().addSchedulerListener(targetName, listener);
     return this;
@@ -80,15 +83,16 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
   /**
    * 取消注册
    */
-  @Override
-  public void unRegister() {
+  @Override public void unRegister() {
     DownloadSchedulers.getInstance().unRegister(obj);
   }
 
   /**
    * 移除回调
+   *
+   * @see #unRegister()
    */
-  @Override public void removeSchedulerListener() {
+  @Deprecated @Override public void removeSchedulerListener() {
     if (listener != null) {
       DownloadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
     }

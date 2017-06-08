@@ -47,6 +47,7 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
+    Aria.download(this).register();
     setTitle("下载列表");
     List<DownloadEntity> temps = Aria.download(this).getTaskList();
     if (temps != null && !temps.isEmpty()) {
@@ -55,12 +56,6 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
     mAdapter = new DownloadAdapter(this, mData);
     mList.setLayoutManager(new LinearLayoutManager(this));
     mList.setAdapter(mAdapter);
-  }
-
-  @Override protected void onResume() {
-    super.onResume();
-    //Aria.download(this).addSchedulerListener(new MySchedulerListener());
-    Aria.download(this).register();
   }
 
   @Download.onPre void onPre(DownloadTask task) {

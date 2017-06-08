@@ -22,7 +22,14 @@ import java.lang.annotation.Target;
 
 /**
  * Created by lyy on 2017/6/6.
- * Aria下载事件注解
+ * Aria下载事件被注解的方法中，参数仅能有一个，参数类型为{@link com.arialyy.aria.core.upload.UploadTask}
+ * <pre>
+ *   <code>
+ *       protected void onPre(UploadTask task) {
+ *        L.d(TAG, "fileSize = " + task.getConvertFileSize());
+ *       }
+ *   </code>
+ * </pre>
  */
 @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) public @interface Upload {
 
@@ -44,9 +51,6 @@ import java.lang.annotation.Target;
   //@Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) public @interface onTaskResume {
   //}
 
-  /**
-   * 如果你在方法中添加{@code @Upload.onTaskStart}注解，在任务开始下载时，Aria会调用该方法
-   */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) public @interface onTaskStart {
   }
 

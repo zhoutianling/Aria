@@ -79,6 +79,7 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
+    Aria.upload(this).register();
   }
 
   @OnClick(R.id.upload) void upload() {
@@ -95,12 +96,6 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
 
   @OnClick(R.id.remove) void remove() {
     Aria.upload(this).load(FILE_PATH).cancel();
-  }
-
-  @Override protected void onResume() {
-    super.onResume();
-    //Aria.upload(this).addSchedulerListener(new UploadListener(mHandler));
-    Aria.upload(this).register();
   }
 
   @Upload.onPre public void onPre(UploadTask task) {

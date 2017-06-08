@@ -26,7 +26,6 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadTask;
-import com.arialyy.compiler.ProxyConstance;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +37,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity, TASK extends ITask<ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY, ENTITY>>
     implements ISchedulers<TASK> {
   private static final String TAG = "AbsSchedulers";
+
+  /**
+   * 下载的动态生成的代理类后缀
+   */
+  String DOWNLOAD_PROXY_CLASS_SUFFIX = "$$DownloadListenerProxy";
+
+  /**
+   * 上传的动态生成的代理类后缀
+   */
+  String UPLOAD_PROXY_CLASS_SUFFIX = "$$UploadListenerProxy";
 
   protected QUEUE mQueue;
   protected boolean isDownload = true;
@@ -97,8 +106,7 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
     AbsSchedulerListener<TASK> listener = null;
     try {
       Class clazz = Class.forName(
-          targetName + (isDownload ? ProxyConstance.DOWNLOAD_PROXY_CLASS_SUFFIX
-              : ProxyConstance.UPLOAD_PROXY_CLASS_SUFFIX));
+          targetName + (isDownload ? DOWNLOAD_PROXY_CLASS_SUFFIX : UPLOAD_PROXY_CLASS_SUFFIX));
       listener = (AbsSchedulerListener<TASK>) clazz.newInstance();
     } catch (ClassNotFoundException e) {
       Log.e(TAG, targetName + "，没有Aria的Download或Upload注解方法");

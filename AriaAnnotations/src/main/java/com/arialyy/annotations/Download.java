@@ -22,7 +22,16 @@ import java.lang.annotation.Target;
 
 /**
  * Created by Aria.Lao on 2017/6/6.
- * 下载注解
+ * Aria下载事件被注解的方法中，参数仅能有一个，参数类型为{@link com.arialyy.aria.core.download.DownloadTask}
+ * <pre>
+ *   <code>
+ *       protected void onPre(DownloadTask task) {
+ *        if (task.getKey().equals(DOWNLOAD_URL)) {
+ *           mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize()).sendToTarget();
+ *        }
+ *       }
+ *   </code>
+ * </pre>
  */
 @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) public @interface Download {
   /**
@@ -43,9 +52,6 @@ import java.lang.annotation.Target;
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) public @interface onTaskResume {
   }
 
-  /**
-   * 如果你在方法中添加{@code @Download.onTaskStart}注解，在任务开始下载时，Aria会调用该方法
-   */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) public @interface onTaskStart {
   }
 

@@ -72,15 +72,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   @Bind(R.id.size) TextView mSize;
   @Bind(R.id.speed) TextView mSpeed;
   @Bind(R.id.speeds) RadioGroup mRg;
-  private DownloadEntity mEntity;
-  private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-    @Override public void onReceive(Context context, Intent intent) {
-      String action = intent.getAction();
-      if (action.equals(Aria.ACTION_START)) {
-        L.d("START");
-      }
-    }
-  };
 
   private Handler mUpdateHandler = new Handler() {
     @Override public void handleMessage(Message msg) {
@@ -133,19 +124,17 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     }
   };
 
+  @Override protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    Aria.download(this).register();
+  }
+
   /**
    * 设置start 和 stop 按钮状态
    */
   private void setBtState(boolean state) {
     mStart.setEnabled(state);
     mStop.setEnabled(!state);
-  }
-
-  @Override protected void onResume() {
-    super.onResume();
-    Aria.download(this).register();
-    //Aria.download(this).addSchedulerListener(new MySchedulerListener());
-    //registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
   }
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {

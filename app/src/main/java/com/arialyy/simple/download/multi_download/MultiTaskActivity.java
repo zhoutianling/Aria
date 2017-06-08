@@ -50,6 +50,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
+    Aria.download(this).register();
     setTitle("多任务下载");
     mData.addAll(getModule(DownloadModule.class).createMultiTestList());
     mAdapter = new FileListAdapter(this, mData);
@@ -70,11 +71,6 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
         startActivity(new Intent(this, MultiDownloadActivity.class));
         break;
     }
-  }
-
-  @Override protected void onResume() {
-    super.onResume();
-    Aria.download(this).register();
   }
 
   @Download.onTaskStart void taskStart(DownloadTask task) {
