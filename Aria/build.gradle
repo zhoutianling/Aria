@@ -58,7 +58,7 @@ android.libraryVariants.all { variant ->
 
 
 publish {
-  artifactId = 'Aria'
+  artifactId = 'aria-core'
   userOrg = rootProject.userOrg
   groupId = rootProject.groupId
   uploadName = rootProject.uploadName
