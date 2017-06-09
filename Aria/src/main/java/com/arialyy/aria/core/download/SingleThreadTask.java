@@ -23,6 +23,7 @@ import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,6 +41,10 @@ final class SingleThreadTask implements Runnable {
   private int mBufSize;
   private IDownloadListener mListener;
   private DownloadStateConstance CONSTANCE;
+  /**
+   * speed = (bufSize / 1024) * threadNum / sleepTime; (8192 / 1024) * 4 / 1= 32 kb/s
+   */
+  private long mSleepTime = 0;
 
   SingleThreadTask(DownloadStateConstance constance, IDownloadListener listener,
       DownloadUtil.ConfigEntity downloadInfo) {
@@ -53,6 +58,15 @@ final class SingleThreadTask implements Runnable {
       mConfigFPath = downloadInfo.CONFIG_FILE_PATH;
     }
     mBufSize = manager.getDownloadConfig().getBuffSize();
+    setMaxSpeed(AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMsxSpeed());
+  }
+
+  void setMaxSpeed(double maxSpeed) {
+    if (-0.9999 < maxSpeed && maxSpeed < 0.00001) {
+      mSleepTime = 0;
+    } else {
+      mSleepTime = (long) ((mBufSize / 1024) * CONSTANCE.THREAD_NUM / maxSpeed * 1000);
+    }
   }
 
   @Override public void run() {
@@ -97,6 +111,7 @@ final class SingleThreadTask implements Runnable {
         if (CONSTANCE.isStop) {
           break;
         }
+        Thread.sleep(mSleepTime);
         //把下载数据数据写入文件
         file.write(buffer, 0, len);
         progress(len);

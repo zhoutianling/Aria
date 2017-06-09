@@ -143,12 +143,36 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   @Override public boolean onMenuItemClick(MenuItem item) {
-    if (item.getItemId() == R.id.help) {
-      String msg = "一些小知识点：\n"
-          + "1、你可以通过task.getKey().equals(DOWNLOAD_URL)判断是否是当前页面的下载，以防止progress乱跳\n"
-          + "2、当遇到网络慢的情况时，你可以先使用onPre()更新UI界面，待连接成功时，再在onTaskPre()获取完整的task数据，然后给UI界面设置正确的数据\n"
-          + "3、你可以在界面初始化时通过Aria.download(this).load(DOWNLOAD_URL).getPercent()等方法快速获取相关任务的一些数据";
-      showMsgDialog("tip", msg);
+    double speed = -1;
+    String msg = "";
+    switch (item.getItemId()) {
+      case R.id.help:
+        msg = "一些小知识点：\n"
+            + "1、你可以通过task.getKey().equals(DOWNLOAD_URL)判断是否是当前页面的下载，以防止progress乱跳\n"
+            + "2、当遇到网络慢的情况时，你可以先使用onPre()更新UI界面，待连接成功时，再在onTaskPre()获取完整的task数据，然后给UI界面设置正确的数据\n"
+            + "3、你可以在界面初始化时通过Aria.download(this).load(DOWNLOAD_URL).getPercent()等方法快速获取相关任务的一些数据";
+        showMsgDialog("tip", msg);
+        break;
+      case R.id.speed_0:
+        speed = 0.0;
+        break;
+      case R.id.speed_128:
+        speed = 128.0;
+        break;
+      case R.id.speed_256:
+        speed = 256.0;
+        break;
+      case R.id.speed_512:
+        speed = 512.0;
+        break;
+      case R.id.speed_1m:
+        speed = 1024.0;
+        break;
+    }
+    if (speed > -1) {
+      msg = item.getTitle().toString();
+      Aria.download(this).setMaxSpeed(speed);
+      T.showShort(this, msg);
     }
     return true;
   }

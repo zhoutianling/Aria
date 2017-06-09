@@ -107,6 +107,15 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     return CONSTANCE.isDownloading;
   }
 
+  public void setMaxSpeed(double maxSpeed) {
+    for (int i = 0; i < THREAD_NUM; i++) {
+      SingleThreadTask task = (SingleThreadTask) mTask.get(i);
+      if (task != null) {
+        task.setMaxSpeed(maxSpeed);
+      }
+    }
+  }
+
   /**
    * 取消下载
    */
