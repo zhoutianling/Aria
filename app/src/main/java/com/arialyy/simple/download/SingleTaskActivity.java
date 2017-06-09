@@ -241,6 +241,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     @Override public void onTaskCancel(DownloadTask task) {
       if (task.getKey().equals(DOWNLOAD_URL)) {
         mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
+        L.d(TAG, "task__cancel");
       }
     }
 

@@ -133,17 +133,19 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
    */
   @Override public void cancel() {
     if (!mEntity.isDownloadComplete()) {
+      if (!mUtil.isDownloading()) {
+        if (mOutHandler != null) {
+          mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
+        }
+        //发送取消下载的广播
+        Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_CANCEL);
+        intent.putExtra(Aria.DOWNLOAD_ENTITY, mEntity);
+        mContext.sendBroadcast(intent);
+      }
       mUtil.cancelDownload();
       mUtil.delConfigFile();
       mUtil.delTempFile();
       mEntity.deleteData();
-      if (mOutHandler != null) {
-        mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
-      }
-      //发送取消下载的广播
-      Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_CANCEL);
-      intent.putExtra(Aria.DOWNLOAD_ENTITY, mEntity);
-      mContext.sendBroadcast(intent);
     }
   }
 
