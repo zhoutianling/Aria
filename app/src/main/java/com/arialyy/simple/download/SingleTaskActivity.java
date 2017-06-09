@@ -183,12 +183,14 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   @Download.onTaskStop void taskStop(DownloadTask task) {
     if (task.getKey().equals(DOWNLOAD_URL)) {
       mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
+      L.d(TAG, "task__stop");
     }
   }
 
   @Download.onTaskCancel void taskCancel(DownloadTask task) {
     if (task.getKey().equals(DOWNLOAD_URL)) {
       mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
+      L.d(TAG, "task__cancel");
     }
   }
 
