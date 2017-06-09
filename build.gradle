@@ -35,8 +35,7 @@ task clean(type: Delete) {
 
 ext {
   userOrg = 'arialyy'
-  groupId = 'com.arialyy.aria_pre'
-  uploadName = 'AriaPre'
+  groupId = 'com.arialyy.aria'
 //  uploadName = 'AriaPre'
   publishVersion = '0.0.3'
   repoName='maven'
