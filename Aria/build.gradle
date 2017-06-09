@@ -61,7 +61,8 @@ publish {
   artifactId = 'aria-core'
   userOrg = rootProject.userOrg
   groupId = rootProject.groupId
-  uploadName = rootProject.uploadName
+//  uploadName = rootProject.uploadName
+  uploadName = 'AriaApi'
   publishVersion = rootProject.publishVersion
   description = rootProject.description
   website = rootProject.website

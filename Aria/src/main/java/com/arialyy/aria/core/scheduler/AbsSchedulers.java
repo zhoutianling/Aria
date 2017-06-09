@@ -84,8 +84,12 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
     AbsSchedulerListener<TASK> listener = mObservers.get(targetName);
     if (listener == null) {
       listener = createListener(targetName);
-      listener.setListener(obj);
-      mObservers.put(targetName, listener);
+      if (listener != null) {
+        listener.setListener(obj);
+        mObservers.put(targetName, listener);
+      } else {
+        Log.e(TAG, "注册错误，没有【" + targetName + "】观察者");
+      }
     }
   }
 

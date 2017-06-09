@@ -83,7 +83,20 @@ class ConfigHelper extends DefaultHandler {
         case "convertSpeed":
           loadConvertSpeed(value);
           break;
+        case "maxSpeed":
+          loadMaxSpeed(value);
+          break;
       }
+    }
+  }
+
+  private void loadMaxSpeed(String value) {
+    double maxSpeed = 0.0;
+    if (!TextUtils.isEmpty(value)) {
+      maxSpeed = Double.parseDouble(value);
+    }
+    if (isDownloadConfig){
+      mDownloadConfig.msxSpeed = maxSpeed;
     }
   }
 

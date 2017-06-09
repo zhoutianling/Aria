@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core;
 
+import android.text.TextUtils;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -171,6 +172,9 @@ class Configuration {
             } else if (type == float.class || type == Float.class) {
               field.setFloat(this, Float.parseFloat(value));
             } else if (type == double.class || type == Double.class) {
+              if (TextUtils.isEmpty(value)){
+                value = "0.0";
+              }
               field.setDouble(this, Double.parseDouble(value));
             } else if (type == long.class || type == Long.class) {
               field.setLong(this, Long.parseLong(value));
@@ -235,8 +239,24 @@ class Configuration {
      */
     int threadNum = 3;
 
+    /**
+     * 设置最大下载速度，单位：kb, 为0表示不限速
+     */
+    double msxSpeed = 0.0;
+
     public int getIOTimeOut() {
       return iOTimeOut;
+    }
+
+    public double getMsxSpeed() {
+      return msxSpeed;
+    }
+
+    public DownloadConfig setMsxSpeed(double msxSpeed) {
+      this.msxSpeed = msxSpeed;
+      saveKey("msxSpeed", String.valueOf(msxSpeed));
+      DownloadTaskQueue.getInstance().setMaxSpeed(msxSpeed);
+      return this;
     }
 
     public DownloadConfig setIOTimeOut(int iOTimeOut) {

@@ -89,6 +89,15 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
   }
 
   /**
+   * 设置最大下载速度，单位：kb
+   *
+   * @param maxSpeed 为0表示不限速
+   */
+  public void setMaxSpeed(double maxSpeed) {
+    mUtil.setMaxSpeed(maxSpeed);
+  }
+
+  /**
    * 开始下载
    */
   @Override public void start() {
