@@ -65,7 +65,11 @@ final class SingleThreadTask implements Runnable {
     if (-0.9999 < maxSpeed && maxSpeed < 0.00001) {
       mSleepTime = 0;
     } else {
-      mSleepTime = (long) ((mBufSize / 1024) * CONSTANCE.THREAD_NUM / maxSpeed * 1000);
+      BigDecimal db = new BigDecimal((mBufSize / 1024) / maxSpeed * 1000);
+      db.setScale(2, BigDecimal.ROUND_UP);
+      mSleepTime = db.longValue();
+      //mSleepTime = (long) ((mBufSize / 1024) * CONSTANCE.THREAD_NUM / maxSpeed * 1000);
+      //mSleepTime = (long) ((mBufSize / 1024) / maxSpeed * 1000);
     }
   }
 
