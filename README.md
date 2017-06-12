@@ -113,7 +113,7 @@ compile 'com.arialyy.aria:Aria:3.1.6'
   ```java
   @Override protected void onResume() {
     super.onResume();
-    Aria.whit(this).addSchedulerListener(new MySchedulerListener());
+    Aria.download(this).addSchedulerListener(new MySchedulerListener());
   }
   ```
  
