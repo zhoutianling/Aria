@@ -40,12 +40,14 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.frame.util.FileUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
+import java.io.File;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public static final int DOWNLOAD_PRE = 0x01;
@@ -60,8 +62,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-  //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
+      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
+      //"http://oqcpqqvuf.bkt.clouddn.com/可用.xlsx";
+  "http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
+  //"http://down8.androidgame-store.com/201706122321/97967927DD4E53D9905ECAA7874C8128/new/game1/19/45319/com.neuralprisma-2.5.2.174-2000174_1494784835.apk?f=web_1";
   //不支持断点的链接
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   //"http://172.18.104.50:8080/download/_302turn";
@@ -226,6 +231,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Download.onTaskComplete void taskComplete(DownloadTask task) {
     if (task.getKey().equals(DOWNLOAD_URL)) {
+      //if (CommonUtil.checkMD5("7c1ecf71835d681289bb6c32ff627566", new File(task.getDownloadPath()))){
+      //if (CommonUtil.checkMD5("f0c78b33ddc81bb58a712c582b2cd5b0", new File(task.getDownloadPath()))){
+      if (CommonUtil.checkMD5("2d3699acfa69e9632262442c46516ad8", new File(task.getDownloadPath()))){
+        T.showShort(this, "true");
+        L.d(TAG, "true");
+      }
       mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
     }
   }

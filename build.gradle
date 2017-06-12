@@ -37,7 +37,7 @@ ext {
   userOrg = 'arialyy'
   groupId = 'com.arialyy.aria'
 //  uploadName = 'AriaPre'
-  publishVersion = '0.0.3'
+  publishVersion = '0.0.6'
   repoName='maven'
   desc = 'android 下载框架'
   website = 'https://github.com/AriaLyy/Aria'

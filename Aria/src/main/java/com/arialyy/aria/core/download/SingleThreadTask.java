@@ -65,8 +65,8 @@ final class SingleThreadTask implements Runnable {
     if (-0.9999 < maxSpeed && maxSpeed < 0.00001) {
       mSleepTime = 0;
     } else {
-      BigDecimal db = new BigDecimal((mBufSize / 1024) / maxSpeed * 1000);
-      db.setScale(2, BigDecimal.ROUND_UP);
+      BigDecimal db = new BigDecimal(((mBufSize / 1024) / maxSpeed) * 1000);
+      db.setScale(0, BigDecimal.ROUND_HALF_UP);
       mSleepTime = db.longValue();
       //mSleepTime = (long) ((mBufSize / 1024) * CONSTANCE.THREAD_NUM / maxSpeed * 1000);
       //mSleepTime = (long) ((mBufSize / 1024) / maxSpeed * 1000);
@@ -91,7 +91,8 @@ final class SingleThreadTask implements Runnable {
             + "】");
         //在头里面请求下载开始位置和结束位置
         conn.setRequestProperty("Range",
-            "bytes=" + mConfigEntity.START_LOCATION + "-" + mConfigEntity.END_LOCATION);
+            "bytes=" + mConfigEntity.START_LOCATION + "-" + (mConfigEntity.END_LOCATION - 1));
+            //"bytes=" + mConfigEntity.START_LOCATION + "-" + (mConfigEntity.END_LOCATION));
       } else {
         Log.w(TAG, "该下载不支持断点");
       }
@@ -116,7 +117,6 @@ final class SingleThreadTask implements Runnable {
           break;
         }
         Thread.sleep(mSleepTime);
-        //把下载数据数据写入文件
         file.write(buffer, 0, len);
         progress(len);
       }

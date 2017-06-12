@@ -51,7 +51,9 @@ import java.lang.annotation.Target;
    */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) public @interface onTaskResume {
   }
-
+  /**
+   * 如果你在方法中添加{@code @Download.onTaskStart}注解，在任务开始下载时，Aria会调用该方法
+   */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) public @interface onTaskStart {
   }
 

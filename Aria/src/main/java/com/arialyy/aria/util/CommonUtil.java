@@ -75,6 +75,7 @@ public class CommonUtil {
     }
 
     String calculatedDigest = getFileMD5(updateFile);
+    Log.d(TAG, "fileMd5Code：" + calculatedDigest);
     if (calculatedDigest == null) {
       Log.e(TAG, "calculatedDigest null");
       return false;

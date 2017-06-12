@@ -39,6 +39,16 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
   protected String targetName;
 
   /**
+   * 设置扩展字段，用来保存你的其它数据，如果你的数据比较多，你可以把你的数据转换为JSON字符串，然后再存到Aria中
+   *
+   * @param str 扩展数据
+   */
+  public AbsTarget setExtendField(String str) {
+    entity.setStr(str);
+    return this;
+  }
+
+  /**
    * 获取任务状态
    *
    * @return {@link IEntity}
