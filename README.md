@@ -27,8 +27,8 @@ Aria怎样使用？
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:Aria:3.1.7'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.7'
+compile 'com.arialyy.aria:Aria:3.1.8'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.8'
 ```
 
 ## 示例
