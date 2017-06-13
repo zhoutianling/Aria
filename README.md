@@ -251,6 +251,13 @@ Aria.download(this).removeAllTask();
 ``` java
 Aria.download(this).load(DOWNLOAD_URL).setDownloadPath(PATH).setHighestPriority();
 ```
+* 设置扩展字段
+有的时候，你可能希望在下载的时候存放一些自己的数据
+
+tip: 如果你数据比较多，或者数据比较复杂，你可以先把数据转换为**JSON**，然后再将其存到Aria的下载实体中
+```java
+Aria.download(this).load(DOWNLOAD_URL).setExtendField(str)
+```
 
 **tips:为了防止内存泄露的情况，事件类需要使用staic进行修饰**
 
