@@ -49,6 +49,14 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
   }
 
   /**
+   * 获取存放的扩展字段
+   * 设置扩展字段{@link #setExtendField(String)}
+   */
+  public String getExtendField() {
+    return entity.getStr();
+  }
+
+  /**
    * 获取任务状态
    *
    * @return {@link IEntity}
@@ -87,11 +95,7 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
    * 删除记录
    */
   public void removeRecord() {
-    if (entity instanceof DownloadEntity) {
-      ((DownloadEntity) entity).deleteData();
-    } else if (entity instanceof UploadEntity) {
-      ((UploadEntity) entity).deleteData();
-    }
+    entity.deleteData();
   }
 
   /**
