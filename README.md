@@ -81,8 +81,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.8'
   ```
 
 ### 下载状态获取
-如果你希望读取下载进度或下载信息，那么你需要创建事件类，并在onResume(Activity、Fragment)或构造函数(Dialog、PopupWindow)，将该事件类注册到Aria管理器。
-
+如果你希望读取下载进度或下载信息，那么你需要
 * 将对象注册到Aria
 
 ` Aria.download(this).register();`或`Aria.upload(this).register();`
