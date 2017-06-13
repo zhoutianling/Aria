@@ -27,12 +27,8 @@ Aria怎样使用？
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-<<<<<<< HEAD
-compile 'com.arialyy.aria:Aria:3.1.6'
-=======
 compile 'com.arialyy.aria:Aria:3.1.7'
 annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.7'
->>>>>>> v_3.0
 ```
 
 ## 示例
@@ -140,14 +136,6 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.7'
   @Download.onNoSupportBreakPoint
   public void onNoSupportBreakPoint(DownloadTask task) {}
 
-<<<<<<< HEAD
-  ```java
-  @Override protected void onResume() {
-    super.onResume();
-    Aria.download(this).addSchedulerListener(new MySchedulerListener());
-  }
-=======
->>>>>>> v_3.0
   ```
 
 ### Aria参数配置
@@ -316,12 +304,8 @@ Aria.download(this).load(DOWNLOAD_URL).setDownloadPath(PATH).setHighestPriority(
 
 
 ## 开发日志
-<<<<<<< HEAD
-  + v_3.1.6 [取消任务时onTaskCancel回调两次的bug](https://github.com/AriaLyy/Aria/issues/33)
-=======
   + v_3.1.7 修复某些文件下载不了的bug，增加apt注解方法，事件获取更加简单了
   + v_3.1.6 取消任务时onTaskCancel回调两次的bug
->>>>>>> v_3.0
   + v_3.1.5 优化代码结构，增加优先下载任务功能。
   + v_3.1.4 修复快速切换，暂停、恢复功能时，概率性出现的重新下载问题，添加onPre()回调，onPre()用于请求地址之前执行界面UI更新操作。
   + v_3.1.0 添加Aria配置文件，优化代码
