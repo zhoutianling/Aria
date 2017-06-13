@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'bintray-release'
 
 android {
   compileSdkVersion 23
@@ -7,8 +8,8 @@ android {
   defaultConfig {
     minSdkVersion 9
     targetSdkVersion 23
-    versionCode 315
-    versionName "3.1.5"
+    versionCode 317
+    versionName "3.1.7"
   }
   buildTypes {
     release {
@@ -19,8 +20,57 @@ android {
 }
 
 dependencies {
-  compile fileTree(dir: 'libs', include: ['*.jar'])
+  compile fileTree(include: ['*.jar'], dir: 'libs')
   testCompile 'junit:junit:4.12'
   compile 'com.android.support:appcompat-v7:23.1.1'
+//    compile project(':AriaCompiler')
+  compile project(':AriaAnnotations')
 }
-apply from: 'jcenter.gradle'
+//apply from: 'jcenter.gradle'
+
+// Jar
+//task androidJar(type: Jar) {
+//  dependsOn assemble
+//  group 'Build'
+//  description 'blah blah'
+//  from zipTree(
+//      'build/intermediates/bundles/release/classes.jar')
+//  from zipTree(
+//      '../AriaCompiler/build/libs/AriaCompiler.jar')
+//  from zipTree(
+//      '../AriaAnnotation/build/libs/AriaAnnotation.jar')
+//
+//}
+//
+//
+//// javadoc tasks
+//android.libraryVariants.all { variant ->
+//  task("javadoc${variant.name.capitalize()}", type: Javadoc) {
+//    description "Generates Javadoc for $variant.name."
+//    group 'Docs'
+//    source = variant.javaCompile.source
+//    source "../AriaAnnotation/src/main/java"
+//
+//    exclude '**/BuildConfig.java'
+//    exclude '**/R.java'
+//  }
+//}
+
+
+publish {
+  artifactId = 'aria-core'
+  userOrg = rootProject.userOrg
+  groupId = rootProject.groupId
+//  uploadName = rootProject.uploadName
+  uploadName = 'AriaApi'
+  publishVersion = rootProject.publishVersion
+  description = rootProject.description
+  website = rootProject.website
+  licences = rootProject.licences
+}
+
+//task copyJar(type: Copy) {
+//  from('build/libs/permission-lib.jar')
+//  into('../output/')
+//  rename ('permission-lib.jar', 'mpermissions.jar')
+//}

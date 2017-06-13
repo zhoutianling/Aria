@@ -21,6 +21,7 @@ import android.os.Handler;
 import android.os.Message;
 import butterknife.Bind;
 import butterknife.OnClick;
+import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.frame.util.FileUtil;
@@ -78,6 +79,7 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
+    Aria.upload(this).register();
   }
 
   @OnClick(R.id.upload) void upload() {
@@ -96,50 +98,30 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
     Aria.upload(this).load(FILE_PATH).cancel();
   }
 
-  @Override protected void onResume() {
-    super.onResume();
-    Aria.upload(this).addSchedulerListener(new UploadListener(mHandler));
+  @Upload.onPre public void onPre(UploadTask task) {
   }
 
-  static class UploadListener extends Aria.UploadSchedulerListener {
-    WeakReference<Handler> handler;
+  @Upload.onTaskPre public void taskPre(UploadTask task) {
+    L.d(TAG, "fileSize = " + task.getConvertFileSize());
+  }
 
-    UploadListener(Handler handler) {
-      this.handler = new WeakReference<>(handler);
-    }
+  @Upload.onTaskStart public void taskStart(UploadTask task) {
+    mHandler.obtainMessage(START, task).sendToTarget();
+  }
 
-    @Override public void onPre(UploadTask task) {
-      super.onPre(task);
-    }
+  @Upload.onTaskStop public void taskStop(UploadTask task) {
+    mHandler.obtainMessage(STOP, task).sendToTarget();
+  }
 
-    @Override public void onTaskPre(UploadTask task) {
-      super.onTaskPre(task);
-      L.d(TAG, "fileSize = " + task.getConvertFileSize());
-    }
+  @Upload.onTaskCancel public void taskCancel(UploadTask task) {
+    mHandler.obtainMessage(CANCEL, task).sendToTarget();
+  }
 
-    @Override public void onTaskStart(UploadTask task) {
-      super.onTaskStart(task);
-      handler.get().obtainMessage(START, task).sendToTarget();
-    }
+  @Upload.onTaskRunning public void taskRunning(UploadTask task) {
+    mHandler.obtainMessage(RUNNING, task).sendToTarget();
+  }
 
-    @Override public void onTaskStop(UploadTask task) {
-      super.onTaskStop(task);
-      handler.get().obtainMessage(STOP, task).sendToTarget();
-    }
-
-    @Override public void onTaskCancel(UploadTask task) {
-      super.onTaskCancel(task);
-      handler.get().obtainMessage(CANCEL, task).sendToTarget();
-    }
-
-    @Override public void onTaskRunning(UploadTask task) {
-      super.onTaskRunning(task);
-      handler.get().obtainMessage(RUNNING, task).sendToTarget();
-    }
-
-    @Override public void onTaskComplete(UploadTask task) {
-      super.onTaskComplete(task);
-      handler.get().obtainMessage(COMPLETE, task).sendToTarget();
-    }
+  @Upload.onTaskComplete public void taskComplete(UploadTask task) {
+    mHandler.obtainMessage(COMPLETE, task).sendToTarget();
   }
 }

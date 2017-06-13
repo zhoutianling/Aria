@@ -23,12 +23,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import butterknife.Bind;
+import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiBinding;
 import com.arialyy.simple.download.DownloadModule;
+import com.arialyy.simple.download.SingleTaskActivity;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +50,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
+    Aria.download(this).register();
     setTitle("多任务下载");
     mData.addAll(getModule(DownloadModule.class).createMultiTestList());
     mAdapter = new FileListAdapter(this, mData);
@@ -69,47 +73,34 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     }
   }
 
-  @Override protected void onResume() {
-    super.onResume();
-    Aria.download(this).addSchedulerListener(new DownloadListener());
+  @Download.onTaskStart void taskStart(DownloadTask task) {
+    mAdapter.updateBtState(task.getKey(), false);
   }
 
-  @Override protected void onDestroy() {
-    super.onDestroy();
-    //unregisterReceiver(mReceiver);
+  @Download.onTaskResume void taskResume(DownloadTask task) {
+    mAdapter.updateBtState(task.getKey(), false);
+  }
+
+  @Download.onTaskStop void taskStop(DownloadTask task) {
+    mAdapter.updateBtState(task.getKey(), true);
+  }
+
+  @Download.onTaskCancel void taskCancel(DownloadTask task) {
+    mAdapter.updateBtState(task.getKey(), true);
+  }
+
+  @Download.onTaskFail void taskFail(DownloadTask task) {
+    mAdapter.updateBtState(task.getKey(), true);
+  }
+
+  @Download.onTaskComplete void taskComplete(DownloadTask task) {
+    mAdapter.updateBtState(task.getKey(), true);
   }
 
   @Override protected void dataCallback(int result, Object data) {
     super.dataCallback(result, data);
     if (result == DownloadNumDialog.RESULT_CODE) {
       Aria.get(this).getDownloadConfig().setMaxTaskNum(Integer.parseInt(data + ""));
-    }
-  }
-
-  private class DownloadListener extends Aria.DownloadSchedulerListener {
-
-    @Override public void onTaskStart(DownloadTask task) {
-      super.onTaskStart(task);
-      mAdapter.updateBtState(task.getDownloadUrl(), false);
-    }
-
-    @Override public void onTaskRunning(DownloadTask task) {
-      super.onTaskRunning(task);
-    }
-
-    @Override public void onTaskResume(DownloadTask task) {
-      super.onTaskResume(task);
-      mAdapter.updateBtState(task.getDownloadUrl(), false);
-    }
-
-    @Override public void onTaskStop(DownloadTask task) {
-      super.onTaskStop(task);
-      mAdapter.updateBtState(task.getDownloadUrl(), true);
-    }
-
-    @Override public void onTaskComplete(DownloadTask task) {
-      super.onTaskComplete(task);
-      mAdapter.updateBtState(task.getDownloadUrl(), true);
     }
   }
 }

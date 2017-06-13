@@ -26,6 +26,7 @@ import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -40,12 +41,42 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
 
 /**
  * Created by lyy on 2016/1/22.
  */
 public class CommonUtil {
   private static final String TAG = "CommonUtil";
+
+  /**
+   * 获取CPU核心数
+   */
+  public static int getNumCores() {
+    //Private Class to display only CPU devices in the directory listing
+    class CpuFilter implements FileFilter {
+      @Override public boolean accept(File pathname) {
+        //Check if filename is "cpu", followed by a single digit number
+        return Pattern.matches("cpu[0-9]", pathname.getName());
+      }
+    }
+
+    try {
+      //Get directory containing CPU info
+      File dir = new File("/sys/devices/system/cpu/");
+      //Filter to only list the devices we care about
+      File[] files = dir.listFiles(new CpuFilter());
+      Log.d(TAG, "CPU Count: " + files.length);
+      //Return the number of cores (virtual CPU devices)
+      return files.length;
+    } catch (Exception e) {
+      //Print exception
+      Log.d(TAG, "CPU Count: Failed.");
+      e.printStackTrace();
+      //Default to return 1 core
+      return 1;
+    }
+  }
 
   /**
    * 通过流创建文件

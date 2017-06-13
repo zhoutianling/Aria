@@ -26,6 +26,8 @@ import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.widget.PopupWindow;
+import com.arialyy.annotations.Download;
+import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulerListener;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
@@ -171,8 +173,12 @@ import com.arialyy.aria.core.upload.UploadTask;
 
   /**
    * 上传任务状态监听
+   *
+   * @see Upload
+   * @deprecated 请使用注解函数的方式来实现事件的获取
    */
-  public static class UploadSchedulerListener implements ISchedulerListener<UploadTask> {
+  @Deprecated public static class UploadSchedulerListener
+      implements ISchedulerListener<UploadTask> {
 
     /**
      * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态。
@@ -218,8 +224,11 @@ import com.arialyy.aria.core.upload.UploadTask;
 
   /**
    * 下载任务状态监听
+   *
+   * @see Download
+   * @deprecated 请使用注解函数的方式来实现事件的获取
    */
-  public static class DownloadSchedulerListener
+  @Deprecated public static class DownloadSchedulerListener
       implements IDownloadSchedulerListener<DownloadTask> {
     /**
      * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态。

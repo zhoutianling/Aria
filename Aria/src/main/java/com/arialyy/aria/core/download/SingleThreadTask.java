@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
@@ -23,10 +24,13 @@ import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Created by lyy on 2017/1/18.
@@ -41,6 +45,11 @@ final class SingleThreadTask implements Runnable {
   private IDownloadListener mListener;
   private DownloadStateConstance CONSTANCE;
 
+  /**
+   * speed = (bufSize / 1024) * CoresNum / sleepTime; (8192 / 1024) * 4 / 1= 32 kb/s
+   */
+  private long mSleepTime = 0;
+
   SingleThreadTask(DownloadStateConstance constance, IDownloadListener listener,
       DownloadUtil.ConfigEntity downloadInfo) {
     AriaManager manager = AriaManager.getInstance(AriaManager.APP);
@@ -53,6 +62,22 @@ final class SingleThreadTask implements Runnable {
       mConfigFPath = downloadInfo.CONFIG_FILE_PATH;
     }
     mBufSize = manager.getDownloadConfig().getBuffSize();
+    setMaxSpeed(AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMsxSpeed());
+  }
+
+  void setMaxSpeed(double maxSpeed) {
+    if (-0.9999 < maxSpeed && maxSpeed < 0.00001) {
+      mSleepTime = 0;
+    } else {
+      BigDecimal db = new BigDecimal(
+          ((mBufSize / 1024) * (filterVersion() ? 1 : CONSTANCE.THREAD_NUM) / maxSpeed) * 1000);
+      db.setScale(0, BigDecimal.ROUND_HALF_UP);
+      mSleepTime = db.longValue();
+    }
+  }
+
+  private boolean filterVersion() {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
   }
 
   @Override public void run() {
@@ -73,7 +98,7 @@ final class SingleThreadTask implements Runnable {
             + "】");
         //在头里面请求下载开始位置和结束位置
         conn.setRequestProperty("Range",
-            "bytes=" + mConfigEntity.START_LOCATION + "-" + mConfigEntity.END_LOCATION);
+            "bytes=" + mConfigEntity.START_LOCATION + "-" + (mConfigEntity.END_LOCATION - 1));
       } else {
         Log.w(TAG, "该下载不支持断点");
       }
@@ -97,7 +122,7 @@ final class SingleThreadTask implements Runnable {
         if (CONSTANCE.isStop) {
           break;
         }
-        //把下载数据数据写入文件
+        Thread.sleep(mSleepTime);
         file.write(buffer, 0, len);
         progress(len);
       }

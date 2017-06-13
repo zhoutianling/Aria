@@ -36,7 +36,18 @@ import java.util.Set;
 public class DownloadReceiver implements IReceiver<DownloadEntity> {
   private static final String TAG = "DownloadReceiver";
   public String targetName;
+  public Object obj;
   public ISchedulerListener<DownloadTask> listener;
+
+  /**
+   * 设置最大下载速度，单位：kb
+   * 该方法为实验性功能，清不要轻易在生产环境中使用。
+   *
+   * @param maxSpeed 为0表示不限速
+   */
+  @Deprecated public void setMaxSpeed(double maxSpeed) {
+    AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setMsxSpeed(maxSpeed);
+  }
 
   /**
    * {@link #load(String)}，请使用该方法
@@ -61,17 +72,37 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
 
   /**
    * 添加调度器回调
+   *
+   * @see #register()
    */
-  public DownloadReceiver addSchedulerListener(ISchedulerListener<DownloadTask> listener) {
+  @Deprecated public DownloadReceiver addSchedulerListener(
+      ISchedulerListener<DownloadTask> listener) {
     this.listener = listener;
     DownloadSchedulers.getInstance().addSchedulerListener(targetName, listener);
     return this;
   }
 
   /**
-   * 移除回调
+   * 将当前类注册到Aria
    */
-  @Override public void removeSchedulerListener() {
+  public DownloadReceiver register() {
+    DownloadSchedulers.getInstance().register(obj);
+    return this;
+  }
+
+  /**
+   * 取消注册
+   */
+  @Override public void unRegister() {
+    DownloadSchedulers.getInstance().unRegister(obj);
+  }
+
+  /**
+   * 移除回调
+   *
+   * @see #unRegister()
+   */
+  @Deprecated @Override public void removeSchedulerListener() {
     if (listener != null) {
       DownloadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
     }
@@ -133,6 +164,7 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
     for (String key : keys) {
       IReceiver receiver = ariaManager.getReceiver().get(key);
       receiver.removeSchedulerListener();
+      receiver.unRegister();
       ariaManager.getReceiver().remove(key);
     }
   }

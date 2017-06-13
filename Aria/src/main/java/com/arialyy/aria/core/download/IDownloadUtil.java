@@ -63,4 +63,9 @@ interface IDownloadUtil {
    * 删除temp文件
    */
   public void delTempFile();
+
+  /**
+   * 设置最大下载速度
+   */
+  public void setMaxSpeed(double maxSpeed);
 }

@@ -32,6 +32,11 @@ public interface IReceiver<ENTITY extends IEntity> {
   public void removeSchedulerListener();
 
   /**
+   * 移除观察者
+   */
+  public void unRegister();
+
+  /**
    * 停止所有任务
    */
   public void stopAllTask();

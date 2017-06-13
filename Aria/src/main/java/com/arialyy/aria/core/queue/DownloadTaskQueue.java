@@ -91,6 +91,15 @@ public class DownloadTaskQueue
     }
   }
 
+  public void setMaxSpeed(double maxSpeed){
+    Map<String, DownloadTask> tasks = mExecutePool.getAllTask();
+    Set<String> keys = tasks.keySet();
+    for (String key : keys){
+      DownloadTask task = tasks.get(key);
+      task.setMaxSpeed(maxSpeed);
+    }
+  }
+
   @Override public void setMaxTaskNum(int downloadNum) {
     int oldMaxSize = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().oldMaxTaskNum;
     int diff = downloadNum - oldMaxSize;

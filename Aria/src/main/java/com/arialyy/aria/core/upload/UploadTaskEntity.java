@@ -30,7 +30,7 @@ public class UploadTaskEntity extends AbsTaskEntity {
   public String contentType = "multipart/form-data"; //上传的文件类型
   public String userAgent = "User-Agent";
   public String charset = "utf-8";
-
+  
   /**
    * 文件上传表单
    */

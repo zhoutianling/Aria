@@ -28,6 +28,7 @@ import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
+import java.io.File;
 import java.lang.ref.WeakReference;
 
 /**
@@ -48,6 +49,19 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     mContext = AriaManager.APP;
     mListener = new DListener(mContext, this, mOutHandler);
     mUtil = new DownloadUtil(mContext, taskEntity, mListener);
+  }
+
+  /**
+   * 获取文件保存路径
+   *
+   * @return 如果路径不存在，返回null
+   */
+  public String getDownloadPath() {
+    File file = new File(mEntity.getDownloadPath());
+    if (!file.exists()) {
+      return null;
+    }
+    return mEntity.getDownloadPath();
   }
 
   /**
@@ -86,6 +100,15 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
   @Override public void stopAndWait() {
     super.stopAndWait();
     stop(true);
+  }
+
+  /**
+   * 设置最大下载速度，单位：kb
+   *
+   * @param maxSpeed 为0表示不限速
+   */
+  public void setMaxSpeed(double maxSpeed) {
+    mUtil.setMaxSpeed(maxSpeed);
   }
 
   /**

@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.frame.util.show.T;
@@ -45,7 +46,7 @@ public class DownloadService extends Service {
   @Override public void onCreate() {
     super.onCreate();
     mNotify = new DownloadNotification(getApplicationContext());
-    Aria.download(this).addSchedulerListener(new MySchedulerListener());
+    Aria.download(this).register();
     Aria.download(this)
         .load(DOWNLOAD_URL)
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/service_task.apk")
@@ -54,45 +55,37 @@ public class DownloadService extends Service {
 
   @Override public void onDestroy() {
     super.onDestroy();
-    Aria.download(this).removeSchedulerListener();
+    Aria.download(this).unRegister();
   }
 
-  private class MySchedulerListener extends Aria.DownloadSchedulerListener {
+  @Download.onNoSupportBreakPoint public void onNoSupportBreakPoint(DownloadTask task) {
+    T.showShort(getApplicationContext(), "该下载链接不支持断点");
+  }
 
-    @Override public void onNoSupportBreakPoint(DownloadTask task) {
-      super.onNoSupportBreakPoint(task);
-      T.showShort(getApplicationContext(), "该下载链接不支持断点");
-    }
+  @Download.onTaskStart public void onTaskStart(DownloadTask task) {
+    T.showShort(getApplicationContext(), task.getDownloadEntity().getFileName() + "，开始下载");
+  }
 
-    @Override public void onTaskStart(DownloadTask task) {
-      T.showShort(getApplicationContext(), task.getDownloadEntity().getFileName() + "，开始下载");
-    }
+  @Download.onTaskStop public void onTaskStop(DownloadTask task) {
+    T.showShort(getApplicationContext(), task.getDownloadEntity().getFileName() + "，停止下载");
+  }
 
-    @Override public void onTaskResume(DownloadTask task) {
-      super.onTaskResume(task);
-    }
+  @Download.onTaskCancel public void onTaskCancel(DownloadTask task) {
+    T.showShort(getApplicationContext(), task.getDownloadEntity().getFileName() + "，取消下载");
+  }
 
-    @Override public void onTaskStop(DownloadTask task) {
-      T.showShort(getApplicationContext(), task.getDownloadEntity().getFileName() + "，停止下载");
-    }
+  @Download.onTaskFail public void onTaskFail(DownloadTask task) {
+    T.showShort(getApplicationContext(), task.getDownloadEntity().getFileName() + "，下载失败");
+  }
 
-    @Override public void onTaskCancel(DownloadTask task) {
-      T.showShort(getApplicationContext(), task.getDownloadEntity().getFileName() + "，取消下载");
-    }
+  @Download.onTaskComplete public void onTaskComplete(DownloadTask task) {
+    T.showShort(getApplicationContext(), task.getDownloadEntity().getFileName() + "，下载完成");
+    mNotify.upload(100);
+  }
 
-    @Override public void onTaskFail(DownloadTask task) {
-      T.showShort(getApplicationContext(), task.getDownloadEntity().getFileName() + "，下载失败");
-    }
-
-    @Override public void onTaskComplete(DownloadTask task) {
-      T.showShort(getApplicationContext(), task.getDownloadEntity().getFileName() + "，下载完成");
-      mNotify.upload(100);
-    }
-
-    @Override public void onTaskRunning(DownloadTask task) {
-      long len = task.getFileSize();
-      int p = (int) (task.getCurrentProgress() * 100 / len);
-      mNotify.upload(p);
-    }
+  @Download.onTaskRunning public void onTaskRunning(DownloadTask task) {
+    long len = task.getFileSize();
+    int p = (int) (task.getCurrentProgress() * 100 / len);
+    mNotify.upload(p);
   }
 }

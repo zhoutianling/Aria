@@ -23,6 +23,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import butterknife.Bind;
 import butterknife.OnClick;
+import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -61,7 +62,7 @@ public class DownloadDialog extends AbsDialog {
       int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
-    Aria.download(this).addSchedulerListener(new MyDialogDownloadCallback());
+    Aria.download(this).register();
     DownloadEntity entity = Aria.download(this).getDownloadEntity(DOWNLOAD_URL);
     if (entity != null) {
       mSize.setText(CommonUtil.formatFileSize(entity.getFileSize()));
@@ -89,6 +90,29 @@ public class DownloadDialog extends AbsDialog {
     }
   }
 
+  @Download.onTaskPre public void onTaskPre(DownloadTask task) {
+    mSize.setText(CommonUtil.formatFileSize(task.getFileSize()));
+    setBtState(false);
+  }
+
+  @Download.onTaskStop public void onTaskStop(DownloadTask task) {
+    setBtState(true);
+    mSpeed.setText(task.getConvertSpeed());
+  }
+
+  @Download.onTaskCancel public void onTaskCancel(DownloadTask task) {
+    setBtState(true);
+    mPb.setProgress(0);
+    mSpeed.setText(task.getConvertSpeed());
+  }
+
+  @Download.onTaskRunning public void onTaskRunning(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mPb.setProgress(task.getPercent());
+      mSpeed.setText(task.getConvertSpeed());
+    }
+  }
+
   @Override protected void dataCallback(int result, Object obj) {
 
   }
@@ -97,35 +121,5 @@ public class DownloadDialog extends AbsDialog {
     mStart.setEnabled(startEnable);
     mCancel.setEnabled(!startEnable);
     mStop.setEnabled(!startEnable);
-  }
-
-  private class MyDialogDownloadCallback extends Aria.DownloadSchedulerListener {
-
-    @Override public void onTaskPre(DownloadTask task) {
-      super.onTaskPre(task);
-      mSize.setText(CommonUtil.formatFileSize(task.getFileSize()));
-      setBtState(false);
-    }
-
-    @Override public void onTaskStop(DownloadTask task) {
-      super.onTaskStop(task);
-      setBtState(true);
-      mSpeed.setText(task.getConvertSpeed());
-    }
-
-    @Override public void onTaskCancel(DownloadTask task) {
-      super.onTaskCancel(task);
-      setBtState(true);
-      mPb.setProgress(0);
-      mSpeed.setText(task.getConvertSpeed());
-    }
-
-    @Override public void onTaskRunning(DownloadTask task) {
-      super.onTaskRunning(task);
-      if (task.getKey().equals(DOWNLOAD_URL)) {
-        mPb.setProgress(task.getPercent());
-        mSpeed.setText(task.getConvertSpeed());
-      }
-    }
   }
 }

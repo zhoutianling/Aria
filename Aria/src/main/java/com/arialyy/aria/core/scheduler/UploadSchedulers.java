@@ -32,6 +32,7 @@ public class UploadSchedulers
 
   private UploadSchedulers() {
     mQueue = UploadTaskQueue.getInstance();
+    isDownload = false;
   }
 
   public static UploadSchedulers getInstance() {

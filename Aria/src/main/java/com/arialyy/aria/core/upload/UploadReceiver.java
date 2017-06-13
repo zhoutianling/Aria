@@ -19,8 +19,10 @@ import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.command.CmdFactory;
+import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IReceiver;
+import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
@@ -38,6 +40,7 @@ import java.util.regex.Pattern;
 public class UploadReceiver implements IReceiver<UploadEntity> {
   private static final String TAG = "DownloadReceiver";
   public String targetName;
+  public Object obj;
   public ISchedulerListener<UploadTask> listener;
 
   /**
@@ -126,5 +129,17 @@ public class UploadReceiver implements IReceiver<UploadEntity> {
     if (listener != null) {
       UploadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
     }
+  }
+
+  /**
+   * 将当前类注册到Aria
+   */
+  public UploadReceiver register() {
+    UploadSchedulers.getInstance().register(obj);
+    return this;
+  }
+
+  @Override public void unRegister() {
+    UploadSchedulers.getInstance().unRegister(obj);
   }
 }

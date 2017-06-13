@@ -33,18 +33,21 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
+import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.frame.util.FileUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
+import java.io.File;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public static final int DOWNLOAD_PRE = 0x01;
@@ -60,7 +63,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-  //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
+      //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
+      //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
+  //"http://oqcpqqvuf.bkt.clouddn.com/ceshi.txt";
+  //"http://down8.androidgame-store.com/201706122321/97967927DD4E53D9905ECAA7874C8128/new/game1/19/45319/com.neuralprisma-2.5.2.174-2000174_1494784835.apk?f=web_1";
   //不支持断点的链接
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   //"http://172.18.104.50:8080/download/_302turn";
@@ -71,15 +77,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   @Bind(R.id.size) TextView mSize;
   @Bind(R.id.speed) TextView mSpeed;
   @Bind(R.id.speeds) RadioGroup mRg;
-  private DownloadEntity mEntity;
-  private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-    @Override public void onReceive(Context context, Intent intent) {
-      String action = intent.getAction();
-      if (action.equals(Aria.ACTION_START)) {
-        L.d("START");
-      }
-    }
-  };
 
   private Handler mUpdateHandler = new Handler() {
     @Override public void handleMessage(Message msg) {
@@ -132,6 +129,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     }
   };
 
+  @Override protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    Aria.download(this).register();
+  }
+
   /**
    * 设置start 和 stop 按钮状态
    */
@@ -140,26 +142,103 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     mStop.setEnabled(!state);
   }
 
-  @Override protected void onResume() {
-    super.onResume();
-    Aria.download(this).addSchedulerListener(new MySchedulerListener());
-    //registerReceiver(mReceiver, getModule(DownloadModule.class).getDownloadFilter());
-  }
-
   @Override public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_single_task_activity, menu);
     return super.onCreateOptionsMenu(menu);
   }
 
   @Override public boolean onMenuItemClick(MenuItem item) {
-    if (item.getItemId() == R.id.help) {
-      String msg = "一些小知识点：\n"
-          + "1、你可以通过task.getKey().equals(DOWNLOAD_URL)判断是否是当前页面的下载，以防止progress乱跳\n"
-          + "2、当遇到网络慢的情况时，你可以先使用onPre()更新UI界面，待连接成功时，再在onTaskPre()获取完整的task数据，然后给UI界面设置正确的数据\n"
-          + "3、你可以在界面初始化时通过Aria.download(this).load(DOWNLOAD_URL).getPercent()等方法快速获取相关任务的一些数据";
-      showMsgDialog("tip", msg);
+    double speed = -1;
+    String msg = "";
+    switch (item.getItemId()) {
+      case R.id.help:
+        msg = "一些小知识点：\n"
+            + "1、你可以通过task.getKey().equals(DOWNLOAD_URL)判断是否是当前页面的下载，以防止progress乱跳\n"
+            + "2、当遇到网络慢的情况时，你可以先使用onPre()更新UI界面，待连接成功时，再在onTaskPre()获取完整的task数据，然后给UI界面设置正确的数据\n"
+            + "3、你可以在界面初始化时通过Aria.download(this).load(DOWNLOAD_URL).getPercent()等方法快速获取相关任务的一些数据";
+        showMsgDialog("tip", msg);
+        break;
+      case R.id.speed_0:
+        speed = 0.0;
+        break;
+      case R.id.speed_128:
+        speed = 128.0;
+        break;
+      case R.id.speed_256:
+        speed = 256.0;
+        break;
+      case R.id.speed_512:
+        speed = 512.0;
+        break;
+      case R.id.speed_1m:
+        speed = 1024.0;
+        break;
+    }
+    if (speed > -1) {
+      msg = item.getTitle().toString();
+      Aria.download(this).setMaxSpeed(speed);
+      T.showShort(this, msg);
     }
     return true;
+  }
+
+  @Download.onPre protected void onPre(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
+          .sendToTarget();
+    }
+  }
+
+  @Download.onTaskStart void taskStart(DownloadTask task) {
+    //通过下载地址可以判断任务是否是你指定的任务
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getDownloadEntity().getFileSize())
+          .sendToTarget();
+    }
+  }
+
+  @Download.onTaskRunning protected void running(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.obtainMessage(DOWNLOAD_RUNNING, task).sendToTarget();
+    }
+  }
+
+  @Download.onTaskResume void taskResume(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getFileSize()).sendToTarget();
+    }
+  }
+
+  @Download.onTaskStop void taskStop(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
+      L.d(TAG, "task__stop");
+    }
+  }
+
+  @Download.onTaskCancel void taskCancel(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
+      L.d(TAG, "task__cancel");
+    }
+  }
+
+  @Download.onTaskFail void taskFail(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
+    }
+  }
+
+  @Download.onTaskComplete void taskComplete(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
+    }
+  }
+
+  @Download.onNoSupportBreakPoint public void onNoSupportBreakPoint(DownloadTask task) {
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
+    }
   }
 
   @Override protected int setLayoutId() {
@@ -203,6 +282,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         break;
     }
   }
+<<<<<<< HEAD
 
   private class MySchedulerListener extends Aria.DownloadSchedulerListener {
 
@@ -263,4 +343,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       }
     }
   }
+=======
+>>>>>>> v_3.0
 }
