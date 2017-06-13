@@ -71,9 +71,29 @@ class ConnectionHelp {
     }
     conn.setRequestProperty("Charset", "UTF-8");
     conn.setRequestProperty("User-Agent",
-        "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
-    conn.setRequestProperty("Accept",
-        "image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36");
+    StringBuilder accept = new StringBuilder();
+    accept.append("image/gif, ")
+        .append("image/jpeg, ")
+        .append("image/pjpeg, ")
+        .append("image/webp, ")
+        .append("image/*, ")
+        .append("application/xml")
+        .append("application/xaml+xml, ")
+        .append("application/xhtml+xml, ")
+        .append("application/x-shockwave-flash, ")
+        .append("application/x-ms-xbap, ")
+        .append("application/x-ms-application, ")
+        .append("application/msword, ")
+        .append("application/vnd.ms-excel, ")
+        .append("application/vnd.ms-xpsdocument, ")
+        .append("application/vnd.ms-powerpoint, ")
+        .append("text/plain, ")
+        .append("text/html, ")
+        .append("*/*");
+    conn.setRequestProperty("Accept", accept.toString());
+    conn.setRequestProperty("Accept-Encoding", "identity");
+    conn.setRequestProperty("Accept-Charset", "UTF-8");
     conn.setRequestProperty("Connection", "Keep-Alive");
     //302获取重定向地址
     conn.setInstanceFollowRedirects(false);

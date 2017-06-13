@@ -39,13 +39,13 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
   public Object obj;
   public ISchedulerListener<DownloadTask> listener;
 
-
   /**
    * 设置最大下载速度，单位：kb
+   * 该方法为实验性功能，清不要轻易在生产环境中使用。
    *
    * @param maxSpeed 为0表示不限速
    */
-  public void setMaxSpeed(double maxSpeed) {
+  @Deprecated public void setMaxSpeed(double maxSpeed) {
     AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setMsxSpeed(maxSpeed);
   }
 

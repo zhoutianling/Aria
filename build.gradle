@@ -36,8 +36,8 @@ task clean(type: Delete) {
 ext {
   userOrg = 'arialyy'
   groupId = 'com.arialyy.aria'
-//  uploadName = 'AriaPre'
-  publishVersion = '0.0.6'
+//  publishVersion = '0.0.6'
+  publishVersion = '3.1.7'
   repoName='maven'
   desc = 'android 下载框架'
   website = 'https://github.com/AriaLyy/Aria'

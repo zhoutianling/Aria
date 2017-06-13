@@ -26,6 +26,8 @@ import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.widget.PopupWindow;
+import com.arialyy.annotations.Download;
+import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.scheduler.IDownloadSchedulerListener;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
@@ -171,7 +173,9 @@ import com.arialyy.aria.core.upload.UploadTask;
 
   /**
    * 上传任务状态监听
+   * @deprecated 请使用注解函数的方式来实现事件的获取{@see {@link Upload}}
    */
+  @Deprecated
   public static class UploadSchedulerListener implements ISchedulerListener<UploadTask> {
 
     /**
@@ -218,7 +222,9 @@ import com.arialyy.aria.core.upload.UploadTask;
 
   /**
    * 下载任务状态监听
+   * @deprecated 请使用注解函数的方式来实现事件的获取{@see {@link Download}}
    */
+  @Deprecated
   public static class DownloadSchedulerListener
       implements IDownloadSchedulerListener<DownloadTask> {
     /**

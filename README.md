@@ -25,7 +25,8 @@ Aria怎样使用？
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/Aria/images/download.svg)](https://bintray.com/arialyy/maven/Aria/_latestVersion)</br>
 ```java
-compile 'com.arialyy.aria:Aria:3.1.5'
+compile 'com.arialyy.aria:Aria:3.1.7'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.7'
 ```
 
 ## 示例
@@ -49,7 +50,7 @@ compile 'com.arialyy.aria:Aria:3.1.5'
   ```java
   Aria.download(this)
       .load(DOWNLOAD_URL)
-      .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")	//文件保存路径
+      .setDownloadPath(DOWNLOAD_PATH)	//文件保存路径
       .add();
   ```
 
@@ -58,7 +59,7 @@ compile 'com.arialyy.aria:Aria:3.1.5'
   ```java
   Aria.download(this)
       .load(DOWNLOAD_URL)     //读取下载地址
-      .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")    //设置文件保存的完整路径
+      .setDownloadPath(DOWNLOAD_PATH)    //设置文件保存的完整路径
       .start();   //启动下载
   ```
 * 暂停
@@ -84,48 +85,56 @@ compile 'com.arialyy.aria:Aria:3.1.5'
 
 ` Aria.download(this).register();`或`Aria.upload(this).register();`
 ```java
- @Override protected void onCreate(Bundle savedInstanceState) {
+ @Override
+ protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     Aria.download(this).register();
   }
 ```
 
 * 使用'@Download'或'@Upload'注解你的函数
+
  **注意：**
  - 注解回掉采用Apt的方式实现，所以，你不需要担心这会影响你机器的性能
  - 被注解的方法**不能被private修饰**
  - 被注解的方法**只能有一个参数，并且参数类型必须是`DownloadTask`或`UploadTask`**
- - 方法名可以为任意字符
+ - 方法名可以为任意字符串
+
+* 除了在widget（Activity、Fragment、Dialog、Popupwindow）中使用注解方法外，你还可以在Service、Notification等组件中使用注解函数。
 
   ```java
-  @Download.onPre protected void onPre(DownloadTask task) {}
+  @Download.onPre
+  protected void onPre(DownloadTask task) {}
 
-  @Download.onTaskStart void taskStart(DownloadTask task) {
+  @Download.onTaskStart
+  void taskStart(DownloadTask task) {
     //通过下载地址可以判断任务是否是你指定的任务
     if (task.getKey().equals(DOWNLOAD_URL)) {
     }
   }
 
-  @Download.onTaskRunning protected void running(DownloadTask task) {}
+  @Download.onTaskRunning
+  protected void running(DownloadTask task) {}
 
-  @Download.onTaskResume void taskResume(DownloadTask task) {}
+  @Download.onTaskResume
+  void taskResume(DownloadTask task) {}
 
-  @Download.onTaskStop void taskStop(DownloadTask task) {}
+  @Download.onTaskStop
+  void taskStop(DownloadTask task) {}
 
-  @Download.onTaskCancel void taskCancel(DownloadTask task) {}
+  @Download.onTaskCancel
+  void taskCancel(DownloadTask task) {}
 
-  @Download.onTaskFail void taskFail(DownloadTask task) {}
+  @Download.onTaskFail
+  void taskFail(DownloadTask task) {}
 
-  @Download.onTaskComplete void taskComplete(DownloadTask task) {}
+  @Download.onTaskComplete
+  void taskComplete(DownloadTask task) {}
 
-  @Download.onNoSupportBreakPoint public void onNoSupportBreakPoint(DownloadTask task) {}
+  @Download.onNoSupportBreakPoint
+  public void onNoSupportBreakPoint(DownloadTask task) {}
 
   ```
-
-### 使用广播接收器接收Aria的任务下载状态
-有的时候，你可能希望在广播中接收Aria的下载事件，那么你需要
-* 在[配置文件](#配置文件设置参数)中把` <openBroadcast value="false"/>`中的value改为true
-* [点击该链接查看注册Aria广播的方式](https://github.com/AriaLyy/Aria/blob/master/BroadCast.md)
 
 ### Aria参数配置
 #### 配置文件设置参数
@@ -268,11 +277,18 @@ Aria.download(this).load(DOWNLOAD_URL).setDownloadPath(PATH).setHighestPriority(
  ```java
  Aria.upload(this).load(filePath).cancel();
  ```
- 
+
 ## 混淆配置
 ```
 -dontwarn com.arialyy.aria.**
 -keep class com.arialyy.aria.**{*;}
+-keep class **$$DownloadListenerProxy{ *; }
+-keep class **$$UploadListenerProxy{ *; }
+-keepclasseswithmembernames class * {
+    @Download.* <methods>;
+    @Upload.* <methods>;
+}
+
 ```
 
 ## 其他
@@ -286,6 +302,8 @@ Aria.download(this).load(DOWNLOAD_URL).setDownloadPath(PATH).setHighestPriority(
 
 
 ## 开发日志
+  + v_3.1.7 修复某些文件下载不了的bug，增加apt注解方法，事件获取更加简单了
+  + v_3.1.6 取消任务时onTaskCancel回调两次的bug
   + v_3.1.5 优化代码结构，增加优先下载任务功能。
   + v_3.1.4 修复快速切换，暂停、恢复功能时，概率性出现的重新下载问题，添加onPre()回调，onPre()用于请求地址之前执行界面UI更新操作。
   + v_3.1.0 添加Aria配置文件，优化代码
