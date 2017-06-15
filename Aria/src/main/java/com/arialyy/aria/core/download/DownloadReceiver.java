@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.inf.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.command.AbsCmd;
@@ -133,19 +134,21 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
   }
 
   /**
-   * 停止所有正在下载的任务
+   * 停止所有正在下载的任务，并清空等待队列。
    */
   @Override public void stopAllTask() {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    List<DownloadEntity> allEntity = DbEntity.findAllData(DownloadEntity.class);
-    List<AbsCmd> stopCmds = new ArrayList<>();
-    for (DownloadEntity entity : allEntity) {
-      if (entity.getState() == DownloadEntity.STATE_RUNNING) {
-        stopCmds.add(
-            CommonUtil.createCmd(targetName, new DownloadTaskEntity(entity), CmdFactory.TASK_STOP));
-      }
-    }
-    ariaManager.setCmds(stopCmds).exe();
+    ariaManager.setCmd(CmdFactory.getInstance()
+        .createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_STOP_ALL)).exe();
+  }
+
+  /**
+   * 恢复所有正在下载的任务
+   */
+  public void resumeAllTask() {
+    final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
+    ariaManager.setCmd(CmdFactory.getInstance()
+        .createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_RESUME_ALL)).exe();
   }
 
   /**

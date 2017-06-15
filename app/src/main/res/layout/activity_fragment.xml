@@ -6,6 +6,7 @@
       android:layout_height="match_parent"
       android:orientation="vertical"
       >
+    <include layout="@layout/layout_bar"/>
     <fragment
         android:id="@+id/fragment1"
         android:name="com.arialyy.simple.download.fragment_download.DownloadFragment"

@@ -16,6 +16,7 @@
 
 package com.arialyy.simple.download.fragment_download;
 
+import android.os.Bundle;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.FragmentDownloadBinding;
@@ -27,5 +28,10 @@ import com.arialyy.simple.databinding.FragmentDownloadBinding;
 public class FragmentActivity extends BaseActivity<FragmentDownloadBinding> {
   @Override protected int setLayoutId() {
     return R.layout.activity_fragment;
+  }
+
+  @Override protected void init(Bundle savedInstanceState) {
+    super.init(savedInstanceState);
+    setTile("Fragment 中使用");
   }
 }

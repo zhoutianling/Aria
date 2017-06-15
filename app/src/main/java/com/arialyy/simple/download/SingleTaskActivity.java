@@ -63,8 +63,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-      //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
-      //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
+  //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
+  //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
   //"http://oqcpqqvuf.bkt.clouddn.com/ceshi.txt";
   //"http://down8.androidgame-store.com/201706122321/97967927DD4E53D9905ECAA7874C8128/new/game1/19/45319/com.neuralprisma-2.5.2.174-2000174_1494784835.apk?f=web_1";
   //不支持断点的链接
@@ -182,63 +182,45 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     return true;
   }
 
-  @Download.onPre protected void onPre(DownloadTask task) {
-    if (task.getKey().equals(DOWNLOAD_URL)) {
-      mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
-          .sendToTarget();
-    }
+  @Download.onPre(DOWNLOAD_URL) protected void onPre(DownloadTask task) {
+    mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
+        .sendToTarget();
   }
 
-  @Download.onTaskStart void taskStart(DownloadTask task) {
-    //通过下载地址可以判断任务是否是你指定的任务
-    if (task.getKey().equals(DOWNLOAD_URL)) {
-      mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getDownloadEntity().getFileSize())
-          .sendToTarget();
-    }
+  @Download.onTaskStart(DOWNLOAD_URL) void taskStart(DownloadTask task) {
+    mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getDownloadEntity().getFileSize())
+        .sendToTarget();
   }
 
-  @Download.onTaskRunning protected void running(DownloadTask task) {
-    if (task.getKey().equals(DOWNLOAD_URL)) {
-      mUpdateHandler.obtainMessage(DOWNLOAD_RUNNING, task).sendToTarget();
-    }
+  @Download.onTaskRunning(DOWNLOAD_URL) protected void running(DownloadTask task) {
+    mUpdateHandler.obtainMessage(DOWNLOAD_RUNNING, task).sendToTarget();
   }
 
-  @Download.onTaskResume void taskResume(DownloadTask task) {
-    if (task.getKey().equals(DOWNLOAD_URL)) {
-      mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getFileSize()).sendToTarget();
-    }
+  @Download.onTaskResume(DOWNLOAD_URL) void taskResume(DownloadTask task) {
+    mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getFileSize()).sendToTarget();
   }
 
-  @Download.onTaskStop void taskStop(DownloadTask task) {
-    if (task.getKey().equals(DOWNLOAD_URL)) {
-      mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
-      L.d(TAG, "task__stop");
-    }
+  @Download.onTaskStop(DOWNLOAD_URL) void taskStop(DownloadTask task) {
+    mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
+    L.d(TAG, "task__stop");
   }
 
-  @Download.onTaskCancel void taskCancel(DownloadTask task) {
-    if (task.getKey().equals(DOWNLOAD_URL)) {
-      mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
-      L.d(TAG, "task__cancel");
-    }
+  @Download.onTaskCancel(DOWNLOAD_URL) void taskCancel(DownloadTask task) {
+    mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
+    L.d(TAG, "task__cancel");
   }
 
-  @Download.onTaskFail void taskFail(DownloadTask task) {
-    if (task.getKey().equals(DOWNLOAD_URL)) {
-      mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
-    }
+  @Download.onTaskFail(DOWNLOAD_URL) void taskFail(DownloadTask task) {
+    mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
   }
 
-  @Download.onTaskComplete void taskComplete(DownloadTask task) {
-    if (task.getKey().equals(DOWNLOAD_URL)) {
-      mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
-    }
+  @Download.onTaskComplete(DOWNLOAD_URL) void taskComplete(DownloadTask task) {
+    mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
   }
 
-  @Download.onNoSupportBreakPoint public void onNoSupportBreakPoint(DownloadTask task) {
-    if (task.getKey().equals(DOWNLOAD_URL)) {
-      T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
-    }
+  @Download.onNoSupportBreakPoint(DOWNLOAD_URL)
+  public void onNoSupportBreakPoint(DownloadTask task) {
+    T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
   }
 
   @Override protected int setLayoutId() {

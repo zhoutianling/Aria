@@ -17,11 +17,14 @@
 package com.arialyy.aria.core.queue;
 
 import android.util.Log;
+import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.queue.pool.CachePool;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
+import java.util.Set;
 
 /**
  * Created by lyy on 2017/2/23.
@@ -32,6 +35,25 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   private final String TAG = "AbsTaskQueue";
   CachePool<TASK> mCachePool = new CachePool<>();
   ExecutePool<TASK> mExecutePool;
+
+  /**
+   * 停止所有任务
+   */
+  @Override public void stopAllTask() {
+    Set<String> exeKeys = mExecutePool.getAllTask().keySet();
+    for (String key : exeKeys) {
+      TASK task = mExecutePool.getAllTask().get(key);
+      if (task != null && task.isRunning()) task.stop();
+    }
+    Set<String> cacheKeys = mCachePool.getAllTask().keySet();
+    for (String key : cacheKeys) {
+      mExecutePool.removeTask(key);
+    }
+  }
+
+  @Override public int getMaxTaskNum() {
+    return AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
+  }
 
   /**
    * 获取任务执行池
@@ -61,7 +83,7 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
    *
    * @return 当前正在执行的任务数
    */
-  @Override public int executePoolSize() {
+  @Override public int getExeTaskNum() {
     return mExecutePool.size();
   }
 

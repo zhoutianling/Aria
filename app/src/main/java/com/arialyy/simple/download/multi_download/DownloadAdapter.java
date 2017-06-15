@@ -152,8 +152,8 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   }
 
   private String covertCurrentSize(long currentSize) {
-    String size = CommonUtil.formatFileSize(currentSize);
-    return size.substring(0, size.length() - 2);
+    if (currentSize < 0) return "0";
+    return CommonUtil.formatFileSize(currentSize);
   }
 
   private int getColor(int color) {

@@ -48,8 +48,14 @@ public class CmdFactory {
    * 设置任务为最高优先级
    */
   public static final int TASK_HIGHEST_PRIORITY = 0x128;
-
-  public static final int TASK_SINGLE = 0x126;
+  /**
+   * 停止所有任务
+   */
+  public static final int TASK_STOP_ALL = 0x129;
+  /**
+   * 恢复所有停止的任务
+   */
+  public static final int TASK_RESUME_ALL = 0x130;
 
   private static volatile CmdFactory INSTANCE = null;
 
@@ -70,23 +76,25 @@ public class CmdFactory {
    * @param target 创建任务的对象
    * @param entity 下载实体
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
-   * #TASK_STOP}、{@link #TASK_HIGHEST_PRIORITY}
+   * #TASK_STOP}、{@link #TASK_HIGHEST_PRIORITY}、{@link #TASK_STOP_ALL}、{@link #TASK_RESUME_ALL}
    */
-  public <T extends AbsTaskEntity> AbsCmd createCmd(String target, T entity, int type) {
+  public <T extends AbsTaskEntity> AbsCmd<T> createCmd(String target, T entity, int type) {
     switch (type) {
       case TASK_CREATE:
-        return new AddCmd(target, entity);
+        return new AddCmd<>(target, entity);
       case TASK_RESUME:
       case TASK_START:
-        return new StartCmd(target, entity);
+        return new StartCmd<>(target, entity);
       case TASK_CANCEL:
-        return new CancelCmd(target, entity);
+        return new CancelCmd<>(target, entity);
       case TASK_STOP:
-        return new StopCmd(target, entity);
+        return new StopCmd<>(target, entity);
       case TASK_HIGHEST_PRIORITY:
-        return new HighestPriorityCmd(target, entity);
-      case TASK_SINGLE:
-        //return new SingleCmd(target, entity);
+        return new HighestPriorityCmd<>(target, entity);
+      case TASK_STOP_ALL:
+        return new StopAllCmd<>(target, entity);
+      case TASK_RESUME_ALL:
+        return new ResumeAllCmd<>(target, entity);
       default:
         return null;
     }

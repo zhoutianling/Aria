@@ -13,21 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.compiler;
-
-import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+package com.arialyy.annotations;
 
 /**
- * Created by Aria.Lao on 2017/6/7.
+ * Created by AriaL on 2017/6/14.
  */
 
-class ProxyEntity {
-  public String packageName;
-  public String className;
-  public boolean isDownlaod = true;
-  public Map<String, Set<String>> keyMappings = new HashMap<>();
-  public Map<Class<? extends Annotation>, String> methods = new HashMap<>();
+public interface AriaConstance {
+  String NO_URL = "";
 }
+

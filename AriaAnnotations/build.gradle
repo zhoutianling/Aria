@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'bintray-release'
 
 tasks.withType(JavaCompile) {
   options.encoding = "UTF-8"
@@ -12,14 +11,4 @@ dependencies {
   compile fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-publish {
-  artifactId = 'aria-annotations'
-  userOrg = rootProject.userOrg
-  groupId = rootProject.groupId
-//  uploadName = rootProject.uploadName
-  uploadName = 'AriaAnnotations'
-  publishVersion = rootProject.publishVersion
-  description = rootProject.description
-  website = rootProject.website
-  licences = rootProject.licences
-}
+//apply from: 'bintray-release.gradle'
