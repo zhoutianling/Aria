@@ -30,6 +30,7 @@
     <activity android:name=".download.fragment_download.FragmentActivity"/>
     <activity android:name=".download.multi_download.MultiDownloadActivity"/>
     <activity android:name=".download.HighestPriorityActivity"/>
+    <activity android:name=".test.TestMutilTaskSysDownload"/>
 
     <service android:name=".download.service_download.DownloadService"/>
   </application>

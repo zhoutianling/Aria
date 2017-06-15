@@ -17,6 +17,7 @@
 package com.arialyy.aria.core.command;
 
 import android.util.Log;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
@@ -34,10 +35,10 @@ class AddCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
     if (!canExeCmd) return;
     ITask task = mQueue.getTask(mEntity.getEntity());
     if (task == null) {
+      mEntity.getEntity().setState(IEntity.STATE_WAIT);
       mQueue.createTask(mTargetName, mEntity);
     } else {
       Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
     }
   }
-
 }

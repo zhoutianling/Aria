@@ -10,26 +10,11 @@
     <include layout="@layout/layout_bar"/>
 
     <Button
+        android:onClick="onClick"
         android:id="@+id/download"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="下载  demo"
-        style="?buttonBarButtonStyle"
-        />
-
-    <Button
-        android:id="@+id/upload"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="上传  demo"
-        style="?buttonBarButtonStyle"
-        />
-
-    <Button
-        android:id="@+id/multi_test"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="多任务测试"
+        android:text="多任务同时下载"
         style="?buttonBarButtonStyle"
         />
 
