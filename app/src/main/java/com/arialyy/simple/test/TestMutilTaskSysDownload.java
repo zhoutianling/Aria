@@ -56,14 +56,17 @@ public class TestMutilTaskSysDownload extends BaseActivity<TestActivityMultiBind
     int maxNum = Aria.get(this).getDownloadConfig().getMaxTaskNum();
     for (int i = 0; i < urlArray.length; i++) {
       if (i < maxNum) {
+
         Aria.download(this)
             .load(baseUrl + urlArray[i])
             .setDownloadPath(Environment.getExternalStorageDirectory() + "/test/" + i + ".jpg")
+            //.addHeader("Accept-Encoding", "gzip,deflate,sdcn")
             .start();
       } else {
         Aria.download(this)
             .load(baseUrl + urlArray[i])
             .setDownloadPath(Environment.getExternalStorageDirectory() + "/test/" + i + ".jpg")
+            //.addHeader("Accept-Encoding", "gzip,deflate,sdcn")
             .add();
       }
     }

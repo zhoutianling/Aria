@@ -81,7 +81,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
         + ".properties");
     try {
       if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
-        handleNewTask();
+        isNewTask = true;
         CommonUtil.createFile(mConfigFile.getPath());
       } else {
         isNewTask = !mDownloadFile.exists();
@@ -295,10 +295,6 @@ class DownloadUtil implements IDownloadUtil, Runnable {
       return;
     }
     int fileLength = conn.getContentLength();
-    if (fileLength < SUB_LEN) {
-      THREAD_NUM = 1;
-      CONSTANCE.THREAD_NUM = THREAD_NUM;
-    }
     Properties pro = createConfigFile(fileLength);
     int blockSize = fileLength / THREAD_NUM;
     int[] recordL = new int[THREAD_NUM];
@@ -325,7 +321,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
         recordL[rl] = i;
         rl++;
       } else {
-        handleNewTask();
+        handleNewTask(fileLength);
       }
       if (isNewTask) {
         recordL[rl] = i;
@@ -380,7 +376,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     //分配每条线程的下载区间
     pro = CommonUtil.loadConfig(mConfigFile);
     if (pro.isEmpty()) {
-      handleNewTask();
+      handleNewTask(fileLength);
     } else {
       Set<Object> keys = pro.keySet();
       int num = 0;
@@ -390,7 +386,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
         }
       }
       if (num == 0) {
-        handleNewTask();
+        handleNewTask(fileLength);
         return pro;
       }
       THREAD_NUM = num;
@@ -400,7 +396,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
           if (state != null && Integer.parseInt(state + "") == 1) {
             continue;
           }
-          handleNewTask();
+          handleNewTask(fileLength);
           return pro;
         }
       }
@@ -412,9 +408,10 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   /**
    * 处理新任务
    */
-  private void handleNewTask() {
+  private void handleNewTask(long fileLength) {
     isNewTask = true;
-    THREAD_NUM = AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
+    THREAD_NUM = fileLength < SUB_LEN ? 1
+        : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
   }
 
   /**
