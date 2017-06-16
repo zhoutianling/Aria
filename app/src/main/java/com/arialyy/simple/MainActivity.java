@@ -26,6 +26,7 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
 import com.arialyy.simple.download.DownloadActivity;
+import com.arialyy.simple.test.TestMutilTaskSysDownload;
 import com.arialyy.simple.upload.UploadActivity;
 
 /**
@@ -50,5 +51,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
 
   @OnClick(R.id.upload) public void uploadDemo() {
     startActivity(new Intent(this, UploadActivity.class));
+  }
+
+  @OnClick(R.id.multi_test) public void mutliTest() {
+    startActivity(new Intent(this, TestMutilTaskSysDownload.class));
   }
 }

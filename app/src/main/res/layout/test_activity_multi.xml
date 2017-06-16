@@ -6,12 +6,16 @@
       android:layout_height="match_parent"
       android:orientation="vertical"
       >
+
     <include layout="@layout/layout_bar"/>
-    <fragment
-        android:id="@+id/fragment1"
-        android:name="com.arialyy.simple.download.fragment_download.DownloadFragment"
+
+    <Button
+        android:onClick="onClick"
+        android:id="@+id/download"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        android:text="多任务同时下载"
+        style="?buttonBarButtonStyle"
         />
 
   </LinearLayout>

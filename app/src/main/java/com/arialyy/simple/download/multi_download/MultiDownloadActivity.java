@@ -20,12 +20,15 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import butterknife.Bind;
 import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.frame.util.show.L;
+import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiDownloadBinding;
@@ -35,11 +38,15 @@ import java.util.List;
 /**
  * Created by AriaL on 2017/1/6.
  */
-
 public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBinding> {
   @Bind(R.id.list) RecyclerView mList;
   private DownloadAdapter mAdapter;
   private List<DownloadEntity> mData = new ArrayList<>();
+
+  String[] mFilterStr = new String[] {
+      "https://g37.gdl.netease.com/onmyoji_netease_10_1.0.20.apk",
+      "http://static.gaoshouyou.com/d/eb/f2/dfeba30541f209ab8a50d847fc1661ce.apk"
+  };
 
   @Override protected int setLayoutId() {
     return R.layout.activity_multi_download;
@@ -56,6 +63,16 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
     mAdapter = new DownloadAdapter(this, mData);
     mList.setLayoutManager(new LinearLayoutManager(this));
     mList.setAdapter(mAdapter);
+  }
+
+  @Override public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu_mutil_task, menu);
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override public boolean onMenuItemClick(MenuItem item) {
+    Aria.download(this).resumeAllTask();
+    return true;
   }
 
   @Download.onPre void onPre(DownloadTask task) {
@@ -82,14 +99,17 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
   }
 
   @Download.onTaskFail void taskFail(DownloadTask task) {
-    L.d(TAG, "download fail");
+    mAdapter.updateState(task.getDownloadEntity());
   }
 
   @Download.onTaskComplete void taskComplete(DownloadTask task) {
     mAdapter.updateState(task.getDownloadEntity());
   }
 
-  @Download.onTaskRunning void taskRunning(DownloadTask task) {
+  @Download.onTaskRunning({
+      "https://g37.gdl.netease.com/onmyoji_netease_10_1.0.20.apk",
+      "http://static.gaoshouyou.com/d/eb/f2/dfeba30541f209ab8a50d847fc1661ce.apk"
+  }) void taskRunning(DownloadTask task) {
     mAdapter.setProgress(task.getDownloadEntity());
   }
 }

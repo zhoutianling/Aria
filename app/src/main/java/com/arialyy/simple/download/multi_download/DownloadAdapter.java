@@ -24,6 +24,7 @@ import android.widget.TextView;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.adapter.AbsHolder;
@@ -152,8 +153,8 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
   }
 
   private String covertCurrentSize(long currentSize) {
-    String size = CommonUtil.formatFileSize(currentSize);
-    return size.substring(0, size.length() - 2);
+    if (currentSize < 0) return "0";
+    return CommonUtil.formatFileSize(currentSize);
   }
 
   private int getColor(int color) {

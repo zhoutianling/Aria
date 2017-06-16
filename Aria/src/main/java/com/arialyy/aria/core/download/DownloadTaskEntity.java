@@ -25,6 +25,8 @@ public class DownloadTaskEntity extends AbsTaskEntity {
 
   public DownloadEntity downloadEntity;
 
+  public DownloadTaskEntity(){}
+
   public DownloadTaskEntity(DownloadEntity downloadEntity) {
     this.downloadEntity = downloadEntity;
   }

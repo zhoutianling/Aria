@@ -33,7 +33,13 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends IEntity> {
 
   /**
+   * 停止所有任务
+   */
+  void stopAllTask();
+
+  /**
    * 设置任务为最高优先级任务
+   *
    * @param task {@link DownloadTask}、{@link UploadTask}
    */
   void setTaskHighestPriority(TASK task);
@@ -67,9 +73,9 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   void reTryStart(TASK task);
 
   /**
-   * 任务池队列大小
+   * 获取正在执行的任务数量
    */
-  int executePoolSize();
+  int getExeTaskNum();
 
   /**
    * 任务缓存池大小
@@ -79,9 +85,14 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   /**
    * 设置最大任务数
    *
-   * @param newMaxNum 下载任务数
+   * @param newMaxNum 最大任务数
    */
   void setMaxTaskNum(int newMaxNum);
+
+  /**
+   * 获取可执行队列的大小
+   */
+  int getMaxTaskNum();
 
   /**
    * 创建一个新的任务，创建时只是将新任务存储到缓存池

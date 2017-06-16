@@ -27,8 +27,13 @@ Aria怎样使用？
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
+<<<<<<< HEAD
 compile 'com.arialyy.aria:aria-core:3.1.8'
 annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.8'
+=======
+compile 'com.arialyy.aria:Aria:3.1.9'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
+>>>>>>> v_3.0
 ```
 
 ## 示例
@@ -81,19 +86,29 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.8'
   ```
 
 ### 下载状态获取
+<<<<<<< HEAD
 如果你希望读取下载进度或下载信息，那么你需要
 * 将对象注册到Aria
+=======
+如果你希望读取下载进度或下载信息，那么你需要创建事件类，并在onResume(Activity、Fragment)或构造函数(Dialog、PopupWindow)，将该事件类注册到Aria管理器。
 
-` Aria.download(this).register();`或`Aria.upload(this).register();`
-```java
+1. 将对象注册到Aria
+>>>>>>> v_3.0
+
+ `Aria.download(this).register();`或`Aria.upload(this).register();`
+ ```java
  @Override
  protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     Aria.download(this).register();
   }
-```
+ ```
 
+<<<<<<< HEAD
 * 使用`@Download`或`@Upload`注解你的函数
+=======
+2. 使用`@Download`或`@Upload`注解你的函数
+>>>>>>> v_3.0
 
   **注意：**
   - 注解回掉采用Apt的方式实现，所以，你不需要担心这会影响你机器的性能
@@ -101,18 +116,14 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.8'
   - 被注解的方法**只能有一个参数，并且参数类型必须是`DownloadTask`或`UploadTask`**
   - 方法名可以为任意字符串
 
-* 除了在widget（Activity、Fragment、Dialog、Popupwindow）中使用注解方法外，你还可以在Service、Notification等组件中使用注解函数。
+3. 除了在widget（Activity、Fragment、Dialog、Popupwindow）中使用注解方法外，你还可以在Service、Notification等组件中使用注解函数。
 
   ```java
-  @Download.onPre
+  @Download.onPre(DOWNLOAD_URL)
   protected void onPre(DownloadTask task) {}
 
   @Download.onTaskStart
-  void taskStart(DownloadTask task) {
-    //通过下载地址可以判断任务是否是你指定的任务
-    if (task.getKey().equals(DOWNLOAD_URL)) {
-    }
-  }
+  void taskStart(DownloadTask task) {}
 
   @Download.onTaskRunning
   protected void running(DownloadTask task) {}
@@ -136,6 +147,19 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.8'
   public void onNoSupportBreakPoint(DownloadTask task) {}
 
   ```
+4. 如果你希望对单个任务，或某一些特定任务设置监听器。
+ 在注解中添加任务的下载地址，**则表示只有该任务才会触发被注解的方法**。
+
+ ```java
+ @Download.onTaskRunning({
+      "https://test.xx.apk",
+      "http://test.xx2.apk"
+  }) void taskRunning(DownloadTask task) {
+    mAdapter.setProgress(task.getDownloadEntity());
+  }
+ ```
+在上面的例子中，只有下载地址是`https://test.xx.apk`和`http://test.xx2.apk`才会触发
+`taskRunning(DownloadTask task)`方法。
 
 ### Aria参数配置
 #### 配置文件设置参数
@@ -215,24 +239,33 @@ Aria.get(this).getDownloadConfig().setMaxTaskNum(3);
 ### 常用接口
 * 停止所有任务
 
-```java
-Aria.download(this).stopAllTask();
-```
+ ```java
+ Aria.download(this).stopAllTask();
+ ```
+
+* 恢复所有停止的任务
+
+ ```java
+Aria.download(this).resumeAllTask();
+ ```
+
 * 删除所有任务
 
-```java
-Aria.download(this).removeAllTask();
-```
+ ```java
+ Aria.download(this).removeAllTask();
+ ```
+
 * 获取当前任务的下载速度
 速度参数有点特殊，需要[下载事件支持](#下载状态获取)
 ``` java
 @Override public void onTaskRunning(DownloadTask task) {
-  //如果你打开了速度单位转换配置，将可以通过以下方法获取带单位的下载速度，如：1 m/s
+  //如果你打开了速度单位转换配置，将可以通过以下方法获取带单位的下载速度，如：1 mb/s
   String convertSpeed = task.getConvertSpeed();
   //如果你有自己的单位格式，可以通过以下方法获取原始byte长度
   long speed = task.getSpeed();
 }
 ```
+
 * 获取下载的文件大小、当前进度百分比
 同样的，你也可以在DownloadTask对象中获取下载的文件大小
 ```
@@ -245,6 +278,7 @@ Aria.download(this).removeAllTask();
   int percent = task.getPercent();
 }
 ```
+
 * 设置高优先级任务
 如果你希望优先下载某一个任务，你可以
 ``` java
@@ -257,8 +291,6 @@ tip: 如果你数据比较多，或者数据比较复杂，你可以先把数据
 ```java
 Aria.download(this).load(DOWNLOAD_URL).setExtendField(str)
 ```
-
-**tips:为了防止内存泄露的情况，事件类需要使用staic进行修饰**
 
 ## 上传
  * 添加任务(只添加，不上传)
@@ -310,6 +342,7 @@ Aria.download(this).load(DOWNLOAD_URL).setExtendField(str)
 
 
 ## 开发日志
+  + v_3.1.9 修复stopAll队列没有任务时崩溃的问题，增加针对单个任务监听的功能
   + v_3.1.7 修复某些文件下载不了的bug，增加apt注解方法，事件获取更加简单了
   + v_3.1.6 取消任务时onTaskCancel回调两次的bug
   + v_3.1.5 优化代码结构，增加优先下载任务功能。
