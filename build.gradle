@@ -6,7 +6,7 @@ buildscript {
   }
   dependencies {
     classpath 'com.android.tools.build:gradle:2.2.2'
-//    classpath 'com.novoda:bintray-release:0.5.0'
+    classpath 'com.novoda:bintray-release:0.5.0'
     //        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
     //        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
     // NOTE: Do not place your application dependencies here; they belong
@@ -37,7 +37,7 @@ ext {
   userOrg = 'arialyy'
   groupId = 'com.arialyy.aria'
 //  publishVersion = '0.0.6'
-  publishVersion = '3.1.8'
+  publishVersion = '3.1.9'
   repoName='maven'
   desc = 'android 下载框架'
   website = 'https://github.com/AriaLyy/Aria'

@@ -7,9 +7,8 @@
       android:icon="@mipmap/ic_add_black_48dp"
       android:orderInCategory="80"
       android:title="添加一组任务"
-      app:showAsAction="ifRoom"
+      app:showAsAction="always"
       />
-
   <item
       android:id="@+id/help"
       android:icon="@mipmap/ic_help_black_48dp"

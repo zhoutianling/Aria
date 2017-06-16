@@ -352,6 +352,9 @@ public class CommonUtil {
    * @param size file.length() 获取文件大小
    */
   public static String formatFileSize(double size) {
+    if (size < 0) {
+      return "0kb";
+    }
     double kiloByte = size / 1024;
     if (kiloByte < 1) {
       return size + "b";

@@ -211,6 +211,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   @Download.onTaskFail(DOWNLOAD_URL) void taskFail(DownloadTask task) {
+    L.d(TAG, "task__fail");
     mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
   }
 

@@ -154,7 +154,7 @@ class ElementHandle {
         ParameterSpec.builder(task, "task").addModifiers(Modifier.FINAL).build();
     StringBuilder sb = new StringBuilder();
     sb.append("Set<String> keys = keyMapping.get(\"")
-        .append(annotation.getSimpleName())
+        .append(methodName)
         .append("\");\n");
     sb.append("if (keys != null) {\n\tif (keys.contains(task.getKey())) {\n")
         .append("\t\tobj.")
