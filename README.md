@@ -27,13 +27,8 @@ Aria怎样使用？
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-<<<<<<< HEAD
-compile 'com.arialyy.aria:aria-core:3.1.8'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.8'
-=======
 compile 'com.arialyy.aria:Aria:3.1.9'
 annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
->>>>>>> v_3.0
 ```
 
 ## 示例
@@ -86,14 +81,9 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
   ```
 
 ### 下载状态获取
-<<<<<<< HEAD
-如果你希望读取下载进度或下载信息，那么你需要
-* 将对象注册到Aria
-=======
 如果你希望读取下载进度或下载信息，那么你需要创建事件类，并在onResume(Activity、Fragment)或构造函数(Dialog、PopupWindow)，将该事件类注册到Aria管理器。
 
 1. 将对象注册到Aria
->>>>>>> v_3.0
 
  `Aria.download(this).register();`或`Aria.upload(this).register();`
  ```java
@@ -104,11 +94,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
   }
  ```
 
-<<<<<<< HEAD
-* 使用`@Download`或`@Upload`注解你的函数
-=======
 2. 使用`@Download`或`@Upload`注解你的函数
->>>>>>> v_3.0
 
   **注意：**
   - 注解回掉采用Apt的方式实现，所以，你不需要担心这会影响你机器的性能
