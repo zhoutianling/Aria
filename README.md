@@ -9,8 +9,10 @@ Aria有以下特点：
    - [通过Aria的事件，能很容易获取当前下载任务的下载状态](#下载状态获取)
    - [一句代码加可以获取当前的下载速度](#常用接口)
    - [一句代码就可以动态设置最大下载数](#代码中设置参数)
+   - [一句代码实现速度限制](#常用接口)
    - [通过修改配置文件很容易就能修改下载线程数](#配置文件设置参数)
    - [优先下载某一个任务](#常用接口)
+
  + 支持https地址下载
    - 在配置文件中很容易就可以设置CA证书的信息
  + 支持300、301、302重定向下载链接下载
@@ -33,7 +35,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
 
 ## 示例
 ![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/master/img/download_img.gif)
-![上传](https://github.com/AriaLyy/DownloadUtil/blob/master/img/sing_upload.gif)
+![网速下载限制](https://github.com/AriaLyy/DownloadUtil/blob/master/img/max_speed.gif)
 
 ## 性能
 ![性能展示](https://github.com/AriaLyy/DownloadUtil/blob/master/img/performance.png)
@@ -94,8 +96,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
   }
  ```
 
-2. 使用`@Download`或`@Upload`注解你的函数
-
+2. 使用`@Download`或`@Upload`注解你的函数<br>
   **注意：**
   - 注解回掉采用Apt的方式实现，所以，你不需要担心这会影响你机器的性能
   - 被注解的方法**不能被private修饰**
@@ -133,8 +134,8 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
   public void onNoSupportBreakPoint(DownloadTask task) {}
 
   ```
-4. 如果你希望对单个任务，或某一些特定任务设置监听器。
- 在注解中添加任务的下载地址，**则表示只有该任务才会触发被注解的方法**。
+4. 如果你希望对单个任务，或某一些特定任务设置监听器。<br>
+ **在注解中添加任务的下载地址，则表示只有该任务才会触发被注解的方法**。
 
  ```java
  @Download.onTaskRunning({
@@ -241,7 +242,13 @@ Aria.download(this).resumeAllTask();
  Aria.download(this).removeAllTask();
  ```
 
-* 获取当前任务的下载速度
+* 最大下载速度限制
+ ```java
+ //单位为 kb
+ Aria.download(this).setMaxSpeed(speed);
+ ```
+
+* 获取当前任务的下载速度<br>
 速度参数有点特殊，需要[下载事件支持](#下载状态获取)
 ``` java
 @Override public void onTaskRunning(DownloadTask task) {
@@ -252,7 +259,7 @@ Aria.download(this).resumeAllTask();
 }
 ```
 
-* 获取下载的文件大小、当前进度百分比
+* 获取下载的文件大小、当前进度百分比</br>
 同样的，你也可以在DownloadTask对象中获取下载的文件大小
 ```
 @Override public void onTaskRunning(DownloadTask task) {
@@ -265,15 +272,15 @@ Aria.download(this).resumeAllTask();
 }
 ```
 
-* 设置高优先级任务
-如果你希望优先下载某一个任务，你可以
+* 设置高优先级任务<br>
+ 如果你希望优先下载某一个任务，你可以
 ``` java
 Aria.download(this).load(DOWNLOAD_URL).setDownloadPath(PATH).setHighestPriority();
 ```
-* 设置扩展字段
-有的时候，你可能希望在下载的时候存放一些自己的数据
 
-tip: 如果你数据比较多，或者数据比较复杂，你可以先把数据转换为**JSON**，然后再将其存到Aria的下载实体中
+* 设置扩展字段<br>
+ 有的时候，你可能希望在下载的时候存放一些自己的数据</br>
+**TIP**: 如果你数据比较多，或者数据比较复杂，你可以先把数据转换为**JSON**，然后再将其存到Aria的下载实体中
 ```java
 Aria.download(this).load(DOWNLOAD_URL).setExtendField(str)
 ```
