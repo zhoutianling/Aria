@@ -511,7 +511,7 @@ final class SqlHelper extends SQLiteOpenHelper {
    * @return true 忽略该字段
    */
   static boolean ignoreField(Field field) {
-    // field.isSynthetic(), 使用as热启动App时，AS会自动给你的clss添加change字段
+    // field.isSynthetic(), 使用as热启动App时，AS会自动给你的class添加change字段
     Ignore ignore = field.getAnnotation(Ignore.class);
     int modifiers = field.getModifiers();
     return (ignore != null && ignore.value())
