@@ -44,10 +44,6 @@ final class SingleThreadTask implements Runnable {
   private int mBufSize;
   private IDownloadListener mListener;
   private DownloadStateConstance CONSTANCE;
-
-  /**
-   * speed = (bufSize / 1024) * CoresNum / sleepTime; (8192 / 1024) * 4 / 1= 32 kb/s
-   */
   private long mSleepTime = 0;
 
   SingleThreadTask(DownloadStateConstance constance, IDownloadListener listener,
@@ -71,8 +67,7 @@ final class SingleThreadTask implements Runnable {
     } else {
       BigDecimal db = new BigDecimal(
           ((mBufSize / 1024) * (filterVersion() ? 1 : CONSTANCE.THREAD_NUM) / maxSpeed) * 1000);
-      db.setScale(0, BigDecimal.ROUND_HALF_UP);
-      mSleepTime = db.longValue();
+      mSleepTime = db.setScale(0, BigDecimal.ROUND_HALF_UP).longValue();
     }
   }
 
