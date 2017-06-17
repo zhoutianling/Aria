@@ -98,10 +98,10 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
 
 2. 使用`@Download`或`@Upload`注解你的函数<br>
   **注意：**
-  - 注解回掉采用Apt的方式实现，所以，你不需要担心这会影响你机器的性能
-  - 被注解的方法**不能被private修饰**
-  - 被注解的方法**只能有一个参数，并且参数类型必须是`DownloadTask`或`UploadTask`**
-  - 方法名可以为任意字符串
+   - 注解回掉采用Apt的方式实现，所以，你不需要担心这会影响你机器的性能
+   - 被注解的方法**不能被private修饰**
+   - 被注解的方法**只能有一个参数，并且参数类型必须是`DownloadTask`或`UploadTask`**
+   - 方法名可以为任意字符串
 
 3. 除了在widget（Activity、Fragment、Dialog、Popupwindow）中使用注解方法外，你还可以在Service、Notification等组件中使用注解函数。
 
