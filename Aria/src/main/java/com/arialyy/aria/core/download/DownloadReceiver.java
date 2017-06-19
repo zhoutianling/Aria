@@ -144,6 +144,8 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
 
   /**
    * 恢复所有正在下载的任务
+   * 1.如果执行队列没有满，则开始下载任务，直到执行队列满
+   * 2.如果队列执行队列已经满了，则将所有任务添加到等待队列中
    */
   public void resumeAllTask() {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);

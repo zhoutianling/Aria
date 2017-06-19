@@ -161,8 +161,7 @@ public class DbEntity {
       List<String> values = new ArrayList<>();
       for (Field field : fields) {
         field.setAccessible(true);
-        Ignore ignore = field.getAnnotation(Ignore.class);
-        if (ignore != null && ignore.value()) {
+        if (SqlHelper.ignoreField(field)) {
           continue;
         }
         where.add(field.getName());
