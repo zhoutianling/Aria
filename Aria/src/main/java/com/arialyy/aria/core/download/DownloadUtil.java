@@ -192,7 +192,6 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   private void failDownload(String msg) {
     Log.e(TAG, msg);
     CONSTANCE.isDownloading = false;
-    stopDownload();
     mListener.onFail();
   }
 
@@ -210,7 +209,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
           + mDownloadEntity.getDownloadUrl()
           + "】\n【filePath:"
           + mDownloadFile.getPath()
-          + "】"
+          + "】\n"
           + CommonUtil.getPrintException(e));
     }
   }
