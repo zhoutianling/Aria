@@ -187,6 +187,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     print(FIND_DATA, sql);
     Cursor cursor = db.rawQuery(sql, null);
     List<T> data = cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
+    cursor.close();
     close(db);
     return data;
   }
@@ -215,6 +216,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     print(FIND_DATA, sb.toString());
     Cursor cursor = db.rawQuery(sb.toString(), null);
     List<T> data = cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
+    cursor.close();
     close(db);
     return data;
   }
@@ -229,6 +231,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     print(FIND_ALL_DATA, sb.toString());
     Cursor cursor = db.rawQuery(sb.toString(), null);
     List<T> data = cursor.getCount() > 0 ? newInstanceEntity(clazz, cursor) : null;
+    cursor.close();
     close(db);
     return data;
   }

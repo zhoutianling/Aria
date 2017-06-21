@@ -36,6 +36,10 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   CachePool<TASK> mCachePool = new CachePool<>();
   ExecutePool<TASK> mExecutePool;
 
+  @Override public boolean taskIsRunning(String key) {
+    return mExecutePool.getTask(key) != null;
+  }
+
   /**
    * 停止所有任务
    */

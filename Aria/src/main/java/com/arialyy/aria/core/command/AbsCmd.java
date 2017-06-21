@@ -39,6 +39,11 @@ public abstract class AbsCmd<T extends AbsTaskEntity> implements ICmd {
    * 能否执行命令
    */
   boolean canExeCmd = true;
+  /**
+   * 是否是下载任务的命令
+   * {@code true} 下载任务的命令，{@code false} 上传任务的命令
+   */
+  boolean isDownloadCmd = true;
 
   /**
    * @param targetName 产生任务的对象名
@@ -51,8 +56,10 @@ public abstract class AbsCmd<T extends AbsTaskEntity> implements ICmd {
     TAG = CommonUtil.getClassName(this);
     if (entity instanceof DownloadTaskEntity) {
       mQueue = DownloadTaskQueue.getInstance();
+      isDownloadCmd = true;
     } else if (entity instanceof UploadTaskEntity) {
       mQueue = UploadTaskQueue.getInstance();
+      isDownloadCmd = false;
     }
   }
 }

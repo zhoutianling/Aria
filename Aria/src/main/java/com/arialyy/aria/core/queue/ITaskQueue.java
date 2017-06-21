@@ -33,6 +33,14 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends IEntity> {
 
   /**
+   * 通过key判断任务是否正在执行
+   *
+   * @param key 下载链接，或上传文件的路径
+   * @return {@code true} 任务正在运行
+   */
+  boolean taskIsRunning(String key);
+
+  /**
    * 停止所有任务
    */
   void stopAllTask();

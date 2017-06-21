@@ -153,7 +153,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     switch (item.getItemId()) {
       case R.id.help:
         msg = "一些小知识点：\n"
-            + "1、你可以通过task.getKey().equals(DOWNLOAD_URL)判断是否是当前页面的下载，以防止progress乱跳\n"
+            + "1、你可以在注解中增加链接，用于指定被注解的方法只能被特定的下载任务回调，以防止progress乱跳\n"
             + "2、当遇到网络慢的情况时，你可以先使用onPre()更新UI界面，待连接成功时，再在onTaskPre()获取完整的task数据，然后给UI界面设置正确的数据\n"
             + "3、你可以在界面初始化时通过Aria.download(this).load(DOWNLOAD_URL).getPercent()等方法快速获取相关任务的一些数据";
         showMsgDialog("tip", msg);
