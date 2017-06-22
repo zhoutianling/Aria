@@ -35,7 +35,7 @@ public abstract class AbsTaskEntity {
   public RequestEnum requestEnum = RequestEnum.GET;
 
   /**
-   * 重定向后，新url的key
+   * 重定向后，从链接中获取新url所需要的key
    */
   public String redirectUrlKey = "location";
 

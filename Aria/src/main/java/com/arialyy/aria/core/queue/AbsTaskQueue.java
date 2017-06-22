@@ -78,16 +78,16 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
    *
    * @return 获取缓存的任务数
    */
-  @Override public int cachePoolSize() {
+  @Override public int getCachePoolSize() {
     return mCachePool.size();
   }
 
   /**
-   * 获取当前运行的任务数
+   * 获取执行池中的任务数量
    *
    * @return 当前正在执行的任务数
    */
-  @Override public int getExeTaskNum() {
+  @Override public int getExePoolSize() {
     return mExecutePool.size();
   }
 
@@ -134,7 +134,7 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
     }
   }
 
-  @Override public void cancelTask(TASK task) {
+  @Override public void removeTask(TASK task) {
     task.cancel();
   }
 

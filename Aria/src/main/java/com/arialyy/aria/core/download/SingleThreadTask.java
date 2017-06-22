@@ -76,8 +76,9 @@ final class SingleThreadTask implements Runnable {
   }
 
   @Override public void run() {
-    HttpURLConnection conn;
-    InputStream is;
+    HttpURLConnection conn = null;
+    InputStream is = null;
+    BufferedRandomAccessFile file = null;
     try {
       URL url = new URL(mConfigEntity.DOWNLOAD_URL);
       conn = ConnectionHelp.handleConnection(url);
@@ -102,8 +103,7 @@ final class SingleThreadTask implements Runnable {
       conn.setReadTimeout(CONSTANCE.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
       is = conn.getInputStream();
       //创建可设置位置的文件
-      BufferedRandomAccessFile file =
-          new BufferedRandomAccessFile(mConfigEntity.TEMP_FILE, "rwd", mBufSize);
+      file = new BufferedRandomAccessFile(mConfigEntity.TEMP_FILE, "rwd", mBufSize);
       //设置每条线程写入文件的位置
       file.seek(mConfigEntity.START_LOCATION);
       byte[] buffer = new byte[mBufSize];
@@ -121,10 +121,6 @@ final class SingleThreadTask implements Runnable {
         file.write(buffer, 0, len);
         progress(len);
       }
-      file.close();
-      //close 为阻塞的，需要使用线程池来处理
-      is.close();
-      conn.disconnect();
       if (CONSTANCE.isCancel) {
         return;
       }
@@ -161,6 +157,20 @@ final class SingleThreadTask implements Runnable {
       failDownload(mChildCurrentLocation, "下载失败【" + mConfigEntity.DOWNLOAD_URL + "】", e);
     } catch (Exception e) {
       failDownload(mChildCurrentLocation, "获取流失败", e);
+    } finally {
+      try {
+        if (file != null) {
+          file.close();
+        }
+        if (is != null) {
+          is.close();
+        }
+        if (conn != null) {
+          conn.disconnect();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
   }
 

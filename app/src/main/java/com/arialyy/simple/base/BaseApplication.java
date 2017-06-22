@@ -17,7 +17,10 @@
 package com.arialyy.simple.base;
 
 import android.app.Application;
+import android.os.Build;
+import android.os.StrictMode;
 import com.arialyy.frame.core.AbsFrame;
+import com.arialyy.simple.BuildConfig;
 
 /**
  * Created by Lyy on 2016/9/27.
@@ -26,5 +29,11 @@ public class BaseApplication extends Application {
   @Override public void onCreate() {
     super.onCreate();
     AbsFrame.init(this);
+
+    if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+      StrictMode.setThreadPolicy(
+          new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build());
+      StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build());
+    }
   }
 }

@@ -17,7 +17,6 @@
 package com.arialyy.aria.core.command;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.QueueMod;
 import com.arialyy.aria.core.inf.ITask;
@@ -35,9 +34,9 @@ class StartCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    ITask task = mQueue.getTask(mEntity.getEntity());
+    ITask task = mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
-      task = mQueue.createTask(mTargetName, mEntity);
+      task = mQueue.createTask(mTargetName, mTaskEntity);
     }
     if (task != null) {
       if (!TextUtils.isEmpty(mTargetName)) {
@@ -56,7 +55,7 @@ class StartCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
       if (mod.equals(QueueMod.NOW.getTag())) {
         mQueue.startTask(task);
       }else if (mod.equals(QueueMod.WAIT.getTag())){
-        if (mQueue.getExeTaskNum() < maxTaskNum){
+        if (mQueue.getExePoolSize() < maxTaskNum){
           mQueue.startTask(task);
         }
       }

@@ -33,10 +33,10 @@ class AddCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    ITask task = mQueue.getTask(mEntity.getEntity());
+    ITask task = mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
-      mEntity.getEntity().setState(IEntity.STATE_WAIT);
-      mQueue.createTask(mTargetName, mEntity);
+      mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
+      mQueue.createTask(mTargetName, mTaskEntity);
     } else {
       Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
     }

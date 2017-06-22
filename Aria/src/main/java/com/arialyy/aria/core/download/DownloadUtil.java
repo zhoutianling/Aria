@@ -21,7 +21,6 @@ import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
-import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
@@ -371,6 +370,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
         new BufferedRandomAccessFile(new File(mDownloadFile.getPath()), "rwd", 8192);
     //设置文件长度
     file.setLength(fileLength);
+    file.close();
     mListener.onPostPre(fileLength);
     //分配每条线程的下载区间
     pro = CommonUtil.loadConfig(mConfigFile);

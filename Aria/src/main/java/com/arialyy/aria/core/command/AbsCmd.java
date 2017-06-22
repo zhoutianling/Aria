@@ -32,7 +32,7 @@ import com.arialyy.aria.util.CommonUtil;
  */
 public abstract class AbsCmd<T extends AbsTaskEntity> implements ICmd {
   ITaskQueue mQueue;
-  T mEntity;
+  T mTaskEntity;
   String TAG;
   String mTargetName;
   /**
@@ -52,7 +52,7 @@ public abstract class AbsCmd<T extends AbsTaskEntity> implements ICmd {
     canExeCmd = CheckUtil.checkCmdEntity(entity,
         !(this instanceof CancelCmd) || !(this instanceof StopCmd));
     mTargetName = targetName;
-    mEntity = entity;
+    mTaskEntity = entity;
     TAG = CommonUtil.getClassName(this);
     if (entity instanceof DownloadTaskEntity) {
       mQueue = DownloadTaskQueue.getInstance();

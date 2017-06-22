@@ -39,7 +39,7 @@ public interface IEntity {
    */
   @Ignore public static final int STATE_STOP = 2;
   /**
-   * 未开始状态
+   * 等待状态
    */
   @Ignore public static final int STATE_WAIT = 3;
   /**

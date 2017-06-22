@@ -83,19 +83,19 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   /**
-   * 设置执行任务数
+   * 设置执行队列最大任务数
    *
-   * @param downloadNum 下载数
+   * @param maxNum 下载数
    */
-  public void setDownloadNum(int downloadNum) {
+  public void setMaxNum(int maxNum) {
     try {
-      ArrayBlockingQueue<TASK> temp = new ArrayBlockingQueue<>(downloadNum);
+      ArrayBlockingQueue<TASK> temp = new ArrayBlockingQueue<>(maxNum);
       TASK task;
       while ((task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS)) != null) {
         temp.offer(task);
       }
       mExecuteQueue = temp;
-      mSize = downloadNum;
+      mSize = maxNum;
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
@@ -104,7 +104,7 @@ public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
   /**
    * 添加新任务
    *
-   * @param newTask 新下载任务
+   * @param newTask 新任务
    */
   private boolean putNewTask(TASK newTask) {
     String url = newTask.getKey();

@@ -45,7 +45,7 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
   }
 
   /**
-   * 获取所有正在执行的任务
+   * 获取被缓存的任务
    */
   public Map<String, TASK> getAllTask() {
     return mCacheMap;
