@@ -28,9 +28,7 @@ import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Created by lyy on 2017/1/18.
@@ -38,7 +36,7 @@ import java.util.Set;
  */
 final class SingleThreadTask implements Runnable {
   private static final String TAG = "SingleThreadTask";
-  private DownloadUtil.ConfigEntity mConfigEntity;
+  private DownloadUtil.ChildThreadConfigEntity mConfigEntity;
   private String mConfigFPath;
   private long mChildCurrentLocation = 0;
   private int mBufSize;
@@ -47,14 +45,14 @@ final class SingleThreadTask implements Runnable {
   private long mSleepTime = 0;
 
   SingleThreadTask(DownloadStateConstance constance, IDownloadListener listener,
-      DownloadUtil.ConfigEntity downloadInfo) {
+      DownloadUtil.ChildThreadConfigEntity downloadInfo) {
     AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     CONSTANCE = constance;
     CONSTANCE.CONNECT_TIME_OUT = manager.getDownloadConfig().getConnectTimeOut();
     CONSTANCE.READ_TIME_OUT = manager.getDownloadConfig().getIOTimeOut();
     mListener = listener;
     this.mConfigEntity = downloadInfo;
-    if (mConfigEntity.isSupportBreakpoint) {
+    if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
       mConfigFPath = downloadInfo.CONFIG_FILE_PATH;
     }
     mBufSize = manager.getDownloadConfig().getBuffSize();
@@ -82,7 +80,7 @@ final class SingleThreadTask implements Runnable {
     try {
       URL url = new URL(mConfigEntity.DOWNLOAD_URL);
       conn = ConnectionHelp.handleConnection(url);
-      if (mConfigEntity.isSupportBreakpoint) {
+      if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
         Log.d(TAG, "任务【"
             + mConfigEntity.TEMP_FILE.getName()
             + "】线程__"
@@ -129,7 +127,7 @@ final class SingleThreadTask implements Runnable {
         return;
       }
       //支持断点的处理
-      if (mConfigEntity.isSupportBreakpoint) {
+      if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
         Log.i(TAG, "任务【"
             + mConfigEntity.TEMP_FILE.getName()
             + "】线程__"
@@ -180,7 +178,7 @@ final class SingleThreadTask implements Runnable {
   protected void stop() {
     synchronized (AriaManager.LOCK) {
       try {
-        if (mConfigEntity.isSupportBreakpoint) {
+        if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
           CONSTANCE.STOP_NUM++;
           Log.d(TAG, "任务【"
               + mConfigEntity.TEMP_FILE.getName()
@@ -221,7 +219,7 @@ final class SingleThreadTask implements Runnable {
    */
   protected void cancel() {
     synchronized (AriaManager.LOCK) {
-      if (mConfigEntity.isSupportBreakpoint) {
+      if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
         CONSTANCE.CANCEL_NUM++;
         Log.d(TAG, "任务【"
             + mConfigEntity.TEMP_FILE.getName()
@@ -260,7 +258,7 @@ final class SingleThreadTask implements Runnable {
         if (ex != null) {
           Log.e(TAG, msg + "\n" + CommonUtil.getPrintException(ex));
         }
-        if (mConfigEntity.isSupportBreakpoint) {
+        if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
           writeConfig(false, currentLocation);
           if (CONSTANCE.isFail()) {
             Log.e(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】下载失败");
