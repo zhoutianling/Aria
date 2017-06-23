@@ -60,7 +60,7 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
   }
 
   /**
-   * 读取下载链接
+   * 加载下载地址
    */
   public DownloadTarget load(@NonNull String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
