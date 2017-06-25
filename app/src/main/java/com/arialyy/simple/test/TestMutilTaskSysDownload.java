@@ -3,6 +3,7 @@ package com.arialyy.simple.test;
 import android.os.Environment;
 import android.view.View;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.QueueMod;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.TestActivityMultiBinding;
@@ -54,21 +55,26 @@ public class TestMutilTaskSysDownload extends BaseActivity<TestActivityMultiBind
         "M02/3B/A5/oYYBAFaOeaSAdFyoAACaxVxgUJA092.jpg"
     };
     int maxNum = Aria.get(this).getDownloadConfig().getMaxTaskNum();
+    Aria.get(this).setDownloadQueueMod(QueueMod.NOW);
     for (int i = 0; i < urlArray.length; i++) {
-      if (i < maxNum) {
-
-        Aria.download(this)
-            .load(baseUrl + urlArray[i])
-            .setDownloadPath(Environment.getExternalStorageDirectory() + "/test/" + i + ".jpg")
-            //.addHeader("Accept-Encoding", "gzip,deflate,sdcn")
-            .start();
-      } else {
-        Aria.download(this)
-            .load(baseUrl + urlArray[i])
-            .setDownloadPath(Environment.getExternalStorageDirectory() + "/test/" + i + ".jpg")
-            //.addHeader("Accept-Encoding", "gzip,deflate,sdcn")
-            .add();
-      }
+      Aria.download(this)
+          .load(baseUrl + urlArray[i])
+          .setDownloadPath(Environment.getExternalStorageDirectory() + "/test/" + i + ".jpg")
+          //.addHeader("Accept-Encoding", "gzip,deflate,sdcn")
+          .start();
+      //if (i < maxNum) {
+      //  Aria.download(this)
+      //      .load(baseUrl + urlArray[i])
+      //      .setDownloadPath(Environment.getExternalStorageDirectory() + "/test/" + i + ".jpg")
+      //      //.addHeader("Accept-Encoding", "gzip,deflate,sdcn")
+      //      .start();
+      //} else {
+      //  Aria.download(this)
+      //      .load(baseUrl + urlArray[i])
+      //      .setDownloadPath(Environment.getExternalStorageDirectory() + "/test/" + i + ".jpg")
+      //      //.addHeader("Accept-Encoding", "gzip,deflate,sdcn")
+      //      .add();
+      //}
     }
   }
 }

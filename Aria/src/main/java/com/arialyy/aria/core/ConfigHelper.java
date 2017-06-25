@@ -86,7 +86,24 @@ class ConfigHelper extends DefaultHandler {
         case "maxSpeed":
           loadMaxSpeed(value);
           break;
+        case "queueMod":
+          loadQueueMod(value);
+          break;
       }
+    }
+  }
+
+  private void loadQueueMod(String value) {
+    String mod = "now";
+    if (!TextUtils.isEmpty(value) && (value.equalsIgnoreCase("now") || value.equalsIgnoreCase(
+        "wait"))) {
+      mod = value;
+    }
+    if (isDownloadConfig) {
+      mDownloadConfig.queueMod = mod;
+    }
+    if (isUploadConfig) {
+      mUploadConfig.queueMod = mod;
     }
   }
 
@@ -95,7 +112,7 @@ class ConfigHelper extends DefaultHandler {
     if (!TextUtils.isEmpty(value)) {
       maxSpeed = Double.parseDouble(value);
     }
-    if (isDownloadConfig){
+    if (isDownloadConfig) {
       mDownloadConfig.msxSpeed = maxSpeed;
     }
   }

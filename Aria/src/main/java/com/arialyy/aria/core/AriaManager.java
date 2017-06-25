@@ -87,6 +87,26 @@ import org.xml.sax.SAXException;
   }
 
   /**
+   * 设置上传任务的执行队列类型
+   *
+   * @param mod {@link com.arialyy.aria.core.QueueMod}
+   */
+  public AriaManager setUploadQueueMod(QueueMod mod) {
+    mUConfig.setQueueMod(mod.tag);
+    return this;
+  }
+
+  /**
+   * 设置下载任务的执行队列类型
+   *
+   * @param mod {@link com.arialyy.aria.core.QueueMod}
+   */
+  public AriaManager setDownloadQueueMod(QueueMod mod) {
+    mDConfig.setQueueMod(mod.tag);
+    return this;
+  }
+
+  /**
    * 如果需要在代码中修改下载配置，请使用以下方法
    * <pre>
    *   <code>

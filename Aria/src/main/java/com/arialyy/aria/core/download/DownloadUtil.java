@@ -21,7 +21,6 @@ import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
-import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
@@ -192,7 +191,6 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   private void failDownload(String msg) {
     Log.e(TAG, msg);
     CONSTANCE.isDownloading = false;
-    stopDownload();
     mListener.onFail();
   }
 
@@ -210,7 +208,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
           + mDownloadEntity.getDownloadUrl()
           + "】\n【filePath:"
           + mDownloadFile.getPath()
-          + "】"
+          + "】\n"
           + CommonUtil.getPrintException(e));
     }
   }
@@ -340,7 +338,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
    * 处理不支持断点的下载
    */
   private void handleNoSupportBreakpointDownload(HttpURLConnection conn) {
-    ConfigEntity entity = new ConfigEntity();
+    ChildThreadConfigEntity entity = new ChildThreadConfigEntity();
     long len = conn.getContentLength();
     entity.FILE_SIZE = len;
     entity.DOWNLOAD_URL = mDownloadEntity.isRedirect() ? mDownloadEntity.getRedirectUrl()
@@ -350,7 +348,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     entity.START_LOCATION = 0;
     entity.END_LOCATION = entity.FILE_SIZE;
     entity.CONFIG_FILE_PATH = mConfigFile.getPath();
-    entity.isSupportBreakpoint = isSupportBreakpoint;
+    entity.IS_SUPPORT_BREAK_POINT = isSupportBreakpoint;
     entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
     THREAD_NUM = 1;
     CONSTANCE.THREAD_NUM = THREAD_NUM;
@@ -372,6 +370,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
         new BufferedRandomAccessFile(new File(mDownloadFile.getPath()), "rwd", 8192);
     //设置文件长度
     file.setLength(fileLength);
+    file.close();
     mListener.onPostPre(fileLength);
     //分配每条线程的下载区间
     pro = CommonUtil.loadConfig(mConfigFile);
@@ -440,7 +439,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
    * 创建单线程任务
    */
   private void addSingleTask(int i, long startL, long endL, long fileLength) {
-    ConfigEntity entity = new ConfigEntity();
+    ChildThreadConfigEntity entity = new ChildThreadConfigEntity();
     entity.FILE_SIZE = fileLength;
     entity.DOWNLOAD_URL = mDownloadEntity.isRedirect() ? mDownloadEntity.getRedirectUrl()
         : mDownloadEntity.getDownloadUrl();
@@ -449,7 +448,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     entity.START_LOCATION = startL;
     entity.END_LOCATION = endL;
     entity.CONFIG_FILE_PATH = mConfigFile.getPath();
-    entity.isSupportBreakpoint = isSupportBreakpoint;
+    entity.IS_SUPPORT_BREAK_POINT = isSupportBreakpoint;
     entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
     CONSTANCE.THREAD_NUM = THREAD_NUM;
     SingleThreadTask task = new SingleThreadTask(CONSTANCE, mListener, entity);
@@ -478,16 +477,20 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   /**
    * 子线程下载信息类
    */
-  final static class ConfigEntity {
-    //文件大小
+  final static class ChildThreadConfigEntity {
+    //线程Id
     int THREAD_ID;
+    //下载文件大小
     long FILE_SIZE;
+    //子线程启动下载位置
     long START_LOCATION;
+    //子线程结束下载位置
     long END_LOCATION;
+    //下载路径
     File TEMP_FILE;
     String DOWNLOAD_URL;
     String CONFIG_FILE_PATH;
     DownloadTaskEntity DOWNLOAD_TASK_ENTITY;
-    boolean isSupportBreakpoint = true;
+    boolean IS_SUPPORT_BREAK_POINT = true;
   }
 }

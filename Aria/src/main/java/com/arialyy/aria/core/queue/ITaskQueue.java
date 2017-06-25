@@ -33,6 +33,14 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends IEntity> {
 
   /**
+   * 通过key判断任务是否正在执行
+   *
+   * @param key 下载链接，或上传文件的路径
+   * @return {@code true} 任务正在运行
+   */
+  boolean taskIsRunning(String key);
+
+  /**
    * 停止所有任务
    */
   void stopAllTask();
@@ -59,11 +67,18 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   void stopTask(TASK task);
 
   /**
-   * 取消任务
+   * 通过任务任务实体删除任务
    *
    * @param task {@link DownloadTask}、{@link UploadTask}
    */
-  void cancelTask(TASK task);
+  void removeTask(TASK task);
+
+  /**
+   * 通过工作实体删除任务
+   *
+   * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}
+   */
+  void removeTask(ENTITY entity);
 
   /**
    * 重试下载
@@ -73,24 +88,24 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   void reTryStart(TASK task);
 
   /**
-   * 获取正在执行的任务数量
+   * 获取执行池中的任务数量
    */
-  int getExeTaskNum();
+  int getExePoolSize();
 
   /**
-   * 任务缓存池大小
+   * 获取任务缓存池中的任务数量
    */
-  int cachePoolSize();
+  int getCachePoolSize();
 
   /**
-   * 设置最大任务数
+   * 设置执行池可执行的最大任务数
    *
    * @param newMaxNum 最大任务数
    */
   void setMaxTaskNum(int newMaxNum);
 
   /**
-   * 获取可执行队列的大小
+   * 获取执行池可执行的最大任务数
    */
   int getMaxTaskNum();
 
@@ -118,13 +133,6 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
    * @return {@link DownloadTask}、{@link UploadTask}
    */
   TASK getTask(String url);
-
-  /**
-   * 通过工作实体删除任务
-   *
-   * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}
-   */
-  void removeTask(ENTITY entity);
 
   /**
    * 获取缓存池的下一个任务

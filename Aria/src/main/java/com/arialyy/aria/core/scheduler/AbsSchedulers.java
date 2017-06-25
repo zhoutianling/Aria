@@ -140,7 +140,7 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
         }
       case CANCEL:
         mQueue.removeTask(entity);
-        if (mQueue.getExeTaskNum() < AriaManager.getInstance(AriaManager.APP)
+        if (mQueue.getExePoolSize() < AriaManager.getInstance(AriaManager.APP)
             .getUploadConfig()
             .getMaxTaskNum()) {
           startNextTask();

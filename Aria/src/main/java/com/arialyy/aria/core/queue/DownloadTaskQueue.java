@@ -91,10 +91,13 @@ public class DownloadTaskQueue
     }
   }
 
-  public void setMaxSpeed(double maxSpeed){
+  /**
+   * 最大下载速度
+   */
+  public void setMaxSpeed(double maxSpeed) {
     Map<String, DownloadTask> tasks = mExecutePool.getAllTask();
     Set<String> keys = tasks.keySet();
-    for (String key : keys){
+    for (String key : keys) {
       DownloadTask task = tasks.get(key);
       task.setMaxSpeed(maxSpeed);
     }
@@ -116,7 +119,7 @@ public class DownloadTaskQueue
         }
       }
     }
-    mExecutePool.setDownloadNum(downloadNum);
+    mExecutePool.setMaxNum(downloadNum);
     if (diff >= 1) {
       for (int i = 0; i < diff; i++) {
         DownloadTask nextTask = getNextTask();

@@ -34,10 +34,10 @@ class StopCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    ITask task = mQueue.getTask(mEntity.getEntity());
+    ITask task = mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
-      if (mEntity.getEntity().getState() == IEntity.STATE_RUNNING) {
-        task = mQueue.createTask(mTargetName, mEntity);
+      if (mTaskEntity.getEntity().getState() == IEntity.STATE_RUNNING) {
+        task = mQueue.createTask(mTargetName, mTaskEntity);
         mQueue.stopTask(task);
       } else {
         Log.w(TAG, "停止命令执行失败，【调度器中没有该任务】");

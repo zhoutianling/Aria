@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.ICmd;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.command.AbsCmd;
@@ -26,6 +27,7 @@ import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -58,7 +60,7 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
   }
 
   /**
-   * 读取下载链接
+   * 加载下载地址
    */
   public DownloadTarget load(@NonNull String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
@@ -66,6 +68,10 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
         DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
     if (entity == null) {
       entity = new DownloadEntity();
+    }
+    File file = new File(entity.getDownloadPath());
+    if (!file.exists()) {
+      entity.setState(IEntity.STATE_WAIT);
     }
     entity.setDownloadUrl(downloadUrl);
     return new DownloadTarget(entity, targetName);

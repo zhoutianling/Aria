@@ -42,7 +42,7 @@ dependencies {
   compile 'com.squareup.okhttp3:okhttp:3.2.0'
   compile 'com.arialyy.frame:MVVM2:2.2.0'
   compile project(':Aria')
-//  compile 'com.arialyy.aria:aria-core:3.1.8'
-//  annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.8'
+//  compile 'com.arialyy.aria:aria-core:3.1.9'
+//  annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
 
 }

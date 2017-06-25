@@ -17,6 +17,8 @@
 package com.arialyy.aria.core.command;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.QueueMod;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
@@ -32,15 +34,31 @@ class StartCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    ITask task = mQueue.getTask(mEntity.getEntity());
+    ITask task = mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
-      task = mQueue.createTask(mTargetName, mEntity);
+      task = mQueue.createTask(mTargetName, mTaskEntity);
     }
     if (task != null) {
       if (!TextUtils.isEmpty(mTargetName)) {
         task.setTargetName(mTargetName);
       }
-      mQueue.startTask(task);
+      String mod;
+      int maxTaskNum;
+      AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+      if (isDownloadCmd) {
+        mod = manager.getDownloadConfig().getQueueMod();
+        maxTaskNum = manager.getDownloadConfig().getMaxTaskNum();
+      } else {
+        mod = manager.getUploadConfig().getQueueMod();
+        maxTaskNum = manager.getUploadConfig().getMaxTaskNum();
+      }
+      if (mod.equals(QueueMod.NOW.getTag())) {
+        mQueue.startTask(task);
+      }else if (mod.equals(QueueMod.WAIT.getTag())){
+        if (mQueue.getExePoolSize() < maxTaskNum){
+          mQueue.startTask(task);
+        }
+      }
     }
   }
 }

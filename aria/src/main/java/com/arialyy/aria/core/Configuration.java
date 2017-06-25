@@ -68,6 +68,23 @@ class Configuration {
      */
     boolean isConvertSpeed = false;
 
+    /**
+     * 执行队列类型
+     *
+     * @see QueueMod
+     */
+    String queueMod = "now";
+
+    public String getQueueMod() {
+      return queueMod;
+    }
+
+    public BaseConfig setQueueMod(String queueMod) {
+      this.queueMod = queueMod;
+      saveKey("queueMod", queueMod);
+      return this;
+    }
+
     public boolean isOpenBreadCast() {
       return isOpenBreadCast;
     }
@@ -172,7 +189,7 @@ class Configuration {
             } else if (type == float.class || type == Float.class) {
               field.setFloat(this, Float.parseFloat(value));
             } else if (type == double.class || type == Double.class) {
-              if (TextUtils.isEmpty(value)){
+              if (TextUtils.isEmpty(value)) {
                 value = "0.0";
               }
               field.setDouble(this, Double.parseDouble(value));

@@ -44,14 +44,14 @@ public interface ITask<ENTITY extends AbsEntity> {
   public String getKey();
 
   /**
-   * 是否真正执行
+   * 任务是否正在执行
    *
    * @return true，正在执行；
    */
   public boolean isRunning();
 
   /**
-   * 获取工具实体
+   * 获取信息实体
    */
   public ENTITY getEntity();
 

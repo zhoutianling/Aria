@@ -52,17 +52,17 @@ public interface IPool<T extends ITask> {
   public boolean removeTask(T task);
 
   /**
-   * 通过下载链接移除下载任务
+   * 通过key除下载任务
    *
-   * @param downloadUrl 下载链接
+   * @param key 下载链接
    * @return true:移除成功
    */
-  public boolean removeTask(String downloadUrl);
+  public boolean removeTask(String key);
 
   /**
    * 池子大小
    *
-   * @return 返回缓存池或者当前任务池大小
+   * @return 返回缓存池或者执行池大小
    */
   public int size();
 }
