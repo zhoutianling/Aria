@@ -20,6 +20,7 @@ import android.util.Log;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.queue.pool.CachePool;
@@ -30,7 +31,7 @@ import java.util.Set;
  * Created by lyy on 2017/2/23.
  * 任务队列
  */
-abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity>
+abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity>
     implements ITaskQueue<TASK, TASK_ENTITY, ENTITY> {
   private final String TAG = "AbsTaskQueue";
   CachePool<TASK> mCachePool = new CachePool<>();
@@ -118,7 +119,7 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
       task.stop();
     } else {
       task.stop();
-      Log.w(TAG, "停止任务失败，【任务已经停止】");
+      Log.w(TAG, "删除任务失败，【执行队列中没有该任务】");
     }
   }
 

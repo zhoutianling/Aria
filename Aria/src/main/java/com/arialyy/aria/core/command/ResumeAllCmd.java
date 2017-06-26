@@ -3,6 +3,7 @@ package com.arialyy.aria.core.command;
 import android.util.Log;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
@@ -29,7 +30,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
     for (DownloadEntity entity : allEntity) {
       int exeNum = mQueue.getExePoolSize();
       if (exeNum == 0 || exeNum < mQueue.getMaxTaskNum()) {
-        ITask task = createTask(entity);
+        AbsTask task = createTask(entity);
         mQueue.startTask(task);
       } else {
         entity.setState(IEntity.STATE_WAIT);
@@ -38,8 +39,8 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
     }
   }
 
-  private ITask createTask(DownloadEntity entity) {
-    ITask task = mQueue.getTask(entity);
+  private AbsTask createTask(DownloadEntity entity) {
+    AbsTask task = mQueue.getTask(entity);
     if (task == null) {
       DownloadTaskEntity taskEntity = new DownloadTaskEntity(entity);
       task = mQueue.createTask(mTargetName, taskEntity);

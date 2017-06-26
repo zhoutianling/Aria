@@ -206,11 +206,13 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
    * 开始下载
    */
   public void start() {
-    List<AbsCmd> cmds = new ArrayList<>();
-    cmds.add(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_CREATE));
-    cmds.add(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_START));
-    AriaManager.getInstance(AriaManager.APP).setCmds(cmds).exe();
-    cmds.clear();
+    //List<AbsCmd> cmds = new ArrayList<>();
+    //cmds.add(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_CREATE));
+    //cmds.add(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_START));
+    //cmds.clear();
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_START))
+        .exe();
   }
 
   /**

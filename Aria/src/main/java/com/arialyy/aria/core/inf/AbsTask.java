@@ -38,6 +38,15 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity, ENTITY extends 
   }
 
   /**
+   * 任务当前状态
+   *
+   * @return {@link IEntity}
+   */
+  public int getState() {
+    return mEntity == null ? IEntity.STATE_OTHER : mEntity.getState();
+  }
+
+  /**
    * @return 返回原始byte速度，需要你在配置文件中配置
    * <pre>
    *   {@code

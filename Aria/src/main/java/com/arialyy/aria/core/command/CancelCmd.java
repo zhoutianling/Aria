@@ -17,6 +17,7 @@
 package com.arialyy.aria.core.command;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
@@ -31,7 +32,7 @@ class CancelCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    ITask task = mQueue.getTask(mTaskEntity.getEntity());
+    AbsTask task = mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
       task = mQueue.createTask(mTargetName, mTaskEntity);
     }

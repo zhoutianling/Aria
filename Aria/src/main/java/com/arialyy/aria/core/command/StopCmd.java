@@ -18,6 +18,7 @@ package com.arialyy.aria.core.command;
 
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
@@ -34,7 +35,7 @@ class StopCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    ITask task = mQueue.getTask(mTaskEntity.getEntity());
+    AbsTask task = mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
       if (mTaskEntity.getEntity().getState() == IEntity.STATE_RUNNING) {
         task = mQueue.createTask(mTargetName, mTaskEntity);

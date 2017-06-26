@@ -6,8 +6,10 @@ package com.arialyy.aria.core;
  */
 public enum QueueMod {
   /**
-   * 等待模式，如果执行队列已经满了，再次使用start命令执行任务时，该任务会被添加到缓存队列中
-   * 当执行队列的任务完成时，将自动执行缓存队列中的任务
+   * 等待模式，
+   * 如果执行队列已经满了，再对其它任务（TASK_A）使用start命令执行任务时
+   * 1、TASK_A添加到缓存队列中，当执行队列中的任务完成时，系统会将自动执行缓存队列中的TASK_A
+   * 2、如果再次对TASK_A使用start命令，TASK_A将会立刻执行
    */
   WAIT("wait"),
 

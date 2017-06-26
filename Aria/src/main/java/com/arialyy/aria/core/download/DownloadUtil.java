@@ -20,6 +20,8 @@ import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -78,12 +80,28 @@ class DownloadUtil implements IDownloadUtil, Runnable {
         + AriaManager.DOWNLOAD_TEMP_DIR
         + mDownloadFile.getName()
         + ".properties");
+    checkTask();
+  }
+
+  /**
+   * 检查任务是否是新任务，新任务条件：
+   * 1、文件不存在
+   * 2、下载记录文件不存在
+   * 3、下载记录文件缺失或不匹配
+   * 4、数据库记录不存在
+   */
+  private void checkTask() {
     try {
       if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
         isNewTask = true;
         CommonUtil.createFile(mConfigFile.getPath());
+      } else if (!mDownloadFile.exists()) {
+        isNewTask = true;
+      } else if (DbEntity.findData(DownloadEntity.class, "downloadUrl=?",
+          mDownloadEntity.getDownloadUrl()) == null) {
+        isNewTask = true;
       } else {
-        isNewTask = !mDownloadFile.exists();
+        isNewTask = false;
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -195,9 +213,10 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   }
 
   @Override public void run() {
+    HttpURLConnection conn = null;
     try {
       URL url = new URL(mDownloadEntity.getDownloadUrl());
-      HttpURLConnection conn = ConnectionHelp.handleConnection(url);
+      conn = ConnectionHelp.handleConnection(url);
       conn = ConnectionHelp.setConnectParam(mDownloadTaskEntity, conn);
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       conn.setConnectTimeout(mConnectTimeOut);
@@ -210,6 +229,10 @@ class DownloadUtil implements IDownloadUtil, Runnable {
           + mDownloadFile.getPath()
           + "】\n"
           + CommonUtil.getPrintException(e));
+    } finally {
+      if (conn != null) {
+        conn.disconnect();
+      }
     }
   }
 
