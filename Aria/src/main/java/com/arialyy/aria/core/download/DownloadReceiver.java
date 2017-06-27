@@ -17,7 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.ICmd;
+import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.command.CmdFactory;
@@ -36,10 +36,8 @@ import java.util.Set;
  * Created by lyy on 2016/12/5.
  * 下载功能接收器
  */
-public class DownloadReceiver implements IReceiver<DownloadEntity> {
+public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
   private static final String TAG = "DownloadReceiver";
-  public String targetName;
-  public Object obj;
   public ISchedulerListener<DownloadTask> listener;
 
   /**
@@ -143,9 +141,10 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
    * 停止所有正在下载的任务，并清空等待队列。
    */
   @Override public void stopAllTask() {
-    final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    ariaManager.setCmd(CmdFactory.getInstance()
-        .createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_STOP_ALL)).exe();
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(CmdFactory.getInstance()
+            .createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_STOP_ALL))
+        .exe();
   }
 
   /**
@@ -154,23 +153,25 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
    * 2.如果队列执行队列已经满了，则将所有任务添加到等待队列中
    */
   public void resumeAllTask() {
-    final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    ariaManager.setCmd(CmdFactory.getInstance()
-        .createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_RESUME_ALL)).exe();
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(CmdFactory.getInstance()
+            .createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_RESUME_ALL))
+        .exe();
   }
 
   /**
    * 删除所有任务
+   *
+   * @param removeFile {@code true} 删除已经下载完成的任务，不仅删除下载记录，还会删除已经下载完成的文件，{@code false}
+   * 如果文件已经下载完成，只删除下载记录
    */
-  @Override public void removeAllTask() {
+  @Override public void removeAllTask(boolean removeFile) {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    List<DownloadEntity> allEntity = DbEntity.findAllData(DownloadEntity.class);
-    List<AbsCmd> cancelCmds = new ArrayList<>();
-    for (DownloadEntity entity : allEntity) {
-      cancelCmds.add(
-          CommonUtil.createCmd(targetName, new DownloadTaskEntity(entity), CmdFactory.TASK_CANCEL));
-    }
-    ariaManager.setCmds(cancelCmds).exe();
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(
+            CommonUtil.createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_CANCEL_ALL))
+        .exe();
+
     Set<String> keys = ariaManager.getReceiver().keySet();
     for (String key : keys) {
       IReceiver receiver = ariaManager.getReceiver().get(key);

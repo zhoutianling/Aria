@@ -39,5 +39,10 @@ public abstract class AbsTaskEntity {
    */
   public String redirectUrlKey = "location";
 
+  /**
+   * 用于判断删除任务时是否需要删除文件{@code true}删除
+   */
+  public boolean removeFile = false;
+
   public abstract AbsEntity getEntity();
 }

@@ -20,6 +20,8 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.download.DownloadReceiver;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
@@ -37,10 +39,8 @@ import java.util.regex.Pattern;
  * Created by lyy on 2017/2/6.
  * 上传功能接收器
  */
-public class UploadReceiver implements IReceiver<UploadEntity> {
+public class UploadReceiver extends AbsReceiver<UploadEntity> {
   private static final String TAG = "DownloadReceiver";
-  public String targetName;
-  public Object obj;
   public ISchedulerListener<UploadTask> listener;
 
   /**
@@ -94,15 +94,20 @@ public class UploadReceiver implements IReceiver<UploadEntity> {
     AriaManager.getInstance(AriaManager.APP).setCmds(stopCmds).exe();
   }
 
-  @Override public void removeAllTask() {
+  /**
+   * 删除所有任务
+   *
+   * @param removeFile {@code true} 删除已经上传完成的任务，不仅删除上传记录，还会删除已经上传完成的文件，{@code false}
+   * 如果文件已经上传完成，只删除上传记录
+   */
+  @Override public void removeAllTask(boolean removeFile) {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
-    List<UploadEntity> allEntity = DbEntity.findAllData(UploadEntity.class);
-    List<AbsCmd> cancelCmds = new ArrayList<>();
-    for (UploadEntity entity : allEntity) {
-      cancelCmds.add(
-          CommonUtil.createCmd(targetName, new UploadTaskEntity(entity), CmdFactory.TASK_CANCEL));
-    }
-    am.setCmds(cancelCmds).exe();
+
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(
+            CommonUtil.createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_CANCEL_ALL))
+        .exe();
+
     Set<String> keys = am.getReceiver().keySet();
     for (String key : keys) {
       IReceiver receiver = am.getReceiver().get(key);
@@ -118,8 +123,10 @@ public class UploadReceiver implements IReceiver<UploadEntity> {
 
   /**
    * 添加调度器回调
+   *
+   * @see #register()
    */
-  public UploadReceiver addSchedulerListener(ISchedulerListener<UploadTask> listener) {
+  @Deprecated public UploadReceiver addSchedulerListener(ISchedulerListener<UploadTask> listener) {
     this.listener = listener;
     UploadSchedulers.getInstance().addSchedulerListener(targetName, listener);
     return this;

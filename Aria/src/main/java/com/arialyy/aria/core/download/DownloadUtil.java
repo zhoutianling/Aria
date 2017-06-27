@@ -101,7 +101,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
           mDownloadEntity.getDownloadUrl()) == null) {
         isNewTask = true;
       } else {
-        isNewTask = false;
+        isNewTask = !mDownloadFile.exists();
       }
     } catch (Exception e) {
       e.printStackTrace();
@@ -342,7 +342,8 @@ class DownloadUtil implements IDownloadUtil, Runnable {
         recordL[rl] = i;
         rl++;
       } else {
-        handleNewTask(fileLength);
+        //handleNewTask(fileLength);
+        isNewTask = true;
       }
       if (isNewTask) {
         recordL[rl] = i;

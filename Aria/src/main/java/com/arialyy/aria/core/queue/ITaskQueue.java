@@ -47,6 +47,11 @@ public interface ITaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   void stopAllTask();
 
   /**
+   * 删除所有任务
+   */
+  void removeAllTask();
+
+  /**
    * 设置任务为最高优先级任务
    *
    * @param task {@link DownloadTask}、{@link UploadTask}

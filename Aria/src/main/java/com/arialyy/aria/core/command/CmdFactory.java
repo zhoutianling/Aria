@@ -56,7 +56,10 @@ public class CmdFactory {
    * 恢复所有停止的任务
    */
   public static final int TASK_RESUME_ALL = 0x130;
-
+  /**
+   * 删除所有任务，
+   */
+  public static final int TASK_CANCEL_ALL = 0x131;
   private static volatile CmdFactory INSTANCE = null;
 
   private CmdFactory() {
@@ -95,6 +98,8 @@ public class CmdFactory {
         return new StopAllCmd<>(target, entity);
       case TASK_RESUME_ALL:
         return new ResumeAllCmd<>(target, entity);
+      case TASK_CANCEL_ALL:
+        return new CancelAllCmd<>(target, entity);
       default:
         return null;
     }

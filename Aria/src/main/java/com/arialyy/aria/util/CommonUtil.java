@@ -22,9 +22,12 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.CmdFactory;
 import com.arialyy.aria.core.command.AbsCmd;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.upload.UploadEntity;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -50,9 +53,51 @@ public class CommonUtil {
   private static final String TAG = "CommonUtil";
 
   /**
+   * 删除上传任务的配置，包括
+   *
+   * @param removeFile {@code true} 删除已经上传完成的任务，不仅删除上传记录，还会删除已经上传完成的文件，{@code false}
+   * 如果文件已经上传完成，只删除上传记录
+   */
+  public static void delUploadTaskConfig(boolean removeFile, UploadEntity entity) {
+    if (removeFile) {
+      File file = new File(entity.getFilePath());
+      if (file.exists()) {
+        file.delete();
+      }
+    }
+    File config = new File(
+        AriaManager.APP.getFilesDir().getPath() + "/temp/" + entity.getFileName() + ".properties");
+    if (config.exists()) {
+      config.delete();
+    }
+    entity.deleteData();
+  }
+
+  /**
+   * 删除下载任务的配置，包括
+   *
+   * @param removeFile{@code true} 删除已经下载完成的任务，不仅删除下载记录，还会删除已经下载完成的文件，{@code false}
+   * 如果文件已经下载完成，只删除下载记录
+   */
+  public static void delDownloadTaskConfig(boolean removeFile, DownloadEntity entity) {
+    if (removeFile) {
+      File file = new File(entity.getDownloadPath());
+      if (file.exists()) {
+        file.delete();
+      }
+    }
+    File config = new File(
+        AriaManager.APP.getFilesDir().getPath() + "/temp/" + entity.getFileName() + ".properties");
+    if (config.exists()) {
+      config.delete();
+    }
+    entity.deleteData();
+  }
+
+  /**
    * 获取CPU核心数
    */
-  public static int getNumCores() {
+  public static int getCoresNum() {
     //Private Class to display only CPU devices in the directory listing
     class CpuFilter implements FileFilter {
       @Override public boolean accept(File pathname) {
