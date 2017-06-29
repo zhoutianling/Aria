@@ -1,4 +1,4 @@
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.normal;
 
 import android.util.Log;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -6,7 +6,6 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.orm.DbEntity;
 import java.util.List;
 
@@ -16,7 +15,7 @@ import java.util.List;
  * 1.如果执行队列没有满，则开始下载任务，直到执行队列满
  * 2.如果队列执行队列已经满了，则将所有任务添加到等待队列中
  */
-final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
+final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   /**
    * @param targetName 产生任务的对象名
    */

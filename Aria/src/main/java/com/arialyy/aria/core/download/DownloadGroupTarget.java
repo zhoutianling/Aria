@@ -13,36 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.inf;
+package com.arialyy.aria.core.download;
 
-import com.arialyy.aria.core.RequestEnum;
-import java.util.HashMap;
-import java.util.Map;
+import com.arialyy.aria.core.inf.AbsGroupTarget;
+import com.arialyy.aria.core.inf.ITarget;
+import java.util.List;
 
 /**
- * Created by lyy on 2017/2/23.
+ * Created by AriaL on 2017/6/29.
  */
-
-public abstract class AbsTaskEntity {
-  /**
-   * http 请求头
-   */
-  public Map<String, String> headers = new HashMap<>();
+public class DownloadGroupTarget extends AbsGroupTarget<DownloadGroupTarget, DownloadTaskEntity> {
 
   /**
-   * 网络请求类型
+   * 设置保存路径组
    */
-  public RequestEnum requestEnum = RequestEnum.GET;
+  public DownloadGroupTarget setDownloadPaths(List<String> paths) {
 
-  /**
-   * 重定向后，从链接中获取新url所需要的key
-   */
-  public String redirectUrlKey = "location";
+    return this;
+  }
 
-  /**
-   * 用于判断删除任务时是否需要删除文件{@code true}删除
-   */
-  public boolean removeFile = false;
-
-  public abstract AbsNormalEntity getEntity();
+  @Override public int getPercent() {
+    return 0;
+  }
 }

@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.QueueMod;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
@@ -29,7 +28,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
  * 开始命令
  * 队列模型{@link QueueMod#NOW}、{@link QueueMod#WAIT}
  */
-class StartCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
+class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
   StartCmd(String targetName, T entity) {
     super(targetName, entity);

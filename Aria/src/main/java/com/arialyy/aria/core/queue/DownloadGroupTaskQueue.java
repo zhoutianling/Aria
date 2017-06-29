@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.inf;
+
+package com.arialyy.aria.core.queue;
 
 /**
- * Created by lyy on 2017/2/9.
+ * Created by AriaL on 2017/6/29.
+ * 任务组下载队列
  */
-
-public interface ICmd {
-  /**
-   * 执行命令
-   */
-  public abstract void executeCmd();
+public class DownloadGroupTaskQueue {
 }

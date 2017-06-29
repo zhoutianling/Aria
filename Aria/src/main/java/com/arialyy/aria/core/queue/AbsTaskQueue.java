@@ -17,11 +17,9 @@
 package com.arialyy.aria.core.queue;
 
 import android.util.Log;
-import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTask;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.queue.pool.CachePool;
 import com.arialyy.aria.core.queue.pool.ExecutePool;
@@ -31,7 +29,7 @@ import java.util.Set;
  * Created by lyy on 2017/2/23.
  * 任务队列
  */
-abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity>
+abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsNormalEntity>
     implements ITaskQueue<TASK, TASK_ENTITY, ENTITY> {
   private final String TAG = "AbsTaskQueue";
   CachePool<TASK> mCachePool = new CachePool<>();

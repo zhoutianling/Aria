@@ -20,15 +20,12 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IReceiver;
-import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.command.AbsCmd;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -142,8 +139,8 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
    */
   @Override public void stopAllTask() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CmdFactory.getInstance()
-            .createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_STOP_ALL))
+        .setCmd(NormalCmdFactory.getInstance()
+            .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL))
         .exe();
   }
 
@@ -154,8 +151,8 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
    */
   public void resumeAllTask() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CmdFactory.getInstance()
-            .createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_RESUME_ALL))
+        .setCmd(NormalCmdFactory.getInstance()
+            .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_RESUME_ALL))
         .exe();
   }
 
@@ -169,7 +166,7 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(
-            CommonUtil.createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_CANCEL_ALL))
+            CommonUtil.createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_CANCEL_ALL))
         .exe();
 
     Set<String> keys = ariaManager.getReceiver().keySet();

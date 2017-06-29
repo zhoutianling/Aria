@@ -20,11 +20,10 @@ import android.os.Message;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
-import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadTask;
 import java.util.Iterator;
@@ -35,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by lyy on 2017/6/4.
  */
-public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity, TASK extends AbsTask<TASK_ENTITY, ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY, ENTITY>>
+public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsNormalEntity, TASK extends AbsTask<TASK_ENTITY, ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY, ENTITY>>
     implements ISchedulers<TASK> {
   private static final String TAG = "AbsSchedulers";
 

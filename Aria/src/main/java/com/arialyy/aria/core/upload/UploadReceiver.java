@@ -17,14 +17,12 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.command.AbsCmd;
-import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.download.DownloadReceiver;
+import com.arialyy.aria.core.command.normal.AbsNormalCmd;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IReceiver;
-import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
@@ -84,11 +82,11 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
 
   @Override public void stopAllTask() {
     List<UploadEntity> allEntity = DbEntity.findAllData(UploadEntity.class);
-    List<AbsCmd> stopCmds = new ArrayList<>();
+    List<AbsNormalCmd> stopCmds = new ArrayList<>();
     for (UploadEntity entity : allEntity) {
       if (entity.getState() == IEntity.STATE_RUNNING) {
         stopCmds.add(
-            CommonUtil.createCmd(targetName, new UploadTaskEntity(entity), CmdFactory.TASK_STOP));
+            CommonUtil.createCmd(targetName, new UploadTaskEntity(entity), NormalCmdFactory.TASK_STOP));
       }
     }
     AriaManager.getInstance(AriaManager.APP).setCmds(stopCmds).exe();
@@ -105,7 +103,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
 
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(
-            CommonUtil.createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_CANCEL_ALL))
+            CommonUtil.createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_CANCEL_ALL))
         .exe();
 
     Set<String> keys = am.getReceiver().keySet();

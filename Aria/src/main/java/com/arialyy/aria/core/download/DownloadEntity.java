@@ -18,7 +18,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.orm.Ignore;
 
 /**
@@ -27,7 +27,7 @@ import com.arialyy.aria.orm.Ignore;
  * ！！！ 注意：CREATOR要进行@Ignore注解
  * ！！！并且需要Parcelable时需要手动填写rowID;
  */
-public class DownloadEntity extends AbsEntity implements Parcelable {
+public class DownloadEntity extends AbsNormalEntity implements Parcelable {
   private String downloadUrl = ""; //下载路径
   private String downloadPath = ""; //保存路径
   private boolean isDownloadComplete = false;   //是否下载完成

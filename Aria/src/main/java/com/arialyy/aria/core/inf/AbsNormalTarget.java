@@ -20,31 +20,29 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.RequestEnum;
-import com.arialyy.aria.core.command.AbsCmd;
-import com.arialyy.aria.core.command.CmdFactory;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.util.CommonUtil;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by lyy on 2017/2/28.
  */
-public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity> {
-  protected ENTITY entity;
-  protected TASK_ENTITY taskEntity;
-  protected String targetName;
+public abstract class AbsNormalTarget<TARGET extends AbsNormalTarget, ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity>
+    implements ITarget<TARGET> {
+  protected ENTITY mEntity;
+  protected TASK_ENTITY mTaskEntity;
+  protected String mTargetName;
 
   /**
    * 设置扩展字段，用来保存你的其它数据，如果你的数据比较多，你可以把你的数据转换为JSON字符串，然后再存到Aria中
    *
    * @param str 扩展数据
    */
-  public AbsTarget setExtendField(String str) {
-    entity.setStr(str);
+  public AbsNormalTarget setExtendField(String str) {
+    mEntity.setStr(str);
     return this;
   }
 
@@ -53,7 +51,7 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
    * 设置扩展字段{@link #setExtendField(String)}
    */
   public String getExtendField() {
-    return entity.getStr();
+    return mEntity.getStr();
   }
 
   /**
@@ -62,7 +60,7 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
    * @return {@link IEntity}
    */
   public int getTaskState() {
-    return entity.getState();
+    return mEntity.getState();
   }
 
   /**
@@ -76,7 +74,7 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
    */
   protected void setHighestPriority() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_HIGHEST_PRIORITY))
+        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_HIGHEST_PRIORITY))
         .exe();
   }
 
@@ -85,17 +83,33 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
    */
   protected void _setRedirectUrlKey(String redirectUrlKey) {
     if (TextUtils.isEmpty(redirectUrlKey)) {
-      Log.w("AbsTarget", "重定向后，新url的key不能为null");
+      Log.w("AbsNormalTarget", "重定向后，新url的key不能为null");
       return;
     }
-    taskEntity.redirectUrlKey = redirectUrlKey;
+    mTaskEntity.redirectUrlKey = redirectUrlKey;
+  }
+
+  /**
+   * 获取任务进度百分比
+   *
+   * @return 返回任务进度
+   */
+  @Override public int getPercent() {
+    if (mEntity == null) {
+      Log.e("AbsNormalTarget", "下载管理器中没有该任务");
+      return 0;
+    }
+    if (mEntity.getFileSize() != 0) {
+      return (int) (mEntity.getCurrentProgress() * 100 / mEntity.getFileSize());
+    }
+    return 0;
   }
 
   /**
    * 删除记录
    */
   public void removeRecord() {
-    entity.deleteData();
+    mEntity.deleteData();
   }
 
   /**
@@ -104,14 +118,29 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
    * @return 文件大小
    */
   public long getFileSize() {
-    if (entity instanceof DownloadEntity) {
-      DownloadEntity entity = (DownloadEntity) this.entity;
+    return getSize();
+  }
+
+  @Override public long getSize() {
+    if (mEntity instanceof DownloadEntity) {
+      DownloadEntity entity = (DownloadEntity) this.mEntity;
       return entity.getFileSize();
-    } else if (entity instanceof UploadEntity) {
-      UploadEntity entity = (UploadEntity) this.entity;
+    } else if (mEntity instanceof UploadEntity) {
+      UploadEntity entity = (UploadEntity) this.mEntity;
       return entity.getFileSize();
     }
     return 0;
+  }
+
+  @Override public String getConvertSize() {
+    if (mEntity instanceof DownloadEntity) {
+      DownloadEntity entity = (DownloadEntity) this.mEntity;
+      return CommonUtil.formatFileSize(entity.getFileSize());
+    } else if (mEntity instanceof UploadEntity) {
+      UploadEntity entity = (UploadEntity) this.mEntity;
+      return CommonUtil.formatFileSize(entity.getFileSize());
+    }
+    return "0b";
   }
 
   /**
@@ -120,14 +149,7 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
    * @return 文件大小{@code xxx mb}
    */
   public String getConvertFileSize() {
-    if (entity instanceof DownloadEntity) {
-      DownloadEntity entity = (DownloadEntity) this.entity;
-      return CommonUtil.formatFileSize(entity.getFileSize());
-    } else if (entity instanceof UploadEntity) {
-      UploadEntity entity = (UploadEntity) this.entity;
-      return CommonUtil.formatFileSize(entity.getFileSize());
-    }
-    return "0b";
+    return getConvertSize();
   }
 
   /**
@@ -138,25 +160,16 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
   }
 
   /**
-   * 获取任务进度百分比
-   *
-   * @return 返回任务进度
-   */
-  protected int getPercent() {
-    return 0;
-  }
-
-  /**
    * 获取任务进度，如果任务存在，则返回当前进度
    *
    * @return 该任务进度
    */
   public long getCurrentProgress() {
-    if (entity instanceof DownloadEntity) {
-      DownloadEntity entity = (DownloadEntity) this.entity;
+    if (mEntity instanceof DownloadEntity) {
+      DownloadEntity entity = (DownloadEntity) this.mEntity;
       return entity.getCurrentProgress();
-    } else if (entity instanceof UploadEntity) {
-      UploadEntity entity = (UploadEntity) this.entity;
+    } else if (mEntity instanceof UploadEntity) {
+      UploadEntity entity = (UploadEntity) this.mEntity;
       return entity.getCurrentProgress();
     }
     return -1;
@@ -168,20 +181,22 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
    * @param key 头部key
    * @param header 头部value
    */
-  protected void _addHeader(@NonNull String key, @NonNull String header) {
-    taskEntity.headers.put(key, header);
+  public TARGET addHeader(@NonNull String key, @NonNull String header) {
+    mTaskEntity.headers.put(key, header);
+    return (TARGET) this;
   }
 
   /**
    * 给url请求添加头部
    */
-  protected void _addHeaders(Map<String, String> headers) {
+  public TARGET addHeaders(Map<String, String> headers) {
     if (headers != null && headers.size() > 0) {
       Set<String> keys = headers.keySet();
       for (String key : keys) {
-        taskEntity.headers.put(key, headers.get(key));
+        mTaskEntity.headers.put(key, headers.get(key));
       }
     }
+    return (TARGET) this;
   }
 
   /**
@@ -189,56 +204,60 @@ public abstract class AbsTarget<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
    *
    * @param requestEnum {@link RequestEnum}
    */
-  protected void _setRequestMode(RequestEnum requestEnum) {
-    taskEntity.requestEnum = requestEnum;
+  public TARGET setRequestMode(RequestEnum requestEnum) {
+    mTaskEntity.requestEnum = requestEnum;
+    return (TARGET) this;
   }
 
   /**
    * 添加任务
    */
+
   public void add() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_CREATE))
+        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CREATE))
         .exe();
   }
 
   /**
    * 开始下载
    */
-  public void start() {
-    //List<AbsCmd> cmds = new ArrayList<>();
-    //cmds.add(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_CREATE));
-    //cmds.add(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_START));
-    //cmds.clear();
+  @Override public void start() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_START))
+        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START))
         .exe();
   }
 
   /**
    * 停止下载
+   *
+   * @see #stop()
    */
-  protected void pause() {
+  @Deprecated protected void pause() {
+    stop();
+  }
+
+  @Override public void stop() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_STOP))
+        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_STOP))
         .exe();
   }
 
   /**
    * 恢复下载
    */
-  protected void resume() {
+  @Override public void resume() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_START))
+        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START))
         .exe();
   }
 
   /**
    * 取消下载
    */
-  public void cancel() {
+  @Override public void cancel() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(targetName, taskEntity, CmdFactory.TASK_CANCEL))
+        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL))
         .exe();
   }
 

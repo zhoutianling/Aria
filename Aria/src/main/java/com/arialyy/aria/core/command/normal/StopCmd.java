@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by lyy on 2016/9/20.
  * 停止命令
  */
-class StopCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
+class StopCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
   StopCmd(String targetName, T entity) {
     super(targetName, entity);

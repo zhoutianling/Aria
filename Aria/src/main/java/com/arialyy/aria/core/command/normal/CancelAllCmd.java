@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.normal;
 
-import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
-import java.io.File;
 import java.util.List;
 
 /**
  * Created by AriaL on 2017/6/27.
  * 删除所有任务，并且删除所有回掉
  */
-final class CancelAllCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
+final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   /**
    * @param targetName 产生任务的对象名
    */

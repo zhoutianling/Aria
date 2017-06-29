@@ -23,7 +23,7 @@ import com.arialyy.aria.orm.Ignore;
 /**
  * Created by AriaL on 2017/6/3.
  */
-public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable {
+public abstract class AbsNormalEntity extends DbEntity implements IEntity, Parcelable {
   /**
    * 速度
    */
@@ -130,7 +130,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     this.fileName = fileName;
   }
 
-  public AbsEntity() {
+  public AbsNormalEntity() {
   }
 
   @Override public int describeContents() {
@@ -149,7 +149,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     dest.writeString(this.fileName);
   }
 
-  protected AbsEntity(Parcel in) {
+  protected AbsNormalEntity(Parcel in) {
     this.speed = in.readLong();
     this.convertSpeed = in.readString();
     this.failNum = in.readInt();

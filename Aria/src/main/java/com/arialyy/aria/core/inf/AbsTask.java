@@ -21,7 +21,7 @@ import com.arialyy.aria.util.CommonUtil;
 /**
  * Created by lyy on 2017/6/3.
  */
-public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity>
+public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsNormalEntity>
     implements ITask<ENTITY> {
 
   protected ENTITY mEntity;

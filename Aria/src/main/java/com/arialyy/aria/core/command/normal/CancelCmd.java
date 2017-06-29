@@ -14,22 +14,32 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.normal;
 
+import android.text.TextUtils;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.queue.ITaskQueue;
 
 /**
- * Created by AriaL on 2017/6/29.
+ * Created by lyy on 2016/9/20.
+ * 取消命令
  */
-public abstract class AbsCmd<T extends AbsTaskEntity> implements ICmd{
-  protected ITaskQueue mQueue;
-  protected T mTaskEntity;
-  protected String TAG;
-  protected String mTargetName;
-  /**
-   * 是否是下载任务的命令
-   * {@code true} 下载任务的命令，{@code false} 上传任务的命令
-   */
-  protected boolean isDownloadCmd = true;
+class CancelCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
+  CancelCmd(String targetName, T entity) {
+    super(targetName, entity);
+  }
+
+  @Override public void executeCmd() {
+    if (!canExeCmd) return;
+    AbsTask task = mQueue.getTask(mTaskEntity.getEntity());
+    if (task == null) {
+      task = mQueue.createTask(mTargetName, mTaskEntity);
+    }
+    if (task != null) {
+      if (!TextUtils.isEmpty(mTargetName)) {
+        task.setTargetName(mTargetName);
+      }
+      mQueue.removeTask(task);
+    }
+  }
 }

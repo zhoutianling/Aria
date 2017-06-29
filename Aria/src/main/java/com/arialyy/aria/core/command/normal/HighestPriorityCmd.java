@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsTask;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
@@ -30,7 +29,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
  * 5、如果下载队列中已经满了，则会停止队尾的任务，当高优先级任务完成后，该队尾任务将自动执行
  * 6、把任务设置为最高优先级任务后，将自动执行任务，不需要重新调用start()启动任务
  */
-final class HighestPriorityCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
+final class HighestPriorityCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   /**
    * @param targetName 产生任务的对象名
    */

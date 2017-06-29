@@ -19,7 +19,11 @@ package com.arialyy.aria.core.inf;
  * Created by lyy on 2017/2/13.
  */
 
-public interface ITask<ENTITY extends AbsEntity> {
+public interface ITask<ENTITY extends AbsNormalEntity> {
+
+  /**
+   * 获取
+   */
 
   /**
    * 暂停任务，并让任务处于等待状态

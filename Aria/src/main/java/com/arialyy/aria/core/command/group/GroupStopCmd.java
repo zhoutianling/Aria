@@ -13,36 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.inf;
+package com.arialyy.aria.core.command.group;
 
-import com.arialyy.aria.core.RequestEnum;
-import java.util.HashMap;
-import java.util.Map;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
- * Created by lyy on 2017/2/23.
+ * Created by AriaL on 2017/6/29.
+ * 停止任务组的命令
  */
-
-public abstract class AbsTaskEntity {
+class GroupStopCmd<T extends AbsTaskEntity> extends AbsGroupCmd<T>{
   /**
-   * http 请求头
+   * @param targetName 创建任务的对象名
    */
-  public Map<String, String> headers = new HashMap<>();
+  GroupStopCmd(String targetName, T entity) {
+    super(targetName, entity);
+  }
 
-  /**
-   * 网络请求类型
-   */
-  public RequestEnum requestEnum = RequestEnum.GET;
+  @Override public void executeCmd() {
 
-  /**
-   * 重定向后，从链接中获取新url所需要的key
-   */
-  public String redirectUrlKey = "location";
-
-  /**
-   * 用于判断删除任务时是否需要删除文件{@code true}删除
-   */
-  public boolean removeFile = false;
-
-  public abstract AbsNormalEntity getEntity();
+  }
 }

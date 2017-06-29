@@ -13,36 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.inf;
-
-import com.arialyy.aria.core.RequestEnum;
-import java.util.HashMap;
-import java.util.Map;
+package com.arialyy.aria.core.command;
 
 /**
- * Created by lyy on 2017/2/23.
+ * Created by lyy on 2017/2/9.
  */
 
-public abstract class AbsTaskEntity {
+public interface ICmd {
   /**
-   * http 请求头
+   * 执行命令
    */
-  public Map<String, String> headers = new HashMap<>();
-
-  /**
-   * 网络请求类型
-   */
-  public RequestEnum requestEnum = RequestEnum.GET;
-
-  /**
-   * 重定向后，从链接中获取新url所需要的key
-   */
-  public String redirectUrlKey = "location";
-
-  /**
-   * 用于判断删除任务时是否需要删除文件{@code true}删除
-   */
-  public boolean removeFile = false;
-
-  public abstract AbsNormalEntity getEntity();
+  void executeCmd();
 }

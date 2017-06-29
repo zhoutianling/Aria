@@ -23,8 +23,8 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.command.AbsCmd;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.command.normal.AbsNormalCmd;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
@@ -225,8 +225,8 @@ public class CommonUtil {
     }
   }
 
-  public static <T extends AbsTaskEntity> AbsCmd createCmd(String target, T entity, int cmd) {
-    return CmdFactory.getInstance().createCmd(target, entity, cmd);
+  public static <T extends AbsTaskEntity> AbsNormalCmd createCmd(String target, T entity, int cmd) {
+    return NormalCmdFactory.getInstance().createCmd(target, entity, cmd);
   }
 
   /**

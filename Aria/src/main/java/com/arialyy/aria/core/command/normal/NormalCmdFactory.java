@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.normal;
 
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.command.AbsCmdFactory;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by Lyy on 2016/9/23.
  * 命令工厂
  */
-public class CmdFactory {
+public class NormalCmdFactory extends AbsCmdFactory<AbsNormalCmd> {
   /**
    * 创建任务
    */
@@ -60,16 +61,16 @@ public class CmdFactory {
    * 删除所有任务，
    */
   public static final int TASK_CANCEL_ALL = 0x131;
-  private static volatile CmdFactory INSTANCE = null;
+  private static volatile NormalCmdFactory INSTANCE = null;
 
-  private CmdFactory() {
+  private NormalCmdFactory() {
 
   }
 
-  public static CmdFactory getInstance() {
+  public static NormalCmdFactory getInstance() {
     if (INSTANCE == null) {
       synchronized (AriaManager.LOCK) {
-        INSTANCE = new CmdFactory();
+        INSTANCE = new NormalCmdFactory();
       }
     }
     return INSTANCE;
@@ -81,7 +82,7 @@ public class CmdFactory {
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}、{@link #TASK_HIGHEST_PRIORITY}、{@link #TASK_STOP_ALL}、{@link #TASK_RESUME_ALL}
    */
-  public <T extends AbsTaskEntity> AbsCmd<T> createCmd(String target, T entity, int type) {
+  public <T extends AbsTaskEntity> AbsNormalCmd<T> createCmd(String target, T entity, int type) {
     switch (type) {
       case TASK_CREATE:
         return new AddCmd<>(target, entity);
