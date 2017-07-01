@@ -19,21 +19,21 @@ package com.arialyy.aria.core.queue;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
-import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.queue.pool.CachePool;
-import com.arialyy.aria.core.queue.pool.ExecutePool;
+import com.arialyy.aria.core.queue.pool.NormalCachePool;
+import com.arialyy.aria.core.queue.pool.NormalExecutePool;
 import java.util.Set;
 
 /**
  * Created by lyy on 2017/2/23.
  * 任务队列
  */
-abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsNormalEntity>
+abstract class AbsTaskQueue<TASK extends AbsNormalTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsNormalEntity>
     implements ITaskQueue<TASK, TASK_ENTITY, ENTITY> {
   private final String TAG = "AbsTaskQueue";
-  CachePool<TASK> mCachePool = new CachePool<>();
-  ExecutePool<TASK> mExecutePool;
+  NormalCachePool<TASK> mCachePool = new NormalCachePool<>();
+  NormalExecutePool<TASK> mExecutePool;
 
   @Override public boolean taskIsRunning(String key) {
     return mExecutePool.getTask(key) != null;
@@ -73,14 +73,14 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   /**
    * 获取任务执行池
    */
-  public ExecutePool getExecutePool() {
+  public NormalExecutePool getExecutePool() {
     return mExecutePool;
   }
 
   /**
    * 获取缓存池
    */
-  public CachePool getCachePool() {
+  public NormalCachePool getCachePool() {
     return mCachePool;
   }
 

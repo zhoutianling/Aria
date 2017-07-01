@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download;
+package com.arialyy.aria.core.download.downloader;
 
 import android.content.Context;
 import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -37,7 +38,7 @@ import java.util.concurrent.Executors;
  * Created by lyy on 2015/8/25.
  * 下载工具类
  */
-class DownloadUtil implements IDownloadUtil, Runnable {
+public class DownloadUtil implements IDownloadUtil, Runnable {
   private static final String TAG = "DownloadUtil";
   /**
    * 线程数
@@ -54,7 +55,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   private boolean isSupportBreakpoint = true;
   private Context mContext;
   private DownloadEntity mDownloadEntity;
-  private DownloadTaskEntity mDownloadTaskEntity;
+  private DownloadTaskEntity mTaskEntity;
   private ExecutorService mFixedThreadPool;
   private File mDownloadFile; //下载的文件
   private File mConfigFile;//下载信息配置文件
@@ -62,9 +63,9 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   private DownloadStateConstance CONSTANCE;
 
   DownloadUtil(Context context, DownloadTaskEntity entity, IDownloadListener downloadListener) {
-    mDownloadEntity = entity.downloadEntity;
+    mDownloadEntity = entity.getEntity();
     mContext = context.getApplicationContext();
-    mDownloadTaskEntity = entity;
+    mTaskEntity = entity;
     mListener = downloadListener;
     // 线程下载数改变后，新的下载才会生效
     //mFixedThreadPool = Executors.newFixedThreadPool(Integer.MAX_VALUE);
@@ -74,7 +75,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
 
   private void init() {
     mConnectTimeOut = AriaManager.getInstance(mContext).getDownloadConfig().getConnectTimeOut();
-    mDownloadFile = new File(mDownloadTaskEntity.downloadEntity.getDownloadPath());
+    mDownloadFile = new File(mTaskEntity.getEntity().getDownloadPath());
     //读取已完成的线程数
     mConfigFile = new File(mContext.getFilesDir().getPath()
         + AriaManager.DOWNLOAD_TEMP_DIR
@@ -113,6 +114,10 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     return mListener;
   }
 
+  @Override public long getFileSize() {
+    return mDownloadEntity.getFileSize();
+  }
+
   /**
    * 获取当前下载位置
    */
@@ -148,6 +153,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
         task.cancel();
       }
     }
+    CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile, mDownloadEntity);
   }
 
   /**
@@ -170,7 +176,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   /**
    * 删除下载记录文件
    */
-  @Override public void delConfigFile() {
+  public void delConfigFile() {
     if (mContext != null && mDownloadEntity != null) {
       File dFile = new File(mDownloadEntity.getDownloadPath());
       File config =
@@ -184,7 +190,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   /**
    * 删除temp文件
    */
-  @Override public void delTempFile() {
+  public void delTempFile() {
     if (mContext != null && mDownloadEntity != null) {
       File dFile = new File(mDownloadEntity.getDownloadPath());
       if (dFile.exists()) {
@@ -217,7 +223,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     try {
       URL url = new URL(mDownloadEntity.getDownloadUrl());
       conn = ConnectionHelp.handleConnection(url);
-      conn = ConnectionHelp.setConnectParam(mDownloadTaskEntity, conn);
+      conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       conn.setConnectTimeout(mConnectTimeOut);
       conn.connect();
@@ -237,7 +243,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
   }
 
   /**
-   * 处理状态吗
+   * 处理状态码
    */
   private void handleConnect(HttpURLConnection conn) throws IOException {
     int len = conn.getContentLength();
@@ -290,19 +296,18 @@ class DownloadUtil implements IDownloadUtil, Runnable {
    * 处理30x跳转
    */
   private void handle302Turn(HttpURLConnection conn) throws IOException {
-    String newUrl = conn.getHeaderField(mDownloadTaskEntity.redirectUrlKey);
+    String newUrl = conn.getHeaderField(mTaskEntity.redirectUrlKey);
     Log.d(TAG, "30x跳转，新url为【" + newUrl + "】");
     mDownloadEntity.setRedirect(true);
     mDownloadEntity.setRedirectUrl(newUrl);
     mDownloadEntity.update();
     String cookies = conn.getHeaderField("Set-Cookie");
     conn = (HttpURLConnection) new URL(newUrl).openConnection();
-    conn = ConnectionHelp.setConnectParam(mDownloadTaskEntity, conn);
+    conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
     conn.setRequestProperty("Cookie", cookies);
     conn.setRequestProperty("Range", "bytes=" + 0 + "-");
     conn.setConnectTimeout(mConnectTimeOut);
     conn.connect();
-
     handleConnect(conn);
   }
 
@@ -333,7 +338,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
       //分配下载位置
       Object record = pro.getProperty(mDownloadFile.getName() + "_record_" + i);
       //如果有记录，则恢复下载
-      if (!isNewTask && record != null && Long.parseLong(record + "") > 0) {
+      if (!isNewTask && record != null && Long.parseLong(record + "") >= 0) {
         Long r = Long.parseLong(record + "");
         CONSTANCE.CURRENT_LOCATION += r - startL;
         Log.d(TAG, "任务【" + mDownloadEntity.getFileName() + "】线程__" + i + "__恢复下载");
@@ -373,7 +378,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     entity.END_LOCATION = entity.FILE_SIZE;
     entity.CONFIG_FILE_PATH = mConfigFile.getPath();
     entity.IS_SUPPORT_BREAK_POINT = isSupportBreakpoint;
-    entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
+    entity.DOWNLOAD_TASK_ENTITY = mTaskEntity;
     THREAD_NUM = 1;
     CONSTANCE.THREAD_NUM = THREAD_NUM;
     SingleThreadTask task = new SingleThreadTask(CONSTANCE, mListener, entity);
@@ -473,7 +478,7 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     entity.END_LOCATION = endL;
     entity.CONFIG_FILE_PATH = mConfigFile.getPath();
     entity.IS_SUPPORT_BREAK_POINT = isSupportBreakpoint;
-    entity.DOWNLOAD_TASK_ENTITY = mDownloadTaskEntity;
+    entity.DOWNLOAD_TASK_ENTITY = mTaskEntity;
     CONSTANCE.THREAD_NUM = THREAD_NUM;
     SingleThreadTask task = new SingleThreadTask(CONSTANCE, mListener, entity);
     mTask.put(i, task);
@@ -498,23 +503,4 @@ class DownloadUtil implements IDownloadUtil, Runnable {
     }
   }
 
-  /**
-   * 子线程下载信息类
-   */
-  final static class ChildThreadConfigEntity {
-    //线程Id
-    int THREAD_ID;
-    //下载文件大小
-    long FILE_SIZE;
-    //子线程启动下载位置
-    long START_LOCATION;
-    //子线程结束下载位置
-    long END_LOCATION;
-    //下载路径
-    File TEMP_FILE;
-    String DOWNLOAD_URL;
-    String CONFIG_FILE_PATH;
-    DownloadTaskEntity DOWNLOAD_TASK_ENTITY;
-    boolean IS_SUPPORT_BREAK_POINT = true;
-  }
 }

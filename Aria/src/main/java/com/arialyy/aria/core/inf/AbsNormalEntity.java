@@ -23,55 +23,27 @@ import com.arialyy.aria.orm.Ignore;
 /**
  * Created by AriaL on 2017/6/3.
  */
-public abstract class AbsNormalEntity extends DbEntity implements IEntity, Parcelable {
-  /**
-   * 速度
-   */
-  @Ignore private long speed = 0;
-  /**
-   * 单位转换后的速度
-   */
-  @Ignore private String convertSpeed = "0b/s";
+public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
   /**
    * 下载失败计数，每次开始都重置为0
    */
   @Ignore private int failNum = 0;
   /**
-   * 扩展字段
-   */
-  private String str = "";
-  /**
-   * 文件大小
-   */
-  private long fileSize = 1;
-  private int state = STATE_WAIT;
-  /**
-   * 当前下载进度
-   */
-  private long currentProgress = 0;
-  /**
-   * 完成时间
-   */
-  private long completeTime;
-  /**
    * 文件名
    */
   private String fileName = "";
 
-  public long getSpeed() {
-    return speed;
+  /**
+   * 是否是任务组里面的下载实体
+   */
+  private boolean isGroupChild = false;
+
+  public boolean isGroupChild() {
+    return isGroupChild;
   }
 
-  public void setSpeed(long speed) {
-    this.speed = speed;
-  }
-
-  public String getConvertSpeed() {
-    return convertSpeed;
-  }
-
-  public void setConvertSpeed(String convertSpeed) {
-    this.convertSpeed = convertSpeed;
+  public void setGroupChild(boolean groupChild) {
+    isGroupChild = groupChild;
   }
 
   public int getFailNum() {
@@ -80,46 +52,6 @@ public abstract class AbsNormalEntity extends DbEntity implements IEntity, Parce
 
   public void setFailNum(int failNum) {
     this.failNum = failNum;
-  }
-
-  public String getStr() {
-    return str;
-  }
-
-  public void setStr(String str) {
-    this.str = str;
-  }
-
-  public long getFileSize() {
-    return fileSize;
-  }
-
-  public void setFileSize(long fileSize) {
-    this.fileSize = fileSize;
-  }
-
-  public int getState() {
-    return state;
-  }
-
-  public void setState(int state) {
-    this.state = state;
-  }
-
-  public long getCurrentProgress() {
-    return currentProgress;
-  }
-
-  public void setCurrentProgress(long currentProgress) {
-    this.currentProgress = currentProgress;
-  }
-
-  public long getCompleteTime() {
-    return completeTime;
-  }
-
-  public void setCompleteTime(long completeTime) {
-    this.completeTime = completeTime;
   }
 
   public String getFileName() {
@@ -138,26 +70,16 @@ public abstract class AbsNormalEntity extends DbEntity implements IEntity, Parce
   }
 
   @Override public void writeToParcel(Parcel dest, int flags) {
-    dest.writeLong(this.speed);
-    dest.writeString(this.convertSpeed);
+    super.writeToParcel(dest, flags);
     dest.writeInt(this.failNum);
-    dest.writeString(this.str);
-    dest.writeLong(this.fileSize);
-    dest.writeInt(this.state);
-    dest.writeLong(this.currentProgress);
-    dest.writeLong(this.completeTime);
     dest.writeString(this.fileName);
+    dest.writeByte(this.isGroupChild ? (byte) 1 : (byte) 0);
   }
 
   protected AbsNormalEntity(Parcel in) {
-    this.speed = in.readLong();
-    this.convertSpeed = in.readString();
+    super(in);
     this.failNum = in.readInt();
-    this.str = in.readString();
-    this.fileSize = in.readLong();
-    this.state = in.readInt();
-    this.currentProgress = in.readLong();
-    this.completeTime = in.readLong();
     this.fileName = in.readString();
+    this.isGroupChild = in.readByte() != 0;
   }
 }

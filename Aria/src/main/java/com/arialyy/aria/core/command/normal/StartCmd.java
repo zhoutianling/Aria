@@ -19,7 +19,7 @@ package com.arialyy.aria.core.command.normal;
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.QueueMod;
-import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
@@ -47,7 +47,7 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       maxTaskNum = manager.getUploadConfig().getMaxTaskNum();
     }
 
-    AbsTask task = mQueue.getTask(mTaskEntity.getEntity());
+    AbsNormalTask task = mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
       task = mQueue.createTask(mTargetName, mTaskEntity);
       if (!TextUtils.isEmpty(mTargetName)) {

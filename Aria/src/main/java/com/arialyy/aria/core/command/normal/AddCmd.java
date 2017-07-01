@@ -17,7 +17,7 @@
 package com.arialyy.aria.core.command.normal;
 
 import android.util.Log;
-import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
@@ -33,7 +33,7 @@ class AddCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    AbsTask task = mQueue.getTask(mTaskEntity.getEntity());
+    AbsNormalTask task = mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
       mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
       mQueue.createTask(mTargetName, mTaskEntity);

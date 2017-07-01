@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download;
+package com.arialyy.aria.core.download.downloader;
 
 /**
  * 下载监听

@@ -22,7 +22,7 @@ import android.util.Log;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
@@ -33,9 +33,8 @@ import java.lang.ref.WeakReference;
  * Created by lyy on 2017/2/23.
  * 上传任务
  */
-public class UploadTask extends AbsTask<UploadTaskEntity, UploadEntity> {
+public class UploadTask extends AbsNormalTask<UploadEntity> {
   private static final String TAG = "UploadTask";
-  private Handler mOutHandler;
 
   private UploadUtil mUtil;
   private UListener mListener;

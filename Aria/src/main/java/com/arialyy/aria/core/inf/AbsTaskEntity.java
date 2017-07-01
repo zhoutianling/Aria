@@ -16,14 +16,22 @@
 package com.arialyy.aria.core.inf;
 
 import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.orm.DbEntity;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by lyy on 2017/2/23.
  */
+public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
 
-public abstract class AbsTaskEntity {
+  public ENTITY entity;
+
+  /**
+   * Task实体对应的key
+   */
+  public String key;
+
   /**
    * http 请求头
    */
@@ -44,5 +52,17 @@ public abstract class AbsTaskEntity {
    */
   public boolean removeFile = false;
 
-  public abstract AbsNormalEntity getEntity();
+  /**
+   * 是否支持断点, {@code true} 为支持断点
+   */
+  public boolean isSupportBP = true;
+
+  /**
+   * 状态码
+   */
+  public int code;
+
+  public ENTITY getEntity() {
+    return entity;
+  }
 }

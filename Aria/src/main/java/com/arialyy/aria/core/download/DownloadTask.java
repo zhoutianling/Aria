@@ -22,7 +22,10 @@ import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.download.downloader.DownloadListener;
+import com.arialyy.aria.core.download.downloader.DownloadUtil;
+import com.arialyy.aria.core.download.downloader.IDownloadListener;
+import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
@@ -35,12 +38,11 @@ import java.lang.ref.WeakReference;
  * Created by lyy on 2016/8/11.
  * 下载任务类
  */
-public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
+public class DownloadTask extends AbsNormalTask<DownloadEntity> {
   public static final String TAG = "DownloadTask";
 
   private IDownloadListener mListener;
-  private Handler mOutHandler;
-  private IDownloadUtil mUtil;
+  private DownloadUtil mUtil;
   private boolean isWait = false;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
@@ -98,7 +100,6 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
    * 暂停任务，并让任务处于等待状态
    */
   @Override public void stopAndWait() {
-    super.stopAndWait();
     stop(true);
   }
 
@@ -166,9 +167,6 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
         mContext.sendBroadcast(intent);
       }
       mUtil.cancelDownload();
-      mUtil.delConfigFile();
-      mUtil.delTempFile();
-      mEntity.deleteData();
     }
   }
 
@@ -232,7 +230,6 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     }
 
     @Override public void supportBreakpoint(boolean support) {
-      super.supportBreakpoint(support);
       if (!support) {
         sendInState2Target(ISchedulers.SUPPORT_BREAK_POINT);
         sendIntent(Aria.ACTION_SUPPORT_BREAK_POINT, -1);
@@ -240,14 +237,12 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     }
 
     @Override public void onPre() {
-      super.onPre();
       downloadEntity.setState(IEntity.STATE_PRE);
       sendInState2Target(ISchedulers.PRE);
       sendIntent(Aria.ACTION_PRE, -1);
     }
 
     @Override public void onPostPre(long fileSize) {
-      super.onPostPre(fileSize);
       downloadEntity.setFileSize(fileSize);
       downloadEntity.setState(IEntity.STATE_POST_PRE);
       sendInState2Target(ISchedulers.POST_PRE);
@@ -255,25 +250,20 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     }
 
     @Override public void onResume(long resumeLocation) {
-      super.onResume(resumeLocation);
       downloadEntity.setState(IEntity.STATE_RUNNING);
       sendInState2Target(ISchedulers.RESUME);
       sendIntent(Aria.ACTION_RESUME, resumeLocation);
     }
 
     @Override public void onStart(long startLocation) {
-      super.onStart(startLocation);
       downloadEntity.setState(IEntity.STATE_RUNNING);
       sendInState2Target(ISchedulers.START);
       sendIntent(Aria.ACTION_START, startLocation);
     }
 
     @Override public void onProgress(long currentLocation) {
-      super.onProgress(currentLocation);
       if (System.currentTimeMillis() - lastTime > INTERVAL_TIME) {
         long speed = currentLocation - lastLen;
-        sendIntent.putExtra(Aria.CURRENT_LOCATION, currentLocation);
-        sendIntent.putExtra(Aria.CURRENT_SPEED, speed);
         lastTime = System.currentTimeMillis();
         if (isFirst) {
           speed = 0;
@@ -283,12 +273,15 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
         downloadEntity.setCurrentProgress(currentLocation);
         lastLen = currentLocation;
         sendInState2Target(ISchedulers.RUNNING);
+
+        if (!isOpenBroadCast) return;
+        sendIntent.putExtra(Aria.CURRENT_LOCATION, currentLocation);
+        sendIntent.putExtra(Aria.CURRENT_SPEED, speed);
         context.sendBroadcast(sendIntent);
       }
     }
 
     @Override public void onStop(long stopLocation) {
-      super.onStop(stopLocation);
       downloadEntity.setState(task.isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP);
       handleSpeed(0);
       sendInState2Target(ISchedulers.STOP);
@@ -296,7 +289,6 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     }
 
     @Override public void onCancel() {
-      super.onCancel();
       downloadEntity.setState(IEntity.STATE_CANCEL);
       handleSpeed(0);
       sendInState2Target(ISchedulers.CANCEL);
@@ -305,7 +297,6 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     }
 
     @Override public void onComplete() {
-      super.onComplete();
       downloadEntity.setState(IEntity.STATE_COMPLETE);
       downloadEntity.setDownloadComplete(true);
       handleSpeed(0);
@@ -314,7 +305,6 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     }
 
     @Override public void onFail() {
-      super.onFail();
       downloadEntity.setFailNum(downloadEntity.getFailNum() + 1);
       downloadEntity.setState(IEntity.STATE_FAIL);
       handleSpeed(0);

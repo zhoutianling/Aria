@@ -14,13 +14,18 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download;
+package com.arialyy.aria.core.download.downloader;
 
 /**
  * Created by lyy on 2016/10/31.
  * 抽象的下载接口
  */
 interface IDownloadUtil {
+
+  /**
+   * 获取文件大小
+   */
+  public long getFileSize();
 
   /**
    * 获取当前下载位置
@@ -53,19 +58,4 @@ interface IDownloadUtil {
    * 从上次断点恢复下载
    */
   public void resumeDownload();
-
-  /**
-   * 删除下载记录文件
-   */
-  public void delConfigFile();
-
-  /**
-   * 删除temp文件
-   */
-  public void delTempFile();
-
-  /**
-   * 设置最大下载速度
-   */
-  public void setMaxSpeed(double maxSpeed);
 }

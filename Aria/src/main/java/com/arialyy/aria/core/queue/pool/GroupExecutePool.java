@@ -13,20 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download;
-
-import com.arialyy.aria.core.inf.AbsTaskEntity;
+package com.arialyy.aria.core.queue.pool;
 
 /**
- * Created by lyy on 2017/1/23.
- * 下载任务实体
+ * Created by AriaL on 2017/6/29.
  */
-public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
 
-  public DownloadTaskEntity() {
-  }
-
-  public DownloadTaskEntity(DownloadEntity entity) {
-    this.entity = entity;
-  }
+public class GroupExecutePool {
 }

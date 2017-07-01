@@ -19,7 +19,7 @@ package com.arialyy.aria.core.queue;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.queue.pool.ExecutePool;
+import com.arialyy.aria.core.queue.pool.NormalExecutePool;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -43,7 +43,7 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
   }
 
   private UploadTaskQueue() {
-    mExecutePool = new ExecutePool<>(false);
+    mExecutePool = new NormalExecutePool<>(false);
   }
 
   @Override public void setMaxTaskNum(int newMaxNum) {

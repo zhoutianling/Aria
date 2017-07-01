@@ -1,0 +1,161 @@
+/*
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.arialyy.aria.core.download.downloader;
+
+import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.util.CommonUtil;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+/**
+ * 下载文件信息获取
+ */
+class FileInfoThread implements Runnable {
+  private final String TAG = "FileInfoThread";
+  private DownloadEntity mEntity;
+  private DownloadTaskEntity mTaskEntity;
+  private int mConnectTimeOut;
+  private OnFileInfoCallback onFileInfoListener;
+
+  interface OnFileInfoCallback {
+    /**
+     * 处理完成
+     *
+     * @param code 状态码
+     */
+    void onComplete(String url, int code);
+
+    /**
+     * 请求失败
+     *
+     * @param errorMsg 错误信息
+     */
+    void onFail(String url, String errorMsg);
+  }
+
+  FileInfoThread(DownloadTaskEntity taskEntity) {
+    this(taskEntity, null);
+  }
+
+  FileInfoThread(DownloadTaskEntity taskEntity, OnFileInfoCallback callback) {
+    this.mTaskEntity = taskEntity;
+    mEntity = taskEntity.getEntity();
+    mConnectTimeOut =
+        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getConnectTimeOut();
+    onFileInfoListener = callback;
+  }
+
+  @Override public void run() {
+    HttpURLConnection conn = null;
+    try {
+      URL url = new URL(mEntity.getDownloadUrl());
+      conn = ConnectionHelp.handleConnection(url);
+      conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
+      conn.setRequestProperty("Range", "bytes=" + 0 + "-");
+      conn.setConnectTimeout(mConnectTimeOut);
+      conn.connect();
+      handleConnect(conn);
+    } catch (IOException e) {
+      failDownload("下载失败【downloadUrl:"
+          + mEntity.getDownloadUrl()
+          + "】\n【filePath:"
+          + mEntity.getDownloadPath()
+          + "】\n"
+          + CommonUtil.getPrintException(e));
+    } finally {
+      if (conn != null) {
+        conn.disconnect();
+      }
+    }
+  }
+
+  private void handleConnect(HttpURLConnection conn) throws IOException {
+    int len = conn.getContentLength();
+    int code = conn.getResponseCode();
+    boolean isComplete = false;
+    mTaskEntity.code = code;
+    if (code == HttpURLConnection.HTTP_PARTIAL) {
+      if (!checkLen(len)) return;
+      mEntity.setFileSize(len);
+      mTaskEntity.isSupportBP = true;
+      isComplete = true;
+    } else if (code == HttpURLConnection.HTTP_OK) {
+      if (!checkLen(len)) return;
+      mEntity.setFileSize(len);
+      mTaskEntity.isSupportBP = false;
+      isComplete = true;
+    } else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
+      failDownload("任务【" + mEntity.getDownloadUrl() + "】下载失败，错误码：404");
+    } else if (code == HttpURLConnection.HTTP_MOVED_TEMP
+        || code == HttpURLConnection.HTTP_MOVED_PERM
+        || code == HttpURLConnection.HTTP_SEE_OTHER) {
+      mTaskEntity.redirectUrlKey = conn.getHeaderField(mTaskEntity.redirectUrlKey);
+      mEntity.setRedirect(true);
+      mEntity.setRedirectUrl(mTaskEntity.redirectUrlKey);
+      handle302Turn(conn);
+    } else {
+      failDownload("任务【" + mEntity.getDownloadUrl() + "】下载失败，错误码：" + code);
+    }
+    if (isComplete) {
+      if (onFileInfoListener != null) {
+        onFileInfoListener.onComplete(mEntity.getDownloadUrl(), code);
+      }
+      mEntity.update();
+      mTaskEntity.update();
+    }
+  }
+
+  /**
+   * 处理30x跳转
+   */
+  private void handle302Turn(HttpURLConnection conn) throws IOException {
+    String newUrl = conn.getHeaderField(mTaskEntity.redirectUrlKey);
+    Log.d(TAG, "30x跳转，新url为【" + newUrl + "】");
+    String cookies = conn.getHeaderField("Set-Cookie");
+    conn = (HttpURLConnection) new URL(newUrl).openConnection();
+    conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
+    conn.setRequestProperty("Cookie", cookies);
+    conn.setRequestProperty("Range", "bytes=" + 0 + "-");
+    conn.setConnectTimeout(mConnectTimeOut);
+    conn.connect();
+    handleConnect(conn);
+  }
+
+  /**
+   * 检查长度是否合法
+   *
+   * @param len 从服务器获取的文件长度
+   * @return true, 合法
+   */
+  private boolean checkLen(long len) {
+    if (len < 0) {
+      failDownload("任务【" + mEntity.getDownloadUrl() + "】下载失败，文件长度小于0");
+      return false;
+    }
+    return true;
+  }
+
+  private void failDownload(String errorMsg) {
+    Log.e(TAG, errorMsg);
+    if (onFileInfoListener != null) {
+      onFileInfoListener.onFail(mEntity.getDownloadUrl(), errorMsg);
+    }
+  }
+}

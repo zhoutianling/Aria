@@ -23,92 +23,18 @@ import com.arialyy.aria.orm.Ignore;
 /**
  * Created by AriaL on 2017/6/3.
  */
-public abstract class AbsGroupEntity<CHILD_ENTITY extends AbsNormalEntity> extends DbEntity implements IEntity, Parcelable {
+public abstract class AbsGroupEntity extends AbsEntity implements Parcelable {
   /**
-   * 速度
+   * 组名
    */
-  @Ignore private long speed = 0;
-  /**
-   * 单位转换后的速度
-   */
-  @Ignore private String convertSpeed = "0b/s";
+  private String groupName = "";
 
-  /**
-   * 扩展字段
-   */
-  private String str = "";
-  /**
-   * 文件大小
-   */
-  private long fileSize = 1;
-  private int state = STATE_WAIT;
-  /**
-   * 当前下载进度
-   */
-  private long currentProgress = 0;
-  /**
-   * 完成时间
-   */
-  private long completeTime;
-  /**
-   * 文件名
-   */
-  private String grooupName = "";
-
-  public long getSpeed() {
-    return speed;
+  public String getGroupName() {
+    return groupName;
   }
 
-  public void setSpeed(long speed) {
-    this.speed = speed;
-  }
-
-  public String getConvertSpeed() {
-    return convertSpeed;
-  }
-
-  public void setConvertSpeed(String convertSpeed) {
-    this.convertSpeed = convertSpeed;
-  }
-
-  public String getStr() {
-    return str;
-  }
-
-  public void setStr(String str) {
-    this.str = str;
-  }
-
-  public long getFileSize() {
-    return fileSize;
-  }
-
-  public void setFileSize(long fileSize) {
-    this.fileSize = fileSize;
-  }
-
-  public int getState() {
-    return state;
-  }
-
-  public void setState(int state) {
-    this.state = state;
-  }
-
-  public long getCurrentProgress() {
-    return currentProgress;
-  }
-
-  public void setCurrentProgress(long currentProgress) {
-    this.currentProgress = currentProgress;
-  }
-
-  public long getCompleteTime() {
-    return completeTime;
-  }
-
-  public void setCompleteTime(long completeTime) {
-    this.completeTime = completeTime;
+  public void setGroupName(String groupName) {
+    this.groupName = groupName;
   }
 
   public AbsGroupEntity() {
@@ -119,22 +45,12 @@ public abstract class AbsGroupEntity<CHILD_ENTITY extends AbsNormalEntity> exten
   }
 
   @Override public void writeToParcel(Parcel dest, int flags) {
-    dest.writeLong(this.speed);
-    dest.writeString(this.convertSpeed);
-    dest.writeString(this.str);
-    dest.writeLong(this.fileSize);
-    dest.writeInt(this.state);
-    dest.writeLong(this.currentProgress);
-    dest.writeLong(this.completeTime);
+    super.writeToParcel(dest, flags);
+    dest.writeString(this.groupName);
   }
 
   protected AbsGroupEntity(Parcel in) {
-    this.speed = in.readLong();
-    this.convertSpeed = in.readString();
-    this.str = in.readString();
-    this.fileSize = in.readLong();
-    this.state = in.readInt();
-    this.currentProgress = in.readLong();
-    this.completeTime = in.readLong();
+    super(in);
+    this.groupName = in.readString();
   }
 }

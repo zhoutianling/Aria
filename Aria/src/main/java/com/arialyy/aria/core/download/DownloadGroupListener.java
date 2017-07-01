@@ -15,18 +15,10 @@
  */
 package com.arialyy.aria.core.download;
 
-import com.arialyy.aria.core.inf.AbsTaskEntity;
-
 /**
- * Created by lyy on 2017/1/23.
- * 下载任务实体
+ * Created by AriaL on 2017/6/30.
  */
-public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
 
-  public DownloadTaskEntity() {
-  }
+public class DownloadGroupListener {
 
-  public DownloadTaskEntity(DownloadEntity entity) {
-    this.entity = entity;
-  }
 }

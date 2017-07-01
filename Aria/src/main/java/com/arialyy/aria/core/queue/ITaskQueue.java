@@ -19,9 +19,8 @@ package com.arialyy.aria.core.queue;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.download.DownloadTask;
-import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -31,7 +30,7 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
  * Created by lyy on 2016/8/16.
  * 任务功能接口
  */
-public interface ITaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends IEntity> {
+public interface ITaskQueue<TASK extends AbsNormalTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends IEntity> {
 
   /**
    * 通过key判断任务是否正在执行

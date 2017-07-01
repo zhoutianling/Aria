@@ -31,14 +31,14 @@ import java.util.concurrent.TimeUnit;
  * Created by lyy on 2016/8/15.
  * 任务执行池，所有当前下载任务都该任务池中，默认下载大小为2
  */
-public class ExecutePool<TASK extends ITask> implements IPool<TASK> {
-  private static final String TAG = "ExecutePool";
+public class NormalExecutePool<TASK extends ITask> implements IPool<TASK> {
+  private static final String TAG = "NormalExecutePool";
   private static final long TIME_OUT = 1000;
   private ArrayBlockingQueue<TASK> mExecuteQueue;
   private Map<String, TASK> mExecuteMap;
   private int mSize;
 
-  public ExecutePool(boolean isDownload) {
+  public NormalExecutePool(boolean isDownload) {
     if (isDownload) {
       mSize = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
     } else {

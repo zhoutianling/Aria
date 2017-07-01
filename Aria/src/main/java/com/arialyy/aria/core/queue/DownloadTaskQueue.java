@@ -23,7 +23,7 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.queue.pool.ExecutePool;
+import com.arialyy.aria.core.queue.pool.NormalExecutePool;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -48,7 +48,7 @@ public class DownloadTaskQueue
   }
 
   private DownloadTaskQueue() {
-    mExecutePool = new ExecutePool<>(true);
+    mExecutePool = new NormalExecutePool<>(true);
   }
 
   @Override public void setTaskHighestPriority(DownloadTask task) {

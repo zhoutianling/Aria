@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download;
+package com.arialyy.aria.core.download.downloader;
 
 import android.os.Build;
 import android.text.TextUtils;
@@ -36,7 +36,7 @@ import java.util.Properties;
  */
 final class SingleThreadTask implements Runnable {
   private static final String TAG = "SingleThreadTask";
-  private DownloadUtil.ChildThreadConfigEntity mConfigEntity;
+  private ChildThreadConfigEntity mConfigEntity;
   private String mConfigFPath;
   private long mChildCurrentLocation = 0;
   private int mBufSize;
@@ -45,7 +45,7 @@ final class SingleThreadTask implements Runnable {
   private long mSleepTime = 0;
 
   SingleThreadTask(DownloadStateConstance constance, IDownloadListener listener,
-      DownloadUtil.ChildThreadConfigEntity downloadInfo) {
+      ChildThreadConfigEntity downloadInfo) {
     AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     CONSTANCE = constance;
     CONSTANCE.CONNECT_TIME_OUT = manager.getDownloadConfig().getConnectTimeOut();
