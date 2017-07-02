@@ -16,8 +16,10 @@
 package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
 
 /**
  * Created by lyy on 2017/6/2.
@@ -28,6 +30,8 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
  * 4、用户手动暂停或任务完成后，第二次重新执行该任务，该命令将失效
  * 5、如果下载队列中已经满了，则会停止队尾的任务，当高优先级任务完成后，该队尾任务将自动执行
  * 6、把任务设置为最高优先级任务后，将自动执行任务，不需要重新调用start()启动任务
+ *
+ * 目前只只支持单下载任务的最高优先级任务
  */
 final class HighestPriorityCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   /**
@@ -39,15 +43,15 @@ final class HighestPriorityCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> 
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    AbsNormalTask task = mQueue.getTask(mTaskEntity.getEntity());
+    DownloadTask task = (DownloadTask) mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
-      task = mQueue.createTask(mTargetName, mTaskEntity);
+      task = (DownloadTask) mQueue.createTask(mTargetName, mTaskEntity);
     }
     if (task != null) {
       if (!TextUtils.isEmpty(mTargetName)) {
         task.setTargetName(mTargetName);
       }
-      mQueue.setTaskHighestPriority(task);
+      ((DownloadTaskQueue) mQueue).setTaskHighestPriority(task);
     }
   }
 }

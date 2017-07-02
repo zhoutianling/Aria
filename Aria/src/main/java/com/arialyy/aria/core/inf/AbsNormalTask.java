@@ -15,8 +15,6 @@
  */
 package com.arialyy.aria.core.inf;
 
-import com.arialyy.aria.util.CommonUtil;
-
 /**
  * Created by lyy on 2017/6/3.
  */
@@ -46,55 +44,5 @@ public abstract class AbsNormalTask<ENTITY extends AbsEntity> extends AbsTask<EN
 
   public boolean isHighestPriorityTask() {
     return isHeighestTask;
-  }
-
-  /**
-   * 获取百分比进度
-   *
-   * @return 返回百分比进度，如果文件长度为0，返回0
-   */
-  @Override public int getPercent() {
-    if (mEntity.getFileSize() == 0) {
-      return 0;
-    }
-    return (int) (mEntity.getCurrentProgress() * 100 / mEntity.getFileSize());
-  }
-
-  /**
-   * 获取文件大小
-   */
-  @Override public long getFileSize() {
-    return mEntity.getFileSize();
-  }
-
-  /**
-   * 转换单位后的文件长度
-   *
-   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1kb、1mb、1gb、1tb
-   */
-  @Override public String getConvertFileSize() {
-    if (mEntity.getFileSize() == 0) {
-      return "0mb";
-    }
-    return CommonUtil.formatFileSize(mEntity.getFileSize());
-  }
-
-  /**
-   * 获取当前下载进度
-   */
-  @Override public long getCurrentProgress() {
-    return mEntity.getCurrentProgress();
-  }
-
-  /**
-   * 获取单位转换后的进度
-   *
-   * @return 如：已经下载3mb的大小，则返回{@code 3mb}
-   */
-  @Override public String getConvertCurrentProgress() {
-    if (mEntity.getCurrentProgress() == 0) {
-      return "0b";
-    }
-    return CommonUtil.formatFileSize(mEntity.getCurrentProgress());
   }
 }

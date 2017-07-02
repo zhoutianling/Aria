@@ -19,7 +19,7 @@ package com.arialyy.aria.core.queue;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.queue.pool.NormalExecutePool;
+import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -43,12 +43,17 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
   }
 
   private UploadTaskQueue() {
-    mExecutePool = new NormalExecutePool<>(false);
+    mExecutePool = new BaseExecutePool<>(false);
   }
 
-  @Override public void setMaxTaskNum(int newMaxNum) {
-
+  @Override public String getKey(UploadEntity entity) {
+    return entity.getFilePath();
   }
+
+  @Override public int getConfigMaxNum() {
+    return AriaManager.getInstance(AriaManager.APP).getUploadConfig().oldMaxTaskNum;
+  }
+
 
   @Override public UploadTask createTask(String targetName, UploadTaskEntity entity) {
     UploadTask task = null;
@@ -60,20 +65,5 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
       Log.e(TAG, "target name 为 null是！！");
     }
     return task;
-  }
-
-  @Override public UploadTask getTask(UploadEntity entity) {
-    return getTask(entity.getFilePath());
-  }
-
-  @Override public void removeTask(UploadEntity entity) {
-    UploadTask task = mExecutePool.getTask(entity.getFilePath());
-    if (task != null) {
-      Log.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
-    }
-    task = mCachePool.getTask(entity.getFilePath());
-    if (task != null) {
-      Log.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
-    }
   }
 }

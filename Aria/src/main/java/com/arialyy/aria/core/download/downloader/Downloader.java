@@ -33,9 +33,10 @@ import java.util.concurrent.Executors;
 
 /**
  * Created by AriaL on 2017/7/1.
+ * 文件下载器
  */
-class DownloadThreader implements Runnable, IDownloadUtil {
-  private final String TAG = "DownloadThreader";
+class Downloader implements Runnable, IDownloadUtil {
+  private final String TAG = "Downloader";
   private IDownloadListener mListener;
   private DownloadTaskEntity mTaskEntity;
   private DownloadEntity mEntity;
@@ -45,15 +46,33 @@ class DownloadThreader implements Runnable, IDownloadUtil {
   private File mTempFile; //下载的文件
   private boolean isNewTask = true;
   private int mThreadNum, mRealThreadNum;
-  private DownloadStateConstance mConstance;
+  private StateConstance mConstance;
   private SparseArray<Runnable> mTask = new SparseArray<>();
 
-  DownloadThreader(IDownloadListener listener, DownloadTaskEntity taskEntity) {
+  /**
+   * 小于1m的文件不启用多线程
+   */
+  private static final long SUB_LEN = 1024 * 1024;
+
+  Downloader(IDownloadListener listener, DownloadTaskEntity taskEntity) {
     mListener = listener;
     mTaskEntity = taskEntity;
     mEntity = mTaskEntity.getEntity();
     mContext = AriaManager.APP;
-    mConstance = new DownloadStateConstance();
+    mConstance = new StateConstance();
+  }
+
+  void setMaxSpeed(double maxSpeed) {
+    for (int i = 0; i < mThreadNum; i++) {
+      SingleThreadTask task = (SingleThreadTask) mTask.get(i);
+      if (task != null) {
+        task.setMaxSpeed(maxSpeed);
+      }
+    }
+  }
+
+  public StateConstance getConstance() {
+    return mConstance;
   }
 
   @Override public void run() {
@@ -106,15 +125,16 @@ class DownloadThreader implements Runnable, IDownloadUtil {
   }
 
   @Override public void startDownload() {
+    mConstance.cleanState();
     mConstance.isDownloading = true;
     try {
       if (!mTaskEntity.isSupportBP) {
         mThreadNum = 1;
         handleNoSupportBreakpointDownload();
       } else {
-        mThreadNum =
-            isNewTask ? AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum()
-                : mRealThreadNum;
+        mThreadNum = isNewTask ? (mEntity.getFileSize() <= SUB_LEN ? 1
+            : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum())
+            : mRealThreadNum;
         mFixedThreadPool = Executors.newFixedThreadPool(mThreadNum);
         handleBreakpoint();
       }

@@ -68,14 +68,14 @@ public class DownloadGroupUtil implements IDownloadUtil {
   /**
    * 下载器映射表，key为下载地址
    */
-  private Map<String, DownloadThreader> mDownloaderMap = new HashMap<>();
+  private Map<String, Downloader> mDownloaderMap = new HashMap<>();
 
   /**
    * 文件信息回调组
    */
   private SparseArray<FileInfoThread.OnFileInfoCallback> mFileInfoCallbacks = new SparseArray<>();
 
-  DownloadGroupUtil(IDownloadListener listener, DownloadGroupTaskEntity taskEntity) {
+  public DownloadGroupUtil(IDownloadListener listener, DownloadGroupTaskEntity taskEntity) {
     mListener = listener;
     mTaskEntity = taskEntity;
     mInfoPool = Executors.newCachedThreadPool();
@@ -116,9 +116,9 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
     Set<String> keys = mDownloaderMap.keySet();
     for (String key : keys) {
-      DownloadThreader db = mDownloaderMap.get(key);
-      if (db != null) {
-        db.cancelDownload();
+      Downloader dt = mDownloaderMap.get(key);
+      if (dt != null) {
+        dt.cancelDownload();
       }
     }
   }
@@ -135,9 +135,9 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
     Set<String> keys = mDownloaderMap.keySet();
     for (String key : keys) {
-      DownloadThreader db = mDownloaderMap.get(key);
-      if (db != null) {
-        db.stopDownload();
+      Downloader dt = mDownloaderMap.get(key);
+      if (dt != null) {
+        dt.stopDownload();
       }
     }
   }
@@ -188,7 +188,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
           }
           mFailNum++;
           failNum++;
-          if (failNum < 10){
+          if (failNum < 10) {
             mInfoPool.execute(createFileInfoThread(te));
           }
           if (mInitNum + mFailNum == mTaskEntity.getEntity().getChild().size()) {
@@ -228,7 +228,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
    */
   private void startChildDownload(DownloadTaskEntity taskEntity) {
     ChildDownloadListener listener = new ChildDownloadListener(taskEntity);
-    DownloadThreader dt = new DownloadThreader(listener, taskEntity);
+    Downloader dt = new Downloader(listener, taskEntity);
     mDownloaderMap.put(taskEntity.getEntity().getDownloadUrl(), dt);
     mExePool.execute(dt);
   }

@@ -233,7 +233,7 @@ public abstract class AbsNormalTarget<TARGET extends AbsNormalTarget, ENTITY ext
    *
    * @see #stop()
    */
-  @Deprecated protected void pause() {
+  @Deprecated public void pause() {
     stop();
   }
 

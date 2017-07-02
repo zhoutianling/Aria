@@ -16,9 +16,55 @@
 
 package com.arialyy.aria.core.queue;
 
+import android.text.TextUtils;
+import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTask;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.queue.pool.BaseExecutePool;
+import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
+
 /**
  * Created by AriaL on 2017/6/29.
  * 任务组下载队列
  */
-public class DownloadGroupTaskQueue {
+public class DownloadGroupTaskQueue
+    extends AbsTaskQueue<DownloadGroupTask, DownloadGroupTaskEntity, DownloadGroupEntity> {
+  private static volatile DownloadGroupTaskQueue INSTANCE = null;
+
+  private final String TAG = "DownloadGroupTaskQueue";
+
+  public static DownloadGroupTaskQueue getInstance() {
+    if (INSTANCE == null) {
+      synchronized (AriaManager.LOCK) {
+        INSTANCE = new DownloadGroupTaskQueue();
+      }
+    }
+    return INSTANCE;
+  }
+
+  private DownloadGroupTaskQueue() {
+    mExecutePool = new BaseExecutePool<>(true);
+  }
+
+  @Override public DownloadGroupTask createTask(String targetName, DownloadGroupTaskEntity entity) {
+    DownloadGroupTask task = null;
+    if (!TextUtils.isEmpty(targetName)) {
+      task = (DownloadGroupTask) TaskFactory.getInstance()
+          .createTask(targetName, entity, DownloadGroupSchedulers.getInstance());
+      mCachePool.putTask(task);
+    } else {
+      Log.e(TAG, "target name 为 null！！");
+    }
+    return task;
+  }
+
+  @Override public String getKey(DownloadGroupEntity entity) {
+    return entity.getGroupName();
+  }
+
+  @Override public int getConfigMaxNum() {
+    return AriaManager.getInstance(AriaManager.APP).getDownloadConfig().oldMaxTaskNum;
+  }
 }

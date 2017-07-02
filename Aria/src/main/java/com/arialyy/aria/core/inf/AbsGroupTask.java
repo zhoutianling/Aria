@@ -15,7 +15,6 @@
  */
 package com.arialyy.aria.core.inf;
 
-import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by AriaL on 2017/6/29.
@@ -25,47 +24,8 @@ public abstract class AbsGroupTask<TASK_ENTITY extends AbsTaskEntity, ENTITY ext
 
   protected TASK_ENTITY mTaskEntity;
 
-  @Override public int getPercent() {
-    return 0;
-  }
-
-  @Override public long getFileSize() {
-    return 0;
-  }
-
-  @Override public String getConvertFileSize() {
-    return null;
-  }
-
-  @Override public long getCurrentProgress() {
-    return 0;
-  }
-
-  @Override public String getConvertCurrentProgress() {
-    return null;
-  }
-
-  @Override public int getState() {
-    return mEntity.getState();
-  }
-
-  @Override public String getExtendField() {
-    return mEntity.getStr();
-  }
 
   @Override public String getKey() {
     return mEntity.getGroupName();
-  }
-
-  @Override public boolean isRunning() {
-    return false;
-  }
-
-  @Override public ENTITY getEntity() {
-    return mEntity;
-  }
-
-  @Override public void removeRecord() {
-
   }
 }

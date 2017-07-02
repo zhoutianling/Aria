@@ -13,34 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.arialyy.aria.core.scheduler;
 
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.queue.DownloadTaskQueue;
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTask;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 
 /**
- * Created by lyy on 2016/8/16.
- * 任务下载器，提供抽象的方法供具体的实现类操作
+ * Created by AriaL on 2017/7/2.
  */
-public class DownloadSchedulers
-    extends AbsSchedulers<DownloadTaskEntity, DownloadEntity, DownloadTask, DownloadTaskQueue> {
+public class DownloadGroupSchedulers extends
+    AbsSchedulers<DownloadGroupTaskEntity, DownloadGroupEntity, DownloadGroupTask, DownloadGroupTaskQueue> {
+  private final String TAG = "DownloadGroupSchedulers";
+  private static volatile DownloadGroupSchedulers INSTANCE = null;
 
-  private final String TAG = "DownloadSchedulers";
-  private static volatile DownloadSchedulers INSTANCE = null;
-
-  private DownloadSchedulers() {
-    mQueue = DownloadTaskQueue.getInstance();
+  private DownloadGroupSchedulers() {
+    mQueue = DownloadGroupTaskQueue.getInstance();
     isDownload = true;
   }
 
-  public static DownloadSchedulers getInstance() {
+  public static DownloadGroupSchedulers getInstance() {
     if (INSTANCE == null) {
       synchronized (AriaManager.LOCK) {
-        INSTANCE = new DownloadSchedulers();
+        INSTANCE = new DownloadGroupSchedulers();
       }
     }
     return INSTANCE;

@@ -32,6 +32,10 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
    * 单位转换后的速度
    */
   @Ignore private String convertSpeed = "0b/s";
+  /**
+   * 下载失败计数，每次开始都重置为0
+   */
+  @Ignore private int failNum = 0;
 
   /**
    * 扩展字段
@@ -50,6 +54,14 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
    * 完成时间
    */
   private long completeTime;
+
+  public int getFailNum() {
+    return failNum;
+  }
+
+  public void setFailNum(int failNum) {
+    this.failNum = failNum;
+  }
 
   public long getSpeed() {
     return speed;
@@ -117,6 +129,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
   @Override public void writeToParcel(Parcel dest, int flags) {
     dest.writeLong(this.speed);
     dest.writeString(this.convertSpeed);
+    dest.writeInt(this.failNum);
     dest.writeString(this.str);
     dest.writeLong(this.fileSize);
     dest.writeInt(this.state);
@@ -127,6 +140,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
   protected AbsEntity(Parcel in) {
     this.speed = in.readLong();
     this.convertSpeed = in.readString();
+    this.failNum = in.readInt();
     this.str = in.readString();
     this.fileSize = in.readLong();
     this.state = in.readInt();

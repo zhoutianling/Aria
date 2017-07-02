@@ -47,9 +47,9 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       maxTaskNum = manager.getUploadConfig().getMaxTaskNum();
     }
 
-    AbsNormalTask task = mQueue.getTask(mTaskEntity.getEntity());
+    AbsNormalTask task = (AbsNormalTask) mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
-      task = mQueue.createTask(mTargetName, mTaskEntity);
+      task = (AbsNormalTask) mQueue.createTask(mTargetName, mTaskEntity);
       if (!TextUtils.isEmpty(mTargetName)) {
         task.setTargetName(mTargetName);
       }

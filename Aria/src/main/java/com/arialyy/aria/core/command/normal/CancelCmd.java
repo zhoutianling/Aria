@@ -31,9 +31,9 @@ class CancelCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    AbsNormalTask task = mQueue.getTask(mTaskEntity.getEntity());
+    AbsNormalTask task = (AbsNormalTask) mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
-      task = mQueue.createTask(mTargetName, mTaskEntity);
+      task = (AbsNormalTask) mQueue.createTask(mTargetName, mTaskEntity);
     }
     if (task != null) {
       if (!TextUtils.isEmpty(mTargetName)) {

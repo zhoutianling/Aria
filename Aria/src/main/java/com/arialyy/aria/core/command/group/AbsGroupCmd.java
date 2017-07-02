@@ -16,8 +16,10 @@
 package com.arialyy.aria.core.command.group;
 
 import com.arialyy.aria.core.command.AbsCmd;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
@@ -36,12 +38,9 @@ public abstract class AbsGroupCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
     mTargetName = targetName;
     mTaskEntity = entity;
     TAG = CommonUtil.getClassName(this);
-    if (entity instanceof DownloadTaskEntity) {
-      mQueue = DownloadTaskQueue.getInstance();
+    if (entity instanceof DownloadGroupTaskEntity) {
+      mQueue = DownloadGroupTaskQueue.getInstance();
       isDownloadCmd = true;
-    } else if (entity instanceof UploadTaskEntity) {
-      mQueue = UploadTaskQueue.getInstance();
-      isDownloadCmd = false;
     }
   }
 }

@@ -92,5 +92,4 @@ public interface ITask<ENTITY extends AbsEntity> {
 
   public void setTargetName(String targetName);
 
-  public void removeRecord();
 }

@@ -20,7 +20,7 @@ package com.arialyy.aria.core.download.downloader;
  * Created by lyy on 2016/10/31.
  * 抽象的下载接口
  */
-interface IDownloadUtil {
+public interface IDownloadUtil {
 
   /**
    * 获取文件大小

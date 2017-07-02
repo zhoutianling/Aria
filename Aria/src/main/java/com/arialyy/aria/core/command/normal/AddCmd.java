@@ -33,7 +33,7 @@ class AddCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    AbsNormalTask task = mQueue.getTask(mTaskEntity.getEntity());
+    AbsNormalTask task = (AbsNormalTask) mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
       mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
       mQueue.createTask(mTargetName, mTaskEntity);

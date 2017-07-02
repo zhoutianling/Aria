@@ -19,7 +19,7 @@ package com.arialyy.aria.core.download.downloader;
  * Created by lyy on 2017/1/18.
  * 下载状态常量
  */
-final class DownloadStateConstance {
+final class StateConstance {
   int CANCEL_NUM = 0;
   int STOP_NUM = 0;
   int FAIL_NUM = 0;
@@ -32,7 +32,7 @@ final class DownloadStateConstance {
   boolean isCancel = false;
   boolean isStop = false;
 
-  DownloadStateConstance() {
+  StateConstance() {
   }
 
   void cleanState() {

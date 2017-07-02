@@ -41,10 +41,10 @@ final class SingleThreadTask implements Runnable {
   private long mChildCurrentLocation = 0;
   private int mBufSize;
   private IDownloadListener mListener;
-  private DownloadStateConstance CONSTANCE;
+  private StateConstance CONSTANCE;
   private long mSleepTime = 0;
 
-  SingleThreadTask(DownloadStateConstance constance, IDownloadListener listener,
+  SingleThreadTask(StateConstance constance, IDownloadListener listener,
       ChildThreadConfigEntity downloadInfo) {
     AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     CONSTANCE = constance;

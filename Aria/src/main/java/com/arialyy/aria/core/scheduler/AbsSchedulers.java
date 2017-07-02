@@ -20,8 +20,8 @@ import android.os.Message;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
-import com.arialyy.aria.core.inf.AbsNormalEntity;
-import com.arialyy.aria.core.inf.AbsNormalTask;
+import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.ITaskQueue;
@@ -34,19 +34,19 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by lyy on 2017/6/4.
  */
-public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsNormalEntity, TASK extends AbsNormalTask<TASK_ENTITY, ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY, ENTITY>>
+abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY, ENTITY>>
     implements ISchedulers<TASK> {
-  private static final String TAG = "AbsSchedulers";
+  private final String TAG = "AbsSchedulers";
 
   /**
    * 下载的动态生成的代理类后缀
    */
-  String DOWNLOAD_PROXY_CLASS_SUFFIX = "$$DownloadListenerProxy";
+  private String DOWNLOAD_PROXY_CLASS_SUFFIX = "$$DownloadListenerProxy";
 
   /**
    * 上传的动态生成的代理类后缀
    */
-  String UPLOAD_PROXY_CLASS_SUFFIX = "$$UploadListenerProxy";
+  private String UPLOAD_PROXY_CLASS_SUFFIX = "$$UploadListenerProxy";
 
   protected QUEUE mQueue;
   protected boolean isDownload = true;

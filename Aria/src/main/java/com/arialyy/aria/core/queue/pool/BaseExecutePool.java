@@ -23,7 +23,6 @@ import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -31,14 +30,14 @@ import java.util.concurrent.TimeUnit;
  * Created by lyy on 2016/8/15.
  * 任务执行池，所有当前下载任务都该任务池中，默认下载大小为2
  */
-public class NormalExecutePool<TASK extends ITask> implements IPool<TASK> {
-  private static final String TAG = "NormalExecutePool";
-  private static final long TIME_OUT = 1000;
-  private ArrayBlockingQueue<TASK> mExecuteQueue;
-  private Map<String, TASK> mExecuteMap;
-  private int mSize;
+public class BaseExecutePool<TASK extends ITask> implements IPool<TASK> {
+  private final String TAG = "BaseExecutePool";
+  final long TIME_OUT = 1000;
+  ArrayBlockingQueue<TASK> mExecuteQueue;
+  Map<String, TASK> mExecuteMap;
+  protected int mSize;
 
-  public NormalExecutePool(boolean isDownload) {
+  public BaseExecutePool(boolean isDownload) {
     if (isDownload) {
       mSize = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
     } else {
@@ -67,10 +66,6 @@ public class NormalExecutePool<TASK extends ITask> implements IPool<TASK> {
         return false;
       } else {
         if (mExecuteQueue.size() >= mSize) {
-          Set<String> keys = mExecuteMap.keySet();
-          for (String key : keys) {
-            if (mExecuteMap.get(key).isHighestPriorityTask()) return false;
-          }
           if (pollFirstTask()) {
             return putNewTask(task);
           }
@@ -106,7 +101,7 @@ public class NormalExecutePool<TASK extends ITask> implements IPool<TASK> {
    *
    * @param newTask 新任务
    */
-  private boolean putNewTask(TASK newTask) {
+  boolean putNewTask(TASK newTask) {
     String url = newTask.getKey();
     boolean s = mExecuteQueue.offer(newTask);
     Log.w(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
@@ -119,14 +114,11 @@ public class NormalExecutePool<TASK extends ITask> implements IPool<TASK> {
   /**
    * 队列满时，将移除下载队列中的第一个任务
    */
-  private boolean pollFirstTask() {
+  boolean pollFirstTask() {
     try {
       TASK oldTask = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
       if (oldTask == null) {
         Log.e(TAG, "移除任务失败");
-        return false;
-      }
-      if (oldTask.isHighestPriorityTask()) {
         return false;
       }
       oldTask.stop();
@@ -142,7 +134,7 @@ public class NormalExecutePool<TASK extends ITask> implements IPool<TASK> {
   @Override public TASK pollTask() {
     synchronized (AriaManager.LOCK) {
       try {
-        TASK task = null;
+        TASK task;
         task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
         if (task != null) {
           String url = task.getKey();

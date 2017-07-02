@@ -88,9 +88,9 @@ public class CheckUtil {
    */
   public static void checkTaskEntity(AbsTaskEntity entity) {
     if (entity instanceof DownloadTaskEntity) {
-      checkDownloadTaskEntity(((DownloadTaskEntity) entity).downloadEntity);
+      checkDownloadTaskEntity(((DownloadTaskEntity) entity).getEntity());
     } else if (entity instanceof UploadTaskEntity) {
-      checkUploadTaskEntity(((UploadTaskEntity) entity).uploadEntity);
+      checkUploadTaskEntity(((UploadTaskEntity) entity).getEntity());
     }
   }
 
@@ -103,7 +103,7 @@ public class CheckUtil {
   public static boolean checkCmdEntity(AbsTaskEntity entity, boolean checkType) {
     boolean b = false;
     if (entity instanceof DownloadTaskEntity) {
-      DownloadEntity entity1 = ((DownloadTaskEntity) entity).downloadEntity;
+      DownloadEntity entity1 = ((DownloadTaskEntity) entity).getEntity();
       if (entity1 == null) {
         Log.e(TAG, "下载实体不能为空");
       } else if (checkType && TextUtils.isEmpty(entity1.getDownloadUrl())) {
@@ -114,7 +114,7 @@ public class CheckUtil {
         b = true;
       }
     } else if (entity instanceof UploadTaskEntity) {
-      UploadEntity entity1 = ((UploadTaskEntity) entity).uploadEntity;
+      UploadEntity entity1 = ((UploadTaskEntity) entity).getEntity();
       if (entity1 == null) {
         Log.e(TAG, "上传实体不能为空");
       } else if (TextUtils.isEmpty(entity1.getFilePath())) {

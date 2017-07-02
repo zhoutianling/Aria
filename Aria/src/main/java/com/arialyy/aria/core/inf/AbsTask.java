@@ -17,6 +17,7 @@ package com.arialyy.aria.core.inf;
 
 import android.content.Context;
 import android.os.Handler;
+import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by AriaL on 2017/6/29.
@@ -31,6 +32,56 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
    */
   private String mTargetName;
   protected Context mContext;
+
+  /**
+   * 获取当前下载进度
+   */
+  @Override public long getCurrentProgress() {
+    return mEntity.getCurrentProgress();
+  }
+
+  /**
+   * 获取单位转换后的进度
+   *
+   * @return 如：已经下载3mb的大小，则返回{@code 3mb}
+   */
+  @Override public String getConvertCurrentProgress() {
+    if (mEntity.getCurrentProgress() == 0) {
+      return "0b";
+    }
+    return CommonUtil.formatFileSize(mEntity.getCurrentProgress());
+  }
+
+  /**
+   * 转换单位后的文件长度
+   *
+   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1kb、1mb、1gb、1tb
+   */
+  @Override public String getConvertFileSize() {
+    if (mEntity.getFileSize() == 0) {
+      return "0mb";
+    }
+    return CommonUtil.formatFileSize(mEntity.getFileSize());
+  }
+
+  /**
+   * 获取文件大小
+   */
+  @Override public long getFileSize() {
+    return mEntity.getFileSize();
+  }
+
+  /**
+   * 获取百分比进度
+   *
+   * @return 返回百分比进度，如果文件长度为0，返回0
+   */
+  @Override public int getPercent() {
+    if (mEntity.getFileSize() == 0) {
+      return 0;
+    }
+    return (int) (mEntity.getCurrentProgress() * 100 / mEntity.getFileSize());
+  }
 
   /**
    * 任务当前状态
@@ -94,13 +145,6 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
 
   @Override public ENTITY getEntity() {
     return mEntity;
-  }
-
-  /**
-   * 删除任务记录，删除后，再次启动该任务的下载时，将重新下载
-   */
-  @Override public void removeRecord() {
-    mEntity.deleteData();
   }
 
   public String getTargetName() {

@@ -24,10 +24,7 @@ import com.arialyy.aria.orm.Ignore;
  * Created by AriaL on 2017/6/3.
  */
 public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
-  /**
-   * 下载失败计数，每次开始都重置为0
-   */
-  @Ignore private int failNum = 0;
+
   /**
    * 文件名
    */
@@ -44,14 +41,6 @@ public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
 
   public void setGroupChild(boolean groupChild) {
     isGroupChild = groupChild;
-  }
-
-  public int getFailNum() {
-    return failNum;
-  }
-
-  public void setFailNum(int failNum) {
-    this.failNum = failNum;
   }
 
   public String getFileName() {
@@ -71,14 +60,12 @@ public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
 
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
-    dest.writeInt(this.failNum);
     dest.writeString(this.fileName);
     dest.writeByte(this.isGroupChild ? (byte) 1 : (byte) 0);
   }
 
   protected AbsNormalEntity(Parcel in) {
     super(in);
-    this.failNum = in.readInt();
     this.fileName = in.readString();
     this.isGroupChild = in.readByte() != 0;
   }

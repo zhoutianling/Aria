@@ -23,8 +23,7 @@ import java.util.Map;
  * Created by lyy on 2017/2/9.
  * 上传任务实体
  */
-public class UploadTaskEntity extends AbsTaskEntity {
-  public UploadEntity uploadEntity;
+public class UploadTaskEntity extends AbsTaskEntity<UploadEntity> {
   public String uploadUrl; //上传路径
   public String attachment;  //文件上传需要的key
   public String contentType = "multipart/form-data"; //上传的文件类型
@@ -36,11 +35,8 @@ public class UploadTaskEntity extends AbsTaskEntity {
    */
   public Map<String, String> formFields = new HashMap<>();
 
-  public UploadTaskEntity(UploadEntity downloadEntity) {
-    this.uploadEntity = downloadEntity;
+  public UploadTaskEntity(UploadEntity entity) {
+    this.entity = entity;
   }
 
-  @Override public UploadEntity getEntity() {
-    return uploadEntity;
-  }
 }

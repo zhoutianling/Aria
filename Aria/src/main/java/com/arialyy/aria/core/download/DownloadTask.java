@@ -46,11 +46,11 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
   private boolean isWait = false;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
-    mEntity = taskEntity.downloadEntity;
+    mEntity = taskEntity.getEntity();
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
     mListener = new DListener(mContext, this, mOutHandler);
-    mUtil = new DownloadUtil(mContext, taskEntity, mListener);
+    mUtil = new DownloadUtil(taskEntity, mListener);
   }
 
   /**
@@ -194,7 +194,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
     public DownloadTask build() {
       DownloadTask task = new DownloadTask(taskEntity, outHandler);
       task.setTargetName(targetName);
-      taskEntity.downloadEntity.save();
+      taskEntity.getEntity().save();
       return task;
     }
   }
