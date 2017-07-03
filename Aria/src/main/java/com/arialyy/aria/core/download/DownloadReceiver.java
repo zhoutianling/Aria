@@ -23,6 +23,7 @@ import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
+import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -34,7 +35,7 @@ import java.util.Set;
  * 下载功能接收器
  */
 public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
-  private static final String TAG = "DownloadReceiver";
+  private final String TAG = "DownloadReceiver";
   public ISchedulerListener<DownloadTask> listener;
 
   /**
@@ -73,15 +74,17 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
   }
 
   /**
-   * 添加调度器回调
-   *
-   * @see #register()
+   * 加载下载地址，如果任务组的中的下载地址改变了，则任务从新的一个任务组
    */
-  @Deprecated public DownloadReceiver addSchedulerListener(
-      ISchedulerListener<DownloadTask> listener) {
-    this.listener = listener;
-    DownloadSchedulers.getInstance().addSchedulerListener(targetName, listener);
-    return this;
+  public DownloadGroupTarget load(List<String> urls) {
+    CheckUtil.checkDownloadUrls(urls);
+    DownloadGroupEntity entity =
+        DbEntity.findData(DownloadGroupEntity.class, "urlHash=?", CommonUtil.getMd5Code(urls));
+
+    if (entity == null) {
+      entity = new DownloadGroupEntity();
+    }
+    return new DownloadGroupTarget(entity, targetName, urls);
   }
 
   /**
@@ -97,6 +100,18 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
    */
   @Override public void unRegister() {
     DownloadSchedulers.getInstance().unRegister(obj);
+  }
+
+  /**
+   * 添加调度器回调
+   *
+   * @see #register()
+   */
+  @Deprecated public DownloadReceiver addSchedulerListener(
+      ISchedulerListener<DownloadTask> listener) {
+    this.listener = listener;
+    DownloadSchedulers.getInstance().addSchedulerListener(targetName, listener);
+    return this;
   }
 
   /**
@@ -165,8 +180,8 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
   @Override public void removeAllTask(boolean removeFile) {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(
-            CommonUtil.createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_CANCEL_ALL))
+        .setCmd(CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
+            NormalCmdFactory.TASK_CANCEL_ALL))
         .exe();
 
     Set<String> keys = ariaManager.getReceiver().keySet();

@@ -15,7 +15,12 @@
  */
 package com.arialyy.aria.core.command.group;
 
+import android.text.TextUtils;
+import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.QueueMod;
+import com.arialyy.aria.core.inf.AbsGroupTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.IEntity;
 
 /**
  * Created by AriaL on 2017/6/29.
@@ -30,6 +35,38 @@ class GroupStartCmd<T extends AbsTaskEntity> extends AbsGroupCmd<T> {
   }
 
   @Override public void executeCmd() {
+    String mod;
+    int maxTaskNum;
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+    if (isDownloadCmd) {
+      mod = manager.getDownloadConfig().getQueueMod();
+      maxTaskNum = manager.getDownloadConfig().getMaxTaskNum();
+    } else {
+      mod = manager.getUploadConfig().getQueueMod();
+      maxTaskNum = manager.getUploadConfig().getMaxTaskNum();
+    }
 
+    AbsGroupTask task = (AbsGroupTask) mQueue.getTask(mTaskEntity.getEntity());
+    if (task == null) {
+      task = (AbsGroupTask) mQueue.createTask(mTargetName, mTaskEntity);
+      if (!TextUtils.isEmpty(mTargetName)) {
+        task.setTargetName(mTargetName);
+      }
+      // 任务不存在时，根据配置不同，对任务执行操作
+      if (mod.equals(QueueMod.NOW.getTag())) {
+        mQueue.startTask(task);
+      } else if (mod.equals(QueueMod.WAIT.getTag())) {
+        if (mQueue.getExePoolSize() < maxTaskNum) {
+          mQueue.startTask(task);
+        }
+      }
+    } else {
+      // 任务不存在时，根据配置不同，对任务执行操作
+      if (!task.isRunning()
+          && mod.equals(QueueMod.WAIT.getTag())
+          && task.getState() == IEntity.STATE_WAIT) {
+        mQueue.startTask(task);
+      }
+    }
   }
 }

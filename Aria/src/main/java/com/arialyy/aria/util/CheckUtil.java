@@ -24,6 +24,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.exception.FileException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,6 +75,24 @@ public class CheckUtil {
    */
   public static void checkDownloadUrl(String downloadUrl) {
     if (TextUtils.isEmpty(downloadUrl)) throw new IllegalArgumentException("下载链接不能为null");
+  }
+
+  /**
+   * 检测下载链接组是否为null
+   */
+  public static void checkDownloadUrls(List<String> urls) {
+    if (urls == null || urls.isEmpty()) {
+      throw new IllegalArgumentException("链接组不能为null");
+    }
+  }
+
+  /**
+   * 检查下载任务组保存路径
+   */
+  public static void checkDownloadPaths(List<String> paths) {
+    if (paths == null || paths.isEmpty()) {
+      throw new IllegalArgumentException("链接保存路径不能为null");
+    }
   }
 
   /**

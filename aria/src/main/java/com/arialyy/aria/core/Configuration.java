@@ -43,10 +43,6 @@ class Configuration {
     public int oldMaxTaskNum = 2;
 
     /**
-     * 是否发送任务广播，true，发送
-     */
-    boolean isOpenBreadCast = false;
-    /**
      * 任务队列最大任务数， 默认为2
      */
     int maxTaskNum = 2;
@@ -82,16 +78,6 @@ class Configuration {
     public BaseConfig setQueueMod(String queueMod) {
       this.queueMod = queueMod;
       saveKey("queueMod", queueMod);
-      return this;
-    }
-
-    public boolean isOpenBreadCast() {
-      return isOpenBreadCast;
-    }
-
-    public BaseConfig setOpenBreadCast(boolean openBreadCast) {
-      isOpenBreadCast = openBreadCast;
-      saveKey("isOpenBreadCast", openBreadCast + "");
       return this;
     }
 

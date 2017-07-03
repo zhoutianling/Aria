@@ -29,6 +29,19 @@ public abstract class AbsGroupEntity extends AbsEntity implements Parcelable {
    */
   private String groupName = "";
 
+  /**
+   * 任务地址相加的urlmd5
+   */
+  private String urlmd5 = "";
+
+  public String getUrlmd5() {
+    return urlmd5;
+  }
+
+  public void setUrlmd5(String urlmd5) {
+    this.urlmd5 = urlmd5;
+  }
+
   public String getGroupName() {
     return groupName;
   }
@@ -47,10 +60,12 @@ public abstract class AbsGroupEntity extends AbsEntity implements Parcelable {
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
     dest.writeString(this.groupName);
+    dest.writeString(this.urlmd5);
   }
 
   protected AbsGroupEntity(Parcel in) {
     super(in);
     this.groupName = in.readString();
+    this.urlmd5 = in.readString();
   }
 }

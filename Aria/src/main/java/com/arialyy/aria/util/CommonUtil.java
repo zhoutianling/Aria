@@ -53,6 +53,28 @@ public class CommonUtil {
   private static final String TAG = "CommonUtil";
 
   /**
+   * 根据下载任务组的url创建key
+   *
+   * @return urls 为 null 或者 size为0，返回""
+   */
+  public static String getMd5Code(List<String> urls) {
+    if (urls == null || urls.size() < 1) return "";
+    String md5 = "";
+    StringBuilder sb = new StringBuilder();
+    for (String url : urls) {
+      sb.append(url);
+    }
+    try {
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      md.update(sb.toString().getBytes());
+      md5 = new BigInteger(1, md.digest()).toString(16);
+    } catch (NoSuchAlgorithmException e) {
+      Log.e(TAG, e.getMessage());
+    }
+    return md5;
+  }
+
+  /**
    * 删除上传任务的配置，包括
    *
    * @param removeFile {@code true} 删除已经上传完成的任务，不仅删除上传记录，还会删除已经上传完成的文件，{@code false}

@@ -20,7 +20,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
-import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.downloader.DownloadListener;
 import com.arialyy.aria.core.download.downloader.DownloadUtil;
@@ -144,11 +143,6 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
       if (mOutHandler != null) {
         mOutHandler.obtainMessage(DownloadSchedulers.STOP, this).sendToTarget();
       }
-      // 发送停止下载的广播
-      Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_STOP);
-      intent.putExtra(Aria.CURRENT_LOCATION, mEntity.getCurrentProgress());
-      intent.putExtra(Aria.DOWNLOAD_ENTITY, mEntity);
-      mContext.sendBroadcast(intent);
     }
   }
 
@@ -161,10 +155,6 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
         if (mOutHandler != null) {
           mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
         }
-        //发送取消下载的广播
-        Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_CANCEL);
-        intent.putExtra(Aria.DOWNLOAD_ENTITY, mEntity);
-        mContext.sendBroadcast(intent);
       }
       mUtil.cancelDownload();
     }
@@ -206,14 +196,12 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
     WeakReference<Handler> outHandler;
     WeakReference<DownloadTask> wTask;
     Context context;
-    Intent sendIntent;
     long lastLen = 0;   //上一次发送长度
     long lastTime = 0;
     long INTERVAL_TIME = 1000;   //1m更新周期
     boolean isFirst = true;
-    DownloadEntity downloadEntity;
+    DownloadEntity entity;
     DownloadTask task;
-    boolean isOpenBroadCast = false;
     boolean isConvertSpeed = false;
 
     DListener(Context context, DownloadTask task, Handler outHandler) {
@@ -221,44 +209,36 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
       this.outHandler = new WeakReference<>(outHandler);
       this.wTask = new WeakReference<>(task);
       this.task = wTask.get();
-      this.downloadEntity = this.task.getDownloadEntity();
-      sendIntent = CommonUtil.createIntent(context.getPackageName(), Aria.ACTION_RUNNING);
-      sendIntent.putExtra(Aria.DOWNLOAD_ENTITY, downloadEntity);
+      this.entity = this.task.getDownloadEntity();
       final AriaManager manager = AriaManager.getInstance(context);
-      isOpenBroadCast = manager.getDownloadConfig().isOpenBreadCast();
       isConvertSpeed = manager.getDownloadConfig().isConvertSpeed();
     }
 
     @Override public void supportBreakpoint(boolean support) {
       if (!support) {
         sendInState2Target(ISchedulers.SUPPORT_BREAK_POINT);
-        sendIntent(Aria.ACTION_SUPPORT_BREAK_POINT, -1);
       }
     }
 
     @Override public void onPre() {
-      downloadEntity.setState(IEntity.STATE_PRE);
       sendInState2Target(ISchedulers.PRE);
-      sendIntent(Aria.ACTION_PRE, -1);
+      saveData(IEntity.STATE_PRE, -1);
     }
 
     @Override public void onPostPre(long fileSize) {
-      downloadEntity.setFileSize(fileSize);
-      downloadEntity.setState(IEntity.STATE_POST_PRE);
+      entity.setFileSize(fileSize);
       sendInState2Target(ISchedulers.POST_PRE);
-      sendIntent(Aria.ACTION_POST_PRE, -1);
+      saveData(IEntity.STATE_POST_PRE, -1);
     }
 
     @Override public void onResume(long resumeLocation) {
-      downloadEntity.setState(IEntity.STATE_RUNNING);
       sendInState2Target(ISchedulers.RESUME);
-      sendIntent(Aria.ACTION_RESUME, resumeLocation);
+      saveData(IEntity.STATE_RUNNING, resumeLocation);
     }
 
     @Override public void onStart(long startLocation) {
-      downloadEntity.setState(IEntity.STATE_RUNNING);
       sendInState2Target(ISchedulers.START);
-      sendIntent(Aria.ACTION_START, startLocation);
+      saveData(IEntity.STATE_RUNNING, startLocation);
     }
 
     @Override public void onProgress(long currentLocation) {
@@ -270,53 +250,43 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
           isFirst = false;
         }
         handleSpeed(speed);
-        downloadEntity.setCurrentProgress(currentLocation);
+        entity.setCurrentProgress(currentLocation);
         lastLen = currentLocation;
         sendInState2Target(ISchedulers.RUNNING);
-
-        if (!isOpenBroadCast) return;
-        sendIntent.putExtra(Aria.CURRENT_LOCATION, currentLocation);
-        sendIntent.putExtra(Aria.CURRENT_SPEED, speed);
-        context.sendBroadcast(sendIntent);
       }
     }
 
     @Override public void onStop(long stopLocation) {
-      downloadEntity.setState(task.isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP);
       handleSpeed(0);
       sendInState2Target(ISchedulers.STOP);
-      sendIntent(Aria.ACTION_STOP, stopLocation);
+      saveData(task.isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP, stopLocation);
     }
 
     @Override public void onCancel() {
-      downloadEntity.setState(IEntity.STATE_CANCEL);
       handleSpeed(0);
       sendInState2Target(ISchedulers.CANCEL);
-      sendIntent(Aria.ACTION_CANCEL, -1);
-      downloadEntity.deleteData();
+      saveData(IEntity.STATE_CANCEL, -1);
+      entity.deleteData();
     }
 
     @Override public void onComplete() {
-      downloadEntity.setState(IEntity.STATE_COMPLETE);
-      downloadEntity.setDownloadComplete(true);
       handleSpeed(0);
       sendInState2Target(ISchedulers.COMPLETE);
-      sendIntent(Aria.ACTION_COMPLETE, downloadEntity.getFileSize());
+      saveData(IEntity.STATE_COMPLETE, entity.getFileSize());
     }
 
     @Override public void onFail() {
-      downloadEntity.setFailNum(downloadEntity.getFailNum() + 1);
-      downloadEntity.setState(IEntity.STATE_FAIL);
+      entity.setFailNum(entity.getFailNum() + 1);
       handleSpeed(0);
       sendInState2Target(ISchedulers.FAIL);
-      sendIntent(Aria.ACTION_FAIL, -1);
+      saveData(IEntity.STATE_FAIL, -1);
     }
 
     private void handleSpeed(long speed) {
       if (isConvertSpeed) {
-        downloadEntity.setConvertSpeed(CommonUtil.formatFileSize(speed) + "/s");
+        entity.setConvertSpeed(CommonUtil.formatFileSize(speed) + "/s");
       } else {
-        downloadEntity.setSpeed(speed);
+        entity.setSpeed(speed);
       }
     }
 
@@ -331,17 +301,11 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
       }
     }
 
-    private void sendIntent(String action, long location) {
-      downloadEntity.setDownloadComplete(action.equals(Aria.ACTION_COMPLETE));
-      downloadEntity.setCurrentProgress(location);
-      downloadEntity.update();
-      if (!isOpenBroadCast) return;
-      Intent intent = CommonUtil.createIntent(context.getPackageName(), action);
-      intent.putExtra(Aria.DOWNLOAD_ENTITY, downloadEntity);
-      if (location != -1) {
-        intent.putExtra(Aria.CURRENT_LOCATION, location);
-      }
-      context.sendBroadcast(intent);
+    private void saveData(int state, long location) {
+      entity.setState(state);
+      entity.setDownloadComplete(state == IEntity.STATE_COMPLETE);
+      entity.setCurrentProgress(location);
+      entity.update();
     }
   }
 }

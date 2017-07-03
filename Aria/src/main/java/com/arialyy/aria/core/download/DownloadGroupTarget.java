@@ -16,23 +16,57 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsGroupTarget;
-import com.arialyy.aria.core.inf.ITarget;
+import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.util.CheckUtil;
+import java.io.File;
 import java.util.List;
 
 /**
  * Created by AriaL on 2017/6/29.
  */
-public class DownloadGroupTarget extends AbsGroupTarget<DownloadGroupTarget, DownloadTaskEntity> {
+public class DownloadGroupTarget
+    extends AbsGroupTarget<DownloadGroupTarget, DownloadGroupEntity, DownloadGroupTaskEntity> {
+  private List<String> mUrls;
+
+  DownloadGroupTarget(DownloadGroupEntity entity, String targetName, List<String> urls) {
+    this.mEntity = entity;
+    this.mTargetName = targetName;
+    this.mUrls = urls;
+    mTaskEntity = new DownloadGroupTaskEntity(entity);
+  }
 
   /**
    * 设置保存路径组
    */
   public DownloadGroupTarget setDownloadPaths(List<String> paths) {
-
+    CheckUtil.checkDownloadPaths(paths);
+    if (mUrls.size() != paths.size()) {
+      throw new IllegalArgumentException("下载链接数必须要和保存路径的数量一致");
+    }
+    for (int i = 0, len = mUrls.size(); i < len; i++) {
+      mTaskEntity.getEntity().getChild().add(createDownloadEntity(mUrls.get(i), paths.get(i)));
+    }
     return this;
   }
 
-  @Override public int getPercent() {
-    return 0;
+  /**
+   * 创建子任务下载实体
+   *
+   * @param url 下载地址
+   * @param path 保存路径
+   */
+  private DownloadEntity createDownloadEntity(String url, String path) {
+    DownloadEntity entity = DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", url);
+    if (entity == null) {
+      entity = new DownloadEntity();
+    }
+    File file = new File(path);
+    if (!file.exists()) {
+      entity.setState(IEntity.STATE_WAIT);
+    }
+    entity.setDownloadPath(path);
+    entity.setDownloadUrl(url);
+    entity.setFileName(file.getName());
+    return entity;
   }
 }

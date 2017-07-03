@@ -18,7 +18,7 @@ package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.inf.AbsNormalTask;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
@@ -34,10 +34,10 @@ class StopCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    AbsNormalTask task = (AbsNormalTask) mQueue.getTask(mTaskEntity.getEntity());
+    AbsTask task = mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
       if (mTaskEntity.getEntity().getState() == IEntity.STATE_RUNNING) {
-        task = (AbsNormalTask) mQueue.createTask(mTargetName, mTaskEntity);
+        task = mQueue.createTask(mTargetName, mTaskEntity);
         mQueue.stopTask(task);
       } else {
         Log.w(TAG, "停止命令执行失败，【调度器中没有该任务】");
