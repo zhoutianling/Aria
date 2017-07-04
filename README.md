@@ -1,7 +1,7 @@
 # Aria
 ![图标](https://github.com/AriaLyy/DownloadUtil/blob/master/app/src/main/res/mipmap-hdpi/ic_launcher.png)</br>
 
-## [中文文档](https://github.com/AriaLyy/Aria/blob/master/README.md)
+## [中文文档](https://github.com/AriaLyy/Aria/blob/master/CHINESE_README.md)
 
 Aria project is from the moment taht the work encountered in a file download management needs adn i was tortured at the time of the pain.</br>
 Since then i have a idea which is to program a simple and easy to use,stable and efficient download framework. 
