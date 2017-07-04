@@ -189,7 +189,7 @@ Aria.download(this).resumeAllTask();
  ```
 
 * Get download speed for current tasks<br>
-Speed parameters a bit special，need to [download the event support](#下载状态获取)
+Speed parameters a bit special，need to [download the event support](#status)
 ``` java
 @Override public void onTaskRunning(DownloadTask task) {
   //If you turn on the speed unit conversion configuration, you can get the download speed with units in the following ways, such as: 1 mb/s
