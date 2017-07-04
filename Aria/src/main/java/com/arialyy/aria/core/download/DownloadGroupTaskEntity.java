@@ -16,13 +16,20 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.orm.OneToOne;
 
 /**
  * Created by AriaL on 2017/7/1.
  */
 public class DownloadGroupTaskEntity extends AbsTaskEntity<DownloadGroupEntity> {
 
+  @OneToOne(table = DownloadGroupEntity.class, key = "groupName") public DownloadGroupEntity entity;
+
   public DownloadGroupTaskEntity(DownloadGroupEntity entity) {
     this.entity = entity;
+  }
+
+  @Override public DownloadGroupEntity getEntity() {
+    return entity;
   }
 }

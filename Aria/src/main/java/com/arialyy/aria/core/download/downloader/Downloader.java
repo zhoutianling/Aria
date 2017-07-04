@@ -76,8 +76,35 @@ class Downloader implements Runnable, IDownloadUtil {
   }
 
   @Override public void run() {
+    startFlow();
+  }
+
+  /**
+   * 开始下载流程
+   */
+  private void startFlow(){
     checkTask();
-    startDownload();
+    mConstance.cleanState();
+    mConstance.isDownloading = true;
+    try {
+      if (!mTaskEntity.isSupportBP) {
+        mThreadNum = 1;
+        handleNoSupportBreakpointDownload();
+      } else {
+        mThreadNum = isNewTask ? (mEntity.getFileSize() <= SUB_LEN ? 1
+            : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum())
+            : mRealThreadNum;
+        mFixedThreadPool = Executors.newFixedThreadPool(mThreadNum);
+        handleBreakpoint();
+      }
+    } catch (IOException e) {
+      failDownload("下载失败【downloadUrl:"
+          + mEntity.getDownloadUrl()
+          + "】\n【filePath:"
+          + mEntity.getDownloadPath()
+          + "】\n"
+          + CommonUtil.getPrintException(e));
+    }
   }
 
   @Override public long getFileSize() {
@@ -124,28 +151,11 @@ class Downloader implements Runnable, IDownloadUtil {
     }
   }
 
+  /**
+   * 直接调用的时候会自动启动线程执行
+   */
   @Override public void startDownload() {
-    mConstance.cleanState();
-    mConstance.isDownloading = true;
-    try {
-      if (!mTaskEntity.isSupportBP) {
-        mThreadNum = 1;
-        handleNoSupportBreakpointDownload();
-      } else {
-        mThreadNum = isNewTask ? (mEntity.getFileSize() <= SUB_LEN ? 1
-            : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum())
-            : mRealThreadNum;
-        mFixedThreadPool = Executors.newFixedThreadPool(mThreadNum);
-        handleBreakpoint();
-      }
-    } catch (IOException e) {
-      failDownload("下载失败【downloadUrl:"
-          + mEntity.getDownloadUrl()
-          + "】\n【filePath:"
-          + mEntity.getDownloadPath()
-          + "】\n"
-          + CommonUtil.getPrintException(e));
-    }
+    new Thread(this).start();
   }
 
   @Override public void resumeDownload() {

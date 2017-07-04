@@ -26,8 +26,6 @@ import com.arialyy.aria.util.CommonUtil;
  */
 public abstract class AbsNormalTarget<TARGET extends AbsTarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
     extends AbsTarget<TARGET, ENTITY, TASK_ENTITY> {
-  protected ENTITY mEntity;
-  protected TASK_ENTITY mTaskEntity;
 
   /**
    * 将任务设置为最高优先级任务，最高优先级任务有以下特点：

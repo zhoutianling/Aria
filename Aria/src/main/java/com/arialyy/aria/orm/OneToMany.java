@@ -13,27 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download;
+package com.arialyy.aria.orm;
 
-import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.orm.OneToOne;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created by lyy on 2017/1/23.
- * 下载任务实体
+ * Created by AriaL on 2017/7/4.
+ * 一对多
  */
-public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
-
-  @OneToOne(table = DownloadEntity.class, key = "downloadUrl") public DownloadEntity entity;
-
-  public DownloadTaskEntity() {
-  }
-
-  public DownloadTaskEntity(DownloadEntity entity) {
-    this.entity = entity;
-  }
-
-  @Override public DownloadEntity getEntity() {
-    return entity;
-  }
+@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface OneToMany {
+  /**
+   * 关联的表
+   */
+  Class<? extends DbEntity> table();
+  /**
+   * 关联的主键
+   */
+  String key();
 }

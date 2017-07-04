@@ -246,7 +246,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       setBtState(false);
     }
     mSize.setText(target.getConvertFileSize());
-    Aria.get(this).getDownloadConfig().setOpenBreadCast(true);
   }
 
   public void onClick(View view) {

@@ -17,8 +17,7 @@ package com.arialyy.aria.core.inf;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.orm.Primary;
 
 /**
  * Created by AriaL on 2017/6/3.
@@ -27,6 +26,7 @@ public abstract class AbsGroupEntity extends AbsEntity implements Parcelable {
   /**
    * 组名
    */
+  @Primary
   private String groupName = "";
 
   /**

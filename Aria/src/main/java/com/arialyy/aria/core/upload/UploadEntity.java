@@ -19,13 +19,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.orm.Primary;
 
 /**
  * Created by lyy on 2017/2/9.
  * 上传文件实体
  */
 public class UploadEntity extends AbsNormalEntity implements Parcelable {
-
+  @Primary
   private String filePath;  //文件路径
   private boolean isComplete = false;
 

@@ -35,6 +35,7 @@ public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
    */
   private boolean isGroupChild = false;
 
+
   public boolean isGroupChild() {
     return isGroupChild;
   }

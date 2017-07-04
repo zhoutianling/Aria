@@ -29,8 +29,8 @@ public class DownloadTarget extends
     AbsNormalTarget<DownloadTarget, DownloadEntity, DownloadTaskEntity> {
 
   DownloadTarget(DownloadEntity entity, String targetName) {
-    this.mEntity = entity;
-    this.mTargetName = targetName;
+    mEntity = entity;
+    mTargetName = targetName;
     mTaskEntity = new DownloadTaskEntity(entity);
   }
 

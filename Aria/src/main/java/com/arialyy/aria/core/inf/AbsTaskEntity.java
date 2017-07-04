@@ -17,6 +17,7 @@ package com.arialyy.aria.core.inf;
 
 import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.orm.Ignore;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,8 +25,6 @@ import java.util.Map;
  * Created by lyy on 2017/2/23.
  */
 public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
-
-  public ENTITY entity;
 
   /**
    * Task实体对应的key
@@ -50,7 +49,7 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   /**
    * 用于判断删除任务时是否需要删除文件{@code true}删除
    */
-  public boolean removeFile = false;
+  @Ignore public boolean removeFile = false;
 
   /**
    * 是否支持断点, {@code true} 为支持断点
@@ -62,7 +61,5 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
    */
   public int code;
 
-  public ENTITY getEntity() {
-    return entity;
-  }
+  public abstract ENTITY getEntity();
 }

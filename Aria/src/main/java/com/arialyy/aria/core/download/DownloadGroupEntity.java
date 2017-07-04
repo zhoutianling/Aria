@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
 import com.arialyy.aria.core.inf.AbsGroupEntity;
+import com.arialyy.aria.orm.OneToMany;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import java.util.List;
  */
 public class DownloadGroupEntity extends AbsGroupEntity {
 
+  @OneToMany(table = DownloadEntity.class, key = "groupName")
   private List<DownloadEntity> mChild = new LinkedList<>();
 
   public List<DownloadEntity> getChild() {
