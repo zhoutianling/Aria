@@ -11,12 +11,12 @@ Aria has the following characteristics：
  + simple and convenient
    - can be used in Activity, Service, Fragment, Dialog, popupWindow, Notification and other components
    - support the task of automatic scheduling, the user does not need to care about the state of the task switch logic
-   - [Through the Aria event, it is easy to get the download status of the current download task](#Get download status)
-   - [a code plus can get the current download speed](#Common interface)
-   - [a code can be dynamically set the maximum number of downloads](#Set the parameters in the code)
-   - [code to achieve speed limit](#Common interface)
+   - [Through the Aria event, it is easy to get the download status of the current download task](#downloadStatus)
+   - [a code plus can get the current download speed](#interface)
+   - [a code can be dynamically set the maximum number of downloads](#parameters)
+   - [code to achieve speed limit](#interface)
    - [It is easy to modify the number of download threads by modifying the configuration file](https://github.com/AriaLyy/Aria/blob/master/app/src/main/assets/aria_config.xml)
-   - [priority to download a task](#Common interface)
+   - [priority to download a task](#interface)
    
  + Support https address download
    - It is easy to set the CA certificate information in the configuration file
@@ -86,7 +86,7 @@ Since Aria involves the operation of files and networks, you need to add the fol
   Aria.download(this).load(DOWNLOAD_URL).cancel();
   ```
 
-### Get download status
+### downloadStatus
 If you want to read the download progress or download the information, then you need to create an event class and register the event class into the Aria manager in the onResume (Activity, Fragment) or constructor (Dialog, PopupWindow).
 
 1. Register the object to Aria
@@ -151,7 +151,7 @@ If you want to read the download progress or download the information, then you 
  ```
 In the above example，only the download address is`https://test.xx.apk` and `http://test.xx2.apk`will trigger the`taskRunning(DownloadTask task)`method。
 
-### Aria parameter configuration
+### parameters
 #### [Configuration file setting parameters](https://github.com/AriaLyy/Aria/blob/master/app/src/main/assets/aria_config.xml)
 #### Set the parameters in the code
 In addition to the file mode to modify the Aria parameter, the same, you can also modify the code in the Aria parameters</br>
@@ -163,7 +163,7 @@ and then modify the parameters：
 Aria.get(this).getDownloadConfig().setMaxTaskNum(3);
 ```
 
-### Common interface
+### interface
 * Stop all tasks
 
  ```java
