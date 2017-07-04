@@ -1,6 +1,6 @@
 # Aria
 ![图标](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/app/src/main/res/mipmap-hdpi/ic_launcher.png)</br>
-Aria项目源于15年工作中遇到的一个文件下载管理的需求，当时被下载折磨的痛不欲生，从那时起便萌生了编写一个简单易用，稳当高效的下载框架，aria经历了1.0到3.0的开发，算是越来越接近当初所制定的目标了。
+Aria项目源于工作中遇到的一个文件下载管理的需求，当时被下载折磨的痛不欲生，从那时起便萌生了编写一个简单易用，稳当高效的下载框架，aria经历了1.0到3.0的开发，算是越来越接近当初所制定的目标了。
 
 Aria有以下特点：
  + 简单、方便
@@ -29,8 +29,8 @@ Aria怎样使用？
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:Aria:3.1.9'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
+compile 'com.arialyy.aria:aria-core:3.2.0'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.0'
 ```
 
 ## 示例
@@ -98,10 +98,10 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
 
 2. 使用`@Download`或`@Upload`注解你的函数<br>
   **注意：**
-  - 注解回掉采用Apt的方式实现，所以，你不需要担心这会影响你机器的性能
-  - 被注解的方法**不能被private修饰**
-  - 被注解的方法**只能有一个参数，并且参数类型必须是`DownloadTask`或`UploadTask`**
-  - 方法名可以为任意字符串
+   - 注解回掉采用Apt的方式实现，所以，你不需要担心这会影响你机器的性能
+   - 被注解的方法**不能被private修饰**
+   - 被注解的方法**只能有一个参数，并且参数类型必须是`DownloadTask`或`UploadTask`**
+   - 方法名可以为任意字符串
 
 3. 除了在widget（Activity、Fragment、Dialog、Popupwindow）中使用注解方法外，你还可以在Service、Notification等组件中使用注解函数。
 
