@@ -11,7 +11,7 @@ Aria has the following characteristics：
  + simple and convenient
    - can be used in Activity, Service, Fragment, Dialog, popupWindow, Notification and other components
    - support the task of automatic scheduling, the user does not need to care about the state of the task switch logic
-   - [Through the Aria event, it is easy to get the download status of the current download task](#downloadStatus)
+   - [Through the Aria event, it is easy to get the download status of the current download task](#status)
    - [a code plus can get the current download speed](#interface)
    - [a code can be dynamically set the maximum number of downloads](#parameters)
    - [code to achieve speed limit](#interface)
@@ -86,7 +86,7 @@ Since Aria involves the operation of files and networks, you need to add the fol
   Aria.download(this).load(DOWNLOAD_URL).cancel();
   ```
 
-### downloadStatus
+### status
 If you want to read the download progress or download the information, then you need to create an event class and register the event class into the Aria manager in the onResume (Activity, Fragment) or constructor (Dialog, PopupWindow).
 
 1. Register the object to Aria
