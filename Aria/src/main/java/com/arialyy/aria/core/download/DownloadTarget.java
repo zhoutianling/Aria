@@ -31,7 +31,8 @@ public class DownloadTarget extends
   DownloadTarget(DownloadEntity entity, String targetName) {
     mEntity = entity;
     mTargetName = targetName;
-    mTaskEntity = new DownloadTaskEntity(entity);
+    mTaskEntity = new DownloadTaskEntity();
+    mTaskEntity.entity = mEntity;
   }
 
   /**

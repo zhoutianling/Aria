@@ -41,7 +41,8 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   private AbsTask createTask(DownloadEntity entity) {
     AbsTask task = mQueue.getTask(entity);
     if (task == null) {
-      DownloadTaskEntity taskEntity = new DownloadTaskEntity(entity);
+      DownloadTaskEntity taskEntity = new DownloadTaskEntity();
+      taskEntity.entity = entity;
       task = mQueue.createTask(mTargetName, taskEntity);
     } else {
       Log.w(TAG, "添加命令执行失败，【该任务已经存在】");

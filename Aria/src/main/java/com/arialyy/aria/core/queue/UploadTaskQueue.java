@@ -54,12 +54,12 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
     return AriaManager.getInstance(AriaManager.APP).getUploadConfig().oldMaxTaskNum;
   }
 
-
   @Override public UploadTask createTask(String targetName, UploadTaskEntity entity) {
     UploadTask task = null;
     if (!TextUtils.isEmpty(targetName)) {
       task = (UploadTask) TaskFactory.getInstance()
           .createTask(targetName, entity, UploadSchedulers.getInstance());
+      entity.key = entity.getEntity().getFilePath();
       mCachePool.putTask(task);
     } else {
       Log.e(TAG, "target name 为 null是！！");

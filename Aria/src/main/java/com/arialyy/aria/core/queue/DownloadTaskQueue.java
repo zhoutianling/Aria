@@ -118,6 +118,7 @@ public class DownloadTaskQueue
     if (!TextUtils.isEmpty(target)) {
       task = (DownloadTask) TaskFactory.getInstance()
           .createTask(target, entity, DownloadSchedulers.getInstance());
+      entity.key = entity.getEntity().getDownloadUrl();
       mCachePool.putTask(task);
     } else {
       Log.e(TAG, "target name 为 null！！");

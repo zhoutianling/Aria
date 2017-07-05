@@ -38,8 +38,7 @@ public class UploadTaskEntity extends AbsTaskEntity<UploadEntity> {
    */
   public Map<String, String> formFields = new HashMap<>();
 
-  public UploadTaskEntity(UploadEntity entity) {
-    this.entity = entity;
+  public UploadTaskEntity() {
   }
 
   @Override public UploadEntity getEntity() {

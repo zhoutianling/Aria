@@ -117,8 +117,8 @@ class FileInfoThread implements Runnable {
       if (onFileInfoListener != null) {
         onFileInfoListener.onComplete(mEntity.getDownloadUrl(), code);
       }
-      mEntity.update();
-      mTaskEntity.update();
+      mEntity.save();
+      mTaskEntity.save();
     }
   }
 

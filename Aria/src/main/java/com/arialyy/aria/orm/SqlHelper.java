@@ -51,10 +51,6 @@ final class SqlHelper extends SQLiteOpenHelper {
   private static final int FIND_ALL_DATA = 5;
   private static final int DEL_DATA = 6;
 
-  private static final String MAP_FIELD = "map$$";
-  private static final String LIST_FIELD = "list$$";
-  private static final String GENERIC_FIELD = "Generic$$";
-
   private static volatile SqlHelper INSTANCE = null;
 
   static SqlHelper init(Context context) {
@@ -380,7 +376,7 @@ final class SqlHelper extends SQLiteOpenHelper {
   /**
    * 获取一对一参数
    */
-  private static String getOneToOneParams(Field field) {
+  static String getOneToOneParams(Field field) {
     OneToOne oneToOne = field.getAnnotation(OneToOne.class);
     if (oneToOne == null) {
       throw new IllegalArgumentException("@OneToOne注解的对象必须要有@Primary注解的字段");
@@ -393,7 +389,7 @@ final class SqlHelper extends SQLiteOpenHelper {
    *
    * @param field list反射字段
    */
-  private static String getListElementParams(Field field) {
+  static String getListElementParams(Field field) {
     OneToMany oneToMany = field.getAnnotation(OneToMany.class);
     if (oneToMany == null) {
       throw new IllegalArgumentException("List中元素必须被@OneToMany注解");
@@ -600,15 +596,26 @@ final class SqlHelper extends SQLiteOpenHelper {
                 throw new IllegalArgumentException("List中的元素对象必须需要@Primary注解的字段");
               }
               //list字段保存的数据
+              int kc = cursor.getColumnIndex(primaryKey);
               String params = cursor.getString(column);
+              String primaryData = cursor.getString(kc);
+              if (TextUtils.isEmpty(primaryData)) continue;
+              List<T> list = findForeignData(db, primaryData, params);
+              if (list == null) continue;
               field.set(entity, findForeignData(db, primaryKey, params));
             } else if (isOneToOne(field)) {
               String primaryKey = getPrimaryName(clazz);
               if (TextUtils.isEmpty(primaryKey)) {
                 throw new IllegalArgumentException("@OneToOne的注解对象必须需要@Primary注解的字段");
               }
+              int kc = cursor.getColumnIndex(primaryKey);
               String params = cursor.getString(column);
-              field.set(entity, findForeignData(db, primaryKey, params).get(0));
+              String primaryData = cursor.getString(kc);
+              if (TextUtils.isEmpty(primaryData) || primaryData.equalsIgnoreCase("null")) continue;
+              List<T> list = findForeignData(db, primaryData, params);
+              if (list != null && list.size() > 1) {
+                field.set(entity, list.get(0));
+              }
             }
           }
           entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
@@ -632,7 +639,7 @@ final class SqlHelper extends SQLiteOpenHelper {
    */
   private static <T extends DbEntity> List<T> findForeignData(SQLiteDatabase db, String primary,
       String childParams) {
-    String[] params = childParams.split("$$");
+    String[] params = childParams.split("\\$\\$");
     return findData(db, params[0], params[1] + "=?", primary);
   }
 
@@ -643,10 +650,13 @@ final class SqlHelper extends SQLiteOpenHelper {
    * </pre>
    */
   private static Map<String, String> str2Map(String str) {
-    String[] element = str.split(",");
     Map<String, String> map = new HashMap<>();
+    if (TextUtils.isEmpty(str)) {
+      return map;
+    }
+    String[] element = str.split(",");
     for (String data : element) {
-      String[] s = data.split("$");
+      String[] s = data.split("\\$");
       map.put(s[0], s[1]);
     }
     return map;
@@ -658,7 +668,7 @@ final class SqlHelper extends SQLiteOpenHelper {
    *   {@code Map<String, String>}
    * </pre>
    */
-  private static String map2Str(Map<String, String> map) {
+  static String map2Str(Map<String, String> map) {
     StringBuilder sb = new StringBuilder();
     Set<String> keys = map.keySet();
     for (String key : keys) {
@@ -696,7 +706,7 @@ final class SqlHelper extends SQLiteOpenHelper {
   /**
    * 判断是否一对多注解
    */
-  private static boolean isOneToMany(Field field) {
+  static boolean isOneToMany(Field field) {
     OneToMany oneToMany = field.getAnnotation(OneToMany.class);
     return oneToMany != null;
   }
@@ -704,7 +714,7 @@ final class SqlHelper extends SQLiteOpenHelper {
   /**
    * 判断是否是一对一注解
    */
-  private static boolean isOneToOne(Field field) {
+  static boolean isOneToOne(Field field) {
     OneToOne oneToOne = field.getAnnotation(OneToOne.class);
     return oneToOne != null;
   }
@@ -712,7 +722,7 @@ final class SqlHelper extends SQLiteOpenHelper {
   /**
    * 判断是否是主键
    */
-  private static boolean isPrimary(Field field) {
+  static boolean isPrimary(Field field) {
     Primary pk = field.getAnnotation(Primary.class);
     return pk != null;
   }

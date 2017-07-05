@@ -25,10 +25,6 @@ public class DownloadGroupTaskEntity extends AbsTaskEntity<DownloadGroupEntity> 
 
   @OneToOne(table = DownloadGroupEntity.class, key = "groupName") public DownloadGroupEntity entity;
 
-  public DownloadGroupTaskEntity(DownloadGroupEntity entity) {
-    this.entity = entity;
-  }
-
   @Override public DownloadGroupEntity getEntity() {
     return entity;
   }

@@ -32,7 +32,8 @@ public class DownloadGroupTarget
     this.mEntity = entity;
     this.mTargetName = targetName;
     this.mUrls = urls;
-    mTaskEntity = new DownloadGroupTaskEntity(entity);
+    mTaskEntity = new DownloadGroupTaskEntity();
+    mTaskEntity.entity = entity;
   }
 
   /**

@@ -242,7 +242,8 @@ public class DownloadGroupUtil implements IDownloadUtil {
     if (taskEntity != null) {
       return taskEntity;
     }
-    taskEntity = new DownloadTaskEntity(entity);
+    taskEntity = new DownloadTaskEntity();
+    taskEntity.entity = entity;
     taskEntity.headers = mTaskEntity.headers;
     taskEntity.requestEnum = mTaskEntity.requestEnum;
     taskEntity.redirectUrlKey = mTaskEntity.redirectUrlKey;

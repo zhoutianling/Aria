@@ -53,6 +53,7 @@ public class DownloadGroupTaskQueue
     if (!TextUtils.isEmpty(targetName)) {
       task = (DownloadGroupTask) TaskFactory.getInstance()
           .createTask(targetName, entity, DownloadGroupSchedulers.getInstance());
+      entity.key = entity.getEntity().getGroupName();
       mCachePool.putTask(task);
     } else {
       Log.e(TAG, "target name 为 null！！");

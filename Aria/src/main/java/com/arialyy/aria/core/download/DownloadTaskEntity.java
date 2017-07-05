@@ -29,10 +29,6 @@ public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
   public DownloadTaskEntity() {
   }
 
-  public DownloadTaskEntity(DownloadEntity entity) {
-    this.entity = entity;
-  }
-
   @Override public DownloadEntity getEntity() {
     return entity;
   }

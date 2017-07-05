@@ -86,7 +86,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
     for (UploadEntity entity : allEntity) {
       if (entity.getState() == IEntity.STATE_RUNNING) {
         stopCmds.add(
-            CommonUtil.createCmd(targetName, new UploadTaskEntity(entity), NormalCmdFactory.TASK_STOP));
+            CommonUtil.createCmd(targetName, new UploadTaskEntity(), NormalCmdFactory.TASK_STOP));
       }
     }
     AriaManager.getInstance(AriaManager.APP).setCmds(stopCmds).exe();

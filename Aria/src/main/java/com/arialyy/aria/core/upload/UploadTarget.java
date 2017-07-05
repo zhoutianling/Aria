@@ -27,7 +27,8 @@ public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, Up
   UploadTarget(UploadEntity entity, String targetName) {
     this.mEntity = entity;
     this.mTargetName = targetName;
-    mTaskEntity = new UploadTaskEntity(entity);
+    mTaskEntity = new UploadTaskEntity();
+    mTaskEntity.entity = entity;
   }
 
   /**

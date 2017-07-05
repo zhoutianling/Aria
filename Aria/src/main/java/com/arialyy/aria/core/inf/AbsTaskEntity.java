@@ -18,6 +18,7 @@ package com.arialyy.aria.core.inf;
 import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.orm.Primary;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   /**
    * Task实体对应的key
    */
-  public String key;
+  @Primary public String key = "";
 
   /**
    * http 请求头

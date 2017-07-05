@@ -19,8 +19,10 @@ package com.arialyy.aria.orm;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by lyy on 2015/11/2.
@@ -156,7 +158,7 @@ public class DbEntity {
 
   private void updateRowID() {
     try {
-      Field[] fields = CommonUtil.getFields(getClass());
+      List<Field> fields = CommonUtil.getAllFields(getClass());
       List<String> where = new ArrayList<>();
       List<String> values = new ArrayList<>();
       for (Field field : fields) {
@@ -165,7 +167,16 @@ public class DbEntity {
           continue;
         }
         where.add(field.getName());
-        values.add(field.get(this) + "");
+        Type type = field.getType();
+        if (SqlHelper.isOneToOne(field)) {
+          values.add(SqlHelper.getOneToOneParams(field));
+        } else if (type == List.class) {
+          values.add(SqlHelper.getListElementParams(field));
+        } else if (type == Map.class) {
+          values.add(SqlHelper.map2Str((Map<String, String>) field.get(this)));
+        } else {
+          values.add(field.get(this) + "");
+        }
       }
       DbEntity entity = findData(getClass(), where.toArray(new String[where.size()]),
           values.toArray(new String[values.size()]));
