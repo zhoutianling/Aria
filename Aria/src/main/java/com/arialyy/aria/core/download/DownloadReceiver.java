@@ -17,7 +17,6 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.ICmd;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.command.CmdFactory;

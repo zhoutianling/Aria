@@ -21,10 +21,8 @@ import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.ref.WeakReference;
@@ -77,7 +75,7 @@ public class UploadTask extends AbsTask<UploadTaskEntity, UploadEntity> {
       mUtil.cancel();
       mEntity.deleteData();
       if (mOutHandler != null) {
-        mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
+        mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
       }
       //发送取消下载的广播
       Intent intent = CommonUtil.createIntent(AriaManager.APP.getPackageName(), Aria.ACTION_CANCEL);
@@ -132,15 +130,15 @@ public class UploadTask extends AbsTask<UploadTaskEntity, UploadEntity> {
     }
 
     @Override public void onResume(long resumeLocation) {
-      uploadEntity.setState(DownloadEntity.STATE_RUNNING);
-      sendInState2Target(DownloadSchedulers.RESUME);
+      uploadEntity.setState(IEntity.STATE_RUNNING);
+      sendInState2Target(ISchedulers.RESUME);
       sendIntent(Aria.ACTION_RESUME, resumeLocation);
     }
 
     @Override public void onStop(long stopLocation) {
-      uploadEntity.setState(DownloadEntity.STATE_STOP);
+      uploadEntity.setState(IEntity.STATE_STOP);
       handleSpeed(0);
-      sendInState2Target(DownloadSchedulers.STOP);
+      sendInState2Target(ISchedulers.STOP);
       sendIntent(Aria.ACTION_STOP, stopLocation);
     }
 
@@ -157,32 +155,32 @@ public class UploadTask extends AbsTask<UploadTaskEntity, UploadEntity> {
         handleSpeed(speed);
         uploadEntity.setCurrentProgress(currentLocation);
         lastLen = currentLocation;
-        sendInState2Target(DownloadSchedulers.RUNNING);
+        sendInState2Target(ISchedulers.RUNNING);
         AriaManager.APP.sendBroadcast(sendIntent);
       }
     }
 
     @Override public void onCancel() {
-      uploadEntity.setState(DownloadEntity.STATE_CANCEL);
+      uploadEntity.setState(IEntity.STATE_CANCEL);
       handleSpeed(0);
-      sendInState2Target(DownloadSchedulers.CANCEL);
+      sendInState2Target(ISchedulers.CANCEL);
       sendIntent(Aria.ACTION_CANCEL, -1);
       uploadEntity.deleteData();
     }
 
     @Override public void onComplete() {
-      uploadEntity.setState(DownloadEntity.STATE_COMPLETE);
+      uploadEntity.setState(IEntity.STATE_COMPLETE);
       uploadEntity.setComplete(true);
       handleSpeed(0);
-      sendInState2Target(DownloadSchedulers.COMPLETE);
+      sendInState2Target(ISchedulers.COMPLETE);
       sendIntent(Aria.ACTION_COMPLETE, uploadEntity.getFileSize());
     }
 
     @Override public void onFail() {
       uploadEntity.setFailNum(uploadEntity.getFailNum() + 1);
-      uploadEntity.setState(DownloadEntity.STATE_FAIL);
+      uploadEntity.setState(IEntity.STATE_FAIL);
       handleSpeed(0);
-      sendInState2Target(DownloadSchedulers.FAIL);
+      sendInState2Target(ISchedulers.FAIL);
       sendIntent(Aria.ACTION_FAIL, -1);
     }
 
@@ -197,7 +195,7 @@ public class UploadTask extends AbsTask<UploadTaskEntity, UploadEntity> {
     /**
      * 将任务状态发送给下载器
      *
-     * @param state {@link DownloadSchedulers#START}
+     * @param state {@link ISchedulers#START}
      */
     private void sendInState2Target(int state) {
       if (outHandler.get() != null) {

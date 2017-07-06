@@ -17,7 +17,6 @@
 package com.arialyy.aria.core.queue;
 
 import android.util.Log;
-import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.ITask;

@@ -19,7 +19,6 @@ import android.support.annotation.NonNull;
 import com.arialyy.aria.core.RequestEnum;
 import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
-import com.arialyy.aria.orm.DbEntity;
 import java.util.Map;
 
 /**
@@ -117,7 +116,7 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
     return this;
   }
 
-  private UploadEntity getDownloadEntity() {
+  private UploadEntity getUploadEntity() {
     return entity;
   }
 

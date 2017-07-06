@@ -24,7 +24,6 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -141,7 +140,7 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
       mEntity.setState(isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP);
       mEntity.save();
       if (mOutHandler != null) {
-        mOutHandler.obtainMessage(DownloadSchedulers.STOP, this).sendToTarget();
+        mOutHandler.obtainMessage(ISchedulers.STOP, this).sendToTarget();
       }
       // 发送停止下载的广播
       Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_STOP);
@@ -158,7 +157,7 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     if (!mEntity.isDownloadComplete()) {
       if (!mUtil.isDownloading()) {
         if (mOutHandler != null) {
-          mOutHandler.obtainMessage(DownloadSchedulers.CANCEL, this).sendToTarget();
+          mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
         }
         //发送取消下载的广播
         Intent intent = CommonUtil.createIntent(mContext.getPackageName(), Aria.ACTION_CANCEL);
@@ -333,7 +332,7 @@ public class DownloadTask extends AbsTask<DownloadTaskEntity, DownloadEntity> {
     /**
      * 将任务状态发送给下载器
      *
-     * @param state {@link DownloadSchedulers#START}
+     * @param state {@link ISchedulers#START}
      */
     private void sendInState2Target(int state) {
       if (outHandler.get() != null) {
