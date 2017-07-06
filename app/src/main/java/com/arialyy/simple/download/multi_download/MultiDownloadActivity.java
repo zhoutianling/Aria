@@ -106,10 +106,7 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
     mAdapter.updateState(task.getDownloadEntity());
   }
 
-  @Download.onTaskRunning({
-      "https://g37.gdl.netease.com/onmyoji_netease_10_1.0.20.apk",
-      "http://static.gaoshouyou.com/d/eb/f2/dfeba30541f209ab8a50d847fc1661ce.apk"
-  }) void taskRunning(DownloadTask task) {
+  @Download.onTaskRunning() void taskRunning(DownloadTask task) {
     mAdapter.setProgress(task.getDownloadEntity());
   }
 }

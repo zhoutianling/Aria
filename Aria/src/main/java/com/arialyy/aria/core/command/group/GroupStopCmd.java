@@ -13,33 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.arialyy.aria.core.command.group;
 
-package com.arialyy.aria.core.command;
-
-import android.text.TextUtils;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
- * Created by lyy on 2016/9/20.
- * 取消命令
+ * Created by AriaL on 2017/6/29.
+ * 停止任务组的命令
  */
-class CancelCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
-  CancelCmd(String targetName, T entity) {
+class GroupStopCmd<T extends AbsTaskEntity> extends AbsGroupCmd<T>{
+  /**
+   * @param targetName 创建任务的对象名
+   */
+  GroupStopCmd(String targetName, T entity) {
     super(targetName, entity);
   }
 
   @Override public void executeCmd() {
-    if (!canExeCmd) return;
-    ITask task = mQueue.getTask(mTaskEntity.getEntity());
-    if (task == null) {
-      task = mQueue.createTask(mTargetName, mTaskEntity);
-    }
-    if (task != null) {
-      if (!TextUtils.isEmpty(mTargetName)) {
-        task.setTargetName(mTargetName);
-      }
-      mQueue.removeTask(task);
-    }
+
   }
 }

@@ -19,8 +19,10 @@ package com.arialyy.aria.core.queue;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsNormalTask;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -30,7 +32,7 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
  * Created by lyy on 2016/8/16.
  * 任务功能接口
  */
-public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends IEntity> {
+public interface ITaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity> {
 
   /**
    * 通过key判断任务是否正在执行
@@ -46,11 +48,9 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   void stopAllTask();
 
   /**
-   * 设置任务为最高优先级任务
-   *
-   * @param task {@link DownloadTask}、{@link UploadTask}
+   * 删除所有任务
    */
-  void setTaskHighestPriority(TASK task);
+  void removeAllTask();
 
   /**
    * 开始任务

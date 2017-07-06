@@ -16,22 +16,20 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.orm.OneToOne;
 
 /**
  * Created by lyy on 2017/1/23.
  * 下载任务实体
  */
-public class DownloadTaskEntity extends AbsTaskEntity {
+public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
 
-  public DownloadEntity downloadEntity;
+  @OneToOne(table = DownloadEntity.class, key = "downloadUrl") public DownloadEntity entity;
 
-  public DownloadTaskEntity(){}
-
-  public DownloadTaskEntity(DownloadEntity downloadEntity) {
-    this.downloadEntity = downloadEntity;
+  public DownloadTaskEntity() {
   }
 
   @Override public DownloadEntity getEntity() {
-    return downloadEntity;
+    return entity;
   }
 }

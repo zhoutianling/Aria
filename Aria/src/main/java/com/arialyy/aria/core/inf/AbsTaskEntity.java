@@ -16,14 +16,22 @@
 package com.arialyy.aria.core.inf;
 
 import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.orm.Primary;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by lyy on 2017/2/23.
  */
+public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
 
-public abstract class AbsTaskEntity {
+  /**
+   * Task实体对应的key
+   */
+  @Primary public String key = "";
+
   /**
    * http 请求头
    */
@@ -39,5 +47,20 @@ public abstract class AbsTaskEntity {
    */
   public String redirectUrlKey = "location";
 
-  public abstract AbsEntity getEntity();
+  /**
+   * 用于判断删除任务时是否需要删除文件{@code true}删除
+   */
+  @Ignore public boolean removeFile = false;
+
+  /**
+   * 是否支持断点, {@code true} 为支持断点
+   */
+  public boolean isSupportBP = true;
+
+  /**
+   * 状态码
+   */
+  public int code;
+
+  public abstract ENTITY getEntity();
 }

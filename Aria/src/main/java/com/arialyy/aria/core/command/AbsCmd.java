@@ -16,50 +16,20 @@
 
 package com.arialyy.aria.core.command;
 
-import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.ITaskQueue;
-import com.arialyy.aria.core.inf.ICmd;
-import com.arialyy.aria.core.queue.UploadTaskQueue;
-import com.arialyy.aria.core.upload.UploadTaskEntity;
-import com.arialyy.aria.util.CheckUtil;
-import com.arialyy.aria.util.CommonUtil;
 
 /**
- * Created by lyy on 2016/8/22.
- * 下载命令
+ * Created by AriaL on 2017/6/29.
  */
-public abstract class AbsCmd<T extends AbsTaskEntity> implements ICmd {
-  ITaskQueue mQueue;
-  T mTaskEntity;
-  String TAG;
-  String mTargetName;
-  /**
-   * 能否执行命令
-   */
-  boolean canExeCmd = true;
+public abstract class AbsCmd<T extends AbsTaskEntity> implements ICmd{
+  protected ITaskQueue mQueue;
+  protected T mTaskEntity;
+  protected String TAG;
+  protected String mTargetName;
   /**
    * 是否是下载任务的命令
    * {@code true} 下载任务的命令，{@code false} 上传任务的命令
    */
-  boolean isDownloadCmd = true;
-
-  /**
-   * @param targetName 产生任务的对象名
-   */
-  AbsCmd(String targetName, T entity) {
-    canExeCmd = CheckUtil.checkCmdEntity(entity,
-        !(this instanceof CancelCmd) || !(this instanceof StopCmd));
-    mTargetName = targetName;
-    mTaskEntity = entity;
-    TAG = CommonUtil.getClassName(this);
-    if (entity instanceof DownloadTaskEntity) {
-      mQueue = DownloadTaskQueue.getInstance();
-      isDownloadCmd = true;
-    } else if (entity instanceof UploadTaskEntity) {
-      mQueue = UploadTaskQueue.getInstance();
-      isDownloadCmd = false;
-    }
-  }
+  protected boolean isDownloadCmd = true;
 }

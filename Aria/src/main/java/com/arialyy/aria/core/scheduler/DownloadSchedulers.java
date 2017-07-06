@@ -29,7 +29,7 @@ import com.arialyy.aria.core.download.DownloadTask;
 public class DownloadSchedulers
     extends AbsSchedulers<DownloadTaskEntity, DownloadEntity, DownloadTask, DownloadTaskQueue> {
 
-  private static final String TAG = "DownloadSchedulers";
+  private final String TAG = "DownloadSchedulers";
   private static volatile DownloadSchedulers INSTANCE = null;
 
   private DownloadSchedulers() {

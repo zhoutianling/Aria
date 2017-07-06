@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
+package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.QueueMod;
-import com.arialyy.aria.core.inf.ITask;
+import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by lyy on 2016/8/22.
  * 开始命令
+ * 队列模型{@link QueueMod#NOW}、{@link QueueMod#WAIT}
  */
-class StartCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
+class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
   StartCmd(String targetName, T entity) {
     super(targetName, entity);
@@ -34,30 +36,37 @@ class StartCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    ITask task = mQueue.getTask(mTaskEntity.getEntity());
+    String mod;
+    int maxTaskNum;
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+    if (isDownloadCmd) {
+      mod = manager.getDownloadConfig().getQueueMod();
+      maxTaskNum = manager.getDownloadConfig().getMaxTaskNum();
+    } else {
+      mod = manager.getUploadConfig().getQueueMod();
+      maxTaskNum = manager.getUploadConfig().getMaxTaskNum();
+    }
+
+    AbsTask task = mQueue.getTask(mTaskEntity.getEntity());
     if (task == null) {
       task = mQueue.createTask(mTargetName, mTaskEntity);
-    }
-    if (task != null) {
       if (!TextUtils.isEmpty(mTargetName)) {
         task.setTargetName(mTargetName);
       }
-      String mod;
-      int maxTaskNum;
-      AriaManager manager = AriaManager.getInstance(AriaManager.APP);
-      if (isDownloadCmd) {
-        mod = manager.getDownloadConfig().getQueueMod();
-        maxTaskNum = manager.getDownloadConfig().getMaxTaskNum();
-      } else {
-        mod = manager.getUploadConfig().getQueueMod();
-        maxTaskNum = manager.getUploadConfig().getMaxTaskNum();
-      }
+      // 任务不存在时，根据配置不同，对任务执行操作
       if (mod.equals(QueueMod.NOW.getTag())) {
         mQueue.startTask(task);
-      }else if (mod.equals(QueueMod.WAIT.getTag())){
-        if (mQueue.getExePoolSize() < maxTaskNum){
+      } else if (mod.equals(QueueMod.WAIT.getTag())) {
+        if (mQueue.getExePoolSize() < maxTaskNum) {
           mQueue.startTask(task);
         }
+      }
+    } else {
+      // 任务不存在时，根据配置不同，对任务执行操作
+      if (!task.isRunning()
+          && mod.equals(QueueMod.WAIT.getTag())
+          && task.getState() == IEntity.STATE_WAIT) {
+        mQueue.startTask(task);
       }
     }
   }

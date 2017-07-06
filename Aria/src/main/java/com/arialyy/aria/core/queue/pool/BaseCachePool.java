@@ -32,14 +32,14 @@ import java.util.concurrent.TimeUnit;
  * Created by lyy on 2016/8/14.
  * 任务缓存池，所有下载任务最先缓存在这个池中
  */
-public class CachePool<TASK extends ITask> implements IPool<TASK> {
-  private static final String TAG = "CachePool";
+public class BaseCachePool<TASK extends ITask> implements IPool<TASK> {
+  private static final String TAG = "BaseCachePool";
   private static final int MAX_NUM = Integer.MAX_VALUE;  //最大下载任务数
   private static final long TIME_OUT = 1000;
   private Map<String, TASK> mCacheMap;
   private LinkedBlockingQueue<TASK> mCacheQueue;
 
-  public CachePool() {
+  public BaseCachePool() {
     mCacheQueue = new LinkedBlockingQueue<>(MAX_NUM);
     mCacheMap = new HashMap<>();
   }
@@ -95,7 +95,7 @@ public class CachePool<TASK extends ITask> implements IPool<TASK> {
   @Override public TASK pollTask() {
     synchronized (AriaManager.LOCK) {
       try {
-        TASK task = null;
+        TASK task;
         task = mCacheQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
         if (task != null) {
           String url = task.getKey();

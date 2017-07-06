@@ -18,25 +18,35 @@ package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
+import com.arialyy.aria.orm.Primary;
 
 /**
  * Created by lyy on 2015/12/25.
  * 下载实体
- * ！！！ 注意：CREATOR要进行@Ignore注解
- * ！！！并且需要Parcelable时需要手动填写rowID;
  */
-public class DownloadEntity extends AbsEntity implements Parcelable {
-  private String downloadUrl = ""; //下载路径
+public class DownloadEntity extends AbsNormalEntity implements Parcelable {
+  @Primary private String downloadUrl = ""; //下载路径
   private String downloadPath = ""; //保存路径
   private boolean isDownloadComplete = false;   //是否下载完成
   private boolean isRedirect = false; //是否重定向
   private String redirectUrl = ""; //重定向链接
 
+  /**
+   * 所属任务组
+   */
+  private String groupName = "";
+
   public DownloadEntity() {
   }
 
+  public String getGroupName() {
+    return groupName;
+  }
+
+  public void setGroupName(String groupName) {
+    this.groupName = groupName;
+  }
 
   public String getDownloadUrl() {
     return downloadUrl;
@@ -95,6 +105,7 @@ public class DownloadEntity extends AbsEntity implements Parcelable {
     dest.writeByte(this.isDownloadComplete ? (byte) 1 : (byte) 0);
     dest.writeByte(this.isRedirect ? (byte) 1 : (byte) 0);
     dest.writeString(this.redirectUrl);
+    dest.writeString(this.groupName);
   }
 
   protected DownloadEntity(Parcel in) {
@@ -104,9 +115,31 @@ public class DownloadEntity extends AbsEntity implements Parcelable {
     this.isDownloadComplete = in.readByte() != 0;
     this.isRedirect = in.readByte() != 0;
     this.redirectUrl = in.readString();
+    this.groupName = in.readString();
   }
 
-  @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
+  @Override public String toString() {
+    return "DownloadEntity{"
+        + "downloadUrl='"
+        + downloadUrl
+        + '\''
+        + ", downloadPath='"
+        + downloadPath
+        + '\''
+        + ", isDownloadComplete="
+        + isDownloadComplete
+        + ", isRedirect="
+        + isRedirect
+        + ", redirectUrl='"
+        + redirectUrl
+        + '\''
+        + ", groupName='"
+        + groupName
+        + '\''
+        + '}';
+  }
+
+  public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
     @Override public DownloadEntity createFromParcel(Parcel source) {
       return new DownloadEntity(source);
     }

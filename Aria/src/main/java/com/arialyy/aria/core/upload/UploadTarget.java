@@ -16,27 +16,26 @@
 package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
-import com.arialyy.aria.core.RequestEnum;
-import com.arialyy.aria.core.inf.AbsTarget;
+import com.arialyy.aria.core.inf.AbsNormalTarget;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
-import java.util.Map;
 
 /**
  * Created by lyy on 2017/2/28.
  */
-public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
+public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, UploadTaskEntity> {
 
   UploadTarget(UploadEntity entity, String targetName) {
-    this.entity = entity;
-    this.targetName = targetName;
-    taskEntity = new UploadTaskEntity(entity);
+    this.mEntity = entity;
+    this.mTargetName = targetName;
+    mTaskEntity = new UploadTaskEntity();
+    mTaskEntity.entity = entity;
   }
 
   /**
    * 设置userAgent
    */
   public UploadTarget setUserAngent(@NonNull String userAgent) {
-    taskEntity.userAgent = userAgent;
+    mTaskEntity.userAgent = userAgent;
     return this;
   }
 
@@ -46,7 +45,7 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
    * @param uploadUrl 上传路径
    */
   public UploadTarget setUploadUrl(@NonNull String uploadUrl) {
-    taskEntity.uploadUrl = uploadUrl;
+    mTaskEntity.uploadUrl = uploadUrl;
     return this;
   }
 
@@ -56,7 +55,7 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
    * @param attachment 附件key
    */
   public UploadTarget setAttachment(@NonNull String attachment) {
-    taskEntity.attachment = attachment;
+    mTaskEntity.attachment = attachment;
     return this;
   }
 
@@ -64,7 +63,7 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
    * 设置文件名
    */
   public UploadTarget setFileName(String fileName) {
-    entity.setFileName(fileName);
+    mEntity.setFileName(fileName);
     return this;
   }
 
@@ -74,28 +73,7 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
    * @param contentType tip：multipart/form-data
    */
   public UploadTarget setContentType(String contentType) {
-    taskEntity.contentType = contentType;
-    return this;
-  }
-
-  /**
-   * 给url请求添加头部
-   *
-   * @param key 头部key
-   * @param header 头部value
-   */
-  public UploadTarget addHeader(@NonNull String key, @NonNull String header) {
-    super._addHeader(key, header);
-    return this;
-  }
-
-  /**
-   * 给url请求添加头部
-   *
-   * @param headers key为http头部的key，Value为http头对应的配置
-   */
-  public UploadTarget addHeaders(Map<String, String> headers) {
-    super._addHeaders(headers);
+    mTaskEntity.contentType = contentType;
     return this;
   }
 
@@ -103,28 +81,15 @@ public class UploadTarget extends AbsTarget<UploadEntity, UploadTaskEntity> {
    * 下载任务是否存在
    */
   @Override public boolean taskExists() {
-    return UploadTaskQueue.getInstance().getTask(entity.getFilePath()) != null;
-  }
-
-  /**
-   * 设置请求类型
-   *
-   * @param requestEnum {@link RequestEnum}
-   */
-  public UploadTarget setRequestMode(RequestEnum requestEnum) {
-    super._setRequestMode(requestEnum);
-    return this;
-  }
-
-  private UploadEntity getUploadEntity() {
-    return entity;
+    return UploadTaskQueue.getInstance().getTask(mEntity.getFilePath()) != null;
   }
 
   /**
    * 是否在下载
    */
   public boolean isUploading() {
-    UploadTask task = UploadTaskQueue.getInstance().getTask(entity);
+    UploadTask task = UploadTaskQueue.getInstance().getTask(mEntity);
     return task != null && task.isRunning();
   }
+
 }

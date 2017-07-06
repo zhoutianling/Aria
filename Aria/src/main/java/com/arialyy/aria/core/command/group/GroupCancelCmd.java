@@ -13,18 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.arialyy.aria.core.command.group;
 
-package com.arialyy.aria.orm;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
- * Created by lyy on 2015/11/2.
- * 表ID字段指定
+ * Created by AriaL on 2017/6/29.
+ * 删除任务组
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Id {
-  int value() default -1;
+class GroupCancelCmd<T extends AbsTaskEntity> extends AbsGroupCmd<T> {
+  /**
+   * @param targetName 创建任务的对象名
+   */
+  GroupCancelCmd(String targetName, T entity) {
+    super(targetName, entity);
+  }
+
+  @Override public void executeCmd() {
+
+  }
 }

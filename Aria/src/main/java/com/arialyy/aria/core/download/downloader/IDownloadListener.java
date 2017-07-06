@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download;
+package com.arialyy.aria.core.download.downloader;
 
 /**
  * 下载监听
  */
-interface IDownloadListener {
+public interface IDownloadListener {
 
   /**
    * 支持断点回调

@@ -17,7 +17,11 @@ package com.arialyy.aria.orm;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +32,7 @@ import java.util.Map;
 public class DBConfig {
   static Map<String, Class> mapping = new HashMap<>();
   static String DB_NAME;
-  static int VERSION = 3;
+  static int VERSION = 6;
 
   static {
     if (TextUtils.isEmpty(DB_NAME)) {
@@ -41,6 +45,10 @@ public class DBConfig {
 
   static {
     mapping.put("DownloadEntity", DownloadEntity.class);
+    mapping.put("DownloadGroupEntity", DownloadGroupEntity.class);
+    mapping.put("DownloadTaskEntity", DownloadTaskEntity.class);
+    mapping.put("DownloadGroupTaskEntity", DownloadGroupTaskEntity.class);
     mapping.put("UploadEntity", UploadEntity.class);
+    mapping.put("UploadTaskEntity", UploadTaskEntity.class);
   }
 }

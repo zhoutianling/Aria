@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download;
+package com.arialyy.aria.core.download.downloader;
+
 
 /**
  * @author lyy
  */
-class DownloadListener implements IDownloadListener {
+public class DownloadListener implements IDownloadListener {
 
   @Override public void onResume(long resumeLocation) {
 

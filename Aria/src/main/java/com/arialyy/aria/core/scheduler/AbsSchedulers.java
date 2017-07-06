@@ -21,9 +21,9 @@ import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadTask;
 import java.util.Iterator;
@@ -34,19 +34,19 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by lyy on 2017/6/4.
  */
-public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity, TASK extends ITask<ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY, ENTITY>>
+abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY, ENTITY>>
     implements ISchedulers<TASK> {
-  private static final String TAG = "AbsSchedulers";
+  private final String TAG = "AbsSchedulers";
 
   /**
    * 下载的动态生成的代理类后缀
    */
-  String DOWNLOAD_PROXY_CLASS_SUFFIX = "$$DownloadListenerProxy";
+  private String DOWNLOAD_PROXY_CLASS_SUFFIX = "$$DownloadListenerProxy";
 
   /**
    * 上传的动态生成的代理类后缀
    */
-  String UPLOAD_PROXY_CLASS_SUFFIX = "$$UploadListenerProxy";
+  private String UPLOAD_PROXY_CLASS_SUFFIX = "$$UploadListenerProxy";
 
   protected QUEUE mQueue;
   protected boolean isDownload = true;
@@ -131,7 +131,7 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
       Log.e(TAG, "请传入下载任务");
       return true;
     }
-    callback(msg.what, task);
+    //callback(msg.what, task);
     ENTITY entity = task.getEntity();
     switch (msg.what) {
       case STOP:
@@ -154,6 +154,7 @@ public abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY ex
         handleFailTask(task);
         break;
     }
+    callback(msg.what, task);
     return true;
   }
 

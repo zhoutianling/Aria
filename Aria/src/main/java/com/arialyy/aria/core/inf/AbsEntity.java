@@ -21,7 +21,7 @@ import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.Ignore;
 
 /**
- * Created by AriaL on 2017/6/3.
+ * Created by AriaL on 2017/6/29.
  */
 public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable {
   /**
@@ -36,6 +36,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
    * 下载失败计数，每次开始都重置为0
    */
   @Ignore private int failNum = 0;
+
   /**
    * 扩展字段
    */
@@ -53,10 +54,14 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
    * 完成时间
    */
   private long completeTime;
-  /**
-   * 文件名
-   */
-  private String fileName = "";
+
+  public int getFailNum() {
+    return failNum;
+  }
+
+  public void setFailNum(int failNum) {
+    this.failNum = failNum;
+  }
 
   public long getSpeed() {
     return speed;
@@ -72,14 +77,6 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
 
   public void setConvertSpeed(String convertSpeed) {
     this.convertSpeed = convertSpeed;
-  }
-
-  public int getFailNum() {
-    return failNum;
-  }
-
-  public void setFailNum(int failNum) {
-    this.failNum = failNum;
   }
 
   public String getStr() {
@@ -122,14 +119,6 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     this.completeTime = completeTime;
   }
 
-  public String getFileName() {
-    return fileName;
-  }
-
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
-
   public AbsEntity() {
   }
 
@@ -146,7 +135,6 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     dest.writeInt(this.state);
     dest.writeLong(this.currentProgress);
     dest.writeLong(this.completeTime);
-    dest.writeString(this.fileName);
   }
 
   protected AbsEntity(Parcel in) {
@@ -158,6 +146,5 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     this.state = in.readInt();
     this.currentProgress = in.readLong();
     this.completeTime = in.readLong();
-    this.fileName = in.readString();
   }
 }

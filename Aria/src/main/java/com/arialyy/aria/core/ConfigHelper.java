@@ -54,9 +54,6 @@ class ConfigHelper extends DefaultHandler {
         case "threadNum":
           loadThreadNum(value);
           break;
-        case "openBroadcast":
-          loadBroadcast(value);
-          break;
         case "maxTaskNum":
           loadMaxQueue(value);
           break;
@@ -221,16 +218,6 @@ class ConfigHelper extends DefaultHandler {
     }
     if (isUploadConfig) {
       mUploadConfig.maxTaskNum = num;
-    }
-  }
-
-  private void loadBroadcast(String value) {
-    boolean open = Boolean.parseBoolean(value);
-    if (isDownloadConfig) {
-      mDownloadConfig.isOpenBreadCast = open;
-    }
-    if (isUploadConfig) {
-      mUploadConfig.isOpenBreadCast = open;
     }
   }
 

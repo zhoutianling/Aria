@@ -40,12 +40,8 @@ class Configuration {
     /**
      * 旧任务数
      */
-    public static int oldMaxTaskNum = 2;
+    public int oldMaxTaskNum = 2;
 
-    /**
-     * 是否发送任务广播，true，发送
-     */
-    boolean isOpenBreadCast = false;
     /**
      * 任务队列最大任务数， 默认为2
      */
@@ -82,16 +78,6 @@ class Configuration {
     public BaseConfig setQueueMod(String queueMod) {
       this.queueMod = queueMod;
       saveKey("queueMod", queueMod);
-      return this;
-    }
-
-    public boolean isOpenBreadCast() {
-      return isOpenBreadCast;
-    }
-
-    public BaseConfig setOpenBreadCast(boolean openBreadCast) {
-      isOpenBreadCast = openBreadCast;
-      saveKey("isOpenBreadCast", openBreadCast + "");
       return this;
     }
 
@@ -176,7 +162,8 @@ class Configuration {
         try {
           for (Field field : fields) {
             int m = field.getModifiers();
-            if (Modifier.isFinal(m) || Modifier.isStatic(m)) {
+            if (field.getName().equals("oldMaxTaskNum") || Modifier.isFinal(m) || Modifier.isStatic(
+                m)) {
               continue;
             }
             field.setAccessible(true);
