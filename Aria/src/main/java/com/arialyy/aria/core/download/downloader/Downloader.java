@@ -82,7 +82,7 @@ class Downloader implements Runnable, IDownloadUtil {
   /**
    * 开始下载流程
    */
-  private void startFlow(){
+  private void startFlow() {
     checkTask();
     mConstance.cleanState();
     mConstance.isDownloading = true;

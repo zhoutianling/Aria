@@ -18,17 +18,39 @@ package com.arialyy.aria.core.upload;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.inf.AbsNormalTarget;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
+import com.arialyy.aria.orm.DbEntity;
+import java.util.regex.Pattern;
 
 /**
  * Created by lyy on 2017/2/28.
  */
 public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, UploadTaskEntity> {
 
-  UploadTarget(UploadEntity entity, String targetName) {
-    this.mEntity = entity;
+  UploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
-    mTaskEntity = new UploadTaskEntity();
-    mTaskEntity.entity = entity;
+    mTaskEntity = DbEntity.findData(UploadTaskEntity.class, "key=?", filePath);
+    if (mTaskEntity == null) {
+      mTaskEntity = new UploadTaskEntity();
+      mTaskEntity.entity = new UploadEntity();
+    }
+    if (mTaskEntity.entity == null) {
+      mTaskEntity.entity = getUploadEntity(filePath);
+    }
+    mEntity = mTaskEntity.entity;
+  }
+
+  private UploadEntity getUploadEntity(String filePath) {
+    UploadEntity entity = UploadEntity.findData(UploadEntity.class, "filePath=?", filePath);
+    if (entity == null) {
+      entity = new UploadEntity();
+    }
+    String regex = "[/|\\\\|//]";
+    Pattern p = Pattern.compile(regex);
+    String[] strs = p.split(filePath);
+    String fileName = strs[strs.length - 1];
+    entity.setFileName(fileName);
+    entity.setFilePath(filePath);
+    return entity;
   }
 
   /**
@@ -91,5 +113,4 @@ public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, Up
     UploadTask task = UploadTaskQueue.getInstance().getTask(mEntity);
     return task != null && task.isRunning();
   }
-
 }

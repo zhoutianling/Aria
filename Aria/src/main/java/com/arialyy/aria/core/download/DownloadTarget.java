@@ -18,21 +18,52 @@ package com.arialyy.aria.core.download;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsNormalTarget;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
 
 /**
  * Created by lyy on 2016/12/5.
  * https://github.com/AriaLyy/Aria
  */
-public class DownloadTarget extends
-    AbsNormalTarget<DownloadTarget, DownloadEntity, DownloadTaskEntity> {
+public class DownloadTarget
+    extends AbsNormalTarget<DownloadTarget, DownloadEntity, DownloadTaskEntity> {
 
   DownloadTarget(DownloadEntity entity, String targetName) {
-    mEntity = entity;
+    this(entity.getDownloadUrl(), targetName);
+  }
+
+  DownloadTarget(String url, String targetName) {
     mTargetName = targetName;
-    mTaskEntity = new DownloadTaskEntity();
-    mTaskEntity.entity = mEntity;
+    mTaskEntity = DbEntity.findData(DownloadTaskEntity.class, "key=?", url);
+    if (mTaskEntity == null) {
+      mTaskEntity = new DownloadTaskEntity();
+      mTaskEntity.entity = new DownloadEntity();
+    }
+    if (mTaskEntity.entity == null) {
+      mTaskEntity.entity = getEntity(url);
+    }
+    mEntity = mTaskEntity.entity;
+  }
+
+  /**
+   * 如果任务存在，但是下载实体不存在，则通过下载地址获取下载实体
+   *
+   * @param downloadUrl 下载地址
+   */
+  private DownloadEntity getEntity(String downloadUrl) {
+    DownloadEntity entity =
+        DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+    if (entity == null) {
+      entity = new DownloadEntity();
+    }
+    File file = new File(entity.getDownloadPath());
+    if (!file.exists()) {
+      entity.setState(IEntity.STATE_WAIT);
+    }
+    entity.setDownloadUrl(downloadUrl);
+    return entity;
   }
 
   /**
@@ -56,14 +87,12 @@ public class DownloadTarget extends
     return this;
   }
 
-
   /**
    * 下载任务是否存在
    */
   @Override public boolean taskExists() {
     return DownloadTaskQueue.getInstance().getTask(mEntity.getDownloadUrl()) != null;
   }
-
 
   /**
    * 设置文件存储路径

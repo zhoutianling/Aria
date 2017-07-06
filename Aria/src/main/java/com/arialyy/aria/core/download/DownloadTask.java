@@ -17,7 +17,6 @@
 package com.arialyy.aria.core.download;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
@@ -138,7 +137,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
       mUtil.stopDownload();
     } else {
       mEntity.setState(isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP);
-      mEntity.save();
+      mEntity.update();
       if (mOutHandler != null) {
         mOutHandler.obtainMessage(ISchedulers.STOP, this).sendToTarget();
       }
@@ -184,6 +183,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
       DownloadTask task = new DownloadTask(taskEntity, outHandler);
       task.setTargetName(targetName);
       taskEntity.getEntity().save();
+      taskEntity.save();
       return task;
     }
   }
@@ -305,6 +305,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
       entity.setDownloadComplete(state == IEntity.STATE_COMPLETE);
       entity.setCurrentProgress(location);
       entity.update();
+
     }
   }
 }

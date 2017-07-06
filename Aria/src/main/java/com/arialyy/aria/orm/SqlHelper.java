@@ -613,7 +613,7 @@ final class SqlHelper extends SQLiteOpenHelper {
               String primaryData = cursor.getString(kc);
               if (TextUtils.isEmpty(primaryData) || primaryData.equalsIgnoreCase("null")) continue;
               List<T> list = findForeignData(db, primaryData, params);
-              if (list != null && list.size() > 1) {
+              if (list != null && list.size() > 0) {
                 field.set(entity, list.get(0));
               }
             }

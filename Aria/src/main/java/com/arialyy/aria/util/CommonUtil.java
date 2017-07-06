@@ -26,8 +26,10 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.command.normal.AbsNormalCmd;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -134,19 +136,21 @@ public class CommonUtil {
    * @param removeFile {@code true} 删除已经上传完成的任务，不仅删除上传记录，还会删除已经上传完成的文件，{@code false}
    * 如果文件已经上传完成，只删除上传记录
    */
-  public static void delUploadTaskConfig(boolean removeFile, UploadEntity entity) {
+  public static void delUploadTaskConfig(boolean removeFile, UploadTaskEntity tEntity) {
+    UploadEntity uEntity = tEntity.getEntity();
     if (removeFile) {
-      File file = new File(entity.getFilePath());
+      File file = new File(uEntity.getFilePath());
       if (file.exists()) {
         file.delete();
       }
     }
     File config = new File(
-        AriaManager.APP.getFilesDir().getPath() + "/temp/" + entity.getFileName() + ".properties");
+        AriaManager.APP.getFilesDir().getPath() + "/temp/" + uEntity.getFileName() + ".properties");
     if (config.exists()) {
       config.delete();
     }
-    entity.deleteData();
+    uEntity.deleteData();
+    tEntity.deleteData();
   }
 
   /**
@@ -155,19 +159,21 @@ public class CommonUtil {
    * @param removeFile{@code true} 删除已经下载完成的任务，不仅删除下载记录，还会删除已经下载完成的文件，{@code false}
    * 如果文件已经下载完成，只删除下载记录
    */
-  public static void delDownloadTaskConfig(boolean removeFile, DownloadEntity entity) {
+  public static void delDownloadTaskConfig(boolean removeFile, DownloadTaskEntity tEntity) {
+    DownloadEntity dEntity = tEntity.getEntity();
     if (removeFile) {
-      File file = new File(entity.getDownloadPath());
+      File file = new File(dEntity.getDownloadPath());
       if (file.exists()) {
         file.delete();
       }
     }
     File config = new File(
-        AriaManager.APP.getFilesDir().getPath() + "/temp/" + entity.getFileName() + ".properties");
+        AriaManager.APP.getFilesDir().getPath() + "/temp/" + dEntity.getFileName() + ".properties");
     if (config.exists()) {
       config.delete();
     }
-    entity.deleteData();
+    dEntity.deleteData();
+    tEntity.deleteData();
   }
 
   /**

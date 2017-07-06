@@ -99,7 +99,6 @@ public class DbEntity {
    * 删除当前数据
    */
   public void deleteData() {
-    //mUtil.delData(getClass(), new Object[] { "rowid" }, new Object[] { rowID });
     deleteData(getClass(), "rowid=?", rowID + "");
   }
 
@@ -138,7 +137,8 @@ public class DbEntity {
    * 查找数据在表中是否存在
    */
   private boolean thisIsExist() {
-    return findData(getClass(), "rowid=?", rowID + "") != null;
+    DbUtil util = DbUtil.getInstance();
+    return util.isExist(getClass(), rowID);
   }
 
   /**

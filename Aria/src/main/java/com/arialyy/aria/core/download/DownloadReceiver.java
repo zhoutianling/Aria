@@ -60,17 +60,7 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
    */
   public DownloadTarget load(@NonNull String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    DownloadEntity entity =
-        DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
-    if (entity == null) {
-      entity = new DownloadEntity();
-    }
-    File file = new File(entity.getDownloadPath());
-    if (!file.exists()) {
-      entity.setState(IEntity.STATE_WAIT);
-    }
-    entity.setDownloadUrl(downloadUrl);
-    return new DownloadTarget(entity, targetName);
+    return new DownloadTarget(downloadUrl, targetName);
   }
 
   /**
@@ -78,13 +68,7 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
    */
   public DownloadGroupTarget load(List<String> urls) {
     CheckUtil.checkDownloadUrls(urls);
-    DownloadGroupEntity entity =
-        DbEntity.findData(DownloadGroupEntity.class, "urlHash=?", CommonUtil.getMd5Code(urls));
-
-    if (entity == null) {
-      entity = new DownloadGroupEntity();
-    }
-    return new DownloadGroupTarget(entity, targetName, urls);
+    return new DownloadGroupTarget(urls, targetName);
   }
 
   /**
@@ -179,10 +163,8 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
    */
   @Override public void removeAllTask(boolean removeFile) {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
-            NormalCmdFactory.TASK_CANCEL_ALL))
-        .exe();
+    ariaManager.setCmd(CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
+        NormalCmdFactory.TASK_CANCEL_ALL)).exe();
 
     Set<String> keys = ariaManager.getReceiver().keySet();
     for (String key : keys) {

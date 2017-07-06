@@ -17,7 +17,9 @@ package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsGroupTarget;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
+import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.util.List;
 
@@ -28,12 +30,28 @@ public class DownloadGroupTarget
     extends AbsGroupTarget<DownloadGroupTarget, DownloadGroupEntity, DownloadGroupTaskEntity> {
   private List<String> mUrls;
 
-  DownloadGroupTarget(DownloadGroupEntity entity, String targetName, List<String> urls) {
-    this.mEntity = entity;
+  DownloadGroupTarget(List<String> urls, String targetName) {
     this.mTargetName = targetName;
     this.mUrls = urls;
-    mTaskEntity = new DownloadGroupTaskEntity();
-    mTaskEntity.entity = entity;
+    mTaskEntity =
+        DbEntity.findData(DownloadGroupTaskEntity.class, "key=?", CommonUtil.getMd5Code(urls));
+    if (mTaskEntity == null) {
+      mTaskEntity = new DownloadGroupTaskEntity();
+      mTaskEntity.entity = new DownloadGroupEntity();
+    }
+    if (mTaskEntity.entity == null) {
+      mTaskEntity.entity = getDownloadGroupEntity(urls);
+    }
+    mEntity = mTaskEntity.entity;
+  }
+
+  private DownloadGroupEntity getDownloadGroupEntity(List<String> urls) {
+    DownloadGroupEntity entity =
+        DbEntity.findData(DownloadGroupEntity.class, "urlHash=?", CommonUtil.getMd5Code(urls));
+    if (entity == null) {
+      entity = new DownloadGroupEntity();
+    }
+    return entity;
   }
 
   /**

@@ -48,17 +48,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
    */
   public UploadTarget load(@NonNull String filePath) {
     CheckUtil.checkUploadPath(filePath);
-    UploadEntity entity = UploadEntity.findData(UploadEntity.class, "filePath=?", filePath);
-    if (entity == null) {
-      entity = new UploadEntity();
-    }
-    String regex = "[/|\\\\|//]";
-    Pattern p = Pattern.compile(regex);
-    String[] strs = p.split(filePath);
-    String fileName = strs[strs.length - 1];
-    entity.setFileName(fileName);
-    entity.setFilePath(filePath);
-    return new UploadTarget(entity, targetName);
+    return new UploadTarget(filePath, targetName);
   }
 
   /**
@@ -81,15 +71,10 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   }
 
   @Override public void stopAllTask() {
-    List<UploadEntity> allEntity = DbEntity.findAllData(UploadEntity.class);
-    List<AbsNormalCmd> stopCmds = new ArrayList<>();
-    for (UploadEntity entity : allEntity) {
-      if (entity.getState() == IEntity.STATE_RUNNING) {
-        stopCmds.add(
-            CommonUtil.createCmd(targetName, new UploadTaskEntity(), NormalCmdFactory.TASK_STOP));
-      }
-    }
-    AriaManager.getInstance(AriaManager.APP).setCmds(stopCmds).exe();
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(NormalCmdFactory.getInstance()
+            .createCmd(targetName, new UploadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL))
+        .exe();
   }
 
   /**
@@ -101,9 +86,8 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   @Override public void removeAllTask(boolean removeFile) {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
 
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(
-            CommonUtil.createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_CANCEL_ALL))
+    am.setCmd(CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
+            NormalCmdFactory.TASK_CANCEL_ALL))
         .exe();
 
     Set<String> keys = am.getReceiver().keySet();

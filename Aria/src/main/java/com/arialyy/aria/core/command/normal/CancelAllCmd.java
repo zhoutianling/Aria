@@ -20,6 +20,7 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.List;
@@ -49,8 +50,8 @@ final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    * 处理上传的删除
    */
   private void handleUploadRemove() {
-    List<UploadEntity> allEntity = DbEntity.findAllData(UploadEntity.class);
-    for (UploadEntity entity : allEntity) {
+    List<UploadTaskEntity> allEntity = DbEntity.findAllData(UploadTaskEntity.class);
+    for (UploadTaskEntity entity : allEntity) {
       CommonUtil.delUploadTaskConfig(mTaskEntity.removeFile, entity);
     }
   }
@@ -59,8 +60,8 @@ final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    * 处理下载的删除
    */
   private void handleDownloadRemove() {
-    List<DownloadEntity> allEntity = DbEntity.findAllData(DownloadEntity.class);
-    for (DownloadEntity entity : allEntity) {
+    List<DownloadTaskEntity> allEntity = DbEntity.findAllData(DownloadTaskEntity.class);
+    for (DownloadTaskEntity entity : allEntity) {
       CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile, entity);
     }
   }
