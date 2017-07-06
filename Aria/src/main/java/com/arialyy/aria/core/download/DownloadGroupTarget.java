@@ -29,29 +29,55 @@ import java.util.List;
 public class DownloadGroupTarget
     extends AbsGroupTarget<DownloadGroupTarget, DownloadGroupEntity, DownloadGroupTaskEntity> {
   private List<String> mUrls;
+  private String mGroupName;
 
   DownloadGroupTarget(List<String> urls, String targetName) {
     this.mTargetName = targetName;
     this.mUrls = urls;
-    mTaskEntity =
-        DbEntity.findData(DownloadGroupTaskEntity.class, "key=?", CommonUtil.getMd5Code(urls));
+    mGroupName = CommonUtil.getMd5Code(urls);
+    mTaskEntity = DbEntity.findData(DownloadGroupTaskEntity.class, "key=?", mGroupName);
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadGroupTaskEntity();
+      mTaskEntity.key = mGroupName;
       mTaskEntity.entity = new DownloadGroupEntity();
     }
     if (mTaskEntity.entity == null) {
-      mTaskEntity.entity = getDownloadGroupEntity(urls);
+      mTaskEntity.entity = getDownloadGroupEntity();
     }
     mEntity = mTaskEntity.entity;
   }
 
-  private DownloadGroupEntity getDownloadGroupEntity(List<String> urls) {
+  private DownloadGroupEntity getDownloadGroupEntity() {
     DownloadGroupEntity entity =
-        DbEntity.findData(DownloadGroupEntity.class, "urlHash=?", CommonUtil.getMd5Code(urls));
+        DbEntity.findData(DownloadGroupEntity.class, "groupName=?", mGroupName);
     if (entity == null) {
       entity = new DownloadGroupEntity();
     }
     return entity;
+  }
+
+  /**
+   * 设置任务组的文件夹路径，在Aria中，任务组的所有子任务都会下载到以任务组组名的文件夹中。
+   * 如：groupDirPath = "/mnt/sdcard/download/", groupName = "group_test"
+   * <pre>
+   *   {@code
+   *      + mnt
+   *        + sdcard
+   *          + download
+   *            + group_test
+   *              - task1.apk
+   *              - task2.apk
+   *              - task3.apk
+   *              ....
+   *
+   *   }
+   * </pre>
+   *
+   * @param groupDirPath 任务组保存文件夹路径
+   */
+  public DownloadGroupTarget setDownloadPath(String groupDirPath) {
+
+    return this;
   }
 
   /**

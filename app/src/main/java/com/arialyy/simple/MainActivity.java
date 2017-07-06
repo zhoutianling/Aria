@@ -18,11 +18,8 @@ package com.arialyy.simple;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
-import butterknife.Bind;
 import butterknife.OnClick;
-import com.arialyy.aria.core.Aria;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
 import com.arialyy.simple.download.DownloadActivity;
@@ -45,15 +42,20 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
     return R.layout.activity_main;
   }
 
-  @OnClick(R.id.download) public void downloadDemo() {
-    startActivity(new Intent(this, DownloadActivity.class));
-  }
 
-  @OnClick(R.id.upload) public void uploadDemo() {
-    startActivity(new Intent(this, UploadActivity.class));
-  }
+  @OnClick({R.id.download, R.id.upload, R.id.download_task_group})
+  public void funcation(View view){
+    switch (view.getId()){
+      case R.id.download:
+        startActivity(new Intent(this, DownloadActivity.class));
+        break;
+      case R.id.upload:
+        startActivity(new Intent(this, UploadActivity.class));
+        break;
+      case R.id.download_task_group:
 
-  @OnClick(R.id.multi_test) public void mutliTest() {
-    startActivity(new Intent(this, TestMutilTaskSysDownload.class));
+        break;
+    }
+
   }
 }

@@ -13,7 +13,7 @@
         android:id="@+id/download"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="下载  demo"
+        android:text="下载"
         style="?buttonBarButtonStyle"
         />
 
@@ -21,15 +21,15 @@
         android:id="@+id/upload"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="上传  demo"
+        android:text="上传"
         style="?buttonBarButtonStyle"
         />
 
     <Button
-        android:id="@+id/multi_test"
+        android:id="@+id/download_task_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="多任务测试"
+        android:text="下载任务组"
         style="?buttonBarButtonStyle"
         />
 

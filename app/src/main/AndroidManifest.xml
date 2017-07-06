@@ -31,6 +31,7 @@
     <activity android:name=".download.multi_download.MultiDownloadActivity"/>
     <activity android:name=".download.HighestPriorityActivity"/>
     <activity android:name=".test.TestMutilTaskSysDownload"/>
+    <activity android:name=".download.group.DownloadGroupActivity"/>
 
     <service android:name=".download.service_download.DownloadService"/>
   </application>

@@ -134,7 +134,7 @@ class Downloader implements Runnable, IDownloadUtil {
         task.cancel();
       }
     }
-    CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile, mEntity);
+    CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile, mTaskEntity);
   }
 
   @Override public void stopDownload() {

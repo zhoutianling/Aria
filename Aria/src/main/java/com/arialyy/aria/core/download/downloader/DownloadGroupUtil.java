@@ -35,7 +35,7 @@ import java.util.concurrent.Executors;
  * 任务组下载工具
  */
 public class DownloadGroupUtil implements IDownloadUtil {
-  private static final String TAG = "DownloadGroupUtil";
+  private final String TAG = "DownloadGroupUtil";
   /**
    * 任务组所有任务总大小
    */
