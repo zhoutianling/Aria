@@ -81,7 +81,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
     mInfoPool = Executors.newCachedThreadPool();
     mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-    for (DownloadEntity entity : mTaskEntity.entity.getChild()) {
+    for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
       File file = new File(entity.getDownloadPath());
       if (entity.isDownloadComplete() && file.exists()) {
         mTotalSize += entity.getFileSize();
@@ -175,7 +175,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
             startChildDownload(te);
           }
           mInitNum++;
-          if (mInitNum + mFailNum == mTaskEntity.getEntity().getChild().size()) {
+          if (mInitNum + mFailNum == mTaskEntity.getEntity().getSubTask().size()) {
             startRunningFlow();
           }
         }
@@ -191,7 +191,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
           if (failNum < 10) {
             mInfoPool.execute(createFileInfoThread(te));
           }
-          if (mInitNum + mFailNum == mTaskEntity.getEntity().getChild().size()) {
+          if (mInitNum + mFailNum == mTaskEntity.getEntity().getSubTask().size()) {
             startRunningFlow();
           }
         }
@@ -238,7 +238,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
    */
   private DownloadTaskEntity createDownloadTask(DownloadEntity entity) {
     DownloadTaskEntity taskEntity =
-        DbEntity.findData(DownloadTaskEntity.class, "key=?", entity.getDownloadUrl());
+        DbEntity.findFirst(DownloadTaskEntity.class, "key=?", entity.getDownloadUrl());
     if (taskEntity != null) {
       return taskEntity;
     }

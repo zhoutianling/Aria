@@ -57,7 +57,7 @@ public class DbEntity {
   /**
    * 查询一组数据
    * <code>
-   * DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+   * DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl);
    * </code>
    *
    * @return 没有数据返回null
@@ -70,12 +70,12 @@ public class DbEntity {
   /**
    * 查询一行数据
    * <code>
-   * DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+   * DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl);
    * </code>
    *
    * @return 没有数据返回null
    */
-  public static <T extends DbEntity> T findData(Class<T> clazz, String... expression) {
+  public static <T extends DbEntity> T findFirst(Class<T> clazz, String... expression) {
     DbUtil util = DbUtil.getInstance();
     List<T> datas = util.findData(clazz, expression);
     return datas == null ? null : datas.size() > 0 ? datas.get(0) : null;
@@ -149,7 +149,7 @@ public class DbEntity {
     updateRowID();
   }
 
-  private <T extends DbEntity> T findData(Class<T> clazz, @NonNull String[] wheres,
+  private <T extends DbEntity> T findFirst(Class<T> clazz, @NonNull String[] wheres,
       @NonNull String[] values) {
     DbUtil util = DbUtil.getInstance();
     List<T> list = util.findData(clazz, wheres, values);
@@ -178,7 +178,7 @@ public class DbEntity {
           values.add(field.get(this) + "");
         }
       }
-      DbEntity entity = findData(getClass(), where.toArray(new String[where.size()]),
+      DbEntity entity = findFirst(getClass(), where.toArray(new String[where.size()]),
           values.toArray(new String[values.size()]));
       if (entity != null) {
         rowID = entity.rowID;

@@ -36,7 +36,7 @@ public class DownloadTarget
 
   DownloadTarget(String url, String targetName) {
     mTargetName = targetName;
-    mTaskEntity = DbEntity.findData(DownloadTaskEntity.class, "key=?", url);
+    mTaskEntity = DbEntity.findFirst(DownloadTaskEntity.class, "key=?", url);
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadTaskEntity();
       mTaskEntity.entity = new DownloadEntity();
@@ -54,7 +54,7 @@ public class DownloadTarget
    */
   private DownloadEntity getEntity(String downloadUrl) {
     DownloadEntity entity =
-        DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+        DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl);
     if (entity == null) {
       entity = new DownloadEntity();
     }

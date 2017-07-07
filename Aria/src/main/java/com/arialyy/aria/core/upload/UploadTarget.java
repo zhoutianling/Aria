@@ -28,7 +28,7 @@ public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, Up
 
   UploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
-    mTaskEntity = DbEntity.findData(UploadTaskEntity.class, "key=?", filePath);
+    mTaskEntity = DbEntity.findFirst(UploadTaskEntity.class, "key=?", filePath);
     if (mTaskEntity == null) {
       mTaskEntity = new UploadTaskEntity();
       mTaskEntity.entity = new UploadEntity();
@@ -40,7 +40,7 @@ public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, Up
   }
 
   private UploadEntity getUploadEntity(String filePath) {
-    UploadEntity entity = UploadEntity.findData(UploadEntity.class, "filePath=?", filePath);
+    UploadEntity entity = UploadEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
     if (entity == null) {
       entity = new UploadEntity();
     }

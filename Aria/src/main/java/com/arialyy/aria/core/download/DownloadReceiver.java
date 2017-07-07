@@ -18,15 +18,12 @@ package com.arialyy.aria.core.download;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsReceiver;
-import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import java.io.File;
 import java.util.List;
 import java.util.Set;
 
@@ -119,14 +116,14 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+    return DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl);
   }
 
   /**
    * 下载任务是否存在
    */
   @Override public boolean taskExists(String downloadUrl) {
-    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl) != null;
+    return DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl) != null;
   }
 
   @Override public List<DownloadEntity> getTaskList() {

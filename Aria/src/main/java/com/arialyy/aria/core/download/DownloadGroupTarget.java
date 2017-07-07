@@ -15,27 +15,38 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsGroupTarget;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by AriaL on 2017/6/29.
  */
 public class DownloadGroupTarget
     extends AbsGroupTarget<DownloadGroupTarget, DownloadGroupEntity, DownloadGroupTaskEntity> {
-  private List<String> mUrls;
+  private List<String> mUrls = new ArrayList<>();
+  /**
+   * 子任务文件名
+   */
+  private List<String> mSubtaskFileName = new ArrayList<>();
   private String mGroupName;
+  /**
+   * 是否已经设置了文件路径
+   */
+  private boolean isSetDirPathed = false;
 
   DownloadGroupTarget(List<String> urls, String targetName) {
     this.mTargetName = targetName;
     this.mUrls = urls;
     mGroupName = CommonUtil.getMd5Code(urls);
-    mTaskEntity = DbEntity.findData(DownloadGroupTaskEntity.class, "key=?", mGroupName);
+    mTaskEntity = DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", mGroupName);
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadGroupTaskEntity();
       mTaskEntity.key = mGroupName;
@@ -49,7 +60,7 @@ public class DownloadGroupTarget
 
   private DownloadGroupEntity getDownloadGroupEntity() {
     DownloadGroupEntity entity =
-        DbEntity.findData(DownloadGroupEntity.class, "groupName=?", mGroupName);
+        DbEntity.findFirst(DownloadGroupEntity.class, "groupName=?", mGroupName);
     if (entity == null) {
       entity = new DownloadGroupEntity();
     }
@@ -58,7 +69,7 @@ public class DownloadGroupTarget
 
   /**
    * 设置任务组的文件夹路径，在Aria中，任务组的所有子任务都会下载到以任务组组名的文件夹中。
-   * 如：groupDirPath = "/mnt/sdcard/download/", groupName = "group_test"
+   * 如：groupDirPath = "/mnt/sdcard/download/group_test"
    * <pre>
    *   {@code
    *      + mnt
@@ -75,43 +86,86 @@ public class DownloadGroupTarget
    *
    * @param groupDirPath 任务组保存文件夹路径
    */
-  public DownloadGroupTarget setDownloadPath(String groupDirPath) {
+  public DownloadGroupTarget setDownloadDirPath(String groupDirPath) {
+    if (TextUtils.isEmpty(groupDirPath)) {
+      throw new NullPointerException("任务组文件夹保存路径不能为null");
+    }
 
+    if (mEntity.getDirPath().equals(groupDirPath)) return this;
+
+    File file = new File(groupDirPath);
+    if (file.exists() && file.isFile()) {
+      throw new IllegalArgumentException("路径不能为文件");
+    }
+    if (!file.exists()) {
+      file.mkdirs();
+    }
+
+    if (!TextUtils.isEmpty(mEntity.getDirPath())) {
+      reChangeDirPath(groupDirPath);
+    } else {
+      mEntity.setSubTasks(createSubTask());
+    }
+    mEntity.setDirPath(groupDirPath);
+    mEntity.update();
+    isSetDirPathed = true;
     return this;
   }
 
   /**
-   * 设置保存路径组
+   * 改变任务组文件夹路径
+   *
+   * @param newDirPath 新的文件夹路径
    */
-  public DownloadGroupTarget setDownloadPaths(List<String> paths) {
-    CheckUtil.checkDownloadPaths(paths);
-    if (mUrls.size() != paths.size()) {
+  private void reChangeDirPath(String newDirPath) {
+    List<DownloadEntity> subTask = mEntity.getSubTask();
+    if (subTask != null && !subTask.isEmpty()) {
+      for (DownloadEntity entity : subTask) {
+        File file = new File(entity.getDownloadPath());
+        file.renameTo(new File(newDirPath, entity.getFileName()));
+      }
+    } else {
+      mEntity.setSubTasks(createSubTask());
+    }
+  }
+
+  /**
+   * 设置子任务文件名，该方法如果在{@link #setDownloadDirPath(String)}之前调用，则不生效
+   */
+  public DownloadGroupTarget setSubtaskFileName(List<String> subTaskFileName) {
+    if (subTaskFileName == null || subTaskFileName.isEmpty()) return this;
+    mSubtaskFileName.addAll(subTaskFileName);
+    if (mUrls.size() != subTaskFileName.size()) {
       throw new IllegalArgumentException("下载链接数必须要和保存路径的数量一致");
     }
-    for (int i = 0, len = mUrls.size(); i < len; i++) {
-      mTaskEntity.getEntity().getChild().add(createDownloadEntity(mUrls.get(i), paths.get(i)));
+    if (isSetDirPathed) {
+      List<DownloadEntity> entities = mEntity.getSubTask();
+      int i = 0;
+      for (DownloadEntity entity : entities) {
+        entity.setFileName(mSubtaskFileName.get(i));
+        entity.update();
+      }
     }
     return this;
   }
 
   /**
-   * 创建子任务下载实体
-   *
-   * @param url 下载地址
-   * @param path 保存路径
+   * 创建子任务
    */
-  private DownloadEntity createDownloadEntity(String url, String path) {
-    DownloadEntity entity = DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", url);
-    if (entity == null) {
-      entity = new DownloadEntity();
+  private List<DownloadEntity> createSubTask() {
+    List<DownloadEntity> list = new ArrayList<>();
+    for (int i = 0, len = mUrls.size(); i < len; i++) {
+      DownloadEntity entity = new DownloadEntity();
+      entity.setDownloadUrl(mUrls.get(i));
+      String fileName = mSubtaskFileName.get(i);
+      if (TextUtils.isEmpty(fileName)) {
+        fileName = CommonUtil.keyToHashKey(mUrls.get(i));
+      }
+      entity.setDownloadPath(mEntity.getDirPath() + "/" + fileName);
+      entity.setGroupName(mGroupName);
+      entity.save();
+      list.add(entity);
     }
-    File file = new File(path);
-    if (!file.exists()) {
-      entity.setState(IEntity.STATE_WAIT);
-    }
-    entity.setDownloadPath(path);
-    entity.setDownloadUrl(url);
-    entity.setFileName(file.getName());
-    return entity;
+    return list;
   }
 }

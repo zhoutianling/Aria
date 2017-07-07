@@ -17,21 +17,17 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.command.normal.AbsNormalCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
-import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Created by lyy on 2017/2/6.
@@ -56,14 +52,14 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
    */
   public UploadEntity getUploadEntity(String filePath) {
     CheckUtil.checkUploadPath(filePath);
-    return DbEntity.findData(UploadEntity.class, "filePath=?", filePath);
+    return DbEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
   }
 
   /**
    * 下载任务是否存在
    */
   @Override public boolean taskExists(String filePath) {
-    return DbEntity.findData(UploadEntity.class, "filePath=?", filePath) != null;
+    return DbEntity.findFirst(UploadEntity.class, "filePath=?", filePath) != null;
   }
 
   @Override public List<UploadEntity> getTaskList() {

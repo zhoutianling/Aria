@@ -192,7 +192,7 @@ class Downloader implements Runnable, IDownloadUtil {
       CommonUtil.createFile(mConfigFile.getPath());
     } else if (!mTempFile.exists()) {
       isNewTask = true;
-    } else if (DbEntity.findData(DownloadEntity.class, "downloadUrl=?", mEntity.getDownloadUrl())
+    } else if (DbEntity.findFirst(DownloadEntity.class, "downloadUrl=?", mEntity.getDownloadUrl())
         == null) {
       isNewTask = true;
     } else {
