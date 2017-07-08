@@ -17,8 +17,10 @@
 package com.arialyy.aria.core.command.normal;
 
 import com.arialyy.aria.core.command.AbsCmd;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
@@ -40,8 +42,8 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
    * @param targetName 产生任务的对象名
    */
   AbsNormalCmd(String targetName, T entity) {
-    canExeCmd = CheckUtil.checkCmdEntity(entity,
-        !(this instanceof CancelCmd) || !(this instanceof StopCmd));
+    //canExeCmd = CheckUtil.checkCmdEntity(entity,
+    //    !(this instanceof CancelCmd) || !(this instanceof StopCmd));
     mTargetName = targetName;
     mTaskEntity = entity;
     TAG = CommonUtil.getClassName(this);
@@ -51,6 +53,9 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
     } else if (entity instanceof UploadTaskEntity) {
       mQueue = UploadTaskQueue.getInstance();
       isDownloadCmd = false;
+    } else if (entity instanceof DownloadGroupTaskEntity) {
+      mQueue = DownloadGroupTaskQueue.getInstance();
+      isDownloadCmd = true;
     }
   }
 }

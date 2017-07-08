@@ -374,6 +374,14 @@ final class SqlHelper extends SQLiteOpenHelper {
   }
 
   /**
+   * 保存一对一的数据
+   * @param field
+   */
+  private void saveOneToOneFile(Field field){
+
+  }
+
+  /**
    * 获取一对一参数
    */
   static String getOneToOneParams(Field field) {
@@ -602,7 +610,7 @@ final class SqlHelper extends SQLiteOpenHelper {
               if (TextUtils.isEmpty(primaryData)) continue;
               List<T> list = findForeignData(db, primaryData, params);
               if (list == null) continue;
-              field.set(entity, findForeignData(db, primaryKey, params));
+              field.set(entity, findForeignData(db, primaryData, params));
             } else if (isOneToOne(field)) {
               String primaryKey = getPrimaryName(clazz);
               if (TextUtils.isEmpty(primaryKey)) {

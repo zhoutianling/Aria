@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -117,8 +118,8 @@ class FileInfoThread implements Runnable {
       if (onFileInfoListener != null) {
         onFileInfoListener.onComplete(mEntity.getDownloadUrl(), code);
       }
-      mEntity.save();
-      mTaskEntity.save();
+      mEntity.update();
+      mTaskEntity.update();
     }
   }
 
@@ -127,7 +128,13 @@ class FileInfoThread implements Runnable {
    */
   private void handle302Turn(HttpURLConnection conn) throws IOException {
     String newUrl = conn.getHeaderField(mTaskEntity.redirectUrlKey);
-    Log.d(TAG, "30x跳转，新url为【" + newUrl + "】");
+    Log.d(TAG, "30x跳转，location【 " + mTaskEntity.redirectUrlKey + "】" + "新url为【" + newUrl + "】");
+    if (TextUtils.isEmpty(newUrl) || newUrl.equalsIgnoreCase("null")) {
+      if (onFileInfoListener != null) {
+        onFileInfoListener.onFail(mEntity.getDownloadUrl(), "获取重定向链接失败");
+      }
+      return;
+    }
     String cookies = conn.getHeaderField("Set-Cookie");
     conn = (HttpURLConnection) new URL(newUrl).openConnection();
     conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);

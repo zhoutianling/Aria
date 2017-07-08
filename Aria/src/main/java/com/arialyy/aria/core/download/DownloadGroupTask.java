@@ -51,7 +51,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
   }
 
   @Override public void start() {
-    mUtil.stopDownload();
+    mUtil.startDownload();
   }
 
   @Override public void stop() {

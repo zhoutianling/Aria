@@ -19,7 +19,6 @@ import android.os.Parcel;
 import com.arialyy.aria.core.inf.AbsGroupEntity;
 import com.arialyy.aria.orm.OneToMany;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -28,26 +27,25 @@ import java.util.List;
  */
 public class DownloadGroupEntity extends AbsGroupEntity {
 
-  @OneToMany(table = DownloadEntity.class, key = "groupName") private List<DownloadEntity>
-      mSubtask = new ArrayList<>();
+  @OneToMany(table = DownloadEntity.class, key = "groupName") private List<DownloadEntity> subtask = new ArrayList<>();
 
   //任务组下载文件的文件夹地址
-  private String mDirPath = "";
+  private String dirPath = "";
 
   public List<DownloadEntity> getSubTask() {
-    return mSubtask;
+    return subtask;
   }
 
   public void setSubTasks(List<DownloadEntity> subTasks) {
-    this.mSubtask = subTasks;
+    this.subtask = subTasks;
   }
 
   public String getDirPath() {
-    return mDirPath;
+    return dirPath;
   }
 
   public void setDirPath(String dirPath) {
-    this.mDirPath = dirPath;
+    this.dirPath = dirPath;
   }
 
   public DownloadGroupEntity() {
@@ -59,14 +57,14 @@ public class DownloadGroupEntity extends AbsGroupEntity {
 
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
-    dest.writeTypedList(this.mSubtask);
-    dest.writeString(this.mDirPath);
+    dest.writeTypedList(this.subtask);
+    dest.writeString(this.dirPath);
   }
 
   protected DownloadGroupEntity(Parcel in) {
     super(in);
-    this.mSubtask = in.createTypedArrayList(DownloadEntity.CREATOR);
-    this.mDirPath = in.readString();
+    this.subtask = in.createTypedArrayList(DownloadEntity.CREATOR);
+    this.dirPath = in.readString();
   }
 
   public static final Creator<DownloadGroupEntity> CREATOR = new Creator<DownloadGroupEntity>() {

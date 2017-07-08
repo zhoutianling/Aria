@@ -50,7 +50,8 @@ public class DownloadGroupTarget
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadGroupTaskEntity();
       mTaskEntity.key = mGroupName;
-      mTaskEntity.entity = new DownloadGroupEntity();
+      mTaskEntity.entity = getDownloadGroupEntity();
+      mTaskEntity.insert();
     }
     if (mTaskEntity.entity == null) {
       mTaskEntity.entity = getDownloadGroupEntity();
@@ -63,6 +64,9 @@ public class DownloadGroupTarget
         DbEntity.findFirst(DownloadGroupEntity.class, "groupName=?", mGroupName);
     if (entity == null) {
       entity = new DownloadGroupEntity();
+      entity.setGroupName(mGroupName);
+      entity.setUrlmd5(mGroupName);
+      entity.insert();
     }
     return entity;
   }
@@ -101,12 +105,12 @@ public class DownloadGroupTarget
       file.mkdirs();
     }
 
+    mEntity.setDirPath(groupDirPath);
     if (!TextUtils.isEmpty(mEntity.getDirPath())) {
       reChangeDirPath(groupDirPath);
     } else {
       mEntity.setSubTasks(createSubTask());
     }
-    mEntity.setDirPath(groupDirPath);
     mEntity.update();
     isSetDirPathed = true;
     return this;
@@ -157,15 +161,26 @@ public class DownloadGroupTarget
     for (int i = 0, len = mUrls.size(); i < len; i++) {
       DownloadEntity entity = new DownloadEntity();
       entity.setDownloadUrl(mUrls.get(i));
-      String fileName = mSubtaskFileName.get(i);
-      if (TextUtils.isEmpty(fileName)) {
-        fileName = CommonUtil.keyToHashKey(mUrls.get(i));
-      }
+      String fileName = mSubtaskFileName.isEmpty() ? CommonUtil.keyToHashKey(mUrls.get(i))
+          : mSubtaskFileName.get(i);
       entity.setDownloadPath(mEntity.getDirPath() + "/" + fileName);
       entity.setGroupName(mGroupName);
-      entity.save();
+      entity.setGroupChild(true);
+      entity.setFileName(fileName);
+      entity.insert();
       list.add(entity);
     }
     return list;
   }
+
+  ///**
+  // * 创建文件名，如果url链接有后缀名，则使用url中的后缀名
+  // * @return url 的 hashKey
+  // */
+  //private String createFileName(String url){
+  //  if (url.contains(".")){
+  //    int s = url.lastIndexOf(".");
+  //    String fileName = url.substring()
+  //  }
+  //}
 }

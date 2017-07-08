@@ -61,26 +61,25 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     //});
   }
 
-  //public void onClick(View view) {
-  //  switch (view.getId()) {
-  //    case R.id.start:
-  //      String text = ((TextView) view).getText().toString();
-  //      if (text.equals("重新开始？") || text.equals("开始")) {
-  //        Aria.download(this)
-  //            .load(mUrls)
-  //            .setDownloadPaths()
-  //            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
-  //            .start();
-  //      } else if (text.equals("恢复")) {
-  //        Aria.download(this).load(DOWNLOAD_URL).resume();
-  //      }
-  //      break;
-  //    case R.id.stop:
-  //      Aria.download(this).load(DOWNLOAD_URL).pause();
-  //      break;
-  //    case R.id.cancel:
-  //      Aria.download(this).load(DOWNLOAD_URL).cancel();
-  //      break;
-  //  }
-  //}
+  public void onClick(View view) {
+    switch (view.getId()) {
+      case R.id.start:
+        String text = ((TextView) view).getText().toString();
+        if (text.equals("重新开始？") || text.equals("开始")) {
+          Aria.download(this)
+              .load(mUrls)
+              .setDownloadDirPath(Environment.getExternalStorageDirectory().getPath() + "/group_test")
+              .start();
+        } else if (text.equals("恢复")) {
+          //Aria.download(this).load(DOWNLOAD_URL).resume();
+        }
+        break;
+      case R.id.stop:
+        //Aria.download(this).load(DOWNLOAD_URL).pause();
+        break;
+      case R.id.cancel:
+        //Aria.download(this).load(DOWNLOAD_URL).cancel();
+        break;
+    }
+  }
 }

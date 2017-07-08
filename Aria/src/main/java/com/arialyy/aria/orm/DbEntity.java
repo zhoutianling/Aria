@@ -125,7 +125,7 @@ public class DbEntity {
    */
   public void save() {
     synchronized (LOCK) {
-      if (DbUtil.getInstance().tableExists(getClass()) && thisIsExist()) {
+      if (thisIsExist()) {
         update();
       } else {
         insert();
