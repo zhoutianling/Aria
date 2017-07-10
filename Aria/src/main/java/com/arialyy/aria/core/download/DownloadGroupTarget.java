@@ -17,14 +17,11 @@ package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsGroupTarget;
-import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by AriaL on 2017/6/29.
@@ -35,7 +32,7 @@ public class DownloadGroupTarget
   /**
    * 子任务文件名
    */
-  private List<String> mSubtaskFileName = new ArrayList<>();
+  private List<String> mSubTaskFileName = new ArrayList<>();
   private String mGroupName;
   /**
    * 是否已经设置了文件路径
@@ -138,7 +135,7 @@ public class DownloadGroupTarget
    */
   public DownloadGroupTarget setSubtaskFileName(List<String> subTaskFileName) {
     if (subTaskFileName == null || subTaskFileName.isEmpty()) return this;
-    mSubtaskFileName.addAll(subTaskFileName);
+    mSubTaskFileName.addAll(subTaskFileName);
     if (mUrls.size() != subTaskFileName.size()) {
       throw new IllegalArgumentException("下载链接数必须要和保存路径的数量一致");
     }
@@ -146,7 +143,7 @@ public class DownloadGroupTarget
       List<DownloadEntity> entities = mEntity.getSubTask();
       int i = 0;
       for (DownloadEntity entity : entities) {
-        entity.setFileName(mSubtaskFileName.get(i));
+        entity.setFileName(mSubTaskFileName.get(i));
         entity.update();
       }
     }
@@ -161,8 +158,8 @@ public class DownloadGroupTarget
     for (int i = 0, len = mUrls.size(); i < len; i++) {
       DownloadEntity entity = new DownloadEntity();
       entity.setDownloadUrl(mUrls.get(i));
-      String fileName = mSubtaskFileName.isEmpty() ? CommonUtil.keyToHashKey(mUrls.get(i))
-          : mSubtaskFileName.get(i);
+      String fileName = mSubTaskFileName.isEmpty() ? CommonUtil.keyToHashKey(mUrls.get(i))
+          : mSubTaskFileName.get(i);
       entity.setDownloadPath(mEntity.getDirPath() + "/" + fileName);
       entity.setGroupName(mGroupName);
       entity.setGroupChild(true);

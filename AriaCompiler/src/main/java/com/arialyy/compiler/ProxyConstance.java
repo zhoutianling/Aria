@@ -17,43 +17,44 @@ package com.arialyy.compiler;
 
 /**
  * Created by lyy on 2017/6/7.
+ * 扫描器常量
  */
-
-public interface ProxyConstance {
+interface ProxyConstance {
   /**
    * 设置观察者的方法
    */
   String SET_LISTENER = "setListener";
 
   /**
-   * 下载的动态生成的代理类后缀
+   * 代理配置类
    */
-  String DOWNLOAD_PROXY_CLASS_SUFFIX = "$$DownloadListenerProxy";
+  String PROXY_COUNTER_PACKAGE = "com.arialyy.aria";
+  /**
+   * 代理分类统计
+   */
+  String PROXY_COUNTER_NAME = "ProxyClassCounter";
 
   /**
-   * 上传的动态生成的代理类后缀
+   * 代理分类统计映射表
    */
-  String UPLOAD_PROXY_CLASS_SUFFIX = "$$UploadListenerProxy";
+  String PROXY_COUNTER_MAP = "typeMapping";
 
-  int DOWNLOAD_PRE = 0X11;
-  int DOWNLOAD_TASK_PRE = 0X12;
-  int DOWNLOAD_TASK_RESUME = 0X13;
-  int DOWNLOAD_TASK_START = 0X14;
-  int DOWNLOAD_TASK_STOP = 0X15;
-  int DOWNLOAD_TASK_CANCEL = 0X16;
-  int DOWNLOAD_TASK_FAIL = 0X17;
-  int DOWNLOAD_TASK_COMPLETE = 0X18;
-  int DOWNLOAD_TASK_RUNNING = 0X19;
-  int DOWNLOAD_TASK_NO_SUPPORT_BREAKPOINT = 0X1A;
+  String COUNT_DOWNLOAD = "download";
+  String COUNT_DOWNLOAD_GROUP = "downloadGroup";
+  String COUNT_UPLOAD = "upload";
 
-  int UPLOAD_PRE = 0X11;
-  int UPLOAD_TASK_PRE = 0X12;
-  int UPLOAD_TASK_RESUME = 0X13;
-  int UPLOAD_TASK_START = 0X14;
-  int UPLOAD_TASK_STOP = 0X15;
-  int UPLOAD_TASK_CANCEL = 0X16;
-  int UPLOAD_TASK_FAIL = 0X17;
-  int UPLOAD_TASK_COMPLETE = 0X18;
-  int UPLOAD_TASK_RUNNING = 0X19;
-  int UPLOAD_TASK_NO_SUPPORT_BREAKPOINT = 0X1A;
+  String COUNT_METHOD_DOWNLOAD = "getDownloadCounter";
+  String COUNT_METHOD_DOWNLOAD_GROUP = "getDownloadGroupCounter";
+  String COUNT_METHOD_UPLOAD = "getUploadCounter";
+
+  int PRE = 0X11;
+  int TASK_PRE = 0X12;
+  int TASK_RESUME = 0X13;
+  int TASK_START = 0X14;
+  int TASK_STOP = 0X15;
+  int TASK_CANCEL = 0X16;
+  int TASK_FAIL = 0X17;
+  int TASK_COMPLETE = 0X18;
+  int TASK_RUNNING = 0X19;
+  int TASK_NO_SUPPORT_BREAKPOINT = 0X1A;
 }

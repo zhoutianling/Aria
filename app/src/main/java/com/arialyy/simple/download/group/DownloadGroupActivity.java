@@ -19,12 +19,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import butterknife.Bind;
+import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.download.DownloadTask;
-import com.arialyy.aria.core.scheduler.AbsSchedulerListener;
+import com.arialyy.aria.core.download.DownloadGroupTask;
+import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityDownloadGroupBinding;
@@ -46,6 +46,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
+    Aria.download(this).register();
     setTitle("任务组");
     mUrls = getModule(GroupModule.class).getUrls();
   }
@@ -54,25 +55,14 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     return R.layout.activity_download_group;
   }
 
-  @Override protected void onResume() {
-    super.onResume();
-    //Aria.download(this).addSchedulerListener(new AbsSchedulerListener<DownloadTask>() {
-    //
-    //});
-  }
-
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        String text = ((TextView) view).getText().toString();
-        if (text.equals("重新开始？") || text.equals("开始")) {
-          Aria.download(this)
-              .load(mUrls)
-              .setDownloadDirPath(Environment.getExternalStorageDirectory().getPath() + "/group_test")
-              .start();
-        } else if (text.equals("恢复")) {
-          //Aria.download(this).load(DOWNLOAD_URL).resume();
-        }
+        //String text = ((TextView) view).getText().toString();
+        Aria.download(this)
+            .load(mUrls)
+            .setDownloadDirPath(Environment.getExternalStorageDirectory().getPath() + "/group_test")
+            .start();
         break;
       case R.id.stop:
         //Aria.download(this).load(DOWNLOAD_URL).pause();
@@ -81,5 +71,41 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         //Aria.download(this).load(DOWNLOAD_URL).cancel();
         break;
     }
+  }
+
+  @DownloadGroup.onPre() protected void onPre(DownloadGroupTask task) {
+    L.d(TAG, "group pre");
+  }
+
+  @DownloadGroup.onTaskPre() protected void onTaskPre(DownloadGroupTask task) {
+    L.d(TAG, "group task pre");
+  }
+
+  @DownloadGroup.onTaskStart() void taskStart(DownloadGroupTask task) {
+    L.d(TAG, "group task start");
+  }
+
+  @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
+    L.d(TAG, "group task running ==> " + task.getPercent());
+  }
+
+  @DownloadGroup.onTaskResume() void taskResume(DownloadGroupTask task) {
+    L.d(TAG, "group task resume");
+  }
+
+  @DownloadGroup.onTaskStop() void taskStop(DownloadGroupTask task) {
+    L.d(TAG, "group task stop");
+  }
+
+  @DownloadGroup.onTaskCancel() void taskCancel(DownloadGroupTask task) {
+    L.d(TAG, "group task cancel");
+  }
+
+  @DownloadGroup.onTaskFail() void taskFail(DownloadGroupTask task) {
+    L.d(TAG, "group task fail");
+  }
+
+  @DownloadGroup.onTaskComplete() void taskComplete(DownloadGroupTask task) {
+    L.d(TAG, "group task complete");
   }
 }

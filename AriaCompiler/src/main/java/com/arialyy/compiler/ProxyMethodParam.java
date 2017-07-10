@@ -22,12 +22,12 @@ import java.util.Set;
 
 /**
  * Created by Aria.Lao on 2017/6/7.
+ * 创建代理方法的参数
  */
-
-class ProxyEntity {
-  public String packageName;
-  public String className;
-  public boolean isDownlaod = true;
-  public Map<String, Set<String>> keyMappings = new HashMap<>();
-  public Map<Class<? extends Annotation>, String> methods = new HashMap<>();
+class ProxyMethodParam {
+  String packageName;
+  String className;
+  TaskEnum taskEnum;
+  Map<String, Set<String>> keyMappings = new HashMap<>();
+  Map<Class<? extends Annotation>, String> methods = new HashMap<>();
 }

@@ -20,18 +20,22 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
+import com.arialyy.aria.core.upload.ProxyHelper;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
+import java.lang.reflect.Method;
 
 /**
  * Created by lyy on 2016/12/5.
  * 下载功能接收器
  */
-public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
+public class DownloadReceiver extends AbsReceiver {
   private final String TAG = "DownloadReceiver";
   public ISchedulerListener<DownloadTask> listener;
 
@@ -72,7 +76,15 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
    * 将当前类注册到Aria
    */
   public DownloadReceiver register() {
-    DownloadSchedulers.getInstance().register(obj);
+    String className = obj.getClass().getName();
+    Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
+    Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
+    if (dCounter.contains(className)) {
+      DownloadSchedulers.getInstance().register(obj);
+    }
+    if (dgCounter.contains(className)) {
+      DownloadGroupSchedulers.getInstance().register(obj);
+    }
     return this;
   }
 
@@ -80,7 +92,15 @@ public class DownloadReceiver extends AbsReceiver<DownloadEntity> {
    * 取消注册
    */
   @Override public void unRegister() {
-    DownloadSchedulers.getInstance().unRegister(obj);
+    String className = obj.getClass().getName();
+    Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
+    Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
+    if (dCounter.contains(className)) {
+      DownloadSchedulers.getInstance().unRegister(obj);
+    }
+    if (dgCounter.contains(className)) {
+      DownloadGroupSchedulers.getInstance().unRegister(obj);
+    }
   }
 
   /**

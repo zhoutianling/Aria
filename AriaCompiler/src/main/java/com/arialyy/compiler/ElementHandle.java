@@ -16,6 +16,7 @@
 package com.arialyy.compiler;
 
 import com.arialyy.annotations.Download;
+import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.annotations.Upload;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -52,7 +53,8 @@ class ElementHandle {
 
   private Filer mFiler;
   private Elements mElementUtil;
-  private Map<String, ProxyEntity> mMethods = new HashMap<>();
+  private Map<String, ProxyMethodParam> mMethods = new HashMap<>();
+  private Map<String, Set<String>> mListenerClass = new HashMap<>();
 
   ElementHandle(Filer filer, Elements elements) {
     mFiler = filer;
@@ -66,32 +68,62 @@ class ElementHandle {
    * PackageElement 一般代表Package
    */
   void handleDownload(RoundEnvironment roundEnv) {
-    saveMethod(true, roundEnv, Download.onNoSupportBreakPoint.class,
-        ProxyConstance.DOWNLOAD_TASK_NO_SUPPORT_BREAKPOINT);
-    saveMethod(true, roundEnv, Download.onPre.class, ProxyConstance.DOWNLOAD_PRE);
-    saveMethod(true, roundEnv, Download.onTaskCancel.class, ProxyConstance.DOWNLOAD_TASK_CANCEL);
-    saveMethod(true, roundEnv, Download.onTaskComplete.class,
-        ProxyConstance.DOWNLOAD_TASK_COMPLETE);
-    saveMethod(true, roundEnv, Download.onTaskFail.class, ProxyConstance.DOWNLOAD_TASK_FAIL);
-    saveMethod(true, roundEnv, Download.onTaskPre.class, ProxyConstance.DOWNLOAD_TASK_PRE);
-    saveMethod(true, roundEnv, Download.onTaskResume.class, ProxyConstance.DOWNLOAD_TASK_RESUME);
-    saveMethod(true, roundEnv, Download.onTaskRunning.class, ProxyConstance.DOWNLOAD_TASK_RUNNING);
-    saveMethod(true, roundEnv, Download.onTaskStart.class, ProxyConstance.DOWNLOAD_TASK_START);
-    saveMethod(true, roundEnv, Download.onTaskStop.class, ProxyConstance.DOWNLOAD_TASK_STOP);
+    saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onNoSupportBreakPoint.class,
+        ProxyConstance.TASK_NO_SUPPORT_BREAKPOINT);
+    saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onPre.class, ProxyConstance.PRE);
+    saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onTaskCancel.class,
+        ProxyConstance.TASK_CANCEL);
+    saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onTaskComplete.class,
+        ProxyConstance.TASK_COMPLETE);
+    saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onTaskFail.class, ProxyConstance.TASK_FAIL);
+    saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onTaskPre.class, ProxyConstance.TASK_PRE);
+    saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onTaskResume.class,
+        ProxyConstance.TASK_RESUME);
+    saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onTaskRunning.class,
+        ProxyConstance.TASK_RUNNING);
+    saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onTaskStart.class, ProxyConstance.TASK_START);
+    saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onTaskStop.class, ProxyConstance.TASK_STOP);
   }
 
+  /**
+   * 处理搜索到的下载任务组注解
+   */
+  void handleDownloadGroup(RoundEnvironment roundEnv) {
+    saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onPre.class, ProxyConstance.PRE);
+    saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onTaskCancel.class,
+        ProxyConstance.TASK_CANCEL);
+    saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onTaskComplete.class,
+        ProxyConstance.TASK_COMPLETE);
+    saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onTaskFail.class,
+        ProxyConstance.TASK_FAIL);
+    saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onTaskPre.class,
+        ProxyConstance.TASK_PRE);
+    saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onTaskResume.class,
+        ProxyConstance.TASK_RESUME);
+    saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onTaskRunning.class,
+        ProxyConstance.TASK_RUNNING);
+    saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onTaskStart.class,
+        ProxyConstance.TASK_START);
+    saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onTaskStop.class,
+        ProxyConstance.TASK_STOP);
+  }
+
+  /**
+   * 处理搜索到的上传注解F
+   */
   void handleUpload(RoundEnvironment roundEnv) {
-    saveMethod(false, roundEnv, Upload.onNoSupportBreakPoint.class,
-        ProxyConstance.UPLOAD_TASK_NO_SUPPORT_BREAKPOINT);
-    saveMethod(false, roundEnv, Upload.onPre.class, ProxyConstance.UPLOAD_PRE);
-    saveMethod(false, roundEnv, Upload.onTaskCancel.class, ProxyConstance.UPLOAD_TASK_CANCEL);
-    saveMethod(false, roundEnv, Upload.onTaskComplete.class, ProxyConstance.UPLOAD_TASK_COMPLETE);
-    saveMethod(false, roundEnv, Upload.onTaskFail.class, ProxyConstance.UPLOAD_TASK_FAIL);
-    saveMethod(false, roundEnv, Upload.onTaskPre.class, ProxyConstance.UPLOAD_TASK_PRE);
+    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onNoSupportBreakPoint.class,
+        ProxyConstance.TASK_NO_SUPPORT_BREAKPOINT);
+    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onPre.class, ProxyConstance.PRE);
+    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskCancel.class, ProxyConstance.TASK_CANCEL);
+    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskComplete.class,
+        ProxyConstance.TASK_COMPLETE);
+    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskFail.class, ProxyConstance.TASK_FAIL);
+    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskPre.class, ProxyConstance.TASK_PRE);
     //saveMethod(false, roundEnv, Upload.onTaskResume.class);
-    saveMethod(false, roundEnv, Upload.onTaskRunning.class, ProxyConstance.UPLOAD_TASK_RUNNING);
-    saveMethod(false, roundEnv, Upload.onTaskStart.class, ProxyConstance.UPLOAD_TASK_START);
-    saveMethod(false, roundEnv, Upload.onTaskStop.class, ProxyConstance.UPLOAD_TASK_STOP);
+    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskRunning.class, ProxyConstance.TASK_RUNNING);
+    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskStart.class, ProxyConstance.TASK_START);
+    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskStop.class, ProxyConstance.TASK_STOP);
   }
 
   /**
@@ -123,51 +155,125 @@ class ElementHandle {
    * </pre>
    */
   void createProxyFile() {
-    Set<String> keys = mMethods.keySet();
     try {
-      for (String key : keys) {
-        ProxyEntity entity = mMethods.get(key);
-        JavaFile jf = JavaFile.builder(entity.packageName, createProxyClass(entity)).build();
-
-        jf.writeTo(mFiler);
-        // 如果需要在控制台打印生成的文件，则去掉下面的注释
-        //jf.writeTo(System.out);
-      }
+      createProxyListenerFile();
+      createProxyClassFile();
     } catch (IOException e) {
       e.printStackTrace();
     }
   }
 
   /**
+   * 创建事件代理文件
+   */
+  private void createProxyListenerFile() throws IOException {
+    Set<String> keys = mMethods.keySet();
+    for (String key : keys) {
+      ProxyMethodParam entity = mMethods.get(key);
+      JavaFile jf = JavaFile.builder(entity.packageName, createProxyClass(entity)).build();
+
+      jf.writeTo(mFiler);
+      // 如果需要在控制台打印生成的文件，则去掉下面的注释
+      //jf.writeTo(System.out);
+    }
+  }
+
+  /**
+   * 每一种注解的类集合
+   */
+  private void createProxyClassFile() throws IOException {
+    Set<String> keys = mListenerClass.keySet();
+    TypeSpec.Builder builder = TypeSpec.classBuilder(ProxyConstance.PROXY_COUNTER_NAME)
+        .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
+
+    FieldSpec mappingField = FieldSpec.builder(
+        ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class),
+            ParameterizedTypeName.get(ClassName.get(Set.class), ClassName.get(String.class))),
+        ProxyConstance.PROXY_COUNTER_MAP)
+        .addModifiers(Modifier.PRIVATE)
+        .initializer("new $T()", HashMap.class)
+        .build();
+    builder.addField(mappingField);
+
+    //增加构造函数
+    CodeBlock.Builder cb = CodeBlock.builder();
+    cb.add("Set<String> set = null;\n");
+    for (String key : keys) {
+      addTypeData(key, mListenerClass.get(key), cb);
+    }
+    MethodSpec structure =
+        MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC).addCode(cb.build()).build();
+    builder.addMethod(structure);
+
+    builder.addMethod(
+        creatMethod(ProxyConstance.COUNT_METHOD_DOWNLOAD, ProxyConstance.COUNT_DOWNLOAD));
+    builder.addMethod(creatMethod(ProxyConstance.COUNT_METHOD_UPLOAD, ProxyConstance.COUNT_UPLOAD));
+    builder.addMethod(creatMethod(ProxyConstance.COUNT_METHOD_DOWNLOAD_GROUP,
+        ProxyConstance.COUNT_DOWNLOAD_GROUP));
+
+    JavaFile jf = JavaFile.builder(ProxyConstance.PROXY_COUNTER_PACKAGE, builder.build()).build();
+    jf.writeTo(mFiler);
+    //jf.writeTo(System.out);
+  }
+
+  /**
+   * 创建不同任务类型的代理类集合
+   *
+   * @param key {@link #addListenerMapping(String, String)}
+   */
+  private MethodSpec creatMethod(String methodName, String key) {
+    MethodSpec.Builder builder = MethodSpec.methodBuilder(methodName);
+    ParameterizedTypeName returnName =
+        ParameterizedTypeName.get(ClassName.get(Set.class), ClassName.get(String.class));
+    builder.addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+        .returns(returnName)
+        .addCode("return " + ProxyConstance.PROXY_COUNTER_MAP + ".get(\"" + key + "\");\n");
+    return builder.build();
+  }
+
+  /**
+   * 添加每一种注解对应类
+   *
+   * @param type {@link #addListenerMapping(String, String)}
+   */
+  private void addTypeData(String type, Set<String> clsNames, CodeBlock.Builder cb) {
+    if (clsNames == null || clsNames.isEmpty()) return;
+    StringBuilder sb = new StringBuilder();
+    sb.append("set = new $T();\n");
+    for (String clsName : clsNames) {
+      sb.append("set.add(\"").append(clsName).append("\");\n");
+    }
+    sb.append("typeMapping.put(\"").append(type).append("\", ").append("set);\n");
+    cb.add(sb.toString(), ClassName.get(HashSet.class));
+  }
+
+  /**
    * 创建代理方法
    *
-   * @param isDownload 是否是下载的注解
+   * @param taskEnum 任务类型枚举{@link TaskEnum}
    * @param annotation {@link Download}、{@link Upload}
    * @param methodName 被代理类注解的方法名
    */
-  private MethodSpec createProxyMethod(boolean isDownload, Class<? extends Annotation> annotation,
+  private MethodSpec createProxyMethod(TaskEnum taskEnum, Class<? extends Annotation> annotation,
       String methodName) {
-    ClassName task = ClassName.get(
-        isDownload ? "com.arialyy.aria.core.download" : "com.arialyy.aria.core.upload",
-        isDownload ? "DownloadTask" : "UploadTask");
+    ClassName task = ClassName.get(taskEnum.getPkg(), taskEnum.getClassName());
+
     ParameterSpec parameterSpec =
         ParameterSpec.builder(task, "task").addModifiers(Modifier.FINAL).build();
     StringBuilder sb = new StringBuilder();
-    sb.append("Set<String> keys = keyMapping.get(\"")
-        .append(methodName)
-        .append("\");\n");
+    sb.append("Set<String> keys = keyMapping.get(\"").append(methodName).append("\");\n");
     sb.append("if (keys != null) {\n\tif (keys.contains(task.getKey())) {\n")
         .append("\t\tobj.")
         .append(methodName)
-        .append("(")
-        .append(isDownload ? "(DownloadTask)" : "(UploadTask)")
-        .append("task);\n")
+        .append("((")
+        .append(taskEnum.getClassName())
+        .append(")task);\n")
         .append("\t}\n} else {\n")
         .append("\tobj.")
         .append(methodName)
-        .append("(")
-        .append(isDownload ? "(DownloadTask)" : "(UploadTask)")
-        .append("task);\n}\n");
+        .append("((")
+        .append(taskEnum.getClassName())
+        .append(")task);\n}\n");
 
     return MethodSpec.methodBuilder(annotation.getSimpleName())
         .addModifiers(Modifier.PUBLIC)
@@ -181,10 +287,9 @@ class ElementHandle {
   /**
    * 创建代理类
    */
-  private TypeSpec createProxyClass(ProxyEntity entity) {
-    TypeSpec.Builder builder = TypeSpec.classBuilder(
-        entity.className + (entity.isDownlaod ? ProxyConstance.DOWNLOAD_PROXY_CLASS_SUFFIX
-            : ProxyConstance.UPLOAD_PROXY_CLASS_SUFFIX))
+  private TypeSpec createProxyClass(ProxyMethodParam entity) {
+    TaskEnum taskEnum = entity.taskEnum;
+    TypeSpec.Builder builder = TypeSpec.classBuilder(entity.className + taskEnum.getProxySuffix())
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
     //添加被代理的类的字段
@@ -201,8 +306,7 @@ class ElementHandle {
 
     //添加注解方法
     for (Class<? extends Annotation> annotation : entity.methods.keySet()) {
-      MethodSpec method =
-          createProxyMethod(entity.isDownlaod, annotation, entity.methods.get(annotation));
+      MethodSpec method = createProxyMethod(taskEnum, annotation, entity.methods.get(annotation));
       builder.addMethod(method);
     }
 
@@ -241,9 +345,8 @@ class ElementHandle {
     //创建父类参数
     ClassName superClass = ClassName.get("com.arialyy.aria.core.scheduler", "AbsSchedulerListener");
     //创建泛型
-    ClassName typeVariableName = ClassName.get(
-        entity.isDownlaod ? "com.arialyy.aria.core.download" : "com.arialyy.aria.core.upload",
-        entity.isDownlaod ? "DownloadTask" : "UploadTask");
+    ClassName typeVariableName =
+        ClassName.get(entity.taskEnum.getPkg(), entity.taskEnum.getClassName());
     builder.superclass(ParameterizedTypeName.get(superClass, typeVariableName));
     builder.addMethod(listener);
     return builder.build();
@@ -256,7 +359,7 @@ class ElementHandle {
   /**
    * 查找并保存扫描到的方法
    */
-  private void saveMethod(boolean isDownload, RoundEnvironment roundEnv,
+  private void saveMethod(TaskEnum taskEnum, RoundEnvironment roundEnv,
       Class<? extends Annotation> annotationClazz, int annotationType) {
     for (Element element : roundEnv.getElementsAnnotatedWith(annotationClazz)) {
       ElementKind kind = element.getKind();
@@ -264,19 +367,19 @@ class ElementHandle {
         ExecutableElement method = (ExecutableElement) element;
         TypeElement classElement = (TypeElement) method.getEnclosingElement();
         PackageElement packageElement = mElementUtil.getPackageOf(classElement);
-        checkDownloadMethod(isDownload, method);
+        checkDownloadMethod(taskEnum, method);
         String methodName = method.getSimpleName().toString();
         String className = method.getEnclosingElement().toString(); //全类名
-        ProxyEntity proxyEntity = mMethods.get(className);
+        ProxyMethodParam proxyEntity = mMethods.get(className);
         if (proxyEntity == null) {
-          proxyEntity = new ProxyEntity();
-          proxyEntity.isDownlaod = isDownload;
+          proxyEntity = new ProxyMethodParam();
+          proxyEntity.taskEnum = taskEnum;
           proxyEntity.packageName = packageElement.getQualifiedName().toString();
           proxyEntity.className = classElement.getSimpleName().toString();
           mMethods.put(className, proxyEntity);
         }
         proxyEntity.methods.put(annotationClazz, methodName);
-        proxyEntity.keyMappings.put(methodName, getValues(method, isDownload, annotationType));
+        proxyEntity.keyMappings.put(methodName, getValues(taskEnum, method, annotationType));
       }
     }
   }
@@ -284,83 +387,163 @@ class ElementHandle {
   /**
    * 获取注解的内容
    */
-  private Set<String> getValues(ExecutableElement method, boolean isDownload, int annotationType) {
+  private Set<String> getValues(TaskEnum taskEnum, ExecutableElement method, int annotationType) {
+    String clsName = method.getEnclosingElement().toString();
     String[] keys = null;
-    if (isDownload) {
-      switch (annotationType) {
-        case ProxyConstance.DOWNLOAD_PRE:
-          keys = method.getAnnotation(Download.onPre.class).value();
-          break;
-        case ProxyConstance.DOWNLOAD_TASK_PRE:
-          keys = method.getAnnotation(Download.onTaskPre.class).value();
-          break;
-        case ProxyConstance.DOWNLOAD_TASK_RESUME:
-          keys = method.getAnnotation(Download.onTaskResume.class).value();
-          break;
-        case ProxyConstance.DOWNLOAD_TASK_START:
-          keys = method.getAnnotation(Download.onTaskStart.class).value();
-          break;
-        case ProxyConstance.DOWNLOAD_TASK_RUNNING:
-          keys = method.getAnnotation(Download.onTaskRunning.class).value();
-          break;
-        case ProxyConstance.DOWNLOAD_TASK_STOP:
-          keys = method.getAnnotation(Download.onTaskStop.class).value();
-          break;
-        case ProxyConstance.DOWNLOAD_TASK_COMPLETE:
-          keys = method.getAnnotation(Download.onTaskComplete.class).value();
-          break;
-        case ProxyConstance.DOWNLOAD_TASK_CANCEL:
-          keys = method.getAnnotation(Download.onTaskCancel.class).value();
-          break;
-        case ProxyConstance.DOWNLOAD_TASK_FAIL:
-          keys = method.getAnnotation(Download.onTaskFail.class).value();
-          break;
-        case ProxyConstance.DOWNLOAD_TASK_NO_SUPPORT_BREAKPOINT:
-          keys = method.getAnnotation(Download.onNoSupportBreakPoint.class).value();
-          break;
-      }
-    } else {
-      switch (annotationType) {
-        case ProxyConstance.UPLOAD_PRE:
-          keys = method.getAnnotation(Upload.onPre.class).value();
-          break;
-        case ProxyConstance.UPLOAD_TASK_PRE:
-          keys = method.getAnnotation(Upload.onTaskPre.class).value();
-          break;
-        case ProxyConstance.UPLOAD_TASK_RESUME:
-          //keys = method.getAnnotation(Upload.onTaskResume.class).value();
-          break;
-        case ProxyConstance.UPLOAD_TASK_START:
-          keys = method.getAnnotation(Upload.onTaskStart.class).value();
-          break;
-        case ProxyConstance.UPLOAD_TASK_RUNNING:
-          keys = method.getAnnotation(Upload.onTaskRunning.class).value();
-          break;
-        case ProxyConstance.UPLOAD_TASK_STOP:
-          keys = method.getAnnotation(Upload.onTaskStop.class).value();
-          break;
-        case ProxyConstance.UPLOAD_TASK_COMPLETE:
-          keys = method.getAnnotation(Upload.onTaskComplete.class).value();
-          break;
-        case ProxyConstance.UPLOAD_TASK_CANCEL:
-          keys = method.getAnnotation(Upload.onTaskCancel.class).value();
-          break;
-        case ProxyConstance.UPLOAD_TASK_FAIL:
-          keys = method.getAnnotation(Upload.onTaskFail.class).value();
-          break;
-        case ProxyConstance.UPLOAD_TASK_NO_SUPPORT_BREAKPOINT:
-          keys = method.getAnnotation(Upload.onNoSupportBreakPoint.class).value();
-          break;
-      }
+    switch (taskEnum) {
+      case DOWNLOAD:
+        keys = getDownloadValues(method, annotationType);
+        addListenerMapping(clsName, ProxyConstance.COUNT_DOWNLOAD);
+        break;
+      case UPLOAD:
+        keys = getUploadValues(method, annotationType);
+        addListenerMapping(clsName, ProxyConstance.COUNT_UPLOAD);
+        break;
+      case DOWNLOAD_GROUP:
+        keys = getDownloadGroupValues(method, annotationType);
+        addListenerMapping(clsName, ProxyConstance.COUNT_DOWNLOAD_GROUP);
+        break;
     }
-
     return keys == null ? null : convertSet(keys);
+  }
+
+  /**
+   * 添加方法映射
+   *
+   * @param clsName 注解事件的类
+   * @param key {@link ProxyConstance#COUNT_DOWNLOAD}、{@link ProxyConstance#COUNT_UPLOAD}、{@link
+   * ProxyConstance#COUNT_DOWNLOAD_GROUP}
+   */
+  private void addListenerMapping(String clsName, String key) {
+    Set<String> cls = mListenerClass.get(key);
+    if (cls == null) {
+      cls = new HashSet<>();
+      mListenerClass.put(key, cls);
+    }
+    cls.add(clsName);
+  }
+
+  /**
+   * 获取下载任务组的注解数据
+   */
+  private String[] getDownloadGroupValues(ExecutableElement method, int annotationType) {
+    String[] values = null;
+    switch (annotationType) {
+      case ProxyConstance.PRE:
+        values = method.getAnnotation(DownloadGroup.onPre.class).value();
+        break;
+      case ProxyConstance.TASK_PRE:
+        values = method.getAnnotation(DownloadGroup.onTaskPre.class).value();
+        break;
+      case ProxyConstance.TASK_RESUME:
+        values = method.getAnnotation(DownloadGroup.onTaskResume.class).value();
+        break;
+      case ProxyConstance.TASK_START:
+        values = method.getAnnotation(DownloadGroup.onTaskStart.class).value();
+        break;
+      case ProxyConstance.TASK_RUNNING:
+        values = method.getAnnotation(DownloadGroup.onTaskRunning.class).value();
+        break;
+      case ProxyConstance.TASK_STOP:
+        values = method.getAnnotation(DownloadGroup.onTaskStop.class).value();
+        break;
+      case ProxyConstance.TASK_COMPLETE:
+        values = method.getAnnotation(DownloadGroup.onTaskComplete.class).value();
+        break;
+      case ProxyConstance.TASK_CANCEL:
+        values = method.getAnnotation(DownloadGroup.onTaskCancel.class).value();
+        break;
+      case ProxyConstance.TASK_FAIL:
+        values = method.getAnnotation(DownloadGroup.onTaskFail.class).value();
+        break;
+    }
+    return values;
+  }
+
+  /**
+   * 获取上传的注解数据
+   */
+  private String[] getUploadValues(ExecutableElement method, int annotationType) {
+    String[] values = null;
+    switch (annotationType) {
+      case ProxyConstance.PRE:
+        values = method.getAnnotation(Upload.onPre.class).value();
+        break;
+      case ProxyConstance.TASK_PRE:
+        values = method.getAnnotation(Upload.onTaskPre.class).value();
+        break;
+      case ProxyConstance.TASK_RESUME:
+        //values = method.getAnnotation(Upload.onTaskResume.class).value();
+        break;
+      case ProxyConstance.TASK_START:
+        values = method.getAnnotation(Upload.onTaskStart.class).value();
+        break;
+      case ProxyConstance.TASK_RUNNING:
+        values = method.getAnnotation(Upload.onTaskRunning.class).value();
+        break;
+      case ProxyConstance.TASK_STOP:
+        values = method.getAnnotation(Upload.onTaskStop.class).value();
+        break;
+      case ProxyConstance.TASK_COMPLETE:
+        values = method.getAnnotation(Upload.onTaskComplete.class).value();
+        break;
+      case ProxyConstance.TASK_CANCEL:
+        values = method.getAnnotation(Upload.onTaskCancel.class).value();
+        break;
+      case ProxyConstance.TASK_FAIL:
+        values = method.getAnnotation(Upload.onTaskFail.class).value();
+        break;
+      case ProxyConstance.TASK_NO_SUPPORT_BREAKPOINT:
+        //values = method.getAnnotation(Upload.onNoSupportBreakPoint.class).value();
+        break;
+    }
+    return values;
+  }
+
+  /**
+   * 获取下载的注解数据
+   */
+  private String[] getDownloadValues(ExecutableElement method, int annotationType) {
+    String[] values = null;
+    switch (annotationType) {
+      case ProxyConstance.PRE:
+        values = method.getAnnotation(Download.onPre.class).value();
+        break;
+      case ProxyConstance.TASK_PRE:
+        values = method.getAnnotation(Download.onTaskPre.class).value();
+        break;
+      case ProxyConstance.TASK_RESUME:
+        values = method.getAnnotation(Download.onTaskResume.class).value();
+        break;
+      case ProxyConstance.TASK_START:
+        values = method.getAnnotation(Download.onTaskStart.class).value();
+        break;
+      case ProxyConstance.TASK_RUNNING:
+        values = method.getAnnotation(Download.onTaskRunning.class).value();
+        break;
+      case ProxyConstance.TASK_STOP:
+        values = method.getAnnotation(Download.onTaskStop.class).value();
+        break;
+      case ProxyConstance.TASK_COMPLETE:
+        values = method.getAnnotation(Download.onTaskComplete.class).value();
+        break;
+      case ProxyConstance.TASK_CANCEL:
+        values = method.getAnnotation(Download.onTaskCancel.class).value();
+        break;
+      case ProxyConstance.TASK_FAIL:
+        values = method.getAnnotation(Download.onTaskFail.class).value();
+        break;
+      case ProxyConstance.TASK_NO_SUPPORT_BREAKPOINT:
+        values = method.getAnnotation(Download.onNoSupportBreakPoint.class).value();
+        break;
+    }
+    return values;
   }
 
   /**
    * 检查和下载相关的方法，如果被注解的方法为private或参数不合法，则抛异常
    */
-  private void checkDownloadMethod(boolean isDownload, ExecutableElement method) {
+  private void checkDownloadMethod(TaskEnum taskEnum, ExecutableElement method) {
     String methodName = method.getSimpleName().toString();
     String className = method.getEnclosingElement().toString();
     Set<Modifier> modifiers = method.getModifiers();
@@ -370,16 +553,16 @@ class ElementHandle {
     List<VariableElement> params = (List<VariableElement>) method.getParameters();
     if (params.size() > 1) {
       throw new IllegalArgumentException(
-          className + "." + methodName + "参数错误, 参数只有一个，且参数必须是" + getCheckParams(isDownload));
+          className + "." + methodName + "参数错误, 参数只有一个，且参数必须是" + getCheckParams(taskEnum));
     }
-    if (!params.get(0).asType().toString().equals(getCheckParams(isDownload))) {
+    if (!params.get(0).asType().toString().equals(getCheckParams(taskEnum))) {
       throw new IllegalArgumentException(className
           + "."
           + methodName
           + "参数【"
           + params.get(0).getSimpleName()
           + "】类型错误，参数必须是"
-          + getCheckParams(isDownload));
+          + getCheckParams(taskEnum));
     }
   }
 
@@ -398,8 +581,7 @@ class ElementHandle {
     return set;
   }
 
-  private String getCheckParams(boolean isDownload) {
-    return isDownload ? "com.arialyy.aria.core.download.DownloadTask"
-        : "com.arialyy.aria.core.upload.UploadTask";
+  private String getCheckParams(TaskEnum taskEnum) {
+    return taskEnum.pkg + "." + taskEnum.getClassName();
   }
 }

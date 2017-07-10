@@ -33,27 +33,31 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by lyy on 2017/6/4.
+ * 事件调度器，用于处理任务状态的调度
  */
 abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY, ENTITY>>
     implements ISchedulers<TASK> {
   private final String TAG = "AbsSchedulers";
 
-  /**
-   * 下载的动态生成的代理类后缀
-   */
-  private String DOWNLOAD_PROXY_CLASS_SUFFIX = "$$DownloadListenerProxy";
-
-  /**
-   * 上传的动态生成的代理类后缀
-   */
-  private String UPLOAD_PROXY_CLASS_SUFFIX = "$$UploadListenerProxy";
+  static final int DOWNLOAD = 0xa1;
+  static final int UPLOAD = 0xa2;
+  static final int DOWNLOAD_GROUP = 0xa3;
 
   protected QUEUE mQueue;
-  protected boolean isDownload = true;
 
   private Map<String, ISchedulerListener<TASK>> mSchedulerListeners = new ConcurrentHashMap<>();
 
   private Map<String, AbsSchedulerListener<TASK>> mObservers = new ConcurrentHashMap<>();
+
+  /**
+   * 设置调度器类型
+   */
+  abstract int getSchedulerType();
+
+  /**
+   * 设置代理类后缀名
+   */
+  abstract String getProxySuffix();
 
   /**
    * @param targetName 观察者，创建该监听器的对象类名
@@ -109,8 +113,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
   private AbsSchedulerListener<TASK> createListener(String targetName) {
     AbsSchedulerListener<TASK> listener = null;
     try {
-      Class clazz = Class.forName(
-          targetName + (isDownload ? DOWNLOAD_PROXY_CLASS_SUFFIX : UPLOAD_PROXY_CLASS_SUFFIX));
+      Class clazz = Class.forName(targetName + getProxySuffix());
       listener = (AbsSchedulerListener<TASK>) clazz.newInstance();
     } catch (ClassNotFoundException e) {
       Log.e(TAG, targetName + "，没有Aria的Download或Upload注解方法");

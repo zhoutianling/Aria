@@ -34,7 +34,6 @@ public class DownloadSchedulers
 
   private DownloadSchedulers() {
     mQueue = DownloadTaskQueue.getInstance();
-    isDownload = true;
   }
 
   public static DownloadSchedulers getInstance() {
@@ -44,5 +43,13 @@ public class DownloadSchedulers
       }
     }
     return INSTANCE;
+  }
+
+  @Override int getSchedulerType() {
+    return DOWNLOAD;
+  }
+
+  @Override String getProxySuffix() {
+    return "$$DownloadListenerProxy";
   }
 }

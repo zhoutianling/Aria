@@ -20,7 +20,7 @@ package com.arialyy.aria.core.inf;
  * Created by AriaL on 2017/6/27.
  */
 
-public abstract class AbsReceiver<ENTITY extends AbsNormalEntity> implements IReceiver<ENTITY>{
+public abstract class AbsReceiver<ENTITY extends AbsEntity> implements IReceiver<ENTITY>{
   public String targetName;
   public Object obj;
 

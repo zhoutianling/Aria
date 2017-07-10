@@ -32,7 +32,6 @@ public class UploadSchedulers
 
   private UploadSchedulers() {
     mQueue = UploadTaskQueue.getInstance();
-    isDownload = false;
   }
 
   public static UploadSchedulers getInstance() {
@@ -43,5 +42,13 @@ public class UploadSchedulers
     }
 
     return INSTANCE;
+  }
+
+  @Override int getSchedulerType() {
+    return UPLOAD;
+  }
+
+  @Override String getProxySuffix() {
+    return "$$UploadListenerProxy";
   }
 }

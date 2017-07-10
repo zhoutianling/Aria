@@ -31,7 +31,6 @@ public class DownloadGroupSchedulers extends
 
   private DownloadGroupSchedulers() {
     mQueue = DownloadGroupTaskQueue.getInstance();
-    isDownload = true;
   }
 
   public static DownloadGroupSchedulers getInstance() {
@@ -41,5 +40,13 @@ public class DownloadGroupSchedulers extends
       }
     }
     return INSTANCE;
+  }
+
+  @Override int getSchedulerType() {
+    return DOWNLOAD_GROUP;
+  }
+
+  @Override String getProxySuffix() {
+    return "$$DownloadGroupListenerProxy";
   }
 }

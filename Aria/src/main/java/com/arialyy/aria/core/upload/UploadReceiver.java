@@ -83,8 +83,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
 
     am.setCmd(CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
-            NormalCmdFactory.TASK_CANCEL_ALL))
-        .exe();
+        NormalCmdFactory.TASK_CANCEL_ALL)).exe();
 
     Set<String> keys = am.getReceiver().keySet();
     for (String key : keys) {
@@ -110,7 +109,10 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
     return this;
   }
 
-  @Override public void removeSchedulerListener() {
+  /**
+   * @see #unRegister()
+   */
+  @Deprecated @Override public void removeSchedulerListener() {
     if (listener != null) {
       UploadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
     }
@@ -120,11 +122,19 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
    * 将当前类注册到Aria
    */
   public UploadReceiver register() {
-    UploadSchedulers.getInstance().register(obj);
+    String className = obj.getClass().getName();
+    Set<String> dCounter = ProxyHelper.getInstance().uploadCounter;
+    if (dCounter.contains(className)) {
+      UploadSchedulers.getInstance().register(obj);
+    }
     return this;
   }
 
   @Override public void unRegister() {
-    UploadSchedulers.getInstance().unRegister(obj);
+    String className = obj.getClass().getName();
+    Set<String> dCounter = ProxyHelper.getInstance().uploadCounter;
+    if (dCounter.contains(className)) {
+      UploadSchedulers.getInstance().unRegister(obj);
+    }
   }
 }
