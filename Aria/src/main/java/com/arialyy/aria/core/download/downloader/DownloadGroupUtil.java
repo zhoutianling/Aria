@@ -220,7 +220,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
       @Override public void run() {
         mListener.onProgress(mCurrentProgress);
       }
-    }, 1000);
+    }, 0, 1000);
   }
 
   /**
