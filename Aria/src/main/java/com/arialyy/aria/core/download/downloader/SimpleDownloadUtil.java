@@ -16,20 +16,21 @@
 
 package com.arialyy.aria.core.download.downloader;
 
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 
 /**
  * Created by lyy on 2015/8/25.
- * 下载工具类
+ * 简单的下载工具
  */
-public class DownloadUtil implements IDownloadUtil, Runnable {
-  private static final String TAG = "DownloadUtil";
+public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
+  private static final String TAG = "SimpleDownloadUtil";
   private IDownloadListener mListener;
   private Downloader mDT;
   private DownloadTaskEntity mTaskEntity;
 
-  public DownloadUtil(DownloadTaskEntity entity, IDownloadListener downloadListener) {
+  public SimpleDownloadUtil(DownloadTaskEntity entity, IDownloadListener downloadListener) {
     mTaskEntity = entity;
     mListener = downloadListener;
     mDT = new Downloader(downloadListener, entity);
@@ -86,14 +87,20 @@ public class DownloadUtil implements IDownloadUtil, Runnable {
   }
 
   @Override public void run() {
-    new Thread(new FileInfoThread(mTaskEntity, new FileInfoThread.OnFileInfoCallback() {
-      @Override public void onComplete(String url, int code) {
-        mDT.startDownload();
-      }
+    if (TextUtils.isEmpty(mTaskEntity.redirectUrl)) {
+      new Thread(new FileInfoThread(mTaskEntity, new FileInfoThread.OnFileInfoCallback() {
+        @Override public void onComplete(String url, int code) {
+          mListener.onPostPre(mTaskEntity.getEntity().getFileSize());
+          mDT.startDownload();
+        }
 
-      @Override public void onFail(String url, String errorMsg) {
-        failDownload(errorMsg);
-      }
-    })).start();
+        @Override public void onFail(String url, String errorMsg) {
+          failDownload(errorMsg);
+        }
+      })).start();
+    } else {
+      mListener.onPostPre(mTaskEntity.getEntity().getFileSize());
+      new Downloader(mListener, mTaskEntity).startDownload();
+    }
   }
 }

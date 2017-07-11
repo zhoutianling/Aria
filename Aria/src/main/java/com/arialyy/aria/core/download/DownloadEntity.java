@@ -19,6 +19,7 @@ package com.arialyy.aria.core.download;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.Primary;
 
 /**
@@ -37,7 +38,77 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
    */
   private String groupName = "";
 
+  /**
+   * 通过{@link AbsTaskEntity#md5Key}从服务器的返回信息中获取的文件md5信息，如果服务器没有返回，则不会设置该信息
+   * 如果你已经设置了该任务的MD5信息，Aria也不会从服务器返回的信息中获取该信息
+   */
+  private String md5Code = "";
+
+  /**
+   * 通过{@link AbsTaskEntity#dispositionKey}从服务器的返回信息中获取的文件描述信息
+   */
+  private String disposition = "";
+
+  /**
+   * 从disposition获取到的文件名，如果可以获取到，则会赋值到这个字段
+   */
+  private String serverFileName = "";
+
   public DownloadEntity() {
+  }
+
+  @Override public String toString() {
+    return "DownloadEntity{"
+        + "downloadUrl='"
+        + downloadUrl
+        + '\''
+        + ", downloadPath='"
+        + downloadPath
+        + '\''
+        + ", isDownloadComplete="
+        + isDownloadComplete
+        + ", isRedirect="
+        + isRedirect
+        + ", redirectUrl='"
+        + redirectUrl
+        + '\''
+        + ", groupName='"
+        + groupName
+        + '\''
+        + ", md5Code='"
+        + md5Code
+        + '\''
+        + ", disposition='"
+        + disposition
+        + '\''
+        + ", serverFileName='"
+        + serverFileName
+        + '\''
+        + '}';
+  }
+
+  public String getMd5Code() {
+    return md5Code;
+  }
+
+  public void setMd5Code(String md5Code) {
+    this.md5Code = md5Code;
+  }
+
+  public String getDisposition() {
+    return disposition;
+  }
+
+  public void setDisposition(String disposition) {
+    this.disposition = disposition;
+  }
+
+  public String getServerFileName() {
+    return serverFileName;
+  }
+
+  public void setServerFileName(String serverFileName) {
+    this.serverFileName = serverFileName;
   }
 
   public String getGroupName() {
@@ -106,6 +177,9 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     dest.writeByte(this.isRedirect ? (byte) 1 : (byte) 0);
     dest.writeString(this.redirectUrl);
     dest.writeString(this.groupName);
+    dest.writeString(this.md5Code);
+    dest.writeString(this.disposition);
+    dest.writeString(this.serverFileName);
   }
 
   protected DownloadEntity(Parcel in) {
@@ -116,27 +190,9 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     this.isRedirect = in.readByte() != 0;
     this.redirectUrl = in.readString();
     this.groupName = in.readString();
-  }
-
-  @Override public String toString() {
-    return "DownloadEntity{"
-        + "downloadUrl='"
-        + downloadUrl
-        + '\''
-        + ", downloadPath='"
-        + downloadPath
-        + '\''
-        + ", isDownloadComplete="
-        + isDownloadComplete
-        + ", isRedirect="
-        + isRedirect
-        + ", redirectUrl='"
-        + redirectUrl
-        + '\''
-        + ", groupName='"
-        + groupName
-        + '\''
-        + '}';
+    this.md5Code = in.readString();
+    this.disposition = in.readString();
+    this.serverFileName = in.readString();
   }
 
   public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {

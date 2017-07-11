@@ -49,14 +49,14 @@ import javax.lang.model.util.Elements;
  * Created by lyy on 2017/6/6.
  * 元素处理
  */
-class ElementHandle {
+class ElementHandler {
 
   private Filer mFiler;
   private Elements mElementUtil;
   private Map<String, ProxyMethodParam> mMethods = new HashMap<>();
   private Map<String, Set<String>> mListenerClass = new HashMap<>();
 
-  ElementHandle(Filer filer, Elements elements) {
+  ElementHandler(Filer filer, Elements elements) {
     mFiler = filer;
     mElementUtil = elements;
   }

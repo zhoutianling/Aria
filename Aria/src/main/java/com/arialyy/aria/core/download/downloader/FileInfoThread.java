@@ -24,6 +24,9 @@ import com.arialyy.aria.util.CommonUtil;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLDecoder;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 下载文件信息获取
@@ -91,6 +94,19 @@ class FileInfoThread implements Runnable {
     int len = conn.getContentLength();
     int code = conn.getResponseCode();
     boolean isComplete = false;
+    if (TextUtils.isEmpty(mEntity.getMd5Code())) {
+      String md5Code = conn.getHeaderField(mTaskEntity.md5Key);
+      mEntity.setMd5Code(md5Code);
+    }
+    String disposition = conn.getHeaderField(mTaskEntity.dispositionKey);
+    if (!TextUtils.isEmpty(disposition)) {
+      mEntity.setDisposition(disposition);
+      if (disposition.contains(mTaskEntity.dispositionFileKey)) {
+        String[] infos = disposition.split("=");
+        mEntity.setServerFileName(URLDecoder.decode(infos[1], "utf-8"));
+      }
+    }
+
     mTaskEntity.code = code;
     if (code == HttpURLConnection.HTTP_PARTIAL) {
       if (!checkLen(len)) return;
@@ -107,9 +123,9 @@ class FileInfoThread implements Runnable {
     } else if (code == HttpURLConnection.HTTP_MOVED_TEMP
         || code == HttpURLConnection.HTTP_MOVED_PERM
         || code == HttpURLConnection.HTTP_SEE_OTHER) {
-      mTaskEntity.redirectUrlKey = conn.getHeaderField(mTaskEntity.redirectUrlKey);
+      mTaskEntity.redirectUrl = conn.getHeaderField(mTaskEntity.redirectUrlKey);
       mEntity.setRedirect(true);
-      mEntity.setRedirectUrl(mTaskEntity.redirectUrlKey);
+      mEntity.setRedirectUrl(mTaskEntity.redirectUrl);
       handle302Turn(conn);
     } else {
       failDownload("任务【" + mEntity.getDownloadUrl() + "】下载失败，错误码：" + code);
@@ -143,6 +159,7 @@ class FileInfoThread implements Runnable {
     conn.setConnectTimeout(mConnectTimeOut);
     conn.connect();
     handleConnect(conn);
+    conn.disconnect();
   }
 
   /**

@@ -19,16 +19,18 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
+import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityDownloadGroupBinding;
-import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 import java.util.List;
 
 /**
@@ -36,12 +38,9 @@ import java.util.List;
  */
 public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBinding> {
 
-  @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
-  @Bind(R.id.size) TextView mSize;
-  @Bind(R.id.speed) TextView mSpeed;
   List<String> mUrls;
 
   @Override protected void init(Bundle savedInstanceState) {
@@ -49,6 +48,13 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     Aria.download(this).register();
     setTitle("任务组");
     mUrls = getModule(GroupModule.class).getUrls();
+    DownloadGroupTaskEntity entity = Aria.download(this).getDownlaodGroupTask(mUrls);
+    if (entity != null) {
+      DownloadGroupEntity groupEntity = entity.getEntity();
+      getBinding().setFileSize(groupEntity.getConvertFileSize());
+      getBinding().setProgress(
+          (int) (groupEntity.getCurrentProgress() * 100 / groupEntity.getFileSize()));
+    }
   }
 
   @Override protected int setLayoutId() {
@@ -58,17 +64,16 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        //String text = ((TextView) view).getText().toString();
         Aria.download(this)
             .load(mUrls)
             .setDownloadDirPath(Environment.getExternalStorageDirectory().getPath() + "/group_test")
             .start();
         break;
       case R.id.stop:
-        //Aria.download(this).load(DOWNLOAD_URL).pause();
+        Aria.download(this).load(mUrls).stop();
         break;
       case R.id.cancel:
-        //Aria.download(this).load(DOWNLOAD_URL).cancel();
+        Aria.download(this).load(mUrls).cancel();
         break;
     }
   }
@@ -79,6 +84,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
 
   @DownloadGroup.onTaskPre() protected void onTaskPre(DownloadGroupTask task) {
     L.d(TAG, "group task pre");
+    getBinding().setFileSize(task.getConvertFileSize());
   }
 
   @DownloadGroup.onTaskStart() void taskStart(DownloadGroupTask task) {
@@ -86,7 +92,8 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
-    L.d(TAG, "group task running ==> " + task.getPercent());
+    getBinding().setProgress(task.getPercent());
+    getBinding().setSpeed(task.getConvertSpeed());
   }
 
   @DownloadGroup.onTaskResume() void taskResume(DownloadGroupTask task) {
@@ -95,10 +102,12 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
 
   @DownloadGroup.onTaskStop() void taskStop(DownloadGroupTask task) {
     L.d(TAG, "group task stop");
+    getBinding().setSpeed("");
   }
 
   @DownloadGroup.onTaskCancel() void taskCancel(DownloadGroupTask task) {
-    L.d(TAG, "group task cancel");
+    getBinding().setSpeed("");
+    getBinding().setProgress(0);
   }
 
   @DownloadGroup.onTaskFail() void taskFail(DownloadGroupTask task) {
@@ -106,6 +115,6 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskComplete() void taskComplete(DownloadGroupTask task) {
-    L.d(TAG, "group task complete");
+    T.showShort(this, "任务组下载完成");
   }
 }

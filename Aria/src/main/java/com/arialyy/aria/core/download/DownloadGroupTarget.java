@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.inf.AbsGroupTarget;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
@@ -29,6 +30,7 @@ import java.util.List;
 public class DownloadGroupTarget
     extends AbsGroupTarget<DownloadGroupTarget, DownloadGroupEntity, DownloadGroupTaskEntity> {
   private List<String> mUrls = new ArrayList<>();
+  private final String TAG = "DownloadGroupTarget";
   /**
    * 子任务文件名
    */
@@ -158,7 +160,7 @@ public class DownloadGroupTarget
     for (int i = 0, len = mUrls.size(); i < len; i++) {
       DownloadEntity entity = new DownloadEntity();
       entity.setDownloadUrl(mUrls.get(i));
-      String fileName = mSubTaskFileName.isEmpty() ? CommonUtil.keyToHashKey(mUrls.get(i))
+      String fileName = mSubTaskFileName.isEmpty() ? createFileName(entity.getDownloadUrl())
           : mSubTaskFileName.get(i);
       entity.setDownloadPath(mEntity.getDirPath() + "/" + fileName);
       entity.setGroupName(mGroupName);
@@ -170,14 +172,5 @@ public class DownloadGroupTarget
     return list;
   }
 
-  ///**
-  // * 创建文件名，如果url链接有后缀名，则使用url中的后缀名
-  // * @return url 的 hashKey
-  // */
-  //private String createFileName(String url){
-  //  if (url.contains(".")){
-  //    int s = url.lastIndexOf(".");
-  //    String fileName = url.substring()
-  //  }
-  //}
+
 }

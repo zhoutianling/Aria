@@ -24,6 +24,8 @@ import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.upload.ProxyHelper;
+import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.InvocationTargetException;
@@ -136,7 +138,24 @@ public class DownloadReceiver extends AbsReceiver {
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    return DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+    return DbEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+  }
+
+  /**
+   * 通过下载链接获取保存在数据库的下载任务实体
+   */
+  public DownloadTaskEntity getDownloadTask(String downloadUrl) {
+    CheckUtil.checkDownloadUrl(downloadUrl);
+    return DbEntity.findFirst(DownloadTaskEntity.class, "key=?", downloadUrl);
+  }
+
+  /**
+   * 通过下载链接获取保存在数据库的下载任务组实体
+   */
+  public DownloadGroupTaskEntity getDownlaodGroupTask(List<String> urls) {
+    CheckUtil.checkDownloadUrls(urls);
+    String hashCode = CommonUtil.getMd5Code(urls);
+    return DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", hashCode);
   }
 
   /**

@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.content.Context;
 import android.os.Handler;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.downloader.DownloadGroupUtil;
 import com.arialyy.aria.core.download.downloader.DownloadListener;
@@ -34,6 +35,7 @@ import java.lang.ref.WeakReference;
  * 任务组任务
  */
 public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, DownloadGroupEntity> {
+  private final String TAG = "DownloadGroupTask";
   private DListener mListener;
   private IDownloadUtil mUtil;
 
@@ -55,7 +57,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
   }
 
   @Override public void stop() {
-    mUtil.startDownload();
+    mUtil.stopDownload();
   }
 
   @Override public void cancel() {
@@ -66,6 +68,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
    * 下载监听类
    */
   private static class DListener extends DownloadListener {
+    private final String TAG = "DListener";
     WeakReference<Handler> outHandler;
     WeakReference<DownloadGroupTask> wTask;
     Context context;
@@ -92,6 +95,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
 
     @Override public void onPostPre(long fileSize) {
       entity.setFileSize(fileSize);
+      entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
       saveData(IEntity.STATE_POST_PRE, -1);
       sendInState2Target(ISchedulers.POST_PRE);
     }
@@ -107,14 +111,15 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
     }
 
     @Override public void onProgress(long currentLocation) {
+      entity.setCurrentProgress(currentLocation);
       long speed = currentLocation - lastLen;
       if (isFirst) {
         speed = 0;
         isFirst = false;
       }
       handleSpeed(speed);
-      lastLen = currentLocation;
       sendInState2Target(ISchedulers.RUNNING);
+      lastLen = currentLocation;
     }
 
     @Override public void onStop(long stopLocation) {

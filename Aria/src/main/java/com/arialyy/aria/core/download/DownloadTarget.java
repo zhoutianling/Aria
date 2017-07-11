@@ -39,7 +39,9 @@ public class DownloadTarget
     mTaskEntity = DbEntity.findFirst(DownloadTaskEntity.class, "key=?", url);
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadTaskEntity();
-      mTaskEntity.entity = new DownloadEntity();
+      mTaskEntity.key = url;
+      mTaskEntity.entity = getEntity(url);
+      mTaskEntity.save();
     }
     if (mTaskEntity.entity == null) {
       mTaskEntity.entity = getEntity(url);
@@ -57,12 +59,14 @@ public class DownloadTarget
         DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl);
     if (entity == null) {
       entity = new DownloadEntity();
+      entity.setDownloadUrl(downloadUrl);
+      entity.setGroupChild(false);
+      entity.save();
     }
     File file = new File(entity.getDownloadPath());
     if (!file.exists()) {
       entity.setState(IEntity.STATE_WAIT);
     }
-    entity.setDownloadUrl(downloadUrl);
     return entity;
   }
 

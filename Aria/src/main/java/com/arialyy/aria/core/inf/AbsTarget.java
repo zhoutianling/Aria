@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.inf;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.RequestEnum;
@@ -177,5 +178,31 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL))
         .exe();
+  }
+
+  /**
+   * 创建文件名，如果url链接有后缀名，则使用url中的后缀名
+   *
+   * @return url 的 hashKey
+   */
+  protected String createFileName(String url) {
+    int end = url.indexOf("?");
+    String tempUrl, fileName = "";
+    if (end > 0) {
+      tempUrl = url.substring(0, end);
+      int tempEnd = tempUrl.lastIndexOf("/");
+      if (tempEnd > 0) {
+        fileName = tempUrl.substring(tempEnd + 1, tempUrl.length());
+      }
+    } else {
+      int tempEnd = url.lastIndexOf("/");
+      if (tempEnd > 0) {
+        fileName = url.substring(tempEnd + 1, url.length());
+      }
+    }
+    if (TextUtils.isEmpty(fileName)) {
+      fileName = CommonUtil.keyToHashKey(url);
+    }
+    return fileName;
   }
 }

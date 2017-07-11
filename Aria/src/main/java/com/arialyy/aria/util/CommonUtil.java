@@ -357,6 +357,10 @@ public class CommonUtil {
     List<Field> fields = new ArrayList<>();
     Class personClazz = clazz.getSuperclass();
     if (personClazz != null) {
+      Class rootClazz = personClazz.getSuperclass();
+      if (rootClazz != null) {
+        Collections.addAll(fields, rootClazz.getDeclaredFields());
+      }
       Collections.addAll(fields, personClazz.getDeclaredFields());
     }
     Collections.addAll(fields, clazz.getDeclaredFields());

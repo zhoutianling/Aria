@@ -77,8 +77,7 @@ public class UploadTask extends AbsNormalTask<UploadEntity> {
     }
   }
 
-  private static class
-  UListener extends UploadListener {
+  private static class UListener extends UploadListener {
     WeakReference<Handler> outHandler;
     WeakReference<UploadTask> task;
     long lastLen = 0;   //上一次发送长度
@@ -106,6 +105,7 @@ public class UploadTask extends AbsNormalTask<UploadEntity> {
     @Override public void onPostPre(long fileSize) {
       super.onPostPre(fileSize);
       entity.setFileSize(fileSize);
+      entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
       sendInState2Target(ISchedulers.POST_PRE);
       saveData(IEntity.STATE_POST_PRE, 0);
     }

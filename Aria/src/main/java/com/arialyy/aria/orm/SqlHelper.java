@@ -533,9 +533,9 @@ final class SqlHelper extends SQLiteOpenHelper {
    * @param type {@link DbUtil}
    */
   static void print(int type, String sql) {
-    //if (true) {
-    //  return;
-    //}
+    if (true) {
+      return;
+    }
     String str = "";
     switch (type) {
       case CREATE_TABLE:

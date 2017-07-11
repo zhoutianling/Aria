@@ -21,12 +21,11 @@ import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.downloader.DownloadListener;
-import com.arialyy.aria.core.download.downloader.DownloadUtil;
+import com.arialyy.aria.core.download.downloader.SimpleDownloadUtil;
 import com.arialyy.aria.core.download.downloader.IDownloadListener;
 import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
-import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -39,7 +38,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
   public static final String TAG = "DownloadTask";
 
   private IDownloadListener mListener;
-  private DownloadUtil mUtil;
+  private SimpleDownloadUtil mUtil;
   private boolean isWait = false;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
@@ -47,7 +46,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
     mListener = new DListener(mContext, this, mOutHandler);
-    mUtil = new DownloadUtil(taskEntity, mListener);
+    mUtil = new SimpleDownloadUtil(taskEntity, mListener);
   }
 
   /**
@@ -164,7 +163,6 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
     String targetName;
 
     public Builder(String targetName, DownloadTaskEntity taskEntity) {
-      CheckUtil.checkTaskEntity(taskEntity);
       this.targetName = targetName;
       this.taskEntity = taskEntity;
     }
@@ -226,6 +224,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
 
     @Override public void onPostPre(long fileSize) {
       entity.setFileSize(fileSize);
+      entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
       sendInState2Target(ISchedulers.POST_PRE);
       saveData(IEntity.STATE_POST_PRE, -1);
     }
@@ -305,7 +304,6 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
       entity.setDownloadComplete(state == IEntity.STATE_COMPLETE);
       entity.setCurrentProgress(location);
       entity.update();
-
     }
   }
 }

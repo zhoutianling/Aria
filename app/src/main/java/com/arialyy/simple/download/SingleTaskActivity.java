@@ -16,15 +16,10 @@
 
 package com.arialyy.simple.download;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -36,18 +31,15 @@ import butterknife.Bind;
 import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.frame.util.FileUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
-import java.io.File;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public static final int DOWNLOAD_PRE = 0x01;
@@ -65,7 +57,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
       //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
       //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
-      "http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
+      //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
+      "https://d.pcs.baidu.com/file/bc7334aba5443c2596d905a0bcf9e734?fid=2852548966-250528-290956601240893&time=1499758796&rt=sh&sign=FDTAERVY-DCb740ccc5511e5e8fedcff06b081203-HO8uC%2FT83oxUXZdObsg3b54%2Bzv8%3D&expires=8h&chkv=1&chkbd=0&chkpc=et&dp-logid=4444968052010847094&dp-callid=0&r=463246632";
   //"http://oqcpqqvuf.bkt.clouddn.com/ceshi.txt";
   //"http://down8.androidgame-store.com/201706122321/97967927DD4E53D9905ECAA7874C8128/new/game1/19/45319/com.neuralprisma-2.5.2.174-2000174_1494784835.apk?f=web_1";
   //不支持断点的链接
@@ -75,8 +68,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
-  @Bind(R.id.size) TextView mSize;
-  @Bind(R.id.speed) TextView mSpeed;
   @Bind(R.id.speeds) RadioGroup mRg;
 
   private Handler mUpdateHandler = new Handler() {
@@ -92,13 +83,13 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
           } else {
             mPb.setProgress((int) ((current * 100) / len));
           }
-          mSpeed.setText(task.getConvertSpeed());
+          getBinding().setSpeed(task.getConvertSpeed());
           break;
         case DOWNLOAD_PRE:
           setBtState(false);
           break;
         case DOWNLOAD_START:
-          mSize.setText(CommonUtil.formatFileSize((Long) msg.obj));
+          getBinding().setFileSize(CommonUtil.formatFileSize((Long) msg.obj));
           break;
         case DOWNLOAD_FAILE:
           Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
@@ -241,7 +232,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     } else if (target.isDownloading()) {
       setBtState(false);
     }
-    mSize.setText(target.getConvertFileSize());
+    getBinding().setFileSize(target.getConvertFileSize());
   }
 
   public void onClick(View view) {

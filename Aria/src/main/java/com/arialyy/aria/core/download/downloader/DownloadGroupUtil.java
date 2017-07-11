@@ -21,6 +21,7 @@ import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +41,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
    * 任务组所有任务总大小
    */
   private long mTotalSize = 0;
-  private long mCurrentProgress = 0;
+  private long mCurrentLocation = 0;
   private ExecutorService mInfoPool;
   private ExecutorService mExePool;
   private IDownloadListener mListener;
@@ -54,7 +55,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
   /**
    * 初始化失败的任务数
    */
-  private int mFailNum = 0;
+  private int mInitFailNum = 0;
   /**
    * 保存所有没有下载完成的任务，key为下载地址
    */
@@ -75,20 +76,28 @@ public class DownloadGroupUtil implements IDownloadUtil {
    */
   private SparseArray<FileInfoThread.OnFileInfoCallback> mFileInfoCallbacks = new SparseArray<>();
 
+  //任务总数
+  private int mTaskNum = 0;
+  //已经完成的任务数
+  private int mCompleteNum = 0;
+  //失败的任务数
+  private int mFailNum = 0;
+
   public DownloadGroupUtil(IDownloadListener listener, DownloadGroupTaskEntity taskEntity) {
     mListener = listener;
     mTaskEntity = taskEntity;
     mInfoPool = Executors.newCachedThreadPool();
     mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
+    mTaskNum = mTaskEntity.entity.getSubTask().size();
     for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
       File file = new File(entity.getDownloadPath());
       if (entity.isDownloadComplete() && file.exists()) {
         mTotalSize += entity.getFileSize();
+        mCompleteNum++;
       } else {
         mExeMap.put(entity.getDownloadUrl(), createDownloadTask(entity));
       }
-      mCurrentProgress += entity.getCurrentProgress();
+      mCurrentLocation += entity.getCurrentProgress();
     }
   }
 
@@ -97,7 +106,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
   }
 
   @Override public long getCurrentLocation() {
-    return mCurrentProgress;
+    return mCurrentLocation;
   }
 
   @Override public boolean isDownloading() {
@@ -106,6 +115,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
   @Override public void cancelDownload() {
     isRunning = false;
+    mListener.onCancel();
     closeTimer();
     if (!mInfoPool.isShutdown()) {
       mInfoPool.shutdown();
@@ -125,6 +135,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
   @Override public void stopDownload() {
     isRunning = false;
+    mListener.onStop(mCurrentLocation);
     closeTimer();
     if (!mInfoPool.isShutdown()) {
       mInfoPool.shutdown();
@@ -156,6 +167,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
   @Override public void resumeDownload() {
     startDownload();
+    mListener.onResume(mCurrentLocation);
   }
 
   /**
@@ -175,7 +187,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
             startChildDownload(te);
           }
           mInitNum++;
-          if (mInitNum + mFailNum == mTaskEntity.getEntity().getSubTask().size()) {
+          if (mInitNum + mInitFailNum == mTaskEntity.getEntity().getSubTask().size()) {
             startRunningFlow();
           }
         }
@@ -186,12 +198,15 @@ public class DownloadGroupUtil implements IDownloadUtil {
             mFailMap.put(url, te);
             mFileInfoCallbacks.put(te.hashCode(), this);
           }
-          mFailNum++;
-          failNum++;
-          if (failNum < 10) {
-            mInfoPool.execute(createFileInfoThread(te));
+          mInitFailNum++;
+          //404链接不重试下载
+          if (!errorMsg.contains("错误码：404")) {
+            if (failNum < 10) {
+              mInfoPool.execute(createFileInfoThread(te));
+            }
           }
-          if (mInitNum + mFailNum == mTaskEntity.getEntity().getSubTask().size()) {
+          failNum++;
+          if (mInitNum + mInitFailNum == mTaskEntity.getEntity().getSubTask().size()) {
             startRunningFlow();
           }
         }
@@ -213,12 +228,14 @@ public class DownloadGroupUtil implements IDownloadUtil {
    */
   private void startRunningFlow() {
     mListener.onPostPre(mTotalSize);
-    mListener.onStart(mCurrentProgress);
+    mListener.onStart(mCurrentLocation);
     closeTimer();
     mTimer = new Timer(true);
     mTimer.schedule(new TimerTask() {
       @Override public void run() {
-        mListener.onProgress(mCurrentProgress);
+        if (mCurrentLocation >= 0) {
+          mListener.onProgress(mCurrentLocation);
+        }
       }
     }, 0, 1000);
   }
@@ -258,6 +275,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
     DownloadTaskEntity taskEntity;
     DownloadEntity entity;
+    long lastLen = 0;
 
     ChildDownloadListener(DownloadTaskEntity entity) {
       this.taskEntity = entity;
@@ -270,6 +288,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
     @Override public void onPostPre(long fileSize) {
       entity.setFileSize(fileSize);
+      entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
       saveData(IEntity.STATE_POST_PRE, -1);
     }
 
@@ -279,10 +298,12 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
     @Override public void onStart(long startLocation) {
       saveData(IEntity.STATE_POST_PRE, IEntity.STATE_RUNNING);
+      lastLen = startLocation;
     }
 
     @Override public void onProgress(long currentLocation) {
-      mCurrentProgress += currentLocation;
+      mCurrentLocation += (currentLocation - lastLen);
+      lastLen = currentLocation;
     }
 
     @Override public void onStop(long stopLocation) {
@@ -295,11 +316,27 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
     @Override public void onComplete() {
       saveData(IEntity.STATE_COMPLETE, entity.getFileSize());
+      mCompleteNum++;
+      if (mCompleteNum >= mTaskNum) {
+        mListener.onComplete();
+        closeTimer();
+      }
     }
 
     @Override public void onFail() {
       entity.setFailNum(entity.getFailNum() + 1);
       saveData(IEntity.STATE_FAIL, -1);
+      reTry();
+    }
+
+    /**
+     * 失败后重试下载，如果失败次数超过5次，不再重试
+     */
+    private void reTry() {
+      if (entity.getFailNum() < 5) {
+        Downloader dt = mDownloaderMap.get(entity.getDownloadUrl());
+        mExePool.execute(dt);
+      }
     }
 
     private void saveData(int state, long location) {

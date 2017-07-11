@@ -32,12 +32,12 @@ import javax.lang.model.element.TypeElement;
  * 事件注解扫描器
  */
 @AutoService(Processor.class) public class AriaProcessor extends AbstractProcessor {
-  ElementHandle mHandler;
+  ElementHandler mHandler;
 
   @Override public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
     PrintLog.init(processingEnv.getMessager());
-    mHandler = new ElementHandle(processingEnv.getFiler(), processingEnv.getElementUtils());
+    mHandler = new ElementHandler(processingEnv.getFiler(), processingEnv.getElementUtils());
   }
 
   @Override public Set<String> getSupportedAnnotationTypes() {
