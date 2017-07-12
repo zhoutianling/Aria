@@ -24,7 +24,17 @@ import com.arialyy.aria.orm.OneToOne;
  */
 public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
 
-  @OneToOne(table = DownloadEntity.class, key = "downloadUrl") public DownloadEntity entity;
+  @OneToOne(table = DownloadEntity.class, key = "downloadPath") public DownloadEntity entity;
+
+  /**
+   * 所属的任务组组名，如果不属于任务组，则为null
+   */
+  public String groupName = "";
+
+  /**
+   * 该任务是否属于任务组
+   */
+  public boolean isGroupTask = false;
 
   public DownloadTaskEntity() {
   }

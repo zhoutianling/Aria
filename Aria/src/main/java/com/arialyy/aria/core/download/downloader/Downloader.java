@@ -84,6 +84,7 @@ class Downloader implements Runnable, IDownloadUtil {
    */
   private void startFlow() {
     checkTask();
+    mListener.onPostPre(mEntity.getFileSize());
     mConstance.cleanState();
     mConstance.isDownloading = true;
     try {

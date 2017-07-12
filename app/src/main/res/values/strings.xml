@@ -22,6 +22,7 @@
     <item>幻影纹章</item>
     <item>史上最坑爹的游戏10</item>
     <item>鲜果消消乐</item>
+    <item>航海奇迹</item>
 
   </string-array>
   <string-array name="download_url">
@@ -30,6 +31,7 @@
     <item>http://rs.0.gaoshouyou.com/d/51/46/58514d126c46b8a3f27fc8c7db3b09ec.apk</item>
     <item>http://rs.0.gaoshouyou.com/d/23/69/07238f952669727878d7a0e180534c8b.apk</item>
     <item>http://rs.0.gaoshouyou.com/d/e7/3d/73e716d3353de5b479fcf7da8d36a5ef.apk</item>
+    <item>http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk</item>
   </string-array>
 
   <string-array name="highest_names">

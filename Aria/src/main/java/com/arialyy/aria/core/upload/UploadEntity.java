@@ -28,15 +28,7 @@ import com.arialyy.aria.orm.Primary;
 public class UploadEntity extends AbsNormalEntity implements Parcelable {
   @Primary
   private String filePath;  //文件路径
-  private boolean isComplete = false;
 
-  public boolean isComplete() {
-    return isComplete;
-  }
-
-  public void setComplete(boolean complete) {
-    isComplete = complete;
-  }
 
   public String getFilePath() {
     return filePath;
@@ -56,13 +48,11 @@ public class UploadEntity extends AbsNormalEntity implements Parcelable {
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
     dest.writeString(this.filePath);
-    dest.writeByte(this.isComplete ? (byte) 1 : (byte) 0);
   }
 
   protected UploadEntity(Parcel in) {
     super(in);
     this.filePath = in.readString();
-    this.isComplete = in.readByte() != 0;
   }
 
   @Ignore public static final Creator<UploadEntity> CREATOR = new Creator<UploadEntity>() {

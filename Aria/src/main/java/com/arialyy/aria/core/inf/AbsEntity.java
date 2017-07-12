@@ -60,6 +60,16 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
    */
   private long completeTime;
 
+  private boolean isComplete = false;
+
+  public boolean isComplete() {
+    return isComplete;
+  }
+
+  public void setComplete(boolean complete) {
+    isComplete = complete;
+  }
+
   public String getConvertFileSize() {
     return convertFileSize;
   }
@@ -149,6 +159,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     dest.writeInt(this.state);
     dest.writeLong(this.currentProgress);
     dest.writeLong(this.completeTime);
+    dest.writeByte(this.isComplete ? (byte) 1 : (byte) 0);
   }
 
   protected AbsEntity(Parcel in) {
@@ -161,5 +172,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     this.state = in.readInt();
     this.currentProgress = in.readLong();
     this.completeTime = in.readLong();
+    this.isComplete = in.readByte() != 0;
   }
+
 }

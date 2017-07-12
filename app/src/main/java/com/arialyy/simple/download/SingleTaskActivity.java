@@ -18,8 +18,6 @@ package com.arialyy.simple.download;
 
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,93 +31,29 @@ import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
-import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
-  public static final int DOWNLOAD_PRE = 0x01;
-  public static final int DOWNLOAD_STOP = 0x02;
-  public static final int DOWNLOAD_FAILE = 0x03;
-  public static final int DOWNLOAD_CANCEL = 0x04;
-  public static final int DOWNLOAD_RESUME = 0x05;
-  public static final int DOWNLOAD_COMPLETE = 0x06;
-  public static final int DOWNLOAD_RUNNING = 0x07;
-  public static final int DOWNLOAD_START = 0x08;
 
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-      //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
-      //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
-      //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
-      "https://d.pcs.baidu.com/file/bc7334aba5443c2596d905a0bcf9e734?fid=2852548966-250528-290956601240893&time=1499758796&rt=sh&sign=FDTAERVY-DCb740ccc5511e5e8fedcff06b081203-HO8uC%2FT83oxUXZdObsg3b54%2Bzv8%3D&expires=8h&chkv=1&chkbd=0&chkpc=et&dp-logid=4444968052010847094&dp-callid=0&r=463246632";
+      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+  //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
+  //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
+  //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
   //"http://oqcpqqvuf.bkt.clouddn.com/ceshi.txt";
   //"http://down8.androidgame-store.com/201706122321/97967927DD4E53D9905ECAA7874C8128/new/game1/19/45319/com.neuralprisma-2.5.2.174-2000174_1494784835.apk?f=web_1";
   //不支持断点的链接
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   //"http://172.18.104.50:8080/download/_302turn";
-  @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
   @Bind(R.id.speeds) RadioGroup mRg;
-
-  private Handler mUpdateHandler = new Handler() {
-    @Override public void handleMessage(Message msg) {
-      super.handleMessage(msg);
-      switch (msg.what) {
-        case DOWNLOAD_RUNNING:
-          DownloadTask task = (DownloadTask) msg.obj;
-          long current = task.getCurrentProgress();
-          long len = task.getFileSize();
-          if (len == 0) {
-            mPb.setProgress(0);
-          } else {
-            mPb.setProgress((int) ((current * 100) / len));
-          }
-          getBinding().setSpeed(task.getConvertSpeed());
-          break;
-        case DOWNLOAD_PRE:
-          setBtState(false);
-          break;
-        case DOWNLOAD_START:
-          getBinding().setFileSize(CommonUtil.formatFileSize((Long) msg.obj));
-          break;
-        case DOWNLOAD_FAILE:
-          Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
-          setBtState(true);
-          break;
-        case DOWNLOAD_STOP:
-          Toast.makeText(SingleTaskActivity.this, "暂停下载", Toast.LENGTH_SHORT).show();
-          mStart.setText("恢复");
-          setBtState(true);
-          break;
-        case DOWNLOAD_CANCEL:
-          mPb.setProgress(0);
-          Toast.makeText(SingleTaskActivity.this, "取消下载", Toast.LENGTH_SHORT).show();
-          mStart.setText("开始");
-          setBtState(true);
-          break;
-        case DOWNLOAD_RESUME:
-          mStart.setText("暂停");
-          setBtState(false);
-          break;
-        case DOWNLOAD_COMPLETE:
-          mPb.setProgress(100);
-          Toast.makeText(SingleTaskActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
-          mStart.setText("重新开始？");
-          mCancel.setEnabled(false);
-          setBtState(true);
-          break;
-      }
-    }
-  };
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -175,40 +109,54 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   @Download.onPre(DOWNLOAD_URL) protected void onPre(DownloadTask task) {
-    mUpdateHandler.obtainMessage(DOWNLOAD_PRE, task.getDownloadEntity().getFileSize())
-        .sendToTarget();
+    setBtState(false);
   }
 
   @Download.onTaskStart(DOWNLOAD_URL) void taskStart(DownloadTask task) {
-    mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getDownloadEntity().getFileSize())
-        .sendToTarget();
+    getBinding().setFileSize(task.getConvertFileSize());
   }
 
   @Download.onTaskRunning(DOWNLOAD_URL) protected void running(DownloadTask task) {
-    mUpdateHandler.obtainMessage(DOWNLOAD_RUNNING, task).sendToTarget();
+    long len = task.getFileSize();
+    if (len == 0) {
+      getBinding().setProgress(0);
+    } else {
+      getBinding().setProgress(task.getPercent());
+    }
+    getBinding().setSpeed(task.getConvertSpeed());
   }
 
   @Download.onTaskResume(DOWNLOAD_URL) void taskResume(DownloadTask task) {
-    mUpdateHandler.obtainMessage(DOWNLOAD_START, task.getFileSize()).sendToTarget();
+    mStart.setText("暂停");
+    setBtState(false);
   }
 
   @Download.onTaskStop(DOWNLOAD_URL) void taskStop(DownloadTask task) {
-    mUpdateHandler.sendEmptyMessage(DOWNLOAD_STOP);
-    L.d(TAG, "task__stop");
+    mStart.setText("恢复");
+    setBtState(true);
+    getBinding().setSpeed("");
   }
 
   @Download.onTaskCancel(DOWNLOAD_URL) void taskCancel(DownloadTask task) {
-    mUpdateHandler.sendEmptyMessage(DOWNLOAD_CANCEL);
-    L.d(TAG, "task__cancel");
+    getBinding().setProgress(0);
+    Toast.makeText(SingleTaskActivity.this, "取消下载", Toast.LENGTH_SHORT).show();
+    mStart.setText("开始");
+    setBtState(true);
+    getBinding().setSpeed("");
   }
 
   @Download.onTaskFail(DOWNLOAD_URL) void taskFail(DownloadTask task) {
-    L.d(TAG, "task__fail");
-    mUpdateHandler.sendEmptyMessage(DOWNLOAD_FAILE);
+    Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
+    setBtState(true);
   }
 
   @Download.onTaskComplete(DOWNLOAD_URL) void taskComplete(DownloadTask task) {
-    mUpdateHandler.sendEmptyMessage(DOWNLOAD_COMPLETE);
+    getBinding().setProgress(100);
+    Toast.makeText(SingleTaskActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
+    mStart.setText("重新开始？");
+    mCancel.setEnabled(false);
+    setBtState(true);
+    getBinding().setSpeed("");
   }
 
   @Download.onNoSupportBreakPoint(DOWNLOAD_URL)
@@ -224,7 +172,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     super.init(savedInstanceState);
     setTitle("单任务下载");
     DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
-    mPb.setProgress(target.getPercent());
+    getBinding().setProgress(target.getPercent());
     if (target.getTaskState() == IEntity.STATE_STOP) {
       mStart.setText("恢复");
       mStart.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
@@ -248,11 +196,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         } else if (text.equals("恢复")) {
           Aria.download(this).load(DOWNLOAD_URL).resume();
         }
-        //DownloadTarget target = Aria.download(this)
-        //    .load(DOWNLOAD_URL)
-        //    .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk");
-        //target.add();
-        //target.cancel();
         break;
       case R.id.stop:
         Aria.download(this).load(DOWNLOAD_URL).pause();

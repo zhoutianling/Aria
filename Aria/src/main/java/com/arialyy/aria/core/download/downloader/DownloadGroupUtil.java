@@ -24,6 +24,7 @@ import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -82,6 +83,10 @@ public class DownloadGroupUtil implements IDownloadUtil {
   private int mCompleteNum = 0;
   //失败的任务数
   private int mFailNum = 0;
+  /**
+   * 该任务组对应的所有任务
+   */
+  private Map<String, DownloadTaskEntity> mTasksMap = new HashMap<>();
 
   public DownloadGroupUtil(IDownloadListener listener, DownloadGroupTaskEntity taskEntity) {
     mListener = listener;
@@ -89,13 +94,20 @@ public class DownloadGroupUtil implements IDownloadUtil {
     mInfoPool = Executors.newCachedThreadPool();
     mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     mTaskNum = mTaskEntity.entity.getSubTask().size();
+    List<DownloadTaskEntity> tasks =
+        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mTaskEntity.key);
+    if (tasks != null && !tasks.isEmpty()) {
+      for (DownloadTaskEntity te : tasks) {
+        mTasksMap.put(te.getEntity().getDownloadUrl(), te);
+      }
+    }
     for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
       File file = new File(entity.getDownloadPath());
-      if (entity.isDownloadComplete() && file.exists()) {
+      if (entity.isComplete() && file.exists()) {
         mTotalSize += entity.getFileSize();
         mCompleteNum++;
       } else {
-        mExeMap.put(entity.getDownloadUrl(), createDownloadTask(entity));
+        mExeMap.put(entity.getDownloadUrl(), createChildDownloadTask(entity));
       }
       mCurrentLocation += entity.getCurrentProgress();
     }
@@ -115,8 +127,8 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
   @Override public void cancelDownload() {
     isRunning = false;
-    mListener.onCancel();
     closeTimer();
+    mListener.onCancel();
     if (!mInfoPool.isShutdown()) {
       mInfoPool.shutdown();
     }
@@ -131,12 +143,26 @@ public class DownloadGroupUtil implements IDownloadUtil {
         dt.cancelDownload();
       }
     }
+    delDownloadInfo();
+    mTaskEntity.deleteData();
+  }
+
+  /**
+   * 删除所有子任务的下载信息
+   */
+  private void delDownloadInfo() {
+    List<DownloadTaskEntity> tasks =
+        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mTaskEntity.key);
+    if (tasks == null || tasks.isEmpty()) return;
+    for (DownloadTaskEntity taskEntity : tasks) {
+      CommonUtil.delDownloadTaskConfig(taskEntity.removeFile, taskEntity);
+    }
   }
 
   @Override public void stopDownload() {
     isRunning = false;
-    mListener.onStop(mCurrentLocation);
     closeTimer();
+    mListener.onStop(mCurrentLocation);
     if (!mInfoPool.isShutdown()) {
       mInfoPool.shutdown();
     }
@@ -227,9 +253,9 @@ public class DownloadGroupUtil implements IDownloadUtil {
    * 开始进度流程
    */
   private void startRunningFlow() {
+    closeTimer();
     mListener.onPostPre(mTotalSize);
     mListener.onStart(mCurrentLocation);
-    closeTimer();
     mTimer = new Timer(true);
     mTimer.schedule(new TimerTask() {
       @Override public void run() {
@@ -247,15 +273,15 @@ public class DownloadGroupUtil implements IDownloadUtil {
     ChildDownloadListener listener = new ChildDownloadListener(taskEntity);
     Downloader dt = new Downloader(listener, taskEntity);
     mDownloaderMap.put(taskEntity.getEntity().getDownloadUrl(), dt);
+    if (mExePool.isShutdown()) return;
     mExePool.execute(dt);
   }
 
   /**
    * 创建子任务下载信息
    */
-  private DownloadTaskEntity createDownloadTask(DownloadEntity entity) {
-    DownloadTaskEntity taskEntity =
-        DbEntity.findFirst(DownloadTaskEntity.class, "key=?", entity.getDownloadUrl());
+  private DownloadTaskEntity createChildDownloadTask(DownloadEntity entity) {
+    DownloadTaskEntity taskEntity = mTasksMap.get(entity.getDownloadUrl());
     if (taskEntity != null) {
       return taskEntity;
     }
@@ -265,6 +291,10 @@ public class DownloadGroupUtil implements IDownloadUtil {
     taskEntity.requestEnum = mTaskEntity.requestEnum;
     taskEntity.redirectUrlKey = mTaskEntity.redirectUrlKey;
     taskEntity.removeFile = mTaskEntity.removeFile;
+    taskEntity.groupName = mTaskEntity.key;
+    taskEntity.isGroupTask = true;
+    taskEntity.key = entity.getDownloadPath();
+    taskEntity.save();
     return taskEntity;
   }
 
@@ -275,6 +305,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
     DownloadTaskEntity taskEntity;
     DownloadEntity entity;
+
     long lastLen = 0;
 
     ChildDownloadListener(DownloadTaskEntity entity) {
@@ -294,6 +325,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
 
     @Override public void onResume(long resumeLocation) {
       saveData(IEntity.STATE_POST_PRE, IEntity.STATE_RUNNING);
+      lastLen = resumeLocation;
     }
 
     @Override public void onStart(long startLocation) {
@@ -335,13 +367,13 @@ public class DownloadGroupUtil implements IDownloadUtil {
     private void reTry() {
       if (entity.getFailNum() < 5) {
         Downloader dt = mDownloaderMap.get(entity.getDownloadUrl());
-        mExePool.execute(dt);
+        dt.startDownload();
       }
     }
 
     private void saveData(int state, long location) {
       entity.setState(state);
-      entity.setDownloadComplete(state == IEntity.STATE_COMPLETE);
+      entity.setComplete(state == IEntity.STATE_COMPLETE);
       entity.setCurrentProgress(location);
       entity.update();
     }

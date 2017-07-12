@@ -68,7 +68,8 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   public String redirectUrl = "";
 
   /**
-   * 用于判断删除任务时是否需要删除文件{@code true}删除
+   * {@code true}  删除任务数据库记录，并且删除已经下载完成的文件
+   * {@code false} 如果任务已经完成，只删除任务数据库记录
    */
   @Ignore public boolean removeFile = false;
 

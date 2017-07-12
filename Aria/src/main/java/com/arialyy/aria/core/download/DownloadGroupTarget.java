@@ -16,7 +16,6 @@
 package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.inf.AbsGroupTarget;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
@@ -171,6 +170,4 @@ public class DownloadGroupTarget
     }
     return list;
   }
-
-
 }

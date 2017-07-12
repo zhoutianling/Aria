@@ -22,13 +22,5 @@ package com.arialyy.aria.core.inf;
 public abstract class AbsGroupTarget<TARGET extends AbsGroupTarget, ENTITY extends AbsGroupEntity, TASK_ENTITY extends AbsTaskEntity>
     extends AbsTarget<TARGET, ENTITY, TASK_ENTITY> {
 
-  /**
-   * 设置任务组的组名，如果不设置任务组，Aria会自动将任务组的所有子任务的key相加，取md5码作为任务组组名
-   *
-   * @param groupName 任务组组名
-   */
-  public TARGET setGroupName(String groupName) {
-    mEntity.setGroupName(groupName);
-    return (TARGET) this;
-  }
+
 }

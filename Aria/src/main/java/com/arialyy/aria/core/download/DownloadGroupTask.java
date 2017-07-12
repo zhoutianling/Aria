@@ -17,7 +17,6 @@ package com.arialyy.aria.core.download;
 
 import android.content.Context;
 import android.os.Handler;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.downloader.DownloadGroupUtil;
 import com.arialyy.aria.core.download.downloader.DownloadListener;
@@ -57,10 +56,20 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
   }
 
   @Override public void stop() {
+    if (!mUtil.isDownloading()) {
+      if (mOutHandler != null) {
+        mOutHandler.obtainMessage(ISchedulers.STOP, this).sendToTarget();
+      }
+    }
     mUtil.stopDownload();
   }
 
   @Override public void cancel() {
+    if (!mUtil.isDownloading()) {
+      if (mOutHandler != null) {
+        mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
+      }
+    }
     mUtil.cancelDownload();
   }
 

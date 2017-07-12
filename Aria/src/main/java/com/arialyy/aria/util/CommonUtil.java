@@ -133,15 +133,21 @@ public class CommonUtil {
   /**
    * 删除上传任务的配置，包括
    *
-   * @param removeFile {@code true} 删除已经上传完成的任务，不仅删除上传记录，还会删除已经上传完成的文件，{@code false}
-   * 如果文件已经上传完成，只删除上传记录
+   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经下载完成的文件
+   * {@code false}如果任务已经完成，只删除任务数据库记录
    */
   public static void delUploadTaskConfig(boolean removeFile, UploadTaskEntity tEntity) {
     UploadEntity uEntity = tEntity.getEntity();
+    File file = new File(uEntity.getFilePath());
     if (removeFile) {
-      File file = new File(uEntity.getFilePath());
       if (file.exists()) {
         file.delete();
+      }
+    } else {
+      if (!uEntity.isComplete()) {
+        if (file.exists()) {
+          file.delete();
+        }
       }
     }
     File config = new File(
@@ -156,17 +162,24 @@ public class CommonUtil {
   /**
    * 删除下载任务的配置，包括
    *
-   * @param removeFile{@code true} 删除已经下载完成的任务，不仅删除下载记录，还会删除已经下载完成的文件，{@code false}
-   * 如果文件已经下载完成，只删除下载记录
+   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经下载完成的文件
+   * {@code false}如果任务已经完成，只删除任务数据库记录
    */
   public static void delDownloadTaskConfig(boolean removeFile, DownloadTaskEntity tEntity) {
     DownloadEntity dEntity = tEntity.getEntity();
+    File file = new File(dEntity.getDownloadPath());
     if (removeFile) {
-      File file = new File(dEntity.getDownloadPath());
       if (file.exists()) {
         file.delete();
       }
+    } else {
+      if (!dEntity.isComplete()) {
+        if (file.exists()) {
+          file.delete();
+        }
+      }
     }
+
     File config = new File(
         AriaManager.APP.getFilesDir().getPath() + "/temp/" + dEntity.getFileName() + ".properties");
     if (config.exists()) {

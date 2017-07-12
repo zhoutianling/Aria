@@ -90,7 +90,6 @@ public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
     if (TextUtils.isEmpty(mTaskEntity.redirectUrl)) {
       new Thread(new FileInfoThread(mTaskEntity, new FileInfoThread.OnFileInfoCallback() {
         @Override public void onComplete(String url, int code) {
-          mListener.onPostPre(mTaskEntity.getEntity().getFileSize());
           mDT.startDownload();
         }
 
@@ -99,7 +98,6 @@ public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
         }
       })).start();
     } else {
-      mListener.onPostPre(mTaskEntity.getEntity().getFileSize());
       new Downloader(mListener, mTaskEntity).startDownload();
     }
   }

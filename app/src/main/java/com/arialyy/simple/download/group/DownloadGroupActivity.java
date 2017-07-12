@@ -49,11 +49,11 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     setTitle("任务组");
     mUrls = getModule(GroupModule.class).getUrls();
     DownloadGroupTaskEntity entity = Aria.download(this).getDownlaodGroupTask(mUrls);
-    if (entity != null) {
+    if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
       getBinding().setFileSize(groupEntity.getConvertFileSize());
-      getBinding().setProgress(
-          (int) (groupEntity.getCurrentProgress() * 100 / groupEntity.getFileSize()));
+      getBinding().setProgress(groupEntity.isComplete() ? 100
+          : (int) (groupEntity.getCurrentProgress() * 100 / groupEntity.getFileSize()));
     }
   }
 
@@ -115,6 +115,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskComplete() void taskComplete(DownloadGroupTask task) {
+    getBinding().setProgress(100);
     T.showShort(this, "任务组下载完成");
   }
 }

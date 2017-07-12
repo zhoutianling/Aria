@@ -27,9 +27,8 @@ import com.arialyy.aria.orm.Primary;
  * 下载实体
  */
 public class DownloadEntity extends AbsNormalEntity implements Parcelable {
-  @Primary private String downloadUrl = ""; //下载路径
-  private String downloadPath = ""; //保存路径
-  private boolean isDownloadComplete = false;   //是否下载完成
+  private String downloadUrl = ""; //下载路径
+  @Primary private String downloadPath = ""; //保存路径
   private boolean isRedirect = false; //是否重定向
   private String redirectUrl = ""; //重定向链接
 
@@ -65,8 +64,6 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
         + ", downloadPath='"
         + downloadPath
         + '\''
-        + ", isDownloadComplete="
-        + isDownloadComplete
         + ", isRedirect="
         + isRedirect
         + ", redirectUrl='"
@@ -137,14 +134,6 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     return this;
   }
 
-  public boolean isDownloadComplete() {
-    return isDownloadComplete;
-  }
-
-  public void setDownloadComplete(boolean downloadComplete) {
-    isDownloadComplete = downloadComplete;
-  }
-
   @Override public DownloadEntity clone() throws CloneNotSupportedException {
     return (DownloadEntity) super.clone();
   }
@@ -173,7 +162,6 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     super.writeToParcel(dest, flags);
     dest.writeString(this.downloadUrl);
     dest.writeString(this.downloadPath);
-    dest.writeByte(this.isDownloadComplete ? (byte) 1 : (byte) 0);
     dest.writeByte(this.isRedirect ? (byte) 1 : (byte) 0);
     dest.writeString(this.redirectUrl);
     dest.writeString(this.groupName);
@@ -186,7 +174,6 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     super(in);
     this.downloadUrl = in.readString();
     this.downloadPath = in.readString();
-    this.isDownloadComplete = in.readByte() != 0;
     this.isRedirect = in.readByte() != 0;
     this.redirectUrl = in.readString();
     this.groupName = in.readString();

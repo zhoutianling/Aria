@@ -147,7 +147,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
    * 取消下载
    */
   @Override public void cancel() {
-    if (!mEntity.isDownloadComplete()) {
+    if (!mEntity.isComplete()) {
       if (!mUtil.isDownloading()) {
         if (mOutHandler != null) {
           mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
@@ -301,7 +301,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
 
     private void saveData(int state, long location) {
       entity.setState(state);
-      entity.setDownloadComplete(state == IEntity.STATE_COMPLETE);
+      entity.setComplete(state == IEntity.STATE_COMPLETE);
       entity.setCurrentProgress(location);
       entity.update();
     }
