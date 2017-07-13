@@ -97,6 +97,9 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     mAdapter.updateBtState(task.getKey(), true);
   }
 
+
+
+
   @Override protected void dataCallback(int result, Object data) {
     super.dataCallback(result, data);
     if (result == DownloadNumDialog.RESULT_CODE) {

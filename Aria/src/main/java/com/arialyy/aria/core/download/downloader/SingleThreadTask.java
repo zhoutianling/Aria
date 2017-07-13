@@ -210,7 +210,6 @@ final class SingleThreadTask implements Runnable {
     synchronized (AriaManager.LOCK) {
       mChildCurrentLocation += len;
       CONSTANCE.CURRENT_LOCATION += len;
-      mListener.onProgress(CONSTANCE.CURRENT_LOCATION);
     }
   }
 

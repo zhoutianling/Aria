@@ -49,4 +49,21 @@ public class DownloadGroupSchedulers extends
   @Override String getProxySuffix() {
     return "$$DownloadGroupListenerProxy";
   }
+
+  @Override protected void startNextTask() {
+    if (!DownloadSchedulers.getInstance().hasNextTask()) {
+      nextSelf();
+    } else {
+      Integer nextType = DQueueMapping.getInstance().nextType();
+      if (nextType == DQueueMapping.QUEUE_TYPE_DOWNLOAD) {
+        DownloadSchedulers.getInstance().nextSelf();
+      } else {
+        nextSelf();
+      }
+    }
+  }
+
+  void nextSelf() {
+    super.startNextTask();
+  }
 }

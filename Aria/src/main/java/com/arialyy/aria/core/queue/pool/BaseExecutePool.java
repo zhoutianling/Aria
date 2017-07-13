@@ -20,6 +20,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.ITask;
+import com.arialyy.aria.core.scheduler.DQueueMapping;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -165,22 +166,22 @@ public class BaseExecutePool<TASK extends ITask> implements IPool<TASK> {
         Log.e(TAG, "任务不能为空");
         return false;
       } else {
-        String key = CommonUtil.keyToHashKey(task.getKey());
-        mExecuteMap.remove(key);
-        return mExecuteQueue.remove(task);
+        return removeTask(task.getKey());
       }
     }
   }
 
-  @Override public boolean removeTask(String downloadUrl) {
+  @Override public boolean removeTask(String key) {
     synchronized (AriaManager.LOCK) {
-      if (TextUtils.isEmpty(downloadUrl)) {
+      if (TextUtils.isEmpty(key)) {
         Log.e(TAG, "请传入有效的任务key");
         return false;
       }
-      String key = CommonUtil.keyToHashKey(downloadUrl);
-      TASK task = mExecuteMap.get(key);
-      mExecuteMap.remove(key);
+      String convertKey = CommonUtil.keyToHashKey(key);
+      TASK task = mExecuteMap.get(convertKey);
+      mExecuteMap.remove(convertKey);
+
+      DQueueMapping.getInstance().removeType(key);
       return mExecuteQueue.remove(task);
     }
   }

@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -53,6 +55,7 @@ class Downloader implements Runnable, IDownloadUtil {
    * 小于1m的文件不启用多线程
    */
   private static final long SUB_LEN = 1024 * 1024;
+  private Timer mTimer;
 
   Downloader(IDownloadListener listener, DownloadTaskEntity taskEntity) {
     mListener = listener;
@@ -98,6 +101,7 @@ class Downloader implements Runnable, IDownloadUtil {
         mFixedThreadPool = Executors.newFixedThreadPool(mThreadNum);
         handleBreakpoint();
       }
+      startTimer();
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"
           + mEntity.getDownloadUrl()
@@ -105,6 +109,29 @@ class Downloader implements Runnable, IDownloadUtil {
           + mEntity.getDownloadPath()
           + "】\n"
           + CommonUtil.getPrintException(e));
+    }
+  }
+
+  /**
+   * 启动进度获取定时器
+   */
+  private void startTimer() {
+    mTimer = new Timer(true);
+    mTimer.schedule(new TimerTask() {
+      @Override public void run() {
+        if (mConstance.isComplete()) {
+          closeTimer();
+        } else if (mConstance.CURRENT_LOCATION >= 0) {
+          mListener.onProgress(mConstance.CURRENT_LOCATION);
+        }
+      }
+    }, 0, 1000);
+  }
+
+  private void closeTimer() {
+    if (mTimer != null) {
+      mTimer.purge();
+      mTimer.cancel();
     }
   }
 
@@ -124,6 +151,7 @@ class Downloader implements Runnable, IDownloadUtil {
   }
 
   @Override public void cancelDownload() {
+    closeTimer();
     mConstance.isCancel = true;
     mConstance.isDownloading = false;
     if (mFixedThreadPool != null) {
@@ -139,6 +167,7 @@ class Downloader implements Runnable, IDownloadUtil {
   }
 
   @Override public void stopDownload() {
+    closeTimer();
     mConstance.isStop = true;
     mConstance.isDownloading = false;
     if (mFixedThreadPool != null) {
@@ -370,6 +399,7 @@ class Downloader implements Runnable, IDownloadUtil {
   }
 
   private void failDownload(String errorMsg) {
+    closeTimer();
     Log.e(TAG, errorMsg);
     mConstance.isDownloading = false;
     mListener.onFail();

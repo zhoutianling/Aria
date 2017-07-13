@@ -25,37 +25,37 @@ public interface IDownloadUtil {
   /**
    * 获取文件大小
    */
-  public long getFileSize();
+  long getFileSize();
 
   /**
    * 获取当前下载位置
    */
-  public long getCurrentLocation();
+  long getCurrentLocation();
 
   /**
    * 是否正在下载
    *
    * @return true, 正在下载
    */
-  public boolean isDownloading();
+  boolean isDownloading();
 
   /**
    * 取消下载
    */
-  public void cancelDownload();
+  void cancelDownload();
 
   /**
    * 停止下载
    */
-  public void stopDownload();
+  void stopDownload();
 
   /**
    * 开始下载
    */
-  public void startDownload();
+  void startDownload();
 
   /**
    * 从上次断点恢复下载
    */
-  public void resumeDownload();
+  void resumeDownload();
 }

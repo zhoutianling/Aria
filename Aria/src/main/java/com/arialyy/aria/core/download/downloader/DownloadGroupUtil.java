@@ -350,8 +350,8 @@ public class DownloadGroupUtil implements IDownloadUtil {
       saveData(IEntity.STATE_COMPLETE, entity.getFileSize());
       mCompleteNum++;
       if (mCompleteNum + mFailNum >= mActualTaskNum) {
-        mListener.onComplete();
         closeTimer();
+        mListener.onComplete();
       }
     }
 

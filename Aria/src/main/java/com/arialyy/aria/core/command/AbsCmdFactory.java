@@ -19,6 +19,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by AriaL on 2017/6/29.
+ * 抽象命令工厂
  */
 public abstract class AbsCmdFactory<CMD extends AbsCmd> {
 

@@ -16,19 +16,14 @@
 
 package com.arialyy.aria.core.download;
 
-import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.downloader.DownloadListener;
 import com.arialyy.aria.core.download.downloader.SimpleDownloadUtil;
-import com.arialyy.aria.core.download.downloader.IDownloadListener;
 import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
-import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
-import java.lang.ref.WeakReference;
 
 /**
  * Created by lyy on 2016/8/11.
@@ -37,15 +32,14 @@ import java.lang.ref.WeakReference;
 public class DownloadTask extends AbsNormalTask<DownloadEntity> {
   public static final String TAG = "DownloadTask";
 
-  private IDownloadListener mListener;
+  private DListener<DownloadEntity, DownloadTask> mListener;
   private SimpleDownloadUtil mUtil;
-  private boolean isWait = false;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
     mEntity = taskEntity.getEntity();
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
-    mListener = new DListener(mContext, this, mOutHandler);
+    mListener = new DListener<>(this, mOutHandler);
     mUtil = new SimpleDownloadUtil(taskEntity, mListener);
   }
 
@@ -112,13 +106,10 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
    * 开始下载
    */
   @Override public void start() {
-    isWait = false;
+    mListener.isWait = false;
     if (mUtil.isDownloading()) {
       Log.d(TAG, "任务正在下载");
     } else {
-      if (mListener == null || isWait) {
-        mListener = new DListener(mContext, this, mOutHandler);
-      }
       mUtil.startDownload();
     }
   }
@@ -131,7 +122,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
   }
 
   private void stop(boolean isWait) {
-    this.isWait = isWait;
+    mListener.isWait = isWait;
     if (mUtil.isDownloading()) {
       mUtil.stopDownload();
     } else {
@@ -183,127 +174,6 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
       taskEntity.getEntity().save();
       taskEntity.save();
       return task;
-    }
-  }
-
-  /**
-   * 下载监听类
-   */
-  private static class DListener extends DownloadListener {
-    WeakReference<Handler> outHandler;
-    WeakReference<DownloadTask> wTask;
-    Context context;
-    long lastLen = 0;   //上一次发送长度
-    long lastTime = 0;
-    long INTERVAL_TIME = 1000;   //1m更新周期
-    boolean isFirst = true;
-    DownloadEntity entity;
-    DownloadTask task;
-    boolean isConvertSpeed = false;
-
-    DListener(Context context, DownloadTask task, Handler outHandler) {
-      this.context = context;
-      this.outHandler = new WeakReference<>(outHandler);
-      this.wTask = new WeakReference<>(task);
-      this.task = wTask.get();
-      this.entity = this.task.getDownloadEntity();
-      final AriaManager manager = AriaManager.getInstance(context);
-      isConvertSpeed = manager.getDownloadConfig().isConvertSpeed();
-    }
-
-    @Override public void supportBreakpoint(boolean support) {
-      if (!support) {
-        sendInState2Target(ISchedulers.SUPPORT_BREAK_POINT);
-      }
-    }
-
-    @Override public void onPre() {
-      sendInState2Target(ISchedulers.PRE);
-      saveData(IEntity.STATE_PRE, -1);
-    }
-
-    @Override public void onPostPre(long fileSize) {
-      entity.setFileSize(fileSize);
-      entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
-      sendInState2Target(ISchedulers.POST_PRE);
-      saveData(IEntity.STATE_POST_PRE, -1);
-    }
-
-    @Override public void onResume(long resumeLocation) {
-      sendInState2Target(ISchedulers.RESUME);
-      saveData(IEntity.STATE_RUNNING, resumeLocation);
-    }
-
-    @Override public void onStart(long startLocation) {
-      sendInState2Target(ISchedulers.START);
-      saveData(IEntity.STATE_RUNNING, startLocation);
-    }
-
-    @Override public void onProgress(long currentLocation) {
-      if (System.currentTimeMillis() - lastTime > INTERVAL_TIME) {
-        long speed = currentLocation - lastLen;
-        lastTime = System.currentTimeMillis();
-        if (isFirst) {
-          speed = 0;
-          isFirst = false;
-        }
-        handleSpeed(speed);
-        entity.setCurrentProgress(currentLocation);
-        lastLen = currentLocation;
-        sendInState2Target(ISchedulers.RUNNING);
-      }
-    }
-
-    @Override public void onStop(long stopLocation) {
-      handleSpeed(0);
-      sendInState2Target(ISchedulers.STOP);
-      saveData(task.isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP, stopLocation);
-    }
-
-    @Override public void onCancel() {
-      handleSpeed(0);
-      sendInState2Target(ISchedulers.CANCEL);
-      saveData(IEntity.STATE_CANCEL, -1);
-      entity.deleteData();
-    }
-
-    @Override public void onComplete() {
-      handleSpeed(0);
-      sendInState2Target(ISchedulers.COMPLETE);
-      saveData(IEntity.STATE_COMPLETE, entity.getFileSize());
-    }
-
-    @Override public void onFail() {
-      entity.setFailNum(entity.getFailNum() + 1);
-      handleSpeed(0);
-      sendInState2Target(ISchedulers.FAIL);
-      saveData(IEntity.STATE_FAIL, -1);
-    }
-
-    private void handleSpeed(long speed) {
-      if (isConvertSpeed) {
-        entity.setConvertSpeed(CommonUtil.formatFileSize(speed) + "/s");
-      } else {
-        entity.setSpeed(speed);
-      }
-    }
-
-    /**
-     * 将任务状态发送给下载器
-     *
-     * @param state {@link ISchedulers#START}
-     */
-    private void sendInState2Target(int state) {
-      if (outHandler.get() != null) {
-        outHandler.get().obtainMessage(state, task).sendToTarget();
-      }
-    }
-
-    private void saveData(int state, long location) {
-      entity.setState(state);
-      entity.setComplete(state == IEntity.STATE_COMPLETE);
-      entity.setCurrentProgress(location);
-      entity.update();
     }
   }
 }

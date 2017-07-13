@@ -16,10 +16,9 @@
 
 package com.arialyy.aria.core.command.normal;
 
-import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;

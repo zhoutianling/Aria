@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.scheduler;
 
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
@@ -117,13 +118,10 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
       listener = (AbsSchedulerListener<TASK>) clazz.newInstance();
     } catch (ClassNotFoundException e) {
       Log.e(TAG, targetName + "，没有Aria的Download或Upload注解方法");
-      //e.printStackTrace();
     } catch (InstantiationException e) {
       Log.e(TAG, e.getMessage());
-      //e.printStackTrace();
     } catch (IllegalAccessException e) {
       Log.e(TAG, e.getMessage());
-      //e.printStackTrace();
     }
     return listener;
   }
@@ -134,7 +132,6 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
       Log.e(TAG, "请传入下载任务");
       return true;
     }
-    //callback(msg.what, task);
     ENTITY entity = task.getEntity();
     switch (msg.what) {
       case STOP:
@@ -209,6 +206,11 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
           listener.onTaskCancel(task);
           break;
         case COMPLETE:
+          //new Handler().postDelayed(new Runnable() {
+          //  @Override public void run() {
+          //    listener.onTaskComplete(task);
+          //  }
+          //}, 1000);
           listener.onTaskComplete(task);
           break;
         case FAIL:
@@ -262,7 +264,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
   /**
    * 启动下一个任务，条件：任务停止，取消下载，任务完成
    */
-  private void startNextTask() {
+  protected void startNextTask() {
     TASK newTask = mQueue.getNextTask();
     if (newTask == null) {
       Log.w(TAG, "没有下一任务");
@@ -271,5 +273,14 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
     if (newTask.getEntity().getState() == IEntity.STATE_WAIT) {
       mQueue.startTask(newTask);
     }
+  }
+
+  /**
+   * 是否有下一任务
+   *
+   * @return {@code true} 有，{@code false} 无
+   */
+  protected boolean hasNextTask() {
+    return mQueue.getCachePoolSize() > 0;
   }
 }
