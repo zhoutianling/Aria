@@ -22,7 +22,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 /**
  * Created by AriaL on 2017/6/29.
  */
-public class GroupCmdFactory extends AbsCmdFactory<AbsGroupCmd> {
+class GroupCmdFactory extends AbsCmdFactory<AbsGroupCmd> {
   /**
    * 启动任务
    */

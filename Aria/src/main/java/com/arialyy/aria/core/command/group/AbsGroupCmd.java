@@ -29,7 +29,7 @@ import com.arialyy.aria.util.CommonUtil;
  * Created by AriaL on 2017/6/29.
  * 任务组命令
  */
-public abstract class AbsGroupCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
+abstract class AbsGroupCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
 
   /**
    * @param targetName 创建任务的对象名

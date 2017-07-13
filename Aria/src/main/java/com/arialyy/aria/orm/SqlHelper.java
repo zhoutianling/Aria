@@ -375,9 +375,8 @@ final class SqlHelper extends SQLiteOpenHelper {
 
   /**
    * 保存一对一的数据
-   * @param field
    */
-  private void saveOneToOneFile(Field field){
+  private void saveOneToOneFile(Field field) {
 
   }
 
@@ -498,7 +497,8 @@ final class SqlHelper extends SQLiteOpenHelper {
           continue;
         }
         if (isPrimary(field)) {
-          sb.append(" PRIMARY KEY");
+          //sb.append(" PRIMARY KEY");
+          sb.append(" NOT NULL");
         }
         sb.append(",");
       }

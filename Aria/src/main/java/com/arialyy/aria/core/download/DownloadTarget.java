@@ -36,12 +36,9 @@ public class DownloadTarget
 
   DownloadTarget(String url, String targetName) {
     mTargetName = targetName;
-    DownloadEntity entity = DbEntity.findFirst(DownloadEntity.class, "downloadUrl=?", url);
-    if (entity == null) {
-      entity = getEntity(url);
-    }
-    mEntity = entity;
-    mTaskEntity = DbEntity.findFirst(DownloadTaskEntity.class, "key=?", entity.getDownloadPath());
+    DownloadEntity entity = getEntity(url);
+    mTaskEntity = DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",
+        entity.getDownloadPath());
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadTaskEntity();
       mTaskEntity.key = entity.getDownloadPath();
@@ -49,8 +46,9 @@ public class DownloadTarget
       mTaskEntity.save();
     }
     if (mTaskEntity.entity == null) {
-      mTaskEntity.entity = mEntity;
+      mTaskEntity.entity = entity;
     }
+    mEntity = entity;
   }
 
   /**

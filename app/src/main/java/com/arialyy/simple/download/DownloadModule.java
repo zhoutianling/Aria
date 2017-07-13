@@ -16,27 +16,16 @@
 
 package com.arialyy.simple.download;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Environment;
-import android.os.Handler;
-import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.frame.util.AndroidUtils;
-import com.arialyy.frame.util.StringUtil;
-import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.download.multi_download.FileListEntity;
 import com.arialyy.simple.base.BaseModule;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 /**
  * Created by Lyy on 2016/9/27.

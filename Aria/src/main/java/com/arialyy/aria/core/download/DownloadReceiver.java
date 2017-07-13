@@ -25,13 +25,10 @@ import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.upload.ProxyHelper;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Set;
-import java.lang.reflect.Method;
 
 /**
  * Created by lyy on 2016/12/5.
@@ -138,7 +135,8 @@ public class DownloadReceiver extends AbsReceiver {
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    return DbEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+    return DbEntity.findFirst(DownloadEntity.class, "downloadUrl=? and isGroupChild='false'",
+        downloadUrl);
   }
 
   /**
@@ -146,13 +144,14 @@ public class DownloadReceiver extends AbsReceiver {
    */
   public DownloadTaskEntity getDownloadTask(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    return DbEntity.findFirst(DownloadTaskEntity.class, "key=?", downloadUrl);
+    return DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",
+        downloadUrl);
   }
 
   /**
    * 通过下载链接获取保存在数据库的下载任务组实体
    */
-  public DownloadGroupTaskEntity getDownlaodGroupTask(List<String> urls) {
+  public DownloadGroupTaskEntity getDownloadGroupTask(List<String> urls) {
     CheckUtil.checkDownloadUrls(urls);
     String hashCode = CommonUtil.getMd5Code(urls);
     return DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", hashCode);
@@ -165,8 +164,18 @@ public class DownloadReceiver extends AbsReceiver {
     return DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl) != null;
   }
 
+  /**
+   * 获取普通下载任务列表
+   */
   @Override public List<DownloadEntity> getTaskList() {
-    return DownloadEntity.findAllData(DownloadEntity.class);
+    return DownloadEntity.findDatas(DownloadEntity.class, "isGroupChild=?", "false");
+  }
+
+  /**
+   * 获取任务组列表
+   */
+  public List<DownloadGroupTaskEntity> getGroupTaskList() {
+    return DownloadEntity.findAllData(DownloadGroupTaskEntity.class);
   }
 
   /**

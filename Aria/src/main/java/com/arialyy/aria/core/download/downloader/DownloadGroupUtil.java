@@ -76,24 +76,23 @@ public class DownloadGroupUtil implements IDownloadUtil {
    * 文件信息回调组
    */
   private SparseArray<FileInfoThread.OnFileInfoCallback> mFileInfoCallbacks = new SparseArray<>();
-
-  //任务总数
-  private int mTaskNum = 0;
-  //已经完成的任务数
-  private int mCompleteNum = 0;
-  //失败的任务数
-  private int mFailNum = 0;
   /**
    * 该任务组对应的所有任务
    */
   private Map<String, DownloadTaskEntity> mTasksMap = new HashMap<>();
+  //已经完成的任务数
+  private int mCompleteNum = 0;
+  //失败的任务数
+  private int mFailNum = 0;
+  //实际的下载任务数
+  private int mActualTaskNum = 0;
 
   public DownloadGroupUtil(IDownloadListener listener, DownloadGroupTaskEntity taskEntity) {
     mListener = listener;
     mTaskEntity = taskEntity;
     mInfoPool = Executors.newCachedThreadPool();
     mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    mTaskNum = mTaskEntity.entity.getSubTask().size();
+    mActualTaskNum = mTaskEntity.entity.getSubTask().size();
     List<DownloadTaskEntity> tasks =
         DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mTaskEntity.key);
     if (tasks != null && !tasks.isEmpty()) {
@@ -224,12 +223,14 @@ public class DownloadGroupUtil implements IDownloadUtil {
             mFailMap.put(url, te);
             mFileInfoCallbacks.put(te.hashCode(), this);
           }
-          mInitFailNum++;
           //404链接不重试下载
-          if (!errorMsg.contains("错误码：404")) {
-            if (failNum < 10) {
-              mInfoPool.execute(createFileInfoThread(te));
-            }
+          if (failNum < 10 && !errorMsg.contains("错误码：404") && !errorMsg.contains(
+              "UnknownHostException")) {
+            mInfoPool.execute(createFileInfoThread(te));
+          } else {
+            mInitFailNum++;
+            mActualTaskNum--;
+            if (mActualTaskNum < 0) mActualTaskNum = 0;
           }
           failNum++;
           if (mInitNum + mInitFailNum == mTaskEntity.getEntity().getSubTask().size()) {
@@ -238,7 +239,6 @@ public class DownloadGroupUtil implements IDownloadUtil {
         }
       };
     }
-
     return new FileInfoThread(taskEntity, callback);
   }
 
@@ -349,7 +349,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
     @Override public void onComplete() {
       saveData(IEntity.STATE_COMPLETE, entity.getFileSize());
       mCompleteNum++;
-      if (mCompleteNum >= mTaskNum) {
+      if (mCompleteNum + mFailNum >= mActualTaskNum) {
         mListener.onComplete();
         closeTimer();
       }
@@ -368,6 +368,8 @@ public class DownloadGroupUtil implements IDownloadUtil {
       if (entity.getFailNum() < 5) {
         Downloader dt = mDownloaderMap.get(entity.getDownloadUrl());
         dt.startDownload();
+      } else {
+        mFailNum++;
       }
     }
 

@@ -25,7 +25,6 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
-import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
@@ -48,12 +47,16 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     Aria.download(this).register();
     setTitle("任务组");
     mUrls = getModule(GroupModule.class).getUrls();
-    DownloadGroupTaskEntity entity = Aria.download(this).getDownlaodGroupTask(mUrls);
+    DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(mUrls);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
       getBinding().setFileSize(groupEntity.getConvertFileSize());
-      getBinding().setProgress(groupEntity.isComplete() ? 100
-          : (int) (groupEntity.getCurrentProgress() * 100 / groupEntity.getFileSize()));
+      if (groupEntity.getFileSize() == 0) {
+        getBinding().setProgress(0);
+      } else {
+        getBinding().setProgress(groupEntity.isComplete() ? 100
+            : (int) (groupEntity.getCurrentProgress() * 100 / groupEntity.getFileSize()));
+      }
     }
   }
 
