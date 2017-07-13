@@ -63,9 +63,8 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       }
     } else {
       // 任务不存在时，根据配置不同，对任务执行操作
-      if (!task.isRunning()
-          && mod.equals(QueueMod.WAIT.getTag())
-          && task.getState() == IEntity.STATE_WAIT) {
+      if (!task.isRunning() && mod.equals(QueueMod.WAIT.getTag()) && (task.getState()
+          == IEntity.STATE_WAIT || task.getState() == IEntity.STATE_STOP)) {
         mQueue.startTask(task);
       }
     }

@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 下载文件信息获取
@@ -52,10 +50,6 @@ class FileInfoThread implements Runnable {
      * @param errorMsg 错误信息
      */
     void onFail(String url, String errorMsg);
-  }
-
-  FileInfoThread(DownloadTaskEntity taskEntity) {
-    this(taskEntity, null);
   }
 
   FileInfoThread(DownloadTaskEntity taskEntity, OnFileInfoCallback callback) {
