@@ -38,6 +38,10 @@ public class UploadEntity extends AbsNormalEntity implements Parcelable {
     this.filePath = filePath;
   }
 
+  @Override public String getKey() {
+    return filePath;
+  }
+
   public UploadEntity() {
   }
 

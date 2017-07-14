@@ -19,9 +19,15 @@ package com.arialyy.aria.core.command.normal;
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.QueueMod;
+import com.arialyy.aria.core.download.DownloadGroupTask;
+import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.core.scheduler.DQueueMapping;
+import com.arialyy.aria.orm.Primary;
 
 /**
  * Created by lyy on 2016/8/22.
@@ -57,14 +63,13 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       if (mod.equals(QueueMod.NOW.getTag())) {
         mQueue.startTask(task);
       } else if (mod.equals(QueueMod.WAIT.getTag())) {
-        if (mQueue.getExePoolSize() < maxTaskNum) {
+        if (mQueue.getCurrentExePoolNum() < maxTaskNum || task.getState() == IEntity.STATE_STOP) {
           mQueue.startTask(task);
         }
       }
     } else {
       // 任务不存在时，根据配置不同，对任务执行操作
-      if (!task.isRunning() && mod.equals(QueueMod.WAIT.getTag()) && (task.getState()
-          == IEntity.STATE_WAIT || task.getState() == IEntity.STATE_STOP)) {
+      if (!task.isRunning()) {
         mQueue.startTask(task);
       }
     }

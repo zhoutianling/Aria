@@ -29,10 +29,10 @@ import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -220,7 +220,7 @@ final class SqlHelper extends SQLiteOpenHelper {
       Log.e(TAG, "请输入查询条件");
       return null;
     } else if (wheres.length != values.length) {
-      Log.e(TAG, "key 和 vaule 长度不相等");
+      Log.e(TAG, "groupName 和 vaule 长度不相等");
       return null;
     }
     StringBuilder sb = new StringBuilder();
@@ -297,7 +297,11 @@ final class SqlHelper extends SQLiteOpenHelper {
           if (type == Map.class) {
             value = map2Str((Map<String, String>) field.get(dbEntity));
           } else if (type == List.class) {
-            value = getListElementParams(field);
+            if (isOneToMany(field)) {
+              value = getOneToManyElementParams(field);
+            } else {
+              value = list2Str(dbEntity, field);
+            }
           } else if (isOneToOne(field)) {
             value = getOneToOneParams(field);
           } else {
@@ -354,7 +358,11 @@ final class SqlHelper extends SQLiteOpenHelper {
           if (type == Map.class) {
             sb.append(map2Str((Map<String, String>) field.get(dbEntity)));
           } else if (type == List.class) {
-            sb.append(getListElementParams(field));
+            if (isOneToMany(field)) {
+              sb.append(getOneToManyElementParams(field));
+            } else {
+              sb.append(list2Str(dbEntity, field));
+            }
           } else if (isOneToOne(field)) {
             sb.append(getOneToOneParams(field));
           } else {
@@ -374,13 +382,6 @@ final class SqlHelper extends SQLiteOpenHelper {
   }
 
   /**
-   * 保存一对一的数据
-   */
-  private void saveOneToOneFile(Field field) {
-
-  }
-
-  /**
    * 获取一对一参数
    */
   static String getOneToOneParams(Field field) {
@@ -396,16 +397,73 @@ final class SqlHelper extends SQLiteOpenHelper {
    *
    * @param field list反射字段
    */
-  static String getListElementParams(Field field) {
+  static String getOneToManyElementParams(Field field) {
     OneToMany oneToMany = field.getAnnotation(OneToMany.class);
     if (oneToMany == null) {
-      throw new IllegalArgumentException("List中元素必须被@OneToMany注解");
+      throw new IllegalArgumentException("一对多元素必须被@OneToMany注解");
     }
     //关联的表名
     String tableName = oneToMany.table().getName();
     //关联的字段
     String key = oneToMany.key();
     return tableName + "$$" + key;
+  }
+
+  /**
+   * 列表数据转字符串
+   *
+   * @param field list反射字段
+   */
+  static String list2Str(DbEntity dbEntity, Field field) throws IllegalAccessException {
+    NormalList normalList = field.getAnnotation(NormalList.class);
+    if (normalList == null) {
+      throw new IllegalArgumentException("List中元素必须被@NormalList注解");
+    }
+    List list = (List) field.get(dbEntity);
+    if (list == null || list.isEmpty()) return "";
+    StringBuilder sb = new StringBuilder();
+    for (Object aList : list) {
+      sb.append(aList).append("$$");
+    }
+    return sb.toString();
+  }
+
+  /**
+   * 字符串转列表
+   *
+   * @param str 数据库中的字段
+   * @return 如果str为null，则返回null
+   */
+  private static List str2List(String str, Field field) {
+    NormalList normalList = field.getAnnotation(NormalList.class);
+    if (normalList == null) {
+      throw new IllegalArgumentException("List中元素必须被@NormalList注解");
+    }
+    if (TextUtils.isEmpty(str)) return null;
+    String[] datas = str.split("$$");
+    List list = new ArrayList();
+    String type = normalList.clazz().getName();
+    for (String data : datas) {
+      list.add(checkData(data, type));
+    }
+    return list;
+  }
+
+  private static Object checkData(String type, String data) {
+    switch (type) {
+      case "String":
+        return data;
+      case "int":
+      case "Integer":
+        return Integer.parseInt(data);
+      case "double":
+      case "Double":
+        return Double.parseDouble(data);
+      case "float":
+      case "Float":
+        return Float.parseFloat(data);
+    }
+    return null;
   }
 
   /**
@@ -510,23 +568,6 @@ final class SqlHelper extends SQLiteOpenHelper {
     close(db);
   }
 
-  ///**
-  // * 通过字段类型和获取保存在数据库表字段名
-  // */
-  //private static String getFieldName(Class<?> type, Field field) {
-  //  String fieldName;
-  //  if (type == Map.class) {
-  //    fieldName = MAP_FIELD + field.getName();
-  //  } else if (type == List.class) {
-  //    fieldName = LIST_FIELD + field.getName();
-  //  } else if (isGeneric(field)) {
-  //    fieldName = GENERIC_FIELD + field.getName();
-  //  } else {
-  //    fieldName = field.getName();
-  //  }
-  //  return fieldName;
-  //}
-
   /**
    * 打印数据库日志
    *
@@ -598,19 +639,23 @@ final class SqlHelper extends SQLiteOpenHelper {
             } else if (type == Map.class) {
               field.set(entity, str2Map(cursor.getString(column)));
             } else if (type == List.class) {
-              //主键字段
-              String primaryKey = getPrimaryName(clazz);
-              if (TextUtils.isEmpty(primaryKey)) {
-                throw new IllegalArgumentException("List中的元素对象必须需要@Primary注解的字段");
+              String value = cursor.getString(column);
+              if (isOneToMany(field)) {
+                //主键字段
+                String primaryKey = getPrimaryName(clazz);
+                if (TextUtils.isEmpty(primaryKey)) {
+                  throw new IllegalArgumentException("List中的元素对象必须需要@Primary注解的字段");
+                }
+                //list字段保存的数据
+                int kc = cursor.getColumnIndex(primaryKey);
+                String primaryData = cursor.getString(kc);
+                if (TextUtils.isEmpty(primaryData)) continue;
+                List<T> list = findForeignData(db, primaryData, value);
+                if (list == null) continue;
+                field.set(entity, findForeignData(db, primaryData, value));
+              } else {
+                field.set(entity, str2List(value, field));
               }
-              //list字段保存的数据
-              int kc = cursor.getColumnIndex(primaryKey);
-              String params = cursor.getString(column);
-              String primaryData = cursor.getString(kc);
-              if (TextUtils.isEmpty(primaryData)) continue;
-              List<T> list = findForeignData(db, primaryData, params);
-              if (list == null) continue;
-              field.set(entity, findForeignData(db, primaryData, params));
             } else if (isOneToOne(field)) {
               String primaryKey = getPrimaryName(clazz);
               if (TextUtils.isEmpty(primaryKey)) {

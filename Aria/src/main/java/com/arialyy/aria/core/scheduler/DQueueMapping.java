@@ -16,10 +16,11 @@
 package com.arialyy.aria.core.scheduler;
 
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Aria.Lao on 2017/7/13.
@@ -30,7 +31,7 @@ public class DQueueMapping {
   public static final int QUEUE_TYPE_DOWNLOAD = 0xa1;
   public static final int QUEUE_TYPE_DOWNLOAD_GROUP = 0xa2;
   public static final int QUEUE_NONE = 0xab2;
-  LinkedHashMap<String, Integer> types = new LinkedHashMap<>();
+  private LinkedHashMap<String, Integer> types = new LinkedHashMap<>();
 
   private static volatile DQueueMapping instance = null;
 
@@ -78,5 +79,11 @@ public class DQueueMapping {
       return type;
     }
     return QUEUE_NONE;
+  }
+
+  public boolean canStart() {
+    return DownloadTaskQueue.getInstance().getCurrentExePoolNum()
+        + DownloadGroupTaskQueue.getInstance().getCurrentExePoolNum() >= AriaManager.getInstance(
+        AriaManager.APP).getDownloadConfig().getMaxTaskNum();
   }
 }

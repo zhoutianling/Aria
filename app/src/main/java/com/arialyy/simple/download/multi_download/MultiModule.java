@@ -13,21 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.compiler;
+package com.arialyy.simple.download.multi_download;
 
-import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import android.content.Context;
+import com.arialyy.simple.base.BaseModule;
 
 /**
- * Created by Aria.Lao on 2017/6/7.
- * 创建代理方法的参数
+ * Created by Aria.Lao on 2017/7/14.
  */
-class ProxyMethodParam {
-  String packageName;
-  String className;
-  Set<TaskEnum> taskEnums;
-  Map<String, Set<String>> keyMappings = new HashMap<>();
-  Map<TaskEnum, Map<Class<? extends Annotation>, String>> methods = new HashMap<>();
+public class MultiModule extends BaseModule{
+  public MultiModule(Context context) {
+    super(context);
+  }
+
 }

@@ -23,9 +23,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import butterknife.Bind;
 import com.arialyy.annotations.Download;
+import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
@@ -39,12 +42,7 @@ import java.util.List;
 public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBinding> {
   @Bind(R.id.list) RecyclerView mList;
   private DownloadAdapter mAdapter;
-  private List<DownloadEntity> mData = new ArrayList<>();
-
-  String[] mFilterStr = new String[] {
-      "https://g37.gdl.netease.com/onmyoji_netease_10_1.0.20.apk",
-      "http://static.gaoshouyou.com/d/eb/f2/dfeba30541f209ab8a50d847fc1661ce.apk"
-  };
+  private List<AbsEntity> mData = new ArrayList<>();
 
   @Override protected int setLayoutId() {
     return R.layout.activity_multi_download;
@@ -54,7 +52,7 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
     super.init(savedInstanceState);
     Aria.download(this).register();
     setTitle("下载列表");
-    List<DownloadEntity> temps = Aria.download(this).getTaskList();
+    List<AbsEntity> temps = Aria.download(this).getTotleTaskList();
     if (temps != null && !temps.isEmpty()) {
       mData.addAll(temps);
     }
@@ -74,37 +72,68 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
   }
 
   @Download.onPre void onPre(DownloadTask task) {
-    L.d(TAG, "download onPre");
-    mAdapter.updateState(task.getDownloadEntity());
+    mAdapter.updateState(task.getEntity());
   }
 
   @Download.onTaskStart void taskStart(DownloadTask task) {
-    L.d(TAG, "download start");
-    mAdapter.updateState(task.getDownloadEntity());
+    mAdapter.updateState(task.getEntity());
   }
 
   @Download.onTaskResume void taskResume(DownloadTask task) {
-    L.d(TAG, "download resume");
-    mAdapter.updateState(task.getDownloadEntity());
+    mAdapter.updateState(task.getEntity());
   }
 
   @Download.onTaskStop void taskStop(DownloadTask task) {
-    mAdapter.updateState(task.getDownloadEntity());
+    mAdapter.updateState(task.getEntity());
   }
 
   @Download.onTaskCancel void taskCancel(DownloadTask task) {
-    mAdapter.updateState(task.getDownloadEntity());
+    mAdapter.updateState(task.getEntity());
   }
 
   @Download.onTaskFail void taskFail(DownloadTask task) {
-    mAdapter.updateState(task.getDownloadEntity());
+    mAdapter.updateState(task.getEntity());
   }
 
   @Download.onTaskComplete void taskComplete(DownloadTask task) {
-    mAdapter.updateState(task.getDownloadEntity());
+    mAdapter.updateState(task.getEntity());
   }
 
   @Download.onTaskRunning() void taskRunning(DownloadTask task) {
-    mAdapter.setProgress(task.getDownloadEntity());
+    mAdapter.setProgress(task.getEntity());
+  }
+
+  //////////////////////////////////// 下面为任务组的处理 /////////////////////////////////////////
+
+  @DownloadGroup.onPre void onGroupPre(DownloadGroupTask task) {
+    mAdapter.updateState(task.getEntity());
+  }
+
+  @DownloadGroup.onTaskStart void groupTaskStart(DownloadGroupTask task) {
+    mAdapter.updateState(task.getEntity());
+  }
+
+  @DownloadGroup.onTaskResume void groupTaskResume(DownloadGroupTask task) {
+    mAdapter.updateState(task.getEntity());
+  }
+
+  @DownloadGroup.onTaskStop void groupTaskStop(DownloadGroupTask task) {
+    mAdapter.updateState(task.getEntity());
+  }
+
+  @DownloadGroup.onTaskCancel void groupTaskCancel(DownloadGroupTask task) {
+    mAdapter.updateState(task.getEntity());
+  }
+
+  @DownloadGroup.onTaskFail void groupTaskFail(DownloadGroupTask task) {
+    mAdapter.updateState(task.getEntity());
+  }
+
+  @DownloadGroup.onTaskComplete void groupTaskComplete(DownloadGroupTask task) {
+    mAdapter.updateState(task.getEntity());
+  }
+
+  @DownloadGroup.onTaskRunning() void groupTaskRunning(DownloadGroupTask task) {
+    mAdapter.setProgress(task.getEntity());
   }
 }

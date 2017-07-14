@@ -28,7 +28,7 @@ public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, Up
 
   UploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
-    mTaskEntity = DbEntity.findFirst(UploadTaskEntity.class, "key=?", filePath);
+    mTaskEntity = DbEntity.findFirst(UploadTaskEntity.class, "groupName=?", filePath);
     if (mTaskEntity == null) {
       mTaskEntity = new UploadTaskEntity();
       mTaskEntity.entity = new UploadEntity();

@@ -16,6 +16,7 @@
 
 package com.arialyy.aria.core.scheduler;
 
+import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
@@ -55,6 +56,10 @@ public class DownloadSchedulers
   }
 
   @Override protected void startNextTask() {
+    if (getExeTaskNum() + DownloadGroupSchedulers.getInstance().getExeTaskNum()
+        >= AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum()) {
+      return;
+    }
     if (!DownloadGroupSchedulers.getInstance().hasNextTask()) {
       nextSelf();
     } else {

@@ -187,7 +187,7 @@ public class DbUtil {
       Log.e(TAG, "请输入删除条件");
       return -1;
     } else if (wheres.length != values.length) {
-      Log.e(TAG, "key 和 vaule 长度不相等");
+      Log.e(TAG, "groupName 和 vaule 长度不相等");
       return -1;
     }
     StringBuilder sb = new StringBuilder();

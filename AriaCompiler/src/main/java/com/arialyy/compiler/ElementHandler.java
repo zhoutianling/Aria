@@ -50,6 +50,7 @@ import javax.lang.model.util.Elements;
  * 元素处理
  */
 class ElementHandler {
+  private static final boolean DEBUG = false;
 
   private Filer mFiler;
   private Elements mElementUtil;
@@ -170,16 +171,25 @@ class ElementHandler {
     Set<String> keys = mMethods.keySet();
     for (String key : keys) {
       ProxyMethodParam entity = mMethods.get(key);
-      JavaFile jf = JavaFile.builder(entity.packageName, createProxyClass(entity)).build();
+      for (TaskEnum taskEnum : entity.taskEnums) {
+        JavaFile jf =
+            JavaFile.builder(entity.packageName, createProxyClass(entity, taskEnum)).build();
+        createFile(jf);
+      }
+    }
+  }
 
-      jf.writeTo(mFiler);
+  private void createFile(JavaFile jf) throws IOException {
+    if (DEBUG) {
       // 如果需要在控制台打印生成的文件，则去掉下面的注释
-      //jf.writeTo(System.out);
+      jf.writeTo(System.out);
+    } else {
+      jf.writeTo(mFiler);
     }
   }
 
   /**
-   * 每一种注解的类集合
+   * 每一种注解对应的类集合
    */
   private void createProxyClassFile() throws IOException {
     Set<String> keys = mListenerClass.keySet();
@@ -212,8 +222,7 @@ class ElementHandler {
         ProxyConstance.COUNT_DOWNLOAD_GROUP));
 
     JavaFile jf = JavaFile.builder(ProxyConstance.PROXY_COUNTER_PACKAGE, builder.build()).build();
-    jf.writeTo(mFiler);
-    //jf.writeTo(System.out);
+    createFile(jf);
   }
 
   /**
@@ -287,8 +296,7 @@ class ElementHandler {
   /**
    * 创建代理类
    */
-  private TypeSpec createProxyClass(ProxyMethodParam entity) {
-    TaskEnum taskEnum = entity.taskEnum;
+  private TypeSpec createProxyClass(ProxyMethodParam entity, TaskEnum taskEnum) {
     TypeSpec.Builder builder = TypeSpec.classBuilder(entity.className + taskEnum.getProxySuffix())
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
@@ -305,9 +313,12 @@ class ElementHandler {
     builder.addField(mappingField);
 
     //添加注解方法
-    for (Class<? extends Annotation> annotation : entity.methods.keySet()) {
-      MethodSpec method = createProxyMethod(taskEnum, annotation, entity.methods.get(annotation));
-      builder.addMethod(method);
+    Map<Class<? extends Annotation>, String> temp = entity.methods.get(taskEnum);
+    if (temp != null) {
+      for (Class<? extends Annotation> annotation : temp.keySet()) {
+        MethodSpec method = createProxyMethod(taskEnum, annotation, temp.get(annotation));
+        builder.addMethod(method);
+      }
     }
 
     //增加构造函数
@@ -345,8 +356,7 @@ class ElementHandler {
     //创建父类参数
     ClassName superClass = ClassName.get("com.arialyy.aria.core.scheduler", "AbsSchedulerListener");
     //创建泛型
-    ClassName typeVariableName =
-        ClassName.get(entity.taskEnum.getPkg(), entity.taskEnum.getClassName());
+    ClassName typeVariableName = ClassName.get(taskEnum.getPkg(), taskEnum.getClassName());
     builder.superclass(ParameterizedTypeName.get(superClass, typeVariableName));
     builder.addMethod(listener);
     return builder.build();
@@ -373,12 +383,16 @@ class ElementHandler {
         ProxyMethodParam proxyEntity = mMethods.get(className);
         if (proxyEntity == null) {
           proxyEntity = new ProxyMethodParam();
-          proxyEntity.taskEnum = taskEnum;
+          proxyEntity.taskEnums = new HashSet<>();
           proxyEntity.packageName = packageElement.getQualifiedName().toString();
           proxyEntity.className = classElement.getSimpleName().toString();
           mMethods.put(className, proxyEntity);
         }
-        proxyEntity.methods.put(annotationClazz, methodName);
+        proxyEntity.taskEnums.add(taskEnum);
+        if (proxyEntity.methods.get(taskEnum) == null) {
+          proxyEntity.methods.put(taskEnum, new HashMap<Class<? extends Annotation>, String>());
+        }
+        proxyEntity.methods.get(taskEnum).put(annotationClazz, methodName);
         proxyEntity.keyMappings.put(methodName, getValues(taskEnum, method, annotationType));
       }
     }

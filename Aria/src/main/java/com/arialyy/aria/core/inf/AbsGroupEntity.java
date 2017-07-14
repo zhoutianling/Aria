@@ -24,30 +24,29 @@ import com.arialyy.aria.orm.Primary;
  */
 public abstract class AbsGroupEntity extends AbsEntity implements Parcelable {
   /**
-   * 组名
+   * 组名，组名为任务地址相加的urlMd5
    */
-  @Primary
-  private String groupName = "";
+  @Primary protected String groupName = "";
 
   /**
-   * 任务地址相加的urlmd5
+   * 任务组别名
    */
-  private String urlmd5 = "";
-
-  public String getUrlmd5() {
-    return urlmd5;
-  }
-
-  public void setUrlmd5(String urlmd5) {
-    this.urlmd5 = urlmd5;
-  }
+  private String alias = "";
 
   public String getGroupName() {
     return groupName;
   }
 
-  public void setGroupName(String groupName) {
-    this.groupName = groupName;
+  public String getAlias() {
+    return alias;
+  }
+
+  @Override public String getKey() {
+    return groupName;
+  }
+
+  public void setAlias(String alias) {
+    this.alias = alias;
   }
 
   public AbsGroupEntity() {
@@ -60,12 +59,12 @@ public abstract class AbsGroupEntity extends AbsEntity implements Parcelable {
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
     dest.writeString(this.groupName);
-    dest.writeString(this.urlmd5);
+    dest.writeString(this.alias);
   }
 
   protected AbsGroupEntity(Parcel in) {
     super(in);
     this.groupName = in.readString();
-    this.urlmd5 = in.readString();
+    this.alias = in.readString();
   }
 }

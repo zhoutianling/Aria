@@ -13,21 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.compiler;
+package com.arialyy.aria.orm;
 
-import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created by Aria.Lao on 2017/6/7.
- * 创建代理方法的参数
+ * Created by AriaL on 2017/7/4.
+ * 基本类型的List，只能用于常见的数据类型，如果是一对多的复杂数据结构，需要使用{@link OneToMany}
  */
-class ProxyMethodParam {
-  String packageName;
-  String className;
-  Set<TaskEnum> taskEnums;
-  Map<String, Set<String>> keyMappings = new HashMap<>();
-  Map<TaskEnum, Map<Class<? extends Annotation>, String>> methods = new HashMap<>();
+@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface NormalList {
+  /**
+   * 数据类型
+   */
+  Class clazz();
 }

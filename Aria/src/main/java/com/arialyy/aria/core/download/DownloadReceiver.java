@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
@@ -27,6 +28,7 @@ import com.arialyy.aria.core.upload.ProxyHelper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -49,9 +51,9 @@ public class DownloadReceiver extends AbsReceiver {
   }
 
   /**
-   * {@link #load(String)}，请使用该方法
+   * 使用下载实体执行下载操作
    */
-  @Deprecated public DownloadTarget load(DownloadEntity entity) {
+  public DownloadTarget load(DownloadEntity entity) {
     return new DownloadTarget(entity, targetName);
   }
 
@@ -69,6 +71,16 @@ public class DownloadReceiver extends AbsReceiver {
   public DownloadGroupTarget load(List<String> urls) {
     CheckUtil.checkDownloadUrls(urls);
     return new DownloadGroupTarget(urls, targetName);
+  }
+
+  /**
+   * 使用任务组实体执行任务组的实体执行任务组的下载操作
+   *
+   * @param groupEntity 如果加载的任务实体没有子项的下载地址，
+   * 那么你需要使用{@link DownloadGroupTarget#setGroupUrl(List)}设置子项的下载地址
+   */
+  public DownloadGroupTarget load(DownloadGroupEntity groupEntity) {
+    return new DownloadGroupTarget(groupEntity, targetName);
   }
 
   /**
@@ -144,7 +156,7 @@ public class DownloadReceiver extends AbsReceiver {
    */
   public DownloadTaskEntity getDownloadTask(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    return DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",
+    return DbEntity.findFirst(DownloadTaskEntity.class, "groupName=? and isGroupTask='false'",
         downloadUrl);
   }
 
@@ -167,15 +179,31 @@ public class DownloadReceiver extends AbsReceiver {
   /**
    * 获取普通下载任务列表
    */
-  @Override public List<DownloadEntity> getTaskList() {
+  @Override public List<DownloadEntity> getSimpleTaskList() {
     return DownloadEntity.findDatas(DownloadEntity.class, "isGroupChild=?", "false");
   }
 
   /**
    * 获取任务组列表
    */
-  public List<DownloadGroupTaskEntity> getGroupTaskList() {
-    return DownloadEntity.findAllData(DownloadGroupTaskEntity.class);
+  public List<DownloadGroupEntity> getGroupTaskList() {
+    return DownloadEntity.findAllData(DownloadGroupEntity.class);
+  }
+
+  /**
+   * 获取普通任务和任务组的任务列表
+   */
+  public List<AbsEntity> getTotleTaskList() {
+    List<AbsEntity> list = new ArrayList<>();
+    List<DownloadEntity> simpleTask = getSimpleTaskList();
+    List<DownloadGroupEntity> groupTask = getGroupTaskList();
+    if (simpleTask != null && !simpleTask.isEmpty()) {
+      list.addAll(simpleTask);
+    }
+    if (groupTask != null && !groupTask.isEmpty()) {
+      list.addAll(groupTask);
+    }
+    return list;
   }
 
   /**

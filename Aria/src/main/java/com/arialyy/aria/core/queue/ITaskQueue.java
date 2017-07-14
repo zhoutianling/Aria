@@ -88,14 +88,14 @@ public interface ITaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   void reTryStart(TASK task);
 
   /**
-   * 获取执行池中的任务数量
+   * 获取当前执行池中的任务数量
    */
-  int getExePoolSize();
+  int getCurrentExePoolNum();
 
   /**
-   * 获取任务缓存池中的任务数量
+   * 获取当前任务缓存池中的任务数量
    */
-  int getCachePoolSize();
+  int getCurrentCachePoolNum();
 
   /**
    * 设置执行池可执行的最大任务数

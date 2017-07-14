@@ -27,7 +27,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     List<DownloadEntity> allEntity =
         DbEntity.findDatas(DownloadEntity.class, "state=?", IEntity.STATE_STOP + "");
     for (DownloadEntity entity : allEntity) {
-      int exeNum = mQueue.getExePoolSize();
+      int exeNum = mQueue.getCurrentExePoolNum();
       if (exeNum == 0 || exeNum < mQueue.getMaxTaskNum()) {
         AbsTask task = createTask(entity);
         mQueue.startTask(task);

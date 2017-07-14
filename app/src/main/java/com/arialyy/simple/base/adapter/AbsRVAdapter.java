@@ -16,6 +16,8 @@
 package com.arialyy.simple.base.adapter;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,6 +47,9 @@ public abstract class AbsRVAdapter<T, Holder extends AbsHolder>
   @Override public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
     View view =
         LayoutInflater.from(parent.getContext()).inflate(setLayoutId(viewType), parent, false);
+    //LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+    //VD binding = DataBindingUtil.inflate(inflater, setLayoutId(viewType), parent, false);
+    //;
     holder = getViewHolder(view, viewType);
     return holder;
   }

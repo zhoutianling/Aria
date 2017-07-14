@@ -32,7 +32,7 @@ import java.util.Map;
 public class DBConfig {
   static Map<String, Class> mapping = new HashMap<>();
   static String DB_NAME;
-  static int VERSION = 9;
+  static int VERSION = 10;
 
   static {
     if (TextUtils.isEmpty(DB_NAME)) {

@@ -142,6 +142,11 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     this.completeTime = completeTime;
   }
 
+  /**
+   * 实体唯一标识符
+   */
+  public abstract String getKey();
+
   public AbsEntity() {
   }
 
@@ -174,5 +179,4 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     this.completeTime = in.readLong();
     this.isComplete = in.readByte() != 0;
   }
-
 }

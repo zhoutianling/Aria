@@ -23,6 +23,7 @@ import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 
 /**
  * Created by AriaL on 2017/7/2.
+ * 任务组调度器
  */
 public class DownloadGroupSchedulers extends
     AbsSchedulers<DownloadGroupTaskEntity, DownloadGroupEntity, DownloadGroupTask, DownloadGroupTaskQueue> {
@@ -51,6 +52,10 @@ public class DownloadGroupSchedulers extends
   }
 
   @Override protected void startNextTask() {
+    if (getExeTaskNum() + DownloadSchedulers.getInstance().getExeTaskNum()
+        >= AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum()) {
+      return;
+    }
     if (!DownloadSchedulers.getInstance().hasNextTask()) {
       nextSelf();
     } else {

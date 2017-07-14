@@ -171,7 +171,11 @@ public class DbEntity {
         if (SqlHelper.isOneToOne(field)) {
           values.add(SqlHelper.getOneToOneParams(field));
         } else if (type == List.class) {
-          values.add(SqlHelper.getListElementParams(field));
+          if (SqlHelper.isOneToMany(field)) {
+            values.add(SqlHelper.getOneToManyElementParams(field));
+          } else {
+            values.add(SqlHelper.list2Str(this, field));
+          }
         } else if (type == Map.class) {
           values.add(SqlHelper.map2Str((Map<String, String>) field.get(this)));
         } else {

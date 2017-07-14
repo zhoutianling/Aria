@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsGroupTarget;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.util.ArrayList;
@@ -40,14 +41,26 @@ public class DownloadGroupTarget
    */
   private boolean isSetDirPathed = false;
 
+  DownloadGroupTarget(DownloadGroupEntity groupEntity, String targetName) {
+    this.mTargetName = targetName;
+    if (groupEntity.getUrls() != null && !groupEntity.getUrls().isEmpty()) {
+      this.mUrls.addAll(groupEntity.getUrls());
+    }
+    init(groupEntity.getGroupName());
+  }
+
   DownloadGroupTarget(List<String> urls, String targetName) {
     this.mTargetName = targetName;
     this.mUrls = urls;
-    mGroupName = CommonUtil.getMd5Code(urls);
-    mTaskEntity = DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", mGroupName);
+    init(CommonUtil.getMd5Code(urls));
+  }
+
+  private void init(String key) {
+    mGroupName = key;
+    mTaskEntity = DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", key);
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadGroupTaskEntity();
-      mTaskEntity.key = mGroupName;
+      mTaskEntity.key = key;
       mTaskEntity.entity = getDownloadGroupEntity();
       mTaskEntity.insert();
     }
@@ -57,16 +70,41 @@ public class DownloadGroupTarget
     mEntity = mTaskEntity.entity;
   }
 
+  /**
+   * 查询任务组实体，如果数据库不存在该实体，则新创建一个新的任务组实体
+   */
   private DownloadGroupEntity getDownloadGroupEntity() {
     DownloadGroupEntity entity =
         DbEntity.findFirst(DownloadGroupEntity.class, "groupName=?", mGroupName);
     if (entity == null) {
       entity = new DownloadGroupEntity();
       entity.setGroupName(mGroupName);
-      entity.setUrlmd5(mGroupName);
+      entity.setUrls(mUrls);
       entity.insert();
     }
     return entity;
+  }
+
+  /**
+   * 设置任务组别名
+   */
+  public DownloadGroupTarget setGroupAlias(String alias) {
+    if (TextUtils.isEmpty(alias)) return this;
+    mEntity.setAlias(alias);
+    mEntity.update();
+    return this;
+  }
+
+  /**
+   * 如果你是使用{@link DownloadReceiver#load(DownloadGroupEntity)}进行下载操作，那么你需要设置任务组的下载地址
+   */
+  public DownloadGroupTarget setGroupUrl(List<String> urls) {
+    CheckUtil.checkDownloadUrls(urls);
+    mUrls.clear();
+    mUrls.addAll(urls);
+    mEntity.setGroupName(CommonUtil.getMd5Code(urls));
+    mEntity.update();
+    return this;
   }
 
   /**

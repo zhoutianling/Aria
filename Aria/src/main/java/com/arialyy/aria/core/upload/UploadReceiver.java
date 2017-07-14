@@ -62,7 +62,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
     return DbEntity.findFirst(UploadEntity.class, "filePath=?", filePath) != null;
   }
 
-  @Override public List<UploadEntity> getTaskList() {
+  @Override public List<UploadEntity> getSimpleTaskList() {
     return DbEntity.findAllData(UploadEntity.class);
   }
 

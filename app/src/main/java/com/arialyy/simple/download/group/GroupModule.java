@@ -38,8 +38,8 @@ public class GroupModule extends BaseModule {
     return urls;
   }
 
-  //List<String> convertPath(List<String> urls){
-  //  List<String> paths = new ArrayList<>();
+  //NormalList<String> convertPath(NormalList<String> urls){
+  //  NormalList<String> paths = new ArrayList<>();
   //
   //  for (String url : urls){
   //

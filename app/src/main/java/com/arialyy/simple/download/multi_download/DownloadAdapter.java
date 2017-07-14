@@ -16,6 +16,7 @@
 
 package com.arialyy.simple.download.multi_download;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
@@ -24,12 +25,15 @@ import android.widget.TextView;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.adapter.AbsHolder;
 import com.arialyy.simple.base.adapter.AbsRVAdapter;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
+import com.arialyy.simple.widget.NoScrollListView;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,21 +43,32 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by Lyy on 2016/9/27.
  * 下载列表适配器
  */
-public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapter.MyHolder> {
+public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.SimpleHolder> {
   private static final String TAG = "DownloadAdapter";
   private Map<String, Integer> mPositions = new ConcurrentHashMap<>();
 
-  public DownloadAdapter(Context context, List<DownloadEntity> data) {
+  public DownloadAdapter(Context context, List<AbsEntity> data) {
     super(context, data);
     int i = 0;
-    for (DownloadEntity entity : data) {
-      mPositions.put(entity.getDownloadUrl(), i);
+    for (AbsEntity entity : data) {
+      mPositions.put(getKey(entity), i);
       i++;
     }
   }
 
-  @Override protected MyHolder getViewHolder(View convertView, int viewType) {
-    return new MyHolder(convertView);
+  private String getKey(AbsEntity entity) {
+    if (entity instanceof DownloadEntity) {
+      return ((DownloadEntity) entity).getDownloadUrl();
+    } else if (entity instanceof DownloadGroupEntity) {
+      return ((DownloadGroupEntity) entity).getGroupName();
+    }
+    return "";
+  }
+
+  @Override protected SimpleHolder getViewHolder(View convertView, int viewType) {
+    if (viewType == 1) return new SimpleHolder(convertView);
+    if (viewType == 2) return new GroupHolder(convertView);
+    return null;
   }
 
   public void addDownloadEntity(DownloadEntity entity) {
@@ -61,21 +76,33 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     mPositions.put(entity.getDownloadUrl(), mPositions.size());
   }
 
-  @Override protected int setLayoutId(int type) {
-    return R.layout.item_download;
+  @Override public int getItemViewType(int position) {
+    AbsEntity entity = mData.get(position);
+    if (entity instanceof DownloadEntity) return 1;
+    if (entity instanceof DownloadGroupEntity) return 2;
+    return -1;
   }
 
-  public synchronized void updateState(DownloadEntity entity) {
+  @Override protected int setLayoutId(int type) {
+    if (type == 1) {
+      return R.layout.item_simple_download;
+    } else if (type == 2) {
+      return R.layout.item_group_download;
+    }
+    return android.R.layout.simple_list_item_2;
+  }
+
+  public synchronized void updateState(AbsEntity entity) {
     if (entity.getState() == DownloadEntity.STATE_CANCEL) {
       mPositions.clear();
       int i = 0;
-      for (DownloadEntity entity_1 : mData) {
-        mPositions.put(entity_1.getDownloadUrl(), i);
+      for (AbsEntity entity_1 : mData) {
+        mPositions.put(getKey(entity_1), i);
         i++;
       }
       notifyDataSetChanged();
     } else {
-      int position = indexItem(entity.getDownloadUrl());
+      int position = indexItem(getKey(entity));
       if (position == -1 || position >= mData.size()) {
         return;
       }
@@ -84,8 +111,8 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     }
   }
 
-  public synchronized void setProgress(DownloadEntity entity) {
-    String url = entity.getDownloadUrl();
+  public synchronized void setProgress(AbsEntity entity) {
+    String url = entity.getKey();
     int position = indexItem(url);
     if (position == -1 || position >= mData.size()) {
       return;
@@ -105,51 +132,65 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     return -1;
   }
 
-  @Override protected void bindData(MyHolder holder, int position, final DownloadEntity item) {
-    long size = item.getFileSize();
-    int current = 0;
-    long progress = item.getCurrentProgress();
-    current = size == 0 ? 0 : (int) (progress * 100 / size);
-    holder.progress.setProgress(current);
-    BtClickListener listener = new BtClickListener(item);
-    holder.bt.setOnClickListener(listener);
-    holder.name.setText("文件名：" + item.getFileName());
-    holder.url.setText("下载地址：" + item.getDownloadUrl());
-    holder.path.setText("保持路径：" + item.getDownloadPath());
+  @Override protected void bindData(SimpleHolder holder, int position, final AbsEntity item) {
+    handleProgress(holder, item);
+  }
+
+  @SuppressLint("SetTextI18n")
+  private void handleProgress(SimpleHolder holder, final AbsEntity entity) {
     String str = "";
     int color = android.R.color.holo_green_light;
-    switch (item.getState()) {
-      case DownloadEntity.STATE_WAIT:
-      case DownloadEntity.STATE_OTHER:
-      case DownloadEntity.STATE_FAIL:
+    switch (entity.getState()) {
+      case IEntity.STATE_WAIT:
+      case IEntity.STATE_OTHER:
+      case IEntity.STATE_FAIL:
         str = "开始";
         break;
-      case DownloadEntity.STATE_STOP:
+      case IEntity.STATE_STOP:
         str = "恢复";
         color = android.R.color.holo_blue_light;
         break;
-      case DownloadEntity.STATE_PRE:
-      case DownloadEntity.STATE_POST_PRE:
-      case DownloadEntity.STATE_RUNNING:
+      case IEntity.STATE_PRE:
+      case IEntity.STATE_POST_PRE:
+      case IEntity.STATE_RUNNING:
         str = "暂停";
         color = android.R.color.holo_red_light;
         break;
-      case DownloadEntity.STATE_COMPLETE:
+      case IEntity.STATE_COMPLETE:
         str = "重新开始？";
         holder.progress.setProgress(100);
         break;
     }
+    long size = entity.getFileSize();
+    long progress = entity.getCurrentProgress();
+    int current = size == 0 ? 0 : (int) (progress * 100 / size);
     holder.bt.setText(str);
     holder.bt.setTextColor(getColor(color));
-    holder.speed.setText(item.getConvertSpeed());
+    holder.progress.setProgress(current);
+
+    BtClickListener listener = new BtClickListener(entity);
+    holder.bt.setOnClickListener(listener);
+    String name = (isSimpleDownload(entity) ? ((DownloadEntity) entity).getFileName()
+        : ((DownloadGroupEntity) entity).getAlias());
+    holder.name.setText("文件名：" + name);
+    holder.speed.setText(entity.getConvertSpeed());
     holder.fileSize.setText(covertCurrentSize(progress) + "/" + CommonUtil.formatFileSize(size));
+    //删除按钮事件
     holder.cancel.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View v) {
-        mData.remove(item);
+        mData.remove(entity);
         notifyDataSetChanged();
-        Aria.download(getContext()).load(item).cancel();
+        if (isSimpleDownload(entity)) {
+          Aria.download(getContext()).load((DownloadEntity) entity).cancel();
+        } else {
+          Aria.download(getContext()).load((DownloadGroupEntity) entity).cancel();
+        }
       }
     });
+  }
+
+  private boolean isSimpleDownload(AbsEntity entity) {
+    return entity instanceof DownloadEntity;
   }
 
   private String covertCurrentSize(long currentSize) {
@@ -161,49 +202,67 @@ public class DownloadAdapter extends AbsRVAdapter<DownloadEntity, DownloadAdapte
     return Resources.getSystem().getColor(color);
   }
 
+  /**
+   * 按钮事件
+   */
   private class BtClickListener implements View.OnClickListener {
-    private DownloadEntity entity;
+    private AbsEntity entity;
 
-    BtClickListener(DownloadEntity entity) {
+    BtClickListener(AbsEntity entity) {
       this.entity = entity;
     }
 
     @Override public void onClick(View v) {
       switch (entity.getState()) {
-        case DownloadEntity.STATE_WAIT:
-        case DownloadEntity.STATE_OTHER:
-        case DownloadEntity.STATE_FAIL:
-        case DownloadEntity.STATE_STOP:
-        case DownloadEntity.STATE_COMPLETE:
-        case DownloadEntity.STATE_POST_PRE:
+        case IEntity.STATE_WAIT:
+        case IEntity.STATE_OTHER:
+        case IEntity.STATE_FAIL:
+        case IEntity.STATE_STOP:
+        case IEntity.STATE_COMPLETE:
+        case IEntity.STATE_PRE:
+        case IEntity.STATE_POST_PRE:
           start(entity);
           break;
-        case DownloadEntity.STATE_RUNNING:
+        case IEntity.STATE_RUNNING:
           stop(entity);
           break;
       }
     }
 
-    private void start(DownloadEntity entity) {
-      Aria.download(getContext()).load(entity).start();
+    private void start(AbsEntity entity) {
+      if (isSimpleDownload(entity)) {
+        Aria.download(getContext()).load((DownloadEntity) entity).start();
+      } else {
+        Aria.download(getContext()).load((DownloadGroupEntity) entity).start();
+      }
     }
 
-    private void stop(DownloadEntity entity) {
-      Aria.download(getContext()).load(entity).pause();
+    private void stop(AbsEntity entity) {
+      if (isSimpleDownload(entity)) {
+        Aria.download(getContext()).load((DownloadEntity) entity).stop();
+      } else {
+        Aria.download(getContext()).load((DownloadGroupEntity) entity).stop();
+      }
     }
   }
 
-  class MyHolder extends AbsHolder {
+  class SimpleHolder extends AbsHolder {
     @Bind(R.id.progressBar) HorizontalProgressBarWithNumber progress;
     @Bind(R.id.bt) Button bt;
     @Bind(R.id.speed) TextView speed;
     @Bind(R.id.fileSize) TextView fileSize;
     @Bind(R.id.del) TextView cancel;
     @Bind(R.id.name) TextView name;
-    @Bind(R.id.download_url) TextView url;
-    @Bind(R.id.download_path) TextView path;
 
-    MyHolder(View itemView) {
+    SimpleHolder(View itemView) {
+      super(itemView);
+    }
+  }
+
+  class GroupHolder extends SimpleHolder {
+    @Bind(R.id.child_list) NoScrollListView childList;
+
+    GroupHolder(View itemView) {
       super(itemView);
     }
   }

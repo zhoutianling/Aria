@@ -68,7 +68,7 @@ final class FileListAdapter extends AbsRVAdapter<FileListEntity, FileListAdapter
           Toast.makeText(getContext(), "开始下载：" + item.name, Toast.LENGTH_SHORT).show();
           Aria.download(getContext())
               .load(item.downloadUrl)
-              .setDownloadName(item.name)
+              .setFileName(item.name)
               .setDownloadPath(item.downloadPath)
               .start();
         }

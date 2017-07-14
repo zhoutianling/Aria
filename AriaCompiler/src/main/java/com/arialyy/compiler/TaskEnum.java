@@ -20,10 +20,11 @@ package com.arialyy.compiler;
  * 任务类型枚举
  */
 enum TaskEnum {
-  DOWNLOAD("com.arialyy.aria.core.download", "DownloadTask", "$$DownloadListenerProxy"),
-  DOWNLOAD_GROUP("com.arialyy.aria.core.download", "DownloadGroupTask", "$$DownloadGroupListenerProxy"),
-  UPLOAD("com.arialyy.aria.core.upload", "UploadTask", "$$UploadListenerProxy"),
-  UPLOAD_GROUP("com.arialyy.aria.core.upload", "UploadGroupTask", "$$UploadGroupListenerProxy");
+  DOWNLOAD("com.arialyy.aria.core.download", "DownloadTask",
+      "$$DownloadListenerProxy"), DOWNLOAD_GROUP("com.arialyy.aria.core.download",
+      "DownloadGroupTask", "$$DownloadGroupListenerProxy"), UPLOAD("com.arialyy.aria.core.upload",
+      "UploadTask", "$$UploadListenerProxy"), UPLOAD_GROUP("com.arialyy.aria.core.upload",
+      "UploadGroupTask", "$$UploadGroupListenerProxy");
 
   String pkg, className, proxySuffix;
 
@@ -49,5 +50,4 @@ enum TaskEnum {
     this.className = className;
     this.proxySuffix = proxySuffix;
   }
-
 }

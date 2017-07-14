@@ -53,6 +53,10 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
    */
   private String serverFileName = "";
 
+  @Override public String getKey() {
+    return downloadUrl;
+  }
+
   public DownloadEntity() {
   }
 

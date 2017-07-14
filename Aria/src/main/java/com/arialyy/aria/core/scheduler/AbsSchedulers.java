@@ -16,7 +16,6 @@
 package com.arialyy.aria.core.scheduler;
 
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
@@ -140,7 +139,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
         }
       case CANCEL:
         mQueue.removeTask(entity);
-        if (mQueue.getExePoolSize() < AriaManager.getInstance(AriaManager.APP)
+        if (mQueue.getCurrentExePoolNum() < AriaManager.getInstance(AriaManager.APP)
             .getUploadConfig()
             .getMaxTaskNum()) {
           startNextTask();
@@ -206,11 +205,6 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
           listener.onTaskCancel(task);
           break;
         case COMPLETE:
-          //new Handler().postDelayed(new Runnable() {
-          //  @Override public void run() {
-          //    listener.onTaskComplete(task);
-          //  }
-          //}, 1000);
           listener.onTaskComplete(task);
           break;
         case FAIL:
@@ -280,7 +274,14 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
    *
    * @return {@code true} 有，{@code false} 无
    */
-  protected boolean hasNextTask() {
-    return mQueue.getCachePoolSize() > 0;
+  boolean hasNextTask() {
+    return mQueue.getCurrentCachePoolNum() > 0;
+  }
+
+  /**
+   * 获取正在执行的队列数
+   */
+  int getExeTaskNum() {
+    return mQueue.getCurrentExePoolNum();
   }
 }

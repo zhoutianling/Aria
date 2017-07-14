@@ -190,7 +190,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         if (text.equals("重新开始？") || text.equals("开始")) {
           Aria.download(this)
               .load(DOWNLOAD_URL)
-              .addHeader("key", "value")
+              .addHeader("groupName", "value")
               .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
               .start();
         } else if (text.equals("恢复")) {

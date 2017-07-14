@@ -112,6 +112,7 @@ public class DownloadTarget
     mEntity.setDownloadPath(downloadPath);
     mEntity.setFileName(file.getName());
     mTaskEntity.key = downloadPath;
+    mEntity.update();
     mTaskEntity.update();
     return this;
   }

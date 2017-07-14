@@ -56,7 +56,7 @@ class GroupStartCmd<T extends AbsTaskEntity> extends AbsGroupCmd<T> {
       if (mod.equals(QueueMod.NOW.getTag())) {
         mQueue.startTask(task);
       } else if (mod.equals(QueueMod.WAIT.getTag())) {
-        if (mQueue.getExePoolSize() < maxTaskNum) {
+        if (mQueue.getCurrentExePoolNum() < maxTaskNum) {
           mQueue.startTask(task);
         }
       }

@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
 import com.arialyy.aria.core.inf.AbsGroupEntity;
+import com.arialyy.aria.orm.NormalList;
 import com.arialyy.aria.orm.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +28,26 @@ import java.util.List;
  */
 public class DownloadGroupEntity extends AbsGroupEntity {
 
-  @OneToMany(table = DownloadEntity.class, key = "groupName") private List<DownloadEntity> subtask = new ArrayList<>();
+  @OneToMany(table = DownloadEntity.class, key = "groupName") private List<DownloadEntity> subtask =
+      new ArrayList<>();
 
-  //任务组下载文件的文件夹地址
+  /**
+   * 子任务链接组
+   */
+  @NormalList(clazz = String.class) private List<String> urls = new ArrayList<>();
+
+  /**
+   * 任务组下载文件的文件夹地址
+   *
+   * @see DownloadGroupTarget#setDownloadDirPath(String)
+   */
   private String dirPath = "";
 
   public List<DownloadEntity> getSubTask() {
     return subtask;
   }
 
-  public void setSubTasks(List<DownloadEntity> subTasks) {
+  void setSubTasks(List<DownloadEntity> subTasks) {
     this.subtask = subTasks;
   }
 
@@ -46,6 +57,18 @@ public class DownloadGroupEntity extends AbsGroupEntity {
 
   public void setDirPath(String dirPath) {
     this.dirPath = dirPath;
+  }
+
+  public List<String> getUrls() {
+    return urls;
+  }
+
+  void setUrls(List<String> urls) {
+    this.urls = urls;
+  }
+
+  void setGroupName(String key) {
+    this.groupName = key;
   }
 
   public DownloadGroupEntity() {
