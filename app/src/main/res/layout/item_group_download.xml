@@ -4,15 +4,23 @@
     android:layout_height="wrap_content"
     >
 
-  <include layout="@layout/layout_item_progress"
+  <include
+      layout="@layout/layout_item_progress"
       android:id="@+id/include"
       />
 
-  <com.arialyy.simple.widget.NoScrollListView
+
+  <LinearLayout
       android:id="@+id/child_list"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_below="@+id/include"
+      android:orientation="vertical"
+      android:paddingBottom="8dp"
+      android:paddingLeft="16dp"
+      android:paddingRight="16dp"
+      android:paddingTop="8dp"
       />
+
 
 </RelativeLayout>

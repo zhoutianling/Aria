@@ -93,11 +93,13 @@ class Downloader implements Runnable, IDownloadUtil {
     try {
       if (!mTaskEntity.isSupportBP) {
         mThreadNum = 1;
+        mConstance.THREAD_NUM = mThreadNum;
         handleNoSupportBreakpointDownload();
       } else {
         mThreadNum = isNewTask ? (mEntity.getFileSize() <= SUB_LEN ? 1
             : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum())
             : mRealThreadNum;
+        mConstance.THREAD_NUM = mThreadNum;
         mFixedThreadPool = Executors.newFixedThreadPool(mThreadNum);
         handleBreakpoint();
       }
@@ -298,7 +300,6 @@ class Downloader implements Runnable, IDownloadUtil {
     entity.CONFIG_FILE_PATH = mConfigFile.getPath();
     entity.IS_SUPPORT_BREAK_POINT = mTaskEntity.isSupportBP;
     entity.DOWNLOAD_TASK_ENTITY = mTaskEntity;
-    mConstance.THREAD_NUM = mThreadNum;
     SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
     mTask.put(i, task);
   }
@@ -390,7 +391,6 @@ class Downloader implements Runnable, IDownloadUtil {
     entity.CONFIG_FILE_PATH = mConfigFile.getPath();
     entity.IS_SUPPORT_BREAK_POINT = mTaskEntity.isSupportBP;
     entity.DOWNLOAD_TASK_ENTITY = mTaskEntity;
-    mConstance.THREAD_NUM = mThreadNum;
     SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
     mTask.put(0, task);
     mFixedThreadPool.execute(task);

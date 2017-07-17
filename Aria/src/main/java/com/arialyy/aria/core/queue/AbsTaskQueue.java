@@ -35,8 +35,17 @@ import java.util.Set;
 abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity>
     implements ITaskQueue<TASK, TASK_ENTITY, ENTITY> {
   private final String TAG = "AbsTaskQueue";
-  BaseCachePool<TASK> mCachePool = new BaseCachePool<>();
+  BaseCachePool<TASK> mCachePool;
   BaseExecutePool<TASK> mExecutePool;
+
+  AbsTaskQueue() {
+    mCachePool = setCachePool();
+    mExecutePool = setExecutePool();
+  }
+
+  abstract BaseCachePool<TASK> setCachePool();
+
+  abstract BaseExecutePool<TASK> setExecutePool();
 
   @Override public boolean taskIsRunning(String key) {
     return mExecutePool.getTask(key) != null;

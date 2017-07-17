@@ -45,10 +45,6 @@ final class StateConstance {
     FAIL_NUM = 0;
   }
 
-  void setThreadNum(int threadNum) {
-    THREAD_NUM = threadNum;
-  }
-
   /**
    * 所有子线程是否都已经停止下载
    */

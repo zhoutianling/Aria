@@ -16,13 +16,13 @@
 
 package com.arialyy.aria.core.queue.pool;
 
-import com.arialyy.aria.core.inf.ITask;
+import com.arialyy.aria.core.inf.AbsTask;
 
 /**
  * Created by lyy on 2016/8/14.
  * 任务池
  */
-interface IPool<T extends ITask> {
+interface IPool<T extends AbsTask> {
   /**
    * 将下载任务添加到任务池中
    */

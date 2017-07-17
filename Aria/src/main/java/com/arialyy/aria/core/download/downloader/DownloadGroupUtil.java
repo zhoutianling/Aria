@@ -105,6 +105,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
       if (entity.isComplete() && file.exists()) {
         mTotalSize += entity.getFileSize();
         mCompleteNum++;
+        mInitNum++;
       } else {
         mExeMap.put(entity.getDownloadUrl(), createChildDownloadTask(entity));
       }
@@ -376,7 +377,12 @@ public class DownloadGroupUtil implements IDownloadUtil {
     private void saveData(int state, long location) {
       entity.setState(state);
       entity.setComplete(state == IEntity.STATE_COMPLETE);
-      entity.setCurrentProgress(location);
+      if (entity.isComplete()) {
+        entity.setCompleteTime(System.currentTimeMillis());
+        entity.setCurrentProgress(entity.getFileSize());
+      } else {
+        entity.setCurrentProgress(location);
+      }
       entity.update();
     }
   }

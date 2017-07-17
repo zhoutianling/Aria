@@ -22,7 +22,9 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
+import com.arialyy.aria.core.queue.pool.DownloadSharePool;
 import com.arialyy.aria.core.scheduler.DQueueMapping;
 import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 
@@ -46,7 +48,14 @@ public class DownloadGroupTaskQueue
   }
 
   private DownloadGroupTaskQueue() {
-    mExecutePool = new BaseExecutePool<>(true);
+  }
+
+  @Override BaseCachePool<DownloadGroupTask> setCachePool() {
+    return DownloadSharePool.getInstance().cachePool;
+  }
+
+  @Override BaseExecutePool<DownloadGroupTask> setExecutePool() {
+    return DownloadSharePool.getInstance().executePool;
   }
 
   @Override public DownloadGroupTask createTask(String targetName, DownloadGroupTaskEntity entity) {

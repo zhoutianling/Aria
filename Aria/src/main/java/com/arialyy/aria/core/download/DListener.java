@@ -128,6 +128,12 @@ final class DListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
   private void saveData(int state, long location) {
     if (state == IEntity.STATE_CANCEL) {
       entity.deleteData();
+    } else if (state == IEntity.STATE_COMPLETE) {
+      entity.setState(state);
+      entity.setComplete(true);
+      entity.setCompleteTime(System.currentTimeMillis());
+      entity.setCurrentProgress(entity.getFileSize());
+      entity.update();
     } else {
       entity.setState(state);
       if (location != -1) {

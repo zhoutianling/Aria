@@ -65,6 +65,13 @@ public class DbUtil {
   }
 
   /**
+   * 执行sql语句
+   */
+  void exeSql(String sql) {
+    mDb.execSQL(sql);
+  }
+
+  /**
    * 删除某条数据
    */
   synchronized <T extends DbEntity> void delData(Class<T> clazz, String... expression) {

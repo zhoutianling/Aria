@@ -19,6 +19,7 @@ package com.arialyy.aria.core.queue.pool;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.HashMap;
@@ -32,7 +33,7 @@ import java.util.concurrent.TimeUnit;
  * Created by lyy on 2016/8/14.
  * 任务缓存池，所有下载任务最先缓存在这个池中
  */
-public class BaseCachePool<TASK extends ITask> implements IPool<TASK> {
+public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
   private static final String TAG = "BaseCachePool";
   private static final int MAX_NUM = Integer.MAX_VALUE;  //最大下载任务数
   private static final long TIME_OUT = 1000;

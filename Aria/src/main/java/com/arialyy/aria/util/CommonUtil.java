@@ -541,9 +541,11 @@ public class CommonUtil {
   }
 
   /**
-   * 创建文件 当文件不存在的时候就创建一个文件，否则直接返回文件
+   * 创建文件
+   * 当文件不存在的时候就创建一个文件。
+   * 如果文件存在，先删除原文件，然后重新创建一个新文件
    */
-  public static File createFile(String path) {
+  public static void createFile(String path) {
     File file = new File(path);
     if (!file.getParentFile().exists()) {
       Log.d(TAG, "目标文件所在路径不存在，准备创建……");
@@ -552,19 +554,18 @@ public class CommonUtil {
       }
     }
     // 创建目标文件
+    if (file.exists()) {
+      final File to = new File(file.getAbsolutePath() + System.currentTimeMillis());
+      file.renameTo(to);
+      to.delete();
+    }
     try {
-      if (!file.exists()) {
-        if (file.createNewFile()) {
-          Log.d(TAG, "创建文件成功:" + file.getAbsolutePath());
-        }
-        return file;
-      } else {
-        return file;
+      if (file.createNewFile()) {
+        Log.d(TAG, "创建文件成功:" + file.getAbsolutePath());
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return null;
   }
 
   /**

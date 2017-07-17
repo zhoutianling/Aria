@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsGroupTarget;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -131,6 +132,7 @@ public class DownloadGroupTarget
       throw new NullPointerException("任务组文件夹保存路径不能为null");
     }
 
+    isSetDirPathed = true;
     if (mEntity.getDirPath().equals(groupDirPath)) return this;
 
     File file = new File(groupDirPath);
@@ -148,12 +150,11 @@ public class DownloadGroupTarget
       mEntity.setSubTasks(createSubTask());
     }
     mEntity.update();
-    isSetDirPathed = true;
     return this;
   }
 
   /**
-   * 改变任务组文件夹路径
+   * 改变任务组文件夹路径，修改文件夹路径会将子任务所有路径更换
    *
    * @param newDirPath 新的文件夹路径
    */
@@ -161,8 +162,17 @@ public class DownloadGroupTarget
     List<DownloadEntity> subTask = mEntity.getSubTask();
     if (subTask != null && !subTask.isEmpty()) {
       for (DownloadEntity entity : subTask) {
-        File file = new File(entity.getDownloadPath());
-        file.renameTo(new File(newDirPath, entity.getFileName()));
+        String oldPath = entity.getDownloadPath();
+        String newPath = newDirPath + "/" + entity.getFileName();
+        File file = new File(oldPath);
+        file.renameTo(new File(newPath));
+        DbEntity.exeSql("UPDATE DownloadEntity SET downloadPath='"
+            + newPath
+            + "' WHERE downloadPath='"
+            + oldPath
+            + "'");
+        DbEntity.exeSql(
+            "UPDATE DownloadTaskEntity SET key='" + newPath + "' WHERE key='" + oldPath + "'");
       }
     } else {
       mEntity.setSubTasks(createSubTask());
@@ -170,9 +180,9 @@ public class DownloadGroupTarget
   }
 
   /**
-   * 设置子任务文件名，该方法如果在{@link #setDownloadDirPath(String)}之前调用，则不生效
+   * 设置子任务文件名，该方法必须在{@link #setDownloadDirPath(String)}之后调用，否则不生效
    */
-  public DownloadGroupTarget setSubtaskFileName(List<String> subTaskFileName) {
+  public DownloadGroupTarget setSubTaskFileName(List<String> subTaskFileName) {
     if (subTaskFileName == null || subTaskFileName.isEmpty()) return this;
     mSubTaskFileName.addAll(subTaskFileName);
     if (mUrls.size() != subTaskFileName.size()) {
@@ -182,11 +192,31 @@ public class DownloadGroupTarget
       List<DownloadEntity> entities = mEntity.getSubTask();
       int i = 0;
       for (DownloadEntity entity : entities) {
-        entity.setFileName(mSubTaskFileName.get(i));
-        entity.update();
+        String newName = mSubTaskFileName.get(i);
+        updateSubFileName(entity, newName);
+        i++;
       }
     }
     return this;
+  }
+
+  /**
+   * 更新子任务文件名
+   */
+  private void updateSubFileName(DownloadEntity entity, String newName) {
+    if (!newName.equals(entity.getFileName())) {
+      String oldPath = mEntity.getDirPath() + "/" + entity.getFileName();
+      String newPath = mEntity.getDirPath() + "/" + newName;
+      File file = new File(oldPath);
+      if (file.exists()) {
+        file.renameTo(new File(newPath));
+      }
+      DbEntity.exeSql(
+          "UPDATE DownloadTaskEntity SET key='" + newPath + "' WHERE key='" + oldPath + "'");
+      entity.setDownloadPath(newPath);
+      entity.setFileName(newName);
+      entity.update();
+    }
   }
 
   /**

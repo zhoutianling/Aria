@@ -37,6 +37,13 @@ public class DbEntity {
   }
 
   /**
+   * 直接执行sql语句
+   */
+  public static void exeSql(String sql) {
+    DbUtil.getInstance().exeSql(sql);
+  }
+
+  /**
    * 查询所有数据
    *
    * @return 没有数据返回null

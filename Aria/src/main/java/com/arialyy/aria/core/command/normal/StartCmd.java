@@ -63,7 +63,9 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       if (mod.equals(QueueMod.NOW.getTag())) {
         mQueue.startTask(task);
       } else if (mod.equals(QueueMod.WAIT.getTag())) {
-        if (mQueue.getCurrentExePoolNum() < maxTaskNum || task.getState() == IEntity.STATE_STOP) {
+        if (mQueue.getCurrentExePoolNum() < maxTaskNum
+            || task.getState() == IEntity.STATE_STOP
+            || task.getState() == IEntity.STATE_COMPLETE) {
           mQueue.startTask(task);
         }
       }

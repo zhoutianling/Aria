@@ -180,7 +180,8 @@ public class DownloadReceiver extends AbsReceiver {
    * 获取普通下载任务列表
    */
   @Override public List<DownloadEntity> getSimpleTaskList() {
-    return DownloadEntity.findDatas(DownloadEntity.class, "isGroupChild=?", "false");
+    return DownloadEntity.findDatas(DownloadEntity.class, "isGroupChild=? and downloadPath!=''",
+        "false");
   }
 
   /**

@@ -19,6 +19,7 @@ package com.arialyy.aria.core.queue.pool;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.scheduler.DQueueMapping;
 import com.arialyy.aria.util.CommonUtil;
@@ -31,21 +32,26 @@ import java.util.concurrent.TimeUnit;
  * Created by lyy on 2016/8/15.
  * 任务执行池，所有当前下载任务都该任务池中，默认下载大小为2
  */
-public class BaseExecutePool<TASK extends ITask> implements IPool<TASK> {
+public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
   private final String TAG = "BaseExecutePool";
   final long TIME_OUT = 1000;
   ArrayBlockingQueue<TASK> mExecuteQueue;
   Map<String, TASK> mExecuteMap;
-  protected int mSize;
+  int mSize;
 
-  public BaseExecutePool(boolean isDownload) {
-    if (isDownload) {
-      mSize = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
-    } else {
-      mSize = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getMaxTaskNum();
-    }
+  BaseExecutePool() {
+    mSize = getMaxSize();
     mExecuteQueue = new ArrayBlockingQueue<>(mSize);
     mExecuteMap = new HashMap<>();
+  }
+
+  /**
+   * 获取最大任务数配置
+   *
+   * @return {@link AriaManager#getDownloadConfig()} {@link AriaManager#getUploadConfig()}，如果不设置，默认返回2
+   */
+  protected int getMaxSize() {
+    return 2;
   }
 
   /**

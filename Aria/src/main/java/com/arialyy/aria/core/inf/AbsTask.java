@@ -33,6 +33,17 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
   private String mTargetName;
   protected Context mContext;
 
+  protected boolean isHeighestTask = false;
+
+  /**
+   * 任务是否完成
+   *
+   * @return {@code true} 已经完成，{@code false} 未完成
+   */
+  public boolean isComplete() {
+    return mEntity.isComplete();
+  }
+
   /**
    * 获取当前下载进度
    */
@@ -153,5 +164,9 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
 
   @Override public void setTargetName(String targetName) {
     this.mTargetName = targetName;
+  }
+
+  public boolean isHighestPriorityTask() {
+    return isHeighestTask;
   }
 }

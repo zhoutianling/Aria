@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
@@ -111,6 +112,9 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
     }
   }
 
+  /**
+   * 更新进度
+   */
   public synchronized void setProgress(AbsEntity entity) {
     String url = entity.getKey();
     int position = indexItem(url);
@@ -119,7 +123,7 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
     }
 
     mData.set(position, entity);
-    notifyItemChanged(position);
+    notifyItemChanged(position, entity);
   }
 
   private synchronized int indexItem(String url) {
@@ -134,6 +138,24 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
 
   @Override protected void bindData(SimpleHolder holder, int position, final AbsEntity item) {
     handleProgress(holder, item);
+  }
+
+  @Override protected void bindData(SimpleHolder holder, int position, AbsEntity item,
+      List<Object> payloads) {
+    AbsEntity entity = (AbsEntity) payloads.get(0);
+    updateSpeed(holder, entity);
+  }
+
+  /**
+   * 只更新速度
+   */
+  private void updateSpeed(SimpleHolder holder, final AbsEntity entity) {
+    long size = entity.getFileSize();
+    long progress = entity.getCurrentProgress();
+    int current = size == 0 ? 0 : (int) (progress * 100 / size);
+    holder.speed.setText(entity.getConvertSpeed());
+    holder.fileSize.setText(covertCurrentSize(progress) + "/" + CommonUtil.formatFileSize(size));
+    holder.progress.setProgress(current);
   }
 
   @SuppressLint("SetTextI18n")
@@ -187,6 +209,11 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
         }
       }
     });
+  }
+
+  private void handleSubChild(GroupHolder holder, final AbsEntity entity){
+    if (holder.childList.getVisibility() == View.GONE) return;
+
   }
 
   private boolean isSimpleDownload(AbsEntity entity) {
@@ -260,7 +287,7 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
   }
 
   class GroupHolder extends SimpleHolder {
-    @Bind(R.id.child_list) NoScrollListView childList;
+    @Bind(R.id.child_list) LinearLayout childList;
 
     GroupHolder(View itemView) {
       super(itemView);

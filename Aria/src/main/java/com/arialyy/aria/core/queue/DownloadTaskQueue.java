@@ -22,7 +22,9 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.queue.pool.DownloadExecutePool;
+import com.arialyy.aria.core.queue.pool.BaseCachePool;
+import com.arialyy.aria.core.queue.pool.BaseExecutePool;
+import com.arialyy.aria.core.queue.pool.DownloadSharePool;
 import com.arialyy.aria.core.scheduler.DQueueMapping;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import java.util.LinkedHashSet;
@@ -48,7 +50,14 @@ public class DownloadTaskQueue
   }
 
   private DownloadTaskQueue() {
-    mExecutePool = new DownloadExecutePool(true);
+  }
+
+  @Override BaseCachePool<DownloadTask> setCachePool() {
+    return DownloadSharePool.getInstance().cachePool;
+  }
+
+  @Override BaseExecutePool<DownloadTask> setExecutePool() {
+    return DownloadSharePool.getInstance().executePool;
   }
 
   @Override public String getKey(DownloadEntity entity) {

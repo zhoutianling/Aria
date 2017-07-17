@@ -32,10 +32,16 @@ public class GroupModule extends BaseModule {
 
   List<String> getUrls() {
     List<String> urls = new ArrayList<>();
-    String[] str = getContext().getResources().getStringArray(R.array.download_url);
-    //String[] str = getContext().getResources().getStringArray(R.array.group_urls);
+    String[] str = getContext().getResources().getStringArray(R.array.group_urls);
     Collections.addAll(urls, str);
     return urls;
+  }
+
+  List<String> getSubName(){
+    List<String> names = new ArrayList<>();
+    String[] str = getContext().getResources().getStringArray(R.array.group_names);
+    Collections.addAll(names, str);
+    return names;
   }
 
   //NormalList<String> convertPath(NormalList<String> urls){

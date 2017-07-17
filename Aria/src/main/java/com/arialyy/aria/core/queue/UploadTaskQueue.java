@@ -19,7 +19,9 @@ package com.arialyy.aria.core.queue;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
+import com.arialyy.aria.core.queue.pool.UploadSharePool;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -43,7 +45,14 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
   }
 
   private UploadTaskQueue() {
-    mExecutePool = new BaseExecutePool<>(false);
+  }
+
+  @Override BaseCachePool<UploadTask> setCachePool() {
+    return UploadSharePool.getInstance().cachePool;
+  }
+
+  @Override BaseExecutePool<UploadTask> setExecutePool() {
+    return UploadSharePool.getInstance().executePool;
   }
 
   @Override public String getKey(UploadEntity entity) {

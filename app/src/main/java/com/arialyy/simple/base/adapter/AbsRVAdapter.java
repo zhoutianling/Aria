@@ -60,6 +60,14 @@ public abstract class AbsRVAdapter<T, Holder extends AbsHolder>
     bindData(holder, position, mData.get(position));
   }
 
+  @Override public void onBindViewHolder(Holder holder, int position, List<Object> payloads) {
+    if (payloads == null || payloads.isEmpty()) {
+      bindData(holder, position, mData.get(position));
+    } else {
+      bindData(holder, position, mData.get(position), payloads);
+    }
+  }
+
   public Context getContext() {
     return mContext;
   }
@@ -74,4 +82,8 @@ public abstract class AbsRVAdapter<T, Holder extends AbsHolder>
   protected abstract int setLayoutId(int type);
 
   protected abstract void bindData(Holder holder, int position, T item);
+
+  protected void bindData(Holder holder, int position, T item, List<Object> payloads) {
+
+  }
 }

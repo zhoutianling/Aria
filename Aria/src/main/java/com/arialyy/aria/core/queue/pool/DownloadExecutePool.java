@@ -17,7 +17,7 @@ package com.arialyy.aria.core.queue.pool;
 
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -26,14 +26,14 @@ import java.util.concurrent.TimeUnit;
  * Created by AriaL on 2017/6/29.
  * 单个下载任务的执行池
  */
-public class DownloadExecutePool extends BaseExecutePool<DownloadTask> {
+public class DownloadExecutePool<TASK extends AbsTask> extends BaseExecutePool<TASK> {
   private final String TAG = "DownloadExecutePool";
 
-  public DownloadExecutePool(boolean isDownload) {
-    super(isDownload);
+  @Override protected int getMaxSize() {
+    return AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
   }
 
-  @Override public boolean putTask(DownloadTask task) {
+  @Override public boolean putTask(TASK task) {
     synchronized (AriaManager.LOCK) {
       if (task == null) {
         Log.e(TAG, "任务不能为空！！");
@@ -62,7 +62,7 @@ public class DownloadExecutePool extends BaseExecutePool<DownloadTask> {
 
   @Override boolean pollFirstTask() {
     try {
-      DownloadTask oldTask = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
+      TASK oldTask = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
       if (oldTask == null) {
         Log.e(TAG, "移除任务失败");
         return false;
