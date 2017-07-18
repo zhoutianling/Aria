@@ -168,6 +168,7 @@ class Configuration {
             }
             field.setAccessible(true);
             String value = properties.getProperty(field.getName());
+            if (TextUtils.isEmpty(value) || value.equalsIgnoreCase("null")) continue;
             Class<?> type = field.getType();
             if (type == String.class) {
               field.set(this, value);

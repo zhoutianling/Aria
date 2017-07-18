@@ -110,7 +110,7 @@ public class UploadTask extends AbsNormalTask<UploadEntity> {
       saveData(IEntity.STATE_POST_PRE, 0);
     }
 
-    @Override public void onStart() {
+    @Override public void onStart(long startLocation) {
       sendInState2Target(ISchedulers.START);
       saveData(IEntity.STATE_RUNNING, 0);
     }

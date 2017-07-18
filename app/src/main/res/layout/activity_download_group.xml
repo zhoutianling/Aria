@@ -31,7 +31,11 @@
         bind:progress="@{progress}"
         bind:speed="@{speed}"
         />
-    <View
+
+    <com.arialyy.simple.widget.SubStateLinearLayout
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:id="@+id/child_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />

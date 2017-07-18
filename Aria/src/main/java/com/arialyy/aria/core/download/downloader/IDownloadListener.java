@@ -16,70 +16,27 @@
 
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.inf.IEventListener;
+
 /**
  * 下载监听
  */
-public interface IDownloadListener {
+interface IDownloadListener extends IEventListener {
 
   /**
    * 支持断点回调
    *
    * @param support true,支持；false 不支持
    */
-  public void supportBreakpoint(boolean support);
-
-  /**
-   * 取消下载
-   */
-  public void onCancel();
-
-  /**
-   * 下载失败
-   */
-  public void onFail();
-
-  /**
-   * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态
-   */
-  public void onPre();
-
-  /**
-   * 预处理完成,准备下载---开始下载之间
-   */
-  public void onPostPre(long fileSize);
-
-  /**
-   * 下载监听
-   */
-  public void onProgress(long currentLocation);
+  void supportBreakpoint(boolean support);
 
   /**
    * 单一线程的结束位置
    */
-  public void onChildComplete(long finishLocation);
-
-  /**
-   * 开始
-   */
-  public void onStart(long startLocation);
+  void onChildComplete(long finishLocation);
 
   /**
    * 子程恢复下载的位置
    */
-  public void onChildResume(long resumeLocation);
-
-  /**
-   * 恢复位置
-   */
-  public void onResume(long resumeLocation);
-
-  /**
-   * 停止
-   */
-  public void onStop(long stopLocation);
-
-  /**
-   * 下载完成
-   */
-  public void onComplete();
+  void onChildResume(long resumeLocation);
 }

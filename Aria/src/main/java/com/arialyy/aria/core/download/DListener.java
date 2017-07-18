@@ -28,7 +28,7 @@ import java.lang.ref.WeakReference;
 /**
  * 下载监听类
  */
-final class DListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
+class DListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     extends DownloadListener {
   private WeakReference<Handler> outHandler;
   private long lastLen = 0;   //上一次发送长度
@@ -81,7 +81,6 @@ final class DListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
   }
 
   @Override public void onStop(long stopLocation) {
-    //saveData(IEntity.STATE_STOP, stopLocation);
     saveData(isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP, stopLocation);
     handleSpeed(0);
     sendInState2Target(ISchedulers.STOP);

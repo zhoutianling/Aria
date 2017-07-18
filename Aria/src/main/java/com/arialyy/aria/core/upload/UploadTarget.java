@@ -28,10 +28,10 @@ public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, Up
 
   UploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
-    mTaskEntity = DbEntity.findFirst(UploadTaskEntity.class, "groupName=?", filePath);
+    mTaskEntity = DbEntity.findFirst(UploadTaskEntity.class, "key=?", filePath);
     if (mTaskEntity == null) {
       mTaskEntity = new UploadTaskEntity();
-      mTaskEntity.entity = new UploadEntity();
+      mTaskEntity.entity = getUploadEntity(filePath);
     }
     if (mTaskEntity.entity == null) {
       mTaskEntity.entity = getUploadEntity(filePath);
@@ -43,13 +43,14 @@ public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, Up
     UploadEntity entity = UploadEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
     if (entity == null) {
       entity = new UploadEntity();
+      String regex = "[/|\\\\|//]";
+      Pattern p = Pattern.compile(regex);
+      String[] strs = p.split(filePath);
+      String fileName = strs[strs.length - 1];
+      entity.setFileName(fileName);
+      entity.setFilePath(filePath);
+      entity.insert();
     }
-    String regex = "[/|\\\\|//]";
-    Pattern p = Pattern.compile(regex);
-    String[] strs = p.split(filePath);
-    String fileName = strs[strs.length - 1];
-    entity.setFileName(fileName);
-    entity.setFilePath(filePath);
     return entity;
   }
 

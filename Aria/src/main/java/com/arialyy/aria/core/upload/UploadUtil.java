@@ -109,7 +109,7 @@ final class UploadUtil implements Runnable {
       for (String key : keys) {
         addFormField(writer, key, mTaskEntity.formFields.get(key));
       }
-      mListener.onStart();
+      mListener.onStart(0);
       uploadFile(writer, mTaskEntity.attachment, uploadFile);
       Log.d(TAG, finish(writer) + "");
     } catch (IOException e) {

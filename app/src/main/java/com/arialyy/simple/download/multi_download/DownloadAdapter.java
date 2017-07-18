@@ -21,7 +21,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import butterknife.Bind;
 import com.arialyy.aria.core.Aria;
@@ -34,7 +33,7 @@ import com.arialyy.simple.R;
 import com.arialyy.simple.base.adapter.AbsHolder;
 import com.arialyy.simple.base.adapter.AbsRVAdapter;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
-import com.arialyy.simple.widget.NoScrollListView;
+import com.arialyy.simple.widget.SubStateLinearLayout;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -156,6 +155,9 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
     holder.speed.setText(entity.getConvertSpeed());
     holder.fileSize.setText(covertCurrentSize(progress) + "/" + CommonUtil.formatFileSize(size));
     holder.progress.setProgress(current);
+    //if (holder instanceof GroupHolder){
+    //  handleSubChild((GroupHolder) holder, entity);
+    //}
   }
 
   @SuppressLint("SetTextI18n")
@@ -209,11 +211,17 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
         }
       }
     });
+    //if (holder instanceof GroupHolder){
+    //  handleSubChild((GroupHolder) holder, entity);
+    //}
   }
 
-  private void handleSubChild(GroupHolder holder, final AbsEntity entity){
-    if (holder.childList.getVisibility() == View.GONE) return;
-
+  private void handleSubChild(GroupHolder holder, final AbsEntity entity) {
+    if (holder.childList.getSubData().size() > 0){
+      holder.childList.updateChildProgress(((DownloadGroupEntity)entity).getSubTask());
+    }else {
+      holder.childList.addData(((DownloadGroupEntity)entity).getSubTask());
+    }
   }
 
   private boolean isSimpleDownload(AbsEntity entity) {
@@ -287,7 +295,7 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
   }
 
   class GroupHolder extends SimpleHolder {
-    @Bind(R.id.child_list) LinearLayout childList;
+    @Bind(R.id.child_list) SubStateLinearLayout childList;
 
     GroupHolder(View itemView) {
       super(itemView);

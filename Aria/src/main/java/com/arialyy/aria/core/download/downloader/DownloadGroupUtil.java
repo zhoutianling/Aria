@@ -106,10 +106,11 @@ public class DownloadGroupUtil implements IDownloadUtil {
         mTotalSize += entity.getFileSize();
         mCompleteNum++;
         mInitNum++;
+        mCurrentLocation += entity.getFileSize();
       } else {
         mExeMap.put(entity.getDownloadUrl(), createChildDownloadTask(entity));
+        mCurrentLocation += entity.getCurrentProgress();
       }
-      mCurrentLocation += entity.getCurrentProgress();
     }
   }
 
@@ -284,6 +285,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
   private DownloadTaskEntity createChildDownloadTask(DownloadEntity entity) {
     DownloadTaskEntity taskEntity = mTasksMap.get(entity.getDownloadUrl());
     if (taskEntity != null) {
+      taskEntity.entity = entity;
       return taskEntity;
     }
     taskEntity = new DownloadTaskEntity();
@@ -335,16 +337,21 @@ public class DownloadGroupUtil implements IDownloadUtil {
     }
 
     @Override public void onProgress(long currentLocation) {
-      mCurrentLocation += (currentLocation - lastLen);
+      long speed = currentLocation - lastLen;
+      mCurrentLocation += speed;
       lastLen = currentLocation;
+      entity.setCurrentProgress(currentLocation);
+      handleSpeed(speed);
     }
 
     @Override public void onStop(long stopLocation) {
       saveData(IEntity.STATE_STOP, stopLocation);
+      handleSpeed(0);
     }
 
     @Override public void onCancel() {
       saveData(IEntity.STATE_CANCEL, -1);
+      handleSpeed(0);
     }
 
     @Override public void onComplete() {
@@ -354,11 +361,13 @@ public class DownloadGroupUtil implements IDownloadUtil {
         closeTimer();
         mListener.onComplete();
       }
+      handleSpeed(0);
     }
 
     @Override public void onFail() {
       entity.setFailNum(entity.getFailNum() + 1);
       saveData(IEntity.STATE_FAIL, -1);
+      handleSpeed(0);
       reTry();
     }
 
@@ -372,6 +381,11 @@ public class DownloadGroupUtil implements IDownloadUtil {
       } else {
         mFailNum++;
       }
+    }
+
+    private void handleSpeed(long speed) {
+      entity.setSpeed(speed);
+      entity.setConvertSpeed(speed <= 0 ? "" : CommonUtil.formatFileSize(speed) + "/s");
     }
 
     private void saveData(int state, long location) {

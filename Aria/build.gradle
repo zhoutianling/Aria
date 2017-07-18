@@ -23,7 +23,6 @@ dependencies {
   testCompile 'junit:junit:4.12'
   compile 'com.android.support:appcompat-v7:23.1.1'
 //  compile project(':AriaCompiler')
-    compile project(':AriaAnnotations')
+    compile project(':AriaAnnotations') //gradle 打包时打开这个
 }
 apply from: 'bintray-release.gradle'
-//apply from: 'jcenter.gradle'

@@ -10,16 +10,15 @@
       />
 
 
-  <LinearLayout
+  <com.arialyy.simple.widget.SubStateLinearLayout
+      android:visibility="gone"
       android:id="@+id/child_list"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_below="@+id/include"
       android:orientation="vertical"
-      android:paddingBottom="8dp"
       android:paddingLeft="16dp"
       android:paddingRight="16dp"
-      android:paddingTop="8dp"
       />
 
 

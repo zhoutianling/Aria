@@ -31,7 +31,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
   /**
    * 单位转换后的速度
    */
-  @Ignore private String convertSpeed = "0b/s";
+  @Ignore private String convertSpeed = "";
   /**
    * 下载失败计数，每次开始都重置为0
    */

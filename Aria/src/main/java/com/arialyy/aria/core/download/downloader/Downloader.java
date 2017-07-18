@@ -90,28 +90,18 @@ class Downloader implements Runnable, IDownloadUtil {
     mListener.onPostPre(mEntity.getFileSize());
     mConstance.cleanState();
     mConstance.isDownloading = true;
-    try {
-      if (!mTaskEntity.isSupportBP) {
-        mThreadNum = 1;
-        mConstance.THREAD_NUM = mThreadNum;
-        handleNoSupportBreakpointDownload();
-      } else {
-        mThreadNum = isNewTask ? (mEntity.getFileSize() <= SUB_LEN ? 1
-            : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum())
-            : mRealThreadNum;
-        mConstance.THREAD_NUM = mThreadNum;
-        mFixedThreadPool = Executors.newFixedThreadPool(mThreadNum);
-        handleBreakpoint();
-      }
-      startTimer();
-    } catch (IOException e) {
-      failDownload("下载失败【downloadUrl:"
-          + mEntity.getDownloadUrl()
-          + "】\n【filePath:"
-          + mEntity.getDownloadPath()
-          + "】\n"
-          + CommonUtil.getPrintException(e));
+    if (!mTaskEntity.isSupportBP) {
+      mThreadNum = 1;
+      mConstance.THREAD_NUM = mThreadNum;
+      handleNoSupportBreakpointDownload();
+    } else {
+      mThreadNum = isNewTask ? (mEntity.getFileSize() <= SUB_LEN ? 1
+          : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum()) : mRealThreadNum;
+      mConstance.THREAD_NUM = mThreadNum;
+      mFixedThreadPool = Executors.newFixedThreadPool(mThreadNum);
+      handleBreakpoint();
     }
+    startTimer();
   }
 
   /**
@@ -170,6 +160,7 @@ class Downloader implements Runnable, IDownloadUtil {
 
   @Override public void stopDownload() {
     closeTimer();
+    if (mConstance.isComplete()) return;
     mConstance.isStop = true;
     mConstance.isDownloading = false;
     if (mFixedThreadPool != null) {
@@ -326,7 +317,7 @@ class Downloader implements Runnable, IDownloadUtil {
   /**
    * 处理断点
    */
-  private void handleBreakpoint() throws IOException {
+  private void handleBreakpoint() {
     long fileLength = mEntity.getFileSize();
     Properties pro = CommonUtil.loadConfig(mConfigFile);
     int blockSize = (int) (fileLength / mThreadNum);
@@ -336,14 +327,8 @@ class Downloader implements Runnable, IDownloadUtil {
     }
     int rl = 0;
     if (isNewTask) {
-      CommonUtil.createFile(mTempFile.getPath());
-      BufferedRandomAccessFile file =
-          new BufferedRandomAccessFile(new File(mTempFile.getPath()), "rwd", 8192);
-      //设置文件长度
-      file.setLength(fileLength);
-      file.close();
+      createNewFile(fileLength);
     }
-
     for (int i = 0; i < mThreadNum; i++) {
       long startL = i * blockSize, endL = (i + 1) * blockSize;
       Object state = pro.getProperty(mTempFile.getName() + "_state_" + i);
@@ -373,6 +358,34 @@ class Downloader implements Runnable, IDownloadUtil {
       addSingleTask(i, startL, endL, fileLength);
     }
     startSingleTask(recordL);
+  }
+
+  /**
+   * 创建新的下载文件
+   */
+  private void createNewFile(long fileLength) {
+    CommonUtil.createFile(mTempFile.getPath());
+    BufferedRandomAccessFile file = null;
+    try {
+      file = new BufferedRandomAccessFile(new File(mTempFile.getPath()), "rwd", 8192);
+      //设置文件长度
+      file.setLength(fileLength);
+    } catch (IOException e) {
+      failDownload("下载失败【downloadUrl:"
+          + mEntity.getDownloadUrl()
+          + "】\n【filePath:"
+          + mEntity.getDownloadPath()
+          + "】\n"
+          + CommonUtil.getPrintException(e));
+    } finally {
+      if (file != null) {
+        try {
+          file.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
   }
 
   /**

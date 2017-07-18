@@ -11,24 +11,36 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.simple.R;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
  * Created by Aria.Lao on 2017/7/17.
  */
 public class SubStateLinearLayout extends LinearLayout {
 
+  interface OnShowCallback {
+    void onShow(boolean visibility);
+  }
+
+  OnShowCallback callback;
+
   List<DownloadEntity> mSubData = new LinkedList<>();
+  Map<String, Integer> mPosition = new WeakHashMap<>();
 
   public SubStateLinearLayout(Context context) {
     super(context);
+    setOrientation(VERTICAL);
   }
 
   public SubStateLinearLayout(Context context, @Nullable AttributeSet attrs) {
     super(context, attrs);
+    setOrientation(VERTICAL);
   }
 
   public SubStateLinearLayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
+    setOrientation(VERTICAL);
   }
 
   public void addData(List<DownloadEntity> datas) {
@@ -39,22 +51,38 @@ public class SubStateLinearLayout extends LinearLayout {
     int i = 1;
     for (DownloadEntity entity : datas) {
       TextView view = createView(entity);
+      mPosition.put(entity.getDownloadPath(), i);
       addView(view, i);
       i++;
     }
   }
 
-  public void update(DownloadEntity entity) {
-    int position = mSubData.indexOf(entity) + 1;
-    if (position != 0) {
-      ((TextView) getChildAt(position)).setText(entity.getFileName() + ": " + getPercent(entity));
+  public void setOnShowCallback(OnShowCallback callback) {
+    this.callback = callback;
+  }
+
+  public List<DownloadEntity> getSubData() {
+    return mSubData;
+  }
+
+  public void updateChildProgress(List<DownloadEntity> entities) {
+    for (DownloadEntity entity : entities) {
+      Integer i = mPosition.get(entity.getDownloadPath());
+      if (i == null) return;
+      int position = i;
+      if (position != -1) {
+        TextView child = ((TextView) getChildAt(position));
+        int p = getPercent(entity);
+        child.setText(entity.getFileName() + ": " + p + "%" + "   | " + entity.getConvertSpeed());
+        child.invalidate();
+      }
     }
   }
 
   private TextView createView(DownloadEntity entity) {
     TextView view =
         (TextView) LayoutInflater.from(getContext()).inflate(R.layout.layout_child_state, null);
-    view.setText(entity.getFileName() + ": " + getPercent(entity));
+    view.setText(entity.getFileName() + ": " + getPercent(entity) + "%");
     return view;
   }
 
@@ -65,7 +93,8 @@ public class SubStateLinearLayout extends LinearLayout {
     view.setText("点击显示子任务");
     view.setOnClickListener(new OnClickListener() {
       @Override public void onClick(View v) {
-        if (getVisibility() == GONE) {
+        int visibility = getChildAt(1).getVisibility();
+        if (visibility == GONE) {
           showChild(true);
           ((TextView) v).setText("点击隐藏子任务");
         } else {
@@ -80,13 +109,13 @@ public class SubStateLinearLayout extends LinearLayout {
   private void showChild(boolean show) {
     for (int i = 1, count = getChildCount(); i < count; i++) {
       getChildAt(i).setVisibility(show ? VISIBLE : GONE);
+      invalidate();
     }
   }
 
   private int getPercent(DownloadEntity entity) {
     long size = entity.getFileSize();
     long progress = entity.getCurrentProgress();
-    int current = size == 0 ? 0 : (int) (progress * 100 / size);
-    return current;
+    return size == 0 ? 0 : (int) (progress * 100 / size);
   }
 }

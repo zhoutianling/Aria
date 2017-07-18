@@ -30,6 +30,7 @@ import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityDownloadGroupBinding;
+import com.arialyy.simple.widget.SubStateLinearLayout;
 import java.util.List;
 
 /**
@@ -40,6 +41,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
+  @Bind(R.id.child_list) SubStateLinearLayout mChildList;
   List<String> mUrls;
 
   @Override protected void init(Bundle savedInstanceState) {
@@ -50,6 +52,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(mUrls);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
+      mChildList.addData(groupEntity.getSubTask());
       getBinding().setFileSize(groupEntity.getConvertFileSize());
       if (groupEntity.getFileSize() == 0) {
         getBinding().setProgress(0);
@@ -69,7 +72,8 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
       case R.id.start:
         Aria.download(this)
             .load(mUrls)
-            .setDownloadDirPath(Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_3")
+            .setDownloadDirPath(
+                Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_3")
             .setGroupAlias("任务组测试")
             .setSubTaskFileName(getModule(GroupModule.class).getSubName())
             .start();
@@ -99,6 +103,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
+    mChildList.updateChildProgress(task.getEntity().getSubTask());
   }
 
   @DownloadGroup.onTaskResume() void taskResume(DownloadGroupTask task) {
