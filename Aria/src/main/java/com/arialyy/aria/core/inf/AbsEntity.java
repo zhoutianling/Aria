@@ -21,7 +21,7 @@ import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.Ignore;
 
 /**
- * Created by AriaL on 2017/6/3.
+ * Created by AriaL on 2017/6/29.
  */
 public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable {
   /**
@@ -31,11 +31,12 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
   /**
    * 单位转换后的速度
    */
-  @Ignore private String convertSpeed = "0b/s";
+  @Ignore private String convertSpeed = "";
   /**
    * 下载失败计数，每次开始都重置为0
    */
   @Ignore private int failNum = 0;
+
   /**
    * 扩展字段
    */
@@ -44,6 +45,11 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
    * 文件大小
    */
   private long fileSize = 1;
+  /**
+   * 转换后的文件大小
+   */
+  private String convertFileSize = "";
+
   private int state = STATE_WAIT;
   /**
    * 当前下载进度
@@ -53,10 +59,32 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
    * 完成时间
    */
   private long completeTime;
-  /**
-   * 文件名
-   */
-  private String fileName = "";
+
+  private boolean isComplete = false;
+
+  public boolean isComplete() {
+    return isComplete;
+  }
+
+  public void setComplete(boolean complete) {
+    isComplete = complete;
+  }
+
+  public String getConvertFileSize() {
+    return convertFileSize;
+  }
+
+  public void setConvertFileSize(String convertFileSize) {
+    this.convertFileSize = convertFileSize;
+  }
+
+  public int getFailNum() {
+    return failNum;
+  }
+
+  public void setFailNum(int failNum) {
+    this.failNum = failNum;
+  }
 
   public long getSpeed() {
     return speed;
@@ -72,14 +100,6 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
 
   public void setConvertSpeed(String convertSpeed) {
     this.convertSpeed = convertSpeed;
-  }
-
-  public int getFailNum() {
-    return failNum;
-  }
-
-  public void setFailNum(int failNum) {
-    this.failNum = failNum;
   }
 
   public String getStr() {
@@ -122,13 +142,10 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     this.completeTime = completeTime;
   }
 
-  public String getFileName() {
-    return fileName;
-  }
-
-  public void setFileName(String fileName) {
-    this.fileName = fileName;
-  }
+  /**
+   * 实体唯一标识符
+   */
+  public abstract String getKey();
 
   public AbsEntity() {
   }
@@ -143,10 +160,11 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     dest.writeInt(this.failNum);
     dest.writeString(this.str);
     dest.writeLong(this.fileSize);
+    dest.writeString(this.convertFileSize);
     dest.writeInt(this.state);
     dest.writeLong(this.currentProgress);
     dest.writeLong(this.completeTime);
-    dest.writeString(this.fileName);
+    dest.writeByte(this.isComplete ? (byte) 1 : (byte) 0);
   }
 
   protected AbsEntity(Parcel in) {
@@ -155,9 +173,10 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     this.failNum = in.readInt();
     this.str = in.readString();
     this.fileSize = in.readLong();
+    this.convertFileSize = in.readString();
     this.state = in.readInt();
     this.currentProgress = in.readLong();
     this.completeTime = in.readLong();
-    this.fileName = in.readString();
+    this.isComplete = in.readByte() != 0;
   }
 }

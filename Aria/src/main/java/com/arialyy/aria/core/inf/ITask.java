@@ -18,25 +18,17 @@ package com.arialyy.aria.core.inf;
 /**
  * Created by lyy on 2017/2/13.
  */
-
 public interface ITask<ENTITY extends AbsEntity> {
 
   /**
-   * 暂停任务，并让任务处于等待状态
+   * 获取下载状态
    */
-  public void stopAndWait();
+  int getState();
 
   /**
-   * 设置任务为最高优先级任务，在下载队列中，有且只有一个最高优先级任务
+   * 获取扩展字段
    */
-  public void setHighestPriority(boolean isHighestPriority);
-
-  /**
-   * 该任务是否是最高优先级任务
-   *
-   * @return {@code true} 任务为最高优先级任务
-   */
-  public boolean isHighestPriorityTask();
+  String getExtendField();
 
   /**
    * 唯一标识符，DownloadTask 为下载地址，UploadTask 为文件路径
@@ -44,14 +36,14 @@ public interface ITask<ENTITY extends AbsEntity> {
   public String getKey();
 
   /**
-   * 是否真正执行
+   * 任务是否正在执行
    *
    * @return true，正在执行；
    */
   public boolean isRunning();
 
   /**
-   * 获取工具实体
+   * 获取信息实体
    */
   public ENTITY getEntity();
 
@@ -100,5 +92,4 @@ public interface ITask<ENTITY extends AbsEntity> {
 
   public void setTargetName(String targetName);
 
-  public void removeRecord();
 }

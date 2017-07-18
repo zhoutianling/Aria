@@ -19,8 +19,10 @@ package com.arialyy.aria.core.queue;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsNormalTask;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -30,7 +32,15 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
  * Created by lyy on 2016/8/16.
  * 任务功能接口
  */
-public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends IEntity> {
+public interface ITaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity> {
+
+  /**
+   * 通过key判断任务是否正在执行
+   *
+   * @param key 下载链接，或上传文件的路径
+   * @return {@code true} 任务正在运行
+   */
+  boolean taskIsRunning(String key);
 
   /**
    * 停止所有任务
@@ -38,11 +48,9 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   void stopAllTask();
 
   /**
-   * 设置任务为最高优先级任务
-   *
-   * @param task {@link DownloadTask}、{@link UploadTask}
+   * 删除所有任务
    */
-  void setTaskHighestPriority(TASK task);
+  void removeAllTask();
 
   /**
    * 开始任务
@@ -59,11 +67,18 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   void stopTask(TASK task);
 
   /**
-   * 取消任务
+   * 通过任务任务实体删除任务
    *
    * @param task {@link DownloadTask}、{@link UploadTask}
    */
-  void cancelTask(TASK task);
+  void removeTask(TASK task);
+
+  /**
+   * 通过工作实体删除任务
+   *
+   * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}
+   */
+  void removeTask(ENTITY entity);
 
   /**
    * 重试下载
@@ -73,24 +88,24 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   void reTryStart(TASK task);
 
   /**
-   * 获取正在执行的任务数量
+   * 获取当前执行池中的任务数量
    */
-  int getExeTaskNum();
+  int getCurrentExePoolNum();
 
   /**
-   * 任务缓存池大小
+   * 获取当前任务缓存池中的任务数量
    */
-  int cachePoolSize();
+  int getCurrentCachePoolNum();
 
   /**
-   * 设置最大任务数
+   * 设置执行池可执行的最大任务数
    *
    * @param newMaxNum 最大任务数
    */
   void setMaxTaskNum(int newMaxNum);
 
   /**
-   * 获取可执行队列的大小
+   * 获取执行池可执行的最大任务数
    */
   int getMaxTaskNum();
 
@@ -118,13 +133,6 @@ public interface ITaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
    * @return {@link DownloadTask}、{@link UploadTask}
    */
   TASK getTask(String url);
-
-  /**
-   * 通过工作实体删除任务
-   *
-   * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}
-   */
-  void removeTask(ENTITY entity);
 
   /**
    * 获取缓存池的下一个任务

@@ -15,60 +15,12 @@
  */
 package com.arialyy.aria.core.upload;
 
+import com.arialyy.aria.core.inf.IEventListener;
+
 /**
  * Created by lyy on 2017/2/9.
  * 上传监听
  */
-public interface IUploadListener {
+interface IUploadListener extends IEventListener {
 
-  /**
-   * 预处理
-   */
-  public void onPre();
-
-  /**
-   * 预处理完成
-   */
-  public void onPostPre(long fileSize);
-
-  /**
-   * 开始上传
-   */
-  public void onStart();
-
-  /**
-   * 恢复上传
-   *
-   * @param resumeLocation 上次上传停止位置
-   */
-  public void onResume(long resumeLocation);
-
-  /**
-   * 停止上传
-   *
-   * @param stopLocation 上传停止位置
-   */
-  public void onStop(long stopLocation);
-
-  /**
-   * 上传进度
-   *
-   * @param currentLocation 当前进度
-   */
-  public void onProgress(long currentLocation);
-
-  /**
-   * 取消上传
-   */
-  public void onCancel();
-
-  /**
-   * 上传成功
-   */
-  public void onComplete();
-
-  /**
-   * 上传失败
-   */
-  public void onFail();
 }

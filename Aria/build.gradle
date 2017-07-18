@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
   compileSdkVersion 23
-  buildToolsVersion '25.0.2'
+  buildToolsVersion '25.0.3'
 
   defaultConfig {
     minSdkVersion 9
@@ -22,8 +22,7 @@ dependencies {
   compile fileTree(include: ['*.jar'], dir: 'libs')
   testCompile 'junit:junit:4.12'
   compile 'com.android.support:appcompat-v7:23.1.1'
-  compile project(':AriaCompiler')
-//    compile project(':AriaAnnotations')
+//  compile project(':AriaCompiler')
+    compile project(':AriaAnnotations') //gradle 打包时打开这个
 }
-//apply from: 'bintray-release.gradle'
-//apply from: 'jcenter.gradle'
+apply from: 'bintray-release.gradle'

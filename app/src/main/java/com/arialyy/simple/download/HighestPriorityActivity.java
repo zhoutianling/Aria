@@ -29,6 +29,7 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
@@ -58,7 +59,7 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
   private static final String DOWNLOAD_URL =
       "https://res5.d.cn/6f78ee3bcfdd033e64892a8553a95814cf5b4a62b12a76d9eb2a694905f0dc30fa5c7f728806a4ee0b3479e7b26a38707dac92b136add91191ac1219aadb4a3aa70bfa6d06d2d8db.apk";
   private DownloadAdapter mAdapter;
-  private List<DownloadEntity> mData = new ArrayList<>();
+  private List<AbsEntity> mData = new ArrayList<>();
   private Set<String> mRecord = new HashSet<>();
 
   @Override protected int setLayoutId() {
@@ -83,7 +84,7 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
       setBtState(false);
     }
     mSize.setText(target.getConvertFileSize());
-    List<DownloadEntity> temp = Aria.download(this).getTaskList();
+    List<DownloadEntity> temp = Aria.download(this).getSimpleTaskList();
     if (temp != null && !temp.isEmpty()) {
       for (DownloadEntity entity : temp) {
         if (entity.getDownloadUrl().equals(DOWNLOAD_URL)) continue;

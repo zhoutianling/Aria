@@ -40,12 +40,8 @@ class Configuration {
     /**
      * 旧任务数
      */
-    public static int oldMaxTaskNum = 2;
+    public int oldMaxTaskNum = 2;
 
-    /**
-     * 是否发送任务广播，true，发送
-     */
-    boolean isOpenBreadCast = false;
     /**
      * 任务队列最大任务数， 默认为2
      */
@@ -68,13 +64,20 @@ class Configuration {
      */
     boolean isConvertSpeed = false;
 
-    public boolean isOpenBreadCast() {
-      return isOpenBreadCast;
+    /**
+     * 执行队列类型
+     *
+     * @see QueueMod
+     */
+    String queueMod = "now";
+
+    public String getQueueMod() {
+      return queueMod;
     }
 
-    public BaseConfig setOpenBreadCast(boolean openBreadCast) {
-      isOpenBreadCast = openBreadCast;
-      saveKey("isOpenBreadCast", openBreadCast + "");
+    public BaseConfig setQueueMod(String queueMod) {
+      this.queueMod = queueMod;
+      saveKey("queueMod", queueMod);
       return this;
     }
 
@@ -159,11 +162,13 @@ class Configuration {
         try {
           for (Field field : fields) {
             int m = field.getModifiers();
-            if (Modifier.isFinal(m) || Modifier.isStatic(m)) {
+            if (field.getName().equals("oldMaxTaskNum") || Modifier.isFinal(m) || Modifier.isStatic(
+                m)) {
               continue;
             }
             field.setAccessible(true);
             String value = properties.getProperty(field.getName());
+            if (TextUtils.isEmpty(value) || value.equalsIgnoreCase("null")) continue;
             Class<?> type = field.getType();
             if (type == String.class) {
               field.set(this, value);
@@ -172,7 +177,7 @@ class Configuration {
             } else if (type == float.class || type == Float.class) {
               field.setFloat(this, Float.parseFloat(value));
             } else if (type == double.class || type == Double.class) {
-              if (TextUtils.isEmpty(value)){
+              if (TextUtils.isEmpty(value)) {
                 value = "0.0";
               }
               field.setDouble(this, Double.parseDouble(value));

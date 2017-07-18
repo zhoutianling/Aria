@@ -17,24 +17,51 @@
 package com.arialyy.aria.core.queue;
 
 import android.util.Log;
-import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.aria.core.inf.ITask;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.queue.pool.CachePool;
-import com.arialyy.aria.core.queue.pool.ExecutePool;
+import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.queue.pool.BaseCachePool;
+import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import java.util.Set;
 
 /**
  * Created by lyy on 2017/2/23.
  * 任务队列
  */
-abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity>
+abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity>
     implements ITaskQueue<TASK, TASK_ENTITY, ENTITY> {
   private final String TAG = "AbsTaskQueue";
-  CachePool<TASK> mCachePool = new CachePool<>();
-  ExecutePool<TASK> mExecutePool;
+  BaseCachePool<TASK> mCachePool;
+  BaseExecutePool<TASK> mExecutePool;
+
+  AbsTaskQueue() {
+    mCachePool = setCachePool();
+    mExecutePool = setExecutePool();
+  }
+
+  abstract BaseCachePool<TASK> setCachePool();
+
+  abstract BaseExecutePool<TASK> setExecutePool();
+
+  @Override public boolean taskIsRunning(String key) {
+    return mExecutePool.getTask(key) != null;
+  }
+
+  @Override public void removeAllTask() {
+    Set<String> exeKeys = mExecutePool.getAllTask().keySet();
+    for (String key : exeKeys) {
+      TASK task = mExecutePool.getAllTask().get(key);
+      if (task != null) task.cancel();
+    }
+    Set<String> cacheKeys = mCachePool.getAllTask().keySet();
+    for (String key : cacheKeys) {
+      mExecutePool.removeTask(key);
+    }
+  }
 
   /**
    * 停止所有任务
@@ -56,16 +83,26 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
   }
 
   /**
+   * 获取实体的索引
+   */
+  public abstract String getKey(ENTITY entity);
+
+  /**
+   * 获取配置文件配置的最大可执行任务数
+   */
+  public abstract int getConfigMaxNum();
+
+  /**
    * 获取任务执行池
    */
-  public ExecutePool getExecutePool() {
+  public BaseExecutePool getExecutePool() {
     return mExecutePool;
   }
 
   /**
    * 获取缓存池
    */
-  public CachePool getCachePool() {
+  public BaseCachePool getCachePool() {
     return mCachePool;
   }
 
@@ -74,21 +111,44 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
    *
    * @return 获取缓存的任务数
    */
-  @Override public int cachePoolSize() {
+  @Override public int getCurrentCachePoolNum() {
     return mCachePool.size();
   }
 
   /**
-   * 获取当前运行的任务数
+   * 获取执行池中的任务数量
    *
    * @return 当前正在执行的任务数
    */
-  @Override public int getExeTaskNum() {
+  @Override public int getCurrentExePoolNum() {
     return mExecutePool.size();
   }
 
-  @Override public void setTaskHighestPriority(TASK task) {
-
+  @Override public void setMaxTaskNum(int downloadNum) {
+    int oldMaxSize = getConfigMaxNum();
+    int diff = downloadNum - oldMaxSize;
+    if (oldMaxSize == downloadNum) {
+      Log.d(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");
+      return;
+    }
+    //设置的任务数小于配置任务数
+    if (diff <= -1 && mExecutePool.size() >= oldMaxSize) {
+      for (int i = 0, len = Math.abs(diff); i < len; i++) {
+        TASK eTask = mExecutePool.pollTask();
+        if (eTask != null) {
+          stopTask(eTask);
+        }
+      }
+    }
+    mExecutePool.setMaxNum(downloadNum);
+    if (diff >= 1) {
+      for (int i = 0; i < diff; i++) {
+        TASK nextTask = getNextTask();
+        if (nextTask != null && nextTask.getState() == IEntity.STATE_WAIT) {
+          startTask(nextTask);
+        }
+      }
+    }
   }
 
   @Override public TASK getTask(String url) {
@@ -109,12 +169,22 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
 
   @Override public void stopTask(TASK task) {
     if (!task.isRunning()) Log.w(TAG, "停止任务失败，【任务已经停止】");
-    task.setHighestPriority(false);
     if (mExecutePool.removeTask(task)) {
       task.stop();
     } else {
       task.stop();
-      Log.w(TAG, "停止任务失败，【任务已经停止】");
+      Log.w(TAG, "删除任务失败，【执行队列中没有该任务】");
+    }
+  }
+
+  @Override public void removeTask(ENTITY entity) {
+    TASK task = mExecutePool.getTask(getKey(entity));
+    if (task != null) {
+      Log.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
+    }
+    task = mCachePool.getTask(getKey(entity));
+    if (task != null) {
+      Log.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
     }
   }
 
@@ -130,7 +200,11 @@ abstract class AbsTaskQueue<TASK extends ITask, TASK_ENTITY extends AbsTaskEntit
     }
   }
 
-  @Override public void cancelTask(TASK task) {
+  @Override public TASK getTask(ENTITY entity) {
+    return getTask(getKey(entity));
+  }
+
+  @Override public void removeTask(TASK task) {
     task.cancel();
   }
 

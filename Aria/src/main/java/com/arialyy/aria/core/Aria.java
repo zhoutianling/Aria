@@ -59,62 +59,6 @@ import com.arialyy.aria.core.upload.UploadTask;
  * </pre>
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) public class Aria {
-  /**
-   * 不支持断点
-   */
-  public static final String ACTION_SUPPORT_BREAK_POINT = "ACTION_SUPPORT_BREAK_POINT";
-  /**
-   * 预处理完成
-   */
-  public static final String ACTION_PRE = "ACTION_PRE";
-  /**
-   * 下载开始前事件
-   */
-  public static final String ACTION_POST_PRE = "ACTION_POST_PRE";
-  /**
-   * 开始下载事件
-   */
-  public static final String ACTION_START = "ACTION_START";
-  /**
-   * 恢复下载事件
-   */
-  public static final String ACTION_RESUME = "ACTION_RESUME";
-  /**
-   * 正在下载事件
-   */
-  public static final String ACTION_RUNNING = "ACTION_RUNNING";
-  /**
-   * 停止下载事件
-   */
-  public static final String ACTION_STOP = "ACTION_STOP";
-  /**
-   * 取消下载事件
-   */
-  public static final String ACTION_CANCEL = "ACTION_CANCEL";
-  /**
-   * 下载完成事件
-   */
-  public static final String ACTION_COMPLETE = "ACTION_COMPLETE";
-  /**
-   * 下载失败事件
-   */
-  public static final String ACTION_FAIL = "ACTION_FAIL";
-  /**
-   * 下载实体
-   */
-  public static final String DOWNLOAD_ENTITY = "DOWNLOAD_ENTITY";
-  /**
-   * 上传实体
-   */
-  public static final String UPLOAD_ENTITY = "UPLOAD_ENTITY";
-  /**
-   * 位置
-   */
-  public static final String CURRENT_LOCATION = "CURRENT_LOCATION";
-  /**
-   * 速度
-   */
-  public static final String CURRENT_SPEED = "CURRENT_SPEED";
 
   private Aria() {
   }

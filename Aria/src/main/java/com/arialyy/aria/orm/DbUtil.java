@@ -65,6 +65,13 @@ public class DbUtil {
   }
 
   /**
+   * 执行sql语句
+   */
+  void exeSql(String sql) {
+    mDb.execSQL(sql);
+  }
+
+  /**
    * 删除某条数据
    */
   synchronized <T extends DbEntity> void delData(Class<T> clazz, String... expression) {
@@ -98,6 +105,18 @@ public class DbUtil {
   }
 
   /**
+   * 通过rowId判断数据是否存在
+   */
+  synchronized <T extends DbEntity> boolean isExist(Class<T> clazz, int rowId) {
+    checkDb();
+    String sql = "SELECT rowid FROM " + CommonUtil.getClassName(clazz) + " WHERE rowid=" + rowId;
+    Cursor cursor = mDb.rawQuery(sql, null);
+    boolean isExist = cursor.getCount() > 0;
+    cursor.close();
+    return isExist;
+  }
+
+  /**
    * 条件查寻数据
    */
   @Deprecated synchronized <T extends DbEntity> List<T> findData(Class<T> clazz,
@@ -127,7 +146,7 @@ public class DbUtil {
     SqlHelper.createTable(mDb, clazz, tableName);
   }
 
-  private void checkDb(){
+  private void checkDb() {
     if (mDb == null || !mDb.isOpen()) {
       mDb = mHelper.getReadableDatabase();
     }
@@ -175,7 +194,7 @@ public class DbUtil {
       Log.e(TAG, "请输入删除条件");
       return -1;
     } else if (wheres.length != values.length) {
-      Log.e(TAG, "key 和 vaule 长度不相等");
+      Log.e(TAG, "groupName 和 vaule 长度不相等");
       return -1;
     }
     StringBuilder sb = new StringBuilder();

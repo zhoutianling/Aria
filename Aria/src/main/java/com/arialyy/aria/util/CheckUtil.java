@@ -24,6 +24,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.exception.FileException;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,6 +78,24 @@ public class CheckUtil {
   }
 
   /**
+   * 检测下载链接组是否为null
+   */
+  public static void checkDownloadUrls(List<String> urls) {
+    if (urls == null || urls.isEmpty()) {
+      throw new IllegalArgumentException("链接组不能为null");
+    }
+  }
+
+  /**
+   * 检查下载任务组保存路径
+   */
+  public static void checkDownloadPaths(List<String> paths) {
+    if (paths == null || paths.isEmpty()) {
+      throw new IllegalArgumentException("链接保存路径不能为null");
+    }
+  }
+
+  /**
    * 检测上传地址是否为null
    */
   public static void checkUploadPath(String uploadPath) {
@@ -88,9 +107,9 @@ public class CheckUtil {
    */
   public static void checkTaskEntity(AbsTaskEntity entity) {
     if (entity instanceof DownloadTaskEntity) {
-      checkDownloadTaskEntity(((DownloadTaskEntity) entity).downloadEntity);
+      checkDownloadTaskEntity(((DownloadTaskEntity) entity).getEntity());
     } else if (entity instanceof UploadTaskEntity) {
-      checkUploadTaskEntity(((UploadTaskEntity) entity).uploadEntity);
+      checkUploadTaskEntity(((UploadTaskEntity) entity).getEntity());
     }
   }
 
@@ -103,7 +122,7 @@ public class CheckUtil {
   public static boolean checkCmdEntity(AbsTaskEntity entity, boolean checkType) {
     boolean b = false;
     if (entity instanceof DownloadTaskEntity) {
-      DownloadEntity entity1 = ((DownloadTaskEntity) entity).downloadEntity;
+      DownloadEntity entity1 = ((DownloadTaskEntity) entity).getEntity();
       if (entity1 == null) {
         Log.e(TAG, "下载实体不能为空");
       } else if (checkType && TextUtils.isEmpty(entity1.getDownloadUrl())) {
@@ -114,7 +133,7 @@ public class CheckUtil {
         b = true;
       }
     } else if (entity instanceof UploadTaskEntity) {
-      UploadEntity entity1 = ((UploadTaskEntity) entity).uploadEntity;
+      UploadEntity entity1 = ((UploadTaskEntity) entity).getEntity();
       if (entity1 == null) {
         Log.e(TAG, "上传实体不能为空");
       } else if (TextUtils.isEmpty(entity1.getFilePath())) {

@@ -22,9 +22,14 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.command.AbsCmd;
+import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.command.normal.AbsNormalCmd;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -42,6 +47,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 
 /**
  * Created by lyy on 2016/1/22.
@@ -50,9 +60,139 @@ public class CommonUtil {
   private static final String TAG = "CommonUtil";
 
   /**
+   * 实例化泛型的实际类型参数
+   *
+   * @throws Exception
+   */
+  public static void typeCheck(Type type) throws Exception {
+    System.out.println("该类型是" + type);
+    // 参数化类型
+    if (type instanceof ParameterizedType) {
+      Type[] typeArguments = ((ParameterizedType) type).getActualTypeArguments();
+      for (int i = 0; i < typeArguments.length; i++) {
+        // 类型变量
+        if (typeArguments[i] instanceof TypeVariable) {
+          System.out.println("第" + (i + 1) + "个泛型参数类型是类型变量" + typeArguments[i] + "，无法实例化。");
+        }
+        // 通配符表达式
+        else if (typeArguments[i] instanceof WildcardType) {
+          System.out.println("第" + (i + 1) + "个泛型参数类型是通配符表达式" + typeArguments[i] + "，无法实例化。");
+        }
+        // 泛型的实际类型，即实际存在的类型
+        else if (typeArguments[i] instanceof Class) {
+          System.out.println("第" + (i + 1) + "个泛型参数类型是:" + typeArguments[i] + "，可以直接实例化对象");
+        }
+      }
+      // 参数化类型数组或类型变量数组
+    } else if (type instanceof GenericArrayType) {
+      System.out.println("该泛型类型是参数化类型数组或类型变量数组，可以获取其原始类型。");
+      Type componentType = ((GenericArrayType) type).getGenericComponentType();
+      // 类型变量
+      if (componentType instanceof TypeVariable) {
+        System.out.println("该类型变量数组的原始类型是类型变量" + componentType + "，无法实例化。");
+      }
+      // 参数化类型，参数化类型数组或类型变量数组
+      // 参数化类型数组或类型变量数组也可以是多维的数组，getGenericComponentType()方法仅仅是去掉最右边的[]
+      else {
+        // 递归调用方法自身
+        typeCheck(componentType);
+      }
+    } else if (type instanceof TypeVariable) {
+      System.out.println("该类型是类型变量");
+    } else if (type instanceof WildcardType) {
+      System.out.println("该类型是通配符表达式");
+    } else if (type instanceof Class) {
+      System.out.println("该类型不是泛型类型");
+    } else {
+      throw new Exception();
+    }
+  }
+
+  /**
+   * 根据下载任务组的url创建key
+   *
+   * @return urls 为 null 或者 size为0，返回""
+   */
+  public static String getMd5Code(List<String> urls) {
+    if (urls == null || urls.size() < 1) return "";
+    String md5 = "";
+    StringBuilder sb = new StringBuilder();
+    for (String url : urls) {
+      sb.append(url);
+    }
+    try {
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      md.update(sb.toString().getBytes());
+      md5 = new BigInteger(1, md.digest()).toString(16);
+    } catch (NoSuchAlgorithmException e) {
+      Log.e(TAG, e.getMessage());
+    }
+    return md5;
+  }
+
+  /**
+   * 删除上传任务的配置，包括
+   *
+   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经下载完成的文件
+   * {@code false}如果任务已经完成，只删除任务数据库记录
+   */
+  public static void delUploadTaskConfig(boolean removeFile, UploadTaskEntity tEntity) {
+    UploadEntity uEntity = tEntity.getEntity();
+    File file = new File(uEntity.getFilePath());
+    if (removeFile) {
+      if (file.exists()) {
+        file.delete();
+      }
+    } else {
+      if (!uEntity.isComplete()) {
+        if (file.exists()) {
+          file.delete();
+        }
+      }
+    }
+    File config = new File(
+        AriaManager.APP.getFilesDir().getPath() + "/temp/" + uEntity.getFileName() + ".properties");
+    if (config.exists()) {
+      config.delete();
+    }
+    uEntity.deleteData();
+    tEntity.deleteData();
+  }
+
+  /**
+   * 删除下载任务的配置，包括
+   *
+   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经下载完成的文件
+   * {@code false}如果任务已经完成，只删除任务数据库记录
+   */
+  public static void delDownloadTaskConfig(boolean removeFile, DownloadTaskEntity tEntity) {
+    DownloadEntity dEntity = tEntity.getEntity();
+    File file = new File(dEntity.getDownloadPath());
+    if (removeFile) {
+      if (file.exists()) {
+        file.delete();
+      }
+    } else {
+      if (!dEntity.isComplete()) {
+        if (file.exists()) {
+          file.delete();
+        }
+      }
+    }
+
+    File config = new File(
+        AriaManager.APP.getFilesDir().getPath() + "/temp/" + dEntity.getFileName() + ".properties");
+    if (config.exists()) {
+      config.delete();
+    }
+    dEntity.deleteData();
+    tEntity.deleteData();
+  }
+
+  /**
    * 获取CPU核心数
    */
-  public static int getNumCores() {
+  public static int getCoresNum() {
     //Private Class to display only CPU devices in the directory listing
     class CpuFilter implements FileFilter {
       @Override public boolean accept(File pathname) {
@@ -180,8 +320,8 @@ public class CommonUtil {
     }
   }
 
-  public static <T extends AbsTaskEntity> AbsCmd createCmd(String target, T entity, int cmd) {
-    return CmdFactory.getInstance().createCmd(target, entity, cmd);
+  public static <T extends AbsTaskEntity> AbsNormalCmd createCmd(String target, T entity, int cmd) {
+    return NormalCmdFactory.getInstance().createCmd(target, entity, cmd);
   }
 
   /**
@@ -230,6 +370,10 @@ public class CommonUtil {
     List<Field> fields = new ArrayList<>();
     Class personClazz = clazz.getSuperclass();
     if (personClazz != null) {
+      Class rootClazz = personClazz.getSuperclass();
+      if (rootClazz != null) {
+        Collections.addAll(fields, rootClazz.getDeclaredFields());
+      }
       Collections.addAll(fields, personClazz.getDeclaredFields());
     }
     Collections.addAll(fields, clazz.getDeclaredFields());
@@ -397,9 +541,11 @@ public class CommonUtil {
   }
 
   /**
-   * 创建文件 当文件不存在的时候就创建一个文件，否则直接返回文件
+   * 创建文件
+   * 当文件不存在的时候就创建一个文件。
+   * 如果文件存在，先删除原文件，然后重新创建一个新文件
    */
-  public static File createFile(String path) {
+  public static void createFile(String path) {
     File file = new File(path);
     if (!file.getParentFile().exists()) {
       Log.d(TAG, "目标文件所在路径不存在，准备创建……");
@@ -408,19 +554,18 @@ public class CommonUtil {
       }
     }
     // 创建目标文件
+    if (file.exists()) {
+      final File to = new File(file.getAbsolutePath() + System.currentTimeMillis());
+      file.renameTo(to);
+      to.delete();
+    }
     try {
-      if (!file.exists()) {
-        if (file.createNewFile()) {
-          Log.d(TAG, "创建文件成功:" + file.getAbsolutePath());
-        }
-        return file;
-      } else {
-        return file;
+      if (file.createNewFile()) {
+        Log.d(TAG, "创建文件成功:" + file.getAbsolutePath());
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return null;
   }
 
   /**

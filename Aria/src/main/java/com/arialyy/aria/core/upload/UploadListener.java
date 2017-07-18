@@ -18,8 +18,7 @@ package com.arialyy.aria.core.upload;
 /**
  * Created by lyy on 2017/2/23.
  */
-
-public class UploadListener implements IUploadListener {
+class UploadListener implements IUploadListener {
   @Override public void onPre() {
 
   }
@@ -28,7 +27,7 @@ public class UploadListener implements IUploadListener {
 
   }
 
-  @Override public void onStart() {
+  @Override public void onStart(long startLocation) {
 
   }
 

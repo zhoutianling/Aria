@@ -17,12 +17,14 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.ICmd;
+import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.IReceiver;
-import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.command.AbsCmd;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
+import com.arialyy.aria.core.upload.ProxyHelper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -34,10 +36,8 @@ import java.util.Set;
  * Created by lyy on 2016/12/5.
  * 下载功能接收器
  */
-public class DownloadReceiver implements IReceiver<DownloadEntity> {
-  private static final String TAG = "DownloadReceiver";
-  public String targetName;
-  public Object obj;
+public class DownloadReceiver extends AbsReceiver {
+  private final String TAG = "DownloadReceiver";
   public ISchedulerListener<DownloadTask> listener;
 
   /**
@@ -51,24 +51,67 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
   }
 
   /**
-   * {@link #load(String)}，请使用该方法
+   * 使用下载实体执行下载操作
    */
-  @Deprecated public DownloadTarget load(DownloadEntity entity) {
+  public DownloadTarget load(DownloadEntity entity) {
     return new DownloadTarget(entity, targetName);
   }
 
   /**
-   * 读取下载链接
+   * 加载下载地址
    */
   public DownloadTarget load(@NonNull String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    DownloadEntity entity =
-        DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
-    if (entity == null) {
-      entity = new DownloadEntity();
+    return new DownloadTarget(downloadUrl, targetName);
+  }
+
+  /**
+   * 加载下载地址，如果任务组的中的下载地址改变了，则任务从新的一个任务组
+   */
+  public DownloadGroupTarget load(List<String> urls) {
+    CheckUtil.checkDownloadUrls(urls);
+    return new DownloadGroupTarget(urls, targetName);
+  }
+
+  /**
+   * 使用任务组实体执行任务组的实体执行任务组的下载操作
+   *
+   * @param groupEntity 如果加载的任务实体没有子项的下载地址，
+   * 那么你需要使用{@link DownloadGroupTarget#setGroupUrl(List)}设置子项的下载地址
+   */
+  public DownloadGroupTarget load(DownloadGroupEntity groupEntity) {
+    return new DownloadGroupTarget(groupEntity, targetName);
+  }
+
+  /**
+   * 将当前类注册到Aria
+   */
+  public DownloadReceiver register() {
+    String className = obj.getClass().getName();
+    Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
+    Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
+    if (dCounter != null && dCounter.contains(className)) {
+      DownloadSchedulers.getInstance().register(obj);
     }
-    entity.setDownloadUrl(downloadUrl);
-    return new DownloadTarget(entity, targetName);
+    if (dgCounter != null && dgCounter.contains(className)) {
+      DownloadGroupSchedulers.getInstance().register(obj);
+    }
+    return this;
+  }
+
+  /**
+   * 取消注册
+   */
+  @Override public void unRegister() {
+    String className = obj.getClass().getName();
+    Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
+    Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
+    if (dCounter != null && dCounter.contains(className)) {
+      DownloadSchedulers.getInstance().unRegister(obj);
+    }
+    if (dgCounter != null && dgCounter.contains(className)) {
+      DownloadGroupSchedulers.getInstance().unRegister(obj);
+    }
   }
 
   /**
@@ -81,21 +124,6 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
     this.listener = listener;
     DownloadSchedulers.getInstance().addSchedulerListener(targetName, listener);
     return this;
-  }
-
-  /**
-   * 将当前类注册到Aria
-   */
-  public DownloadReceiver register() {
-    DownloadSchedulers.getInstance().register(obj);
-    return this;
-  }
-
-  /**
-   * 取消注册
-   */
-  @Override public void unRegister() {
-    DownloadSchedulers.getInstance().unRegister(obj);
   }
 
   /**
@@ -119,27 +147,74 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+    return DbEntity.findFirst(DownloadEntity.class, "downloadUrl=? and isGroupChild='false'",
+        downloadUrl);
+  }
+
+  /**
+   * 通过下载链接获取保存在数据库的下载任务实体
+   */
+  public DownloadTaskEntity getDownloadTask(String downloadUrl) {
+    CheckUtil.checkDownloadUrl(downloadUrl);
+    return DbEntity.findFirst(DownloadTaskEntity.class, "groupName=? and isGroupTask='false'",
+        downloadUrl);
+  }
+
+  /**
+   * 通过下载链接获取保存在数据库的下载任务组实体
+   */
+  public DownloadGroupTaskEntity getDownloadGroupTask(List<String> urls) {
+    CheckUtil.checkDownloadUrls(urls);
+    String hashCode = CommonUtil.getMd5Code(urls);
+    return DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", hashCode);
   }
 
   /**
    * 下载任务是否存在
    */
   @Override public boolean taskExists(String downloadUrl) {
-    return DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl) != null;
+    return DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl) != null;
   }
 
-  @Override public List<DownloadEntity> getTaskList() {
-    return DownloadEntity.findAllData(DownloadEntity.class);
+  /**
+   * 获取普通下载任务列表
+   */
+  @Override public List<DownloadEntity> getSimpleTaskList() {
+    return DownloadEntity.findDatas(DownloadEntity.class, "isGroupChild=? and downloadPath!=''",
+        "false");
+  }
+
+  /**
+   * 获取任务组列表
+   */
+  public List<DownloadGroupEntity> getGroupTaskList() {
+    return DownloadEntity.findAllData(DownloadGroupEntity.class);
+  }
+
+  /**
+   * 获取普通任务和任务组的任务列表
+   */
+  public List<AbsEntity> getTotleTaskList() {
+    List<AbsEntity> list = new ArrayList<>();
+    List<DownloadEntity> simpleTask = getSimpleTaskList();
+    List<DownloadGroupEntity> groupTask = getGroupTaskList();
+    if (simpleTask != null && !simpleTask.isEmpty()) {
+      list.addAll(simpleTask);
+    }
+    if (groupTask != null && !groupTask.isEmpty()) {
+      list.addAll(groupTask);
+    }
+    return list;
   }
 
   /**
    * 停止所有正在下载的任务，并清空等待队列。
    */
   @Override public void stopAllTask() {
-    final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    ariaManager.setCmd(CmdFactory.getInstance()
-        .createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_STOP_ALL)).exe();
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(NormalCmdFactory.getInstance()
+            .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL))
+        .exe();
   }
 
   /**
@@ -148,23 +223,23 @@ public class DownloadReceiver implements IReceiver<DownloadEntity> {
    * 2.如果队列执行队列已经满了，则将所有任务添加到等待队列中
    */
   public void resumeAllTask() {
-    final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    ariaManager.setCmd(CmdFactory.getInstance()
-        .createCmd(targetName, new DownloadTaskEntity(), CmdFactory.TASK_RESUME_ALL)).exe();
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(NormalCmdFactory.getInstance()
+            .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_RESUME_ALL))
+        .exe();
   }
 
   /**
    * 删除所有任务
+   *
+   * @param removeFile {@code true} 删除已经下载完成的任务，不仅删除下载记录，还会删除已经下载完成的文件，{@code false}
+   * 如果文件已经下载完成，只删除下载记录
    */
-  @Override public void removeAllTask() {
+  @Override public void removeAllTask(boolean removeFile) {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    List<DownloadEntity> allEntity = DbEntity.findAllData(DownloadEntity.class);
-    List<AbsCmd> cancelCmds = new ArrayList<>();
-    for (DownloadEntity entity : allEntity) {
-      cancelCmds.add(
-          CommonUtil.createCmd(targetName, new DownloadTaskEntity(entity), CmdFactory.TASK_CANCEL));
-    }
-    ariaManager.setCmds(cancelCmds).exe();
+    ariaManager.setCmd(CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
+        NormalCmdFactory.TASK_CANCEL_ALL)).exe();
+
     Set<String> keys = ariaManager.getReceiver().keySet();
     for (String key : keys) {
       IReceiver receiver = ariaManager.getReceiver().get(key);

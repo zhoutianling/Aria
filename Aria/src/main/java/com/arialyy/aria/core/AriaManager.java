@@ -29,14 +29,13 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.download.DownloadReceiver;
-import com.arialyy.aria.core.inf.ICmd;
+import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -84,6 +83,26 @@ import org.xml.sax.SAXException;
 
   public Map<String, IReceiver> getReceiver() {
     return mReceivers;
+  }
+
+  /**
+   * 设置上传任务的执行队列类型
+   *
+   * @param mod {@link com.arialyy.aria.core.QueueMod}
+   */
+  public AriaManager setUploadQueueMod(QueueMod mod) {
+    mUConfig.setQueueMod(mod.tag);
+    return this;
+  }
+
+  /**
+   * 设置下载任务的执行队列类型
+   *
+   * @param mod {@link com.arialyy.aria.core.QueueMod}
+   */
+  public AriaManager setDownloadQueueMod(QueueMod mod) {
+    mDConfig.setQueueMod(mod.tag);
+    return this;
   }
 
   /**

@@ -16,25 +16,100 @@
 package com.arialyy.aria.core.inf;
 
 import android.content.Context;
+import android.os.Handler;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
- * Created by lyy on 2017/6/3.
+ * Created by AriaL on 2017/6/29.
  */
-public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity>
-    implements ITask<ENTITY> {
+public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY> {
 
   protected ENTITY mEntity;
+  protected Handler mOutHandler;
 
   /**
    * 用于生成该任务对象的hash码
    */
   private String mTargetName;
   protected Context mContext;
-  private boolean isHeighestTask = false;
 
-  @Override public void stopAndWait() {
+  protected boolean isHeighestTask = false;
 
+  /**
+   * 任务是否完成
+   *
+   * @return {@code true} 已经完成，{@code false} 未完成
+   */
+  public boolean isComplete() {
+    return mEntity.isComplete();
+  }
+
+  /**
+   * 获取当前下载进度
+   */
+  @Override public long getCurrentProgress() {
+    return mEntity.getCurrentProgress();
+  }
+
+  /**
+   * 获取单位转换后的进度
+   *
+   * @return 如：已经下载3mb的大小，则返回{@code 3mb}
+   */
+  @Override public String getConvertCurrentProgress() {
+    if (mEntity.getCurrentProgress() == 0) {
+      return "0b";
+    }
+    return CommonUtil.formatFileSize(mEntity.getCurrentProgress());
+  }
+
+  /**
+   * 转换单位后的文件长度
+   *
+   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1kb、1mb、1gb、1tb
+   */
+  @Override public String getConvertFileSize() {
+    if (mEntity.getFileSize() == 0) {
+      return "0mb";
+    }
+    return CommonUtil.formatFileSize(mEntity.getFileSize());
+  }
+
+  /**
+   * 获取文件大小
+   */
+  @Override public long getFileSize() {
+    return mEntity.getFileSize();
+  }
+
+  /**
+   * 获取百分比进度
+   *
+   * @return 返回百分比进度，如果文件长度为0，返回0
+   */
+  @Override public int getPercent() {
+    if (mEntity.getFileSize() == 0) {
+      return 0;
+    }
+    return (int) (mEntity.getCurrentProgress() * 100 / mEntity.getFileSize());
+  }
+
+  /**
+   * 任务当前状态
+   *
+   * @return {@link IEntity}
+   */
+  public int getState() {
+    return mEntity == null ? IEntity.STATE_OTHER : mEntity.getState();
+  }
+
+  /**
+   * 获取保存的扩展字段
+   *
+   * @return 如果实体不存在，则返回null，否则返回扩展字段
+   */
+  @Override public String getExtendField() {
+    return mEntity == null ? null : mEntity.getStr();
   }
 
   /**
@@ -79,82 +154,8 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity, ENTITY extends 
     return mEntity.getConvertSpeed();
   }
 
-  /**
-   * 最高优先级命令，最高优先级命令有以下属性
-   * 1、在下载队列中，有且只有一个最高优先级任务
-   * 2、最高优先级任务会一直存在，直到用户手动暂停或任务完成
-   * 3、任务调度器不会暂停最高优先级任务
-   * 4、用户手动暂停或任务完成后，第二次重新执行该任务，该命令将失效
-   * 5、如果下载队列中已经满了，则会停止队尾的任务
-   * 6、把任务设置为最高优先级任务后，将自动执行任务，不需要重新调用start()启动任务
-   */
-  @Override public void setHighestPriority(boolean isHighestPriority) {
-    isHeighestTask = isHighestPriority;
-  }
-
-  @Override public boolean isHighestPriorityTask() {
-    return isHeighestTask;
-  }
-
-  /**
-   * 获取百分比进度
-   *
-   * @return 返回百分比进度，如果文件长度为0，返回0
-   */
-  @Override public int getPercent() {
-    if (mEntity.getFileSize() == 0) {
-      return 0;
-    }
-    return (int) (mEntity.getCurrentProgress() * 100 / mEntity.getFileSize());
-  }
-
-  /**
-   * 获取文件大小
-   */
-  @Override public long getFileSize() {
-    return mEntity.getFileSize();
-  }
-
-  /**
-   * 转换单位后的文件长度
-   *
-   * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1kb、1mb、1gb、1tb
-   */
-  @Override public String getConvertFileSize() {
-    if (mEntity.getFileSize() == 0) {
-      return "0mb";
-    }
-    return CommonUtil.formatFileSize(mEntity.getFileSize());
-  }
-
-  /**
-   * 获取当前下载进度
-   */
-  @Override public long getCurrentProgress() {
-    return mEntity.getCurrentProgress();
-  }
-
-  /**
-   * 获取单位转换后的进度
-   *
-   * @return 如：已经下载3mb的大小，则返回{@code 3mb}
-   */
-  @Override public String getConvertCurrentProgress() {
-    if (mEntity.getCurrentProgress() == 0) {
-      return "0b";
-    }
-    return CommonUtil.formatFileSize(mEntity.getCurrentProgress());
-  }
-
   @Override public ENTITY getEntity() {
     return mEntity;
-  }
-
-  /**
-   * 删除任务记录，删除后，再次启动该任务的下载时，将重新下载
-   */
-  @Override public void removeRecord() {
-    mEntity.deleteData();
   }
 
   public String getTargetName() {
@@ -163,5 +164,9 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity, ENTITY extends 
 
   @Override public void setTargetName(String targetName) {
     this.mTargetName = targetName;
+  }
+
+  public boolean isHighestPriorityTask() {
+    return isHeighestTask;
   }
 }

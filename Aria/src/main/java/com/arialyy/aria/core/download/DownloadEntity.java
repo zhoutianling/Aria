@@ -18,25 +18,107 @@ package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.orm.Primary;
 
 /**
  * Created by lyy on 2015/12/25.
  * 下载实体
- * ！！！ 注意：CREATOR要进行@Ignore注解
- * ！！！并且需要Parcelable时需要手动填写rowID;
  */
-public class DownloadEntity extends AbsEntity implements Parcelable {
+public class DownloadEntity extends AbsNormalEntity implements Parcelable {
   private String downloadUrl = ""; //下载路径
-  private String downloadPath = ""; //保存路径
-  private boolean isDownloadComplete = false;   //是否下载完成
+  @Primary private String downloadPath = ""; //保存路径
   private boolean isRedirect = false; //是否重定向
   private String redirectUrl = ""; //重定向链接
+
+  /**
+   * 所属任务组
+   */
+  private String groupName = "";
+
+  /**
+   * 通过{@link AbsTaskEntity#md5Key}从服务器的返回信息中获取的文件md5信息，如果服务器没有返回，则不会设置该信息
+   * 如果你已经设置了该任务的MD5信息，Aria也不会从服务器返回的信息中获取该信息
+   */
+  private String md5Code = "";
+
+  /**
+   * 通过{@link AbsTaskEntity#dispositionKey}从服务器的返回信息中获取的文件描述信息
+   */
+  private String disposition = "";
+
+  /**
+   * 从disposition获取到的文件名，如果可以获取到，则会赋值到这个字段
+   */
+  private String serverFileName = "";
+
+  @Override public String getKey() {
+    return downloadUrl;
+  }
 
   public DownloadEntity() {
   }
 
+  @Override public String toString() {
+    return "DownloadEntity{"
+        + "downloadUrl='"
+        + downloadUrl
+        + '\''
+        + ", downloadPath='"
+        + downloadPath
+        + '\''
+        + ", isRedirect="
+        + isRedirect
+        + ", redirectUrl='"
+        + redirectUrl
+        + '\''
+        + ", groupName='"
+        + groupName
+        + '\''
+        + ", md5Code='"
+        + md5Code
+        + '\''
+        + ", disposition='"
+        + disposition
+        + '\''
+        + ", serverFileName='"
+        + serverFileName
+        + '\''
+        + '}';
+  }
+
+  public String getMd5Code() {
+    return md5Code;
+  }
+
+  public void setMd5Code(String md5Code) {
+    this.md5Code = md5Code;
+  }
+
+  public String getDisposition() {
+    return disposition;
+  }
+
+  public void setDisposition(String disposition) {
+    this.disposition = disposition;
+  }
+
+  public String getServerFileName() {
+    return serverFileName;
+  }
+
+  public void setServerFileName(String serverFileName) {
+    this.serverFileName = serverFileName;
+  }
+
+  public String getGroupName() {
+    return groupName;
+  }
+
+  public void setGroupName(String groupName) {
+    this.groupName = groupName;
+  }
 
   public String getDownloadUrl() {
     return downloadUrl;
@@ -54,14 +136,6 @@ public class DownloadEntity extends AbsEntity implements Parcelable {
   public DownloadEntity setDownloadPath(String downloadPath) {
     this.downloadPath = downloadPath;
     return this;
-  }
-
-  public boolean isDownloadComplete() {
-    return isDownloadComplete;
-  }
-
-  public void setDownloadComplete(boolean downloadComplete) {
-    isDownloadComplete = downloadComplete;
   }
 
   @Override public DownloadEntity clone() throws CloneNotSupportedException {
@@ -92,21 +166,27 @@ public class DownloadEntity extends AbsEntity implements Parcelable {
     super.writeToParcel(dest, flags);
     dest.writeString(this.downloadUrl);
     dest.writeString(this.downloadPath);
-    dest.writeByte(this.isDownloadComplete ? (byte) 1 : (byte) 0);
     dest.writeByte(this.isRedirect ? (byte) 1 : (byte) 0);
     dest.writeString(this.redirectUrl);
+    dest.writeString(this.groupName);
+    dest.writeString(this.md5Code);
+    dest.writeString(this.disposition);
+    dest.writeString(this.serverFileName);
   }
 
   protected DownloadEntity(Parcel in) {
     super(in);
     this.downloadUrl = in.readString();
     this.downloadPath = in.readString();
-    this.isDownloadComplete = in.readByte() != 0;
     this.isRedirect = in.readByte() != 0;
     this.redirectUrl = in.readString();
+    this.groupName = in.readString();
+    this.md5Code = in.readString();
+    this.disposition = in.readString();
+    this.serverFileName = in.readString();
   }
 
-  @Ignore public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
+  public static final Creator<DownloadEntity> CREATOR = new Creator<DownloadEntity>() {
     @Override public DownloadEntity createFromParcel(Parcel source) {
       return new DownloadEntity(source);
     }

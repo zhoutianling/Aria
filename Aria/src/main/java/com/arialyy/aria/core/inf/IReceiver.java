@@ -44,7 +44,7 @@ public interface IReceiver<ENTITY extends IEntity> {
   /**
    * 删除所有任务
    */
-  public void removeAllTask();
+  public void removeAllTask(boolean removeFile);
 
   /**
    * 任务是否存在
@@ -56,5 +56,5 @@ public interface IReceiver<ENTITY extends IEntity> {
   /**
    * 获取任务列表
    */
-  public List<ENTITY> getTaskList();
+  public List<ENTITY> getSimpleTaskList();
 }

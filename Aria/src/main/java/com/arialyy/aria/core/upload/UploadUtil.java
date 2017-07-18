@@ -51,7 +51,7 @@ final class UploadUtil implements Runnable {
   UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
     mTaskEntity = taskEntity;
     CheckUtil.checkTaskEntity(taskEntity);
-    mUploadEntity = taskEntity.uploadEntity;
+    mUploadEntity = taskEntity.getEntity();
     if (listener == null) {
       throw new IllegalArgumentException("上传监听不能为空");
     }
@@ -109,7 +109,7 @@ final class UploadUtil implements Runnable {
       for (String key : keys) {
         addFormField(writer, key, mTaskEntity.formFields.get(key));
       }
-      mListener.onStart();
+      mListener.onStart(0);
       uploadFile(writer, mTaskEntity.attachment, uploadFile);
       Log.d(TAG, finish(writer) + "");
     } catch (IOException e) {
@@ -162,11 +162,11 @@ final class UploadUtil implements Runnable {
     writer.append("Content-Disposition: form-data; name=\"")
         .append(attachment)
         .append("\"; filename=\"")
-        .append(mTaskEntity.uploadEntity.getFileName())
+        .append(mTaskEntity.getEntity().getFileName())
         .append("\"")
         .append(LINE_END);
     writer.append("Content-Type: ")
-        .append(URLConnection.guessContentTypeFromName(mTaskEntity.uploadEntity.getFileName()))
+        .append(URLConnection.guessContentTypeFromName(mTaskEntity.getEntity().getFileName()))
         .append(LINE_END);
     writer.append("Content-Transfer-Encoding: binary").append(LINE_END);
     writer.append(LINE_END);

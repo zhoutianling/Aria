@@ -16,14 +16,22 @@
 package com.arialyy.aria.core.inf;
 
 import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.orm.Primary;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Created by lyy on 2017/2/23.
  */
+public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
 
-public abstract class AbsTaskEntity {
+  /**
+   * Task实体对应的key
+   */
+  @Primary public String key = "";
+
   /**
    * http 请求头
    */
@@ -35,9 +43,45 @@ public abstract class AbsTaskEntity {
   public RequestEnum requestEnum = RequestEnum.GET;
 
   /**
-   * 重定向后，新url的key
+   * 从链接中含有的文件md5码信息所需要的key
+   */
+  public String md5Key = "Content-MD5";
+
+  /**
+   * 从链接中获取文件描述信息所需要的key
+   */
+  public String dispositionKey = "Content-Disposition";
+
+  /**
+   * 重定向后，从链接中获取新url所需要的key
    */
   public String redirectUrlKey = "location";
 
-  public abstract AbsEntity getEntity();
+  /**
+   * 从Disposition获取的文件名说需要的key
+   */
+  public String dispositionFileKey = "attachment;filename";
+
+  /**
+   * 重定向链接
+   */
+  public String redirectUrl = "";
+
+  /**
+   * {@code true}  删除任务数据库记录，并且删除已经下载完成的文件
+   * {@code false} 如果任务已经完成，只删除任务数据库记录
+   */
+  @Ignore public boolean removeFile = false;
+
+  /**
+   * 是否支持断点, {@code true} 为支持断点
+   */
+  public boolean isSupportBP = true;
+
+  /**
+   * 状态码
+   */
+  public int code;
+
+  public abstract ENTITY getEntity();
 }

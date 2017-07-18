@@ -17,31 +17,60 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
-import com.arialyy.aria.core.RequestEnum;
-import com.arialyy.aria.core.inf.AbsTarget;
+import com.arialyy.aria.core.inf.AbsNormalTarget;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
-import java.util.Map;
 
 /**
  * Created by lyy on 2016/12/5.
  * https://github.com/AriaLyy/Aria
  */
-public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity> {
+public class DownloadTarget
+    extends AbsNormalTarget<DownloadTarget, DownloadEntity, DownloadTaskEntity> {
 
   DownloadTarget(DownloadEntity entity, String targetName) {
-    this.entity = entity;
-    this.targetName = targetName;
-    taskEntity = new DownloadTaskEntity(entity);
+    this(entity.getDownloadUrl(), targetName);
   }
 
-  @Override public void pause() {
-    super.pause();
+  DownloadTarget(String url, String targetName) {
+    mTargetName = targetName;
+    DownloadEntity entity = getEntity(url);
+    mTaskEntity = DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",
+        entity.getDownloadPath());
+    if (mTaskEntity == null) {
+      mTaskEntity = new DownloadTaskEntity();
+      mTaskEntity.key = entity.getDownloadPath();
+      mTaskEntity.entity = entity;
+      mTaskEntity.save();
+    }
+    if (mTaskEntity.entity == null) {
+      mTaskEntity.entity = entity;
+    }
+    mEntity = entity;
   }
 
-  @Override public void resume() {
-    super.resume();
+  /**
+   * 如果任务存在，但是下载实体不存在，则通过下载地址获取下载实体
+   *
+   * @param downloadUrl 下载地址
+   */
+  private DownloadEntity getEntity(String downloadUrl) {
+    DownloadEntity entity =
+        DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=? and isGroupChild='false'",
+            downloadUrl);
+    if (entity == null) {
+      entity = new DownloadEntity();
+      entity.setDownloadUrl(downloadUrl);
+      entity.setGroupChild(false);
+      entity.save();
+    }
+    File file = new File(entity.getDownloadPath());
+    if (!file.exists()) {
+      entity.setState(IEntity.STATE_WAIT);
+    }
+    return entity;
   }
 
   /**
@@ -65,53 +94,11 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
     return this;
   }
 
-  @Override public int getPercent() {
-    if (entity == null) {
-      Log.e("DownloadTarget", "下载管理器中没有该任务");
-      return 0;
-    }
-    if (entity.getFileSize() != 0) {
-      return (int) (entity.getCurrentProgress() * 100 / entity.getFileSize());
-    }
-    return super.getPercent();
-  }
-
-  /**
-   * 给url请求添加头部
-   *
-   * @param key 头部key
-   * @param header 头部value
-   */
-  public DownloadTarget addHeader(@NonNull String key, @NonNull String header) {
-    super._addHeader(key, header);
-    return this;
-  }
-
-  /**
-   * 给url请求添加头部
-   *
-   * @param headers key为http头部的key，Value为http头对应的配置
-   */
-  public DownloadTarget addHeaders(Map<String, String> headers) {
-    super._addHeaders(headers);
-    return this;
-  }
-
   /**
    * 下载任务是否存在
    */
   @Override public boolean taskExists() {
-    return DownloadTaskQueue.getInstance().getTask(entity.getDownloadUrl()) != null;
-  }
-
-  /**
-   * 设置请求类型
-   *
-   * @param requestEnum {@link RequestEnum}
-   */
-  public DownloadTarget setRequestMode(RequestEnum requestEnum) {
-    super._setRequestMode(requestEnum);
-    return this;
+    return DownloadTaskQueue.getInstance().getTask(mEntity.getDownloadUrl()) != null;
   }
 
   /**
@@ -122,8 +109,11 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
       throw new IllegalArgumentException("文件保持路径不能为null");
     }
     File file = new File(downloadPath);
-    entity.setDownloadPath(downloadPath);
-    entity.setFileName(file.getName());
+    mEntity.setDownloadPath(downloadPath);
+    mEntity.setFileName(file.getName());
+    mTaskEntity.key = downloadPath;
+    mEntity.update();
+    mTaskEntity.update();
     return this;
   }
 
@@ -136,7 +126,7 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
     if (TextUtils.isEmpty(downloadName)) {
       throw new IllegalArgumentException("文件名不能为null");
     }
-    entity.setFileName(downloadName);
+    mEntity.setFileName(downloadName);
     return this;
   }
 
@@ -147,19 +137,19 @@ public class DownloadTarget extends AbsTarget<DownloadEntity, DownloadTaskEntity
     if (TextUtils.isEmpty(fileName)) {
       throw new IllegalArgumentException("文件名不能为null");
     }
-    entity.setFileName(fileName);
+    mEntity.setFileName(fileName);
     return this;
   }
 
   private DownloadEntity getDownloadEntity() {
-    return entity;
+    return mEntity;
   }
 
   /**
    * 是否在下载
    */
   public boolean isDownloading() {
-    DownloadTask task = DownloadTaskQueue.getInstance().getTask(entity);
+    DownloadTask task = DownloadTaskQueue.getInstance().getTask(mEntity);
     return task != null && task.isRunning();
   }
 }

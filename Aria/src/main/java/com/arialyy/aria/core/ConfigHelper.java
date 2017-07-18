@@ -54,9 +54,6 @@ class ConfigHelper extends DefaultHandler {
         case "threadNum":
           loadThreadNum(value);
           break;
-        case "openBroadcast":
-          loadBroadcast(value);
-          break;
         case "maxTaskNum":
           loadMaxQueue(value);
           break;
@@ -86,7 +83,24 @@ class ConfigHelper extends DefaultHandler {
         case "maxSpeed":
           loadMaxSpeed(value);
           break;
+        case "queueMod":
+          loadQueueMod(value);
+          break;
       }
+    }
+  }
+
+  private void loadQueueMod(String value) {
+    String mod = "now";
+    if (!TextUtils.isEmpty(value) && (value.equalsIgnoreCase("now") || value.equalsIgnoreCase(
+        "wait"))) {
+      mod = value;
+    }
+    if (isDownloadConfig) {
+      mDownloadConfig.queueMod = mod;
+    }
+    if (isUploadConfig) {
+      mUploadConfig.queueMod = mod;
     }
   }
 
@@ -95,7 +109,7 @@ class ConfigHelper extends DefaultHandler {
     if (!TextUtils.isEmpty(value)) {
       maxSpeed = Double.parseDouble(value);
     }
-    if (isDownloadConfig){
+    if (isDownloadConfig) {
       mDownloadConfig.msxSpeed = maxSpeed;
     }
   }
@@ -204,16 +218,6 @@ class ConfigHelper extends DefaultHandler {
     }
     if (isUploadConfig) {
       mUploadConfig.maxTaskNum = num;
-    }
-  }
-
-  private void loadBroadcast(String value) {
-    boolean open = Boolean.parseBoolean(value);
-    if (isDownloadConfig) {
-      mDownloadConfig.isOpenBreadCast = open;
-    }
-    if (isUploadConfig) {
-      mUploadConfig.isOpenBreadCast = open;
     }
   }
 

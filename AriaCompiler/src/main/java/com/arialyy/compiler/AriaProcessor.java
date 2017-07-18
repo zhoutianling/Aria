@@ -32,16 +32,17 @@ import javax.lang.model.element.TypeElement;
  * 事件注解扫描器
  */
 @AutoService(Processor.class) public class AriaProcessor extends AbstractProcessor {
-  ElementHandle mHandler;
+  ElementHandler mHandler;
 
   @Override public synchronized void init(ProcessingEnvironment processingEnv) {
     super.init(processingEnv);
     PrintLog.init(processingEnv.getMessager());
-    mHandler = new ElementHandle(processingEnv.getFiler(), processingEnv.getElementUtils());
+    mHandler = new ElementHandler(processingEnv.getFiler(), processingEnv.getElementUtils());
   }
 
   @Override public Set<String> getSupportedAnnotationTypes() {
     Set<String> annotataions = new LinkedHashSet<>();
+    //单任务下载的注解
     annotataions.add(Download.onPre.class.getCanonicalName());
     annotataions.add(Download.onNoSupportBreakPoint.class.getCanonicalName());
     annotataions.add(Download.onTaskCancel.class.getCanonicalName());
@@ -52,6 +53,18 @@ import javax.lang.model.element.TypeElement;
     annotataions.add(Download.onTaskRunning.class.getCanonicalName());
     annotataions.add(Download.onTaskStart.class.getCanonicalName());
     annotataions.add(Download.onTaskStop.class.getCanonicalName());
+    //下载任务的注解
+    annotataions.add(Download.onPre.class.getCanonicalName());
+    annotataions.add(Download.onNoSupportBreakPoint.class.getCanonicalName());
+    annotataions.add(Download.onTaskCancel.class.getCanonicalName());
+    annotataions.add(Download.onTaskComplete.class.getCanonicalName());
+    annotataions.add(Download.onTaskFail.class.getCanonicalName());
+    annotataions.add(Download.onTaskPre.class.getCanonicalName());
+    annotataions.add(Download.onTaskResume.class.getCanonicalName());
+    annotataions.add(Download.onTaskRunning.class.getCanonicalName());
+    annotataions.add(Download.onTaskStart.class.getCanonicalName());
+    annotataions.add(Download.onTaskStop.class.getCanonicalName());
+    //上传任务的注解
     annotataions.add(Upload.onPre.class.getCanonicalName());
     annotataions.add(Upload.onNoSupportBreakPoint.class.getCanonicalName());
     annotataions.add(Upload.onTaskCancel.class.getCanonicalName());
@@ -73,6 +86,7 @@ import javax.lang.model.element.TypeElement;
   public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
     mHandler.clean();
     mHandler.handleDownload(roundEnv);
+    mHandler.handleDownloadGroup(roundEnv);
     mHandler.handleUpload(roundEnv);
     mHandler.createProxyFile();
     return true;

@@ -19,8 +19,10 @@ package com.arialyy.aria.orm;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by lyy on 2015/11/2.
@@ -32,6 +34,13 @@ public class DbEntity {
 
   protected DbEntity() {
 
+  }
+
+  /**
+   * 直接执行sql语句
+   */
+  public static void exeSql(String sql) {
+    DbUtil.getInstance().exeSql(sql);
   }
 
   /**
@@ -55,7 +64,7 @@ public class DbEntity {
   /**
    * 查询一组数据
    * <code>
-   * DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+   * DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl);
    * </code>
    *
    * @return 没有数据返回null
@@ -68,12 +77,12 @@ public class DbEntity {
   /**
    * 查询一行数据
    * <code>
-   * DownloadEntity.findData(DownloadEntity.class, "downloadUrl=?", downloadUrl);
+   * DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl);
    * </code>
    *
    * @return 没有数据返回null
    */
-  public static <T extends DbEntity> T findData(Class<T> clazz, String... expression) {
+  public static <T extends DbEntity> T findFirst(Class<T> clazz, String... expression) {
     DbUtil util = DbUtil.getInstance();
     List<T> datas = util.findData(clazz, expression);
     return datas == null ? null : datas.size() > 0 ? datas.get(0) : null;
@@ -97,7 +106,6 @@ public class DbEntity {
    * 删除当前数据
    */
   public void deleteData() {
-    //mUtil.delData(getClass(), new Object[] { "rowid" }, new Object[] { rowID });
     deleteData(getClass(), "rowid=?", rowID + "");
   }
 
@@ -124,7 +132,7 @@ public class DbEntity {
    */
   public void save() {
     synchronized (LOCK) {
-      if (DbUtil.getInstance().tableExists(getClass()) && thisIsExist()) {
+      if (thisIsExist()) {
         update();
       } else {
         insert();
@@ -136,7 +144,8 @@ public class DbEntity {
    * 查找数据在表中是否存在
    */
   private boolean thisIsExist() {
-    return findData(getClass(), "rowid=?", rowID + "") != null;
+    DbUtil util = DbUtil.getInstance();
+    return util.isExist(getClass(), rowID);
   }
 
   /**
@@ -147,7 +156,7 @@ public class DbEntity {
     updateRowID();
   }
 
-  private <T extends DbEntity> T findData(Class<T> clazz, @NonNull String[] wheres,
+  private <T extends DbEntity> T findFirst(Class<T> clazz, @NonNull String[] wheres,
       @NonNull String[] values) {
     DbUtil util = DbUtil.getInstance();
     List<T> list = util.findData(clazz, wheres, values);
@@ -156,7 +165,7 @@ public class DbEntity {
 
   private void updateRowID() {
     try {
-      Field[] fields = CommonUtil.getFields(getClass());
+      List<Field> fields = CommonUtil.getAllFields(getClass());
       List<String> where = new ArrayList<>();
       List<String> values = new ArrayList<>();
       for (Field field : fields) {
@@ -165,9 +174,22 @@ public class DbEntity {
           continue;
         }
         where.add(field.getName());
-        values.add(field.get(this) + "");
+        Type type = field.getType();
+        if (SqlHelper.isOneToOne(field)) {
+          values.add(SqlHelper.getOneToOneParams(field));
+        } else if (type == List.class) {
+          if (SqlHelper.isOneToMany(field)) {
+            values.add(SqlHelper.getOneToManyElementParams(field));
+          } else {
+            values.add(SqlHelper.list2Str(this, field));
+          }
+        } else if (type == Map.class) {
+          values.add(SqlHelper.map2Str((Map<String, String>) field.get(this)));
+        } else {
+          values.add(field.get(this) + "");
+        }
       }
-      DbEntity entity = findData(getClass(), where.toArray(new String[where.size()]),
+      DbEntity entity = findFirst(getClass(), where.toArray(new String[where.size()]),
           values.toArray(new String[values.size()]));
       if (entity != null) {
         rowID = entity.rowID;

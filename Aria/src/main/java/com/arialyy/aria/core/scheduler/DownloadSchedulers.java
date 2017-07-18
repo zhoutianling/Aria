@@ -16,11 +16,13 @@
 
 package com.arialyy.aria.core.scheduler;
 
+import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
+import java.nio.MappedByteBuffer;
 
 /**
  * Created by lyy on 2016/8/16.
@@ -29,12 +31,11 @@ import com.arialyy.aria.core.download.DownloadTask;
 public class DownloadSchedulers
     extends AbsSchedulers<DownloadTaskEntity, DownloadEntity, DownloadTask, DownloadTaskQueue> {
 
-  private static final String TAG = "DownloadSchedulers";
+  private final String TAG = "DownloadSchedulers";
   private static volatile DownloadSchedulers INSTANCE = null;
 
   private DownloadSchedulers() {
     mQueue = DownloadTaskQueue.getInstance();
-    isDownload = true;
   }
 
   public static DownloadSchedulers getInstance() {
@@ -44,5 +45,34 @@ public class DownloadSchedulers
       }
     }
     return INSTANCE;
+  }
+
+  @Override int getSchedulerType() {
+    return DOWNLOAD;
+  }
+
+  @Override String getProxySuffix() {
+    return "$$DownloadListenerProxy";
+  }
+
+  @Override protected void startNextTask() {
+    if (getExeTaskNum() + DownloadGroupSchedulers.getInstance().getExeTaskNum()
+        >= AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum()) {
+      return;
+    }
+    if (!DownloadGroupSchedulers.getInstance().hasNextTask()) {
+      nextSelf();
+    } else {
+      Integer nextType = DQueueMapping.getInstance().nextType();
+      if (nextType == DQueueMapping.QUEUE_TYPE_DOWNLOAD_GROUP) {
+        DownloadGroupSchedulers.getInstance().nextSelf();
+      } else {
+        nextSelf();
+      }
+    }
+  }
+
+  void nextSelf() {
+    super.startNextTask();
   }
 }

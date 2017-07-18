@@ -22,8 +22,10 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.queue.pool.ExecutePool;
+import com.arialyy.aria.core.queue.pool.BaseCachePool;
+import com.arialyy.aria.core.queue.pool.BaseExecutePool;
+import com.arialyy.aria.core.queue.pool.DownloadSharePool;
+import com.arialyy.aria.core.scheduler.DQueueMapping;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -48,10 +50,28 @@ public class DownloadTaskQueue
   }
 
   private DownloadTaskQueue() {
-    mExecutePool = new ExecutePool<>(true);
   }
 
-  @Override public void setTaskHighestPriority(DownloadTask task) {
+  @Override BaseCachePool<DownloadTask> setCachePool() {
+    return DownloadSharePool.getInstance().cachePool;
+  }
+
+  @Override BaseExecutePool<DownloadTask> setExecutePool() {
+    return DownloadSharePool.getInstance().executePool;
+  }
+
+  @Override public String getKey(DownloadEntity entity) {
+    return entity.getDownloadUrl();
+  }
+
+  @Override public int getConfigMaxNum() {
+    return AriaManager.getInstance(AriaManager.APP).getDownloadConfig().oldMaxTaskNum;
+  }
+
+  /**
+   * 设置任务为最高优先级任务
+   */
+  public void setTaskHighestPriority(DownloadTask task) {
     task.setHighestPriority(true);
     Map<String, DownloadTask> exeTasks = mExecutePool.getAllTask();
     if (exeTasks != null && !exeTasks.isEmpty()) {
@@ -91,39 +111,15 @@ public class DownloadTaskQueue
     }
   }
 
-  public void setMaxSpeed(double maxSpeed){
+  /**
+   * 最大下载速度
+   */
+  public void setMaxSpeed(double maxSpeed) {
     Map<String, DownloadTask> tasks = mExecutePool.getAllTask();
     Set<String> keys = tasks.keySet();
-    for (String key : keys){
+    for (String key : keys) {
       DownloadTask task = tasks.get(key);
       task.setMaxSpeed(maxSpeed);
-    }
-  }
-
-  @Override public void setMaxTaskNum(int downloadNum) {
-    int oldMaxSize = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().oldMaxTaskNum;
-    int diff = downloadNum - oldMaxSize;
-    if (oldMaxSize == downloadNum) {
-      Log.d(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");
-      return;
-    }
-    //设置的任务数小于配置任务数
-    if (diff <= -1 && mExecutePool.size() >= oldMaxSize) {
-      for (int i = 0, len = Math.abs(diff); i < len; i++) {
-        DownloadTask eTask = mExecutePool.pollTask();
-        if (eTask != null) {
-          stopTask(eTask);
-        }
-      }
-    }
-    mExecutePool.setDownloadNum(downloadNum);
-    if (diff >= 1) {
-      for (int i = 0; i < diff; i++) {
-        DownloadTask nextTask = getNextTask();
-        if (nextTask != null && nextTask.getDownloadEntity().getState() == IEntity.STATE_WAIT) {
-          startTask(nextTask);
-        }
-      }
     }
   }
 
@@ -132,25 +128,19 @@ public class DownloadTaskQueue
     if (!TextUtils.isEmpty(target)) {
       task = (DownloadTask) TaskFactory.getInstance()
           .createTask(target, entity, DownloadSchedulers.getInstance());
+      entity.key = entity.getEntity().getDownloadPath();
       mCachePool.putTask(task);
+
+      DQueueMapping.getInstance().addType(task.getKey(), DQueueMapping.QUEUE_TYPE_DOWNLOAD);
     } else {
-      Log.e(TAG, "target name 为 null是！！");
+      Log.e(TAG, "target name 为 null！！");
     }
+
     return task;
   }
 
-  @Override public DownloadTask getTask(DownloadEntity entity) {
-    return getTask(entity.getDownloadUrl());
-  }
-
-  @Override public void removeTask(DownloadEntity entity) {
-    DownloadTask task = mExecutePool.getTask(entity.getDownloadUrl());
-    if (task != null) {
-      Log.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
-    }
-    task = mCachePool.getTask(entity.getDownloadUrl());
-    if (task != null) {
-      Log.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
-    }
+  @Override public void stopTask(DownloadTask task) {
+    task.setHighestPriority(false);
+    super.stopTask(task);
   }
 }

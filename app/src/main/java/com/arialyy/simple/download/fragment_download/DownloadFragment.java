@@ -38,25 +38,20 @@ import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
  * Created by Aria.Lao on 2017/1/4.
  */
 public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
-  @Bind(R.id.progressBar) HorizontalProgressBarWithNumber mPb;
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
-  @Bind(R.id.size) TextView mSize;
-  @Bind(R.id.speed) TextView mSpeed;
 
-  private static final String DOWNLOAD_URL =
-      "http://static.ilongyuan.cn/rayark/RayarkFZ_2.0.7.apk";
+  private static final String DOWNLOAD_URL = "http://static.ilongyuan.cn/rayark/RayarkFZ_2.0.7.apk";
 
   @Override protected void init(Bundle savedInstanceState) {
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
       DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
-      int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
-      mPb.setProgress(p);
+      getBinding().setProgress(target.getPercent());
     }
     DownloadEntity entity = Aria.download(this).getDownloadEntity(DOWNLOAD_URL);
     if (entity != null) {
-      mSize.setText(CommonUtil.formatFileSize(entity.getFileSize()));
+      getBinding().setFileSize(CommonUtil.formatFileSize(entity.getFileSize()));
       int state = entity.getState();
       setBtState(state != DownloadEntity.STATE_RUNNING);
     } else {
@@ -83,30 +78,29 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
   }
 
   @Download.onTaskPre public void onTaskPre(DownloadTask task) {
-    mSize.setText(CommonUtil.formatFileSize(task.getFileSize()));
+    getBinding().setFileSize(task.getConvertFileSize());
     setBtState(false);
   }
 
   @Download.onTaskStop public void onTaskStop(DownloadTask task) {
     setBtState(true);
-    mSpeed.setText("0.0kb/s");
+    getBinding().setSpeed("0.0kb/s");
   }
 
   @Download.onTaskCancel public void onTaskCancel(DownloadTask task) {
     setBtState(true);
-    mPb.setProgress(0);
-    mSpeed.setText("0.0kb/s");
+    getBinding().setProgress(0);
+    getBinding().setSpeed("0.0kb/s");
   }
 
   @Download.onTaskRunning public void onTaskRunning(DownloadTask task) {
-    long current = task.getCurrentProgress();
     long len = task.getFileSize();
     if (len == 0) {
-      mPb.setProgress(0);
+      getBinding().setProgress(0);
     } else {
-      mPb.setProgress((int) ((current * 100) / len));
+      getBinding().setProgress(task.getPercent());
     }
-    mSpeed.setText(task.getConvertSpeed());
+    getBinding().setSpeed(task.getConvertSpeed());
   }
 
   @Override protected void onDelayLoad() {

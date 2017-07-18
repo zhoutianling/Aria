@@ -16,22 +16,30 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.orm.OneToOne;
 
 /**
  * Created by lyy on 2017/1/23.
  * 下载任务实体
  */
-public class DownloadTaskEntity extends AbsTaskEntity {
+public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
 
-  public DownloadEntity downloadEntity;
+  @OneToOne(table = DownloadEntity.class, key = "downloadPath") public DownloadEntity entity;
 
-  public DownloadTaskEntity(){}
+  /**
+   * 所属的任务组组名，如果不属于任务组，则为null
+   */
+  public String groupName = "";
 
-  public DownloadTaskEntity(DownloadEntity downloadEntity) {
-    this.downloadEntity = downloadEntity;
+  /**
+   * 该任务是否属于任务组
+   */
+  public boolean isGroupTask = false;
+
+  public DownloadTaskEntity() {
   }
 
   @Override public DownloadEntity getEntity() {
-    return downloadEntity;
+    return entity;
   }
 }

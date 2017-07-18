@@ -17,30 +17,24 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.command.AbsCmd;
-import com.arialyy.aria.core.command.CmdFactory;
-import com.arialyy.aria.core.download.DownloadReceiver;
-import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.IReceiver;
-import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Created by lyy on 2017/2/6.
  * 上传功能接收器
  */
-public class UploadReceiver implements IReceiver<UploadEntity> {
+public class UploadReceiver extends AbsReceiver<UploadEntity> {
   private static final String TAG = "DownloadReceiver";
-  public String targetName;
-  public Object obj;
   public ISchedulerListener<UploadTask> listener;
 
   /**
@@ -50,17 +44,7 @@ public class UploadReceiver implements IReceiver<UploadEntity> {
    */
   public UploadTarget load(@NonNull String filePath) {
     CheckUtil.checkUploadPath(filePath);
-    UploadEntity entity = UploadEntity.findData(UploadEntity.class, "filePath=?", filePath);
-    if (entity == null) {
-      entity = new UploadEntity();
-    }
-    String regex = "[/|\\\\|//]";
-    Pattern p = Pattern.compile(regex);
-    String[] strs = p.split(filePath);
-    String fileName = strs[strs.length - 1];
-    entity.setFileName(fileName);
-    entity.setFilePath(filePath);
-    return new UploadTarget(entity, targetName);
+    return new UploadTarget(filePath, targetName);
   }
 
   /**
@@ -68,41 +52,39 @@ public class UploadReceiver implements IReceiver<UploadEntity> {
    */
   public UploadEntity getUploadEntity(String filePath) {
     CheckUtil.checkUploadPath(filePath);
-    return DbEntity.findData(UploadEntity.class, "filePath=?", filePath);
+    return DbEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
   }
 
   /**
    * 下载任务是否存在
    */
   @Override public boolean taskExists(String filePath) {
-    return DbEntity.findData(UploadEntity.class, "filePath=?", filePath) != null;
+    return DbEntity.findFirst(UploadEntity.class, "filePath=?", filePath) != null;
   }
 
-  @Override public List<UploadEntity> getTaskList() {
+  @Override public List<UploadEntity> getSimpleTaskList() {
     return DbEntity.findAllData(UploadEntity.class);
   }
 
   @Override public void stopAllTask() {
-    List<UploadEntity> allEntity = DbEntity.findAllData(UploadEntity.class);
-    List<AbsCmd> stopCmds = new ArrayList<>();
-    for (UploadEntity entity : allEntity) {
-      if (entity.getState() == IEntity.STATE_RUNNING) {
-        stopCmds.add(
-            CommonUtil.createCmd(targetName, new UploadTaskEntity(entity), CmdFactory.TASK_STOP));
-      }
-    }
-    AriaManager.getInstance(AriaManager.APP).setCmds(stopCmds).exe();
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(NormalCmdFactory.getInstance()
+            .createCmd(targetName, new UploadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL))
+        .exe();
   }
 
-  @Override public void removeAllTask() {
+  /**
+   * 删除所有任务
+   *
+   * @param removeFile {@code true} 删除已经上传完成的任务，不仅删除上传记录，还会删除已经上传完成的文件，{@code false}
+   * 如果文件已经上传完成，只删除上传记录
+   */
+  @Override public void removeAllTask(boolean removeFile) {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
-    List<UploadEntity> allEntity = DbEntity.findAllData(UploadEntity.class);
-    List<AbsCmd> cancelCmds = new ArrayList<>();
-    for (UploadEntity entity : allEntity) {
-      cancelCmds.add(
-          CommonUtil.createCmd(targetName, new UploadTaskEntity(entity), CmdFactory.TASK_CANCEL));
-    }
-    am.setCmds(cancelCmds).exe();
+
+    am.setCmd(CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
+        NormalCmdFactory.TASK_CANCEL_ALL)).exe();
+
     Set<String> keys = am.getReceiver().keySet();
     for (String key : keys) {
       IReceiver receiver = am.getReceiver().get(key);
@@ -118,14 +100,19 @@ public class UploadReceiver implements IReceiver<UploadEntity> {
 
   /**
    * 添加调度器回调
+   *
+   * @see #register()
    */
-  public UploadReceiver addSchedulerListener(ISchedulerListener<UploadTask> listener) {
+  @Deprecated public UploadReceiver addSchedulerListener(ISchedulerListener<UploadTask> listener) {
     this.listener = listener;
     UploadSchedulers.getInstance().addSchedulerListener(targetName, listener);
     return this;
   }
 
-  @Override public void removeSchedulerListener() {
+  /**
+   * @see #unRegister()
+   */
+  @Deprecated @Override public void removeSchedulerListener() {
     if (listener != null) {
       UploadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
     }
@@ -135,11 +122,19 @@ public class UploadReceiver implements IReceiver<UploadEntity> {
    * 将当前类注册到Aria
    */
   public UploadReceiver register() {
-    UploadSchedulers.getInstance().register(obj);
+    String className = obj.getClass().getName();
+    Set<String> cCounter = ProxyHelper.getInstance().uploadCounter;
+    if (cCounter != null && cCounter.contains(className)) {
+      UploadSchedulers.getInstance().register(obj);
+    }
     return this;
   }
 
   @Override public void unRegister() {
-    UploadSchedulers.getInstance().unRegister(obj);
+    String className = obj.getClass().getName();
+    Set<String> dCounter = ProxyHelper.getInstance().uploadCounter;
+    if (dCounter != null && dCounter.contains(className)) {
+      UploadSchedulers.getInstance().unRegister(obj);
+    }
   }
 }
