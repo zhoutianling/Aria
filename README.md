@@ -1,6 +1,6 @@
 # Aria
 ![图标](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/app/src/main/res/mipmap-hdpi/ic_launcher.png)</br>
-Aria项目源于15年工作中遇到的一个文件下载管理的需求，当时被下载折磨的痛不欲生，从那时起便萌生了编写一个简单易用，稳当高效的下载框架，aria经历了1.0到3.0的开发，算是越来越接近当初所制定的目标了。
+Aria项目源于工作中遇到的一个文件下载管理的需求，当时被下载折磨的痛不欲生，从那时起便萌生了编写一个简单易用，稳当高效的下载框架，aria经历了1.0到3.0的开发，算是越来越接近当初所制定的目标了。
 
 Aria有以下特点：
  + 简单、方便
@@ -11,6 +11,7 @@ Aria有以下特点：
    - [一句代码就可以动态设置最大下载数](#代码中设置参数)
    - [通过修改配置文件很容易就能修改下载线程数](#配置文件设置参数)
    - [优先下载某一个任务](#常用接口)
+   - [支持任务组下载，多个任务可共享一个progress](#一组任务下载)
  + 支持https地址下载
    - 在配置文件中很容易就可以设置CA证书的信息
  + 支持300、301、302重定向下载链接下载
@@ -27,13 +28,14 @@ Aria怎样使用？
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.1.9'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
+compile 'com.arialyy.aria:aria-core:3.2.6'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.6'
 ```
 
 ## 示例
 ![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/master/img/download_img.gif)
 ![上传](https://github.com/AriaLyy/DownloadUtil/blob/master/img/sing_upload.gif)
+![下载任务组](https://github.com/AriaLyy/DownloadUtil/blob/master/img/download_group.gif)
 
 ## 性能
 ![性能展示](https://github.com/AriaLyy/DownloadUtil/blob/master/img/performance.png)
@@ -48,15 +50,8 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
 ```
 
 ## 使用Aria进行下载
-* 添加任务（不进行下载），当其他下载任务完成时，将自动下载等待中的任务
-  ```java
-  Aria.download(this)
-      .load(DOWNLOAD_URL)
-      .setDownloadPath(DOWNLOAD_PATH)	//文件保存路径
-      .add();
-  ```
-
-* 下载
+### 普通任务下载
+* 下载\恢复下载
 
   ```java
   Aria.download(this)
@@ -69,15 +64,33 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
   ```java
   Aria.download(this).load(DOWNLOAD_URL).pause();
   ```
-* 恢复下载
 
-  ```java
-  Aria.download(this).load(DOWNLOAD_URL).resume();
-  ```
 * 取消下载
 
   ```java
   Aria.download(this).load(DOWNLOAD_URL).cancel();
+  ```
+### 一组任务下载
+任务组的下载和普通任务的下载基本上差不多，区别在于，任务组下载不需要对每一个子任务设置保存路径，**但是需要设置任务组保存文件夹路径，所有子任务都保存在该文件夹下**
+
+* 下载\恢复下载
+
+  ```java
+  Aria.download(this)
+      .load(urls)     //设置一主任务，参数为List<String>
+      .setDownloadDirPath(groupDirPath)    //设置任务组的文件夹路径
+      .start();   //启动下载
+  ```
+* 暂停
+
+  ```java
+  Aria.download(this).load(urls).pause();
+  ```
+
+* 取消下载
+
+  ```java
+  Aria.download(this).load(urls).cancel();
   ```
 
 ### 下载状态获取
@@ -94,12 +107,12 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.1.9'
   }
  ```
 
-2. 使用`@Download`或`@Upload`注解你的函数
+2. 使用`@Download`或`@Upload`或`@DownloadGroup`注解你的函数
 
  **注意：**
  - 注解回掉采用Apt的方式实现，所以，你不需要担心这会影响你机器的性能
  - 被注解的方法**不能被private修饰**
- - 被注解的方法**只能有一个参数，并且参数类型必须是`DownloadTask`或`UploadTask`**
+ - 被注解的方法**只能有一个参数，并且参数类型必须是`DownloadTask`或`UploadTask`或`DownloadGroupTask`**
  - 方法名可以为任意字符串
 
 3. 除了在widget（Activity、Fragment、Dialog、Popupwindow）中使用注解方法外，你还可以在Service、Notification等组件中使用注解函数。
@@ -321,6 +334,7 @@ Aria.download(this).load(DOWNLOAD_URL).setDownloadPath(PATH).setHighestPriority(
 
 
 ## 开发日志
+  + v_3.2.6 移除广播事件，增加任务组下载功能
   + v_3.1.9 修复stopAll队列没有任务时崩溃的问题，增加针对单个任务监听的功能
   + v_3.1.7 修复某些文件下载不了的bug，增加apt注解方法，事件获取更加简单了
   + v_3.1.6 取消任务时onTaskCancel回调两次的bug
@@ -330,16 +344,6 @@ Aria.download(this).load(DOWNLOAD_URL).setDownloadPath(PATH).setHighestPriority(
   + v_3.0.3 修复暂停后删除任务，闪退问题，添加删除记录的api
   + v_3.0.2 支持30x重定向链接下载
   + v_3.0.0 添加上传任务支持，修复一些已发现的bug
-  + v_2.4.4 修复不支持断点的下载链接拿不到文件大小的问题
-  + v_2.4.3 修复404链接卡顿的问题
-  + v_2.4.2 修复失败重试无效的bug
-  + v_2.4.1 修复下载慢的问题，修复application、service 不能使用的问题
-  + v_2.4.0 支持https链接下载
-  + v_2.3.8 修复数据错乱的bug、添加fragment支持
-  + v_2.3.6 添加dialog、popupWindow支持
-  + v_2.3.3 添加断点支持、修改下载逻辑，让使用更加简单、修复一个内存泄露的bug
-  + v_2.3.1 重命名为Aria，下载流程简化
-  + v_2.1.1 增加，选择最大下载任务数接口
 
 License
 -------

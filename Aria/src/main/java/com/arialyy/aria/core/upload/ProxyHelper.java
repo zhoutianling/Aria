@@ -51,9 +51,18 @@ public class ProxyHelper {
       Method downloadGroup = clazz.getMethod("getDownloadGroupCounter");
       Method upload = clazz.getMethod("getUploadCounter");
       Object object = clazz.newInstance();
-      downloadCounter = unmodifiableSet((Set<String>) download.invoke(object));
-      downloadGroupCounter = unmodifiableSet((Set<String>) downloadGroup.invoke(object));
-      uploadCounter = unmodifiableSet((Set<String>) upload.invoke(object));
+      Object dc = download.invoke(object);
+      if (dc != null) {
+        downloadCounter = unmodifiableSet((Set<String>) dc);
+      }
+      Object dgc = downloadGroup.invoke(object);
+      if (dgc != null) {
+        downloadGroupCounter = unmodifiableSet((Set<String>) dgc);
+      }
+      Object uc = upload.invoke(object);
+      if (uc != null) {
+        uploadCounter = unmodifiableSet((Set<String>) uc);
+      }
     } catch (ClassNotFoundException e) {
       e.printStackTrace();
     } catch (InstantiationException e) {

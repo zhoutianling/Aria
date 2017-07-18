@@ -123,8 +123,8 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
    */
   public UploadReceiver register() {
     String className = obj.getClass().getName();
-    Set<String> dCounter = ProxyHelper.getInstance().uploadCounter;
-    if (dCounter.contains(className)) {
+    Set<String> cCounter = ProxyHelper.getInstance().uploadCounter;
+    if (cCounter != null && cCounter.contains(className)) {
       UploadSchedulers.getInstance().register(obj);
     }
     return this;
@@ -133,7 +133,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   @Override public void unRegister() {
     String className = obj.getClass().getName();
     Set<String> dCounter = ProxyHelper.getInstance().uploadCounter;
-    if (dCounter.contains(className)) {
+    if (dCounter != null && dCounter.contains(className)) {
       UploadSchedulers.getInstance().unRegister(obj);
     }
   }
