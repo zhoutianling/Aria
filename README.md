@@ -340,6 +340,7 @@ Aria.download(this).load(DOWNLOAD_URL).setExtendField(str)
 
 ## 其他
  有任何问题，可以在[issues](https://github.com/AriaLyy/Aria/issues)给我留言反馈。
+ ![交流](https://github.com/AriaLyy/Aria/blob/master/img/aria_qq.png)
 
 ***
 
