@@ -17,10 +17,10 @@ package com.arialyy.aria.core.download;
 
 import android.os.Handler;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.downloader.DownloadListener;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.ref.WeakReference;
@@ -28,22 +28,23 @@ import java.lang.ref.WeakReference;
 /**
  * 下载监听类
  */
-class DListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
-    extends DownloadListener {
+class BaseListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
+    implements IEventListener {
   private WeakReference<Handler> outHandler;
-  private long lastLen = 0;   //上一次发送长度
+  private long mLastLen = 0;   //上一次发送长度
   private boolean isFirst = true;
-  private ENTITY entity;
-  private TASK task;
+  protected ENTITY mEntity;
+  protected TASK mTask;
   private boolean isConvertSpeed = false;
   boolean isWait = false;
 
-  DListener(TASK task, Handler outHandler) {
+  BaseListener(TASK task, Handler outHandler) {
     this.outHandler = new WeakReference<>(outHandler);
-    this.task = new WeakReference<>(task).get();
-    this.entity = this.task.getEntity();
+    this.mTask = new WeakReference<>(task).get();
+    this.mEntity = this.mTask.getEntity();
     final AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     isConvertSpeed = manager.getDownloadConfig().isConvertSpeed();
+    mLastLen = mEntity.getCurrentProgress();
   }
 
   @Override public void onPre() {
@@ -52,8 +53,8 @@ class DListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
   }
 
   @Override public void onPostPre(long fileSize) {
-    entity.setFileSize(fileSize);
-    entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
+    mEntity.setFileSize(fileSize);
+    mEntity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
     saveData(IEntity.STATE_POST_PRE, -1);
     sendInState2Target(ISchedulers.POST_PRE);
   }
@@ -69,15 +70,15 @@ class DListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
   }
 
   @Override public void onProgress(long currentLocation) {
-    entity.setCurrentProgress(currentLocation);
-    long speed = currentLocation - lastLen;
+    mEntity.setCurrentProgress(currentLocation);
+    long speed = currentLocation - mLastLen;
     if (isFirst) {
       speed = 0;
       isFirst = false;
     }
     handleSpeed(speed);
     sendInState2Target(ISchedulers.RUNNING);
-    lastLen = currentLocation;
+    mLastLen = currentLocation;
   }
 
   @Override public void onStop(long stopLocation) {
@@ -93,23 +94,23 @@ class DListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
   }
 
   @Override public void onComplete() {
-    saveData(IEntity.STATE_COMPLETE, entity.getFileSize());
+    saveData(IEntity.STATE_COMPLETE, mEntity.getFileSize());
     handleSpeed(0);
     sendInState2Target(ISchedulers.COMPLETE);
   }
 
   @Override public void onFail() {
-    entity.setFailNum(entity.getFailNum() + 1);
-    saveData(IEntity.STATE_FAIL, -1);
+    mEntity.setFailNum(mEntity.getFailNum() + 1);
+    saveData(IEntity.STATE_FAIL, mEntity.getCurrentProgress());
     handleSpeed(0);
     sendInState2Target(ISchedulers.FAIL);
   }
 
   private void handleSpeed(long speed) {
     if (isConvertSpeed) {
-      entity.setConvertSpeed(CommonUtil.formatFileSize(speed) + "/s");
+      mEntity.setConvertSpeed(CommonUtil.formatFileSize(speed < 0 ? 0 : speed) + "/s");
     } else {
-      entity.setSpeed(speed);
+      mEntity.setSpeed(speed < 0 ? 0 : speed);
     }
   }
 
@@ -120,25 +121,25 @@ class DListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
    */
   private void sendInState2Target(int state) {
     if (outHandler.get() != null) {
-      outHandler.get().obtainMessage(state, task).sendToTarget();
+      outHandler.get().obtainMessage(state, mTask).sendToTarget();
     }
   }
 
   private void saveData(int state, long location) {
+    mEntity.setComplete(state == IEntity.STATE_COMPLETE);
     if (state == IEntity.STATE_CANCEL) {
-      entity.deleteData();
+      mEntity.deleteData();
     } else if (state == IEntity.STATE_COMPLETE) {
-      entity.setState(state);
-      entity.setComplete(true);
-      entity.setCompleteTime(System.currentTimeMillis());
-      entity.setCurrentProgress(entity.getFileSize());
-      entity.update();
+      mEntity.setState(state);
+      mEntity.setCompleteTime(System.currentTimeMillis());
+      mEntity.setCurrentProgress(mEntity.getFileSize());
+      mEntity.update();
     } else {
-      entity.setState(state);
+      mEntity.setState(state);
       if (location != -1) {
-        entity.setCurrentProgress(location);
+        mEntity.setCurrentProgress(location);
       }
-      entity.update();
+      mEntity.update();
     }
   }
 }

@@ -111,7 +111,7 @@ class Downloader implements Runnable, IDownloadUtil {
     mTimer = new Timer(true);
     mTimer.schedule(new TimerTask() {
       @Override public void run() {
-        if (mConstance.isComplete()) {
+        if (mConstance.isComplete() || !mConstance.isDownloading) {
           closeTimer();
         } else if (mConstance.CURRENT_LOCATION >= 0) {
           mListener.onProgress(mConstance.CURRENT_LOCATION);
@@ -343,7 +343,6 @@ class Downloader implements Runnable, IDownloadUtil {
         Long r = Long.parseLong(record + "");
         mConstance.CURRENT_LOCATION += r - startL;
         Log.d(TAG, "任务【" + mEntity.getFileName() + "】线程__" + i + "__恢复下载");
-        mListener.onChildResume(r);
         startL = r;
         recordL[rl] = i;
         rl++;

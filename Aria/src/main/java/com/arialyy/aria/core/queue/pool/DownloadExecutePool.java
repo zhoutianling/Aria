@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * Created by AriaL on 2017/6/29.
  * 单个下载任务的执行池
  */
-public class DownloadExecutePool<TASK extends AbsTask> extends BaseExecutePool<TASK> {
+class DownloadExecutePool<TASK extends AbsTask> extends BaseExecutePool<TASK> {
   private final String TAG = "DownloadExecutePool";
 
   @Override protected int getMaxSize() {
@@ -41,6 +41,7 @@ public class DownloadExecutePool<TASK extends AbsTask> extends BaseExecutePool<T
       }
       String url = task.getKey();
       if (mExecuteQueue.contains(task)) {
+        if (!task.isRunning()) return true;
         Log.e(TAG, "队列中已经包含了该任务，任务key【" + url + "】");
         return false;
       } else {

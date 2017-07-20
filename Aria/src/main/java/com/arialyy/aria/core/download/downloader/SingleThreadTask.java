@@ -134,7 +134,6 @@ final class SingleThreadTask implements Runnable {
             + mConfigEntity.THREAD_ID
             + "__下载完毕");
         writeConfig(true, 1);
-        mListener.onChildComplete(mConfigEntity.END_LOCATION);
         CONSTANCE.COMPLETE_THREAD_NUM++;
         if (CONSTANCE.isComplete()) {
           File configFile = new File(mConfigFPath);

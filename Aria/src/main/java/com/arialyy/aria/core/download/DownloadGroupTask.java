@@ -29,7 +29,7 @@ import com.arialyy.aria.util.CheckUtil;
  */
 public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, DownloadGroupEntity> {
   private final String TAG = "DownloadGroupTask";
-  private DListener<DownloadGroupEntity, DownloadGroupTask> mListener;
+  private DownloadGroupListener mListener;
   private IDownloadUtil mUtil;
 
   private DownloadGroupTask(DownloadGroupTaskEntity taskEntity, Handler outHandler) {
@@ -37,7 +37,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
     mEntity = taskEntity.getEntity();
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
-    mListener = new DListener<>(this, mOutHandler);
+    mListener = new DownloadGroupListener(this, mOutHandler);
     mUtil = new DownloadGroupUtil(mListener, mTaskEntity);
   }
 

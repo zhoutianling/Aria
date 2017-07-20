@@ -84,4 +84,13 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   public int code;
 
   public abstract ENTITY getEntity();
+
+  /**
+   * 获取任务下载状态
+   *
+   * @return {@link IEntity}
+   */
+  public int getState() {
+    return getEntity().getState();
+  }
 }

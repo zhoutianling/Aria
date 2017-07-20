@@ -32,14 +32,14 @@ import java.io.File;
 public class DownloadTask extends AbsNormalTask<DownloadEntity> {
   public static final String TAG = "DownloadTask";
 
-  private DListener<DownloadEntity, DownloadTask> mListener;
+  private DownloadListener mListener;
   private SimpleDownloadUtil mUtil;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
     mEntity = taskEntity.getEntity();
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
-    mListener = new DListener<>(this, mOutHandler);
+    mListener = new DownloadListener(this, mOutHandler);
     mUtil = new SimpleDownloadUtil(taskEntity, mListener);
   }
 
