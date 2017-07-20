@@ -44,7 +44,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.6'
 
 ***
 ## 使用
-由于Aria涉及到文件和网络的操作，因此需要你在manifest文件中添加以下权限
+由于Aria涉及到文件和网络的操作，因此需要你在manifest文件中添加以下权限，如果你希望在6.0以上的系统中使用Aria，那么你需要动态向安卓系统申请文件系统读写权限，[如何使用安卓系统权限](https://developer.android.com/training/permissions/index.html?hl=zh-cn)
 ```xml
 <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
 <uses-permission android:name="android.permission.INTERNET"/>
