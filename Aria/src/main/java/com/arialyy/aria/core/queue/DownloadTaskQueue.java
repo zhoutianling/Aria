@@ -25,7 +25,6 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.core.queue.pool.DownloadSharePool;
-import com.arialyy.aria.core.scheduler.DQueueMapping;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -130,8 +129,6 @@ public class DownloadTaskQueue
           .createTask(target, entity, DownloadSchedulers.getInstance());
       entity.key = entity.getEntity().getDownloadPath();
       mCachePool.putTask(task);
-
-      DQueueMapping.getInstance().addType(task.getKey(), DQueueMapping.QUEUE_TYPE_DOWNLOAD);
     } else {
       Log.e(TAG, "target name 为 null！！");
     }

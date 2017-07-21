@@ -17,6 +17,7 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.ProxyHelper;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;

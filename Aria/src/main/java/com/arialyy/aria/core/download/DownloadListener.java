@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.arialyy.aria.core.download;
 
-package com.arialyy.aria.core.download.downloader;
-
-import com.arialyy.aria.core.inf.IEventListener;
+import android.os.Handler;
+import com.arialyy.aria.core.download.downloader.IDownloadListener;
 
 /**
- * 下载监听
+ * Created by Aria.Lao on 2017/7/20.
+ * 普通任务下载的事件监听器
  */
-public interface IDownloadListener extends IEventListener {
+class DownloadListener extends BaseListener<DownloadEntity, DownloadTask>
+    implements IDownloadListener {
+  DownloadListener(DownloadTask task, Handler outHandler) {
+    super(task, outHandler);
+  }
 
-  /**
-   * 支持断点回调
-   *
-   * @param support true,支持；false 不支持
-   */
-  void supportBreakpoint(boolean support);
+  @Override public void supportBreakpoint(boolean support) {
+
+  }
+
 }

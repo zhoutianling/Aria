@@ -21,6 +21,7 @@ import com.arialyy.aria.core.inf.AbsNormalTarget;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 
 /**
@@ -48,7 +49,7 @@ public class DownloadTarget
     if (mTaskEntity.entity == null) {
       mTaskEntity.entity = entity;
     }
-    mEntity = entity;
+    mEntity = mTaskEntity.entity;
   }
 
   /**
@@ -102,42 +103,32 @@ public class DownloadTarget
   }
 
   /**
-   * 设置文件存储路径
+   * 设置文件存储路径，如果需要修改新的文件名，修改路径便可。
+   * 如：原文件路径 /mnt/sdcard/test.zip
+   * 如果需要将test.zip改为game.zip，只需要重新设置文件路径为：/mnt/sdcard/game.zip
+   *
+   * @param downloadPath 路径必须为文件路径，不能为文件夹路径
    */
   public DownloadTarget setDownloadPath(@NonNull String downloadPath) {
     if (TextUtils.isEmpty(downloadPath)) {
       throw new IllegalArgumentException("文件保持路径不能为null");
     }
     File file = new File(downloadPath);
-    mEntity.setDownloadPath(downloadPath);
-    mEntity.setFileName(file.getName());
-    mTaskEntity.key = downloadPath;
-    mEntity.update();
-    mTaskEntity.update();
-    return this;
-  }
-
-  /**
-   * 设置文件名
-   *
-   * @deprecated {@link #setFileName(String)}
-   */
-  @Deprecated public DownloadTarget setDownloadName(@NonNull String downloadName) {
-    if (TextUtils.isEmpty(downloadName)) {
-      throw new IllegalArgumentException("文件名不能为null");
+    if (file.isDirectory()) {
+      throw new IllegalArgumentException("文件不能为文件夹");
     }
-    mEntity.setFileName(downloadName);
-    return this;
-  }
-
-  /**
-   * 设置文件名
-   */
-  public DownloadTarget setFileName(@NonNull String fileName) {
-    if (TextUtils.isEmpty(fileName)) {
-      throw new IllegalArgumentException("文件名不能为null");
+    if (!downloadPath.equals(mEntity.getDownloadPath())) {
+      File oldFile = new File(mEntity.getDownloadPath());
+      File newFile = new File(downloadPath);
+      if (TextUtils.isEmpty(mEntity.getDownloadPath()) || oldFile.renameTo(newFile)) {
+        mEntity.setDownloadPath(downloadPath);
+        mEntity.setFileName(newFile.getName());
+        mTaskEntity.key = downloadPath;
+        mEntity.update();
+        mTaskEntity.update();
+        CommonUtil.renameDownloadConfig(oldFile.getName(), newFile.getName());
+      }
     }
-    mEntity.setFileName(fileName);
     return this;
   }
 

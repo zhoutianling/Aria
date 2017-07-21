@@ -44,8 +44,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -593,6 +597,65 @@ public class CommonUtil {
     }
     err.append("===================================================");
     return err.toString();
+  }
+
+  /**
+   * 重命名下载配置文件
+   * 如果旧的配置文件名不存在，则使用新的配置文件名新创建一个文件，否则将旧的配置文件重命名为新的位置文件名。
+   * 除了重命名配置文件名外，还会将文件中的记录重命名为新的记录，如果没有记录，则不做处理
+   *
+   * @param oldName 旧的下载文件名
+   * @param newName 新的下载文件名
+   */
+  public static void renameDownloadConfig(String oldName, String newName) {
+    renameConfig(AriaManager.APP.getFilesDir().getPath() + AriaManager.DOWNLOAD_TEMP_DIR, oldName,
+        newName);
+  }
+
+  /**
+   * 重命名上传配置文件
+   * 如果旧的配置文件名不存在，则使用新的配置文件名新创建一个文件，否则将旧的配置文件重命名为新的位置文件名。
+   * 除了重命名配置文件名外，还会将文件中的记录重命名为新的记录，如果没有记录，则不做处理
+   *
+   * @param oldName 旧的上传文件名
+   * @param newName 新的上传文件名
+   */
+  public static void renameUploadConfig(String oldName, String newName) {
+    renameConfig(AriaManager.APP.getFilesDir().getPath() + AriaManager.UPLOAD_TEMP_DIR, oldName,
+        newName);
+  }
+
+  private static void renameConfig(String basePath, String oldName, String newName) {
+    if (oldName.equals(newName)) return;
+    File oldFile = new File(basePath + oldName + ".properties");
+    File newFile = new File(basePath + newName + ".properties");
+    if (!oldFile.exists()) {
+      createFile(newFile.getPath());
+    } else {
+      Properties pro = CommonUtil.loadConfig(oldFile);
+      if (!pro.isEmpty()) {
+        Set<Object> keys = pro.keySet();
+        Set<String> newKeys = new LinkedHashSet<>();
+        Set<String> values = new LinkedHashSet<>();
+        for (Object key : keys) {
+          String oldKey = String.valueOf(key);
+          if (oldKey.contains(oldName)) {
+            values.add(pro.getProperty(oldKey));
+            newKeys.add(oldKey.replace(oldName, newName));
+          }
+        }
+
+        pro.clear();
+        Iterator<String> next = values.iterator();
+        for (String key : newKeys) {
+          pro.setProperty(key, next.next());
+        }
+
+        CommonUtil.saveConfig(oldFile, pro);
+      }
+
+      oldFile.renameTo(newFile);
+    }
   }
 
   /**

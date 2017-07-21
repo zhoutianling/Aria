@@ -21,7 +21,6 @@ import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.ITask;
-import com.arialyy.aria.core.scheduler.DQueueMapping;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;
@@ -186,8 +185,6 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
       String convertKey = CommonUtil.keyToHashKey(key);
       TASK task = mExecuteMap.get(convertKey);
       mExecuteMap.remove(convertKey);
-
-      DQueueMapping.getInstance().removeType(key);
       return mExecuteQueue.remove(task);
     }
   }

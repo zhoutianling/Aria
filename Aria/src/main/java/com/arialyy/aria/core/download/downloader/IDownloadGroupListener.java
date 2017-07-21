@@ -13,20 +13,46 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.IEventListener;
 
 /**
- * 下载监听
+ * Created by Aria.Lao on 2017/7/20.
+ * 下载任务组事件
  */
-public interface IDownloadListener extends IEventListener {
+public interface IDownloadGroupListener extends IEventListener {
 
   /**
-   * 支持断点回调
+   * 子任务支持断点回调
    *
    * @param support true,支持；false 不支持
    */
-  void supportBreakpoint(boolean support);
+  void supportBreakpoint(boolean support, DownloadEntity subEntity);
+
+  /**
+   * 子任务开始下载\恢复下载
+   */
+  void onSubStart(DownloadEntity subEntity);
+
+  /**
+   * 子任务停止下载
+   */
+  void onSubStop(DownloadEntity subEntity);
+
+  /**
+   * 子任务下载完成
+   */
+  void onSubComplete(DownloadEntity subEntity);
+
+  /**
+   * 子任务下载失败
+   */
+  void onSubFail(DownloadEntity subEntity);
+
+  /**
+   * 子任务取消下载
+   */
+  void onSubCancel(DownloadEntity subEntity);
 }

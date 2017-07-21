@@ -25,7 +25,6 @@ import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.core.queue.pool.DownloadSharePool;
-import com.arialyy.aria.core.scheduler.DQueueMapping;
 import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 
 /**
@@ -65,8 +64,6 @@ public class DownloadGroupTaskQueue
           .createTask(targetName, entity, DownloadGroupSchedulers.getInstance());
       entity.key = entity.getEntity().getGroupName();
       mCachePool.putTask(task);
-
-      DQueueMapping.getInstance().addType(task.getKey(), DQueueMapping.QUEUE_TYPE_DOWNLOAD_GROUP);
     } else {
       Log.e(TAG, "target name 为 null！！");
     }

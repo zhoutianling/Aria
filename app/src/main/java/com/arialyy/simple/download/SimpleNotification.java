@@ -56,7 +56,6 @@ public class SimpleNotification {
   public void start() {
     Aria.download(mContext)
         .load(DOWNLOAD_URL)
-        .setDownloadName("notification_test.apk")
         .setDownloadPath(
             Environment.getExternalStorageDirectory() + "/Download/消灭星星.apk")
         .start();
