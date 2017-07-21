@@ -207,10 +207,11 @@ public class DownloadGroupTarget
     if (!newName.equals(entity.getFileName())) {
       String oldPath = mEntity.getDirPath() + "/" + entity.getFileName();
       String newPath = mEntity.getDirPath() + "/" + newName;
-      File file = new File(oldPath);
-      if (file.exists()) {
-        file.renameTo(new File(newPath));
+      File oldFile = new File(oldPath);
+      if (oldFile.exists()) {
+        oldFile.renameTo(new File(newPath));
       }
+      CommonUtil.renameDownloadConfig(oldFile.getName(), newName);
       DbEntity.exeSql(
           "UPDATE DownloadTaskEntity SET key='" + newPath + "' WHERE key='" + oldPath + "'");
       entity.setDownloadPath(newPath);

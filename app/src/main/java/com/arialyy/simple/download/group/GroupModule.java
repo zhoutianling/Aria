@@ -43,12 +43,4 @@ public class GroupModule extends BaseModule {
     Collections.addAll(names, str);
     return names;
   }
-
-  //NormalList<String> convertPath(NormalList<String> urls){
-  //  NormalList<String> paths = new ArrayList<>();
-  //
-  //  for (String url : urls){
-  //
-  //  }
-  //}
 }

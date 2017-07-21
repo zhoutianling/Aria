@@ -24,7 +24,7 @@ import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
-import com.arialyy.aria.core.upload.ProxyHelper;
+import com.arialyy.aria.core.ProxyHelper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;

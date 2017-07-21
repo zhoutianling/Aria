@@ -83,14 +83,6 @@ public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, Up
   }
 
   /**
-   * 设置文件名
-   */
-  public UploadTarget setFileName(String fileName) {
-    mEntity.setFileName(fileName);
-    return this;
-  }
-
-  /**
    * 设置上传文件类型
    *
    * @param contentType tip：multipart/form-data
