@@ -28,8 +28,8 @@ Aria怎样使用？
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.2.6'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.6'
+compile 'com.arialyy.aria:aria-core:3.2.7'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.7'
 ```
 
 ## 示例
@@ -329,11 +329,13 @@ Aria.download(this).load(DOWNLOAD_URL).setDownloadPath(PATH).setHighestPriority(
 ***
 
 ## 后续版本开发规划
+* ~~ftp断点下载~~
 * ~~http、scoket断点上传~~
 * ~~实现上传队列调度功能~~
 
 
 ## 开发日志
+  + v_3.2.7 移除设置文件名的api接口，修复断开网络时出现的进度条错误的问题
   + v_3.2.6 移除广播事件，增加任务组下载功能
   + v_3.1.9 修复stopAll队列没有任务时崩溃的问题，增加针对单个任务监听的功能
   + v_3.1.7 修复某些文件下载不了的bug，增加apt注解方法，事件获取更加简单了
