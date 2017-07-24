@@ -41,7 +41,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      "https://d.pcs.baidu.com/file/7330524ec2affe80914cd306e16fd0ac?fid=3965548007-250528-918323254381453&time=1500859695&rt=sh&sign=FDTAERVY-DCb740ccc5511e5e8fedcff06b081203-7u09%2BsA23HuD53M3bCJpH1HVp3o%3D&expires=8h&chkv=1&chkbd=0&chkpc=et&dp-logid=4740488282618906999&dp-callid=0&r=714336419";
   //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
   //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
   //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";

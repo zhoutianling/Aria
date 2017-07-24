@@ -16,9 +16,9 @@
 package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
-import com.arialyy.aria.core.inf.AbsGroupTarget;
+import com.arialyy.aria.core.inf.AbsDownloadTarget;
+import com.arialyy.aria.core.inf.AbsUploadTarget;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -29,7 +29,7 @@ import java.util.List;
  * Created by AriaL on 2017/6/29.
  */
 public class DownloadGroupTarget
-    extends AbsGroupTarget<DownloadGroupTarget, DownloadGroupEntity, DownloadGroupTaskEntity> {
+    extends AbsDownloadTarget<DownloadGroupTarget, DownloadGroupEntity, DownloadGroupTaskEntity> {
   private List<String> mUrls = new ArrayList<>();
   private final String TAG = "DownloadGroupTarget";
   /**

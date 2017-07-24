@@ -35,6 +35,20 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   protected String mTargetName;
 
   /**
+   * 删除记录
+   */
+  public void removeRecord() {
+    mEntity.deleteData();
+  }
+
+  /**
+   * 任务是否存在
+   */
+  public boolean taskExists() {
+    return false;
+  }
+
+  /**
    * 获取任务进度，如果任务存在，则返回当前进度
    *
    * @return 该任务进度

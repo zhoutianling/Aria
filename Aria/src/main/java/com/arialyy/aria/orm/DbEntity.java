@@ -170,21 +170,21 @@ public class DbEntity {
       List<String> values = new ArrayList<>();
       for (Field field : fields) {
         field.setAccessible(true);
-        if (SqlHelper.ignoreField(field)) {
+        if (SqlUtil.ignoreField(field)) {
           continue;
         }
         where.add(field.getName());
         Type type = field.getType();
-        if (SqlHelper.isOneToOne(field)) {
-          values.add(SqlHelper.getOneToOneParams(field));
+        if (SqlUtil.isOneToOne(field)) {
+          values.add(SqlUtil.getOneToOneParams(field));
         } else if (type == List.class) {
-          if (SqlHelper.isOneToMany(field)) {
-            values.add(SqlHelper.getOneToManyElementParams(field));
+          if (SqlUtil.isOneToMany(field)) {
+            values.add(SqlUtil.getOneToManyElementParams(field));
           } else {
-            values.add(SqlHelper.list2Str(this, field));
+            values.add(SqlUtil.list2Str(this, field));
           }
         } else if (type == Map.class) {
-          values.add(SqlHelper.map2Str((Map<String, String>) field.get(this)));
+          values.add(SqlUtil.map2Str((Map<String, String>) field.get(this)));
         } else {
           values.add(field.get(this) + "");
         }

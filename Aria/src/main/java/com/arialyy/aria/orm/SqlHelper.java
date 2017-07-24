@@ -27,12 +27,9 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -57,7 +54,17 @@ final class SqlHelper extends SQLiteOpenHelper {
     if (INSTANCE == null) {
       synchronized (AriaManager.LOCK) {
         INSTANCE = new SqlHelper(context.getApplicationContext());
-        checkTable(INSTANCE.getWritableDatabase());
+        SQLiteDatabase db = INSTANCE.getWritableDatabase();
+        db = checkDb(db);
+        Set<String> tables = DBConfig.mapping.keySet();
+        for (String tableName : tables) {
+          Class clazz = null;
+          clazz = DBConfig.mapping.get(tableName);
+
+          if (!tableExists(db, clazz)) {
+            createTable(db, clazz, null);
+          }
+        }
       }
     }
     return INSTANCE;
@@ -86,8 +93,6 @@ final class SqlHelper extends SQLiteOpenHelper {
 
   /**
    * 处理数据库升级
-   *
-   * @throws ClassNotFoundException
    */
   private void handleDbUpdate(SQLiteDatabase db) {
     if (db == null) {
@@ -148,29 +153,13 @@ final class SqlHelper extends SQLiteOpenHelper {
     if (fields != null && fields.size() > 0) {
       for (Field field : fields) {
         field.setAccessible(true);
-        if (ignoreField(field)) {
+        if (SqlUtil.ignoreField(field)) {
           continue;
         }
         count++;
       }
     }
     return count;
-  }
-
-  /**
-   * 检查数据库表，如果配置的表不存在，则创建新表
-   */
-  static synchronized void checkTable(SQLiteDatabase db) {
-    db = checkDb(db);
-    Set<String> tables = DBConfig.mapping.keySet();
-    for (String tableName : tables) {
-      Class clazz = null;
-      clazz = DBConfig.mapping.get(tableName);
-
-      if (!tableExists(db, clazz)) {
-        createTable(db, clazz, null);
-      }
-    }
   }
 
   /**
@@ -286,7 +275,7 @@ final class SqlHelper extends SQLiteOpenHelper {
       int i = 0;
       for (Field field : fields) {
         field.setAccessible(true);
-        if (SqlHelper.ignoreField(field)) {
+        if (SqlUtil.ignoreField(field)) {
           continue;
         }
         sb.append(i > 0 ? ", " : "");
@@ -295,15 +284,15 @@ final class SqlHelper extends SQLiteOpenHelper {
           sb.append(field.getName()).append("='");
           Type type = field.getType();
           if (type == Map.class) {
-            value = map2Str((Map<String, String>) field.get(dbEntity));
+            value = SqlUtil.map2Str((Map<String, String>) field.get(dbEntity));
           } else if (type == List.class) {
-            if (isOneToMany(field)) {
-              value = getOneToManyElementParams(field);
+            if (SqlUtil.isOneToMany(field)) {
+              value = SqlUtil.getOneToManyElementParams(field);
             } else {
-              value = list2Str(dbEntity, field);
+              value = SqlUtil.list2Str(dbEntity, field);
             }
-          } else if (isOneToOne(field)) {
-            value = getOneToOneParams(field);
+          } else if (SqlUtil.isOneToOne(field)) {
+            value = SqlUtil.getOneToOneParams(field);
           } else {
             Object obj = field.get(dbEntity);
             value = obj == null ? "" : obj.toString();
@@ -336,11 +325,10 @@ final class SqlHelper extends SQLiteOpenHelper {
       int i = 0;
       for (Field field : fields) {
         field.setAccessible(true);
-        if (ignoreField(field)) {
+        if (SqlUtil.ignoreField(field)) {
           continue;
         }
         sb.append(i > 0 ? ", " : "");
-        //sb.append(getFieldName(field.getType(), field));
         sb.append(field.getName());
         i++;
       }
@@ -349,22 +337,22 @@ final class SqlHelper extends SQLiteOpenHelper {
       try {
         for (Field field : fields) {
           field.setAccessible(true);
-          if (ignoreField(field)) {
+          if (SqlUtil.ignoreField(field)) {
             continue;
           }
           sb.append(i > 0 ? ", " : "");
           sb.append("'");
           Type type = field.getType();
           if (type == Map.class) {
-            sb.append(map2Str((Map<String, String>) field.get(dbEntity)));
+            sb.append(SqlUtil.map2Str((Map<String, String>) field.get(dbEntity)));
           } else if (type == List.class) {
-            if (isOneToMany(field)) {
-              sb.append(getOneToManyElementParams(field));
+            if (SqlUtil.isOneToMany(field)) {
+              sb.append(SqlUtil.getOneToManyElementParams(field));
             } else {
-              sb.append(list2Str(dbEntity, field));
+              sb.append(SqlUtil.list2Str(dbEntity, field));
             }
-          } else if (isOneToOne(field)) {
-            sb.append(getOneToOneParams(field));
+          } else if (SqlUtil.isOneToOne(field)) {
+            sb.append(SqlUtil.getOneToOneParams(field));
           } else {
             sb.append(field.get(dbEntity));
           }
@@ -379,104 +367,6 @@ final class SqlHelper extends SQLiteOpenHelper {
       db.execSQL(sb.toString());
     }
     close(db);
-  }
-
-  /**
-   * 获取一对一参数
-   */
-  static String getOneToOneParams(Field field) {
-    OneToOne oneToOne = field.getAnnotation(OneToOne.class);
-    if (oneToOne == null) {
-      throw new IllegalArgumentException("@OneToOne注解的对象必须要有@Primary注解的字段");
-    }
-    return oneToOne.table().getName() + "$$" + oneToOne.key();
-  }
-
-  /**
-   * 获取List一对多参数
-   *
-   * @param field list反射字段
-   */
-  static String getOneToManyElementParams(Field field) {
-    OneToMany oneToMany = field.getAnnotation(OneToMany.class);
-    if (oneToMany == null) {
-      throw new IllegalArgumentException("一对多元素必须被@OneToMany注解");
-    }
-    //关联的表名
-    String tableName = oneToMany.table().getName();
-    //关联的字段
-    String key = oneToMany.key();
-    return tableName + "$$" + key;
-  }
-
-  /**
-   * 列表数据转字符串
-   *
-   * @param field list反射字段
-   */
-  static String list2Str(DbEntity dbEntity, Field field) throws IllegalAccessException {
-    NormalList normalList = field.getAnnotation(NormalList.class);
-    if (normalList == null) {
-      throw new IllegalArgumentException("List中元素必须被@NormalList注解");
-    }
-    List list = (List) field.get(dbEntity);
-    if (list == null || list.isEmpty()) return "";
-    StringBuilder sb = new StringBuilder();
-    for (Object aList : list) {
-      sb.append(aList).append("$$");
-    }
-    return sb.toString();
-  }
-
-  /**
-   * 字符串转列表
-   *
-   * @param str 数据库中的字段
-   * @return 如果str为null，则返回null
-   */
-  private static List str2List(String str, Field field) {
-    NormalList normalList = field.getAnnotation(NormalList.class);
-    if (normalList == null) {
-      throw new IllegalArgumentException("List中元素必须被@NormalList注解");
-    }
-    if (TextUtils.isEmpty(str)) return null;
-    String[] datas = str.split("$$");
-    List list = new ArrayList();
-    String type = normalList.clazz().getName();
-    for (String data : datas) {
-      list.add(checkData(data, type));
-    }
-    return list;
-  }
-
-  private static Object checkData(String type, String data) {
-    switch (type) {
-      case "String":
-        return data;
-      case "int":
-      case "Integer":
-        return Integer.parseInt(data);
-      case "double":
-      case "Double":
-        return Double.parseDouble(data);
-      case "float":
-      case "Float":
-        return Float.parseFloat(data);
-    }
-    return null;
-  }
-
-  /**
-   * 查找class的主键字段
-   *
-   * @return 返回主键字段名
-   */
-  private static String getPrimaryName(Class<? extends DbEntity> clazz) {
-    List<Field> fields = CommonUtil.getAllFields(clazz);
-    for (Field field : fields) {
-      if (isPrimary(field)) return field.getName();
-    }
-    return null;
   }
 
   /**
@@ -526,7 +416,7 @@ final class SqlHelper extends SQLiteOpenHelper {
           .append("(");
       for (Field field : fields) {
         field.setAccessible(true);
-        if (ignoreField(field)) {
+        if (SqlUtil.ignoreField(field)) {
           continue;
         }
         Class<?> type = field.getType();
@@ -534,7 +424,7 @@ final class SqlHelper extends SQLiteOpenHelper {
         if (type == String.class
             || type == Map.class
             || type == List.class
-            || isOneToOne(field)
+            || SqlUtil.isOneToOne(field)
             || type.isEnum()) {
           sb.append(" varchar");
         } else if (type == int.class || type == Integer.class) {
@@ -554,7 +444,7 @@ final class SqlHelper extends SQLiteOpenHelper {
         } else {
           continue;
         }
-        if (isPrimary(field)) {
+        if (SqlUtil.isPrimary(field)) {
           //sb.append(" PRIMARY KEY");
           sb.append(" NOT NULL");
         }
@@ -614,7 +504,7 @@ final class SqlHelper extends SQLiteOpenHelper {
           T entity = clazz.newInstance();
           for (Field field : fields) {
             field.setAccessible(true);
-            if (ignoreField(field)) {
+            if (SqlUtil.ignoreField(field)) {
               continue;
             }
             Class<?> type = field.getType();
@@ -637,12 +527,12 @@ final class SqlHelper extends SQLiteOpenHelper {
             } else if (type == byte[].class) {
               field.set(entity, cursor.getBlob(column));
             } else if (type == Map.class) {
-              field.set(entity, str2Map(cursor.getString(column)));
+              field.set(entity, SqlUtil.str2Map(cursor.getString(column)));
             } else if (type == List.class) {
               String value = cursor.getString(column);
-              if (isOneToMany(field)) {
+              if (SqlUtil.isOneToMany(field)) {
                 //主键字段
-                String primaryKey = getPrimaryName(clazz);
+                String primaryKey = SqlUtil.getPrimaryName(clazz);
                 if (TextUtils.isEmpty(primaryKey)) {
                   throw new IllegalArgumentException("List中的元素对象必须需要@Primary注解的字段");
                 }
@@ -654,10 +544,10 @@ final class SqlHelper extends SQLiteOpenHelper {
                 if (list == null) continue;
                 field.set(entity, findForeignData(db, primaryData, value));
               } else {
-                field.set(entity, str2List(value, field));
+                field.set(entity, SqlUtil.str2List(value, field));
               }
-            } else if (isOneToOne(field)) {
-              String primaryKey = getPrimaryName(clazz);
+            } else if (SqlUtil.isOneToOne(field)) {
+              String primaryKey = SqlUtil.getPrimaryName(clazz);
               if (TextUtils.isEmpty(primaryKey)) {
                 throw new IllegalArgumentException("@OneToOne的注解对象必须需要@Primary注解的字段");
               }
@@ -696,41 +586,6 @@ final class SqlHelper extends SQLiteOpenHelper {
     return findData(db, params[0], params[1] + "=?", primary);
   }
 
-  /**
-   * 字符串转Map，只支持
-   * <pre>
-   *   {@code Map<String, String>}
-   * </pre>
-   */
-  private static Map<String, String> str2Map(String str) {
-    Map<String, String> map = new HashMap<>();
-    if (TextUtils.isEmpty(str)) {
-      return map;
-    }
-    String[] element = str.split(",");
-    for (String data : element) {
-      String[] s = data.split("\\$");
-      map.put(s[0], s[1]);
-    }
-    return map;
-  }
-
-  /**
-   * Map转字符串，只支持
-   * <pre>
-   *   {@code Map<String, String>}
-   * </pre>
-   */
-  static String map2Str(Map<String, String> map) {
-    StringBuilder sb = new StringBuilder();
-    Set<String> keys = map.keySet();
-    for (String key : keys) {
-      sb.append(key).append("$").append(map.get(key)).append(",");
-    }
-    String str = sb.toString();
-    return TextUtils.isEmpty(str) ? str : str.substring(0, str.length() - 1);
-  }
-
   private static void close(SQLiteDatabase db) {
     //if (db != null && db.isOpen()) db.close();
   }
@@ -740,43 +595,5 @@ final class SqlHelper extends SQLiteOpenHelper {
       db = INSTANCE.getWritableDatabase();
     }
     return db;
-  }
-
-  /**
-   * @return true 忽略该字段
-   */
-  static boolean ignoreField(Field field) {
-    // field.isSynthetic(), 使用as热启动App时，AS会自动给你的class添加change字段
-    Ignore ignore = field.getAnnotation(Ignore.class);
-    int modifiers = field.getModifiers();
-    return (ignore != null && ignore.value())
-        || field.getName().equals("rowID")
-        || field.isSynthetic()
-        || Modifier.isStatic(modifiers)
-        || Modifier.isFinal(modifiers);
-  }
-
-  /**
-   * 判断是否一对多注解
-   */
-  static boolean isOneToMany(Field field) {
-    OneToMany oneToMany = field.getAnnotation(OneToMany.class);
-    return oneToMany != null;
-  }
-
-  /**
-   * 判断是否是一对一注解
-   */
-  static boolean isOneToOne(Field field) {
-    OneToOne oneToOne = field.getAnnotation(OneToOne.class);
-    return oneToOne != null;
-  }
-
-  /**
-   * 判断是否是主键
-   */
-  static boolean isPrimary(Field field) {
-    Primary pk = field.getAnnotation(Primary.class);
-    return pk != null;
   }
 }

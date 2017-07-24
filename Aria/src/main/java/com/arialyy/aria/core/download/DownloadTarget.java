@@ -17,7 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import com.arialyy.aria.core.inf.AbsNormalTarget;
+import com.arialyy.aria.core.inf.AbsDownloadTarget;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
@@ -29,7 +29,7 @@ import java.io.File;
  * https://github.com/AriaLyy/Aria
  */
 public class DownloadTarget
-    extends AbsNormalTarget<DownloadTarget, DownloadEntity, DownloadTaskEntity> {
+    extends AbsDownloadTarget<DownloadTarget, DownloadEntity, DownloadTaskEntity> {
 
   DownloadTarget(DownloadEntity entity, String targetName) {
     this(entity.getDownloadUrl(), targetName);
@@ -87,13 +87,6 @@ public class DownloadTarget
     super.setHighestPriority();
   }
 
-  /**
-   * 重定向后，新url的key，默认为location
-   */
-  public DownloadTarget setRedirectUrlKey(String redirectUrlKey) {
-    super._setRedirectUrlKey(redirectUrlKey);
-    return this;
-  }
 
   /**
    * 下载任务是否存在

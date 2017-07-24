@@ -29,10 +29,10 @@ import java.util.Map;
  * Created by lyy on 2017/4/6.
  * 数据库配置信息
  */
-public class DBConfig {
+class DBConfig {
   static Map<String, Class> mapping = new HashMap<>();
   static String DB_NAME;
-  static int VERSION = 10;
+  static int VERSION = 11;
 
   static {
     if (TextUtils.isEmpty(DB_NAME)) {

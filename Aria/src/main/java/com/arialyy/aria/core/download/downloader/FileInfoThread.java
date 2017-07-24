@@ -85,7 +85,10 @@ class FileInfoThread implements Runnable {
   }
 
   private void handleConnect(HttpURLConnection conn) throws IOException {
-    int len = conn.getContentLength();
+    long len = conn.getContentLength();
+    if (len < 0) {
+      len = Long.parseLong(conn.getHeaderField(mTaskEntity.contentLength));
+    }
     int code = conn.getResponseCode();
     boolean isComplete = false;
     if (TextUtils.isEmpty(mEntity.getMd5Code())) {
@@ -93,6 +96,7 @@ class FileInfoThread implements Runnable {
       mEntity.setMd5Code(md5Code);
     }
     String disposition = conn.getHeaderField(mTaskEntity.dispositionKey);
+    //Map<String, List<String>> headers = conn.getHeaderFields();
     if (!TextUtils.isEmpty(disposition)) {
       mEntity.setDisposition(disposition);
       if (disposition.contains(mTaskEntity.dispositionFileKey)) {

@@ -16,7 +16,8 @@
 package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
-import com.arialyy.aria.core.inf.AbsNormalTarget;
+import com.arialyy.aria.core.inf.AbsDownloadTarget;
+import com.arialyy.aria.core.inf.AbsUploadTarget;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
 import java.util.regex.Pattern;
@@ -24,7 +25,7 @@ import java.util.regex.Pattern;
 /**
  * Created by lyy on 2017/2/28.
  */
-public class UploadTarget extends AbsNormalTarget<UploadTarget, UploadEntity, UploadTaskEntity> {
+public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, UploadTaskEntity> {
 
   UploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;

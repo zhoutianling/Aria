@@ -43,17 +43,17 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   public RequestEnum requestEnum = RequestEnum.GET;
 
   /**
-   * 从链接中含有的文件md5码信息所需要的key
+   * 从header中含有的文件md5码信息所需要的key
    */
   public String md5Key = "Content-MD5";
 
   /**
-   * 从链接中获取文件描述信息所需要的key
+   * 从header中获取文件描述信息所需要的key
    */
   public String dispositionKey = "Content-Disposition";
 
   /**
-   * 重定向后，从链接中获取新url所需要的key
+   * 重定向后，从header中获取新url所需要的key
    */
   public String redirectUrlKey = "location";
 
@@ -61,6 +61,11 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
    * 从Disposition获取的文件名说需要的key
    */
   public String dispositionFileKey = "attachment;filename";
+
+  /**
+   * 从header中含有的文件长度信息所需要的key
+   */
+  public String contentLength = "Content-Length";
 
   /**
    * 重定向链接

@@ -19,7 +19,7 @@ package com.arialyy.aria.core.inf;
  * Created by AriaL on 2017/6/29.
  * 任务组超类
  */
-public abstract class AbsGroupTarget<TARGET extends AbsGroupTarget, ENTITY extends AbsGroupEntity, TASK_ENTITY extends AbsTaskEntity>
+public abstract class AbsUploadTarget<TARGET extends AbsUploadTarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
     extends AbsTarget<TARGET, ENTITY, TASK_ENTITY> {
 
 

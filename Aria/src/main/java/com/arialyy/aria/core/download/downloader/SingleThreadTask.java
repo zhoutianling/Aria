@@ -109,23 +109,15 @@ final class SingleThreadTask implements Runnable {
       //当前子线程的下载位置
       mChildCurrentLocation = mConfigEntity.START_LOCATION;
       while ((len = is.read(buffer)) != -1) {
-        if (CONSTANCE.isCancel) {
-          break;
-        }
-        if (CONSTANCE.isStop) {
-          break;
-        }
-        Thread.sleep(mSleepTime);
+        if (CONSTANCE.isCancel) break;
+        if (CONSTANCE.isStop) break;
+        if (mSleepTime > 0) Thread.sleep(mSleepTime);
         file.write(buffer, 0, len);
         progress(len);
       }
-      if (CONSTANCE.isCancel) {
-        return;
-      }
+      if (CONSTANCE.isCancel) return;
       //停止状态不需要删除记录文件
-      if (CONSTANCE.isStop) {
-        return;
-      }
+      if (CONSTANCE.isStop) return;
       //支持断点的处理
       if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
         Log.i(TAG, "任务【"

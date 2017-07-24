@@ -98,7 +98,7 @@ public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
         }
       })).start();
     } else {
-      new Downloader(mListener, mTaskEntity).startDownload();
+      mDT.startDownload();
     }
   }
 }

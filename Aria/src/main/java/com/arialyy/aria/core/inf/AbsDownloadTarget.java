@@ -19,13 +19,53 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by lyy on 2017/2/28.
  */
-public abstract class AbsNormalTarget<TARGET extends AbsTarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
+public abstract class AbsDownloadTarget<TARGET extends AbsTarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
     extends AbsTarget<TARGET, ENTITY, TASK_ENTITY> {
+
+  /**
+   * 如果你的下载链接的header中含有md5码信息，那么你可以通过设置key，来获取从header获取该md5码信息。
+   * key默认值为：Content-MD5
+   * 获取md5信息：{@link DownloadEntity#getMd5Code()}
+   */
+  public void setHeaderMd5Key(String md5Key) {
+    if (TextUtils.isEmpty(md5Key)) return;
+    mTaskEntity.md5Key = md5Key;
+  }
+
+  /**
+   * 如果你的文件长度是放在header中，那么你需要配置key来让Aria知道正确的文件长度
+   * key默认值为：Content-Length
+   */
+  public void setHeaderContentLengthKey(String contentLength) {
+    if (TextUtils.isEmpty(contentLength)) return;
+    mTaskEntity.contentLength = contentLength;
+  }
+
+  /**
+   * 如果你的下载链接的header中含有文件描述信息，那么你可以通过设置key，来获取从header获取该文件描述信息。
+   * key默认值为：Content-Disposition
+   * 获取文件描述信息：{@link DownloadEntity#getDisposition()}
+   */
+  public void setHeaderDispositionKey(String dispositionKey) {
+    if (TextUtils.isEmpty(dispositionKey)) return;
+    mTaskEntity.dispositionKey = dispositionKey;
+  }
+
+  /**
+   * 从文件描述信息{@link #setHeaderDispositionKey(String)}中含有文件名信息，你可以通过设置key来获取header中的文件名
+   * key默认值为：attachment;filename
+   * 获取文件名信息：{@link DownloadEntity#getServerFileName()}
+   */
+  public void setHeaderDispositionFileKey(String dispositionFileKey) {
+    if (TextUtils.isEmpty(dispositionFileKey)) return;
+    mTaskEntity.dispositionFileKey = dispositionFileKey;
+  }
 
   /**
    * 将任务设置为最高优先级任务，最高优先级任务有以下特点：
@@ -46,19 +86,12 @@ public abstract class AbsNormalTarget<TARGET extends AbsTarget, ENTITY extends A
   /**
    * 重定向后，新url的key，默认为location
    */
-  protected void _setRedirectUrlKey(String redirectUrlKey) {
+  public void setRedirectUrlKey(String redirectUrlKey) {
     if (TextUtils.isEmpty(redirectUrlKey)) {
-      Log.w("AbsNormalTarget", "重定向后，新url的key不能为null");
+      Log.w("AbsDownloadTarget", "重定向后，新url的key不能为null");
       return;
     }
     mTaskEntity.redirectUrlKey = redirectUrlKey;
-  }
-
-  /**
-   * 删除记录
-   */
-  public void removeRecord() {
-    mEntity.deleteData();
   }
 
   /**
@@ -70,7 +103,6 @@ public abstract class AbsNormalTarget<TARGET extends AbsTarget, ENTITY extends A
     return getSize();
   }
 
-
   /**
    * 获取单位转换后的文件大小
    *
@@ -78,13 +110,6 @@ public abstract class AbsNormalTarget<TARGET extends AbsTarget, ENTITY extends A
    */
   public String getConvertFileSize() {
     return getConvertSize();
-  }
-
-  /**
-   * 下载任务是否存在
-   */
-  public boolean taskExists() {
-    return false;
   }
 
   /**
