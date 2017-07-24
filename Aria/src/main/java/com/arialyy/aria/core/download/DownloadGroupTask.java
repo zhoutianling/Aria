@@ -17,7 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Handler;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.downloader.DownloadGroupUtil;
+import com.arialyy.aria.core.download.downloader.http.DownloadGroupUtil;
 import com.arialyy.aria.core.download.downloader.IDownloadUtil;
 import com.arialyy.aria.core.inf.AbsGroupTask;
 import com.arialyy.aria.core.scheduler.ISchedulers;

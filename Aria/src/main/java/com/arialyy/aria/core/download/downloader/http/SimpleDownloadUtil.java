@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.downloader;
+package com.arialyy.aria.core.download.downloader.http;
 
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.downloader.IDownloadListener;
+import com.arialyy.aria.core.download.downloader.IDownloadUtil;
 
 /**
  * Created by lyy on 2015/8/25.

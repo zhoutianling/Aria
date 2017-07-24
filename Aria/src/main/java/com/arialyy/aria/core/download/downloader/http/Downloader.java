@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download.downloader;
+package com.arialyy.aria.core.download.downloader.http;
 
 import android.content.Context;
 import android.util.Log;
@@ -21,6 +21,8 @@ import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.downloader.IDownloadListener;
+import com.arialyy.aria.core.download.downloader.IDownloadUtil;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
@@ -65,7 +67,8 @@ class Downloader implements Runnable, IDownloadUtil {
     mConstance = new StateConstance();
   }
 
-  void setMaxSpeed(double maxSpeed) {
+  @Override
+  public void setMaxSpeed(double maxSpeed) {
     for (int i = 0; i < mThreadNum; i++) {
       SingleThreadTask task = (SingleThreadTask) mTask.get(i);
       if (task != null) {

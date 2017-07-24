@@ -1,4 +1,4 @@
-package com.arialyy.aria.core.download.downloader;
+package com.arialyy.aria.core.download.downloader.http;
 
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import java.io.File;
