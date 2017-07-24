@@ -58,4 +58,9 @@ public interface IDownloadUtil {
    * 从上次断点恢复下载
    */
   void resumeDownload();
+
+  /**
+   * 设置最大下载速度
+   */
+  void setMaxSpeed(double maxSpeed);
 }

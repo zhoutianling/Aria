@@ -204,6 +204,10 @@ public class DownloadGroupUtil implements IDownloadUtil {
     mListener.onResume(mCurrentLocation);
   }
 
+  @Override public void setMaxSpeed(double maxSpeed) {
+
+  }
+
   /**
    * 创建文件信息获取线程
    */

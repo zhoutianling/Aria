@@ -26,6 +26,8 @@ import java.util.Map;
  * Created by lyy on 2017/2/23.
  */
 public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
+  public static final int HTTP = 0x11;
+  public static final int FTP = 0x12;
 
   /**
    * Task实体对应的key

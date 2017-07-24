@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.orm.Ignore;
 import com.arialyy.aria.orm.OneToOne;
 
 /**
@@ -23,6 +24,17 @@ import com.arialyy.aria.orm.OneToOne;
  * 下载任务实体
  */
 public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
+
+  /**
+   * 账号和密码
+   */
+  @Ignore public String userName, userPw;
+
+  /**
+   * 下载类型
+   * {@link AbsTaskEntity#HTTP}、{@link AbsTaskEntity#FTP}
+   */
+  public int downloadType = HTTP;
 
   @OneToOne(table = DownloadEntity.class, key = "downloadPath") public DownloadEntity entity;
 
