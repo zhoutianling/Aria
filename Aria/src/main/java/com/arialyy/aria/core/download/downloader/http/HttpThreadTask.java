@@ -19,7 +19,9 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.downloader.ChildThreadConfigEntity;
 import com.arialyy.aria.core.download.downloader.IDownloadListener;
+import com.arialyy.aria.core.download.downloader.StateConstance;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -35,22 +37,22 @@ import java.util.Properties;
  * Created by lyy on 2017/1/18.
  * 下载线程
  */
-final class SingleThreadTask implements Runnable {
-  private static final String TAG = "SingleThreadTask";
+final class HttpThreadTask implements Runnable {
+  private static final String TAG = "HttpThreadTask";
   private ChildThreadConfigEntity mConfigEntity;
   private String mConfigFPath;
   private long mChildCurrentLocation = 0;
   private int mBufSize;
   private IDownloadListener mListener;
-  private StateConstance CONSTANCE;
+  private StateConstance STATE;
   private long mSleepTime = 0;
 
-  SingleThreadTask(StateConstance constance, IDownloadListener listener,
+  HttpThreadTask(StateConstance constance, IDownloadListener listener,
       ChildThreadConfigEntity downloadInfo) {
     AriaManager manager = AriaManager.getInstance(AriaManager.APP);
-    CONSTANCE = constance;
-    CONSTANCE.CONNECT_TIME_OUT = manager.getDownloadConfig().getConnectTimeOut();
-    CONSTANCE.READ_TIME_OUT = manager.getDownloadConfig().getIOTimeOut();
+    STATE = constance;
+    STATE.CONNECT_TIME_OUT = manager.getDownloadConfig().getConnectTimeOut();
+    STATE.READ_TIME_OUT = manager.getDownloadConfig().getIOTimeOut();
     mListener = listener;
     this.mConfigEntity = downloadInfo;
     if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
@@ -65,7 +67,7 @@ final class SingleThreadTask implements Runnable {
       mSleepTime = 0;
     } else {
       BigDecimal db = new BigDecimal(
-          ((mBufSize / 1024) * (filterVersion() ? 1 : CONSTANCE.THREAD_NUM) / maxSpeed) * 1000);
+          ((mBufSize / 1024) * (filterVersion() ? 1 : STATE.THREAD_NUM) / maxSpeed) * 1000);
       mSleepTime = db.setScale(0, BigDecimal.ROUND_HALF_UP).longValue();
     }
   }
@@ -98,8 +100,8 @@ final class SingleThreadTask implements Runnable {
         Log.w(TAG, "该下载不支持断点");
       }
       conn = ConnectionHelp.setConnectParam(mConfigEntity.DOWNLOAD_TASK_ENTITY, conn);
-      conn.setConnectTimeout(CONSTANCE.CONNECT_TIME_OUT);
-      conn.setReadTimeout(CONSTANCE.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
+      conn.setConnectTimeout(STATE.CONNECT_TIME_OUT);
+      conn.setReadTimeout(STATE.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
       is = conn.getInputStream();
       //创建可设置位置的文件
       file = new BufferedRandomAccessFile(mConfigEntity.TEMP_FILE, "rwd", mBufSize);
@@ -110,15 +112,15 @@ final class SingleThreadTask implements Runnable {
       //当前子线程的下载位置
       mChildCurrentLocation = mConfigEntity.START_LOCATION;
       while ((len = is.read(buffer)) != -1) {
-        if (CONSTANCE.isCancel) break;
-        if (CONSTANCE.isStop) break;
+        if (STATE.isCancel) break;
+        if (STATE.isStop) break;
         if (mSleepTime > 0) Thread.sleep(mSleepTime);
         file.write(buffer, 0, len);
         progress(len);
       }
-      if (CONSTANCE.isCancel) return;
+      if (STATE.isCancel) return;
       //停止状态不需要删除记录文件
-      if (CONSTANCE.isStop) return;
+      if (STATE.isStop) return;
       //支持断点的处理
       if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
         Log.i(TAG, "任务【"
@@ -127,18 +129,18 @@ final class SingleThreadTask implements Runnable {
             + mConfigEntity.THREAD_ID
             + "__下载完毕");
         writeConfig(true, 1);
-        CONSTANCE.COMPLETE_THREAD_NUM++;
-        if (CONSTANCE.isComplete()) {
+        STATE.COMPLETE_THREAD_NUM++;
+        if (STATE.isComplete()) {
           File configFile = new File(mConfigFPath);
           if (configFile.exists()) {
             configFile.delete();
           }
-          CONSTANCE.isDownloading = false;
+          STATE.isDownloading = false;
           mListener.onComplete();
         }
       } else {
         Log.i(TAG, "下载任务完成");
-        CONSTANCE.isDownloading = false;
+        STATE.isDownloading = false;
         mListener.onComplete();
       }
     } catch (MalformedURLException e) {
@@ -171,7 +173,7 @@ final class SingleThreadTask implements Runnable {
     synchronized (AriaManager.LOCK) {
       try {
         if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
-          CONSTANCE.STOP_NUM++;
+          STATE.STOP_NUM++;
           Log.d(TAG, "任务【"
               + mConfigEntity.TEMP_FILE.getName()
               + "】thread__"
@@ -179,15 +181,15 @@ final class SingleThreadTask implements Runnable {
               + "__停止, stop location ==> "
               + mChildCurrentLocation);
           writeConfig(false, mChildCurrentLocation);
-          if (CONSTANCE.isStop()) {
+          if (STATE.isStop()) {
             Log.d(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】已停止");
-            CONSTANCE.isDownloading = false;
-            mListener.onStop(CONSTANCE.CURRENT_LOCATION);
+            STATE.isDownloading = false;
+            mListener.onStop(STATE.CURRENT_LOCATION);
           }
         } else {
           Log.d(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】已停止");
-          CONSTANCE.isDownloading = false;
-          mListener.onStop(CONSTANCE.CURRENT_LOCATION);
+          STATE.isDownloading = false;
+          mListener.onStop(STATE.CURRENT_LOCATION);
         }
       } catch (IOException e) {
         e.printStackTrace();
@@ -201,7 +203,7 @@ final class SingleThreadTask implements Runnable {
   private void progress(long len) {
     synchronized (AriaManager.LOCK) {
       mChildCurrentLocation += len;
-      CONSTANCE.CURRENT_LOCATION += len;
+      STATE.CURRENT_LOCATION += len;
     }
   }
 
@@ -211,13 +213,13 @@ final class SingleThreadTask implements Runnable {
   protected void cancel() {
     synchronized (AriaManager.LOCK) {
       if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
-        CONSTANCE.CANCEL_NUM++;
+        STATE.CANCEL_NUM++;
         Log.d(TAG, "任务【"
             + mConfigEntity.TEMP_FILE.getName()
             + "】thread__"
             + mConfigEntity.THREAD_ID
             + "__取消下载");
-        if (CONSTANCE.isCancel()) {
+        if (STATE.isCancel()) {
           File configFile = new File(mConfigFPath);
           if (configFile.exists()) {
             configFile.delete();
@@ -226,12 +228,12 @@ final class SingleThreadTask implements Runnable {
             mConfigEntity.TEMP_FILE.delete();
           }
           Log.d(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】已取消");
-          CONSTANCE.isDownloading = false;
+          STATE.isDownloading = false;
           mListener.onCancel();
         }
       } else {
         Log.d(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】已取消");
-        CONSTANCE.isDownloading = false;
+        STATE.isDownloading = false;
         mListener.onCancel();
       }
     }
@@ -243,15 +245,15 @@ final class SingleThreadTask implements Runnable {
   private void failDownload(long currentLocation, String msg, Exception ex) {
     synchronized (AriaManager.LOCK) {
       try {
-        CONSTANCE.FAIL_NUM++;
-        CONSTANCE.isDownloading = false;
-        CONSTANCE.isStop = true;
+        STATE.FAIL_NUM++;
+        STATE.isDownloading = false;
+        STATE.isStop = true;
         if (ex != null) {
           Log.e(TAG, msg + "\n" + CommonUtil.getPrintException(ex));
         }
         if (mConfigEntity.IS_SUPPORT_BREAK_POINT) {
           writeConfig(false, currentLocation);
-          if (CONSTANCE.isFail()) {
+          if (STATE.isFail()) {
             Log.e(TAG, "任务【" + mConfigEntity.TEMP_FILE.getName() + "】下载失败");
             mListener.onFail();
           }

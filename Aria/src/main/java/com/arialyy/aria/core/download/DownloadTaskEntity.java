@@ -28,7 +28,7 @@ public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
   /**
    * 账号和密码
    */
-  @Ignore public String userName, userPw;
+  @Ignore public String userName, userPw, account;
 
   /**
    * 下载类型

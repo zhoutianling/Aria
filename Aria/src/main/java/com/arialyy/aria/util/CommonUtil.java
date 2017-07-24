@@ -600,6 +600,16 @@ public class CommonUtil {
   }
 
   /**
+   * 通过文件名获取下载配置文件
+   *
+   * @param fileName 文件名
+   */
+  public static String getFileConfig(boolean isDownload, String fileName) {
+    return AriaManager.APP.getFilesDir().getPath() + (isDownload ? AriaManager.DOWNLOAD_TEMP_DIR
+        : AriaManager.UPLOAD_TEMP_DIR) + fileName + ".properties";
+  }
+
+  /**
    * 重命名下载配置文件
    * 如果旧的配置文件名不存在，则使用新的配置文件名新创建一个文件，否则将旧的配置文件重命名为新的位置文件名。
    * 除了重命名配置文件名外，还会将文件中的记录重命名为新的记录，如果没有记录，则不做处理
@@ -608,8 +618,7 @@ public class CommonUtil {
    * @param newName 新的下载文件名
    */
   public static void renameDownloadConfig(String oldName, String newName) {
-    renameConfig(AriaManager.APP.getFilesDir().getPath() + AriaManager.DOWNLOAD_TEMP_DIR, oldName,
-        newName);
+    renameConfig(true, oldName, newName);
   }
 
   /**
@@ -621,14 +630,13 @@ public class CommonUtil {
    * @param newName 新的上传文件名
    */
   public static void renameUploadConfig(String oldName, String newName) {
-    renameConfig(AriaManager.APP.getFilesDir().getPath() + AriaManager.UPLOAD_TEMP_DIR, oldName,
-        newName);
+    renameConfig(false, oldName, newName);
   }
 
-  private static void renameConfig(String basePath, String oldName, String newName) {
+  private static void renameConfig(boolean isDownload, String oldName, String newName) {
     if (oldName.equals(newName)) return;
-    File oldFile = new File(basePath + oldName + ".properties");
-    File newFile = new File(basePath + newName + ".properties");
+    File oldFile = new File(getFileConfig(isDownload, oldName));
+    File newFile = new File(getFileConfig(isDownload, oldName));
     if (!oldFile.exists()) {
       createFile(newFile.getPath());
     } else {

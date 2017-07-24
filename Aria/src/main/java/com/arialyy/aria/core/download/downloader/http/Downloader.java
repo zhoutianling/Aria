@@ -21,8 +21,10 @@ import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.downloader.ChildThreadConfigEntity;
 import com.arialyy.aria.core.download.downloader.IDownloadListener;
 import com.arialyy.aria.core.download.downloader.IDownloadUtil;
+import com.arialyy.aria.core.download.downloader.StateConstance;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
@@ -70,7 +72,7 @@ class Downloader implements Runnable, IDownloadUtil {
   @Override
   public void setMaxSpeed(double maxSpeed) {
     for (int i = 0; i < mThreadNum; i++) {
-      SingleThreadTask task = (SingleThreadTask) mTask.get(i);
+      HttpThreadTask task = (HttpThreadTask) mTask.get(i);
       if (task != null) {
         task.setMaxSpeed(maxSpeed);
       }
@@ -153,7 +155,7 @@ class Downloader implements Runnable, IDownloadUtil {
       mFixedThreadPool.shutdown();
     }
     for (int i = 0; i < mThreadNum; i++) {
-      SingleThreadTask task = (SingleThreadTask) mTask.get(i);
+      HttpThreadTask task = (HttpThreadTask) mTask.get(i);
       if (task != null) {
         task.cancel();
       }
@@ -170,7 +172,7 @@ class Downloader implements Runnable, IDownloadUtil {
       mFixedThreadPool.shutdown();
     }
     for (int i = 0; i < mThreadNum; i++) {
-      SingleThreadTask task = (SingleThreadTask) mTask.get(i);
+      HttpThreadTask task = (HttpThreadTask) mTask.get(i);
       if (task != null) {
         task.stop();
       }
@@ -294,7 +296,7 @@ class Downloader implements Runnable, IDownloadUtil {
     entity.CONFIG_FILE_PATH = mConfigFile.getPath();
     entity.IS_SUPPORT_BREAK_POINT = mTaskEntity.isSupportBP;
     entity.DOWNLOAD_TASK_ENTITY = mTaskEntity;
-    SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
+    HttpThreadTask task = new HttpThreadTask(mConstance, mListener, entity);
     mTask.put(i, task);
   }
 
@@ -406,7 +408,7 @@ class Downloader implements Runnable, IDownloadUtil {
     entity.CONFIG_FILE_PATH = mConfigFile.getPath();
     entity.IS_SUPPORT_BREAK_POINT = mTaskEntity.isSupportBP;
     entity.DOWNLOAD_TASK_ENTITY = mTaskEntity;
-    SingleThreadTask task = new SingleThreadTask(mConstance, mListener, entity);
+    HttpThreadTask task = new HttpThreadTask(mConstance, mListener, entity);
     mTask.put(0, task);
     mFixedThreadPool.execute(task);
     mListener.onPostPre(len);

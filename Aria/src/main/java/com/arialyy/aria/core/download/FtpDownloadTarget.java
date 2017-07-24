@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by lyy on 2016/12/5.
@@ -39,8 +40,10 @@ public class FtpDownloadTarget extends DownloadTarget {
    */
   private FtpDownloadTarget(String url, String targetName) {
     super(url, targetName);
+    int lastIndex = url.lastIndexOf("/");
     mTaskEntity.downloadType = AbsTaskEntity.FTP;
     mTargetName = targetName;
+    mEntity.setFileName(url.substring(lastIndex + 1, url.length()));
   }
 
   /**
@@ -50,6 +53,17 @@ public class FtpDownloadTarget extends DownloadTarget {
    * @param password ftp用户密码
    */
   public FtpDownloadTarget login(String userName, String password) {
+    return login(userName, password, null);
+  }
+
+  /**
+   * ftp 用户登录信息
+   *
+   * @param userName ftp用户名
+   * @param password ftp用户密码
+   * @param account ftp账号
+   */
+  public FtpDownloadTarget login(String userName, String password, String account) {
     if (TextUtils.isEmpty(userName)) {
       Log.e(TAG, "用户名不能为null");
       return this;
@@ -59,16 +73,7 @@ public class FtpDownloadTarget extends DownloadTarget {
     }
     mTaskEntity.userName = userName;
     mTaskEntity.userPw = password;
-    return this;
-  }
-
-  /**
-   * 设置下载的文件
-   *
-   * @param filePath ftp服务器上的文件
-   */
-  public FtpDownloadTarget getFile(String filePath) {
-
+    mTaskEntity.account = account;
     return this;
   }
 }
