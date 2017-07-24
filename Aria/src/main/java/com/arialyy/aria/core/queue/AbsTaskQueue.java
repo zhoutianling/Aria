@@ -26,6 +26,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -52,14 +53,12 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   }
 
   @Override public void removeAllTask() {
-    Set<String> exeKeys = mExecutePool.getAllTask().keySet();
-    for (String key : exeKeys) {
+    for (String key : mExecutePool.getAllTask().keySet()) {
       TASK task = mExecutePool.getAllTask().get(key);
       if (task != null) task.cancel();
     }
-    Set<String> cacheKeys = mCachePool.getAllTask().keySet();
-    for (String key : cacheKeys) {
-      mExecutePool.removeTask(key);
+    for (String key : mCachePool.getAllTask().keySet()) {
+      mCachePool.removeTask(key);
     }
   }
 
@@ -67,14 +66,12 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
    * 停止所有任务
    */
   @Override public void stopAllTask() {
-    Set<String> exeKeys = mExecutePool.getAllTask().keySet();
-    for (String key : exeKeys) {
+    for (String key : mExecutePool.getAllTask().keySet()) {
       TASK task = mExecutePool.getAllTask().get(key);
       if (task != null && task.isRunning()) task.stop();
     }
-    Set<String> cacheKeys = mCachePool.getAllTask().keySet();
-    for (String key : cacheKeys) {
-      mExecutePool.removeTask(key);
+    for (String key : mCachePool.getAllTask().keySet()) {
+      mCachePool.removeTask(key);
     }
   }
 

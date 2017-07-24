@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -40,9 +41,9 @@ public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
   private Map<String, TASK> mCacheMap;
   private LinkedBlockingQueue<TASK> mCacheQueue;
 
-  public BaseCachePool() {
+  BaseCachePool() {
     mCacheQueue = new LinkedBlockingQueue<>(MAX_NUM);
-    mCacheMap = new HashMap<>();
+    mCacheMap = new ConcurrentHashMap<>();
   }
 
   /**

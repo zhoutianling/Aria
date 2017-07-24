@@ -25,6 +25,7 @@ import com.arialyy.aria.util.CommonUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -41,7 +42,7 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
   BaseExecutePool() {
     mSize = getMaxSize();
     mExecuteQueue = new ArrayBlockingQueue<>(mSize);
-    mExecuteMap = new HashMap<>();
+    mExecuteMap = new ConcurrentHashMap<>();
   }
 
   /**
