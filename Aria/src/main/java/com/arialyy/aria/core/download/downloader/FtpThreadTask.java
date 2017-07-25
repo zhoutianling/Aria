@@ -15,6 +15,8 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import android.os.Handler;
+import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
@@ -100,21 +102,17 @@ class FtpThreadTask extends AbsThreadTask {
         }
       }
       if (STATE.isCancel || STATE.isStop) return;
-      if (client.completePendingCommand()) {
-        Log.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
-        writeConfig(true, 1);
-        STATE.COMPLETE_THREAD_NUM++;
-        if (STATE.isComplete()) {
-          File configFile = new File(mConfigFPath);
-          if (configFile.exists()) {
-            configFile.delete();
-          }
-          STATE.isDownloading = false;
-          mListener.onComplete();
+      //if (client.completePendingCommand()) {
+      Log.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
+      writeConfig(true, 1);
+      STATE.COMPLETE_THREAD_NUM++;
+      if (STATE.isComplete()) {
+        File configFile = new File(mConfigFPath);
+        if (configFile.exists()) {
+          configFile.delete();
         }
-        file.close();
-        is.close();
-        Log.d(TAG, "SUCCESS");
+        STATE.isDownloading = false;
+        mListener.onComplete();
       }
     } catch (IOException e) {
       failDownload(mChildCurrentLocation, "下载失败【" + mConfig.DOWNLOAD_URL + "】", e);
@@ -122,6 +120,12 @@ class FtpThreadTask extends AbsThreadTask {
       failDownload(mChildCurrentLocation, "获取流失败", e);
     } finally {
       try {
+        if (file != null){
+          file.close();
+        }
+        if (is != null){
+          is.close();
+        }
         if (client != null && client.isConnected()) {
           //client.logout();
           client.disconnect();

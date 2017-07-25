@@ -45,7 +45,9 @@ public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding
       case R.id.start:
         Aria.download(this)
             //.load("172.18.104.129", "21", "cd.mp3")
-            .load("172.18.104.129", "21", "gg.png")
+            //.load("192.168.1.8", "21", "gg.png")
+            .load("192.168.1.8", "21", "23.pdf")
+            //.load("192.168.1.8", "21", "heh.txt")
             .login("lao", "123456")
             .setDownloadPath("/mnt/sdcard/tt.png")
             .charSet("gbk")
