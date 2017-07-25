@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download.downloader.http;
+package com.arialyy.aria.core.download.downloader;
 
 import android.content.Context;
 import android.util.Log;
@@ -21,10 +21,7 @@ import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.downloader.ChildThreadConfigEntity;
-import com.arialyy.aria.core.download.downloader.IDownloadListener;
-import com.arialyy.aria.core.download.downloader.IDownloadUtil;
-import com.arialyy.aria.core.download.downloader.StateConstance;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
@@ -53,7 +50,7 @@ class Downloader implements Runnable, IDownloadUtil {
   private boolean isNewTask = true;
   private int mThreadNum, mRealThreadNum;
   private StateConstance mConstance;
-  private SparseArray<Runnable> mTask = new SparseArray<>();
+  private SparseArray<AbsThreadTask> mTask = new SparseArray<>();
 
   /**
    * 小于1m的文件不启用多线程
@@ -69,10 +66,9 @@ class Downloader implements Runnable, IDownloadUtil {
     mConstance = new StateConstance();
   }
 
-  @Override
-  public void setMaxSpeed(double maxSpeed) {
+  @Override public void setMaxSpeed(double maxSpeed) {
     for (int i = 0; i < mThreadNum; i++) {
-      HttpThreadTask task = (HttpThreadTask) mTask.get(i);
+      AbsThreadTask task = mTask.get(i);
       if (task != null) {
         task.setMaxSpeed(maxSpeed);
       }
@@ -155,7 +151,7 @@ class Downloader implements Runnable, IDownloadUtil {
       mFixedThreadPool.shutdown();
     }
     for (int i = 0; i < mThreadNum; i++) {
-      HttpThreadTask task = (HttpThreadTask) mTask.get(i);
+      AbsThreadTask task = mTask.get(i);
       if (task != null) {
         task.cancel();
       }
@@ -172,7 +168,7 @@ class Downloader implements Runnable, IDownloadUtil {
       mFixedThreadPool.shutdown();
     }
     for (int i = 0; i < mThreadNum; i++) {
-      HttpThreadTask task = (HttpThreadTask) mTask.get(i);
+      AbsThreadTask task = mTask.get(i);
       if (task != null) {
         task.stop();
       }
@@ -285,18 +281,19 @@ class Downloader implements Runnable, IDownloadUtil {
    * 创建单线程任务
    */
   private void addSingleTask(int i, long startL, long endL, long fileLength) {
-    ChildThreadConfigEntity entity = new ChildThreadConfigEntity();
-    entity.FILE_SIZE = fileLength;
-    entity.DOWNLOAD_URL =
+    SubThreadConfig config = new SubThreadConfig();
+    config.FILE_SIZE = fileLength;
+    config.DOWNLOAD_URL =
         mEntity.isRedirect() ? mEntity.getRedirectUrl() : mEntity.getDownloadUrl();
-    entity.TEMP_FILE = mTempFile;
-    entity.THREAD_ID = i;
-    entity.START_LOCATION = startL;
-    entity.END_LOCATION = endL;
-    entity.CONFIG_FILE_PATH = mConfigFile.getPath();
-    entity.IS_SUPPORT_BREAK_POINT = mTaskEntity.isSupportBP;
-    entity.DOWNLOAD_TASK_ENTITY = mTaskEntity;
-    HttpThreadTask task = new HttpThreadTask(mConstance, mListener, entity);
+    config.TEMP_FILE = mTempFile;
+    config.THREAD_ID = i;
+    config.START_LOCATION = startL;
+    config.END_LOCATION = endL;
+    config.CONFIG_FILE_PATH = mConfigFile.getPath();
+    config.IS_SUPPORT_BREAK_POINT = mTaskEntity.isSupportBP;
+    config.DOWNLOAD_TASK_ENTITY = mTaskEntity;
+    AbsThreadTask task = createThreadTask(config);
+    if (task == null) return;
     mTask.put(i, task);
   }
 
@@ -396,23 +393,34 @@ class Downloader implements Runnable, IDownloadUtil {
    * 处理不支持断点的下载
    */
   private void handleNoSupportBreakpointDownload() {
-    ChildThreadConfigEntity entity = new ChildThreadConfigEntity();
+    SubThreadConfig config = new SubThreadConfig();
     long len = mEntity.getFileSize();
-    entity.FILE_SIZE = len;
-    entity.DOWNLOAD_URL =
+    config.FILE_SIZE = len;
+    config.DOWNLOAD_URL =
         mEntity.isRedirect() ? mEntity.getRedirectUrl() : mEntity.getDownloadUrl();
-    entity.TEMP_FILE = mTempFile;
-    entity.THREAD_ID = 0;
-    entity.START_LOCATION = 0;
-    entity.END_LOCATION = entity.FILE_SIZE;
-    entity.CONFIG_FILE_PATH = mConfigFile.getPath();
-    entity.IS_SUPPORT_BREAK_POINT = mTaskEntity.isSupportBP;
-    entity.DOWNLOAD_TASK_ENTITY = mTaskEntity;
-    HttpThreadTask task = new HttpThreadTask(mConstance, mListener, entity);
+    config.TEMP_FILE = mTempFile;
+    config.THREAD_ID = 0;
+    config.START_LOCATION = 0;
+    config.END_LOCATION = config.FILE_SIZE;
+    config.CONFIG_FILE_PATH = mConfigFile.getPath();
+    config.IS_SUPPORT_BREAK_POINT = mTaskEntity.isSupportBP;
+    config.DOWNLOAD_TASK_ENTITY = mTaskEntity;
+    AbsThreadTask task = createThreadTask(config);
+    if (task == null) return;
     mTask.put(0, task);
     mFixedThreadPool.execute(task);
     mListener.onPostPre(len);
     mListener.onStart(0);
+  }
+
+  private AbsThreadTask createThreadTask(SubThreadConfig config) {
+    switch (mTaskEntity.downloadType) {
+      case AbsTaskEntity.FTP:
+        return new FtpThreadTask(mConstance, mListener, config);
+      case AbsTaskEntity.HTTP:
+        return new HttpThreadTask(mConstance, mListener, config);
+    }
+    return null;
   }
 
   private void failDownload(String errorMsg) {

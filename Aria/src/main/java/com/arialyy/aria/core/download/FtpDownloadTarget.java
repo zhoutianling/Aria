@@ -15,10 +15,13 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.util.CommonUtil;
+import java.io.File;
+import java.nio.charset.Charset;
 
 /**
  * Created by lyy on 2016/12/5.
@@ -32,7 +35,7 @@ public class FtpDownloadTarget extends DownloadTarget {
    * @param port ftp端口号
    */
   FtpDownloadTarget(String serverIp, String port, String filePath, String targetName) {
-    this(serverIp + ":" + port + "/" + filePath, targetName);
+    this("ftp://" + serverIp + ":" + port + "/" + filePath, targetName);
   }
 
   /**
@@ -44,6 +47,46 @@ public class FtpDownloadTarget extends DownloadTarget {
     mTaskEntity.downloadType = AbsTaskEntity.FTP;
     mTargetName = targetName;
     mEntity.setFileName(url.substring(lastIndex + 1, url.length()));
+  }
+
+  /**
+   * 设置文件保存文件夹路径
+   * 关于文件名：
+   * 1、如果保存路径是该文件的保存路径，如：/mnt/sdcard/file.zip，则使用路径中的文件名file.zip
+   * 2、如果保存路径是文件夹路径，如：/mnt/sdcard/，则使用FTP服务器该文件的文件名
+   *
+   * @param downloadPath 路径必须为文件路径，不能为文件夹路径
+   */
+  @Override public FtpDownloadTarget setDownloadPath(@NonNull String downloadPath) {
+    if (TextUtils.isEmpty(downloadPath)) {
+      throw new IllegalArgumentException("文件保持路径不能为null");
+    }
+    File file = new File(downloadPath);
+    if (file.isDirectory()) {
+      downloadPath += mEntity.getFileName();
+    }
+    if (!downloadPath.equals(mEntity.getDownloadPath())) {
+      File oldFile = new File(mEntity.getDownloadPath());
+      File newFile = new File(downloadPath);
+      if (TextUtils.isEmpty(mEntity.getDownloadPath()) || oldFile.renameTo(newFile)) {
+        mEntity.setDownloadPath(downloadPath);
+        mEntity.setFileName(newFile.getName());
+        mTaskEntity.key = downloadPath;
+        mEntity.update();
+        mTaskEntity.update();
+        CommonUtil.renameDownloadConfig(oldFile.getName(), newFile.getName());
+      }
+    }
+    return this;
+  }
+
+  /**
+   * 设置字符编码
+   */
+  public FtpDownloadTarget charSet(String charSet) {
+    if (TextUtils.isEmpty(charSet)) return this;
+    mTaskEntity.charSet = charSet;
+    return this;
   }
 
   /**

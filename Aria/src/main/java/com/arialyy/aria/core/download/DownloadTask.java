@@ -19,11 +19,9 @@ package com.arialyy.aria.core.download;
 import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.downloader.ftp.FtpDownloadUtil;
 import com.arialyy.aria.core.download.downloader.IDownloadUtil;
-import com.arialyy.aria.core.download.downloader.http.SimpleDownloadUtil;
+import com.arialyy.aria.core.download.downloader.SimpleDownloadUtil;
 import com.arialyy.aria.core.inf.AbsNormalTask;
-import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import java.io.File;
@@ -43,11 +41,12 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
     mListener = new DownloadListener(this, mOutHandler);
-    if (taskEntity.downloadType == AbsTaskEntity.HTTP) {
-      mUtil = new SimpleDownloadUtil(taskEntity, mListener);
-    }else if (taskEntity.downloadType == AbsTaskEntity.FTP){
-      mUtil = new FtpDownloadUtil(taskEntity, mListener);
-    }
+    mUtil = new SimpleDownloadUtil(taskEntity, mListener);
+    //if (taskEntity.downloadType == AbsTaskEntity.HTTP) {
+    //  mUtil = new SimpleDownloadUtil(taskEntity, mListener);
+    //}else if (taskEntity.downloadType == AbsTaskEntity.FTP){
+    //  mUtil = new FtpDownloadUtil(taskEntity, mListener);
+    //}
   }
 
   /**

@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -62,6 +63,18 @@ import java.lang.reflect.WildcardType;
  */
 public class CommonUtil {
   private static final String TAG = "CommonUtil";
+
+  /**
+   * 字符串编码转换
+   */
+  public static String strCharSetConvert(String oldStr, String charSet) {
+    try {
+      return new String(oldStr.getBytes(), charSet);
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
   /**
    * 实例化泛型的实际类型参数

@@ -38,9 +38,6 @@ import java.util.List;
  */
 public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBinding> {
 
-  @Bind(R.id.start) Button mStart;
-  @Bind(R.id.stop) Button mStop;
-  @Bind(R.id.cancel) Button mCancel;
   @Bind(R.id.child_list) SubStateLinearLayout mChildList;
   List<String> mUrls;
 

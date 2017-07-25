@@ -102,7 +102,7 @@ final class UploadUtil implements Runnable {
       mListener.onPostPre(uploadFile.length());
 
       PrintWriter writer =
-          new PrintWriter(new OutputStreamWriter(mOutputStream, mTaskEntity.charset), true);
+          new PrintWriter(new OutputStreamWriter(mOutputStream, mTaskEntity.charSet), true);
 
       //添加文件上传表单字段
       keys = mTaskEntity.formFields.keySet();
@@ -143,7 +143,7 @@ final class UploadUtil implements Runnable {
         .append("\"")
         .append(LINE_END);
     writer.append("Content-Type: text/plain; charset=")
-        .append(mTaskEntity.charset)
+        .append(mTaskEntity.charSet)
         .append(LINE_END);
     writer.append(LINE_END);
     writer.append(value).append(LINE_END);

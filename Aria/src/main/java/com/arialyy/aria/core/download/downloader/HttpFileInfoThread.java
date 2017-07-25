@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download.downloader.http;
+package com.arialyy.aria.core.download.downloader;
 
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.downloader.ConnectionHelp;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -29,30 +30,15 @@ import java.net.URLDecoder;
 /**
  * 下载文件信息获取
  */
-class FileInfoThread implements Runnable {
-  private final String TAG = "FileInfoThread";
+class HttpFileInfoThread implements Runnable {
+  private final String TAG = "HttpFileInfoThread";
   private DownloadEntity mEntity;
   private DownloadTaskEntity mTaskEntity;
   private int mConnectTimeOut;
   private OnFileInfoCallback onFileInfoListener;
 
-  interface OnFileInfoCallback {
-    /**
-     * 处理完成
-     *
-     * @param code 状态码
-     */
-    void onComplete(String url, int code);
 
-    /**
-     * 请求失败
-     *
-     * @param errorMsg 错误信息
-     */
-    void onFail(String url, String errorMsg);
-  }
-
-  FileInfoThread(DownloadTaskEntity taskEntity, OnFileInfoCallback callback) {
+  HttpFileInfoThread(DownloadTaskEntity taskEntity, OnFileInfoCallback callback) {
     this.mTaskEntity = taskEntity;
     mEntity = taskEntity.getEntity();
     mConnectTimeOut =

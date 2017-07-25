@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download.downloader.http;
+package com.arialyy.aria.core.download.downloader;
 
 import android.util.SparseArray;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.downloader.IDownloadGroupListener;
-import com.arialyy.aria.core.download.downloader.IDownloadListener;
-import com.arialyy.aria.core.download.downloader.IDownloadUtil;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
@@ -78,7 +75,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
   /**
    * 文件信息回调组
    */
-  private SparseArray<FileInfoThread.OnFileInfoCallback> mFileInfoCallbacks = new SparseArray<>();
+  private SparseArray<OnFileInfoCallback> mFileInfoCallbacks = new SparseArray<>();
   /**
    * 该任务组对应的所有任务
    */
@@ -214,11 +211,11 @@ public class DownloadGroupUtil implements IDownloadUtil {
   /**
    * 创建文件信息获取线程
    */
-  private FileInfoThread createFileInfoThread(DownloadTaskEntity taskEntity) {
-    FileInfoThread.OnFileInfoCallback callback = mFileInfoCallbacks.get(taskEntity.hashCode());
+  private HttpFileInfoThread createFileInfoThread(DownloadTaskEntity taskEntity) {
+    OnFileInfoCallback callback = mFileInfoCallbacks.get(taskEntity.hashCode());
 
     if (callback == null) {
-      callback = new FileInfoThread.OnFileInfoCallback() {
+      callback = new OnFileInfoCallback() {
         int failNum = 0;
 
         @Override public void onComplete(String url, int code) {
@@ -255,7 +252,7 @@ public class DownloadGroupUtil implements IDownloadUtil {
         }
       };
     }
-    return new FileInfoThread(taskEntity, callback);
+    return new HttpFileInfoThread(taskEntity, callback);
   }
 
   private void closeTimer(boolean isRunning) {

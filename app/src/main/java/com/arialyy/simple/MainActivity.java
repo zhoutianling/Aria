@@ -23,6 +23,7 @@ import butterknife.OnClick;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
 import com.arialyy.simple.download.DownloadActivity;
+import com.arialyy.simple.download.FtpDownloadActivity;
 import com.arialyy.simple.download.group.DownloadGroupActivity;
 import com.arialyy.simple.test.TestMutilTaskSysDownload;
 import com.arialyy.simple.upload.UploadActivity;
@@ -44,7 +45,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
   }
 
 
-  @OnClick({R.id.download, R.id.upload, R.id.download_task_group})
+  @OnClick({R.id.download, R.id.upload, R.id.download_task_group, R.id.ftp})
   public void funcation(View view){
     switch (view.getId()){
       case R.id.download:
@@ -55,6 +56,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
         break;
       case R.id.download_task_group:
         startActivity(new Intent(this, DownloadGroupActivity.class));
+        break;
+      case R.id.ftp:
+        startActivity(new Intent(this, FtpDownloadActivity.class));
         break;
     }
 

@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.download.downloader.http;
+package com.arialyy.aria.core.download.downloader;
 
-import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.downloader.IDownloadListener;
-import com.arialyy.aria.core.download.downloader.IDownloadUtil;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
  * Created by lyy on 2015/8/25.
- * 简单的下载工具
+ * HTTP单任务下载工具
  */
 public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
   private static final String TAG = "SimpleDownloadUtil";
@@ -89,18 +87,39 @@ public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
   }
 
   @Override public void run() {
-    if (TextUtils.isEmpty(mTaskEntity.redirectUrl)) {
-      new Thread(new FileInfoThread(mTaskEntity, new FileInfoThread.OnFileInfoCallback() {
-        @Override public void onComplete(String url, int code) {
-          mDT.startDownload();
-        }
-
-        @Override public void onFail(String url, String errorMsg) {
-          failDownload(errorMsg);
-        }
-      })).start();
+    if (mTaskEntity.getEntity().getFileSize() <= 1) {
+      new Thread(createInfoThread()).start();
     } else {
       mDT.startDownload();
     }
+  }
+
+  /**
+   * 通过链接类型创建不同的获取文件信息的线程
+   */
+  private Runnable createInfoThread() {
+    switch (mTaskEntity.downloadType) {
+      case AbsTaskEntity.FTP:
+        return new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
+          @Override public void onComplete(String url, int code) {
+            mDT.startDownload();
+          }
+
+          @Override public void onFail(String url, String errorMsg) {
+            failDownload(errorMsg);
+          }
+        });
+      case AbsTaskEntity.HTTP:
+        return new HttpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
+          @Override public void onComplete(String url, int code) {
+            mDT.startDownload();
+          }
+
+          @Override public void onFail(String url, String errorMsg) {
+            failDownload(errorMsg);
+          }
+        });
+    }
+    return null;
   }
 }

@@ -40,6 +40,11 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   public Map<String, String> headers = new HashMap<>();
 
   /**
+   * 字符编码，默认为"utf-8"
+   */
+  public String charSet = "utf-8";
+
+  /**
    * 网络请求类型
    */
   public RequestEnum requestEnum = RequestEnum.GET;

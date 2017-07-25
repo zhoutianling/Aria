@@ -33,5 +33,13 @@
         style="?buttonBarButtonStyle"
         />
 
+    <Button
+        android:id="@+id/ftp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="FTP 下载"
+        style="?buttonBarButtonStyle"
+        />
+
   </LinearLayout>
 </layout>
