@@ -98,7 +98,7 @@ public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
    * 通过链接类型创建不同的获取文件信息的线程
    */
   private Runnable createInfoThread() {
-    switch (mTaskEntity.downloadType) {
+    switch (mTaskEntity.requestType) {
       case AbsTaskEntity.FTP:
         return new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
           @Override public void onComplete(String url, int code) {

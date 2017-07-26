@@ -30,17 +30,6 @@ public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
    */
   @Ignore public String userName, userPw, account;
 
-  /**
-   * FTP服务器文件或文件夹路径
-   */
-  public String remotePath;
-
-  /**
-   * 下载类型
-   * {@link AbsTaskEntity#HTTP}、{@link AbsTaskEntity#FTP}
-   */
-  public int downloadType = HTTP;
-
   @OneToOne(table = DownloadEntity.class, key = "downloadPath") public DownloadEntity entity;
 
   /**

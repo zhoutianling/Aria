@@ -58,19 +58,11 @@ public class DownloadReceiver extends AbsReceiver {
   }
 
   /**
-   * 加载Http、https
+   * 加载Http、https单任务下载地址
    */
   public DownloadTarget load(@NonNull String url) {
     CheckUtil.checkDownloadUrl(url);
     return new DownloadTarget(url, targetName);
-  }
-
-  /**
-   * 加载ftp下载地址
-   */
-  public FtpDownloadTarget loadFtp(@NonNull String url) {
-    CheckUtil.checkDownloadUrl(url);
-    return new FtpDownloadTarget(url, targetName);
   }
 
   /**
@@ -82,6 +74,14 @@ public class DownloadReceiver extends AbsReceiver {
   }
 
   /**
+   * 加载ftp单任务下载地址
+   */
+  public FtpDownloadTarget loadFtp(@NonNull String url) {
+    CheckUtil.checkDownloadUrl(url);
+    return new FtpDownloadTarget(url, targetName);
+  }
+
+  /**
    * 使用任务组实体执行任务组的实体执行任务组的下载操作
    *
    * @param groupEntity 如果加载的任务实体没有子项的下载地址，
@@ -89,6 +89,14 @@ public class DownloadReceiver extends AbsReceiver {
    */
   public DownloadGroupTarget load(DownloadGroupEntity groupEntity) {
     return new DownloadGroupTarget(groupEntity, targetName);
+  }
+
+  /**
+   * 加载ftp文件夹下载地址
+   */
+  public FtpDirDownloadTarget loadFtpDir(@NonNull String dirUrl) {
+    CheckUtil.checkDownloadUrl(dirUrl);
+    return new FtpDirDownloadTarget(dirUrl, targetName);
   }
 
   /**

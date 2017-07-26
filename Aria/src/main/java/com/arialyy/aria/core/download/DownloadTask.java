@@ -42,11 +42,6 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
     mContext = AriaManager.APP;
     mListener = new DownloadListener(this, mOutHandler);
     mUtil = new SimpleDownloadUtil(taskEntity, mListener);
-    //if (taskEntity.downloadType == AbsTaskEntity.HTTP) {
-    //  mUtil = new SimpleDownloadUtil(taskEntity, mListener);
-    //}else if (taskEntity.downloadType == AbsTaskEntity.FTP){
-    //  mUtil = new FtpDownloadUtil(taskEntity, mListener);
-    //}
   }
 
   /**

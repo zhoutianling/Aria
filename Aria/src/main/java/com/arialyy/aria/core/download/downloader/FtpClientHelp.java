@@ -55,7 +55,7 @@ public class FtpClientHelp {
   /**
    * 登录到FTP服务器，当客户端为null或客户端没有连接到FTP服务器时才会执行登录操作
    */
-  public void login(String serverIp, int port, String user, String pw, String account) {
+  public FTPClient login(String serverIp, int port, String user, String pw, String account) {
     this.serverIp = serverIp;
     this.port = port;
     this.user = user;
@@ -64,6 +64,7 @@ public class FtpClientHelp {
     if (client == null || !client.isConnected()) {
       createClient();
     }
+    return client;
   }
 
   /**

@@ -36,13 +36,12 @@ public class FtpDownloadTarget extends DownloadTarget {
     String[] pp = url.split("/")[2].split(":");
     this.serverIp = pp[0];
     this.port = Integer.parseInt(pp[1]);
-    mTaskEntity.downloadType = AbsTaskEntity.FTP;
+    mTaskEntity.requestType = AbsTaskEntity.FTP;
     remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
     if (TextUtils.isEmpty(remotePath)) {
       throw new NullPointerException("ftp服务器地址不能为null");
     }
     int lastIndex = url.lastIndexOf("/");
-    mTaskEntity.downloadType = AbsTaskEntity.FTP;
     mTaskEntity.remotePath = remotePath;
     mEntity.setFileName(url.substring(lastIndex + 1, url.length()));
   }
@@ -115,14 +114,6 @@ public class FtpDownloadTarget extends DownloadTarget {
     mTaskEntity.userName = userName;
     mTaskEntity.userPw = password;
     mTaskEntity.account = account;
-    //FtpClientHelp.getInstnce().login(serverIp, port, userName, password, account);
     return this;
   }
-
-  ///**
-  // * 当所有任务都完成时，需要登出ftp服务器
-  // */
-  //public void logout() {
-  //  FtpClientHelp.getInstnce().logout();
-  //}
 }

@@ -15,31 +15,33 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.text.TextUtils;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.util.CheckUtil;
-import com.arialyy.aria.util.CommonUtil;
-import java.util.List;
 
 /**
- * Created by AriaL on 2017/6/29.
- * 下载任务组
+ * Created by Aria.Lao on 2017/7/26.
+ * ftp文件夹下载
  */
-public class DownloadGroupTarget
-    extends BaseGroupTarget<DownloadGroupTarget, DownloadGroupTaskEntity> {
-  private final String TAG = "DownloadGroupTarget";
+public class FtpDirDownloadTarget
+    extends BaseGroupTarget<FtpDownloadTarget, DownloadGroupTaskEntity> {
+  private String serverIp, remotePath, mGroupName;
+  private int port;
 
-  DownloadGroupTarget(DownloadGroupEntity groupEntity, String targetName) {
-    this.mTargetName = targetName;
-    if (groupEntity.getUrls() != null && !groupEntity.getUrls().isEmpty()) {
-      this.mUrls.addAll(groupEntity.getUrls());
+  FtpDirDownloadTarget(String url, String targetName) {
+    init(url);
+    String[] pp = url.split("/")[2].split(":");
+    this.serverIp = pp[0];
+    this.port = Integer.parseInt(pp[1]);
+    mTaskEntity.requestType = AbsTaskEntity.FTP;
+    remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
+    if (TextUtils.isEmpty(remotePath)) {
+      throw new NullPointerException("ftp服务器地址不能为null");
     }
-    init(groupEntity.getGroupName());
-  }
-
-  DownloadGroupTarget(List<String> urls, String targetName) {
-    this.mTargetName = targetName;
-    this.mUrls = urls;
-    init(CommonUtil.getMd5Code(urls));
+    mTargetName = targetName;
+    int lastIndex = url.lastIndexOf("/");
+    mTaskEntity.remotePath = remotePath;
+    mEntity.setDirPath(url.substring(lastIndex + 1, url.length()));
   }
 
   private void init(String key) {
@@ -55,17 +57,5 @@ public class DownloadGroupTarget
       mTaskEntity.entity = getDownloadGroupEntity();
     }
     mEntity = mTaskEntity.entity;
-  }
-
-  /**
-   * 如果你是使用{@link DownloadReceiver#load(DownloadGroupEntity)}进行下载操作，那么你需要设置任务组的下载地址
-   */
-  public DownloadGroupTarget setGroupUrl(List<String> urls) {
-    CheckUtil.checkDownloadUrls(urls);
-    mUrls.clear();
-    mUrls.addAll(urls);
-    mEntity.setGroupName(CommonUtil.getMd5Code(urls));
-    mEntity.update();
-    return this;
   }
 }

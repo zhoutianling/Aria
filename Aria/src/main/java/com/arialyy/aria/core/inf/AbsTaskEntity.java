@@ -35,6 +35,17 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   @Primary public String key = "";
 
   /**
+   * FTP服务器文件或文件夹路径
+   */
+  public String remotePath;
+
+  /**
+   * 请求类型
+   * {@link AbsTaskEntity#HTTP}、{@link AbsTaskEntity#FTP}
+   */
+  public int requestType = HTTP;
+
+  /**
    * http 请求头
    */
   public Map<String, String> headers = new HashMap<>();

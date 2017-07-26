@@ -79,6 +79,7 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
+    setTile("http上传");
     Aria.upload(this).register();
   }
 
