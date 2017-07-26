@@ -30,8 +30,8 @@ Aria怎样使用？
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.2.8'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.8'
+compile 'com.arialyy.aria:aria-core:3.2.9'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.9'
 ```
 
 ## 示例
@@ -351,6 +351,7 @@ Aria.download(this).load(DOWNLOAD_URL).setExtendField(str)
 
 
 ## 开发日志
+  + v_3.2.9 修复任务组下载完成两次回掉的问题，修复又是获取不到下载状态的问题
   + v_3.2.8 修复下载超过2G大小的文件失败的问题
   + v_3.2.7 移除设置文件名的api接口，修复断开网络时出现的进度条错误的问题
   + v_3.2.6 移除广播事件，增加任务组下载功能

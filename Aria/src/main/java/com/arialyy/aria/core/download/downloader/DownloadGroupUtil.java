@@ -374,12 +374,11 @@ public class DownloadGroupUtil implements IDownloadUtil {
       handleSpeed(0);
       mListener.onSubComplete(entity);
       //如果子任务完成的数量和总任务数一致，表示任务组任务已经完成
-      if (mCompleteNum >= mTaskEntity.getEntity().getSubTask().size()){
+      if (mCompleteNum >= mTaskEntity.getEntity().getSubTask().size()) {
         closeTimer(false);
         mListener.onComplete();
-      }
-      //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
-      if (mCompleteNum + mFailNum >= mActualTaskNum) {
+      } else if (mCompleteNum + mFailNum >= mActualTaskNum) {
+        //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
         closeTimer(false);
         mListener.onComplete();
       }
