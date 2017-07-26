@@ -20,6 +20,7 @@ import android.util.Log;
 import android.view.View;
 import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
@@ -34,28 +35,40 @@ import java.io.File;
  * Ftp下载测试
  */
 public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding> {
+  //private final String URL = "ftp://172.18.104.129:21/haha/large.rar";
+  private final String URL = "ftp://172.18.104.129:21/cd.mp3";
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
+    setTitle("FTP文件下载");
     Aria.download(this).register();
+    DownloadEntity entity = Aria.download(this).getDownloadEntity(URL);
+    if (entity != null) {
+      getBinding().setFileSize(entity.getConvertFileSize());
+      if (entity.getFileSize() == 0) {
+        getBinding().setProgress(0);
+      } else {
+        getBinding().setProgress(entity.isComplete() ? 100
+            : (int) (entity.getCurrentProgress() * 100 / entity.getFileSize()));
+      }
+    }
   }
 
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
         Aria.download(this)
-            //.load("172.18.104.129", "21", "cd.mp3")
-            //.load("192.168.1.8", "21", "gg.png")
-            .load("192.168.1.8", "21", "23.pdf")
-            //.load("192.168.1.8", "21", "heh.txt")
+            .loadFtp(URL)
             .login("lao", "123456")
-            .setDownloadPath("/mnt/sdcard/tt.png")
+            .setDownloadPath("/mnt/sdcard/")
             .charSet("gbk")
             .start();
         break;
       case R.id.stop:
+        Aria.download(this).loadFtp(URL).stop();
         break;
       case R.id.cancel:
+        Aria.download(this).loadFtp(URL).cancel();
         break;
     }
   }
@@ -97,6 +110,7 @@ public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding
   }
 
   @Download.onTaskComplete() void taskComplete(DownloadTask task) {
+    getBinding().setSpeed("");
     getBinding().setProgress(100);
     Log.d(TAG, "md5 ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
     T.showShort(this, "FTP下载完成");

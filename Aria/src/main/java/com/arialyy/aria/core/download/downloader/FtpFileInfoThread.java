@@ -51,11 +51,8 @@ class FtpFileInfoThread implements Runnable {
     FTPClient client = null;
     try {
       client = new FTPClient();
-      //ip和端口
-      String[] temp = mEntity.getDownloadUrl().split("/");
-      String[] pp = temp[2].split(":");
-      //String dir = temp[temp.length - 2];
-      String fileName = temp[temp.length - 1];
+      String[] pp = mEntity.getDownloadUrl().split("/")[2].split(":");
+      String fileName = mTaskEntity.remotePath;
       client.connect(pp[0], Integer.parseInt(pp[1]));
       if (!TextUtils.isEmpty(mTaskEntity.account)) {
         client.login(mTaskEntity.userName, mTaskEntity.userPw);

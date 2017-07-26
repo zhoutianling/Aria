@@ -42,7 +42,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
 
-  private static final String DOWNLOAD_URL = "http://static.ilongyuan.cn/rayark/RayarkFZ_2.0.7.apk";
+  private static final String DOWNLOAD_URL = "https://res5.d.cn/2137e42d610b3488d9420c6421529386eee5bdbfd9be1fafe0a05d6dabaec8c156ddbd00581055bbaeac03904fb63310e80010680235d16bd4c040b50096a0c20dd1c4b0854529a1.apk";
 
   @Override protected void init(Bundle savedInstanceState) {
     if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
@@ -65,7 +65,7 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
       case R.id.start:
         Aria.download(this)
             .load(DOWNLOAD_URL)
-            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/兰空VOEZ.apk")
+            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/王者军团.apk")
             .start();
         break;
       case R.id.stop:
@@ -84,13 +84,13 @@ public class DownloadFragment extends AbsFragment<FragmentDownloadBinding> {
 
   @Download.onTaskStop public void onTaskStop(DownloadTask task) {
     setBtState(true);
-    getBinding().setSpeed("0.0kb/s");
+    getBinding().setSpeed("");
   }
 
   @Download.onTaskCancel public void onTaskCancel(DownloadTask task) {
     setBtState(true);
     getBinding().setProgress(0);
-    getBinding().setSpeed("0.0kb/s");
+    getBinding().setSpeed("");
   }
 
   @Download.onTaskRunning public void onTaskRunning(DownloadTask task) {

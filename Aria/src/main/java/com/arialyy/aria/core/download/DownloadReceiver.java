@@ -58,22 +58,19 @@ public class DownloadReceiver extends AbsReceiver {
   }
 
   /**
-   * 加载Http下载功能
+   * 加载Http、https
    */
-  public DownloadTarget load(@NonNull String downloadUrl) {
-    CheckUtil.checkDownloadUrl(downloadUrl);
-    return new DownloadTarget(downloadUrl, targetName);
+  public DownloadTarget load(@NonNull String url) {
+    CheckUtil.checkDownloadUrl(url);
+    return new DownloadTarget(url, targetName);
   }
 
   /**
-   * 加载Ftp下载功能
-   *
-   * @param serverIp ftp服务器地址
-   * @param port ftp端口
-   * @param filePath 需要从ftp服务器上下载的文件的路径
+   * 加载ftp下载地址
    */
-  public FtpDownloadTarget load(String serverIp, String port, String filePath) {
-    return new FtpDownloadTarget(serverIp, port, filePath, targetName);
+  public FtpDownloadTarget loadFtp(@NonNull String url) {
+    CheckUtil.checkDownloadUrl(url);
+    return new FtpDownloadTarget(url, targetName);
   }
 
   /**

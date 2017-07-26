@@ -30,12 +30,13 @@ import java.io.File;
  */
 public class DownloadTarget
     extends AbsDownloadTarget<DownloadTarget, DownloadEntity, DownloadTaskEntity> {
-
+  protected String url;
   DownloadTarget(DownloadEntity entity, String targetName) {
     this(entity.getDownloadUrl(), targetName);
   }
 
   DownloadTarget(String url, String targetName) {
+    this.url = url;
     mTargetName = targetName;
     DownloadEntity entity = getEntity(url);
     mTaskEntity = DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",

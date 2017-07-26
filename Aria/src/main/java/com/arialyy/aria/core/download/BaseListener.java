@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import android.os.Handler;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTask;

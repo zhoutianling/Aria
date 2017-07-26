@@ -24,8 +24,13 @@
       android:orientation="vertical"
       >
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
     <include
-        layout="@layout/dialog_download"
+        layout="@layout/content_single"
         bind:fileSize="@{fileSize}"
         bind:progress="@{progress}"
         bind:speed="@{speed}"

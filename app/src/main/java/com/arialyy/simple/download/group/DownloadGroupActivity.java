@@ -89,6 +89,9 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskPre() protected void onTaskPre(DownloadGroupTask task) {
+    if (mChildList.getSubData().size() <= 0) {
+      mChildList.addData(task.getEntity().getSubTask());
+    }
     L.d(TAG, "group task pre");
     getBinding().setFileSize(task.getConvertFileSize());
   }
@@ -123,6 +126,8 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
 
   @DownloadGroup.onTaskComplete() void taskComplete(DownloadGroupTask task) {
     getBinding().setProgress(100);
+    mChildList.updateChildProgress(task.getEntity().getSubTask());
     T.showShort(this, "任务组下载完成");
+    L.d(TAG, "任务组下载完成");
   }
 }

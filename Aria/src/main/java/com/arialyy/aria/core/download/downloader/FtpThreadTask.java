@@ -15,20 +15,14 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import android.os.Handler;
-import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Timer;
-import java.util.TimerTask;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 
 /**
@@ -57,12 +51,9 @@ class FtpThreadTask extends AbsThreadTask {
           + "，结束位置："
           + mConfig.END_LOCATION
           + "】");
-      client = new FTPClient();
-      //ip和端口
       String[] temp = mEntity.getDownloadUrl().split("/");
       String[] pp = temp[2].split(":");
-      //String dir = temp[temp.length - 2];
-      String fileName = temp[temp.length - 1];
+      client = new FTPClient();
       client.connect(pp[0], Integer.parseInt(pp[1]));
       if (!TextUtils.isEmpty(mTaskEntity.account)) {
         client.login(mTaskEntity.userName, mTaskEntity.userPw);
@@ -79,14 +70,14 @@ class FtpThreadTask extends AbsThreadTask {
       client.enterLocalPassiveMode();
       client.setFileType(FTP.BINARY_FILE_TYPE);
       client.setRestartOffset(mConfig.START_LOCATION);
-      is = client.retrieveFileStream(fileName);
+      client.allocate(mBufSize);
+      is = client.retrieveFileStream(mConfig.remotePath);
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
       file.seek(mConfig.START_LOCATION);
       byte[] buffer = new byte[mBufSize];
       int len;
       //当前子线程的下载位置
       mChildCurrentLocation = mConfig.START_LOCATION;
-      //TODO: 2017/7/25 隐藏问题，速度太快（20m/s）或文件太小，秒下，会出现 ftp Connection reset by peer 问题
       while ((len = is.read(buffer)) != -1) {
         if (STATE.isCancel) break;
         if (STATE.isStop) break;
@@ -102,7 +93,6 @@ class FtpThreadTask extends AbsThreadTask {
         }
       }
       if (STATE.isCancel || STATE.isStop) return;
-      //if (client.completePendingCommand()) {
       Log.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
       writeConfig(true, 1);
       STATE.COMPLETE_THREAD_NUM++;
@@ -120,14 +110,13 @@ class FtpThreadTask extends AbsThreadTask {
       failDownload(mChildCurrentLocation, "获取流失败", e);
     } finally {
       try {
-        if (file != null){
+        if (file != null) {
           file.close();
         }
-        if (is != null){
+        if (is != null) {
           is.close();
         }
         if (client != null && client.isConnected()) {
-          //client.logout();
           client.disconnect();
         }
       } catch (IOException e) {

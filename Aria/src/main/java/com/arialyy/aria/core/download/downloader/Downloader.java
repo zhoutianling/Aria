@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download.downloader;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
@@ -33,6 +34,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPReply;
 
 /**
  * Created by AriaL on 2017/7/1.
@@ -416,6 +419,7 @@ class Downloader implements Runnable, IDownloadUtil {
   private AbsThreadTask createThreadTask(SubThreadConfig config) {
     switch (mTaskEntity.downloadType) {
       case AbsTaskEntity.FTP:
+        config.remotePath = mTaskEntity.remotePath;
         return new FtpThreadTask(mConstance, mListener, config);
       case AbsTaskEntity.HTTP:
         return new HttpThreadTask(mConstance, mListener, config);

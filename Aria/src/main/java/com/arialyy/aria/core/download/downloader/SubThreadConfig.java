@@ -2,6 +2,7 @@ package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import java.io.File;
+import org.apache.commons.net.ftp.FTPClient;
 
 /**
  * 子线程下载信息类
@@ -21,4 +22,7 @@ class SubThreadConfig {
   String CONFIG_FILE_PATH;
   DownloadTaskEntity DOWNLOAD_TASK_ENTITY;
   boolean IS_SUPPORT_BREAK_POINT = true;
+  FTPClient client;
+  //远程地址
+  String remotePath;
 }
