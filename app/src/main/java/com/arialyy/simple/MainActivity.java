@@ -25,6 +25,7 @@ import com.arialyy.simple.databinding.ActivityMainBinding;
 import com.arialyy.simple.download.DownloadActivity;
 import com.arialyy.simple.download.FtpDownloadActivity;
 import com.arialyy.simple.download.group.DownloadGroupActivity;
+import com.arialyy.simple.download.group.FTPDirDownloadActivity;
 import com.arialyy.simple.test.TestMutilTaskSysDownload;
 import com.arialyy.simple.upload.UploadActivity;
 
@@ -44,10 +45,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
     return R.layout.activity_main;
   }
 
-
-  @OnClick({R.id.download, R.id.upload, R.id.download_task_group, R.id.ftp})
-  public void funcation(View view){
-    switch (view.getId()){
+  @OnClick({ R.id.download, R.id.upload, R.id.download_task_group, R.id.ftp, R.id.ftp_dir })
+  public void funcation(View view) {
+    switch (view.getId()) {
       case R.id.download:
         startActivity(new Intent(this, DownloadActivity.class));
         break;
@@ -60,7 +60,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
       case R.id.ftp:
         startActivity(new Intent(this, FtpDownloadActivity.class));
         break;
+      case R.id.ftp_dir:
+        startActivity(new Intent(this, FTPDirDownloadActivity.class));
+        break;
     }
-
   }
 }

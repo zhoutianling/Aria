@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 
@@ -24,7 +25,8 @@ import com.arialyy.aria.orm.DbEntity;
  * ftp文件夹下载
  */
 public class FtpDirDownloadTarget
-    extends BaseGroupTarget<FtpDownloadTarget, DownloadGroupTaskEntity> {
+    extends BaseGroupTarget<FtpDirDownloadTarget, DownloadGroupTaskEntity> {
+  private final String TAG = "FtpDirDownloadTarget";
   private String serverIp, remotePath, mGroupName;
   private int port;
 
@@ -57,5 +59,45 @@ public class FtpDirDownloadTarget
       mTaskEntity.entity = getDownloadGroupEntity();
     }
     mEntity = mTaskEntity.entity;
+  }
+
+  /**
+   * 设置字符编码
+   */
+  public FtpDirDownloadTarget charSet(String charSet) {
+    if (TextUtils.isEmpty(charSet)) return this;
+    mTaskEntity.charSet = charSet;
+    return this;
+  }
+
+  /**
+   * ftp 用户登录信息
+   *
+   * @param userName ftp用户名
+   * @param password ftp用户密码
+   */
+  public FtpDirDownloadTarget login(String userName, String password) {
+    return login(userName, password, null);
+  }
+
+  /**
+   * ftp 用户登录信息
+   *
+   * @param userName ftp用户名
+   * @param password ftp用户密码
+   * @param account ftp账号
+   */
+  public FtpDirDownloadTarget login(String userName, String password, String account) {
+    if (TextUtils.isEmpty(userName)) {
+      Log.e(TAG, "用户名不能为null");
+      return this;
+    } else if (TextUtils.isEmpty(password)) {
+      Log.e(TAG, "密码不能为null");
+      return this;
+    }
+    mTaskEntity.userName = userName;
+    mTaskEntity.userPw = password;
+    mTaskEntity.account = account;
+    return this;
   }
 }

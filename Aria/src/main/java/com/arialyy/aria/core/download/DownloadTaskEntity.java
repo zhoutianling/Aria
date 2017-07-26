@@ -25,11 +25,6 @@ import com.arialyy.aria.orm.OneToOne;
  */
 public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
 
-  /**
-   * 账号和密码
-   */
-  @Ignore public String userName, userPw, account;
-
   @OneToOne(table = DownloadEntity.class, key = "downloadPath") public DownloadEntity entity;
 
   /**

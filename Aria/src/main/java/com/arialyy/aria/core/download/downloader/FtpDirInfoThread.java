@@ -15,16 +15,21 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import org.apache.commons.net.ftp.FTPFile;
 
 /**
  * Created by Aria.Lao on 2017/7/25.
- * 获取ftp文件信息
+ * 获取ftp文件夹信息
  */
-class FtpFileInfoThread extends AbsFtpInfoThread<DownloadEntity, DownloadTaskEntity> {
+class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGroupTaskEntity> {
 
-  FtpFileInfoThread(DownloadTaskEntity taskEntity, OnFileInfoCallback callback) {
+  FtpDirInfoThread(DownloadGroupTaskEntity taskEntity, OnFileInfoCallback callback) {
     super(taskEntity, callback);
+  }
+
+  @Override void handleFile(String remotePath, FTPFile ftpFile) {
+    super.handleFile(remotePath, ftpFile);
   }
 }

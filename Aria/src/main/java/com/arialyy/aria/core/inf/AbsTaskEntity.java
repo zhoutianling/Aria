@@ -40,6 +40,11 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   public String remotePath;
 
   /**
+   * 账号和密码
+   */
+  @Ignore public String userName, userPw, account;
+
+  /**
    * 请求类型
    * {@link AbsTaskEntity#HTTP}、{@link AbsTaskEntity#FTP}
    */
