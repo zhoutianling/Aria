@@ -15,20 +15,20 @@
  */
 package com.arialyy.aria.core.upload;
 
-import android.support.annotation.NonNull;
-import com.arialyy.aria.core.inf.AbsDownloadTarget;
+import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.inf.AbsUploadTarget;
-import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
-import java.util.regex.Pattern;
 
 /**
- * Created by lyy on 2017/2/28.
- * http 当文件上传
+ * Created by Aria.Lao on 2017/7/27.
+ * ftp单任务上传
  */
-public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, UploadTaskEntity> {
+public class FtpUploadTarget
+    extends AbsUploadTarget<FtpUploadTarget, UploadEntity, UploadTaskEntity> {
+  private final String TAG = "FtpUploadTarget";
 
-  UploadTarget(String filePath, String targetName) {
+  FtpUploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
     mTaskEntity = DbEntity.findFirst(UploadTaskEntity.class, "key=?", filePath);
     if (mTaskEntity == null) {
@@ -42,30 +42,33 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
   }
 
   /**
-   * 设置userAgent
+   * ftp 用户登录信息
+   *
+   * @param userName ftp用户名
+   * @param password ftp用户密码
    */
-  public UploadTarget setUserAngent(@NonNull String userAgent) {
-    mTaskEntity.userAgent = userAgent;
-    return this;
+  public FtpUploadTarget login(String userName, String password) {
+    return login(userName, password, null);
   }
 
   /**
-   * 设置服务器需要的附件key
+   * ftp 用户登录信息
    *
-   * @param attachment 附件key
+   * @param userName ftp用户名
+   * @param password ftp用户密码
+   * @param account ftp账号
    */
-  public UploadTarget setAttachment(@NonNull String attachment) {
-    mTaskEntity.attachment = attachment;
-    return this;
-  }
-
-  /**
-   * 设置上传文件类型
-   *
-   * @param contentType tip：multipart/form-data
-   */
-  public UploadTarget setContentType(String contentType) {
-    mTaskEntity.contentType = contentType;
+  public FtpUploadTarget login(String userName, String password, String account) {
+    if (TextUtils.isEmpty(userName)) {
+      Log.e(TAG, "用户名不能为null");
+      return this;
+    } else if (TextUtils.isEmpty(password)) {
+      Log.e(TAG, "密码不能为null");
+      return this;
+    }
+    mTaskEntity.userName = userName;
+    mTaskEntity.userPw = password;
+    mTaskEntity.account = account;
     return this;
   }
 }

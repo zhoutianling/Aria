@@ -15,7 +15,6 @@
  */
 package com.arialyy.aria.core.upload;
 
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.OneToOne;
 import java.util.HashMap;
@@ -26,7 +25,6 @@ import java.util.Map;
  * 上传任务实体
  */
 public class UploadTaskEntity extends AbsTaskEntity<UploadEntity> {
-  public String uploadUrl; //上传路径
   public String attachment;  //文件上传需要的key
   public String contentType = "multipart/form-data"; //上传的文件类型
   public String userAgent = "User-Agent";

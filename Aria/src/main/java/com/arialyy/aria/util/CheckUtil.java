@@ -78,6 +78,14 @@ public class CheckUtil {
   }
 
   /**
+   * 检测下载链接是否为null
+   */
+  public static void checkUploadUrl(String downloadUrl) {
+    if (TextUtils.isEmpty(downloadUrl)) throw new IllegalArgumentException("上传地址不能为null");
+  }
+
+
+  /**
    * 检测下载链接组是否为null
    */
   public static void checkDownloadUrls(List<String> urls) {

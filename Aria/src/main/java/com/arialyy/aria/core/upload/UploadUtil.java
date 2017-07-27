@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.upload;
 
 import android.util.Log;
+import com.arialyy.aria.core.upload.uploader.IUploadListener;
 import com.arialyy.aria.util.CheckUtil;
 import java.io.BufferedReader;
 import java.io.File;
@@ -80,7 +81,7 @@ final class UploadUtil implements Runnable {
     mListener.onPre();
     URL url;
     try {
-      url = new URL(mTaskEntity.uploadUrl);
+      url = new URL(mUploadEntity.getUploadUrl());
       mHttpConn = (HttpURLConnection) url.openConnection();
       mHttpConn.setUseCaches(false);
       mHttpConn.setDoOutput(true);

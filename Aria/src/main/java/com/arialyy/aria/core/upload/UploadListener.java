@@ -15,6 +15,8 @@
  */
 package com.arialyy.aria.core.upload;
 
+import com.arialyy.aria.core.upload.uploader.IUploadListener;
+
 /**
  * Created by lyy on 2017/2/23.
  */
