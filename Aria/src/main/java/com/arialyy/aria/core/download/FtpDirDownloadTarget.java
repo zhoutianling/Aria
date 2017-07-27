@@ -27,23 +27,22 @@ import com.arialyy.aria.orm.DbEntity;
 public class FtpDirDownloadTarget
     extends BaseGroupTarget<FtpDirDownloadTarget, DownloadGroupTaskEntity> {
   private final String TAG = "FtpDirDownloadTarget";
-  private String serverIp, remotePath, mGroupName;
+  private String serverIp, remotePath;
   private int port;
 
   FtpDirDownloadTarget(String url, String targetName) {
     init(url);
     String[] pp = url.split("/")[2].split(":");
-    this.serverIp = pp[0];
-    this.port = Integer.parseInt(pp[1]);
-    mTaskEntity.requestType = AbsTaskEntity.FTP;
+    mTargetName = targetName;
+    serverIp = pp[0];
+    port = Integer.parseInt(pp[1]);
+    mTaskEntity.requestType = AbsTaskEntity.FTP_DIR;
+    mTaskEntity.serverIp = serverIp;
+    mTaskEntity.port = port;
     remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
     if (TextUtils.isEmpty(remotePath)) {
       throw new NullPointerException("ftp服务器地址不能为null");
     }
-    mTargetName = targetName;
-    int lastIndex = url.lastIndexOf("/");
-    mTaskEntity.remotePath = remotePath;
-    mEntity.setDirPath(url.substring(lastIndex + 1, url.length()));
   }
 
   private void init(String key) {

@@ -32,15 +32,15 @@ abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends Abs
     extends AbsDownloadTarget<TARGET, DownloadGroupEntity, TASK_ENTITY> {
 
   List<String> mUrls = new ArrayList<>();
+  String mGroupName;
   /**
    * 子任务文件名
    */
-  List<String> mSubTaskFileName = new ArrayList<>();
-  String mGroupName;
+  private List<String> mSubTaskFileName = new ArrayList<>();
   /**
    * 是否已经设置了文件路径
    */
-  boolean isSetDirPathed = false;
+  private boolean isSetDirPathed = false;
 
   /**
    * 查询任务组实体，如果数据库不存在该实体，则新创建一个新的任务组实体

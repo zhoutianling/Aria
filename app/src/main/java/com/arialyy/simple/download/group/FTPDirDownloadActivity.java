@@ -21,7 +21,9 @@ import android.view.View;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
@@ -41,19 +43,18 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
     super.init(savedInstanceState);
     Aria.download(this).register();
     setTitle("FTP文件夹下载");
-    //mUrls = getModule(GroupModule.class).getUrls();
-    //DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(mUrls);
-    //if (entity != null && entity.getEntity() != null) {
-    //  DownloadGroupEntity groupEntity = entity.getEntity();
-    //  mChildList.addData(groupEntity.getSubTask());
-    //  getBinding().setFileSize(groupEntity.getConvertFileSize());
-    //  if (groupEntity.getFileSize() == 0) {
-    //    getBinding().setProgress(0);
-    //  } else {
-    //    getBinding().setProgress(groupEntity.isComplete() ? 100
-    //        : (int) (groupEntity.getCurrentProgress() * 100 / groupEntity.getFileSize()));
-    //  }
-    //}
+    DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(dir);
+    if (entity != null && entity.getEntity() != null) {
+      DownloadGroupEntity groupEntity = entity.getEntity();
+      mChildList.addData(groupEntity.getSubTask());
+      getBinding().setFileSize(groupEntity.getConvertFileSize());
+      if (groupEntity.getFileSize() == 0) {
+        getBinding().setProgress(0);
+      } else {
+        getBinding().setProgress(groupEntity.isComplete() ? 100
+            : (int) (groupEntity.getCurrentProgress() * 100 / groupEntity.getFileSize()));
+      }
+    }
   }
 
   @Override protected int setLayoutId() {

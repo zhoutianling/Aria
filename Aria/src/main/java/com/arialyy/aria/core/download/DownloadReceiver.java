@@ -186,6 +186,15 @@ public class DownloadReceiver extends AbsReceiver {
   }
 
   /**
+   * 通过任务组key，获取任务组实体
+   * 如果是http，key为所有子任务下载地址拼接后取md5
+   * 如果是ftp，key为ftp服务器的文件夹路径
+   */
+  public DownloadGroupTaskEntity getDownloadGroupTask(String key) {
+    return DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", key);
+  }
+
+  /**
    * 下载任务是否存在
    */
   @Override public boolean taskExists(String downloadUrl) {

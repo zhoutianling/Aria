@@ -51,10 +51,13 @@ class FtpThreadTask extends AbsThreadTask {
           + "，结束位置："
           + mConfig.END_LOCATION
           + "】");
-      String[] temp = mEntity.getDownloadUrl().split("/");
-      String[] pp = temp[2].split(":");
+      String url = mEntity.getDownloadUrl();
+      String[] pp = url.split("/")[2].split(":");
+      String serverIp = pp[0];
+      int port = Integer.parseInt(pp[1]);
+      String remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
       client = new FTPClient();
-      client.connect(pp[0], Integer.parseInt(pp[1]));
+      client.connect(serverIp, port);
       if (!TextUtils.isEmpty(mTaskEntity.account)) {
         client.login(mTaskEntity.userName, mTaskEntity.userPw);
       } else {
@@ -66,12 +69,27 @@ class FtpThreadTask extends AbsThreadTask {
         failDownload(STATE.CURRENT_LOCATION, "无法连接到ftp服务器，错误码为：" + reply, null);
         return;
       }
+      String charSet = "UTF-8";
+      // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
+      if (!TextUtils.isEmpty(mTaskEntity.charSet) || !FTPReply.isPositiveCompletion(
+          client.sendCommand("OPTS UTF8", "ON"))) {
+        charSet = mTaskEntity.charSet;
+      }
+      client.setControlEncoding(charSet);
       client.setDataTimeout(STATE.READ_TIME_OUT);
       client.enterLocalPassiveMode();
       client.setFileType(FTP.BINARY_FILE_TYPE);
       client.setRestartOffset(mConfig.START_LOCATION);
       client.allocate(mBufSize);
-      is = client.retrieveFileStream(mConfig.remotePath);
+      is = client.retrieveFileStream(
+          new String(remotePath.getBytes(charSet), ConnectionHelp.SERVER_CHARSET));
+      //发送第二次指令时，还需要再做一次判断
+      reply = client.getReplyCode();
+      if (!FTPReply.isPositivePreliminary(reply)) {
+        client.disconnect();
+        failDownload(mChildCurrentLocation, "获取文件信息错误，错误码为：" + reply, null);
+        return;
+      }
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
       file.seek(mConfig.START_LOCATION);
       byte[] buffer = new byte[mBufSize];

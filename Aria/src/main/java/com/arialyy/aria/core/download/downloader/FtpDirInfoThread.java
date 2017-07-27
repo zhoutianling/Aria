@@ -15,8 +15,12 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.util.CommonUtil;
+import java.nio.charset.Charset;
+import java.util.ArrayList;
 import org.apache.commons.net.ftp.FTPFile;
 
 /**
@@ -24,6 +28,7 @@ import org.apache.commons.net.ftp.FTPFile;
  * 获取ftp文件夹信息
  */
 class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGroupTaskEntity> {
+  private long mSize = 0;
 
   FtpDirInfoThread(DownloadGroupTaskEntity taskEntity, OnFileInfoCallback callback) {
     super(taskEntity, callback);
@@ -31,5 +36,33 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
 
   @Override void handleFile(String remotePath, FTPFile ftpFile) {
     super.handleFile(remotePath, ftpFile);
+    mSize += ftpFile.getSize();
+    addEntity(remotePath, ftpFile);
+  }
+
+  @Override protected void onPreComplete() {
+    super.onPreComplete();
+    mEntity.setFileSize(mSize);
+  }
+
+  private void addEntity(String remotePath, FTPFile ftpFile) {
+    DownloadEntity entity = new DownloadEntity();
+    entity.setDownloadUrl("ftp://" + mTaskEntity.serverIp + ":" + mTaskEntity.port + remotePath);
+    entity.setDownloadPath(mEntity.getDirPath() + "/" + remotePath);
+    int lastIndex = remotePath.lastIndexOf("/");
+    String fileName = lastIndex < 0 ? CommonUtil.keyToHashKey(remotePath)
+        : remotePath.substring(lastIndex + 1, remotePath.length());
+    entity.setFileName(new String(fileName.getBytes(), Charset.forName(mTaskEntity.charSet)));
+    entity.setGroupName(mEntity.getGroupName());
+    entity.setGroupChild(true);
+    entity.setFileSize(ftpFile.getSize());
+    entity.insert();
+    if (mEntity.getUrls() == null) {
+      mEntity.setUrls(new ArrayList<String>());
+    }
+    if (mEntity.getSubTask() == null) {
+      mEntity.setSubTasks(new ArrayList<DownloadEntity>());
+    }
+    mEntity.getSubTask().add(entity);
   }
 }

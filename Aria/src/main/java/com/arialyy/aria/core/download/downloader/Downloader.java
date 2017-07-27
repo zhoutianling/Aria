@@ -96,8 +96,10 @@ class Downloader implements Runnable, IDownloadUtil {
       mConstance.THREAD_NUM = mThreadNum;
       handleNoSupportBreakpointDownload();
     } else {
-      mThreadNum = isNewTask ? (mEntity.getFileSize() <= SUB_LEN ? 1
-          : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum()) : mRealThreadNum;
+      mThreadNum = isNewTask ? (
+          mEntity.getFileSize() <= SUB_LEN || mTaskEntity.requestType == AbsTaskEntity.FTP_DIR ? 1
+              : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum())
+          : mRealThreadNum;
       mConstance.THREAD_NUM = mThreadNum;
       mFixedThreadPool = Executors.newFixedThreadPool(mThreadNum);
       handleBreakpoint();
@@ -416,7 +418,7 @@ class Downloader implements Runnable, IDownloadUtil {
   private AbsThreadTask createThreadTask(SubThreadConfig config) {
     switch (mTaskEntity.requestType) {
       case AbsTaskEntity.FTP:
-        config.remotePath = mTaskEntity.remotePath;
+      case AbsTaskEntity.FTP_DIR:
         return new FtpThreadTask(mConstance, mListener, config);
       case AbsTaskEntity.HTTP:
         return new HttpThreadTask(mConstance, mListener, config);

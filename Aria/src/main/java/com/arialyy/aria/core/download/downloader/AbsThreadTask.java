@@ -154,6 +154,8 @@ abstract class AbsThreadTask implements Runnable {
         STATE.isStop = true;
         if (ex != null) {
           Log.e(TAG, msg + "\n" + CommonUtil.getPrintException(ex));
+        }else {
+          Log.e(TAG, msg);
         }
         if (mConfig.IS_SUPPORT_BREAK_POINT) {
           writeConfig(false, currentLocation);

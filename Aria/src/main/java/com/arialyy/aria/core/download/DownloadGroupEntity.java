@@ -47,7 +47,7 @@ public class DownloadGroupEntity extends AbsGroupEntity {
     return subtask;
   }
 
-  void setSubTasks(List<DownloadEntity> subTasks) {
+  public void setSubTasks(List<DownloadEntity> subTasks) {
     this.subtask = subTasks;
   }
 
@@ -63,7 +63,7 @@ public class DownloadGroupEntity extends AbsGroupEntity {
     return urls;
   }
 
-  void setUrls(List<String> urls) {
+  public void setUrls(List<String> urls) {
     this.urls = urls;
   }
 

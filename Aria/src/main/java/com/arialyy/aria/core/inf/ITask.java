@@ -33,63 +33,63 @@ public interface ITask<ENTITY extends AbsEntity> {
   /**
    * 唯一标识符，DownloadTask 为下载地址，UploadTask 为文件路径
    */
-  public String getKey();
+  String getKey();
 
   /**
    * 任务是否正在执行
    *
    * @return true，正在执行；
    */
-  public boolean isRunning();
+  boolean isRunning();
 
   /**
    * 获取信息实体
    */
-  public ENTITY getEntity();
+  ENTITY getEntity();
 
-  public void start();
+  void start();
 
-  public void stop();
+  void stop();
 
-  public void cancel();
+  void cancel();
 
   /**
    * 原始byte速度
    */
-  public long getSpeed();
+  long getSpeed();
 
   /**
    * 转换单位后的速度
    */
-  public String getConvertSpeed();
+  String getConvertSpeed();
 
   /**
    * 获取百分比进度
    */
-  public int getPercent();
+  int getPercent();
 
   /**
    * 原始文件byte长度
    */
-  public long getFileSize();
+  long getFileSize();
 
   /**
    * 转换单位后的文件长度
    */
-  public String getConvertFileSize();
+  String getConvertFileSize();
 
   /**
    * 获取当前进度
    */
-  public long getCurrentProgress();
+  long getCurrentProgress();
 
   /**
    * 获取单位转换后的进度
    *
    * @return 返回 3mb
    */
-  public String getConvertCurrentProgress();
+  String getConvertCurrentProgress();
 
-  public void setTargetName(String targetName);
+  void setTargetName(String targetName);
 
 }

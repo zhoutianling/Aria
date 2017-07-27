@@ -22,7 +22,4 @@ class SubThreadConfig {
   String CONFIG_FILE_PATH;
   DownloadTaskEntity DOWNLOAD_TASK_ENTITY;
   boolean IS_SUPPORT_BREAK_POINT = true;
-  FTPClient client;
-  //远程地址
-  String remotePath;
 }

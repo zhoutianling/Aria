@@ -42,7 +42,8 @@ public class FtpDownloadTarget extends DownloadTarget {
       throw new NullPointerException("ftp服务器地址不能为null");
     }
     int lastIndex = url.lastIndexOf("/");
-    mTaskEntity.remotePath = remotePath;
+    mTaskEntity.serverIp = serverIp;
+    mTaskEntity.port = port;
     mEntity.setFileName(url.substring(lastIndex + 1, url.length()));
   }
 

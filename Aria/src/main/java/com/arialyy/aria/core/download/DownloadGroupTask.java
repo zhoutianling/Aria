@@ -18,8 +18,10 @@ package com.arialyy.aria.core.download;
 import android.os.Handler;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.downloader.DownloadGroupUtil;
+import com.arialyy.aria.core.download.downloader.FtpDirDownloadUtil;
 import com.arialyy.aria.core.download.downloader.IDownloadUtil;
 import com.arialyy.aria.core.inf.AbsGroupTask;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CheckUtil;
 
@@ -38,7 +40,14 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
     mListener = new DownloadGroupListener(this, mOutHandler);
-    mUtil = new DownloadGroupUtil(mListener, mTaskEntity);
+    switch (taskEntity.requestType) {
+      case AbsTaskEntity.HTTP:
+        mUtil = new DownloadGroupUtil(mListener, mTaskEntity);
+        break;
+      case  AbsTaskEntity.FTP_DIR:
+        mUtil = new FtpDirDownloadUtil(mListener, mTaskEntity);
+        break;
+    }
   }
 
   @Override public boolean isRunning() {

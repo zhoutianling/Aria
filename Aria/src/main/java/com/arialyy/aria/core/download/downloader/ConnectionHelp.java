@@ -26,12 +26,18 @@ import java.util.Set;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
+import org.apache.commons.net.ftp.FTPClient;
 
 /**
  * Created by lyy on 2017/1/18.
  * 链接帮助类
  */
 class ConnectionHelp {
+  /**
+   * FTP 服务器编码
+   */
+  static String SERVER_CHARSET = "ISO-8859-1";
+
   /**
    * 处理链接
    *

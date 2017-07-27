@@ -36,7 +36,8 @@ import java.io.File;
  */
 public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding> {
   //private final String URL = "ftp://172.18.104.129:21/haha/large.rar";
-  private final String URL = "ftp://172.18.104.129:21/cd.mp3";
+  //private final String URL = "ftp://172.18.104.129:21/haha/large.rar";
+  private final String URL = "ftp://172.18.104.129:21/haha/很大的文件_v100.rar";
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
@@ -61,7 +62,6 @@ public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding
             .loadFtp(URL)
             .login("lao", "123456")
             .setDownloadPath("/mnt/sdcard/")
-            .charSet("gbk")
             .start();
         break;
       case R.id.stop:

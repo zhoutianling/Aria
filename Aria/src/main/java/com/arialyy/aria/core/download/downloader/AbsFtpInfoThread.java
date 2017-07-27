@@ -19,7 +19,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.aria.core.inf.AbsGroupEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.IOException;
@@ -36,11 +35,10 @@ abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
     implements Runnable {
 
   private final String TAG = "HttpFileInfoThread";
-  private ENTITY mEntity;
-  private TASK_ENTITY mTaskEntity;
+  protected ENTITY mEntity;
+  protected TASK_ENTITY mTaskEntity;
   private int mConnectTimeOut;
   private OnFileInfoCallback mCallback;
-  private boolean isDir = false;
 
   AbsFtpInfoThread(TASK_ENTITY taskEntity, OnFileInfoCallback callback) {
     mTaskEntity = taskEntity;
@@ -48,16 +46,18 @@ abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
     mConnectTimeOut =
         AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getConnectTimeOut();
     mCallback = callback;
-    isDir = mEntity instanceof AbsGroupEntity;
   }
 
   @Override public void run() {
     FTPClient client = null;
     try {
+      String url = mTaskEntity.getEntity().getKey();
+      String[] pp = url.split("/")[2].split(":");
+      String serverIp = pp[0];
+      int port = Integer.parseInt(pp[1]);
+      String remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
       client = new FTPClient();
-      String[] pp = mEntity.getKey().split("/")[2].split(":");
-      String fileName = mTaskEntity.remotePath;
-      client.connect(pp[0], Integer.parseInt(pp[1]));
+      client.connect(serverIp, port);
       if (!TextUtils.isEmpty(mTaskEntity.account)) {
         client.login(mTaskEntity.userName, mTaskEntity.userPw);
       } else {
@@ -70,13 +70,27 @@ abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
         return;
       }
       client.setDataTimeout(mConnectTimeOut);
+      String charSet = "UTF-8";
+      // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
+      if (!TextUtils.isEmpty(mTaskEntity.charSet) || !FTPReply.isPositiveCompletion(
+          client.sendCommand("OPTS UTF8", "ON"))) {
+        charSet = mTaskEntity.charSet;
+      }
+      client.setControlEncoding(charSet);
       client.enterLocalPassiveMode();
       client.setFileType(FTP.BINARY_FILE_TYPE);
       FTPFile[] files =
-          client.listFiles(CommonUtil.strCharSetConvert(fileName, mTaskEntity.charSet));
-      long size = getFileSize(files, client, fileName);
+          client.listFiles(new String(remotePath.getBytes(charSet), ConnectionHelp.SERVER_CHARSET));
+      long size = getFileSize(files, client, remotePath);
       mEntity.setFileSize(size);
+      reply = client.getReplyCode();
+      if (!FTPReply.isPositiveCompletion(reply)) {
+        client.disconnect();
+        failDownload("获取文件信息错误，错误码为：" + reply);
+        return;
+      }
       mTaskEntity.code = reply;
+      onPreComplete();
       mEntity.update();
       mTaskEntity.update();
       mCallback.onComplete(mEntity.getKey(), reply);
@@ -85,13 +99,20 @@ abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
     } finally {
       if (client != null) {
         try {
-          client.logout();
           client.disconnect();
         } catch (IOException e) {
           e.printStackTrace();
         }
       }
     }
+  }
+
+  void start() {
+    new Thread(this).start();
+  }
+
+  protected void onPreComplete() {
+
   }
 
   /**
@@ -105,6 +126,7 @@ abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
     for (FTPFile file : files) {
       if (file.isFile()) {
         size += file.getSize();
+        handleFile(path + file.getName(), file);
       } else {
         size += getFileSize(client.listFiles(
             CommonUtil.strCharSetConvert(path + file.getName(), mTaskEntity.charSet)), client,
