@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.arialyy.aria.core.download.downloader;
-
-import com.arialyy.aria.core.inf.IEventListener;
+package com.arialyy.aria.core.common;
 
 /**
- * 下载监听
+ * Created by lyy on 2017/1/23.
+ * url请求方式，目前支持GET、POST
  */
-public interface IDownloadListener extends IEventListener {
+public enum RequestEnum {
+  GET("GET"), POST("POST");
 
-  /**
-   * 支持断点回调
-   *
-   * @param support true,支持；false 不支持
-   */
-  void supportBreakpoint(boolean support);
+  public String name;
+
+  RequestEnum(String name) {
+    this.name = name;
+  }
+
 }

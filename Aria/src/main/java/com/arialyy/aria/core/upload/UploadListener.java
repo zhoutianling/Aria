@@ -15,17 +15,13 @@
  */
 package com.arialyy.aria.core.upload;
 
-import com.arialyy.aria.core.upload.uploader.IUploadListener;
+import com.arialyy.aria.core.inf.IUploadListener;
 
 /**
  * Created by lyy on 2017/2/23.
  */
 class UploadListener implements IUploadListener {
   @Override public void onPre() {
-
-  }
-
-  @Override public void onPostPre(long fileSize) {
 
   }
 
@@ -54,6 +50,10 @@ class UploadListener implements IUploadListener {
   }
 
   @Override public void onFail() {
+
+  }
+
+  @Override public void onComplete(int state) {
 
   }
 }

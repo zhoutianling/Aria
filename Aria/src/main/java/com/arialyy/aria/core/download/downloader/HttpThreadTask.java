@@ -16,6 +16,12 @@
 package com.arialyy.aria.core.download.downloader;
 
 import android.util.Log;
+import com.arialyy.aria.core.common.AbsThreadTask;
+import com.arialyy.aria.core.common.StateConstance;
+import com.arialyy.aria.core.common.SubThreadConfig;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import java.io.File;
 import java.io.IOException;
@@ -28,11 +34,11 @@ import java.net.URL;
  * Created by lyy on 2017/1/18.
  * 下载线程
  */
-final class HttpThreadTask extends AbsThreadTask {
+final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEntity> {
   private final String TAG = "HttpThreadTask";
 
   HttpThreadTask(StateConstance constance, IDownloadListener listener,
-      SubThreadConfig downloadInfo) {
+      SubThreadConfig<DownloadTaskEntity> downloadInfo) {
     super(constance, listener, downloadInfo);
   }
 
@@ -41,9 +47,9 @@ final class HttpThreadTask extends AbsThreadTask {
     InputStream is = null;
     BufferedRandomAccessFile file = null;
     try {
-      URL url = new URL(mConfig.DOWNLOAD_URL);
+      URL url = new URL(mConfig.URL);
       conn = ConnectionHelp.handleConnection(url);
-      if (mConfig.IS_SUPPORT_BREAK_POINT) {
+      if (mConfig.SUPPORT_BP) {
         Log.d(TAG, "任务【"
             + mConfig.TEMP_FILE.getName()
             + "】线程__"
@@ -59,7 +65,7 @@ final class HttpThreadTask extends AbsThreadTask {
       } else {
         Log.w(TAG, "该下载不支持断点");
       }
-      conn = ConnectionHelp.setConnectParam(mConfig.DOWNLOAD_TASK_ENTITY, conn);
+      conn = ConnectionHelp.setConnectParam(mConfig.TASK_ENTITY, conn);
       conn.setConnectTimeout(STATE.CONNECT_TIME_OUT);
       conn.setReadTimeout(STATE.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
       is = conn.getInputStream();
@@ -80,7 +86,7 @@ final class HttpThreadTask extends AbsThreadTask {
       }
       if (STATE.isCancel || STATE.isStop) return;
       //支持断点的处理
-      if (mConfig.IS_SUPPORT_BREAK_POINT) {
+      if (mConfig.SUPPORT_BP) {
         Log.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
         writeConfig(true, 1);
         STATE.COMPLETE_THREAD_NUM++;
@@ -89,20 +95,20 @@ final class HttpThreadTask extends AbsThreadTask {
           if (configFile.exists()) {
             configFile.delete();
           }
-          STATE.isDownloading = false;
+          STATE.isRunning = false;
           mListener.onComplete();
         }
       } else {
         Log.i(TAG, "下载任务完成");
-        STATE.isDownloading = false;
+        STATE.isRunning = false;
         mListener.onComplete();
       }
     } catch (MalformedURLException e) {
-      failDownload(mChildCurrentLocation, "下载链接异常", e);
+      fail(mChildCurrentLocation, "下载链接异常", e);
     } catch (IOException e) {
-      failDownload(mChildCurrentLocation, "下载失败【" + mConfig.DOWNLOAD_URL + "】", e);
+      fail(mChildCurrentLocation, "下载失败【" + mConfig.URL + "】", e);
     } catch (Exception e) {
-      failDownload(mChildCurrentLocation, "获取流失败", e);
+      fail(mChildCurrentLocation, "获取流失败", e);
     } finally {
       try {
         if (file != null) {

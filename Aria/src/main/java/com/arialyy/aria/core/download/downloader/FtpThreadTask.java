@@ -17,6 +17,12 @@ package com.arialyy.aria.core.download.downloader;
 
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.common.AbsThreadTask;
+import com.arialyy.aria.core.common.StateConstance;
+import com.arialyy.aria.core.common.SubThreadConfig;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +35,11 @@ import org.apache.commons.net.ftp.FTPReply;
  * Created by Aria.Lao on 2017/7/24.
  * Ftp下载任务
  */
-class FtpThreadTask extends AbsThreadTask {
+class FtpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEntity> {
   private final String TAG = "FtpThreadTask";
 
   FtpThreadTask(StateConstance constance, IDownloadListener listener,
-      SubThreadConfig downloadInfo) {
+      SubThreadConfig<DownloadTaskEntity> downloadInfo) {
     super(constance, listener, downloadInfo);
   }
 
@@ -51,7 +57,7 @@ class FtpThreadTask extends AbsThreadTask {
           + "，结束位置："
           + mConfig.END_LOCATION
           + "】");
-      String url = mEntity.getDownloadUrl();
+      String url = mEntity.getUrl();
       String[] pp = url.split("/")[2].split(":");
       String serverIp = pp[0];
       int port = Integer.parseInt(pp[1]);
@@ -66,7 +72,7 @@ class FtpThreadTask extends AbsThreadTask {
       int reply = client.getReplyCode();
       if (!FTPReply.isPositiveCompletion(reply)) {
         client.disconnect();
-        failDownload(STATE.CURRENT_LOCATION, "无法连接到ftp服务器，错误码为：" + reply, null);
+        fail(STATE.CURRENT_LOCATION, "无法连接到ftp服务器，错误码为：" + reply, null);
         return;
       }
       String charSet = "UTF-8";
@@ -82,12 +88,12 @@ class FtpThreadTask extends AbsThreadTask {
       client.setRestartOffset(mConfig.START_LOCATION);
       client.allocate(mBufSize);
       is = client.retrieveFileStream(
-          new String(remotePath.getBytes(charSet), ConnectionHelp.SERVER_CHARSET));
+          new String(remotePath.getBytes(charSet), SERVER_CHARSET));
       //发送第二次指令时，还需要再做一次判断
       reply = client.getReplyCode();
       if (!FTPReply.isPositivePreliminary(reply)) {
         client.disconnect();
-        failDownload(mChildCurrentLocation, "获取文件信息错误，错误码为：" + reply, null);
+        fail(mChildCurrentLocation, "获取文件信息错误，错误码为：" + reply, null);
         return;
       }
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
@@ -119,13 +125,13 @@ class FtpThreadTask extends AbsThreadTask {
         if (configFile.exists()) {
           configFile.delete();
         }
-        STATE.isDownloading = false;
+        STATE.isRunning = false;
         mListener.onComplete();
       }
     } catch (IOException e) {
-      failDownload(mChildCurrentLocation, "下载失败【" + mConfig.DOWNLOAD_URL + "】", e);
+      fail(mChildCurrentLocation, "下载失败【" + mConfig.URL + "】", e);
     } catch (Exception e) {
-      failDownload(mChildCurrentLocation, "获取流失败", e);
+      fail(mChildCurrentLocation, "获取流失败", e);
     } finally {
       try {
         if (file != null) {

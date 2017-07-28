@@ -32,17 +32,17 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
   @Override protected void onStart() {
     super.onStart();
     if (mTaskEntity.getEntity().getFileSize() > 1) {
-      start();
+      startDownload();
     } else {
       new FtpDirInfoThread(mTaskEntity, new OnFileInfoCallback() {
         @Override public void onComplete(String url, int code) {
           if (code >= 200 && code < 300) {
             mTotalSize = mTaskEntity.getEntity().getFileSize();
             for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
-              mExeMap.put(entity.getDownloadUrl(), createChildDownloadTask(entity));
+              mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
             }
             mActualTaskNum = mTaskEntity.entity.getSubTask().size();
-            start();
+            startDownload();
           }
         }
 
@@ -53,7 +53,7 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
     }
   }
 
-  private void start() {
+  private void startDownload() {
     int i = 0;
     Set<String> keys = mExeMap.keySet();
     for (String key : keys) {

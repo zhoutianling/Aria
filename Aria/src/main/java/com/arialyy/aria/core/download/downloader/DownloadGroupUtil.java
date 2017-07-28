@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download.downloader;
 
 import android.util.SparseArray;
+import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
@@ -27,7 +28,7 @@ import java.util.concurrent.Executors;
  * Created by AriaL on 2017/6/30.
  * 任务组下载工具
  */
-public class DownloadGroupUtil extends AbsGroupUtil implements IDownloadUtil {
+public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   private final String TAG = "DownloadGroupUtil";
   private ExecutorService mInfoPool;
 

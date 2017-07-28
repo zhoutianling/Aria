@@ -24,6 +24,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.exception.FileException;
+import java.io.File;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -108,6 +109,8 @@ public class CheckUtil {
    */
   public static void checkUploadPath(String uploadPath) {
     if (TextUtils.isEmpty(uploadPath)) throw new IllegalArgumentException("上传地址不能为null");
+    File file = new File(uploadPath);
+    if (!file.exists()) throw new IllegalArgumentException("上传文件不存在");
   }
 
   /**
@@ -133,7 +136,7 @@ public class CheckUtil {
       DownloadEntity entity1 = ((DownloadTaskEntity) entity).getEntity();
       if (entity1 == null) {
         Log.e(TAG, "下载实体不能为空");
-      } else if (checkType && TextUtils.isEmpty(entity1.getDownloadUrl())) {
+      } else if (checkType && TextUtils.isEmpty(entity1.getUrl())) {
         Log.e(TAG, "下载链接不能为空");
       } else if (checkType && TextUtils.isEmpty(entity1.getDownloadPath())) {
         Log.e(TAG, "保存路径不能为空");
@@ -175,7 +178,7 @@ public class CheckUtil {
   private static void checkDownloadTaskEntity(DownloadEntity entity) {
     if (entity == null) {
       throw new NullPointerException("下载实体不能为空");
-    } else if (TextUtils.isEmpty(entity.getDownloadUrl())) {
+    } else if (TextUtils.isEmpty(entity.getUrl())) {
       throw new IllegalArgumentException("下载链接不能为空");
     } else if (TextUtils.isEmpty(entity.getFileName())) {
       throw new FileException("文件名不能为null");

@@ -33,10 +33,6 @@ import org.apache.commons.net.ftp.FTPClient;
  * 链接帮助类
  */
 class ConnectionHelp {
-  /**
-   * FTP 服务器编码
-   */
-  static String SERVER_CHARSET = "ISO-8859-1";
 
   /**
    * 处理链接

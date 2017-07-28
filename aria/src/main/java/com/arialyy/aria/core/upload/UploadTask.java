@@ -22,6 +22,7 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
+import com.arialyy.aria.core.upload.uploader.SimpleHttpUploadUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.ref.WeakReference;
 
@@ -32,14 +33,14 @@ import java.lang.ref.WeakReference;
 public class UploadTask extends AbsNormalTask<UploadEntity> {
   private static final String TAG = "UploadTask";
 
-  private UploadUtil mUtil;
+  private SimpleHttpUploadUtil mUtil;
   private UListener mListener;
 
   private UploadTask(UploadTaskEntity taskEntity, Handler outHandler) {
     mOutHandler = outHandler;
     mEntity = taskEntity.getEntity();
     mListener = new UListener(mOutHandler, this);
-    mUtil = new UploadUtil(taskEntity, mListener);
+    mUtil = new SimpleHttpUploadUtil(taskEntity, mListener);
   }
 
   @Override public String getKey() {
@@ -62,7 +63,15 @@ public class UploadTask extends AbsNormalTask<UploadEntity> {
   }
 
   @Override public void stop() {
-
+    if (mUtil.isRunning()) {
+      mUtil.stop();
+    } else {
+      mEntity.setState(IEntity.STATE_STOP);
+      mEntity.update();
+      if (mOutHandler != null) {
+        mOutHandler.obtainMessage(ISchedulers.STOP, this).sendToTarget();
+      }
+    }
   }
 
   @Override public void cancel() {
@@ -100,14 +109,6 @@ public class UploadTask extends AbsNormalTask<UploadEntity> {
     @Override public void onPre() {
       sendInState2Target(ISchedulers.PRE);
       saveData(IEntity.STATE_PRE, -1);
-    }
-
-    @Override public void onPostPre(long fileSize) {
-      super.onPostPre(fileSize);
-      entity.setFileSize(fileSize);
-      entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
-      sendInState2Target(ISchedulers.POST_PRE);
-      saveData(IEntity.STATE_POST_PRE, 0);
     }
 
     @Override public void onStart(long startLocation) {

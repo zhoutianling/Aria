@@ -16,9 +16,11 @@
 package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
@@ -36,7 +38,7 @@ import java.util.concurrent.Executors;
  * Created by AriaL on 2017/6/30.
  * 任务组核心逻辑
  */
-abstract class AbsGroupUtil implements IDownloadUtil {
+abstract class AbsGroupUtil implements IUtil {
   private final String TAG = "DownloadGroupUtil";
   /**
    * 任务组所有任务总大小
@@ -90,7 +92,7 @@ abstract class AbsGroupUtil implements IDownloadUtil {
         DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mTaskEntity.key);
     if (tasks != null && !tasks.isEmpty()) {
       for (DownloadTaskEntity te : tasks) {
-        mTasksMap.put(te.getEntity().getDownloadUrl(), te);
+        mTasksMap.put(te.getEntity().getUrl(), te);
       }
     }
     for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
@@ -100,7 +102,7 @@ abstract class AbsGroupUtil implements IDownloadUtil {
         mInitNum++;
         mCurrentLocation += entity.getFileSize();
       } else {
-        mExeMap.put(entity.getDownloadUrl(), createChildDownloadTask(entity));
+        mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
         mCurrentLocation += entity.getCurrentProgress();
         mActualTaskNum++;
       }
@@ -116,11 +118,11 @@ abstract class AbsGroupUtil implements IDownloadUtil {
     return mCurrentLocation;
   }
 
-  @Override public boolean isDownloading() {
+  @Override public boolean isRunning() {
     return isRunning;
   }
 
-  @Override public void cancelDownload() {
+  @Override public void cancel() {
     closeTimer(false);
     mListener.onCancel();
     onCancel();
@@ -132,7 +134,7 @@ abstract class AbsGroupUtil implements IDownloadUtil {
     for (String key : keys) {
       Downloader dt = mDownloaderMap.get(key);
       if (dt != null) {
-        dt.cancelDownload();
+        dt.cancel();
       }
     }
     delDownloadInfo();
@@ -155,7 +157,7 @@ abstract class AbsGroupUtil implements IDownloadUtil {
     }
   }
 
-  @Override public void stopDownload() {
+  @Override public void stop() {
     closeTimer(false);
     mListener.onStop(mCurrentLocation);
     onStop();
@@ -167,7 +169,7 @@ abstract class AbsGroupUtil implements IDownloadUtil {
     for (String key : keys) {
       Downloader dt = mDownloaderMap.get(key);
       if (dt != null) {
-        dt.stopDownload();
+        dt.stop();
       }
     }
   }
@@ -176,7 +178,7 @@ abstract class AbsGroupUtil implements IDownloadUtil {
 
   }
 
-  @Override public void startDownload() {
+  @Override public void start() {
     isRunning = true;
     mFailNum = 0;
     mListener.onPre();
@@ -187,8 +189,8 @@ abstract class AbsGroupUtil implements IDownloadUtil {
 
   }
 
-  @Override public void resumeDownload() {
-    startDownload();
+  @Override public void resume() {
+    start();
     mListener.onResume(mCurrentLocation);
   }
 
@@ -229,7 +231,7 @@ abstract class AbsGroupUtil implements IDownloadUtil {
   void startChildDownload(DownloadTaskEntity taskEntity) {
     ChildDownloadListener listener = new ChildDownloadListener(taskEntity);
     Downloader dt = new Downloader(listener, taskEntity);
-    mDownloaderMap.put(taskEntity.getEntity().getDownloadUrl(), dt);
+    mDownloaderMap.put(taskEntity.getEntity().getUrl(), dt);
     if (mExePool.isShutdown()) return;
     mExePool.execute(dt);
   }
@@ -238,7 +240,7 @@ abstract class AbsGroupUtil implements IDownloadUtil {
    * 创建子任务下载信息
    */
   DownloadTaskEntity createChildDownloadTask(DownloadEntity entity) {
-    DownloadTaskEntity taskEntity = mTasksMap.get(entity.getDownloadUrl());
+    DownloadTaskEntity taskEntity = mTasksMap.get(entity.getUrl());
     if (taskEntity != null) {
       taskEntity.entity = entity;
       //ftp登录的
@@ -367,8 +369,8 @@ abstract class AbsGroupUtil implements IDownloadUtil {
       Timer timer = new Timer();
       timer.schedule(new TimerTask() {
         @Override public void run() {
-          Downloader dt = mDownloaderMap.get(entity.getDownloadUrl());
-          dt.startDownload();
+          Downloader dt = mDownloaderMap.get(entity.getUrl());
+          dt.start();
         }
       }, 3000);
     }

@@ -34,7 +34,7 @@
         />
 
     <Button
-        android:id="@+id/ftp"
+        android:id="@+id/ftp_download"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="FTP 下载"
@@ -42,10 +42,18 @@
         />
 
     <Button
-        android:id="@+id/ftp_dir"
+        android:id="@+id/ftp_dir_download"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="FTP 文件夹下载"
+        style="?buttonBarButtonStyle"
+        />
+
+    <Button
+        android:id="@+id/ftp_upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="FTP 文件上传"
         style="?buttonBarButtonStyle"
         />
 

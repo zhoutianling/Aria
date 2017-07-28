@@ -17,8 +17,10 @@ package com.arialyy.aria.core.upload;
 
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.AbsUploadTarget;
 import com.arialyy.aria.orm.DbEntity;
+import java.io.File;
 
 /**
  * Created by Aria.Lao on 2017/7/27.
@@ -38,7 +40,11 @@ public class FtpUploadTarget
     if (mTaskEntity.entity == null) {
       mTaskEntity.entity = getUploadEntity(filePath);
     }
+    mTaskEntity.requestType = AbsTaskEntity.FTP;
     mEntity = mTaskEntity.entity;
+    File file = new File(filePath);
+    mEntity.setFileName(file.getName());
+    mEntity.setFileSize(file.length());
   }
 
   /**

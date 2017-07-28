@@ -15,87 +15,73 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
+import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.common.AbsFileer;
+import com.arialyy.aria.core.common.AbsThreadTask;
+import com.arialyy.aria.core.common.SubThreadConfig;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.IUploadListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
-import java.util.Timer;
-import java.util.TimerTask;
+import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.CommonUtil;
+import java.io.File;
 
 /**
  * Created by Aria.Lao on 2017/7/27.
  * 文件上传器
  */
-public class Uploader implements Runnable, IUploadUtil {
-
-  private IUploadListener mListener;
-  private UploadTaskEntity mTaskEntity;
-  private UploadEntity mEntity;
-  private long mCurrentLocation = 0;
-
-  private Timer mTimer;
-  private boolean isRunning;
+class Uploader extends AbsFileer<UploadEntity, UploadTaskEntity> {
 
   Uploader(IUploadListener listener, UploadTaskEntity taskEntity) {
-    mListener = listener;
-    mTaskEntity = taskEntity;
-    mEntity = mTaskEntity.getEntity();
-  }
-
-  @Override public long getFileSize() {
-    return mEntity.getFileSize();
-  }
-
-  @Override public long getCurrentLocation() {
-    return mCurrentLocation;
-  }
-
-  @Override public boolean isUploading() {
-    return isRunning;
-  }
-
-  @Override public void cancelUpload() {
-    isRunning = false;
-  }
-
-  @Override public void stopUpload() {
-    isRunning = false;
-  }
-
-  @Override public void startUpload() {
-    new Thread(this).start();
-  }
-
-  @Override public void resumeUpload() {
-    startUpload();
-  }
-
-  @Override public void setMaxSpeed(double maxSpeed) {
-
-  }
-
-  @Override public void run() {
-    isRunning = true;
+    super(listener, taskEntity);
+    mTempFile = new File(mEntity.getFilePath());
   }
 
   /**
-   * 启动进度获取定时器
+   * 检查任务是否是新任务，新任务条件：
+   * 1、文件不存在
+   * 2、记录文件不存在
+   * 3、记录文件缺失或不匹配
+   * 4、数据库记录不存在
+   * 5、不支持断点，则是新任务
    */
-  private void startTimer() {
-    mTimer = new Timer(true);
-    mTimer.schedule(new TimerTask() {
-      @Override public void run() {
-        //if (mConstance.isComplete() || !mConstance.isDownloading) {
-        //  closeTimer();
-        //} else if (mConstance.CURRENT_LOCATION >= 0) {
-        //  mListener.onProgress(mConstance.CURRENT_LOCATION);
-        //}
-      }
-    }, 0, 1000);
+  protected void checkTask() {
+    if (!mTaskEntity.isSupportBP) {
+      isNewTask = true;
+      return;
+    }
+    mConfigFile = new File(mContext.getFilesDir().getPath()
+        + AriaManager.UPLOAD_TEMP_DIR
+        + mEntity.getFileName()
+        + ".properties");
+    if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
+      isNewTask = true;
+      CommonUtil.createFile(mConfigFile.getPath());
+    } else if (DbEntity.findFirst(UploadEntity.class, "filePath=?", mEntity.getFilePath())
+        == null) {
+      isNewTask = true;
+    } else {
+      isNewTask = checkConfigFile();
+    }
   }
 
-  private void closeTimer() {
-    if (mTimer != null) {
-      mTimer.purge();
-      mTimer.cancel();
+  @Override protected void handleNewTask() {
+
+  }
+
+  @Override protected int getThreadNum() {
+    return 1;
+  }
+
+  @Override protected AbsThreadTask selectThreadTask(SubThreadConfig<UploadTaskEntity> config) {
+    switch (mTaskEntity.requestType) {
+      case AbsTaskEntity.FTP:
+      case AbsTaskEntity.FTP_DIR:
+        return new FtpThreadTask(mConstance, mListener, config);
+      case AbsTaskEntity.HTTP:
+        return new HttpThreadTask(mConstance, (IUploadListener) mListener, config);
     }
+    return null;
   }
 }

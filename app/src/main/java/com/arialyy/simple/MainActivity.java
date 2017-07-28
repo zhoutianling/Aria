@@ -26,7 +26,7 @@ import com.arialyy.simple.download.DownloadActivity;
 import com.arialyy.simple.download.FtpDownloadActivity;
 import com.arialyy.simple.download.group.DownloadGroupActivity;
 import com.arialyy.simple.download.group.FTPDirDownloadActivity;
-import com.arialyy.simple.test.TestMutilTaskSysDownload;
+import com.arialyy.simple.upload.FtpUploadActivity;
 import com.arialyy.simple.upload.UploadActivity;
 
 /**
@@ -45,8 +45,10 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
     return R.layout.activity_main;
   }
 
-  @OnClick({ R.id.download, R.id.upload, R.id.download_task_group, R.id.ftp, R.id.ftp_dir })
-  public void funcation(View view) {
+  @OnClick({
+      R.id.download, R.id.upload, R.id.download_task_group, R.id.ftp_download,
+      R.id.ftp_dir_download, R.id.ftp_upload
+  }) public void funcation(View view) {
     switch (view.getId()) {
       case R.id.download:
         startActivity(new Intent(this, DownloadActivity.class));
@@ -57,11 +59,14 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
       case R.id.download_task_group:
         startActivity(new Intent(this, DownloadGroupActivity.class));
         break;
-      case R.id.ftp:
+      case R.id.ftp_download:
         startActivity(new Intent(this, FtpDownloadActivity.class));
         break;
-      case R.id.ftp_dir:
+      case R.id.ftp_dir_download:
         startActivity(new Intent(this, FTPDirDownloadActivity.class));
+        break;
+      case R.id.ftp_upload:
+        startActivity(new Intent(this, FtpUploadActivity.class));
         break;
     }
   }

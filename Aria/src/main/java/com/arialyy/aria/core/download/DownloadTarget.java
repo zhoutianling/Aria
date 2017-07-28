@@ -32,7 +32,7 @@ public class DownloadTarget
     extends AbsDownloadTarget<DownloadTarget, DownloadEntity, DownloadTaskEntity> {
   protected String url;
   DownloadTarget(DownloadEntity entity, String targetName) {
-    this(entity.getDownloadUrl(), targetName);
+    this(entity.getUrl(), targetName);
   }
 
   DownloadTarget(String url, String targetName) {
@@ -60,11 +60,11 @@ public class DownloadTarget
    */
   private DownloadEntity getEntity(String downloadUrl) {
     DownloadEntity entity =
-        DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=? and isGroupChild='false'",
+        DownloadEntity.findFirst(DownloadEntity.class, "url=? and isGroupChild='false'",
             downloadUrl);
     if (entity == null) {
       entity = new DownloadEntity();
-      entity.setDownloadUrl(downloadUrl);
+      entity.setUrl(downloadUrl);
       entity.setGroupChild(false);
       entity.save();
     }
@@ -93,7 +93,7 @@ public class DownloadTarget
    * 下载任务是否存在
    */
   @Override public boolean taskExists() {
-    return DownloadTaskQueue.getInstance().getTask(mEntity.getDownloadUrl()) != null;
+    return DownloadTaskQueue.getInstance().getTask(mEntity.getUrl()) != null;
   }
 
   /**

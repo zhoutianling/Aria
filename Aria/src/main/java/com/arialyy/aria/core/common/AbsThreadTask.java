@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download.downloader;
+package com.arialyy.aria.core.common;
 
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
@@ -31,35 +32,40 @@ import java.util.Properties;
  * Created by lyy on 2017/1/18.
  * 下载线程
  */
-abstract class AbsThreadTask implements Runnable {
+public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
+    implements Runnable {
   private final String TAG = "AbsThreadTask";
-  long mChildCurrentLocation = 0, mSleepTime = 0;
-  int mBufSize;
-  String mConfigFPath;
-  SubThreadConfig mConfig;
-  IDownloadListener mListener;
-  StateConstance STATE;
-  DownloadEntity mEntity;
-  DownloadTaskEntity mTaskEntity;
+  protected long mChildCurrentLocation = 0, mSleepTime = 0;
+  protected int mBufSize;
+  protected String mConfigFPath;
+  protected IEventListener mListener;
+  protected StateConstance STATE;
+  protected SubThreadConfig<TASK_ENTITY> mConfig;
+  protected ENTITY mEntity;
+  protected TASK_ENTITY mTaskEntity;
+  /**
+   * FTP 服务器编码
+   */
+  public static String SERVER_CHARSET = "ISO-8859-1";
 
-  AbsThreadTask(StateConstance constance, IDownloadListener listener,
-      SubThreadConfig downloadInfo) {
+  protected AbsThreadTask(StateConstance constance, IEventListener listener,
+      SubThreadConfig<TASK_ENTITY> info) {
     AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     STATE = constance;
     STATE.CONNECT_TIME_OUT = manager.getDownloadConfig().getConnectTimeOut();
     STATE.READ_TIME_OUT = manager.getDownloadConfig().getIOTimeOut();
     mListener = listener;
-    mConfig = downloadInfo;
-    mTaskEntity = mConfig.DOWNLOAD_TASK_ENTITY;
+    mConfig = info;
+    mTaskEntity = mConfig.TASK_ENTITY;
     mEntity = mTaskEntity.getEntity();
-    if (mConfig.IS_SUPPORT_BREAK_POINT) {
-      mConfigFPath = downloadInfo.CONFIG_FILE_PATH;
+    if (mConfig.SUPPORT_BP) {
+      mConfigFPath = info.CONFIG_FILE_PATH;
     }
     mBufSize = manager.getDownloadConfig().getBuffSize();
     setMaxSpeed(AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMsxSpeed());
   }
 
-  void setMaxSpeed(double maxSpeed) {
+  public void setMaxSpeed(double maxSpeed) {
     if (-0.9999 < maxSpeed && maxSpeed < 0.00001) {
       mSleepTime = 0;
     } else {
@@ -76,10 +82,10 @@ abstract class AbsThreadTask implements Runnable {
   /**
    * 停止下载
    */
-  void stop() {
+  public void stop() {
     synchronized (AriaManager.LOCK) {
       try {
-        if (mConfig.IS_SUPPORT_BREAK_POINT) {
+        if (mConfig.SUPPORT_BP) {
           STATE.STOP_NUM++;
           Log.d(TAG, "任务【"
               + mConfig.TEMP_FILE.getName()
@@ -90,12 +96,12 @@ abstract class AbsThreadTask implements Runnable {
           writeConfig(false, mChildCurrentLocation);
           if (STATE.isStop()) {
             Log.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已停止");
-            STATE.isDownloading = false;
+            STATE.isRunning = false;
             mListener.onStop(STATE.CURRENT_LOCATION);
           }
         } else {
           Log.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已停止");
-          STATE.isDownloading = false;
+          STATE.isRunning = false;
           mListener.onStop(STATE.CURRENT_LOCATION);
         }
       } catch (IOException e) {
@@ -107,7 +113,7 @@ abstract class AbsThreadTask implements Runnable {
   /**
    * 下载中
    */
-  void progress(long len) {
+  protected void progress(long len) {
     synchronized (AriaManager.LOCK) {
       mChildCurrentLocation += len;
       STATE.CURRENT_LOCATION += len;
@@ -117,9 +123,9 @@ abstract class AbsThreadTask implements Runnable {
   /**
    * 取消下载
    */
-  void cancel() {
+  public void cancel() {
     synchronized (AriaManager.LOCK) {
-      if (mConfig.IS_SUPPORT_BREAK_POINT) {
+      if (mConfig.SUPPORT_BP) {
         STATE.CANCEL_NUM++;
         Log.d(TAG,
             "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__取消下载");
@@ -132,39 +138,39 @@ abstract class AbsThreadTask implements Runnable {
             mConfig.TEMP_FILE.delete();
           }
           Log.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已取消");
-          STATE.isDownloading = false;
+          STATE.isRunning = false;
           mListener.onCancel();
         }
       } else {
         Log.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已取消");
-        STATE.isDownloading = false;
+        STATE.isRunning = false;
         mListener.onCancel();
       }
     }
   }
 
   /**
-   * 下载失败
+   * 任务失败
    */
-  void failDownload(long currentLocation, String msg, Exception ex) {
+  protected void fail(long currentLocation, String msg, Exception ex) {
     synchronized (AriaManager.LOCK) {
       try {
         STATE.FAIL_NUM++;
-        STATE.isDownloading = false;
+        STATE.isRunning = false;
         STATE.isStop = true;
         if (ex != null) {
           Log.e(TAG, msg + "\n" + CommonUtil.getPrintException(ex));
-        }else {
+        } else {
           Log.e(TAG, msg);
         }
-        if (mConfig.IS_SUPPORT_BREAK_POINT) {
+        if (mConfig.SUPPORT_BP) {
           writeConfig(false, currentLocation);
           if (STATE.isFail()) {
-            Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】下载失败");
+            Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
             mListener.onFail();
           }
         } else {
-          Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】下载失败");
+          Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
           mListener.onFail();
         }
       } catch (IOException e) {
@@ -176,7 +182,7 @@ abstract class AbsThreadTask implements Runnable {
   /**
    * 将记录写入到配置文件
    */
-  void writeConfig(boolean isComplete, long record) throws IOException {
+  protected void writeConfig(boolean isComplete, long record) throws IOException {
     synchronized (AriaManager.LOCK) {
       String key = null, value = null;
       if (0 < record && record < mConfig.END_LOCATION) {

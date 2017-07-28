@@ -24,7 +24,7 @@ import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
-import com.arialyy.aria.core.ProxyHelper;
+import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -163,7 +163,7 @@ public class DownloadReceiver extends AbsReceiver {
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    return DbEntity.findFirst(DownloadEntity.class, "downloadUrl=? and isGroupChild='false'",
+    return DbEntity.findFirst(DownloadEntity.class, "url=? and isGroupChild='false'",
         downloadUrl);
   }
 
@@ -198,7 +198,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 下载任务是否存在
    */
   @Override public boolean taskExists(String downloadUrl) {
-    return DownloadEntity.findFirst(DownloadEntity.class, "downloadUrl=?", downloadUrl) != null;
+    return DownloadEntity.findFirst(DownloadEntity.class, "url=?", downloadUrl) != null;
   }
 
   /**

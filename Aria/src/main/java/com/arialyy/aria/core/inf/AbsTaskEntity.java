@@ -15,7 +15,7 @@
  */
 package com.arialyy.aria.core.inf;
 
-import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.Ignore;
 import com.arialyy.aria.orm.Primary;

@@ -29,14 +29,13 @@ import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
-import com.arialyy.simple.databinding.ActivityUploadMeanBinding;
+import com.arialyy.simple.databinding.ActivityUploadBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
-import java.lang.ref.WeakReference;
 
 /**
  * Created by Aria.Lao on 2017/2/9.
  */
-public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
+public class UploadActivity extends BaseActivity<ActivityUploadBinding> {
   private static final String TAG = "UploadActivity";
   @Bind(R.id.pb) HorizontalProgressBarWithNumber mPb;
   private static final int START = 0;
@@ -74,7 +73,7 @@ public class UploadActivity extends BaseActivity<ActivityUploadMeanBinding> {
   };
 
   @Override protected int setLayoutId() {
-    return R.layout.activity_upload_mean;
+    return R.layout.activity_upload;
   }
 
   @Override protected void init(Bundle savedInstanceState) {

@@ -27,10 +27,7 @@ import com.arialyy.aria.orm.Primary;
  * 下载实体
  */
 public class DownloadEntity extends AbsNormalEntity implements Parcelable {
-  private String downloadUrl = ""; //下载路径
   @Primary private String downloadPath = ""; //保存路径
-  private boolean isRedirect = false; //是否重定向
-  private String redirectUrl = ""; //重定向链接
 
   /**
    * 所属任务组
@@ -54,38 +51,10 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
   private String serverFileName = "";
 
   @Override public String getKey() {
-    return downloadUrl;
+    return getUrl();
   }
 
   public DownloadEntity() {
-  }
-
-  @Override public String toString() {
-    return "DownloadEntity{"
-        + "downloadUrl='"
-        + downloadUrl
-        + '\''
-        + ", downloadPath='"
-        + downloadPath
-        + '\''
-        + ", isRedirect="
-        + isRedirect
-        + ", redirectUrl='"
-        + redirectUrl
-        + '\''
-        + ", groupName='"
-        + groupName
-        + '\''
-        + ", md5Code='"
-        + md5Code
-        + '\''
-        + ", disposition='"
-        + disposition
-        + '\''
-        + ", serverFileName='"
-        + serverFileName
-        + '\''
-        + '}';
   }
 
   public String getMd5Code() {
@@ -120,13 +89,11 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     this.groupName = groupName;
   }
 
-  public String getDownloadUrl() {
-    return downloadUrl;
-  }
-
-  public DownloadEntity setDownloadUrl(String downloadUrl) {
-    this.downloadUrl = downloadUrl;
-    return this;
+  /**
+   * @see {@link #getUrl()}
+   */
+  @Deprecated public String getDownloadUrl() {
+    return getUrl();
   }
 
   public String getDownloadPath() {
@@ -142,44 +109,42 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     return (DownloadEntity) super.clone();
   }
 
-  public boolean isRedirect() {
-    return isRedirect;
-  }
-
-  public void setRedirect(boolean redirect) {
-    isRedirect = redirect;
-  }
-
-  public String getRedirectUrl() {
-    return redirectUrl;
-  }
-
-  public void setRedirectUrl(String redirectUrl) {
-    this.redirectUrl = redirectUrl;
-  }
-
   @Override public int describeContents() {
     return 0;
   }
 
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
-    dest.writeString(this.downloadUrl);
     dest.writeString(this.downloadPath);
-    dest.writeByte(this.isRedirect ? (byte) 1 : (byte) 0);
-    dest.writeString(this.redirectUrl);
     dest.writeString(this.groupName);
     dest.writeString(this.md5Code);
     dest.writeString(this.disposition);
     dest.writeString(this.serverFileName);
   }
 
+  @Override public String toString() {
+    return "DownloadEntity{"
+        + "downloadPath='"
+        + downloadPath
+        + '\''
+        + ", groupName='"
+        + groupName
+        + '\''
+        + ", md5Code='"
+        + md5Code
+        + '\''
+        + ", disposition='"
+        + disposition
+        + '\''
+        + ", serverFileName='"
+        + serverFileName
+        + '\''
+        + '}';
+  }
+
   protected DownloadEntity(Parcel in) {
     super(in);
-    this.downloadUrl = in.readString();
     this.downloadPath = in.readString();
-    this.isRedirect = in.readByte() != 0;
-    this.redirectUrl = in.readString();
     this.groupName = in.readString();
     this.md5Code = in.readString();
     this.disposition = in.readString();

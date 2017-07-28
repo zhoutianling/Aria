@@ -76,7 +76,7 @@ public class DownloadModule extends BaseModule {
     String path = Environment.getExternalStorageDirectory() + "/download/" + name + ".apk";
     DownloadEntity entity = new DownloadEntity();
     entity.setFileName(name);
-    entity.setDownloadUrl(downloadUrl);
+    entity.setUrl(downloadUrl);
     entity.setDownloadPath(path);
     return entity;
   }

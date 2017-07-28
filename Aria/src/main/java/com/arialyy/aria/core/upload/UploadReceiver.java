@@ -17,7 +17,7 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.ProxyHelper;
+import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
@@ -39,13 +39,23 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   public ISchedulerListener<UploadTask> listener;
 
   /**
-   * 加载任务
+   * 加载HTTP单文件上传任务
    *
-   * @param filePath 文件地址
+   * @param filePath 文件路径
    */
   public UploadTarget load(@NonNull String filePath) {
     CheckUtil.checkUploadPath(filePath);
     return new UploadTarget(filePath, targetName);
+  }
+
+  /**
+   * 加载FTP单文件上传任务
+   *
+   * @param filePath 文件路径
+   */
+  public FtpUploadTarget loadFtp(@NonNull String filePath) {
+    CheckUtil.checkUploadPath(filePath);
+    return new FtpUploadTarget(filePath, targetName);
   }
 
   /**

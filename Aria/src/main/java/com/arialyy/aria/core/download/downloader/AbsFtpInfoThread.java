@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download.downloader;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.util.CommonUtil;
@@ -80,7 +81,7 @@ abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
       client.enterLocalPassiveMode();
       client.setFileType(FTP.BINARY_FILE_TYPE);
       FTPFile[] files =
-          client.listFiles(new String(remotePath.getBytes(charSet), ConnectionHelp.SERVER_CHARSET));
+          client.listFiles(new String(remotePath.getBytes(charSet), AbsThreadTask.SERVER_CHARSET));
       long size = getFileSize(files, client, remotePath);
       mEntity.setFileSize(size);
       reply = client.getReplyCode();

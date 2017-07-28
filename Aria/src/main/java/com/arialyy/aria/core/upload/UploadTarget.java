@@ -20,6 +20,7 @@ import com.arialyy.aria.core.inf.AbsDownloadTarget;
 import com.arialyy.aria.core.inf.AbsUploadTarget;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
+import java.io.File;
 import java.util.regex.Pattern;
 
 /**
@@ -38,7 +39,11 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
     if (mTaskEntity.entity == null) {
       mTaskEntity.entity = getUploadEntity(filePath);
     }
+    File file = new File(filePath);
+    mEntity.setFileSize(file.length());
     mEntity = mTaskEntity.entity;
+    //http暂时不支持断点上传
+    mTaskEntity.isSupportBP = false;
   }
 
   /**

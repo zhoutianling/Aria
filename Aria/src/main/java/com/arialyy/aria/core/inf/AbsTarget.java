@@ -19,7 +19,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.Map;

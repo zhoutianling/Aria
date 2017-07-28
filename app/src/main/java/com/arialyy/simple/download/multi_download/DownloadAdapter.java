@@ -58,7 +58,7 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
 
   private String getKey(AbsEntity entity) {
     if (entity instanceof DownloadEntity) {
-      return ((DownloadEntity) entity).getDownloadUrl();
+      return ((DownloadEntity) entity).getUrl();
     } else if (entity instanceof DownloadGroupEntity) {
       return ((DownloadGroupEntity) entity).getGroupName();
     }
@@ -73,7 +73,7 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
 
   public void addDownloadEntity(DownloadEntity entity) {
     mData.add(entity);
-    mPositions.put(entity.getDownloadUrl(), mPositions.size());
+    mPositions.put(entity.getUrl(), mPositions.size());
   }
 
   @Override public int getItemViewType(int position) {

@@ -34,6 +34,7 @@
     <activity android:name=".download.group.DownloadGroupActivity"/>
     <activity android:name=".download.FtpDownloadActivity"/>
     <activity android:name=".download.group.FTPDirDownloadActivity"/>
+    <activity android:name=".upload.FtpUploadActivity"/>
 
     <service android:name=".download.service_download.DownloadService"/>
   </application>

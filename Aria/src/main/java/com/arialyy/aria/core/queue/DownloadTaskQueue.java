@@ -60,7 +60,7 @@ public class DownloadTaskQueue
   }
 
   @Override public String getKey(DownloadEntity entity) {
-    return entity.getDownloadUrl();
+    return entity.getUrl();
   }
 
   @Override public int getConfigMaxNum() {

@@ -28,6 +28,7 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.PopupWindow;
+import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
@@ -88,7 +89,7 @@ import org.xml.sax.SAXException;
   /**
    * 设置上传任务的执行队列类型
    *
-   * @param mod {@link com.arialyy.aria.core.QueueMod}
+   * @param mod {@link QueueMod}
    */
   public AriaManager setUploadQueueMod(QueueMod mod) {
     mUConfig.setQueueMod(mod.tag);
@@ -98,7 +99,7 @@ import org.xml.sax.SAXException;
   /**
    * 设置下载任务的执行队列类型
    *
-   * @param mod {@link com.arialyy.aria.core.QueueMod}
+   * @param mod {@link QueueMod}
    */
   public AriaManager setDownloadQueueMod(QueueMod mod) {
     mDConfig.setQueueMod(mod.tag);

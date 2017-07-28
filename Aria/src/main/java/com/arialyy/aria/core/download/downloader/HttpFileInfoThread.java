@@ -49,7 +49,7 @@ class HttpFileInfoThread implements Runnable {
   @Override public void run() {
     HttpURLConnection conn = null;
     try {
-      URL url = new URL(mEntity.getDownloadUrl());
+      URL url = new URL(mEntity.getUrl());
       conn = ConnectionHelp.handleConnection(url);
       conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
@@ -58,7 +58,7 @@ class HttpFileInfoThread implements Runnable {
       handleConnect(conn);
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"
-          + mEntity.getDownloadUrl()
+          + mEntity.getUrl()
           + "】\n【filePath:"
           + mEntity.getDownloadPath()
           + "】\n"
@@ -103,7 +103,7 @@ class HttpFileInfoThread implements Runnable {
       mTaskEntity.isSupportBP = false;
       isComplete = true;
     } else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
-      failDownload("任务【" + mEntity.getDownloadUrl() + "】下载失败，错误码：404");
+      failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：404");
     } else if (code == HttpURLConnection.HTTP_MOVED_TEMP
         || code == HttpURLConnection.HTTP_MOVED_PERM
         || code == HttpURLConnection.HTTP_SEE_OTHER) {
@@ -112,11 +112,11 @@ class HttpFileInfoThread implements Runnable {
       mEntity.setRedirectUrl(mTaskEntity.redirectUrl);
       handle302Turn(conn);
     } else {
-      failDownload("任务【" + mEntity.getDownloadUrl() + "】下载失败，错误码：" + code);
+      failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：" + code);
     }
     if (isComplete) {
       if (onFileInfoListener != null) {
-        onFileInfoListener.onComplete(mEntity.getDownloadUrl(), code);
+        onFileInfoListener.onComplete(mEntity.getUrl(), code);
       }
       mEntity.update();
       mTaskEntity.update();
@@ -131,7 +131,7 @@ class HttpFileInfoThread implements Runnable {
     Log.d(TAG, "30x跳转，location【 " + mTaskEntity.redirectUrlKey + "】" + "新url为【" + newUrl + "】");
     if (TextUtils.isEmpty(newUrl) || newUrl.equalsIgnoreCase("null")) {
       if (onFileInfoListener != null) {
-        onFileInfoListener.onFail(mEntity.getDownloadUrl(), "获取重定向链接失败");
+        onFileInfoListener.onFail(mEntity.getUrl(), "获取重定向链接失败");
       }
       return;
     }
@@ -154,7 +154,7 @@ class HttpFileInfoThread implements Runnable {
    */
   private boolean checkLen(long len) {
     if (len < 0) {
-      failDownload("任务【" + mEntity.getDownloadUrl() + "】下载失败，文件长度小于0");
+      failDownload("任务【" + mEntity.getUrl() + "】下载失败，文件长度小于0");
       return false;
     }
     return true;
@@ -163,7 +163,7 @@ class HttpFileInfoThread implements Runnable {
   private void failDownload(String errorMsg) {
     Log.e(TAG, errorMsg);
     if (onFileInfoListener != null) {
-      onFileInfoListener.onFail(mEntity.getDownloadUrl(), errorMsg);
+      onFileInfoListener.onFail(mEntity.getUrl(), errorMsg);
     }
   }
 }

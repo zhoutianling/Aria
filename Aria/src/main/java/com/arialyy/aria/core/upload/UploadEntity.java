@@ -29,8 +29,6 @@ public class UploadEntity extends AbsNormalEntity implements Parcelable {
   @Primary
   private String filePath;  //文件路径
 
-  private String uploadUrl; //文件上传地址
-
 
   public String getFilePath() {
     return filePath;
@@ -44,14 +42,6 @@ public class UploadEntity extends AbsNormalEntity implements Parcelable {
     return filePath;
   }
 
-  public String getUploadUrl() {
-    return uploadUrl;
-  }
-
-  public void setUploadUrl(String uploadUrl) {
-    this.uploadUrl = uploadUrl;
-  }
-
   public UploadEntity() {
   }
 
@@ -62,13 +52,11 @@ public class UploadEntity extends AbsNormalEntity implements Parcelable {
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
     dest.writeString(this.filePath);
-    dest.writeString(this.uploadUrl);
   }
 
   protected UploadEntity(Parcel in) {
     super(in);
     this.filePath = in.readString();
-    this.uploadUrl = in.readString();
   }
 
   public static final Creator<UploadEntity> CREATOR = new Creator<UploadEntity>() {

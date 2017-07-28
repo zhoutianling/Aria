@@ -186,8 +186,8 @@ abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends Abs
     List<DownloadEntity> list = new ArrayList<>();
     for (int i = 0, len = mUrls.size(); i < len; i++) {
       DownloadEntity entity = new DownloadEntity();
-      entity.setDownloadUrl(mUrls.get(i));
-      String fileName = mSubTaskFileName.isEmpty() ? createFileName(entity.getDownloadUrl())
+      entity.setUrl(mUrls.get(i));
+      String fileName = mSubTaskFileName.isEmpty() ? createFileName(entity.getUrl())
           : mSubTaskFileName.get(i);
       entity.setDownloadPath(mEntity.getDirPath() + "/" + fileName);
       entity.setGroupName(mGroupName);

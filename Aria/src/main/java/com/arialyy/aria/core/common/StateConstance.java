@@ -13,32 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download.downloader;
+package com.arialyy.aria.core.common;
 
 /**
  * Created by lyy on 2017/1/18.
  * 下载状态常量
  */
-class StateConstance {
-  int CANCEL_NUM = 0;
-  int STOP_NUM = 0;
-  int FAIL_NUM = 0;
-  int CONNECT_TIME_OUT; //连接超时时间
-  int READ_TIME_OUT; //流读取的超时时间
-  int COMPLETE_THREAD_NUM = 0;
-  int THREAD_NUM;
-  long CURRENT_LOCATION = 0;
-  boolean isDownloading = false;
-  boolean isCancel = false;
-  boolean isStop = false;
+public class StateConstance {
+  public int CANCEL_NUM = 0;
+  public int STOP_NUM = 0;
+  public int FAIL_NUM = 0;
+  public int CONNECT_TIME_OUT; //连接超时时间
+  public int READ_TIME_OUT; //流读取的超时时间
+  public int COMPLETE_THREAD_NUM = 0;
+  public int THREAD_NUM;
+  public long CURRENT_LOCATION = 0;
+  public boolean isRunning = false;
+  public boolean isCancel = false;
+  public boolean isStop = false;
 
-  StateConstance() {
+  public StateConstance() {
   }
 
-  void cleanState() {
+  public void cleanState() {
     isCancel = false;
     isStop = false;
-    isDownloading = true;
+    isRunning = true;
     CURRENT_LOCATION = 0;
     CANCEL_NUM = 0;
     STOP_NUM = 0;
@@ -48,28 +48,28 @@ class StateConstance {
   /**
    * 所有子线程是否都已经停止下载
    */
-  boolean isStop() {
+  public boolean isStop() {
     return STOP_NUM == THREAD_NUM;
   }
 
   /**
    * 所有子线程是否都已经下载失败
    */
-  boolean isFail() {
+  public boolean isFail() {
     return FAIL_NUM == THREAD_NUM;
   }
 
   /**
    * 所有子线程是否都已经完成下载
    */
-  boolean isComplete() {
+  public boolean isComplete() {
     return COMPLETE_THREAD_NUM == THREAD_NUM;
   }
 
   /**
    * 所有子线程是否都已经取消下载
    */
-  boolean isCancel() {
+  public boolean isCancel() {
     return CANCEL_NUM == THREAD_NUM;
   }
 }

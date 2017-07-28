@@ -18,7 +18,7 @@ package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.QueueMod;
+import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;

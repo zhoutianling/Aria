@@ -16,6 +16,7 @@
 package com.arialyy.aria.core;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;

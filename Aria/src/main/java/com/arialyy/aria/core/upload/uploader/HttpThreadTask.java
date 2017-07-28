@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.upload;
+package com.arialyy.aria.core.upload.uploader;
 
 import android.util.Log;
-import com.arialyy.aria.core.upload.uploader.IUploadListener;
-import com.arialyy.aria.util.CheckUtil;
+import com.arialyy.aria.core.common.AbsThreadTask;
+import com.arialyy.aria.core.common.StateConstance;
+import com.arialyy.aria.core.common.SubThreadConfig;
+import com.arialyy.aria.core.inf.IUploadListener;
+import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,55 +37,34 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Created by lyy on 2017/2/9.
- * 上传工具
+ * Created by Aria.Lao on 2017/7/28.
+ * 不支持断点的HTTP上传任务
  */
-final class UploadUtil implements Runnable {
-  private static final String TAG = "UploadUtil";
+class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
+  private final String TAG = "HttpThreadTask";
+
   private final String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
   private final String PREFIX = "--", LINE_END = "\r\n";
-  private UploadEntity mUploadEntity;
-  private UploadTaskEntity mTaskEntity;
-  private IUploadListener mListener;
   private HttpURLConnection mHttpConn;
   private long mCurrentLocation = 0;
-  private boolean isCancel = false;
-  private boolean isRunning = false;
   private OutputStream mOutputStream;
 
-  UploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
-    mTaskEntity = taskEntity;
-    CheckUtil.checkTaskEntity(taskEntity);
-    mUploadEntity = taskEntity.getEntity();
-    if (listener == null) {
-      throw new IllegalArgumentException("上传监听不能为空");
-    }
-    mListener = listener;
-  }
-
-  public void start() {
-    isCancel = false;
-    isRunning = false;
-    new Thread(this).start();
-  }
-
-  public void cancel() {
-    isCancel = true;
-    isRunning = false;
+  public HttpThreadTask(StateConstance constance, IUploadListener listener,
+      SubThreadConfig<UploadTaskEntity> uploadInfo) {
+    super(constance, listener, uploadInfo);
   }
 
   @Override public void run() {
-    File uploadFile = new File(mUploadEntity.getFilePath());
+    File uploadFile = new File(mEntity.getFilePath());
     if (!uploadFile.exists()) {
-      Log.e(TAG, "【" + mUploadEntity.getFilePath() + "】，文件不存在。");
+      Log.e(TAG, "【" + mEntity.getFilePath() + "】，文件不存在。");
       fail();
       return;
     }
-
     mListener.onPre();
     URL url;
     try {
-      url = new URL(mUploadEntity.getUploadUrl());
+      url = new URL(mEntity.getUrl());
       mHttpConn = (HttpURLConnection) url.openConnection();
       mHttpConn.setUseCaches(false);
       mHttpConn.setDoOutput(true);
@@ -98,13 +81,9 @@ final class UploadUtil implements Runnable {
       for (String key : keys) {
         mHttpConn.setRequestProperty(key, mTaskEntity.headers.get(key));
       }
-
       mOutputStream = mHttpConn.getOutputStream();
-      mListener.onPostPre(uploadFile.length());
-
       PrintWriter writer =
           new PrintWriter(new OutputStreamWriter(mOutputStream, mTaskEntity.charSet), true);
-
       //添加文件上传表单字段
       keys = mTaskEntity.formFields.keySet();
       for (String key : keys) {
@@ -117,10 +96,6 @@ final class UploadUtil implements Runnable {
       e.printStackTrace();
       fail();
     }
-  }
-
-  boolean isRunning() {
-    return isRunning;
   }
 
   private void fail() {
@@ -179,10 +154,9 @@ final class UploadUtil implements Runnable {
     while ((bytesRead = inputStream.read(buffer)) != -1) {
       mCurrentLocation += bytesRead;
       mOutputStream.write(buffer, 0, bytesRead);
-      if (isCancel) {
+      if (STATE.isCancel) {
         break;
       }
-      isRunning = true;
       mListener.onProgress(mCurrentLocation);
     }
 
@@ -191,8 +165,7 @@ final class UploadUtil implements Runnable {
     inputStream.close();
     writer.append(LINE_END);
     writer.flush();
-    isRunning = false;
-    if (isCancel) {
+    if (STATE.isCancel) {
       mListener.onCancel();
       return;
     }

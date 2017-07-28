@@ -1,4 +1,4 @@
-package com.arialyy.aria.core;
+package com.arialyy.aria.core.common;
 
 /**
  * Created by Aria.Lao on 2017/6/21.
@@ -19,7 +19,7 @@ public enum QueueMod {
    */
   NOW("now");
 
-  String tag;
+  public String tag;
 
   public String getTag() {
     return tag;

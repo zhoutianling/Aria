@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.upload.uploader;
+package com.arialyy.aria.core.common;
 
 /**
  * Created by lyy on 2016/10/31.
  * 抽象的下载接口
  */
-public interface IUploadUtil {
+public interface IUtil {
 
   /**
    * 获取文件大小
@@ -28,7 +28,7 @@ public interface IUploadUtil {
   long getFileSize();
 
   /**
-   * 获取当前上传位置
+   * 获取当前下载位置
    */
   long getCurrentLocation();
 
@@ -37,27 +37,27 @@ public interface IUploadUtil {
    *
    * @return true, 正在下载
    */
-  boolean isUploading();
+  boolean isRunning();
 
   /**
    * 取消下载
    */
-  void cancelUpload();
+  void cancel();
 
   /**
    * 停止下载
    */
-  void stopUpload();
+  void stop();
 
   /**
    * 开始下载
    */
-  void startUpload();
+  void start();
 
   /**
    * 从上次断点恢复下载
    */
-  void resumeUpload();
+  void resume();
 
   /**
    * 设置最大下载速度

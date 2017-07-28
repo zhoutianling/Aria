@@ -20,6 +20,7 @@ import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.scheduler.ISchedulers;
@@ -30,7 +31,7 @@ import java.lang.ref.WeakReference;
  * 下载监听类
  */
 class BaseListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
-    implements IEventListener {
+    implements IDownloadListener {
   private WeakReference<Handler> outHandler;
   private long mLastLen = 0;   //上一次发送长度
   private boolean isFirst = true;
@@ -58,6 +59,10 @@ class BaseListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     mEntity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
     saveData(IEntity.STATE_POST_PRE, -1);
     sendInState2Target(ISchedulers.POST_PRE);
+  }
+
+  @Override public void supportBreakpoint(boolean support) {
+
   }
 
   @Override public void onStart(long startLocation) {

@@ -17,68 +17,70 @@
 package com.arialyy.aria.core.download.downloader;
 
 import android.util.Log;
+import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.IDownloadListener;
 
 /**
  * Created by lyy on 2015/8/25.
  * HTTP单任务下载工具
  */
-public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
+public class SimpleDownloadUtil implements IUtil, Runnable {
   private static final String TAG = "SimpleDownloadUtil";
   private IDownloadListener mListener;
-  private Downloader mDT;
+  private Downloader mDownloader;
   private DownloadTaskEntity mTaskEntity;
 
   public SimpleDownloadUtil(DownloadTaskEntity entity, IDownloadListener downloadListener) {
     mTaskEntity = entity;
     mListener = downloadListener;
-    mDT = new Downloader(downloadListener, entity);
+    mDownloader = new Downloader(downloadListener, entity);
   }
 
   @Override public long getFileSize() {
-    return mDT.getFileSize();
+    return mDownloader.getFileSize();
   }
 
   /**
    * 获取当前下载位置
    */
   @Override public long getCurrentLocation() {
-    return mDT.getCurrentLocation();
+    return mDownloader.getCurrentLocation();
   }
 
-  @Override public boolean isDownloading() {
-    return mDT.isDownloading();
+  @Override public boolean isRunning() {
+    return mDownloader.isRunning();
   }
 
   /**
    * 取消下载
    */
-  @Override public void cancelDownload() {
-    mDT.cancelDownload();
+  @Override public void cancel() {
+    mDownloader.cancel();
   }
 
   /**
    * 停止下载
    */
-  @Override public void stopDownload() {
-    mDT.stopDownload();
+  @Override public void stop() {
+    mDownloader.stop();
   }
 
   /**
    * 多线程断点续传下载文件，开始下载
    */
-  @Override public void startDownload() {
+  @Override public void start() {
     mListener.onPre();
     new Thread(this).start();
   }
 
-  @Override public void resumeDownload() {
-    startDownload();
+  @Override public void resume() {
+    start();
   }
 
   public void setMaxSpeed(double maxSpeed) {
-    mDT.setMaxSpeed(maxSpeed);
+    mDownloader.setMaxSpeed(maxSpeed);
   }
 
   private void failDownload(String msg) {
@@ -90,7 +92,7 @@ public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
     if (mTaskEntity.getEntity().getFileSize() <= 1) {
       new Thread(createInfoThread()).start();
     } else {
-      mDT.startDownload();
+      mDownloader.start();
     }
   }
 
@@ -102,7 +104,7 @@ public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
       case AbsTaskEntity.FTP:
         return new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
           @Override public void onComplete(String url, int code) {
-            mDT.startDownload();
+            mDownloader.start();
           }
 
           @Override public void onFail(String url, String errorMsg) {
@@ -112,7 +114,7 @@ public class SimpleDownloadUtil implements IDownloadUtil, Runnable {
       case AbsTaskEntity.HTTP:
         return new HttpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
           @Override public void onComplete(String url, int code) {
-            mDT.startDownload();
+            mDownloader.start();
           }
 
           @Override public void onFail(String url, String errorMsg) {

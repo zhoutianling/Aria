@@ -26,6 +26,11 @@ import com.arialyy.aria.orm.Ignore;
 public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
 
   /**
+   * 服务器地址
+   */
+  private String url = "";
+
+  /**
    * 文件名
    */
   private String fileName = "";
@@ -35,6 +40,16 @@ public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
    */
   private boolean isGroupChild = false;
 
+  private boolean isRedirect = false; //是否重定向
+  private String redirectUrl = ""; //重定向链接
+
+  public String getUrl() {
+    return url;
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
 
   public boolean isGroupChild() {
     return isGroupChild;
@@ -52,6 +67,22 @@ public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
     this.fileName = fileName;
   }
 
+  public boolean isRedirect() {
+    return isRedirect;
+  }
+
+  public void setRedirect(boolean redirect) {
+    isRedirect = redirect;
+  }
+
+  public String getRedirectUrl() {
+    return redirectUrl;
+  }
+
+  public void setRedirectUrl(String redirectUrl) {
+    this.redirectUrl = redirectUrl;
+  }
+
   public AbsNormalEntity() {
   }
 
@@ -61,13 +92,19 @@ public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
 
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
+    dest.writeString(this.url);
     dest.writeString(this.fileName);
     dest.writeByte(this.isGroupChild ? (byte) 1 : (byte) 0);
+    dest.writeByte(this.isRedirect ? (byte) 1 : (byte) 0);
+    dest.writeString(this.redirectUrl);
   }
 
   protected AbsNormalEntity(Parcel in) {
     super(in);
+    this.url = in.readString();
     this.fileName = in.readString();
     this.isGroupChild = in.readByte() != 0;
+    this.isRedirect = in.readByte() != 0;
+    this.redirectUrl = in.readString();
   }
 }
