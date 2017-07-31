@@ -327,7 +327,6 @@ import org.xml.sax.SAXException;
         receiver.unRegister();
         receiver.destroy();
         iter.remove();
-        break;
       }
     }
   }
