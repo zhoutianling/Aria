@@ -17,6 +17,8 @@ package com.arialyy.simple.download.group;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import butterknife.Bind;
@@ -82,7 +84,15 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         Aria.download(this).load(mUrls).stop();
         break;
       case R.id.cancel:
-        Aria.download(this).load(mUrls).cancel();
+        //Aria.download(this).load(mUrls).cancel();
+        Aria.download(this).removeAllTask(true);
+
+        new Handler().postDelayed(new Runnable() {
+          @Override public void run() {
+            L.d(TAG,
+                "size ==> " + Aria.download(DownloadGroupActivity.this).getTotleTaskList().size());
+          }
+        }, 1000);
         break;
     }
   }
@@ -116,6 +126,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskCancel() void taskCancel(DownloadGroupTask task) {
+    L.d(TAG, "group task cancel");
     getBinding().setSpeed("");
     getBinding().setProgress(0);
   }

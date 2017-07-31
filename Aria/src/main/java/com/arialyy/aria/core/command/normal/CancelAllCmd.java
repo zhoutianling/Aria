@@ -16,7 +16,6 @@
 
 package com.arialyy.aria.core.command.normal;
 
-import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
@@ -40,7 +39,7 @@ final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     mQueue.removeAllTask();
     if (mTaskEntity instanceof DownloadTaskEntity) {
       handleDownloadRemove();
-    } else {
+    } else if (mTaskEntity instanceof UploadTaskEntity){
       handleUploadRemove();
     }
   }
@@ -50,6 +49,7 @@ final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    */
   private void handleUploadRemove() {
     List<UploadTaskEntity> allEntity = DbEntity.findAllData(UploadTaskEntity.class);
+    if (allEntity == null || allEntity.size() == 0) return;
     for (UploadTaskEntity entity : allEntity) {
       CommonUtil.delUploadTaskConfig(mTaskEntity.removeFile, entity);
     }
@@ -60,6 +60,7 @@ final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    */
   private void handleDownloadRemove() {
     List<DownloadTaskEntity> allEntity = DbEntity.findAllData(DownloadTaskEntity.class);
+    if (allEntity == null || allEntity.size() == 0) return;
     for (DownloadTaskEntity entity : allEntity) {
       CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile, entity);
     }

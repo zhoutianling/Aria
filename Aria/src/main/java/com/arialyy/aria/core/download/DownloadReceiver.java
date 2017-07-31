@@ -242,9 +242,6 @@ public class DownloadReceiver extends AbsReceiver {
 
     Set<String> keys = ariaManager.getReceiver().keySet();
     for (String key : keys) {
-      IReceiver receiver = ariaManager.getReceiver().get(key);
-      receiver.removeSchedulerListener();
-      receiver.unRegister();
       ariaManager.getReceiver().remove(key);
     }
   }
