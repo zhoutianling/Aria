@@ -15,32 +15,18 @@
  */
 package com.arialyy.aria.core.download;
 
-import android.text.TextUtils;
-import com.arialyy.aria.core.inf.AbsDownloadTarget;
-import com.arialyy.aria.core.inf.AbsUploadTarget;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by AriaL on 2017/6/29.
+ * 下载任务组
  */
 public class DownloadGroupTarget
-    extends AbsDownloadTarget<DownloadGroupTarget, DownloadGroupEntity, DownloadGroupTaskEntity> {
-  private List<String> mUrls = new ArrayList<>();
+    extends BaseGroupTarget<DownloadGroupTarget, DownloadGroupTaskEntity> {
   private final String TAG = "DownloadGroupTarget";
-  /**
-   * 子任务文件名
-   */
-  private List<String> mSubTaskFileName = new ArrayList<>();
-  private String mGroupName;
-  /**
-   * 是否已经设置了文件路径
-   */
-  private boolean isSetDirPathed = false;
 
   DownloadGroupTarget(DownloadGroupEntity groupEntity, String targetName) {
     this.mTargetName = targetName;
@@ -72,31 +58,6 @@ public class DownloadGroupTarget
   }
 
   /**
-   * 查询任务组实体，如果数据库不存在该实体，则新创建一个新的任务组实体
-   */
-  private DownloadGroupEntity getDownloadGroupEntity() {
-    DownloadGroupEntity entity =
-        DbEntity.findFirst(DownloadGroupEntity.class, "groupName=?", mGroupName);
-    if (entity == null) {
-      entity = new DownloadGroupEntity();
-      entity.setGroupName(mGroupName);
-      entity.setUrls(mUrls);
-      entity.insert();
-    }
-    return entity;
-  }
-
-  /**
-   * 设置任务组别名
-   */
-  public DownloadGroupTarget setGroupAlias(String alias) {
-    if (TextUtils.isEmpty(alias)) return this;
-    mEntity.setAlias(alias);
-    mEntity.update();
-    return this;
-  }
-
-  /**
    * 如果你是使用{@link DownloadReceiver#load(DownloadGroupEntity)}进行下载操作，那么你需要设置任务组的下载地址
    */
   public DownloadGroupTarget setGroupUrl(List<String> urls) {
@@ -106,137 +67,5 @@ public class DownloadGroupTarget
     mEntity.setGroupName(CommonUtil.getMd5Code(urls));
     mEntity.update();
     return this;
-  }
-
-  /**
-   * 设置任务组的文件夹路径，在Aria中，任务组的所有子任务都会下载到以任务组组名的文件夹中。
-   * 如：groupDirPath = "/mnt/sdcard/download/group_test"
-   * <pre>
-   *   {@code
-   *      + mnt
-   *        + sdcard
-   *          + download
-   *            + group_test
-   *              - task1.apk
-   *              - task2.apk
-   *              - task3.apk
-   *              ....
-   *
-   *   }
-   * </pre>
-   *
-   * @param groupDirPath 任务组保存文件夹路径
-   */
-  public DownloadGroupTarget setDownloadDirPath(String groupDirPath) {
-    if (TextUtils.isEmpty(groupDirPath)) {
-      throw new NullPointerException("任务组文件夹保存路径不能为null");
-    }
-
-    isSetDirPathed = true;
-    if (mEntity.getDirPath().equals(groupDirPath)) return this;
-
-    File file = new File(groupDirPath);
-    if (file.exists() && file.isFile()) {
-      throw new IllegalArgumentException("路径不能为文件");
-    }
-    if (!file.exists()) {
-      file.mkdirs();
-    }
-
-    mEntity.setDirPath(groupDirPath);
-    if (!TextUtils.isEmpty(mEntity.getDirPath())) {
-      reChangeDirPath(groupDirPath);
-    } else {
-      mEntity.setSubTasks(createSubTask());
-    }
-    mEntity.update();
-    return this;
-  }
-
-  /**
-   * 改变任务组文件夹路径，修改文件夹路径会将子任务所有路径更换
-   *
-   * @param newDirPath 新的文件夹路径
-   */
-  private void reChangeDirPath(String newDirPath) {
-    List<DownloadEntity> subTask = mEntity.getSubTask();
-    if (subTask != null && !subTask.isEmpty()) {
-      for (DownloadEntity entity : subTask) {
-        String oldPath = entity.getDownloadPath();
-        String newPath = newDirPath + "/" + entity.getFileName();
-        File file = new File(oldPath);
-        file.renameTo(new File(newPath));
-        DbEntity.exeSql("UPDATE DownloadEntity SET downloadPath='"
-            + newPath
-            + "' WHERE downloadPath='"
-            + oldPath
-            + "'");
-        DbEntity.exeSql(
-            "UPDATE DownloadTaskEntity SET key='" + newPath + "' WHERE key='" + oldPath + "'");
-      }
-    } else {
-      mEntity.setSubTasks(createSubTask());
-    }
-  }
-
-  /**
-   * 设置子任务文件名，该方法必须在{@link #setDownloadDirPath(String)}之后调用，否则不生效
-   */
-  public DownloadGroupTarget setSubTaskFileName(List<String> subTaskFileName) {
-    if (subTaskFileName == null || subTaskFileName.isEmpty()) return this;
-    mSubTaskFileName.addAll(subTaskFileName);
-    if (mUrls.size() != subTaskFileName.size()) {
-      throw new IllegalArgumentException("下载链接数必须要和保存路径的数量一致");
-    }
-    if (isSetDirPathed) {
-      List<DownloadEntity> entities = mEntity.getSubTask();
-      int i = 0;
-      for (DownloadEntity entity : entities) {
-        String newName = mSubTaskFileName.get(i);
-        updateSubFileName(entity, newName);
-        i++;
-      }
-    }
-    return this;
-  }
-
-  /**
-   * 更新子任务文件名
-   */
-  private void updateSubFileName(DownloadEntity entity, String newName) {
-    if (!newName.equals(entity.getFileName())) {
-      String oldPath = mEntity.getDirPath() + "/" + entity.getFileName();
-      String newPath = mEntity.getDirPath() + "/" + newName;
-      File oldFile = new File(oldPath);
-      if (oldFile.exists()) {
-        oldFile.renameTo(new File(newPath));
-      }
-      CommonUtil.renameDownloadConfig(oldFile.getName(), newName);
-      DbEntity.exeSql(
-          "UPDATE DownloadTaskEntity SET key='" + newPath + "' WHERE key='" + oldPath + "'");
-      entity.setDownloadPath(newPath);
-      entity.setFileName(newName);
-      entity.update();
-    }
-  }
-
-  /**
-   * 创建子任务
-   */
-  private List<DownloadEntity> createSubTask() {
-    List<DownloadEntity> list = new ArrayList<>();
-    for (int i = 0, len = mUrls.size(); i < len; i++) {
-      DownloadEntity entity = new DownloadEntity();
-      entity.setDownloadUrl(mUrls.get(i));
-      String fileName = mSubTaskFileName.isEmpty() ? createFileName(entity.getDownloadUrl())
-          : mSubTaskFileName.get(i);
-      entity.setDownloadPath(mEntity.getDirPath() + "/" + fileName);
-      entity.setGroupName(mGroupName);
-      entity.setGroupChild(true);
-      entity.setFileName(fileName);
-      entity.insert();
-      list.add(entity);
-    }
-    return list;
   }
 }

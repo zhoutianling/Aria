@@ -5,10 +5,10 @@
   <download>
 
     <!--设置下载线程，线程下载数改变后，新的下载任务才会生效，如果任务大小小于1m，该设置也不会生效-->
-    <threadNum value="4"/>
+    <threadNum value="3"/>
 
     <!--设置下载队列最大任务数， 默认为2-->
-    <maxTaskNum value="4"/>
+    <maxTaskNum value="2"/>
 
     <!--设置下载失败，重试次数，默认为10-->
     <reTryNum value="10"/>
@@ -37,6 +37,8 @@
   </download>
 
   <upload>
+    <!--是否需要转换速度单位，转换完成后为：1b/s、1kb/s、1mb/s、1gb/s、1tb/s，如果不需要将返回byte长度-->
+    <convertSpeed value="true"/>
 
     <!--设置上传队列最大任务数， 默认为2-->
     <maxTaskNum value="2"/>

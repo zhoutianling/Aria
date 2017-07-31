@@ -24,7 +24,6 @@
     </activity>
 
     <activity android:name=".download.DownloadActivity"/>
-    <activity android:name=".upload.UploadActivity"/>
     <activity android:name=".download.SingleTaskActivity"/>
     <activity android:name=".download.multi_download.MultiTaskActivity"/>
     <activity android:name=".download.fragment_download.FragmentActivity"/>
@@ -32,6 +31,10 @@
     <activity android:name=".download.HighestPriorityActivity"/>
     <activity android:name=".test.TestMutilTaskSysDownload"/>
     <activity android:name=".download.group.DownloadGroupActivity"/>
+    <activity android:name=".download.FtpDownloadActivity"/>
+    <activity android:name=".download.group.FTPDirDownloadActivity"/>
+    <activity android:name=".upload.HttpUploadActivity"/>
+    <activity android:name=".upload.FtpUploadActivity"/>
 
     <service android:name=".download.service_download.DownloadService"/>
   </application>

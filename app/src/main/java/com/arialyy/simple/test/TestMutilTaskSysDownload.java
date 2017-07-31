@@ -3,7 +3,7 @@ package com.arialyy.simple.test;
 import android.os.Environment;
 import android.view.View;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.QueueMod;
+import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.TestActivityMultiBinding;

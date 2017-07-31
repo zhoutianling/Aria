@@ -228,7 +228,7 @@ class ConfigHelper extends DefaultHandler {
     }
     if (num < 1) {
       Log.e(TAG, "下载线程数不能小于 1");
-      num = 3;
+      num = 1;
     }
     if (isDownloadConfig) {
       mDownloadConfig.threadNum = num;

@@ -40,9 +40,6 @@ import java.util.List;
  */
 public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBinding> {
 
-  @Bind(R.id.start) Button mStart;
-  @Bind(R.id.stop) Button mStop;
-  @Bind(R.id.cancel) Button mCancel;
   @Bind(R.id.child_list) SubStateLinearLayout mChildList;
   List<String> mUrls;
 
@@ -102,6 +99,9 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskPre() protected void onTaskPre(DownloadGroupTask task) {
+    if (mChildList.getSubData().size() <= 0) {
+      mChildList.addData(task.getEntity().getSubTask());
+    }
     L.d(TAG, "group task pre");
     getBinding().setFileSize(task.getConvertFileSize());
     if (mChildList.getSubData().size() <= 0){
@@ -143,5 +143,6 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     getBinding().setSpeed("");
     mChildList.updateChildProgress(task.getEntity().getSubTask());
     T.showShort(this, "任务组下载完成");
+    L.d(TAG, "任务组下载完成");
   }
 }

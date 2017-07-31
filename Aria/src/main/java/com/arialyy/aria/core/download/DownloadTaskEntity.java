@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.orm.Ignore;
 import com.arialyy.aria.orm.OneToOne;
 
 /**

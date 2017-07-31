@@ -15,7 +15,7 @@
  */
 package com.arialyy.aria.core.inf;
 
-import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.Ignore;
 import com.arialyy.aria.orm.Primary;
@@ -26,6 +26,18 @@ import java.util.Map;
  * Created by lyy on 2017/2/23.
  */
 public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
+  /**
+   * HTTP下载
+   */
+  public static final int HTTP = 0x11;
+  /**
+   * FTP当文件下载
+   */
+  public static final int FTP = 0x12;
+  /**
+   * FTP文件夹下载，为避免登录过多，子任务由单线程进行处理
+   */
+  public static final int FTP_DIR = 0x13;
 
   /**
    * Task实体对应的key
@@ -33,9 +45,26 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   @Primary public String key = "";
 
   /**
+   * 账号和密码
+   */
+  @Ignore public String userName, userPw, account, serverIp;
+  @Ignore public int port;
+
+  /**
+   * 请求类型
+   * {@link AbsTaskEntity#HTTP}、{@link AbsTaskEntity#FTP}
+   */
+  public int requestType = HTTP;
+
+  /**
    * http 请求头
    */
   public Map<String, String> headers = new HashMap<>();
+
+  /**
+   * 字符编码，默认为"utf-8"
+   */
+  public String charSet = "utf-8";
 
   /**
    * 网络请求类型

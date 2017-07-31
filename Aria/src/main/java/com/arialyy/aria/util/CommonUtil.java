@@ -37,6 +37,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -62,6 +63,18 @@ import java.lang.reflect.WildcardType;
  */
 public class CommonUtil {
   private static final String TAG = "CommonUtil";
+
+  /**
+   * 字符串编码转换
+   */
+  public static String strCharSetConvert(String oldStr, String charSet) {
+    try {
+      return new String(oldStr.getBytes(), charSet);
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
   /**
    * 实例化泛型的实际类型参数
@@ -137,7 +150,7 @@ public class CommonUtil {
   /**
    * 删除上传任务的配置，包括
    *
-   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经下载完成的文件
+   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
   public static void delUploadTaskConfig(boolean removeFile, UploadTaskEntity tEntity) {
@@ -147,15 +160,8 @@ public class CommonUtil {
       if (file.exists()) {
         file.delete();
       }
-    } else {
-      if (!uEntity.isComplete()) {
-        if (file.exists()) {
-          file.delete();
-        }
-      }
     }
-    File config = new File(
-        AriaManager.APP.getFilesDir().getPath() + "/temp/" + uEntity.getFileName() + ".properties");
+    File config = new File(getFileConfig(false, uEntity.getFileName()));
     if (config.exists()) {
       config.delete();
     }
@@ -184,8 +190,7 @@ public class CommonUtil {
       }
     }
 
-    File config = new File(
-        AriaManager.APP.getFilesDir().getPath() + "/temp/" + dEntity.getFileName() + ".properties");
+    File config = new File(getFileConfig(true, dEntity.getFileName()));
     if (config.exists()) {
       config.delete();
     }
@@ -600,6 +605,16 @@ public class CommonUtil {
   }
 
   /**
+   * 通过文件名获取下载配置文件
+   *
+   * @param fileName 文件名
+   */
+  public static String getFileConfig(boolean isDownload, String fileName) {
+    return AriaManager.APP.getFilesDir().getPath() + (isDownload ? AriaManager.DOWNLOAD_TEMP_DIR
+        : AriaManager.UPLOAD_TEMP_DIR) + fileName + ".properties";
+  }
+
+  /**
    * 重命名下载配置文件
    * 如果旧的配置文件名不存在，则使用新的配置文件名新创建一个文件，否则将旧的配置文件重命名为新的位置文件名。
    * 除了重命名配置文件名外，还会将文件中的记录重命名为新的记录，如果没有记录，则不做处理
@@ -608,8 +623,7 @@ public class CommonUtil {
    * @param newName 新的下载文件名
    */
   public static void renameDownloadConfig(String oldName, String newName) {
-    renameConfig(AriaManager.APP.getFilesDir().getPath() + AriaManager.DOWNLOAD_TEMP_DIR, oldName,
-        newName);
+    renameConfig(true, oldName, newName);
   }
 
   /**
@@ -621,14 +635,13 @@ public class CommonUtil {
    * @param newName 新的上传文件名
    */
   public static void renameUploadConfig(String oldName, String newName) {
-    renameConfig(AriaManager.APP.getFilesDir().getPath() + AriaManager.UPLOAD_TEMP_DIR, oldName,
-        newName);
+    renameConfig(false, oldName, newName);
   }
 
-  private static void renameConfig(String basePath, String oldName, String newName) {
+  private static void renameConfig(boolean isDownload, String oldName, String newName) {
     if (oldName.equals(newName)) return;
-    File oldFile = new File(basePath + oldName + ".properties");
-    File newFile = new File(basePath + newName + ".properties");
+    File oldFile = new File(getFileConfig(isDownload, oldName));
+    File newFile = new File(getFileConfig(isDownload, oldName));
     if (!oldFile.exists()) {
       createFile(newFile.getPath());
     } else {

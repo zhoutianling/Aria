@@ -59,7 +59,7 @@ public class UploadEntity extends AbsNormalEntity implements Parcelable {
     this.filePath = in.readString();
   }
 
-  @Ignore public static final Creator<UploadEntity> CREATOR = new Creator<UploadEntity>() {
+  public static final Creator<UploadEntity> CREATOR = new Creator<UploadEntity>() {
     @Override public UploadEntity createFromParcel(Parcel source) {
       return new UploadEntity(source);
     }

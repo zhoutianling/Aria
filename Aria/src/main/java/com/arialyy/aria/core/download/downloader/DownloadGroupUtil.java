@@ -16,19 +16,11 @@
 package com.arialyy.aria.core.download.downloader;
 
 import android.util.SparseArray;
-import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.util.CommonUtil;
-import java.io.File;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,153 +28,37 @@ import java.util.concurrent.Executors;
  * Created by AriaL on 2017/6/30.
  * 任务组下载工具
  */
-public class DownloadGroupUtil implements IDownloadUtil {
+public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   private final String TAG = "DownloadGroupUtil";
-  /**
-   * 任务组所有任务总大小
-   */
-  private long mTotalSize = 0;
-  private long mCurrentLocation = 0;
   private ExecutorService mInfoPool;
-  private ExecutorService mExePool;
-  private IDownloadGroupListener mListener;
-  private DownloadGroupTaskEntity mTaskEntity;
-  private boolean isRunning = true;
-  private Timer mTimer;
-  /**
-   * 初始化完成的任务书数
-   */
-  private int mInitNum = 0;
-  /**
-   * 初始化失败的任务数
-   */
-  private int mInitFailNum = 0;
-  /**
-   * 保存所有没有下载完成的任务，key为下载地址
-   */
-  private Map<String, DownloadTaskEntity> mExeMap = new HashMap<>();
-
-  /**
-   * 下载失败的映射表，key为下载地址
-   */
-  private Map<String, DownloadTaskEntity> mFailMap = new HashMap<>();
-
-  /**
-   * 下载器映射表，key为下载地址
-   */
-  private Map<String, Downloader> mDownloaderMap = new HashMap<>();
 
   /**
    * 文件信息回调组
    */
-  private SparseArray<FileInfoThread.OnFileInfoCallback> mFileInfoCallbacks = new SparseArray<>();
-  /**
-   * 该任务组对应的所有任务
-   */
-  private Map<String, DownloadTaskEntity> mTasksMap = new HashMap<>();
-  //已经完成的任务数
-  private int mCompleteNum = 0;
-  //失败的任务数
-  private int mFailNum = 0;
-  //实际的下载任务数
-  private int mActualTaskNum = 0;
+  private SparseArray<OnFileInfoCallback> mFileInfoCallbacks = new SparseArray<>();
 
   public DownloadGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity taskEntity) {
-    mListener = listener;
-    mTaskEntity = taskEntity;
+    super(listener, taskEntity);
     mInfoPool = Executors.newCachedThreadPool();
-    mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    mActualTaskNum = mTaskEntity.entity.getSubTask().size();
-    List<DownloadTaskEntity> tasks =
-        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mTaskEntity.key);
-    if (tasks != null && !tasks.isEmpty()) {
-      for (DownloadTaskEntity te : tasks) {
-        mTasksMap.put(te.getEntity().getDownloadUrl(), te);
-      }
-    }
-    for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
-      File file = new File(entity.getDownloadPath());
-      if (entity.getState() == IEntity.STATE_COMPLETE && file.exists()) {
-        mCompleteNum++;
-        mInitNum++;
-        mCurrentLocation += entity.getFileSize();
-      } else {
-        mExeMap.put(entity.getDownloadUrl(), createChildDownloadTask(entity));
-        mCurrentLocation += entity.getCurrentProgress();
-      }
-      mTotalSize += entity.getFileSize();
-    }
   }
 
-  @Override public long getFileSize() {
-    return mTotalSize;
-  }
-
-  @Override public long getCurrentLocation() {
-    return mCurrentLocation;
-  }
-
-  @Override public boolean isDownloading() {
-    return isRunning;
-  }
-
-  @Override public void cancelDownload() {
-    closeTimer(false);
-    mListener.onCancel();
+  @Override public void onCancel() {
+    super.onCancel();
     if (!mInfoPool.isShutdown()) {
       mInfoPool.shutdown();
     }
-    if (!mExePool.isShutdown()) {
-      mExePool.shutdown();
-    }
-
-    Set<String> keys = mDownloaderMap.keySet();
-    for (String key : keys) {
-      Downloader dt = mDownloaderMap.get(key);
-      if (dt != null) {
-        dt.cancelDownload();
-      }
-    }
-    delDownloadInfo();
-    mTaskEntity.deleteData();
   }
 
-  /**
-   * 删除所有子任务的下载信息
-   */
-  private void delDownloadInfo() {
-    List<DownloadTaskEntity> tasks =
-        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mTaskEntity.key);
-    if (tasks == null || tasks.isEmpty()) return;
-    for (DownloadTaskEntity taskEntity : tasks) {
-      CommonUtil.delDownloadTaskConfig(taskEntity.removeFile, taskEntity);
-    }
-  }
-
-  @Override public void stopDownload() {
-    closeTimer(false);
-    mListener.onStop(mCurrentLocation);
+  @Override protected void onStop() {
+    super.onStop();
     if (!mInfoPool.isShutdown()) {
       mInfoPool.shutdown();
     }
-    if (!mExePool.isShutdown()) {
-      mExePool.shutdown();
-    }
-
-    Set<String> keys = mDownloaderMap.keySet();
-    for (String key : keys) {
-      Downloader dt = mDownloaderMap.get(key);
-      if (dt != null) {
-        dt.stopDownload();
-      }
-    }
   }
 
-  @Override public void startDownload() {
-    isRunning = true;
-    mFailNum = 0;
+  @Override protected void onStart() {
+    super.onStart();
     Set<String> keys = mExeMap.keySet();
-    mListener.onPre();
     int i = 0;
     for (String key : keys) {
       DownloadTaskEntity taskEntity = mExeMap.get(key);
@@ -199,19 +75,14 @@ public class DownloadGroupUtil implements IDownloadUtil {
     if (i == mExeMap.size()) startRunningFlow();
   }
 
-  @Override public void resumeDownload() {
-    startDownload();
-    mListener.onResume(mCurrentLocation);
-  }
-
   /**
    * 创建文件信息获取线程
    */
-  private FileInfoThread createFileInfoThread(DownloadTaskEntity taskEntity) {
-    FileInfoThread.OnFileInfoCallback callback = mFileInfoCallbacks.get(taskEntity.hashCode());
+  private HttpFileInfoThread createFileInfoThread(DownloadTaskEntity taskEntity) {
+    OnFileInfoCallback callback = mFileInfoCallbacks.get(taskEntity.hashCode());
 
     if (callback == null) {
-      callback = new FileInfoThread.OnFileInfoCallback() {
+      callback = new OnFileInfoCallback() {
         int failNum = 0;
 
         @Override public void onComplete(String url, int code) {
@@ -248,195 +119,6 @@ public class DownloadGroupUtil implements IDownloadUtil {
         }
       };
     }
-    return new FileInfoThread(taskEntity, callback);
-  }
-
-  private void closeTimer(boolean isRunning) {
-    this.isRunning = isRunning;
-    if (mTimer != null) {
-      mTimer.purge();
-      mTimer.cancel();
-    }
-  }
-
-  /**
-   * 开始进度流程
-   */
-  private void startRunningFlow() {
-    closeTimer(true);
-    mListener.onPostPre(mTotalSize);
-    mListener.onStart(mCurrentLocation);
-    mTimer = new Timer(true);
-    mTimer.schedule(new TimerTask() {
-      @Override public void run() {
-        if (!isRunning) {
-          closeTimer(false);
-        } else if (mCurrentLocation >= 0) {
-          mListener.onProgress(mCurrentLocation);
-        }
-      }
-    }, 0, 1000);
-  }
-
-  /**
-   * 启动子任务下载器
-   */
-  private void startChildDownload(DownloadTaskEntity taskEntity) {
-    ChildDownloadListener listener = new ChildDownloadListener(taskEntity);
-    Downloader dt = new Downloader(listener, taskEntity);
-    mDownloaderMap.put(taskEntity.getEntity().getDownloadUrl(), dt);
-    if (mExePool.isShutdown()) return;
-    mExePool.execute(dt);
-  }
-
-  /**
-   * 创建子任务下载信息
-   */
-  private DownloadTaskEntity createChildDownloadTask(DownloadEntity entity) {
-    DownloadTaskEntity taskEntity = mTasksMap.get(entity.getDownloadUrl());
-    if (taskEntity != null) {
-      taskEntity.entity = entity;
-      return taskEntity;
-    }
-    taskEntity = new DownloadTaskEntity();
-    taskEntity.entity = entity;
-    taskEntity.headers = mTaskEntity.headers;
-    taskEntity.requestEnum = mTaskEntity.requestEnum;
-    taskEntity.redirectUrlKey = mTaskEntity.redirectUrlKey;
-    taskEntity.removeFile = mTaskEntity.removeFile;
-    taskEntity.groupName = mTaskEntity.key;
-    taskEntity.isGroupTask = true;
-    taskEntity.key = entity.getDownloadPath();
-    taskEntity.save();
-    return taskEntity;
-  }
-
-  /**
-   * 子任务事件监听
-   */
-  private class ChildDownloadListener implements IDownloadListener {
-
-    DownloadTaskEntity taskEntity;
-    DownloadEntity entity;
-
-    long lastLen = 0;
-
-    ChildDownloadListener(DownloadTaskEntity entity) {
-      this.taskEntity = entity;
-      this.entity = taskEntity.getEntity();
-      lastLen = this.entity.getCurrentProgress();
-      this.entity.setFailNum(0);
-    }
-
-    @Override public void onPre() {
-      saveData(IEntity.STATE_PRE, -1);
-    }
-
-    @Override public void onPostPre(long fileSize) {
-      entity.setFileSize(fileSize);
-      entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
-      saveData(IEntity.STATE_POST_PRE, -1);
-    }
-
-    @Override public void onResume(long resumeLocation) {
-      saveData(IEntity.STATE_POST_PRE, IEntity.STATE_RUNNING);
-      lastLen = resumeLocation;
-    }
-
-    @Override public void onStart(long startLocation) {
-      saveData(IEntity.STATE_POST_PRE, IEntity.STATE_RUNNING);
-      lastLen = startLocation;
-    }
-
-    @Override public void onProgress(long currentLocation) {
-      long speed = currentLocation - lastLen;
-      mCurrentLocation += speed;
-      lastLen = currentLocation;
-      entity.setCurrentProgress(currentLocation);
-      handleSpeed(speed);
-    }
-
-    @Override public void onStop(long stopLocation) {
-      saveData(IEntity.STATE_STOP, stopLocation);
-      handleSpeed(0);
-      mListener.onSubStop(entity);
-    }
-
-    @Override public void onCancel() {
-      saveData(IEntity.STATE_CANCEL, -1);
-      handleSpeed(0);
-      mListener.onSubCancel(entity);
-    }
-
-    @Override public void onComplete() {
-      saveData(IEntity.STATE_COMPLETE, entity.getFileSize());
-      mCompleteNum++;
-      handleSpeed(0);
-      mListener.onSubComplete(entity);
-      //如果子任务完成的数量和总任务数一致，表示任务组任务已经完成
-      if (mCompleteNum >= mTaskEntity.getEntity().getSubTask().size()) {
-        closeTimer(false);
-        mListener.onComplete();
-      } else if (mCompleteNum + mFailNum >= mActualTaskNum) {
-        //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
-        closeTimer(false);
-        mListener.onComplete();
-      }
-    }
-
-    @Override public void onFail() {
-      entity.setFailNum(entity.getFailNum() + 1);
-      saveData(IEntity.STATE_FAIL, lastLen);
-      handleSpeed(0);
-      reTry();
-    }
-
-    /**
-     * 失败后重试下载，如果失败次数超过5次，不再重试
-     */
-    private void reTry() {
-      if (entity.getFailNum() < 5) {
-        reStartTask();
-      } else {
-        mFailNum++;
-        mListener.onSubFail(entity);
-        //如果失败的任务数大于实际的下载任务数，任务组停止下载
-        if (mFailNum >= mActualTaskNum) {
-          closeTimer(false);
-          mListener.onStop(mCurrentLocation);
-        }
-      }
-    }
-
-    private void reStartTask() {
-      Timer timer = new Timer();
-      timer.schedule(new TimerTask() {
-        @Override public void run() {
-          Downloader dt = mDownloaderMap.get(entity.getDownloadUrl());
-          dt.startDownload();
-        }
-      }, 3000);
-    }
-
-    private void handleSpeed(long speed) {
-      entity.setSpeed(speed);
-      entity.setConvertSpeed(speed <= 0 ? "" : CommonUtil.formatFileSize(speed) + "/s");
-    }
-
-    private void saveData(int state, long location) {
-      entity.setState(state);
-      entity.setComplete(state == IEntity.STATE_COMPLETE);
-      if (entity.isComplete()) {
-        entity.setCompleteTime(System.currentTimeMillis());
-        entity.setCurrentProgress(entity.getFileSize());
-      } else if (location > 0) {
-        entity.setCurrentProgress(location);
-      }
-      entity.update();
-    }
-
-    @Override public void supportBreakpoint(boolean support) {
-
-    }
+    return new HttpFileInfoThread(taskEntity, callback);
   }
 }

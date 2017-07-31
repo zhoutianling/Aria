@@ -27,11 +27,6 @@ public interface IEventListener {
   void onPre();
 
   /**
-   * 预处理完成,准备下载---开始下载之间
-   */
-  void onPostPre(long fileSize);
-
-  /**
    * 开始
    */
   void onStart(long startLocation);

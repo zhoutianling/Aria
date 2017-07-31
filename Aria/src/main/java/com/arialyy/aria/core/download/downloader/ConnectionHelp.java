@@ -26,12 +26,14 @@ import java.util.Set;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
+import org.apache.commons.net.ftp.FTPClient;
 
 /**
  * Created by lyy on 2017/1/18.
  * 链接帮助类
  */
 class ConnectionHelp {
+
   /**
    * 处理链接
    *

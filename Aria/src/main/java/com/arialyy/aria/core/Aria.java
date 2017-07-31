@@ -43,7 +43,7 @@ import com.arialyy.aria.core.upload.UploadTask;
  *   <code>
  *   //下载
  *   Aria.download(this)
- *       .load(DOWNLOAD_URL)     //下载地址，必填
+ *       .load(URL)     //下载地址，必填
  *       //文件保存路径，必填
  *       .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
  *       .start();

@@ -19,6 +19,7 @@ package com.arialyy.aria.core.download;
 import android.os.Handler;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.downloader.SimpleDownloadUtil;
 import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IEntity;
@@ -33,7 +34,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
   public static final String TAG = "DownloadTask";
 
   private DownloadListener mListener;
-  private SimpleDownloadUtil mUtil;
+  private IUtil mUtil;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
     mEntity = taskEntity.getEntity();
@@ -62,11 +63,11 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
    * @see DownloadTask#getKey()
    */
   @Deprecated public String getDownloadUrl() {
-    return mEntity.getDownloadUrl();
+    return mEntity.getUrl();
   }
 
   @Override public String getKey() {
-    return getDownloadUrl();
+    return mEntity.getUrl();
   }
 
   /**
@@ -75,7 +76,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
    * @see DownloadTask#isRunning()
    */
   @Deprecated public boolean isDownloading() {
-    return mUtil.isDownloading();
+    return mUtil.isRunning();
   }
 
   @Override public boolean isRunning() {
@@ -107,10 +108,10 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
    */
   @Override public void start() {
     mListener.isWait = false;
-    if (mUtil.isDownloading()) {
+    if (mUtil.isRunning()) {
       Log.d(TAG, "任务正在下载");
     } else {
-      mUtil.startDownload();
+      mUtil.start();
     }
   }
 
@@ -123,8 +124,8 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
 
   private void stop(boolean isWait) {
     mListener.isWait = isWait;
-    if (mUtil.isDownloading()) {
-      mUtil.stopDownload();
+    if (mUtil.isRunning()) {
+      mUtil.stop();
     } else {
       mEntity.setState(isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP);
       mEntity.update();
@@ -138,14 +139,12 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
    * 取消下载
    */
   @Override public void cancel() {
-    if (!mEntity.isComplete()) {
-      if (!mUtil.isDownloading()) {
-        if (mOutHandler != null) {
-          mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
-        }
+    if (!mUtil.isRunning()) {
+      if (mOutHandler != null) {
+        mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
       }
-      mUtil.cancelDownload();
     }
+    mUtil.cancel();
   }
 
   public static class Builder {

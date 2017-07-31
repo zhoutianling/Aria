@@ -28,6 +28,7 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.PopupWindow;
+import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
@@ -37,10 +38,10 @@ import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -59,7 +60,7 @@ import org.xml.sax.SAXException;
   public static final String DOWNLOAD_TEMP_DIR = "/Aria/temp/download/";
   public static final String UPLOAD_TEMP_DIR = "/Aria/temp/upload/";
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
-  private Map<String, IReceiver> mReceivers = new HashMap<>();
+  private Map<String, IReceiver> mReceivers = new ConcurrentHashMap<>();
   public static Context APP;
   private List<ICmd> mCommands = new ArrayList<>();
   private Configuration.DownloadConfig mDConfig;
@@ -88,7 +89,7 @@ import org.xml.sax.SAXException;
   /**
    * 设置上传任务的执行队列类型
    *
-   * @param mod {@link com.arialyy.aria.core.QueueMod}
+   * @param mod {@link QueueMod}
    */
   public AriaManager setUploadQueueMod(QueueMod mod) {
     mUConfig.setQueueMod(mod.tag);
@@ -98,7 +99,7 @@ import org.xml.sax.SAXException;
   /**
    * 设置下载任务的执行队列类型
    *
-   * @param mod {@link com.arialyy.aria.core.QueueMod}
+   * @param mod {@link QueueMod}
    */
   public AriaManager setDownloadQueueMod(QueueMod mod) {
     mDConfig.setQueueMod(mod.tag);

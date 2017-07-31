@@ -16,14 +16,13 @@
 package com.arialyy.aria.core.download;
 
 import android.os.Handler;
-import android.util.Log;
 import com.arialyy.aria.core.download.downloader.IDownloadGroupListener;
 
 /**
  * Created by Aria.Lao on 2017/7/20.
  * 任务组下载事件
  */
-class DownloadGroupListener extends BaseListener<DownloadGroupEntity, DownloadGroupTask>
+class DownloadGroupListener extends BaseDListener<DownloadGroupEntity, DownloadGroupTask>
     implements IDownloadGroupListener {
   private final String TAG = "DownloadGroupListener";
 

@@ -16,13 +16,13 @@
 package com.arialyy.aria.core.download;
 
 import android.os.Handler;
-import com.arialyy.aria.core.download.downloader.IDownloadListener;
+import com.arialyy.aria.core.inf.IDownloadListener;
 
 /**
  * Created by Aria.Lao on 2017/7/20.
  * 普通任务下载的事件监听器
  */
-class DownloadListener extends BaseListener<DownloadEntity, DownloadTask>
+class DownloadListener extends BaseDListener<DownloadEntity, DownloadTask>
     implements IDownloadListener {
   DownloadListener(DownloadTask task, Handler outHandler) {
     super(task, outHandler);

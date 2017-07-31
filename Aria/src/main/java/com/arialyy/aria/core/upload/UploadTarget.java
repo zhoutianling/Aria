@@ -20,10 +20,12 @@ import com.arialyy.aria.core.inf.AbsDownloadTarget;
 import com.arialyy.aria.core.inf.AbsUploadTarget;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
+import java.io.File;
 import java.util.regex.Pattern;
 
 /**
  * Created by lyy on 2017/2/28.
+ * http 当文件上传
  */
 public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, UploadTaskEntity> {
 
@@ -38,21 +40,11 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
       mTaskEntity.entity = getUploadEntity(filePath);
     }
     mEntity = mTaskEntity.entity;
-  }
-
-  private UploadEntity getUploadEntity(String filePath) {
-    UploadEntity entity = UploadEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
-    if (entity == null) {
-      entity = new UploadEntity();
-      String regex = "[/|\\\\|//]";
-      Pattern p = Pattern.compile(regex);
-      String[] strs = p.split(filePath);
-      String fileName = strs[strs.length - 1];
-      entity.setFileName(fileName);
-      entity.setFilePath(filePath);
-      entity.insert();
-    }
-    return entity;
+    File file = new File(filePath);
+    mEntity.setFileSize(file.length());
+    mEntity = mTaskEntity.entity;
+    //http暂时不支持断点上传
+    mTaskEntity.isSupportBP = false;
   }
 
   /**
@@ -60,16 +52,6 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
    */
   public UploadTarget setUserAngent(@NonNull String userAgent) {
     mTaskEntity.userAgent = userAgent;
-    return this;
-  }
-
-  /**
-   * 设置上传路径
-   *
-   * @param uploadUrl 上传路径
-   */
-  public UploadTarget setUploadUrl(@NonNull String uploadUrl) {
-    mTaskEntity.uploadUrl = uploadUrl;
     return this;
   }
 
@@ -91,20 +73,5 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
   public UploadTarget setContentType(String contentType) {
     mTaskEntity.contentType = contentType;
     return this;
-  }
-
-  /**
-   * 下载任务是否存在
-   */
-  @Override public boolean taskExists() {
-    return UploadTaskQueue.getInstance().getTask(mEntity.getFilePath()) != null;
-  }
-
-  /**
-   * 是否在下载
-   */
-  public boolean isUploading() {
-    UploadTask task = UploadTaskQueue.getInstance().getTask(mEntity);
-    return task != null && task.isRunning();
   }
 }

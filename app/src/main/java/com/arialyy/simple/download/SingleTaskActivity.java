@@ -24,7 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.Bind;
 import com.arialyy.annotations.Download;
@@ -83,7 +82,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         msg = "一些小知识点：\n"
             + "1、你可以在注解中增加链接，用于指定被注解的方法只能被特定的下载任务回调，以防止progress乱跳\n"
             + "2、当遇到网络慢的情况时，你可以先使用onPre()更新UI界面，待连接成功时，再在onTaskPre()获取完整的task数据，然后给UI界面设置正确的数据\n"
-            + "3、你可以在界面初始化时通过Aria.download(this).load(DOWNLOAD_URL).getPercent()等方法快速获取相关任务的一些数据";
+            + "3、你可以在界面初始化时通过Aria.download(this).load(URL).getPercent()等方法快速获取相关任务的一些数据";
         showMsgDialog("tip", msg);
         break;
       case R.id.speed_0:
@@ -188,24 +187,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        //String text = ((TextView) view).getText().toString();
-        //if (text.equals("重新开始？") || text.equals("开始")) {
-        //  Aria.download(this)
-        //      .load(DOWNLOAD_URL)
-        //      .addHeader("groupName", "value")
-        //      .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
-        //      .setFileName("hehe.apk")
-        //      .start();
-        //} else if (text.equals("恢复")) {
-        //  Aria.download(this).load(DOWNLOAD_URL).resume();
-        //}
         Aria.download(this)
             .load(DOWNLOAD_URL)
             .addHeader("groupName", "value")
             .setExtendField("str___ggggggg")
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/gggg.apk")
             .start();
-
         break;
       case R.id.stop:
         Aria.download(this).load(DOWNLOAD_URL).stop();

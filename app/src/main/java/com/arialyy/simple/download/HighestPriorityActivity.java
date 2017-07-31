@@ -87,9 +87,9 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
     List<DownloadEntity> temp = Aria.download(this).getSimpleTaskList();
     if (temp != null && !temp.isEmpty()) {
       for (DownloadEntity entity : temp) {
-        if (entity.getDownloadUrl().equals(DOWNLOAD_URL)) continue;
+        if (entity.getUrl().equals(DOWNLOAD_URL)) continue;
         mData.add(entity);
-        mRecord.add(entity.getDownloadUrl());
+        mRecord.add(entity.getUrl());
       }
     }
     mAdapter = new DownloadAdapter(this, mData);
@@ -112,7 +112,7 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
       case R.id.add_task:
         List<DownloadEntity> temp = getModule(DownloadModule.class).getHighestTestList();
         for (DownloadEntity entity : temp) {
-          String url = entity.getDownloadUrl();
+          String url = entity.getUrl();
           if (mRecord.contains(url)) {
             continue;
           }

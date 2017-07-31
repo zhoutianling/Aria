@@ -16,7 +16,7 @@
 package com.arialyy.aria.core.inf;
 
 import android.support.annotation.NonNull;
-import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.core.common.RequestEnum;
 import java.util.Map;
 
 /**

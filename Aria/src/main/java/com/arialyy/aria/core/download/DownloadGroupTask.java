@@ -18,8 +18,10 @@ package com.arialyy.aria.core.download;
 import android.os.Handler;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.downloader.DownloadGroupUtil;
-import com.arialyy.aria.core.download.downloader.IDownloadUtil;
+import com.arialyy.aria.core.download.downloader.FtpDirDownloadUtil;
+import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.inf.AbsGroupTask;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CheckUtil;
 
@@ -30,7 +32,7 @@ import com.arialyy.aria.util.CheckUtil;
 public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, DownloadGroupEntity> {
   private final String TAG = "DownloadGroupTask";
   private DownloadGroupListener mListener;
-  private IDownloadUtil mUtil;
+  private IUtil mUtil;
 
   private DownloadGroupTask(DownloadGroupTaskEntity taskEntity, Handler outHandler) {
     mTaskEntity = taskEntity;
@@ -38,33 +40,40 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
     mListener = new DownloadGroupListener(this, mOutHandler);
-    mUtil = new DownloadGroupUtil(mListener, mTaskEntity);
+    switch (taskEntity.requestType) {
+      case AbsTaskEntity.HTTP:
+        mUtil = new DownloadGroupUtil(mListener, mTaskEntity);
+        break;
+      case  AbsTaskEntity.FTP_DIR:
+        mUtil = new FtpDirDownloadUtil(mListener, mTaskEntity);
+        break;
+    }
   }
 
   @Override public boolean isRunning() {
-    return mUtil.isDownloading();
+    return mUtil.isRunning();
   }
 
   @Override public void start() {
-    mUtil.startDownload();
+    mUtil.start();
   }
 
   @Override public void stop() {
-    if (!mUtil.isDownloading()) {
+    if (!mUtil.isRunning()) {
       if (mOutHandler != null) {
         mOutHandler.obtainMessage(ISchedulers.STOP, this).sendToTarget();
       }
     }
-    mUtil.stopDownload();
+    mUtil.stop();
   }
 
   @Override public void cancel() {
-    if (!mUtil.isDownloading()) {
+    if (!mUtil.isRunning()) {
       if (mOutHandler != null) {
         mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
       }
     }
-    mUtil.cancelDownload();
+    mUtil.cancel();
   }
 
   public static class Builder {

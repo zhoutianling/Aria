@@ -19,7 +19,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.RequestEnum;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.Map;
@@ -157,7 +157,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   }
 
   /**
-   * 开始下载
+   * 开始任务
    */
   @Override public void start() {
     AriaManager.getInstance(AriaManager.APP)
@@ -166,7 +166,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   }
 
   /**
-   * 停止下载
+   * 停止任务
    *
    * @see #stop()
    */
@@ -181,7 +181,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   }
 
   /**
-   * 恢复下载
+   * 恢复任务
    */
   @Override public void resume() {
     AriaManager.getInstance(AriaManager.APP)
@@ -190,9 +190,22 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   }
 
   /**
-   * 取消下载
+   * 删除任务
    */
   @Override public void cancel() {
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL))
+        .exe();
+  }
+
+  /**
+   * 删除任务
+   *
+   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
+   * {@code false}如果任务已经完成，只删除任务数据库记录，
+   */
+  public void cancel(boolean removeFile) {
+    mTaskEntity.removeFile = removeFile;
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL))
         .exe();
