@@ -81,7 +81,11 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    * @param str 扩展数据
    */
   public TARGET setExtendField(String str) {
-    mEntity.setStr(str);
+    if (TextUtils.isEmpty(str)) return (TARGET) this;
+    if (TextUtils.isEmpty(mEntity.getStr()) || !mEntity.getStr().equals(str)) {
+      mEntity.setStr(str);
+      mEntity.save();
+    }
     return (TARGET) this;
   }
 

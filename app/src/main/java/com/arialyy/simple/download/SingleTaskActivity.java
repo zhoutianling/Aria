@@ -18,6 +18,7 @@ package com.arialyy.simple.download;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +32,7 @@ import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
@@ -200,8 +202,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         Aria.download(this)
             .load(DOWNLOAD_URL)
             .addHeader("groupName", "value")
+            .setExtendField("str___ggggggg")
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/gggg.apk")
             .start();
+
         break;
       case R.id.stop:
         Aria.download(this).load(DOWNLOAD_URL).stop();
