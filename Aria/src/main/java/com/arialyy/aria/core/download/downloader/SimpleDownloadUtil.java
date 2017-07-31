@@ -16,7 +16,6 @@
 
 package com.arialyy.aria.core.download.downloader;
 
-import android.util.Log;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
@@ -71,7 +70,6 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
    * 多线程断点续传下载文件，开始下载
    */
   @Override public void start() {
-    mListener.onPre();
     new Thread(this).start();
   }
 
@@ -84,11 +82,11 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
   }
 
   private void failDownload(String msg) {
-    Log.e(TAG, msg);
     mListener.onFail();
   }
 
   @Override public void run() {
+    mListener.onPre();
     if (mTaskEntity.getEntity().getFileSize() <= 1) {
       new Thread(createInfoThread()).start();
     } else {

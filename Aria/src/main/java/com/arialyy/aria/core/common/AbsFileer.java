@@ -99,18 +99,17 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       mConstance.THREAD_NUM = mThreadNum;
       handleNoSupportBP();
     } else {
-      mThreadNum = isNewTask ? (getThreadNum()) : mRealThreadNum;
+      mThreadNum = isNewTask ? (getNewTaskThreadNum()) : mRealThreadNum;
       mConstance.THREAD_NUM = mThreadNum;
-      mFixedThreadPool = Executors.newFixedThreadPool(mThreadNum);
       handleBreakpoint();
     }
     startTimer();
   }
 
   /**
-   * 获取线程数
+   * 设置新任务的最大线程数
    */
-  protected int getThreadNum() {
+  protected int getNewTaskThreadNum() {
     return mEntity.getFileSize() <= SUB_LEN || mTaskEntity.requestType == AbsTaskEntity.FTP_DIR ? 1
         : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
   }
@@ -293,25 +292,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
-   * 启动单线程下载任务
-   */
-  private void startSingleTask(int[] recordL) {
-    if (mConstance.CURRENT_LOCATION > 0) {
-      mListener.onResume(mConstance.CURRENT_LOCATION);
-    } else {
-      mListener.onStart(mConstance.CURRENT_LOCATION);
-    }
-    mFixedThreadPool = Executors.newFixedThreadPool(recordL.length);
-    for (int l : recordL) {
-      if (l == -1) continue;
-      Runnable task = mTask.get(l);
-      if (task != null) {
-        mFixedThreadPool.execute(task);
-      }
-    }
-  }
-
-  /**
    * 处理断点
    */
   private void handleBreakpoint() {
@@ -358,6 +338,28 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     startSingleTask(recordL);
   }
 
+  /**
+   * 启动单线程下载任务
+   */
+  private void startSingleTask(int[] recordL) {
+    if (mConstance.CURRENT_LOCATION > 0) {
+      mListener.onResume(mConstance.CURRENT_LOCATION);
+    } else {
+      mListener.onStart(mConstance.CURRENT_LOCATION);
+    }
+    mFixedThreadPool = Executors.newFixedThreadPool(recordL.length);
+    for (int l : recordL) {
+      if (l == -1) continue;
+      Runnable task = mTask.get(l);
+      if (task != null) {
+        mFixedThreadPool.execute(task);
+      }
+    }
+  }
+
+  /**
+   * 处理新任务
+   */
   protected abstract void handleNewTask();
 
   /**
@@ -377,6 +379,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     AbsThreadTask task = selectThreadTask(config);
     if (task == null) return;
     mTask.put(0, task);
+    mFixedThreadPool = Executors.newFixedThreadPool(1);
     mFixedThreadPool.execute(task);
     mListener.onStart(0);
   }

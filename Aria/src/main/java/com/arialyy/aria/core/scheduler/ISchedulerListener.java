@@ -25,45 +25,45 @@ public interface ISchedulerListener<TASK extends ITask> {
    * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态。
    * 在这个回调中，任务是获取不到文件大小，下载速度等参数
    */
-  public void onPre(TASK task);
+  void onPre(TASK task);
 
   /**
    * 任务预加载完成
    */
-  public void onTaskPre(TASK task);
+  void onTaskPre(TASK task);
 
   /**
    * 任务恢复下载
    */
-  public void onTaskResume(TASK task);
+  void onTaskResume(TASK task);
 
   /**
    * 任务开始
    */
-  public void onTaskStart(TASK task);
+  void onTaskStart(TASK task);
 
   /**
    * 任务停止
    */
-  public void onTaskStop(TASK task);
+  void onTaskStop(TASK task);
 
   /**
    * 任务取消
    */
-  public void onTaskCancel(TASK task);
+  void onTaskCancel(TASK task);
 
   /**
    * 任务下载失败
    */
-  public void onTaskFail(TASK task);
+  void onTaskFail(TASK task);
 
   /**
    * 任务完成
    */
-  public void onTaskComplete(TASK task);
+  void onTaskComplete(TASK task);
 
   /**
    * 任务执行中
    */
-  public void onTaskRunning(TASK task);
+  void onTaskRunning(TASK task);
 }

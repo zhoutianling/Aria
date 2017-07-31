@@ -22,6 +22,7 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
+import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
@@ -134,7 +135,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
           if (configFile.exists()) {
             configFile.delete();
           }
-          if (mConfig.TEMP_FILE.exists()) {
+          if (mConfig.TEMP_FILE.exists() && !(mEntity instanceof UploadEntity)) {
             mConfig.TEMP_FILE.delete();
           }
           Log.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已取消");

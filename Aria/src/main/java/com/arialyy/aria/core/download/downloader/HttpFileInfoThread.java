@@ -37,7 +37,6 @@ class HttpFileInfoThread implements Runnable {
   private int mConnectTimeOut;
   private OnFileInfoCallback onFileInfoListener;
 
-
   HttpFileInfoThread(DownloadTaskEntity taskEntity, OnFileInfoCallback callback) {
     this.mTaskEntity = taskEntity;
     mEntity = taskEntity.getEntity();
@@ -73,7 +72,8 @@ class HttpFileInfoThread implements Runnable {
   private void handleConnect(HttpURLConnection conn) throws IOException {
     long len = conn.getContentLength();
     if (len < 0) {
-      len = Long.parseLong(conn.getHeaderField(mTaskEntity.contentLength));
+      String temp = conn.getHeaderField(mTaskEntity.contentLength);
+      len = TextUtils.isEmpty(temp) ? -1 : Long.parseLong(temp);
     }
     int code = conn.getResponseCode();
     boolean isComplete = false;

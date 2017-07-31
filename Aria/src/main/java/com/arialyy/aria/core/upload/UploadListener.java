@@ -52,8 +52,4 @@ class UploadListener implements IUploadListener {
   @Override public void onFail() {
 
   }
-
-  @Override public void onComplete(int state) {
-
-  }
 }

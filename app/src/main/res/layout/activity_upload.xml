@@ -11,6 +11,11 @@
         type="String"
         />
 
+    <variable
+        name="progress"
+        type="int"
+        />
+
   </data>
 
   <LinearLayout
@@ -34,6 +39,7 @@
           android:layout_margin="16dp"
           android:layout_toLeftOf="@+id/size"
           android:max="100"
+          android:progress="@{progress}"
           style="?android:attr/progressBarStyleHorizontal"
           />
 

@@ -27,7 +27,7 @@ import com.arialyy.simple.download.FtpDownloadActivity;
 import com.arialyy.simple.download.group.DownloadGroupActivity;
 import com.arialyy.simple.download.group.FTPDirDownloadActivity;
 import com.arialyy.simple.upload.FtpUploadActivity;
-import com.arialyy.simple.upload.UploadActivity;
+import com.arialyy.simple.upload.HttpUploadActivity;
 
 /**
  * Created by Aria.Lao on 2017/3/1.
@@ -54,7 +54,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
         startActivity(new Intent(this, DownloadActivity.class));
         break;
       case R.id.upload:
-        startActivity(new Intent(this, UploadActivity.class));
+        startActivity(new Intent(this, HttpUploadActivity.class));
         break;
       case R.id.download_task_group:
         startActivity(new Intent(this, DownloadGroupActivity.class));

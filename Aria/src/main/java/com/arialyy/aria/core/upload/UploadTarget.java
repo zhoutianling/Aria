@@ -39,6 +39,7 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
     if (mTaskEntity.entity == null) {
       mTaskEntity.entity = getUploadEntity(filePath);
     }
+    mEntity = mTaskEntity.entity;
     File file = new File(filePath);
     mEntity.setFileSize(file.length());
     mEntity = mTaskEntity.entity;

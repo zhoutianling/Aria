@@ -185,17 +185,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        //String text = ((TextView) view).getText().toString();
-        //if (text.equals("重新开始？") || text.equals("开始")) {
-        //  Aria.download(this)
-        //      .load(URL)
-        //      .addHeader("groupName", "value")
-        //      .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/test.apk")
-        //      .setFileName("hehe.apk")
-        //      .start();
-        //} else if (text.equals("恢复")) {
-        //  Aria.download(this).load(URL).resume();
-        //}
         Aria.download(this)
             .load(DOWNLOAD_URL)
             .addHeader("groupName", "value")

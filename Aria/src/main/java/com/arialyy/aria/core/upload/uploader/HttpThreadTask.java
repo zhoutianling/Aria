@@ -49,7 +49,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
   private long mCurrentLocation = 0;
   private OutputStream mOutputStream;
 
-  public HttpThreadTask(StateConstance constance, IUploadListener listener,
+  HttpThreadTask(StateConstance constance, IUploadListener listener,
       SubThreadConfig<UploadTaskEntity> uploadInfo) {
     super(constance, listener, uploadInfo);
   }
@@ -89,7 +89,6 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       for (String key : keys) {
         addFormField(writer, key, mTaskEntity.formFields.get(key));
       }
-      mListener.onStart(0);
       uploadFile(writer, mTaskEntity.attachment, uploadFile);
       Log.d(TAG, finish(writer) + "");
     } catch (IOException e) {
@@ -101,6 +100,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
   private void fail() {
     try {
       mListener.onFail();
+      STATE.isRunning = false;
       if (mOutputStream != null) {
         mOutputStream.close();
       }
@@ -167,9 +167,11 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     writer.flush();
     if (STATE.isCancel) {
       mListener.onCancel();
+      STATE.isRunning = false;
       return;
     }
     mListener.onComplete();
+    STATE.isRunning = false;
   }
 
   /**
@@ -195,7 +197,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       mHttpConn.disconnect();
     } else {
       Log.w(TAG, "state_code = " + status);
-      mListener.onFail();
+      fail();
     }
 
     writer.flush();

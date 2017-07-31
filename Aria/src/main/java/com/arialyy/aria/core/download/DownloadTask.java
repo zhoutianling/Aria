@@ -139,14 +139,12 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
    * 取消下载
    */
   @Override public void cancel() {
-    if (!mEntity.isComplete()) {
-      if (!mUtil.isRunning()) {
-        if (mOutHandler != null) {
-          mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
-        }
+    if (!mUtil.isRunning()) {
+      if (mOutHandler != null) {
+        mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
       }
-      mUtil.cancel();
     }
+    mUtil.cancel();
   }
 
   public static class Builder {

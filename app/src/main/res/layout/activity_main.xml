@@ -13,7 +13,7 @@
         android:id="@+id/download"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="下载"
+        android:text="http 下载"
         style="?buttonBarButtonStyle"
         />
 
@@ -21,7 +21,7 @@
         android:id="@+id/upload"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="上传"
+        android:text="http 上传"
         style="?buttonBarButtonStyle"
         />
 
@@ -29,7 +29,7 @@
         android:id="@+id/download_task_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="下载任务组"
+        android:text="http 下载任务组"
         style="?buttonBarButtonStyle"
         />
 

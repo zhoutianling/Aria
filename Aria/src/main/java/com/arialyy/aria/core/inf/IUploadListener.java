@@ -23,8 +23,4 @@ import com.arialyy.aria.core.inf.IEventListener;
  */
 public interface IUploadListener extends IEventListener {
 
-  /**
-   * 上传完成，服务器返回的状态码
-   */
-  void onComplete(int state);
 }

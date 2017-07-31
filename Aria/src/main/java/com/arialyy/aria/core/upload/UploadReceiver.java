@@ -35,7 +35,7 @@ import java.util.Set;
  * 上传功能接收器
  */
 public class UploadReceiver extends AbsReceiver<UploadEntity> {
-  private static final String TAG = "DownloadReceiver";
+  private static final String TAG = "UploadReceiver";
   public ISchedulerListener<UploadTask> listener;
 
   /**
@@ -62,7 +62,6 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
    * 通过上传路径获取上传实体
    */
   public UploadEntity getUploadEntity(String filePath) {
-    CheckUtil.checkUploadPath(filePath);
     return DbEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
   }
 

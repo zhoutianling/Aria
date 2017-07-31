@@ -44,17 +44,11 @@ import java.lang.annotation.Target;
   }
 
   /**
-   * 如果你在方法中添加{@code @Upload.onTaskPre}注解，在任务预处理完成时，Aria会调用该方法
-   */
-  @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onTaskPre {
-    String[] value() default { AriaConstance.NO_URL };
-  }
-
-  /**
    * 如果你在方法中添加{@code @Upload.onTaskResume}注解，在任务恢复下载时，Aria会调用该方法
    */
-  //@Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) public @interface onTaskResume {
-  //}
+  @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onTaskResume {
+    String[] value() default { AriaConstance.NO_URL };
+  }
 
   /**
    * 如果你在方法中添加{@code @Upload.onTaskStart}注解，在任务开始下载时，Aria会调用该方法
@@ -101,8 +95,7 @@ import java.lang.annotation.Target;
   /**
    * 如果你在方法中添加{@code @Upload.onNoSupportBreakPoint}注解，如果该任务不支持断点，Aria会调用该方法
    */
-  @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD)
-  @interface onNoSupportBreakPoint {
+  @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onNoSupportBreakPoint {
     String[] value() default { AriaConstance.NO_URL };
   }
 }

@@ -17,16 +17,12 @@
 package com.arialyy.simple.upload;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import butterknife.Bind;
 import butterknife.OnClick;
 import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.upload.UploadTask;
-import com.arialyy.frame.util.FileUtil;
 import com.arialyy.frame.util.show.L;
-import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityUploadBinding;
@@ -35,50 +31,19 @@ import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 /**
  * Created by Aria.Lao on 2017/2/9.
  */
-public class UploadActivity extends BaseActivity<ActivityUploadBinding> {
-  private static final String TAG = "UploadActivity";
+public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
+  private static final String TAG = "HttpUploadActivity";
   @Bind(R.id.pb) HorizontalProgressBarWithNumber mPb;
-  private static final int START = 0;
-  private static final int STOP = 1;
-  private static final int CANCEL = 2;
-  private static final int RUNNING = 3;
-  private static final int COMPLETE = 4;
 
-  private static final String FILE_PATH = "/sdcard/Download/test.zip";
-
-  private Handler mHandler = new Handler() {
-    @Override public void handleMessage(Message msg) {
-      super.handleMessage(msg);
-      UploadTask task = (UploadTask) msg.obj;
-      switch (msg.what) {
-        case START:
-          getBinding().setFileSize(FileUtil.formatFileSize(task.getFileSize()));
-          break;
-        case STOP:
-          mPb.setProgress(0);
-          break;
-        case CANCEL:
-          mPb.setProgress(0);
-          break;
-        case RUNNING:
-          int p = (int) (task.getCurrentProgress() * 100 / task.getFileSize());
-          mPb.setProgress(p);
-          break;
-        case COMPLETE:
-          T.showShort(UploadActivity.this, "上传完成");
-          mPb.setProgress(100);
-          break;
-      }
-    }
-  };
+  private static final String FILE_PATH = "/sdcard/large.rar";
 
   @Override protected int setLayoutId() {
     return R.layout.activity_upload;
   }
 
   @Override protected void init(Bundle savedInstanceState) {
+    setTile("HTTP 上传");
     super.init(savedInstanceState);
-    setTile("http上传");
     Aria.upload(this).register();
   }
 
@@ -101,27 +66,31 @@ public class UploadActivity extends BaseActivity<ActivityUploadBinding> {
   @Upload.onPre public void onPre(UploadTask task) {
   }
 
-  @Upload.onTaskPre public void taskPre(UploadTask task) {
-    L.d(TAG, "fileSize = " + task.getConvertFileSize());
-  }
-
   @Upload.onTaskStart public void taskStart(UploadTask task) {
-    mHandler.obtainMessage(START, task).sendToTarget();
+    L.d(TAG, "upload start");
+    getBinding().setFileSize(task.getConvertFileSize());
   }
 
   @Upload.onTaskStop public void taskStop(UploadTask task) {
-    mHandler.obtainMessage(STOP, task).sendToTarget();
+    L.d(TAG, "upload stop");
+    getBinding().setSpeed("");
+    getBinding().setProgress(0);
   }
 
   @Upload.onTaskCancel public void taskCancel(UploadTask task) {
-    mHandler.obtainMessage(CANCEL, task).sendToTarget();
+    L.d(TAG, "upload cancel");
+    getBinding().setSpeed("");
+    getBinding().setProgress(0);
   }
 
   @Upload.onTaskRunning public void taskRunning(UploadTask task) {
-    mHandler.obtainMessage(RUNNING, task).sendToTarget();
+    getBinding().setSpeed(task.getConvertSpeed());
+    getBinding().setProgress(task.getPercent());
   }
 
   @Upload.onTaskComplete public void taskComplete(UploadTask task) {
-    mHandler.obtainMessage(COMPLETE, task).sendToTarget();
+    L.d(TAG, "上传完成");
+    getBinding().setSpeed("");
+    getBinding().setProgress(100);
   }
 }

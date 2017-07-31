@@ -150,7 +150,7 @@ public class CommonUtil {
   /**
    * 删除上传任务的配置，包括
    *
-   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经下载完成的文件
+   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
   public static void delUploadTaskConfig(boolean removeFile, UploadTaskEntity tEntity) {
@@ -160,15 +160,8 @@ public class CommonUtil {
       if (file.exists()) {
         file.delete();
       }
-    } else {
-      if (!uEntity.isComplete()) {
-        if (file.exists()) {
-          file.delete();
-        }
-      }
     }
-    File config = new File(
-        AriaManager.APP.getFilesDir().getPath() + "/temp/" + uEntity.getFileName() + ".properties");
+    File config = new File(getFileConfig(false, uEntity.getFileName()));
     if (config.exists()) {
       config.delete();
     }
@@ -197,8 +190,7 @@ public class CommonUtil {
       }
     }
 
-    File config = new File(
-        AriaManager.APP.getFilesDir().getPath() + "/temp/" + dEntity.getFileName() + ".properties");
+    File config = new File(getFileConfig(true, dEntity.getFileName()));
     if (config.exists()) {
       config.delete();
     }

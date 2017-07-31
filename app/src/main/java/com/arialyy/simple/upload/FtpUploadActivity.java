@@ -20,7 +20,9 @@ import android.util.Log;
 import android.view.View;
 import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
+import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
@@ -32,12 +34,19 @@ import com.arialyy.simple.databinding.ActivityFtpUploadBinding;
  * Ftp 文件上传demo
  */
 public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
-  private final String FILE_PATH = "/mnt/sdcard/王者军团.apk";
+  private final String FILE_PATH = "/mnt/sdcard/gggg.apk";
   private final String URL = "ftp://172.18.104.129:21/upload/";
 
   @Override protected void init(Bundle savedInstanceState) {
+    setTile("FTP 文件上传");
     super.init(savedInstanceState);
     Aria.upload(this).register();
+    UploadEntity entity = Aria.upload(this).getUploadEntity(FILE_PATH);
+    if (entity != null) {
+      getBinding().setFileSize(CommonUtil.formatFileSize(entity.getFileSize()));
+      getBinding().setProgress(entity.isComplete() ? 100
+          : (int) (entity.getCurrentProgress() * 100 / entity.getFileSize()));
+    }
   }
 
   @Override protected int setLayoutId() {
@@ -53,7 +62,7 @@ public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
         Aria.upload(this).loadFtp(FILE_PATH).stop();
         break;
       case R.id.cancel:
-        Aria.upload(this).load(FILE_PATH).cancel();
+        Aria.upload(this).loadFtp(FILE_PATH).cancel();
         break;
     }
   }
@@ -62,12 +71,12 @@ public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
     getBinding().setFileSize(task.getConvertFileSize());
   }
 
-  @Upload.onTaskPre public void taskPre(UploadTask task) {
-    L.d(TAG, "fileSize = " + task.getConvertFileSize());
+  @Upload.onTaskStart public void taskStart(UploadTask task) {
+    Log.d(TAG, "开始上传");
   }
 
-  @Upload.onTaskStart public void taskStart(UploadTask task) {
-
+  @Upload.onTaskResume public void taskResume(UploadTask task) {
+    Log.d(TAG, "恢复上传");
   }
 
   @Upload.onTaskStop public void taskStop(UploadTask task) {
@@ -77,7 +86,9 @@ public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
 
   @Upload.onTaskCancel public void taskCancel(UploadTask task) {
     getBinding().setSpeed("");
-    Log.d(TAG, "取消上传");
+    getBinding().setFileSize("");
+    getBinding().setProgress(0);
+    Log.d(TAG, "删除任务");
   }
 
   @Upload.onTaskRunning public void taskRunning(UploadTask task) {

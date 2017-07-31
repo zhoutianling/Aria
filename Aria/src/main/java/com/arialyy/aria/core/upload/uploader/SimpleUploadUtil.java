@@ -23,17 +23,17 @@ import com.arialyy.aria.util.CheckUtil;
 
 /**
  * Created by lyy on 2017/2/9.
- * 简单的http文件上传工具
+ * 简单的文件上传工具
  */
-public class SimpleHttpUploadUtil implements IUtil, Runnable {
-  private static final String TAG = "SimpleHttpUploadUtil";
+public class SimpleUploadUtil implements IUtil, Runnable {
+  private static final String TAG = "SimpleUploadUtil";
 
   private UploadEntity mUploadEntity;
   private UploadTaskEntity mTaskEntity;
   private IUploadListener mListener;
   private Uploader mUploader;
 
-  public SimpleHttpUploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
+  public SimpleUploadUtil(UploadTaskEntity taskEntity, IUploadListener listener) {
     mTaskEntity = taskEntity;
     CheckUtil.checkTaskEntity(taskEntity);
     mUploadEntity = taskEntity.getEntity();
@@ -45,6 +45,7 @@ public class SimpleHttpUploadUtil implements IUtil, Runnable {
   }
 
   @Override public void run() {
+    mListener.onPre();
     mUploader.start();
   }
 
@@ -69,7 +70,7 @@ public class SimpleHttpUploadUtil implements IUtil, Runnable {
   }
 
   @Override public void start() {
-    mUploader.start();
+    new Thread(this).start();
   }
 
   @Override public void resume() {

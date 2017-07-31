@@ -120,8 +120,7 @@ class ElementHandler {
     saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskComplete.class,
         ProxyConstance.TASK_COMPLETE);
     saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskFail.class, ProxyConstance.TASK_FAIL);
-    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskPre.class, ProxyConstance.TASK_PRE);
-    //saveMethod(false, roundEnv, Upload.onTaskResume.class);
+    saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskResume.class, ProxyConstance.TASK_RESUME);
     saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskRunning.class, ProxyConstance.TASK_RUNNING);
     saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskStart.class, ProxyConstance.TASK_START);
     saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onTaskStop.class, ProxyConstance.TASK_STOP);
@@ -484,10 +483,10 @@ class ElementHandler {
         values = method.getAnnotation(Upload.onPre.class).value();
         break;
       case ProxyConstance.TASK_PRE:
-        values = method.getAnnotation(Upload.onTaskPre.class).value();
+        //values = method.getAnnotation(Upload.onTaskPre.class).value();
         break;
       case ProxyConstance.TASK_RESUME:
-        //values = method.getAnnotation(Upload.onTaskResume.class).value();
+        values = method.getAnnotation(Upload.onTaskResume.class).value();
         break;
       case ProxyConstance.TASK_START:
         values = method.getAnnotation(Upload.onTaskStart.class).value();

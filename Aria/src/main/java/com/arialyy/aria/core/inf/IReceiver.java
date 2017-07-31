@@ -24,37 +24,37 @@ public interface IReceiver<ENTITY extends IEntity> {
   /**
    * Receiver 销毁
    */
-  public void destroy();
+  void destroy();
 
   /**
    * 移除事件回调
    */
-  public void removeSchedulerListener();
+  void removeSchedulerListener();
 
   /**
    * 移除观察者
    */
-  public void unRegister();
+  void unRegister();
 
   /**
    * 停止所有任务
    */
-  public void stopAllTask();
+  void stopAllTask();
 
   /**
    * 删除所有任务
    */
-  public void removeAllTask(boolean removeFile);
+  void removeAllTask(boolean removeFile);
 
   /**
    * 任务是否存在
    *
    * @param key 下载时为下载路径，上传时为文件路径
    */
-  public boolean taskExists(String key);
+  boolean taskExists(String key);
 
   /**
    * 获取任务列表
    */
-  public List<ENTITY> getSimpleTaskList();
+  List<ENTITY> getSimpleTaskList();
 }

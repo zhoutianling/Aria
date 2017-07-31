@@ -35,11 +35,11 @@ import org.apache.commons.net.ftp.FTPReply;
 
 /**
  * Created by Aria.Lao on 2017/7/28.
- * FTP 单线程下载器
+ * FTP 单线程上传任务，需要FTP 服务器给用户打开删除和读入IO的权限
  */
 class FtpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
   private final String TAG = "FtpThreadTask";
-  private String remotePath, charSet;
+  private String dir, remotePath, charSet;
 
   FtpThreadTask(StateConstance constance, IEventListener listener,
       SubThreadConfig<UploadTaskEntity> info) {
@@ -64,8 +64,8 @@ class FtpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       mChildCurrentLocation = mConfig.START_LOCATION;
       client = createClient();
       if (client == null) return;
-      client.makeDirectory(remotePath);
-      client.changeWorkingDirectory(remotePath);
+      client.makeDirectory(dir);
+      client.changeWorkingDirectory(dir);
       client.setRestartOffset(mConfig.START_LOCATION);
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
       file.seek(mConfig.START_LOCATION);
@@ -154,9 +154,8 @@ class FtpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     String[] pp = url.split("/")[2].split(":");
     String serverIp = pp[0];
     int port = Integer.parseInt(pp[1]);
-    remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length())
-        + "/"
-        + mEntity.getFileName();
+    dir = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
+    remotePath = dir + "/" + mEntity.getFileName();
     FTPClient client = new FTPClient();
     client.connect(serverIp, port);
     if (!TextUtils.isEmpty(mTaskEntity.account)) {

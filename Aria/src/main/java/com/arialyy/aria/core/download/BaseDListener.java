@@ -30,7 +30,7 @@ import java.lang.ref.WeakReference;
 /**
  * 下载监听类
  */
-class BaseListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
+class BaseDListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     implements IDownloadListener {
   private WeakReference<Handler> outHandler;
   private long mLastLen = 0;   //上一次发送长度
@@ -40,7 +40,7 @@ class BaseListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
   private boolean isConvertSpeed = false;
   boolean isWait = false;
 
-  BaseListener(TASK task, Handler outHandler) {
+  BaseDListener(TASK task, Handler outHandler) {
     this.outHandler = new WeakReference<>(outHandler);
     this.mTask = new WeakReference<>(task).get();
     this.mEntity = this.mTask.getEntity();

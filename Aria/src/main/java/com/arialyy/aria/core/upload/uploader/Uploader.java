@@ -47,14 +47,14 @@ class Uploader extends AbsFileer<UploadEntity, UploadTaskEntity> {
    * 5、不支持断点，则是新任务
    */
   protected void checkTask() {
-    if (!mTaskEntity.isSupportBP) {
-      isNewTask = true;
-      return;
-    }
     mConfigFile = new File(mContext.getFilesDir().getPath()
         + AriaManager.UPLOAD_TEMP_DIR
         + mEntity.getFileName()
         + ".properties");
+    if (!mTaskEntity.isSupportBP) {
+      isNewTask = true;
+      return;
+    }
     if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
       isNewTask = true;
       CommonUtil.createFile(mConfigFile.getPath());
@@ -70,7 +70,7 @@ class Uploader extends AbsFileer<UploadEntity, UploadTaskEntity> {
 
   }
 
-  @Override protected int getThreadNum() {
+  @Override protected int getNewTaskThreadNum() {
     return 1;
   }
 
