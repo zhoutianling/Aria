@@ -43,8 +43,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-      "http://op08k4l50.bkt.clouddn.com/123.mp4";
+      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
   //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
   //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
   //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
@@ -192,7 +191,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         Aria.download(this)
             .load(DOWNLOAD_URL)
             .addHeader("groupName", "value")
-            .setExtendField("str___ggggggg")
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/gggg.apk")
             .start();
         break;
