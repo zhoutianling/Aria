@@ -19,9 +19,9 @@ Aria有以下特点：
  + 支持300、301、302重定向下载链接下载
  + 支持上传操作
  + 支持FTP断点续传下载、上传
-   - [FTP 单文件下载](#单任务下载)
    - [FTP 文件夹下载](#文件夹下载)
-   - [FTP 单文件上传](#单任务上传)
+   - [FTP 单文件下载](#单文件下载)
+   - [FTP 单文件上传](#单文件上传)
 
 如果你觉得Aria对你有帮助，您的star和issues将是对我最大支持.`^_^`
 
@@ -96,7 +96,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.12'
   ```
   
 ## 上传
- * 添加任务(只添加，不上传)
+* 添加任务(只添加，不上传)
 
  ```java
  Aria.upload(this)
@@ -106,7 +106,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.12'
      .add();
  ```
 
- * 上传
+* 上传
 
  ```java
  Aria.upload(this)
@@ -115,53 +115,55 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.12'
      .setAttachment(fileKey)   //服务器读取文件的key
      .start();
  ```
- * 取消上传
+* 取消上传
 
  ```java
- Aria.upload(this).load(filePath).cancel();
+  Aria.upload(this).load(filePath).cancel();
  ```
  
 ## FTP
 ### 单文件下载
 * 开始\恢复下载
-```java
-Aria.download(this)
-	.loadFtp("ftp://172.18.104.129:21/haha/large.rar")
+ ```java
+ Aria.download(this)
+    .loadFtp("ftp://172.18.104.129:21/haha/large.rar")
     .login("lao", "123456")				//登录FTP服务器
     .setDownloadPath("/mnt/sdcard/")	//设置文件保存文件夹
-    .start();
+     .start();
 ```
 
 * 暂停
-```java
-Aria.download(this).loadFtp(URL).stop();
-```
+ ```java
+  Aria.download(this).loadFtp(URL).stop();
+ ```
 
 * 删除任务
-```java
-Aria.download(this).loadFtp(URL).cancel();
-```
+ ```java
+  Aria.download(this).loadFtp(URL).cancel();
+ ```
 
 ### 文件夹下载
 * 开始\恢复下载
 
  ```java
  Aria.download(this)
-	.loadFtpDir("ftp://172.18.104.129:21/haha/")
+    .loadFtpDir("ftp://172.18.104.129:21/haha/")
     .setDownloadDirPath(downloadPath)
-            .login("lao", "123456")
-            .start();
+    .login("lao", "123456")
+    .start();
  ```
 
 * 暂停
-```java
-Aria.download(this).loadFtpDir(dir).stop();
-```
+
+ ```java
+  Aria.download(this).loadFtpDir(dir).stop();
+ ```
 
 * 删除任务
-```java
-Aria.download(this).loadFtpDir(dir).cancel();
-```
+
+ ```java
+  Aria.download(this).loadFtpDir(dir).cancel();
+ ```
 
 ### 单文件上传
 * 开始\恢复上传
@@ -175,14 +177,16 @@ Aria.download(this).loadFtpDir(dir).cancel();
  ```
 
 * 暂停
-```java
- Aria.upload(this).loadFtp(FILE_PATH).stop();
-```
+
+ ```java
+  Aria.upload(this).loadFtp(FILE_PATH).stop();
+ ```
 
 * 删除任务
-```java
-Aria.upload(this).loadFtp(FILE_PATH).cancel();
-```
+
+ ```java
+ Aria.upload(this).loadFtp(FILE_PATH).cancel();
+ ```
 
 ### 任务状态获取
 如果你希望读取任务进度或任务的信息，那么你需要创建事件类，并在onResume(Activity、Fragment)或构造函数(Dialog、PopupWindow)，将该事件类注册到Aria管理器。
@@ -220,8 +224,8 @@ Aria.upload(this).loadFtp(FILE_PATH).cancel();
 | ` @Download.onTaskComplete` | 任务完成时的注解，任务完成时进行回调 | ` @Download.onTaskComplete void taskComplete(DownloadTask task) {}` |
 | `@Download.onNoSupportBreakPoint` | 这是一个特殊的注解，用于处理不支持断点续传的任务 | `@Download.onNoSupportBreakPoint void onNoSupportBreakPoint(DownloadTask task) {}` |
 
-**TIP: **如果你子希望对单个任务，或某一些特定任务设置监听器。 <br>
- **在注解中添加任务的下载地址，则表示只有该任务才会触发被注解的方法**。
+**TIP：如果你子希望对单个任务，或某一些特定任务设置监听器。** <br>
+**在注解中添加任务的下载地址，则表示只有该任务才会触发被注解的方法**。
 
  ```java
  @Download.onTaskRunning({
