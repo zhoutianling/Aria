@@ -93,7 +93,8 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
   }
 
   public synchronized void updateState(AbsEntity entity) {
-    if (entity.getState() == DownloadEntity.STATE_CANCEL) {
+    if (entity.getState() == IEntity.STATE_CANCEL) {
+      mData.remove(entity);
       mPositions.clear();
       int i = 0;
       for (AbsEntity entity_1 : mData) {
@@ -217,10 +218,10 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
   }
 
   private void handleSubChild(GroupHolder holder, final AbsEntity entity) {
-    if (holder.childList.getSubData().size() > 0){
-      holder.childList.updateChildProgress(((DownloadGroupEntity)entity).getSubTask());
-    }else {
-      holder.childList.addData(((DownloadGroupEntity)entity).getSubTask());
+    if (holder.childList.getSubData().size() > 0) {
+      holder.childList.updateChildProgress(((DownloadGroupEntity) entity).getSubTask());
+    } else {
+      holder.childList.addData(((DownloadGroupEntity) entity).getSubTask());
     }
   }
 

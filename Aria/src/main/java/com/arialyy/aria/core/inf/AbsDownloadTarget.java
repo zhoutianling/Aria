@@ -33,18 +33,27 @@ public abstract class AbsDownloadTarget<TARGET extends AbsTarget, ENTITY extends
    * key默认值为：Content-MD5
    * 获取md5信息：{@link DownloadEntity#getMd5Code()}
    */
-  public void setHeaderMd5Key(String md5Key) {
-    if (TextUtils.isEmpty(md5Key)) return;
+  public TARGET setHeaderMd5Key(String md5Key) {
+    if (TextUtils.isEmpty(md5Key)) return (TARGET) this;
     mTaskEntity.md5Key = md5Key;
+    if (TextUtils.isEmpty(mTaskEntity.md5Key) || !mTaskEntity.md5Key.equals(md5Key)) {
+      mTaskEntity.update();
+    }
+    return (TARGET) this;
   }
 
   /**
    * 如果你的文件长度是放在header中，那么你需要配置key来让Aria知道正确的文件长度
    * key默认值为：Content-Length
    */
-  public void setHeaderContentLengthKey(String contentLength) {
-    if (TextUtils.isEmpty(contentLength)) return;
+  public TARGET setHeaderContentLengthKey(String contentLength) {
+    if (TextUtils.isEmpty(contentLength)) return (TARGET) this;
     mTaskEntity.contentLength = contentLength;
+    if (TextUtils.isEmpty(mTaskEntity.contentLength) || !mTaskEntity.contentLength.equals(
+        contentLength)) {
+      mTaskEntity.update();
+    }
+    return (TARGET) this;
   }
 
   /**
@@ -52,9 +61,14 @@ public abstract class AbsDownloadTarget<TARGET extends AbsTarget, ENTITY extends
    * key默认值为：Content-Disposition
    * 获取文件描述信息：{@link DownloadEntity#getDisposition()}
    */
-  public void setHeaderDispositionKey(String dispositionKey) {
-    if (TextUtils.isEmpty(dispositionKey)) return;
+  public TARGET setHeaderDispositionKey(String dispositionKey) {
+    if (TextUtils.isEmpty(dispositionKey)) return (TARGET) this;
     mTaskEntity.dispositionKey = dispositionKey;
+    if (TextUtils.isEmpty(mTaskEntity.dispositionKey) || !mTaskEntity.dispositionKey.equals(
+        dispositionKey)) {
+      mTaskEntity.save();
+    }
+    return (TARGET) this;
   }
 
   /**
@@ -62,9 +76,14 @@ public abstract class AbsDownloadTarget<TARGET extends AbsTarget, ENTITY extends
    * key默认值为：attachment;filename
    * 获取文件名信息：{@link DownloadEntity#getServerFileName()}
    */
-  public void setHeaderDispositionFileKey(String dispositionFileKey) {
-    if (TextUtils.isEmpty(dispositionFileKey)) return;
+  public TARGET setHeaderDispositionFileKey(String dispositionFileKey) {
+    if (TextUtils.isEmpty(dispositionFileKey)) return (TARGET) this;
     mTaskEntity.dispositionFileKey = dispositionFileKey;
+    if (TextUtils.isEmpty(mTaskEntity.dispositionFileKey) || !mTaskEntity.dispositionFileKey.equals(
+        dispositionFileKey)) {
+      mTaskEntity.save();
+    }
+    return (TARGET) this;
   }
 
   /**
