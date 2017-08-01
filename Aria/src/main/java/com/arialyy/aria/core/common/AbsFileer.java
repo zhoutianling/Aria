@@ -154,8 +154,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
 
   @Override public void cancel() {
     closeTimer();
-    mConstance.isCancel = true;
     mConstance.isRunning = false;
+    mConstance.isCancel = true;
     if (mFixedThreadPool != null) {
       mFixedThreadPool.shutdown();
     }

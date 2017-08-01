@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
@@ -45,7 +46,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -63,6 +63,26 @@ import java.lang.reflect.WildcardType;
  */
 public class CommonUtil {
   private static final String TAG = "CommonUtil";
+
+  /**
+   * base64 解密字符串
+   *
+   * @param str 被加密的字符串
+   * @return 解密后的字符串
+   */
+  public static String decryptBASE64(String str) {
+    return new String(Base64.decode(str.getBytes(), Base64.DEFAULT));
+  }
+
+  /**
+   * base64 加密字符串
+   *
+   * @param str 需要加密的字符串
+   * @return 加密后的字符串
+   */
+  public static String encryptBASE64(String str) {
+    return Base64.encodeToString(str.getBytes(), Base64.DEFAULT);
+  }
 
   /**
    * 字符串编码转换

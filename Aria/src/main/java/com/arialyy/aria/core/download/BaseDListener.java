@@ -134,6 +134,7 @@ class BaseDListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
   private void saveData(int state, long location) {
     mEntity.setComplete(state == IEntity.STATE_COMPLETE);
     if (state == IEntity.STATE_CANCEL) {
+      mEntity.setState(state);
       mEntity.deleteData();
     } else if (state == IEntity.STATE_COMPLETE) {
       mEntity.setState(state);

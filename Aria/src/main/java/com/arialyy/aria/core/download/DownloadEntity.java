@@ -18,9 +18,11 @@ package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.Primary;
+import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by lyy on 2015/12/25.
@@ -66,7 +68,7 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
   }
 
   public String getDisposition() {
-    return disposition;
+    return TextUtils.isEmpty(disposition) ? "" : CommonUtil.decryptBASE64(disposition);
   }
 
   public void setDisposition(String disposition) {
