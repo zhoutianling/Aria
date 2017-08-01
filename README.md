@@ -188,7 +188,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.12'
  Aria.upload(this).loadFtp(FILE_PATH).cancel();
  ```
 
-### 任务状态获取
+## 任务状态获取
 如果你希望读取任务进度或任务的信息，那么你需要创建事件类，并在onResume(Activity、Fragment)或构造函数(Dialog、PopupWindow)，将该事件类注册到Aria管理器。
 
 1. 将对象注册到Aria
@@ -238,7 +238,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.12'
 在上面的例子中，只有下载地址是`https://test.xx.apk`和`http://test.xx2.apk`才会触发
 `taskRunning(DownloadTask task)`方法。
 
-### Aria参数配置
+## Aria参数配置
 #### 配置文件设置参数
 创建 [aria_config.xml](https://github.com/AriaLyy/Aria/blob/master/app/src/main/assets/aria_config.xml) 文件，将其放在`assets`目录下
 
