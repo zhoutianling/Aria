@@ -84,7 +84,7 @@ class HttpFileInfoThread implements Runnable {
     String disposition = conn.getHeaderField(mTaskEntity.dispositionKey);
     //Map<String, List<String>> headers = conn.getHeaderFields();
     if (!TextUtils.isEmpty(disposition)) {
-      mEntity.setDisposition(disposition);
+      mEntity.setDisposition(CommonUtil.encryptBASE64(disposition));
       if (disposition.contains(mTaskEntity.dispositionFileKey)) {
         String[] infos = disposition.split("=");
         mEntity.setServerFileName(URLDecoder.decode(infos[1], "utf-8"));

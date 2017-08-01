@@ -31,6 +31,7 @@ import java.io.File;
 public class DownloadTarget
     extends AbsDownloadTarget<DownloadTarget, DownloadEntity, DownloadTaskEntity> {
   protected String url;
+
   DownloadTarget(DownloadEntity entity, String targetName) {
     this(entity.getUrl(), targetName);
   }
@@ -88,7 +89,6 @@ public class DownloadTarget
     super.setHighestPriority();
   }
 
-
   /**
    * 下载任务是否存在
    */
@@ -126,8 +126,15 @@ public class DownloadTarget
     return this;
   }
 
-  private DownloadEntity getDownloadEntity() {
+  public DownloadEntity getDownloadEntity() {
     return mEntity;
+  }
+
+  /**
+   * 从header中获取文件描述信息
+   */
+  public String getContentDisposition() {
+    return mEntity.getDisposition();
   }
 
   /**
