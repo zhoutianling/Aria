@@ -15,6 +15,6 @@ final class StopAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   }
 
   @Override public void executeCmd() {
-    mQueue.stopAllTask();
+    stopAll();
   }
 }

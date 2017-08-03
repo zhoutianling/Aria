@@ -36,7 +36,7 @@ final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   }
 
   @Override public void executeCmd() {
-    mQueue.removeAllTask();
+    removeAll();
     if (mTaskEntity instanceof DownloadTaskEntity) {
       handleDownloadRemove();
     } else if (mTaskEntity instanceof UploadTaskEntity){
