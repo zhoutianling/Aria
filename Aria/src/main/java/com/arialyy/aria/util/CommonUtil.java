@@ -42,6 +42,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -63,6 +64,37 @@ import java.lang.reflect.WildcardType;
  */
 public class CommonUtil {
   private static final String TAG = "CommonUtil";
+
+  /**
+   * 转换Url
+   *
+   * @param url 原地址
+   * @return 转换后的地址
+   */
+  public static String convertUrl(String url) {
+    try {
+      return hasChineseCharacter(url) ? URLEncoder.encode(url, "UTF-8") : url;
+    } catch (UnsupportedEncodingException e) {
+      e.printStackTrace();
+    }
+    return "";
+  }
+
+  /**
+   * 判断是否有中文
+   *
+   * @param chineseStr 需要进行判断的字符串
+   * @return {@code true}有中文，{@code false} 无中文
+   */
+  public static boolean hasChineseCharacter(String chineseStr) {
+    char[] charArray = chineseStr.toCharArray();
+    for (char aCharArray : charArray) {
+      if ((aCharArray >= 0x4e00) && (aCharArray <= 0x9fbb)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   /**
    * base64 解密字符串

@@ -20,12 +20,12 @@ import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.downloader.ConnectionHelp;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * 下载文件信息获取
@@ -48,7 +48,7 @@ class HttpFileInfoThread implements Runnable {
   @Override public void run() {
     HttpURLConnection conn = null;
     try {
-      URL url = new URL(mEntity.getUrl());
+      URL url = new URL(CommonUtil.convertUrl(mEntity.getUrl()));
       conn = ConnectionHelp.handleConnection(url);
       conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
