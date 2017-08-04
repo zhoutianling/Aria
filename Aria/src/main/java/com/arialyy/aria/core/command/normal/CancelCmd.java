@@ -17,7 +17,6 @@
 package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
-import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
@@ -32,15 +31,15 @@ class CancelCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    AbsTask task = mQueue.getTask(mTaskEntity.getEntity());
+    AbsTask task = getTask();
     if (task == null) {
-      task = mQueue.createTask(mTargetName, mTaskEntity);
+      task = createTask();
     }
     if (task != null) {
       if (!TextUtils.isEmpty(mTargetName)) {
         task.setTargetName(mTargetName);
       }
-      mQueue.removeTask(task);
+      removeTask();
     }
   }
 }

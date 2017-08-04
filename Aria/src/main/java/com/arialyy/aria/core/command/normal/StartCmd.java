@@ -47,26 +47,26 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       maxTaskNum = manager.getUploadConfig().getMaxTaskNum();
     }
 
-    AbsTask task = mQueue.getTask(mTaskEntity.getEntity());
+    AbsTask task = getTask();
     if (task == null) {
-      task = mQueue.createTask(mTargetName, mTaskEntity);
+      task = createTask();
       if (!TextUtils.isEmpty(mTargetName)) {
         task.setTargetName(mTargetName);
       }
       // 任务不存在时，根据配置不同，对任务执行操作
       if (mod.equals(QueueMod.NOW.getTag())) {
-        mQueue.startTask(task);
+        startTask();
       } else if (mod.equals(QueueMod.WAIT.getTag())) {
         if (mQueue.getCurrentExePoolNum() < maxTaskNum
             || task.getState() == IEntity.STATE_STOP
             || task.getState() == IEntity.STATE_COMPLETE) {
-          mQueue.startTask(task);
+          startTask();
         }
       }
     } else {
       // 任务不存在时，根据配置不同，对任务执行操作
       if (!task.isRunning()) {
-        mQueue.startTask(task);
+        startTask();
       }
     }
   }

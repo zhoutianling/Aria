@@ -37,7 +37,7 @@ import java.io.File;
 public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding> {
   //private final String URL = "ftp://172.18.104.129:21/haha/large.rar";
   //private final String URL = "ftp://172.18.104.129:21/haha/large.rar";
-  private final String URL = "ftp://172.18.104.129:21/haha/很大的文件_v100.rar";
+  private final String URL = "ftp://172.18.104.66:21/haha/成都.mp3";
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
@@ -113,7 +113,7 @@ public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding
     getBinding().setSpeed("");
     getBinding().setProgress(100);
     Log.d(TAG, "md5 ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
-    T.showShort(this, "FTP下载完成");
+    T.showShort(this, "文件：" + task.getEntity().getFileName() + "，下载完成");
   }
 
   @Override protected int setLayoutId() {

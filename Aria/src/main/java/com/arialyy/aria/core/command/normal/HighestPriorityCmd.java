@@ -43,9 +43,9 @@ final class HighestPriorityCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> 
 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
-    DownloadTask task = (DownloadTask) mQueue.getTask(mTaskEntity.getEntity());
+    DownloadTask task = (DownloadTask) getTask();
     if (task == null) {
-      task = (DownloadTask) mQueue.createTask(mTargetName, mTaskEntity);
+      task = (DownloadTask) createTask();
     }
     if (task != null) {
       if (!TextUtils.isEmpty(mTargetName)) {

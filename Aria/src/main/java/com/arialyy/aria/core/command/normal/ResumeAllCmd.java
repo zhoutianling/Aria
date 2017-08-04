@@ -1,11 +1,13 @@
 package com.arialyy.aria.core.command.normal;
 
-import android.util.Log;
-import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.core.queue.UploadTaskQueue;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import java.util.List;
 
@@ -24,29 +26,65 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   }
 
   @Override public void executeCmd() {
-    List<DownloadEntity> allEntity =
-        DbEntity.findDatas(DownloadEntity.class, "state=?", IEntity.STATE_STOP + "");
-    for (DownloadEntity entity : allEntity) {
-      int exeNum = mQueue.getCurrentExePoolNum();
-      if (exeNum == 0 || exeNum < mQueue.getMaxTaskNum()) {
-        AbsTask task = createTask(entity);
-        mQueue.startTask(task);
-      } else {
-        entity.setState(IEntity.STATE_WAIT);
-        createTask(entity);
-      }
+    if (isDownloadCmd) {
+      resumeDownload();
+    } else {
+      resumeUpload();
     }
   }
 
-  private AbsTask createTask(DownloadEntity entity) {
-    AbsTask task = mQueue.getTask(entity);
-    if (task == null) {
-      DownloadTaskEntity taskEntity = new DownloadTaskEntity();
-      taskEntity.entity = entity;
-      task = mQueue.createTask(mTargetName, taskEntity);
-    } else {
-      Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
+  /**
+   * 恢复下载，包括普通任务和任务组
+   */
+  private void resumeDownload() {
+    List<DownloadTaskEntity> dTaskEntity =
+        DbEntity.findDatas(DownloadTaskEntity.class, "isGroupTask=?", "false");
+    for (DownloadTaskEntity te : dTaskEntity) {
+      int state = te.getState();
+      if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
+      resumeEntity(te);
     }
-    return task;
+
+    List<DownloadGroupTaskEntity> groupTask = DbEntity.findAllData(DownloadGroupTaskEntity.class);
+    for (DownloadGroupTaskEntity te : groupTask) {
+      int state = te.getState();
+      if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
+      resumeEntity(te);
+    }
+  }
+
+  /**
+   * 恢复上传，包括普通任务和任务组
+   */
+  private void resumeUpload() {
+    List<UploadTaskEntity> dTaskEntity =
+        DbEntity.findDatas(UploadTaskEntity.class, "isGroupTask=?", "false");
+    for (UploadTaskEntity te : dTaskEntity) {
+      int state = te.getState();
+      if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
+      resumeEntity(te);
+    }
+  }
+
+  /**
+   * 恢复实体任务
+   *
+   * @param te 任务实体
+   */
+  private void resumeEntity(AbsTaskEntity te) {
+    if (te instanceof DownloadTaskEntity) {
+      mQueue = DownloadTaskQueue.getInstance();
+    } else if (te instanceof UploadTaskEntity) {
+      mQueue = UploadTaskQueue.getInstance();
+    } else if (te instanceof DownloadGroupTaskEntity) {
+      mQueue = DownloadGroupTaskQueue.getInstance();
+    }
+    int exeNum = mQueue.getCurrentExePoolNum();
+    if (exeNum == 0 || exeNum < mQueue.getMaxTaskNum()) {
+      startTask(createTask(te));
+    } else {
+      te.getEntity().setState(IEntity.STATE_WAIT);
+      createTask(te);
+    }
   }
 }

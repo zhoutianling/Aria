@@ -44,10 +44,10 @@ abstract class AbsGroupUtil implements IUtil {
    * 任务组所有任务总大小
    */
   long mTotalSize = 0;
-  private long mCurrentLocation = 0;
+  protected long mCurrentLocation = 0;
   private ExecutorService mExePool;
   protected IDownloadGroupListener mListener;
-  DownloadGroupTaskEntity mTaskEntity;
+  protected DownloadGroupTaskEntity mTaskEntity;
   private boolean isRunning = true;
   private Timer mTimer;
   /**
