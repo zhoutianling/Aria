@@ -72,7 +72,10 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
         }
       }
     }
-    if (i == mExeMap.size()) startRunningFlow();
+    if (i != 0 && i == mExeMap.size()) startRunningFlow();
+    if (mCurrentLocation == mTotalSize) {
+      mListener.onComplete();
+    }
   }
 
   /**

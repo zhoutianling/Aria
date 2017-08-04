@@ -575,6 +575,10 @@ public class CommonUtil {
    * 如果文件存在，先删除原文件，然后重新创建一个新文件
    */
   public static void createFile(String path) {
+    if (TextUtils.isEmpty(path)) {
+      Log.e(TAG, "文件路径不能为null");
+      return;
+    }
     File file = new File(path);
     if (!file.getParentFile().exists()) {
       Log.d(TAG, "目标文件所在路径不存在，准备创建……");

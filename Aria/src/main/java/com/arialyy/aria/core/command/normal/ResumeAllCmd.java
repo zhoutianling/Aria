@@ -4,6 +4,9 @@ import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import java.util.List;
@@ -69,6 +72,13 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    * @param te 任务实体
    */
   private void resumeEntity(AbsTaskEntity te) {
+    if (te instanceof DownloadTaskEntity) {
+      mQueue = DownloadTaskQueue.getInstance();
+    } else if (te instanceof UploadTaskEntity) {
+      mQueue = UploadTaskQueue.getInstance();
+    } else if (te instanceof DownloadGroupTaskEntity) {
+      mQueue = DownloadGroupTaskQueue.getInstance();
+    }
     int exeNum = mQueue.getCurrentExePoolNum();
     if (exeNum == 0 || exeNum < mQueue.getMaxTaskNum()) {
       startTask(createTask(te));

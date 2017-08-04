@@ -33,13 +33,19 @@ public class DownloadTarget
   protected String url;
 
   DownloadTarget(DownloadEntity entity, String targetName) {
-    this(entity.getUrl(), targetName);
+    this.url = entity.getUrl();
+    mTargetName = targetName;
+    initTask(entity);
   }
 
   DownloadTarget(String url, String targetName) {
     this.url = url;
     mTargetName = targetName;
     DownloadEntity entity = getEntity(url);
+    initTask(entity);
+  }
+
+  private void initTask(DownloadEntity entity) {
     mTaskEntity = DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",
         entity.getDownloadPath());
     if (mTaskEntity == null) {

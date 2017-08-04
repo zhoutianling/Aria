@@ -16,7 +16,6 @@
 
 package com.arialyy.aria.core.command.normal;
 
-import android.os.Handler;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
