@@ -23,6 +23,7 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
+import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -47,7 +48,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     InputStream is = null;
     BufferedRandomAccessFile file = null;
     try {
-      URL url = new URL(mConfig.URL);
+      URL url = new URL(CommonUtil.convertUrl(mConfig.URL));
       conn = ConnectionHelp.handleConnection(url);
       if (mConfig.SUPPORT_BP) {
         Log.d(TAG, "任务【"

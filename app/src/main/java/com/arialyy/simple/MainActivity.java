@@ -70,4 +70,5 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
         break;
     }
   }
+
 }
