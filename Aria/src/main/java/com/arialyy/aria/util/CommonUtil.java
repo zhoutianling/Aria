@@ -47,11 +47,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -72,24 +74,36 @@ public class CommonUtil {
    * @return 转换后的地址
    */
   public static String convertUrl(String url) {
-    try {
-      return hasChineseCharacter(url) ? URLEncoder.encode(url, "UTF-8") : url;
-    } catch (UnsupportedEncodingException e) {
-      e.printStackTrace();
+    if (hasChineseCharacter(url)) {
+      //匹配双字节字符(包括汉字在内)
+      String regex = "[^\\x00-\\xff]";
+      Pattern p = Pattern.compile(regex);
+      Matcher m = p.matcher(url);
+      Set<String> strs = new HashSet<>();
+      while (m.find()) {
+        strs.add(m.group());
+      }
+      try {
+        for (String str : strs) {
+          url = url.replaceAll(str, URLEncoder.encode(str, "UTF-8"));
+        }
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
     }
-    return "";
+    return url;
   }
 
   /**
-   * 判断是否有中文
+   * 判断是否有双字节字符(包括汉字在内)
    *
    * @param chineseStr 需要进行判断的字符串
-   * @return {@code true}有中文，{@code false} 无中文
+   * @return {@code true}有双字节字符，{@code false} 无双字节字符
    */
   public static boolean hasChineseCharacter(String chineseStr) {
     char[] charArray = chineseStr.toCharArray();
     for (char aCharArray : charArray) {
-      if ((aCharArray >= 0x4e00) && (aCharArray <= 0x9fbb)) {
+      if (aCharArray <= 0xff) {
         return true;
       }
     }
