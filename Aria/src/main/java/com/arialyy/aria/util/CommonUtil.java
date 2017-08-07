@@ -74,7 +74,7 @@ public class CommonUtil {
    * @return 转换后的地址
    */
   public static String convertUrl(String url) {
-    if (hasChineseCharacter(url)) {
+    if (hasDoubleCharacter(url)) {
       //匹配双字节字符(包括汉字在内)
       String regex = "[^\\x00-\\xff]";
       Pattern p = Pattern.compile(regex);
@@ -100,10 +100,10 @@ public class CommonUtil {
    * @param chineseStr 需要进行判断的字符串
    * @return {@code true}有双字节字符，{@code false} 无双字节字符
    */
-  public static boolean hasChineseCharacter(String chineseStr) {
+  public static boolean hasDoubleCharacter(String chineseStr) {
     char[] charArray = chineseStr.toCharArray();
     for (char aCharArray : charArray) {
-      if (aCharArray <= 0xff) {
+      if ((aCharArray >= 0x0391) && (aCharArray <= 0xFFE5)) {
         return true;
       }
     }
