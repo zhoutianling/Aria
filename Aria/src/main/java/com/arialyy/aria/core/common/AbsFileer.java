@@ -297,7 +297,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   private void handleBreakpoint() {
     long fileLength = mEntity.getFileSize();
     Properties pro = CommonUtil.loadConfig(mConfigFile);
-    int blockSize = (int) (fileLength / mThreadNum);
+    long blockSize = fileLength / mThreadNum;
     int[] recordL = new int[mThreadNum];
     for (int i = 0; i < mThreadNum; i++) {
       recordL[i] = -1;
