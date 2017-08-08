@@ -98,6 +98,8 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadMeanBinding> 
       case R.id.dialog_task:
         DownloadDialog dialog = new DownloadDialog(this);
         dialog.show();
+        //DownloadDialogFragment dialog = new DownloadDialogFragment(this);
+        //dialog.show(getSupportFragmentManager(), "dialog");
         break;
       case R.id.pop_task:
         DownloadPopupWindow pop = new DownloadPopupWindow(this);

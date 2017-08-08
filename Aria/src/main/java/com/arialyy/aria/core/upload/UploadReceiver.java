@@ -146,5 +146,8 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
     if (dCounter != null && dCounter.contains(className)) {
       UploadSchedulers.getInstance().unRegister(obj);
     }
+    if (needRmReceiver) {
+      AriaManager.getInstance(AriaManager.APP).removeReceiver(obj);
+    }
   }
 }

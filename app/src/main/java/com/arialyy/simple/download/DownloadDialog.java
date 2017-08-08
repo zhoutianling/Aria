@@ -57,15 +57,12 @@ public class DownloadDialog extends AbsDialog {
   }
 
   private void init() {
-    if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
-      DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
-      int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
-      mPb.setProgress(p);
-    }
     Aria.download(this).register();
     DownloadEntity entity = Aria.download(this).getDownloadEntity(DOWNLOAD_URL);
     if (entity != null) {
       mSize.setText(CommonUtil.formatFileSize(entity.getFileSize()));
+      int p = (int) (entity.getCurrentProgress() * 100 / entity.getFileSize());
+      mPb.setProgress(p);
       int state = entity.getState();
       setBtState(state != DownloadEntity.STATE_RUNNING);
     } else {

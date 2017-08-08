@@ -15,9 +15,12 @@
  */
 package com.arialyy.aria.core;
 
+import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Message;
+import android.support.v4.app.DialogFragment;
 import android.util.Log;
 import android.widget.PopupWindow;
 import com.arialyy.aria.util.CommonUtil;
@@ -31,22 +34,44 @@ final class WidgetLiftManager {
   private final String TAG = "WidgetLiftManager";
 
   /**
+   * 处理DialogFragment事件
+   *
+   * @param dialogFragment {@link android.app.DialogFragment}
+   */
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB) boolean handleDialogFragmentLift(
+      android.app.DialogFragment dialogFragment) {
+    return handleDialogLift(dialogFragment.getDialog());
+  }
+
+  /**
+   * 处理DialogFragment事件
+   *
+   * @param dialogFragment {@link android.support.v4.app.DialogFragment}
+   */
+  @TargetApi(Build.VERSION_CODES.HONEYCOMB) boolean handleDialogFragmentLift(
+      DialogFragment dialogFragment) {
+    return handleDialogLift(dialogFragment.getDialog());
+  }
+
+  /**
    * 处理悬浮框取消或dismiss事件
    */
-  void handlePopupWindowLift(PopupWindow popupWindow) {
+  boolean handlePopupWindowLift(PopupWindow popupWindow) {
     try {
       Field dismissField = CommonUtil.getField(popupWindow.getClass(), "mOnDismissListener");
       PopupWindow.OnDismissListener listener =
           (PopupWindow.OnDismissListener) dismissField.get(popupWindow);
       if (listener != null) {
         Log.e(TAG, "你已经对PopupWindow设置了Dismiss事件。为了防止内存泄露，"
-            + "请在dismiss方法中调用Aria.download(this).removeSchedulerListener();来注销事件");
+            + "请在dismiss方法中调用Aria.download(this).unRegister();来注销事件");
+        return true;
       } else {
         popupWindow.setOnDismissListener(createPopupWindowListener(popupWindow));
       }
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }
+    return false;
   }
 
   /**
@@ -63,7 +88,7 @@ final class WidgetLiftManager {
   /**
    * 处理对话框取消或dismiss
    */
-  void handleDialogLift(Dialog dialog) {
+  boolean handleDialogLift(Dialog dialog) {
     try {
       Field dismissField = CommonUtil.getField(dialog.getClass(), "mDismissMessage");
       Message dismissMsg = (Message) dismissField.get(dialog);
@@ -72,8 +97,10 @@ final class WidgetLiftManager {
         Field cancelField = CommonUtil.getField(dialog.getClass(), "mCancelMessage");
         Message cancelMsg = (Message) cancelField.get(dialog);
         if (cancelMsg != null) {
-          Log.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。为了防止内存泄露，"
-              + "请在dismiss方法中调用Aria.download(this).removeSchedulerListener();来注销事件");
+          Log.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。"
+              + "为了防止内存泄露，请在dismiss方法中调用Aria.download(this).unRegister();来注销事件\n"
+              + "如果你使用的是DialogFragment，那么你需要在onDestroy()中进行销毁Aria事件操作");
+          return true;
         } else {
           dialog.setOnCancelListener(createCancelListener());
         }
@@ -83,6 +110,7 @@ final class WidgetLiftManager {
     } catch (IllegalAccessException e) {
       e.printStackTrace();
     }
+    return false;
   }
 
   /**

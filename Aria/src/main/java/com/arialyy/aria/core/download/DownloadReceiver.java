@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
+import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
@@ -128,6 +129,9 @@ public class DownloadReceiver extends AbsReceiver {
     if (dgCounter != null && dgCounter.contains(className)) {
       DownloadGroupSchedulers.getInstance().unRegister(obj);
     }
+    if (needRmReceiver) {
+      AriaManager.getInstance(AriaManager.APP).removeReceiver(obj);
+    }
   }
 
   /**
@@ -163,8 +167,7 @@ public class DownloadReceiver extends AbsReceiver {
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    return DbEntity.findFirst(DownloadEntity.class, "url=? and isGroupChild='false'",
-        downloadUrl);
+    return DbEntity.findFirst(DownloadEntity.class, "url=? and isGroupChild='false'", downloadUrl);
   }
 
   /**

@@ -24,6 +24,7 @@ import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -32,6 +33,7 @@ import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.inf.IReceiver;
+import com.arialyy.aria.core.scheduler.AbsSchedulerListener;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -185,11 +187,16 @@ import org.xml.sax.SAXException;
   private IReceiver putReceiver(boolean isDownload, Object obj) {
     final String key = getKey(isDownload, obj);
     IReceiver receiver = mReceivers.get(key);
+    boolean needRmReceiver = false;
     final WidgetLiftManager widgetLiftManager = new WidgetLiftManager();
     if (obj instanceof Dialog) {
-      widgetLiftManager.handleDialogLift((Dialog) obj);
+      needRmReceiver = widgetLiftManager.handleDialogLift((Dialog) obj);
     } else if (obj instanceof PopupWindow) {
-      widgetLiftManager.handlePopupWindowLift((PopupWindow) obj);
+      needRmReceiver = widgetLiftManager.handlePopupWindowLift((PopupWindow) obj);
+    } else if (obj instanceof DialogFragment) {
+      needRmReceiver = widgetLiftManager.handleDialogFragmentLift((DialogFragment) obj);
+    } else if (obj instanceof android.app.DialogFragment) {
+      needRmReceiver = widgetLiftManager.handleDialogFragmentLift((android.app.DialogFragment) obj);
     }
 
     if (receiver == null) {
@@ -197,12 +204,14 @@ import org.xml.sax.SAXException;
         DownloadReceiver dReceiver = new DownloadReceiver();
         dReceiver.targetName = obj.getClass().getName();
         dReceiver.obj = obj;
+        dReceiver.needRmReceiver = needRmReceiver;
         mReceivers.put(key, dReceiver);
         receiver = dReceiver;
       } else {
         UploadReceiver uReceiver = new UploadReceiver();
         uReceiver.targetName = obj.getClass().getName();
         uReceiver.obj = obj;
+        uReceiver.needRmReceiver = needRmReceiver;
         mReceivers.put(key, uReceiver);
         receiver = uReceiver;
       }
@@ -217,7 +226,11 @@ import org.xml.sax.SAXException;
     String clsName = obj.getClass().getName();
     String key = "";
     if (!(obj instanceof Activity)) {
-      if (obj instanceof android.support.v4.app.Fragment) {
+      if (obj instanceof DialogFragment) {
+        key = clsName + "_" + ((DialogFragment) obj).getActivity().getClass().getName();
+      } else if (obj instanceof android.app.DialogFragment) {
+        key = clsName + "_" + ((android.app.DialogFragment) obj).getActivity().getClass().getName();
+      } else if (obj instanceof android.support.v4.app.Fragment) {
         key = clsName + "_" + ((Fragment) obj).getActivity().getClass().getName();
       } else if (obj instanceof android.app.Fragment) {
         key = clsName + "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
@@ -314,7 +327,22 @@ import org.xml.sax.SAXException;
   }
 
   /**
-   * onDestroy
+   * 移除指定对象的receiver
+   */
+  public void removeReceiver(Object obj) {
+    String clsName = obj.getClass().getName();
+    for (Iterator<Map.Entry<String, IReceiver>> iter = mReceivers.entrySet().iterator();
+        iter.hasNext(); ) {
+      Map.Entry<String, IReceiver> entry = iter.next();
+      String key = entry.getKey();
+      if (key.contains(clsName)) {
+        iter.remove();
+      }
+    }
+  }
+
+  /**
+   * Aria注册对象被销毁时调用
    */
   void destroySchedulerListener(Object obj) {
     String clsName = obj.getClass().getName();
@@ -324,9 +352,11 @@ import org.xml.sax.SAXException;
       String key = entry.getKey();
       if (key.contains(clsName)) {
         IReceiver receiver = mReceivers.get(key);
-        receiver.removeSchedulerListener();
-        receiver.unRegister();
-        receiver.destroy();
+        if (receiver != null) {
+          receiver.removeSchedulerListener();
+          receiver.unRegister();
+          receiver.destroy();
+        }
         iter.remove();
       }
     }
