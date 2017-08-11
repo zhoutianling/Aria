@@ -29,8 +29,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.2.15'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.15'
+compile 'com.arialyy.aria:aria-core:3.2.17'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.17'
 ```
 
 ## 示例
@@ -314,6 +314,7 @@ Aria.get(this).getDownloadConfig().setMaxTaskNum(3);
 
 
 ## 开发日志
+  + v_3.2.17 修复一个版本兼容性问题，线程中使用Aria出错问题
   + v_3.2.15 修复大型文件分段下载失败的问题，修复中文URL乱码问题
   + v_3.2.14 修复恢复所有任务的api接口，不能恢复下载组任务的问题
   + v_3.2.13 修复某些服务器头文件返回描述文件格式错误的问题、修复有时删除任务，需要两次删除的问题
