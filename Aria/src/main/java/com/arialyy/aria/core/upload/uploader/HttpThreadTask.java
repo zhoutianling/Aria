@@ -46,7 +46,6 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
   private final String BOUNDARY = UUID.randomUUID().toString(); // 边界标识 随机生成
   private final String PREFIX = "--", LINE_END = "\r\n";
   private HttpURLConnection mHttpConn;
-  private long mCurrentLocation = 0;
   private OutputStream mOutputStream;
 
   HttpThreadTask(StateConstance constance, IUploadListener listener,
@@ -152,12 +151,11 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     byte[] buffer = new byte[4096];
     int bytesRead;
     while ((bytesRead = inputStream.read(buffer)) != -1) {
-      mCurrentLocation += bytesRead;
+      STATE.CURRENT_LOCATION += bytesRead;
       mOutputStream.write(buffer, 0, bytesRead);
       if (STATE.isCancel) {
         break;
       }
-      mListener.onProgress(mCurrentLocation);
     }
 
     mOutputStream.flush();
@@ -166,7 +164,6 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     writer.append(LINE_END);
     writer.flush();
     if (STATE.isCancel) {
-      mListener.onCancel();
       STATE.isRunning = false;
       return;
     }

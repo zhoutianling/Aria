@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.upload;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IEntity;

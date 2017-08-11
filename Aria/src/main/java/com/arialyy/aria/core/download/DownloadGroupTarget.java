@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.text.TextUtils;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -51,8 +52,9 @@ public class DownloadGroupTarget
       mTaskEntity.entity = getDownloadGroupEntity();
       mTaskEntity.insert();
     }
-    if (mTaskEntity.entity == null) {
+    if (mTaskEntity.entity == null || TextUtils.isEmpty(mTaskEntity.entity.getKey())) {
       mTaskEntity.entity = getDownloadGroupEntity();
+      mTaskEntity.save();
     }
     mEntity = mTaskEntity.entity;
   }

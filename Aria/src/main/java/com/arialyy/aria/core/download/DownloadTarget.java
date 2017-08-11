@@ -54,9 +54,11 @@ public class DownloadTarget
       mTaskEntity.entity = entity;
       mTaskEntity.save();
     }
-    if (mTaskEntity.entity == null) {
+    if (mTaskEntity.entity == null || TextUtils.isEmpty(mTaskEntity.entity.getUrl())) {
       mTaskEntity.entity = entity;
+      mTaskEntity.save();
     }
+
     mEntity = mTaskEntity.entity;
   }
 
