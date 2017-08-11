@@ -18,7 +18,6 @@ package com.arialyy.simple.download;
 
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,11 +26,10 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 import butterknife.Bind;
 import com.arialyy.annotations.Download;
-import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
@@ -114,7 +112,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     setBtState(false);
   }
 
-  @Download.onTaskStart(DOWNLOAD_URL) void taskStart(DownloadTask task) {
+  @Download.onTaskStart void taskStart(DownloadTask task) {
     getBinding().setFileSize(task.getConvertFileSize());
   }
 
@@ -188,11 +186,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.download(this)
+        Aria.download(SingleTaskActivity.this)
             .load(DOWNLOAD_URL)
             .addHeader("groupName", "value")
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/gggg.apk")
             .start();
+
         break;
       case R.id.stop:
         Aria.download(this).load(DOWNLOAD_URL).stop();

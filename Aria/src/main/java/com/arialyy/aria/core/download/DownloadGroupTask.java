@@ -16,10 +16,11 @@
 package com.arialyy.aria.core.download;
 
 import android.os.Handler;
+import android.os.Looper;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.downloader.DownloadGroupUtil;
 import com.arialyy.aria.core.download.downloader.FtpDirDownloadUtil;
-import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.inf.AbsGroupTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
@@ -44,7 +45,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
       case AbsTaskEntity.HTTP:
         mUtil = new DownloadGroupUtil(mListener, mTaskEntity);
         break;
-      case  AbsTaskEntity.FTP_DIR:
+      case AbsTaskEntity.FTP_DIR:
         mUtil = new FtpDirDownloadUtil(mListener, mTaskEntity);
         break;
     }
@@ -93,7 +94,12 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
      * @param schedulers {@link ISchedulers}
      */
     public DownloadGroupTask.Builder setOutHandler(ISchedulers schedulers) {
-      this.outHandler = new Handler(schedulers);
+      try {
+        outHandler = new Handler(schedulers);
+      } catch (Exception e) {
+        e.printStackTrace();
+        outHandler = new Handler(Looper.getMainLooper(), schedulers);
+      }
       return this;
     }
 

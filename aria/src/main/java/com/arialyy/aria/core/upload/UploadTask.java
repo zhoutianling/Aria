@@ -83,7 +83,12 @@ public class UploadTask extends AbsNormalTask<UploadEntity> {
     private String mTargetName;
 
     public void setOutHandler(ISchedulers outHandler) {
-      mOutHandler = new Handler(outHandler);
+      try {
+        mOutHandler = new Handler(outHandler);
+      } catch (Exception e) {
+        e.printStackTrace();
+        mOutHandler = new Handler(Looper.getMainLooper(), outHandler);
+      }
     }
 
     public void setUploadTaskEntity(UploadTaskEntity taskEntity) {
