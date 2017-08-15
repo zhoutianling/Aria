@@ -33,16 +33,26 @@ public class DownloadTarget
   protected String url;
 
   DownloadTarget(DownloadEntity entity, String targetName) {
+    this(entity, targetName, false);
+  }
+
+  DownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
     this.url = entity.getUrl();
     mTargetName = targetName;
     initTask(entity);
+    mTaskEntity.refreshInfo = refreshInfo;
   }
 
   DownloadTarget(String url, String targetName) {
+    this(url, targetName, false);
+  }
+
+  DownloadTarget(String url, String targetName, boolean refreshInfo) {
     this.url = url;
     mTargetName = targetName;
     DownloadEntity entity = getEntity(url);
     initTask(entity);
+    mTaskEntity.refreshInfo = refreshInfo;
   }
 
   private void initTask(DownloadEntity entity) {

@@ -23,7 +23,7 @@ import com.arialyy.aria.core.inf.IDownloadListener;
 
 /**
  * Created by lyy on 2015/8/25.
- * HTTP单任务下载工具
+ * HTTP\FTP单任务下载工具
  */
 public class SimpleDownloadUtil implements IUtil, Runnable {
   private static final String TAG = "SimpleDownloadUtil";
@@ -87,7 +87,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
 
   @Override public void run() {
     mListener.onPre();
-    if (mTaskEntity.getEntity().getFileSize() <= 1) {
+    if (mTaskEntity.getEntity().getFileSize() <= 1 || mTaskEntity.refreshInfo) {
       new Thread(createInfoThread()).start();
     } else {
       mDownloader.start();

@@ -187,7 +187,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     switch (view.getId()) {
       case R.id.start:
         Aria.download(SingleTaskActivity.this)
-            .load(DOWNLOAD_URL)
+            .load(DOWNLOAD_URL, true)
             .addHeader("groupName", "value")
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/gggg.apk")
             .start();

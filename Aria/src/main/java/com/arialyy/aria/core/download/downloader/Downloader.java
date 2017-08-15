@@ -40,22 +40,25 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
   }
 
   @Override protected void checkTask() {
-    if (!mTaskEntity.isSupportBP) {
-      isNewTask = true;
-      return;
-    }
     mConfigFile = new File(mContext.getFilesDir().getPath()
         + AriaManager.DOWNLOAD_TEMP_DIR
         + mEntity.getFileName()
         + ".properties");
     mTempFile = new File(mEntity.getDownloadPath());
+    if (!mTaskEntity.isSupportBP) {
+      isNewTask = true;
+      return;
+    }
+    if (mTaskEntity.isNewTask) {
+      isNewTask = true;
+      return;
+    }
     if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
       isNewTask = true;
       CommonUtil.createFile(mConfigFile.getPath());
     } else if (!mTempFile.exists()) {
       isNewTask = true;
-    } else if (DbEntity.findFirst(DownloadEntity.class, "url=?", mEntity.getDownloadUrl())
-        == null) {
+    } else if (DbEntity.findFirst(DownloadEntity.class, "url=?", mEntity.getUrl()) == null) {
       isNewTask = true;
     } else {
       isNewTask = checkConfigFile();

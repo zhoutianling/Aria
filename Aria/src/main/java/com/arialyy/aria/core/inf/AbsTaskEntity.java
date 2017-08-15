@@ -51,6 +51,16 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   @Ignore public int port;
 
   /**
+   * 刷新信息 {@code true} 重新刷新下载信息
+   */
+  @Ignore public boolean refreshInfo = false;
+
+  /**
+   * 是否是新任务，{@code true} 新任务
+   */
+  @Ignore public boolean isNewTask = false;
+
+  /**
    * 请求类型
    * {@link AbsTaskEntity#HTTP}、{@link AbsTaskEntity#FTP}
    */

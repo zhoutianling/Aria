@@ -18,6 +18,7 @@ package com.arialyy.aria.core;
 import android.text.TextUtils;
 import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -70,7 +71,7 @@ class Configuration {
      *
      * @see QueueMod
      */
-    String queueMod = "now";
+    String queueMod = "wait";
 
     public String getQueueMod() {
       return queueMod;
@@ -84,14 +85,6 @@ class Configuration {
 
     public int getMaxTaskNum() {
       return maxTaskNum;
-    }
-
-    public BaseConfig setMaxTaskNum(int maxTaskNum) {
-      oldMaxTaskNum = this.maxTaskNum;
-      this.maxTaskNum = maxTaskNum;
-      saveKey("maxTaskNum", maxTaskNum + "");
-      DownloadTaskQueue.getInstance().setMaxTaskNum(maxTaskNum);
-      return this;
     }
 
     public int getReTryNum() {
@@ -250,6 +243,14 @@ class Configuration {
      */
     double msxSpeed = 0.0;
 
+    public DownloadConfig setMaxTaskNum(int maxTaskNum) {
+      oldMaxTaskNum = this.maxTaskNum;
+      this.maxTaskNum = maxTaskNum;
+      saveKey("maxTaskNum", maxTaskNum + "");
+      DownloadTaskQueue.getInstance().setMaxTaskNum(maxTaskNum);
+      return this;
+    }
+
     public int getIOTimeOut() {
       return iOTimeOut;
     }
@@ -331,6 +332,14 @@ class Configuration {
     }
 
     private static UploadConfig INSTANCE = null;
+
+    public UploadConfig setMaxTaskNum(int maxTaskNum) {
+      oldMaxTaskNum = this.maxTaskNum;
+      this.maxTaskNum = maxTaskNum;
+      saveKey("maxTaskNum", maxTaskNum + "");
+      UploadTaskQueue.getInstance().setMaxTaskNum(maxTaskNum);
+      return this;
+    }
 
     static UploadConfig getInstance() {
       if (INSTANCE == null) {

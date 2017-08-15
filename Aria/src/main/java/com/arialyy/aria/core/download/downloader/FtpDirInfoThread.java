@@ -28,7 +28,6 @@ import org.apache.commons.net.ftp.FTPFile;
  * 获取ftp文件夹信息
  */
 class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGroupTaskEntity> {
-  private long mSize = 0;
 
   FtpDirInfoThread(DownloadGroupTaskEntity taskEntity, OnFileInfoCallback callback) {
     super(taskEntity, callback);
@@ -36,7 +35,6 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
 
   @Override void handleFile(String remotePath, FTPFile ftpFile) {
     super.handleFile(remotePath, ftpFile);
-    mSize += ftpFile.getSize();
     addEntity(remotePath, ftpFile);
   }
 

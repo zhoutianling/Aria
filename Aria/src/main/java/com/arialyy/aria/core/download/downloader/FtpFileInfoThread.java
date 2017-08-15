@@ -27,4 +27,12 @@ class FtpFileInfoThread extends AbsFtpInfoThread<DownloadEntity, DownloadTaskEnt
   FtpFileInfoThread(DownloadTaskEntity taskEntity, OnFileInfoCallback callback) {
     super(taskEntity, callback);
   }
+
+  @Override protected void onPreComplete() {
+    super.onPreComplete();
+    if (mSize != mTaskEntity.getEntity().getFileSize()) {
+      mTaskEntity.isNewTask = true;
+    }
+    mEntity.setFileSize(mSize);
+  }
 }
