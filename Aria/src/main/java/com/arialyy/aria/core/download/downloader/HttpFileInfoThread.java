@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 /**
  * 下载文件信息获取
@@ -147,12 +146,15 @@ class HttpFileInfoThread implements Runnable {
   }
 
   /**
-   * 检查长度是否合法
+   * 检查长度是否合法，并且检查新获取的文件长度是否和数据库的文件长度一直，如果不一致，则表示该任务为新任务
    *
    * @param len 从服务器获取的文件长度
-   * @return true, 合法
+   * @return {@code true}合法
    */
   private boolean checkLen(long len) {
+    if (len != mEntity.getFileSize()) {
+      mTaskEntity.isNewTask = true;
+    }
     if (len < 0) {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，文件长度小于0");
       return false;

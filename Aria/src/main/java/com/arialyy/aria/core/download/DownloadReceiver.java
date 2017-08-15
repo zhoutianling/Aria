@@ -16,16 +16,14 @@
 package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
-import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
-import com.arialyy.aria.core.inf.IReceiver;
-import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
-import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -53,17 +51,40 @@ public class DownloadReceiver extends AbsReceiver {
 
   /**
    * 使用下载实体执行下载操作
+   *
+   * @param entity 下载实体
    */
   public DownloadTarget load(DownloadEntity entity) {
-    return new DownloadTarget(entity, targetName);
+    return load(entity, false);
+  }
+
+  /**
+   * 使用下载实体执行下载操作
+   *
+   * @param refreshInfo 是否刷新下载信息
+   */
+  public DownloadTarget load(DownloadEntity entity, boolean refreshInfo) {
+    return new DownloadTarget(entity, targetName, refreshInfo);
   }
 
   /**
    * 加载Http、https单任务下载地址
+   *
+   * @param url 下载地址
    */
   public DownloadTarget load(@NonNull String url) {
+    return load(url, false);
+  }
+
+  /**
+   * 加载Http、https单任务下载地址
+   *
+   * @param url 下载地址
+   * @param refreshInfo 是否刷新下载信息
+   */
+  public DownloadTarget load(@NonNull String url, boolean refreshInfo) {
     CheckUtil.checkDownloadUrl(url);
-    return new DownloadTarget(url, targetName);
+    return new DownloadTarget(url, targetName, refreshInfo);
   }
 
   /**
@@ -78,8 +99,17 @@ public class DownloadReceiver extends AbsReceiver {
    * 加载ftp单任务下载地址
    */
   public FtpDownloadTarget loadFtp(@NonNull String url) {
+    return loadFtp(url, false);
+  }
+
+  /**
+   * 加载ftp单任务下载地址
+   *
+   * @param refreshInfo 是否刷新下载信息
+   */
+  public FtpDownloadTarget loadFtp(@NonNull String url, boolean refreshInfo) {
     CheckUtil.checkDownloadUrl(url);
-    return new FtpDownloadTarget(url, targetName);
+    return new FtpDownloadTarget(url, targetName, refreshInfo);
   }
 
   /**

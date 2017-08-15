@@ -32,6 +32,10 @@ public class FtpDownloadTarget extends DownloadTarget {
   private int port;
 
   FtpDownloadTarget(String url, String targetName) {
+    this(url, targetName, false);
+  }
+
+  FtpDownloadTarget(String url, String targetName, boolean refreshInfo) {
     super(url, targetName);
     String[] pp = url.split("/")[2].split(":");
     this.serverIp = pp[0];
@@ -45,6 +49,7 @@ public class FtpDownloadTarget extends DownloadTarget {
     mTaskEntity.serverIp = serverIp;
     mTaskEntity.port = port;
     mEntity.setFileName(url.substring(lastIndex + 1, url.length()));
+    mTaskEntity.refreshInfo = refreshInfo;
   }
 
   /**

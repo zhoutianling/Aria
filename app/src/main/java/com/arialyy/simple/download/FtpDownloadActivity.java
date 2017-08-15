@@ -59,7 +59,7 @@ public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding
     switch (view.getId()) {
       case R.id.start:
         Aria.download(this)
-            .loadFtp(URL)
+            .loadFtp(URL, true)
             .login("lao", "123456")
             .setDownloadPath("/mnt/sdcard/")
             .start();

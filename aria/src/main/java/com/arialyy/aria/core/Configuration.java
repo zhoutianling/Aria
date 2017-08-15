@@ -70,7 +70,7 @@ class Configuration {
      *
      * @see QueueMod
      */
-    String queueMod = "now";
+    String queueMod = "wait";
 
     public String getQueueMod() {
       return queueMod;

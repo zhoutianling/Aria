@@ -40,6 +40,7 @@ abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
   protected TASK_ENTITY mTaskEntity;
   private int mConnectTimeOut;
   private OnFileInfoCallback mCallback;
+  protected long mSize = 0;
 
   AbsFtpInfoThread(TASK_ENTITY taskEntity, OnFileInfoCallback callback) {
     mTaskEntity = taskEntity;
@@ -82,8 +83,7 @@ abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY extends Ab
       client.setFileType(FTP.BINARY_FILE_TYPE);
       FTPFile[] files =
           client.listFiles(new String(remotePath.getBytes(charSet), AbsThreadTask.SERVER_CHARSET));
-      long size = getFileSize(files, client, remotePath);
-      mEntity.setFileSize(size);
+      mSize = getFileSize(files, client, remotePath);
       reply = client.getReplyCode();
       if (!FTPReply.isPositiveCompletion(reply)) {
         client.disconnect();
