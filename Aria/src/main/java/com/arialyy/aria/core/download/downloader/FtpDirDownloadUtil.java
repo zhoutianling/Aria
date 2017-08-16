@@ -47,7 +47,7 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
         }
 
         @Override public void onFail(String url, String errorMsg) {
-          mListener.onFail();
+          mListener.onFail(true);
         }
       }).start();
     }

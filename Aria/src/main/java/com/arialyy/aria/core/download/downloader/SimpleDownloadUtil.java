@@ -82,7 +82,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
   }
 
   private void failDownload(String msg) {
-    mListener.onFail();
+    mListener.onFail(true);
   }
 
   @Override public void run() {

@@ -92,10 +92,11 @@ class BaseUListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     sendInState2Target(ISchedulers.COMPLETE);
   }
 
-  @Override public void onFail() {
+  @Override public void onFail(boolean needRetry) {
     mEntity.setFailNum(mEntity.getFailNum() + 1);
     saveData(IEntity.STATE_FAIL, mEntity.getCurrentProgress());
     handleSpeed(0);
+    mTask.needRetry = needRetry;
     sendInState2Target(ISchedulers.FAIL);
   }
 

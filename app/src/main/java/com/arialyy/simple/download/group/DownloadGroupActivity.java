@@ -81,15 +81,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         Aria.download(this).load(mUrls).stop();
         break;
       case R.id.cancel:
-        //Aria.download(this).load(mUrls).cancel();
-        Aria.download(this).removeAllTask(true);
-
-        new Handler().postDelayed(new Runnable() {
-          @Override public void run() {
-            L.d(TAG,
-                "size ==> " + Aria.download(DownloadGroupActivity.this).getTotleTaskList().size());
-          }
-        }, 1000);
+        Aria.download(this).load(mUrls).cancel();
         break;
     }
   }
@@ -114,6 +106,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
+    L.d(TAG, "P ==> " + task.getPercent());
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
     mChildList.updateChildProgress(task.getEntity().getSubTask());

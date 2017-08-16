@@ -58,6 +58,8 @@ public interface IEventListener {
 
   /**
    * 下载失败
+   * @param needRetry 是否需要重试{@code true} 需要
    */
-  void onFail();
+  void onFail(boolean needRetry);
+
 }

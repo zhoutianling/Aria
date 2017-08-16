@@ -130,7 +130,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }, 0, 1000);
   }
 
-  private void closeTimer() {
+  protected void closeTimer() {
     if (mTimer != null) {
       mTimer.purge();
       mTimer.cancel();
@@ -389,10 +389,4 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    */
   protected abstract AbsThreadTask selectThreadTask(SubThreadConfig<TASK_ENTITY> config);
 
-  protected void failDownload(String errorMsg) {
-    closeTimer();
-    Log.e(TAG, errorMsg);
-    mConstance.isRunning = false;
-    mListener.onFail();
-  }
 }

@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsFileer;
 import com.arialyy.aria.core.common.AbsThreadTask;
@@ -34,6 +35,7 @@ import java.io.IOException;
  * 文件下载器
  */
 class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
+  private String TAG = "Downloader";
 
   Downloader(IDownloadListener listener, DownloadTaskEntity taskEntity) {
     super(listener, taskEntity);
@@ -99,5 +101,13 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
         return new HttpThreadTask(mConstance, (IDownloadListener) mListener, config);
     }
     return null;
+  }
+
+
+  private void failDownload(String errorMsg) {
+    closeTimer();
+    Log.e(TAG, errorMsg);
+    mConstance.isRunning = false;
+    mListener.onFail(false);
   }
 }
