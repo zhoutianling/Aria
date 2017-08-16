@@ -28,6 +28,8 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by lyy on 2017/1/18.
@@ -35,6 +37,14 @@ import java.util.Properties;
  */
 public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     implements Runnable {
+  /**
+   * 线程重试次数
+   */
+  private final int RETRY_NUM = 5;
+  /**
+   * 线程重试间隔
+   */
+  private final int RETRY_INTERVAL = 5000;
   private final String TAG = "AbsThreadTask";
   protected long mChildCurrentLocation = 0, mSleepTime = 0;
   protected int mBufSize;
@@ -48,6 +58,8 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
    * FTP 服务器编码
    */
   public static String SERVER_CHARSET = "ISO-8859-1";
+  private int mFailNum = 0;
+  private Timer mFailTimer;
 
   protected AbsThreadTask(StateConstance constance, IEventListener listener,
       SubThreadConfig<TASK_ENTITY> info) {
@@ -183,8 +195,19 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
   /**
    * 重试当前线程
    */
-  private void retryThis(){
-
+  private void retryThis(boolean needRetry) {
+    if (mFailNum < RETRY_NUM && needRetry) {
+      if (mFailTimer != null){
+        mFailTimer.purge();
+        mFailTimer.cancel();
+      }
+      mFailTimer = new Timer();
+      mFailTimer.schedule(new TimerTask() {
+        @Override public void run() {
+          AbsThreadTask.this.run();
+        }
+      }, RETRY_INTERVAL);
+    }
   }
 
   /**
