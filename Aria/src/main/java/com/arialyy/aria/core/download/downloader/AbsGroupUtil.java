@@ -103,7 +103,7 @@ abstract class AbsGroupUtil implements IUtil {
         mCurrentLocation += entity.getFileSize();
       } else {
         mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
-        mCurrentLocation += entity.getCurrentProgress();
+        mCurrentLocation += file.exists() ? entity.getCurrentProgress() : 0;
         mActualTaskNum++;
       }
       mTotalSize += entity.getFileSize();
@@ -339,19 +339,19 @@ abstract class AbsGroupUtil implements IUtil {
       }
     }
 
-    @Override public void onFail() {
+    @Override public void onFail(boolean needRetry) {
       entity.setFailNum(entity.getFailNum() + 1);
       saveData(IEntity.STATE_FAIL, lastLen);
       handleSpeed(0);
-      reTry();
+      reTry(needRetry);
     }
 
     /**
      * 失败后重试下载，如果失败次数超过5次，不再重试
      */
-    private void reTry() {
+    private void reTry(boolean needRetry) {
       synchronized (AriaManager.LOCK) {
-        if (entity.getFailNum() < 5 && isRunning) {
+        if (entity.getFailNum() < 5 && isRunning && needRetry) {
           reStartTask();
         } else {
           mFailNum++;

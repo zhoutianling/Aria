@@ -225,6 +225,11 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
    * @param task 下载任务
    */
   private void handleFailTask(final TASK task) {
+    if (!task.needRetry) {
+      mQueue.removeTask(task.getEntity());
+      startNextTask();
+      return;
+    }
     long interval = 2000;
     int num = 10;
     if (task instanceof DownloadTask) {

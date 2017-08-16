@@ -16,13 +16,11 @@
 package com.arialyy.aria.core.download;
 
 import android.os.Handler;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.ref.WeakReference;
@@ -105,10 +103,11 @@ class BaseDListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     sendInState2Target(ISchedulers.COMPLETE);
   }
 
-  @Override public void onFail() {
+  @Override public void onFail(boolean needRetry) {
     mEntity.setFailNum(mEntity.getFailNum() + 1);
     saveData(IEntity.STATE_FAIL, mEntity.getCurrentProgress());
     handleSpeed(0);
+    mTask.needRetry = needRetry;
     sendInState2Target(ISchedulers.FAIL);
   }
 

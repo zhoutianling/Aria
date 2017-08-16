@@ -168,16 +168,23 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
           writeConfig(false, currentLocation);
           if (STATE.isFail()) {
             Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
-            mListener.onFail();
+            mListener.onFail(true);
           }
         } else {
           Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
-          mListener.onFail();
+          mListener.onFail(true);
         }
       } catch (IOException e) {
         e.printStackTrace();
       }
     }
+  }
+
+  /**
+   * 重试当前线程
+   */
+  private void retryThis(){
+
   }
 
   /**

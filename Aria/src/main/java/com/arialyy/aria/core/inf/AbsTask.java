@@ -23,7 +23,10 @@ import com.arialyy.aria.util.CommonUtil;
  * Created by AriaL on 2017/6/29.
  */
 public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY> {
-
+  /**
+   * 是否需要重试，默认为true
+   */
+  public boolean needRetry = true;
   protected ENTITY mEntity;
   protected Handler mOutHandler;
 

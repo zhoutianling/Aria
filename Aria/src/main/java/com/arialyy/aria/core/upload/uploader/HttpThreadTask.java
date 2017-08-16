@@ -98,7 +98,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
 
   private void fail() {
     try {
-      mListener.onFail();
+      mListener.onFail(true);
       STATE.isRunning = false;
       if (mOutputStream != null) {
         mOutputStream.close();
