@@ -24,14 +24,14 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import butterknife.Bind;
 import com.arialyy.annotations.Download;
+import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTask;
-import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiBinding;
 import com.arialyy.simple.download.DownloadModule;
-import com.arialyy.simple.download.SingleTaskActivity;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,6 +52,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     super.init(savedInstanceState);
     Aria.download(this).register();
     setTitle("多任务下载");
+    mData.addAll(getModule(DownloadModule.class).createGroupTestList());
     mData.addAll(getModule(DownloadModule.class).createMultiTestList());
     mAdapter = new FileListAdapter(this, mData);
     mList.setLayoutManager(new LinearLayoutManager(this));
@@ -93,7 +94,32 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     mAdapter.updateBtState(task.getKey(), true);
   }
 
-  @Download.onTaskComplete void taskComplete(DownloadTask task) {
+  //############################### 任务组 ##############################
+  @DownloadGroup.onTaskComplete void groupTaskComplete(DownloadGroupTask task) {
+    mAdapter.updateBtState(task.getKey(), true);
+  }
+
+  @DownloadGroup.onTaskStart void groupTaskStart(DownloadGroupTask task) {
+    mAdapter.updateBtState(task.getKey(), false);
+  }
+
+  @DownloadGroup.onTaskResume void groupTaskResume(DownloadGroupTask task) {
+    mAdapter.updateBtState(task.getKey(), false);
+  }
+
+  @DownloadGroup.onTaskStop void groupTaskStop(DownloadGroupTask task) {
+    mAdapter.updateBtState(task.getKey(), true);
+  }
+
+  @DownloadGroup.onTaskCancel void groupTaskCancel(DownloadGroupTask task) {
+    mAdapter.updateBtState(task.getKey(), true);
+  }
+
+  @DownloadGroup.onTaskFail void groupTaskFail(DownloadGroupTask task) {
+    mAdapter.updateBtState(task.getKey(), true);
+  }
+
+  @DownloadGroup.onTaskComplete void taskComplete(DownloadGroupTask task) {
     mAdapter.updateBtState(task.getKey(), true);
   }
 

@@ -26,6 +26,7 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.adapter.AbsHolder;
 import com.arialyy.simple.base.adapter.AbsRVAdapter;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,8 +44,8 @@ final class FileListAdapter extends AbsRVAdapter<FileListEntity, FileListAdapter
   public FileListAdapter(Context context, List<FileListEntity> data) {
     super(context, data);
     for (int i = 0, len = data.size(); i < len; i++) {
-      mBtStates.put(data.get(i).downloadUrl, true);
-      mPositions.put(data.get(i).downloadUrl, i);
+      mBtStates.put(data.get(i).key, true);
+      mPositions.put(data.get(i).key, i);
     }
   }
 
@@ -59,17 +60,27 @@ final class FileListAdapter extends AbsRVAdapter<FileListEntity, FileListAdapter
   @Override
   protected void bindData(FileListHolder holder, int position, final FileListEntity item) {
     holder.name.setText("文件名：" + item.name);
-    holder.url.setText("下载地址：" + item.downloadUrl);
+    holder.url.setText("下载地址：" + item.key);
+    holder.url.setVisibility(item.isGroup ? View.GONE : View.VISIBLE);
     holder.path.setText("保存路径：" + item.downloadPath);
-    if (mBtStates.get(item.downloadUrl)) {
+    if (mBtStates.get(item.key)) {
       holder.bt.setEnabled(true);
       holder.bt.setOnClickListener(new View.OnClickListener() {
         @Override public void onClick(View v) {
           Toast.makeText(getContext(), "开始下载：" + item.name, Toast.LENGTH_SHORT).show();
-          Aria.download(getContext())
-              .load(item.downloadUrl)
-              .setDownloadPath(item.downloadPath)
-              .start();
+          if (item.isGroup) {
+            Aria.download(getContext())
+                .load(Arrays.asList(item.urls))
+                .setSubFileName(Arrays.asList(item.names))
+                .setDownloadDirPath(item.downloadPath)
+                .setGroupAlias(item.name)
+                .start();
+          } else {
+            Aria.download(getContext())
+                .load(item.key)
+                .setDownloadPath(item.downloadPath)
+                .start();
+          }
         }
       });
     } else {

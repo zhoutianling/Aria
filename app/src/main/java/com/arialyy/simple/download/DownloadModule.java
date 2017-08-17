@@ -20,10 +20,12 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Environment;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.simple.R;
-import com.arialyy.simple.download.multi_download.FileListEntity;
 import com.arialyy.simple.base.BaseModule;
+import com.arialyy.simple.download.multi_download.FileListEntity;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -54,19 +56,46 @@ public class DownloadModule extends BaseModule {
    * 创建下载地址
    */
   public List<FileListEntity> createMultiTestList() {
-    String[] names = getContext().getResources().getStringArray(R.array.file_nams);
-    String[] downloadUrl = getContext().getResources().getStringArray(R.array.download_url);
+    String[] names = getStringArray(R.array.file_nams);
+    String[] downloadUrl = getStringArray(R.array.download_url);
     List<FileListEntity> list = new ArrayList<>();
     int i = 0;
     for (String name : names) {
       FileListEntity entity = new FileListEntity();
       entity.name = name;
-      entity.downloadUrl = downloadUrl[i];
+      entity.key = downloadUrl[i];
       entity.downloadPath = Environment.getExternalStorageDirectory() + "/Download/" + name;
       list.add(entity);
       i++;
     }
     return list;
+  }
+
+  private String[] getStringArray(int array) {
+    return getContext().getResources().getStringArray(array);
+  }
+
+  /**
+   * 创建任务组
+   */
+  public List<FileListEntity> createGroupTestList() {
+    List<FileListEntity> list = new ArrayList<>();
+    list.add(createGroupEntity(R.array.group_urls, R.array.group_names, "任务组_0"));
+    list.add(createGroupEntity(R.array.group_urls_1, R.array.group_names_1, "任务组_1"));
+    list.add(createGroupEntity(R.array.group_urls_2, R.array.group_names_2, "任务组_2"));
+    list.add(createGroupEntity(R.array.group_urls_3, R.array.group_names_3, "任务组_3"));
+    return list;
+  }
+
+  private FileListEntity createGroupEntity(int urls, int names, String alias) {
+    FileListEntity entity = new FileListEntity();
+    entity.urls = getStringArray(urls);
+    entity.names = getStringArray(names);
+    entity.isGroup = true;
+    entity.name = alias;
+    entity.key = CommonUtil.getMd5Code(Arrays.asList(entity.urls));
+    entity.downloadPath = Environment.getExternalStorageDirectory() + "/Download/" + alias;
+    return entity;
   }
 
   /**
@@ -80,5 +109,4 @@ public class DownloadModule extends BaseModule {
     entity.setDownloadPath(path);
     return entity;
   }
-
 }

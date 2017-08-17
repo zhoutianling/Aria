@@ -30,10 +30,13 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
+import java.io.File;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
@@ -157,6 +160,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     mCancel.setEnabled(false);
     setBtState(true);
     getBinding().setSpeed("");
+    L.d(TAG, "md5Code ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
   }
 
   @Download.onNoSupportBreakPoint(DOWNLOAD_URL)
