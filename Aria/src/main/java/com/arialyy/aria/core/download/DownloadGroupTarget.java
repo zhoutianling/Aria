@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -57,6 +58,26 @@ public class DownloadGroupTarget
       mTaskEntity.save();
     }
     mEntity = mTaskEntity.entity;
+  }
+
+  /**
+   * 任务组总任务大小，任务组是一个抽象的概念，没有真实的数据实体，任务组的大小是Aria动态获取子任务大小相加而得到的，
+   * 如果你知道当前任务组总大小，你也可以调用该方法给任务组设置大小
+   *
+   * 为了更好的用户体验，建议直接设置任务组文件大小
+   *
+   * @param fileSize 任务组总大小
+   */
+  public DownloadGroupTarget setFileSize(long fileSize) {
+    if (fileSize <= 0) {
+      Log.w(TAG, "文件大小不能小于 0");
+      return this;
+    }
+    if (mEntity.getFileSize() <= 1 || mEntity.getFileSize() != fileSize) {
+      mEntity.setFileSize(fileSize);
+      mEntity.update();
+    }
+    return this;
   }
 
   /**

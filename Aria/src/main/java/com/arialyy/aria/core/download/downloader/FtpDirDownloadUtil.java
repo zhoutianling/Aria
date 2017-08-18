@@ -37,7 +37,6 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
       new FtpDirInfoThread(mTaskEntity, new OnFileInfoCallback() {
         @Override public void onComplete(String url, int code) {
           if (code >= 200 && code < 300) {
-            mTotalSize = mTaskEntity.getEntity().getFileSize();
             for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
               mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
             }

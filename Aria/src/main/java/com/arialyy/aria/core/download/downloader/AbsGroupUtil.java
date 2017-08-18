@@ -44,7 +44,7 @@ abstract class AbsGroupUtil implements IUtil {
    * 任务组所有任务总大小
    */
   long mTotalSize = 0;
-  protected long mCurrentLocation = 0;
+  long mCurrentLocation = 0;
   private ExecutorService mExePool;
   protected IDownloadGroupListener mListener;
   protected DownloadGroupTaskEntity mTaskEntity;
@@ -83,6 +83,10 @@ abstract class AbsGroupUtil implements IUtil {
   private int mFailNum = 0;
   //实际的下载任务数
   int mActualTaskNum = 0;
+  /**
+   * 是否需要读取文件长度，{@code true}需要
+   */
+  boolean isNeedLoadFileSize = true;
 
   AbsGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity taskEntity) {
     mListener = listener;
@@ -95,6 +99,8 @@ abstract class AbsGroupUtil implements IUtil {
         mTasksMap.put(te.getEntity().getUrl(), te);
       }
     }
+    mTotalSize = taskEntity.getEntity().getFileSize();
+    isNeedLoadFileSize = mTotalSize <= 1;
     for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
       File file = new File(entity.getDownloadPath());
       if (entity.getState() == IEntity.STATE_COMPLETE && file.exists()) {
@@ -106,7 +112,17 @@ abstract class AbsGroupUtil implements IUtil {
         mCurrentLocation += file.exists() ? entity.getCurrentProgress() : 0;
         mActualTaskNum++;
       }
-      mTotalSize += entity.getFileSize();
+      if (isNeedLoadFileSize) {
+        mTotalSize += entity.getFileSize();
+      }
+    }
+    updateFileSize();
+  }
+
+  void updateFileSize() {
+    if (isNeedLoadFileSize) {
+      mTaskEntity.getEntity().setFileSize(mTotalSize);
+      mTaskEntity.getEntity().update();
     }
   }
 
