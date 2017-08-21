@@ -91,12 +91,16 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
         @Override public void onComplete(String url, int code) {
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
-            mTotalSize += te.getEntity().getFileSize();
+            if (isNeedLoadFileSize) {
+              mTotalSize += te.getEntity().getFileSize();
+            }
             startChildDownload(te);
           }
           mInitNum++;
-          if (mInitNum + mInitFailNum >= mTaskEntity.getEntity().getSubTask().size()) {
+          if (mInitNum + mInitFailNum >= mTaskEntity.getEntity().getSubTask().size()
+              || !isNeedLoadFileSize) {
             startRunningFlow();
+            updateFileSize();
           }
         }
 
@@ -116,8 +120,10 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
             if (mActualTaskNum < 0) mActualTaskNum = 0;
           }
           failNum++;
-          if (mInitNum + mInitFailNum >= mTaskEntity.getEntity().getSubTask().size()) {
+          if (mInitNum + mInitFailNum >= mTaskEntity.getEntity().getSubTask().size()
+              || !isNeedLoadFileSize) {
             startRunningFlow();
+            updateFileSize();
           }
         }
       };

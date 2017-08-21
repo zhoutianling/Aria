@@ -74,7 +74,8 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
             .setDownloadDirPath(
                 Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_3")
             .setGroupAlias("任务组测试")
-            .setSubTaskFileName(getModule(GroupModule.class).getSubName())
+            .setSubFileName(getModule(GroupModule.class).getSubName())
+            .setFileSize(32895492)
             .start();
         break;
       case R.id.stop:

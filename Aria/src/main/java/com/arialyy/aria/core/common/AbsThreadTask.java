@@ -140,8 +140,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
     synchronized (AriaManager.LOCK) {
       if (mConfig.SUPPORT_BP) {
         STATE.CANCEL_NUM++;
-        Log.d(TAG,
-            "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__取消下载");
+        Log.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__取消");
         if (STATE.isCancel()) {
           File configFile = new File(mConfigFPath);
           if (configFile.exists()) {
@@ -168,9 +167,9 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
   protected void fail(long currentLocation, String msg, Exception ex) {
     synchronized (AriaManager.LOCK) {
       try {
-        STATE.FAIL_NUM++;
-        STATE.isRunning = false;
-        STATE.isStop = true;
+        //STATE.FAIL_NUM++;
+        //STATE.isRunning = false;
+        //STATE.isStop = true;
         if (ex != null) {
           Log.e(TAG, msg + "\n" + CommonUtil.getPrintException(ex));
         } else {
@@ -178,10 +177,11 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
         }
         if (mConfig.SUPPORT_BP) {
           writeConfig(false, currentLocation);
-          if (STATE.isFail()) {
-            Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
-            mListener.onFail(true);
-          }
+          //if (STATE.isFail()) {
+          //  Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
+          //  mListener.onFail(true);
+          //}
+          retryThis(true);
         } else {
           Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
           mListener.onFail(true);
@@ -193,20 +193,32 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
   }
 
   /**
-   * 重试当前线程
+   * 重试当前线程，如果其中一条线程已经下载失败，则任务该任务下载失败，并且停止该任务的所有线程
+   *
+   * @param needRetry 是否可以重试
    */
   private void retryThis(boolean needRetry) {
     if (mFailNum < RETRY_NUM && needRetry) {
-      if (mFailTimer != null){
+      if (mFailTimer != null) {
         mFailTimer.purge();
         mFailTimer.cancel();
       }
-      mFailTimer = new Timer();
+      mFailTimer = new Timer(true);
       mFailTimer.schedule(new TimerTask() {
         @Override public void run() {
+          mFailNum++;
+          Log.w(TAG,
+              "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__正在重试");
+          mConfig.START_LOCATION = mChildCurrentLocation;
           AbsThreadTask.this.run();
         }
       }, RETRY_INTERVAL);
+    } else {
+      STATE.FAIL_NUM++;
+      STATE.isRunning = false;
+      STATE.isStop = true;
+      Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
+      mListener.onFail(true);
     }
   }
 

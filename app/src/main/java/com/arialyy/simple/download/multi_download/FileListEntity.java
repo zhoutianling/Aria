@@ -21,5 +21,8 @@ package com.arialyy.simple.download.multi_download;
  */
 
 public class FileListEntity {
-  public String name, downloadUrl, downloadPath;
+  public String name, key, downloadPath;
+  public boolean isGroup = false;
+
+  public String[] urls, names;
 }

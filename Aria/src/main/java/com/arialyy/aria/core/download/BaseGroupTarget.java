@@ -140,8 +140,18 @@ abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends Abs
 
   /**
    * 设置子任务文件名，该方法必须在{@link #setDownloadDirPath(String)}之后调用，否则不生效
+   *
+   * @see #setSubFileName(List)
    */
-  public TARGET setSubTaskFileName(List<String> subTaskFileName) {
+  @Deprecated public TARGET setSubTaskFileName(List<String> subTaskFileName) {
+
+    return setSubFileName(subTaskFileName);
+  }
+
+  /**
+   * 设置子任务文件名，该方法必须在{@link #setDownloadDirPath(String)}之后调用，否则不生效
+   */
+  public TARGET setSubFileName(List<String> subTaskFileName) {
     if (subTaskFileName == null || subTaskFileName.isEmpty()) return (TARGET) this;
     mSubTaskFileName.addAll(subTaskFileName);
     if (mUrls.size() != subTaskFileName.size()) {
@@ -187,8 +197,8 @@ abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends Abs
     for (int i = 0, len = mUrls.size(); i < len; i++) {
       DownloadEntity entity = new DownloadEntity();
       entity.setUrl(mUrls.get(i));
-      String fileName = mSubTaskFileName.isEmpty() ? createFileName(entity.getUrl())
-          : mSubTaskFileName.get(i);
+      String fileName =
+          mSubTaskFileName.isEmpty() ? createFileName(entity.getUrl()) : mSubTaskFileName.get(i);
       entity.setDownloadPath(mEntity.getDirPath() + "/" + fileName);
       entity.setGroupName(mGroupName);
       entity.setGroupChild(true);
@@ -198,5 +208,4 @@ abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends Abs
     }
     return list;
   }
-
 }
