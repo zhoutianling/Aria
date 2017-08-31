@@ -65,6 +65,18 @@ public class DbUtil {
   }
 
   /**
+   * 清空表数据
+   */
+  synchronized <T extends DbEntity> void clean(Class<T> clazz) {
+    checkDb();
+    String tableName = CommonUtil.getClassName(clazz);
+    if (tableExists(clazz)) {
+      String sql = "DELETE FROM " + tableName;
+      exeSql(sql);
+    }
+  }
+
+  /**
    * 执行sql语句
    */
   void exeSql(String sql) {

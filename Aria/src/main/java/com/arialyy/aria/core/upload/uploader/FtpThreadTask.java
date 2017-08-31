@@ -45,6 +45,7 @@ class FtpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     super(constance, listener, info);
   }
 
+
   @Override public void run() {
     FTPClient client = null;
     OutputStream os = null;
@@ -181,4 +182,9 @@ class FtpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     client.allocate(mBufSize);
     return client;
   }
+
+  @Override protected String getTaskType() {
+    return "FTP_UPLOAD";
+  }
+
 }

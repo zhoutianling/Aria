@@ -27,6 +27,7 @@ import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.ErrorHelp;
 import java.io.File;
 import java.io.IOException;
 
@@ -103,11 +104,11 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
     return null;
   }
 
-
   private void failDownload(String errorMsg) {
     closeTimer();
     Log.e(TAG, errorMsg);
     mConstance.isRunning = false;
     mListener.onFail(false);
+    ErrorHelp.saveError("", mEntity, "", errorMsg);
   }
 }

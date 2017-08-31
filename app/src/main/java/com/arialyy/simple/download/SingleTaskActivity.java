@@ -18,6 +18,7 @@ package com.arialyy.simple.download;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,6 +46,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
       "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+  //"http://120.25.196.56:8000/filereq?id=15692406294&ipncid=105635&client=android&filename=20170819185541.avi";
   //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
   //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
   //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";

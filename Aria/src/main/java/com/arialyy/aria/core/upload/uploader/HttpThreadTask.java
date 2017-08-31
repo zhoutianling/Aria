@@ -202,4 +202,8 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     mOutputStream.close();
     return response.toString();
   }
+
+  @Override protected String getTaskType() {
+    return "HTTP_UPLOAD";
+  }
 }

@@ -37,6 +37,13 @@ public class DbEntity {
   }
 
   /**
+   * 清空表数据
+   */
+  public static <T extends DbEntity> void clean(Class<T> clazz) {
+    DbUtil.getInstance().clean(clazz);
+  }
+
+  /**
    * 直接执行sql语句
    */
   public static void exeSql(String sql) {

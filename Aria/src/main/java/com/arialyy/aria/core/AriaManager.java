@@ -29,12 +29,18 @@ import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.PopupWindow;
-import com.arialyy.aria.core.common.QueueMod;
-import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.command.ICmd;
+import com.arialyy.aria.core.common.QueueMod;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.download.DownloadReceiver;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IReceiver;
-import com.arialyy.aria.core.scheduler.AbsSchedulerListener;
+import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadReceiver;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.DbUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -182,6 +188,45 @@ import org.xml.sax.SAXException;
       receiver = putReceiver(false, obj);
     }
     return (receiver instanceof UploadReceiver) ? (UploadReceiver) receiver : null;
+  }
+
+  /**
+   * 获取Aria下载错误日志
+   *
+   * @return 如果错误日志不存在则返回空，否则返回错误日志列表
+   */
+  public List<ErrorEntity> getErrorLog() {
+    return DbEntity.findAllData(ErrorEntity.class);
+  }
+
+  /**
+   * 清楚错误日志
+   */
+  public void cleanLog() {
+    DbEntity.clean(ErrorEntity.class);
+  }
+
+  /**
+   * 删除任务记录
+   *
+   * @param type 需要删除的任务类型，1、表示单任务下载。2、表示任务组下载。3、单任务上传
+   * @param key 下载为保存路径、任务组为任务组名、上传为上传文件路径
+   */
+  public void delRecord(int type, String key) {
+    switch (type) {
+      case 1:
+        DbEntity.deleteData(DownloadEntity.class, "url=?", key);
+        DbEntity.deleteData(DownloadTaskEntity.class, "key=? and isGroupTask='false'", key);
+        break;
+      case 2:
+        DbEntity.deleteData(DownloadGroupEntity.class, "groupName=?", key);
+        DbEntity.deleteData(DownloadGroupTaskEntity.class, "key=?", key);
+        break;
+      case 3:
+        DbEntity.deleteData(UploadEntity.class, "filePath=?", key);
+        DbEntity.deleteData(UploadTaskEntity.class, "key=?", key);
+        break;
+    }
   }
 
   private IReceiver putReceiver(boolean isDownload, Object obj) {
