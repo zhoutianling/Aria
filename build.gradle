@@ -5,8 +5,8 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-//    classpath 'com.android.tools.build:gradle:2.3.0'
-    classpath 'com.android.tools.build:gradle:2.2.2'
+    classpath 'com.android.tools.build:gradle:2.3.3'
+//    classpath 'com.android.tools.build:gradle:2.2.2'
     classpath 'com.novoda:bintray-release:0.5.0'
     //        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
     //        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
@@ -37,7 +37,7 @@ task clean(type: Delete) {
 ext {
   userOrg = 'arialyy'
   groupId = 'com.arialyy.aria'
-  publishVersion = '3.2.21_dev_2'
+  publishVersion = '3.2.22'
   repoName='maven'
   desc = 'android 下载框架'
   website = 'https://github.com/AriaLyy/Aria'
