@@ -17,6 +17,13 @@ Aria有以下特点：
 
 如果你觉得Aria对你有帮助，您的star和issues将是对我最大支持.`^_^`
 
+
+## 示例
+![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/master/img/download_img.gif)
+![网速下载限制](https://github.com/AriaLyy/DownloadUtil/blob/master/img/max_speed.gif)
+![下载任务组](https://github.com/AriaLyy/DownloadUtil/blob/master/img/download_group.gif)
+
+
 ## 下载
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
@@ -24,12 +31,6 @@ Aria有以下特点：
 compile 'com.arialyy.aria:aria-core:3.2.20'
 annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.20'
 ```
-
-## 示例
-![多任务下载](https://github.com/AriaLyy/DownloadUtil/blob/master/img/download_img.gif)
-![网速下载限制](https://github.com/AriaLyy/DownloadUtil/blob/master/img/max_speed.gif)
-![下载任务组](https://github.com/AriaLyy/DownloadUtil/blob/master/img/download_group.gif)
-
 
 ***
 ## 使用
