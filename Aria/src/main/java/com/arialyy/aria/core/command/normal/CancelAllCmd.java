@@ -27,7 +27,13 @@ import java.util.List;
  * Created by AriaL on 2017/6/27.
  * 删除所有任务，并且删除所有回掉
  */
-final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
+public class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
+  /**
+   * removeFile {@code true} 删除已经下载完成的任务，不仅删除下载记录，还会删除已经下载完成的文件，{@code false}
+   * 如果文件已经下载完成，只删除下载记录
+   */
+  public boolean removeFile = false;
+
   /**
    * @param targetName 产生任务的对象名
    */
@@ -39,7 +45,7 @@ final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     removeAll();
     if (mTaskEntity instanceof DownloadTaskEntity) {
       handleDownloadRemove();
-    } else if (mTaskEntity instanceof UploadTaskEntity){
+    } else if (mTaskEntity instanceof UploadTaskEntity) {
       handleUploadRemove();
     }
   }
@@ -51,7 +57,7 @@ final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     List<UploadTaskEntity> allEntity = DbEntity.findAllData(UploadTaskEntity.class);
     if (allEntity == null || allEntity.size() == 0) return;
     for (UploadTaskEntity entity : allEntity) {
-      CommonUtil.delUploadTaskConfig(mTaskEntity.removeFile, entity);
+      CommonUtil.delUploadTaskConfig(removeFile, entity);
     }
   }
 
@@ -62,7 +68,7 @@ final class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     List<DownloadTaskEntity> allEntity = DbEntity.findAllData(DownloadTaskEntity.class);
     if (allEntity == null || allEntity.size() == 0) return;
     for (DownloadTaskEntity entity : allEntity) {
-      CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile, entity);
+      CommonUtil.delDownloadTaskConfig(removeFile, entity);
     }
   }
 }

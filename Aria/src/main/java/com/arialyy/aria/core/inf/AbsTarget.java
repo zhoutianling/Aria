@@ -19,8 +19,9 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.common.RequestEnum;
+import com.arialyy.aria.core.command.normal.CancelCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.Map;
 import java.util.Set;
@@ -205,10 +206,10 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    * {@code false}如果任务已经完成，只删除任务数据库记录，
    */
   public void cancel(boolean removeFile) {
-    mTaskEntity.removeFile = removeFile;
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL))
-        .exe();
+    CancelCmd cancelCmd =
+        (CancelCmd) CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL);
+    cancelCmd.removeFile = removeFile;
+    AriaManager.getInstance(AriaManager.APP).setCmd(cancelCmd).exe();
   }
 
   /**

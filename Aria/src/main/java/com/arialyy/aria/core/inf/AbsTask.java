@@ -17,6 +17,7 @@ package com.arialyy.aria.core.inf;
 
 import android.content.Context;
 import android.os.Handler;
+import com.arialyy.aria.orm.Ignore;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
@@ -35,7 +36,6 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
    */
   private String mTargetName;
   protected Context mContext;
-
   protected boolean isHeighestTask = false;
 
   /**

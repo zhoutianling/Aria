@@ -161,8 +161,10 @@ abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends Abs
       List<DownloadEntity> entities = mEntity.getSubTask();
       int i = 0;
       for (DownloadEntity entity : entities) {
-        String newName = mSubTaskFileName.get(i);
-        updateSubFileName(entity, newName);
+        if (i < mSubTaskFileName.size()) {
+          String newName = mSubTaskFileName.get(i);
+          updateSubFileName(entity, newName);
+        }
         i++;
       }
     }

@@ -28,8 +28,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.2.20'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.20'
+compile 'com.arialyy.aria:aria-core:3.2.22'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.22'
 ```
 
 ***
@@ -84,11 +84,11 @@ protected void onCreate(Bundle savedInstanceState) {
 ```
 [更多注解使用方法](https://github.com/AriaLyy/Aria/wiki/%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8)
 
-## [HTTP任务组下载\FTP下载；HTTP\FTP文件上传](https://github.com/AriaLyy/Aria/wiki/Aria%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8)
+### [HTTP任务组下载\FTP下载；HTTP\FTP文件上传](https://github.com/AriaLyy/Aria/wiki/Aria%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8)
 
-## [参数配置](https://github.com/AriaLyy/Aria/wiki/Aria%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE)
+### [参数配置](https://github.com/AriaLyy/Aria/wiki/Aria%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE)
 
-## [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
+### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
 ## 混淆配置
 ```

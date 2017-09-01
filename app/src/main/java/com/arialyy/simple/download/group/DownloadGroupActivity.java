@@ -83,7 +83,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         Aria.download(this).load(mUrls).stop();
         break;
       case R.id.cancel:
-        Aria.download(this).load(mUrls).cancel();
+        Aria.download(this).load(mUrls).cancel(true);
         break;
     }
   }

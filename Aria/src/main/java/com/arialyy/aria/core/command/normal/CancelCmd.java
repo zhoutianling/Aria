@@ -24,7 +24,13 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
  * Created by lyy on 2016/9/20.
  * 取消命令
  */
-class CancelCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
+public class CancelCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
+  /**
+   * removeFile {@code true} 删除已经下载完成的任务，不仅删除下载记录，还会删除已经下载完成的文件，{@code false}
+   * 如果文件已经下载完成，只删除下载记录
+   */
+  public boolean removeFile = false;
+
   CancelCmd(String targetName, T entity) {
     super(targetName, entity);
   }
@@ -36,6 +42,7 @@ class CancelCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       task = createTask();
     }
     if (task != null) {
+      mTaskEntity.removeFile = removeFile;
       if (!TextUtils.isEmpty(mTargetName)) {
         task.setTargetName(mTargetName);
       }
