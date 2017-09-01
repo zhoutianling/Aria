@@ -39,17 +39,21 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   private void resumeDownload() {
     List<DownloadTaskEntity> dTaskEntity =
         DbEntity.findDatas(DownloadTaskEntity.class, "isGroupTask=?", "false");
-    for (DownloadTaskEntity te : dTaskEntity) {
-      int state = te.getState();
-      if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
-      resumeEntity(te);
+    if (dTaskEntity != null && !dTaskEntity.isEmpty()) {
+      for (DownloadTaskEntity te : dTaskEntity) {
+        int state = te.getState();
+        if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
+        resumeEntity(te);
+      }
     }
 
     List<DownloadGroupTaskEntity> groupTask = DbEntity.findAllData(DownloadGroupTaskEntity.class);
-    for (DownloadGroupTaskEntity te : groupTask) {
-      int state = te.getState();
-      if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
-      resumeEntity(te);
+    if (groupTask != null && !groupTask.isEmpty()) {
+      for (DownloadGroupTaskEntity te : groupTask) {
+        int state = te.getState();
+        if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
+        resumeEntity(te);
+      }
     }
   }
 
@@ -59,10 +63,12 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   private void resumeUpload() {
     List<UploadTaskEntity> dTaskEntity =
         DbEntity.findDatas(UploadTaskEntity.class, "isGroupTask=?", "false");
-    for (UploadTaskEntity te : dTaskEntity) {
-      int state = te.getState();
-      if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
-      resumeEntity(te);
+    if (dTaskEntity != null && !dTaskEntity.isEmpty()) {
+      for (UploadTaskEntity te : dTaskEntity) {
+        int state = te.getState();
+        if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
+        resumeEntity(te);
+      }
     }
   }
 

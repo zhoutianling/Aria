@@ -54,6 +54,17 @@ public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
   }
 
   /**
+   * 清除所有缓存的任务
+   */
+  public void clear(){
+    for (String key : mCacheMap.keySet()){
+      TASK task = mCacheMap.get(key);
+      mCacheQueue.remove(task);
+      mCacheMap.remove(key);
+    }
+  }
+
+  /**
    * 将任务放在队首
    */
   public boolean putTaskToFirst(TASK task) {
