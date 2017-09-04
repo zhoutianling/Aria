@@ -45,7 +45,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
       "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
   //"http://120.25.196.56:8000/filereq?id=15692406294&ipncid=105635&client=android&filename=20170819185541.avi";
   //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
@@ -56,6 +55,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   //不支持断点的链接
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   //"http://172.18.104.50:8080/download/_302turn";
+  //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -196,7 +196,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         Aria.download(SingleTaskActivity.this)
             .load(DOWNLOAD_URL, true)
             .addHeader("groupName", "value")
-            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/gggg.apk")
+            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/hhhhhhhh.apk")
             .start();
 
         break;
