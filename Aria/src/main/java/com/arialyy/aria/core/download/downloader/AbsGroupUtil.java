@@ -39,7 +39,7 @@ import java.util.concurrent.Executors;
  * 任务组核心逻辑
  */
 abstract class AbsGroupUtil implements IUtil {
-  private final String TAG = "DownloadGroupUtil";
+  private final String TAG = "AbsGroupUtil";
   /**
    * 任务组所有任务总大小
    */
@@ -96,6 +96,7 @@ abstract class AbsGroupUtil implements IUtil {
         DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mTaskEntity.key);
     if (tasks != null && !tasks.isEmpty()) {
       for (DownloadTaskEntity te : tasks) {
+        te.removeFile = mTaskEntity.removeFile;
         mTasksMap.put(te.getEntity().getUrl(), te);
       }
     }
@@ -167,9 +168,21 @@ abstract class AbsGroupUtil implements IUtil {
   private void delDownloadInfo() {
     List<DownloadTaskEntity> tasks =
         DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mTaskEntity.key);
-    if (tasks == null || tasks.isEmpty()) return;
-    for (DownloadTaskEntity taskEntity : tasks) {
-      CommonUtil.delDownloadTaskConfig(taskEntity.removeFile, taskEntity);
+    if (tasks != null && !tasks.isEmpty()) {
+      for (DownloadTaskEntity taskEntity : tasks) {
+        CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile, taskEntity);
+      }
+    }
+
+    File dir = new File(mTaskEntity.getEntity().getDirPath());
+    if (mTaskEntity.removeFile) {
+      if (dir.exists()) {
+        dir.delete();
+      }
+    } else {
+      if (!mTaskEntity.getEntity().isComplete()) {
+        dir.delete();
+      }
     }
   }
 

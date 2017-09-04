@@ -56,16 +56,22 @@ public class DownloadTarget
   }
 
   private void initTask(DownloadEntity entity) {
-    mTaskEntity = DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",
-        entity.getDownloadPath());
+    mTaskEntity =
+        DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false' and url=?",
+            entity.getDownloadPath(), entity.getUrl());
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadTaskEntity();
+      mTaskEntity.url = entity.getUrl();
       mTaskEntity.key = entity.getDownloadPath();
       mTaskEntity.entity = entity;
       mTaskEntity.save();
-    }
-    if (mTaskEntity.entity == null || TextUtils.isEmpty(mTaskEntity.entity.getUrl())) {
+    } else if (mTaskEntity.entity == null || TextUtils.isEmpty(mTaskEntity.entity.getUrl())) {
       mTaskEntity.entity = entity;
+      mTaskEntity.save();
+    } else if (!mTaskEntity.entity.getUrl().equals(entity.getUrl())) {  //处理地址切换而保存路径不变
+      mTaskEntity.entity.deleteData();
+      mTaskEntity.entity = entity;
+      entity.save();
       mTaskEntity.save();
     }
 

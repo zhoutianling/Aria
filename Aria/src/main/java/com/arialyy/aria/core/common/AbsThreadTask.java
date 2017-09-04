@@ -24,6 +24,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.ErrorHelp;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -33,7 +34,7 @@ import java.util.TimerTask;
 
 /**
  * Created by lyy on 2017/1/18.
- * 下载线程
+ * 任务线程
  */
 public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     implements Runnable {
@@ -59,6 +60,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
    */
   public static String SERVER_CHARSET = "ISO-8859-1";
   private int mFailNum = 0;
+  private String mTaskType;
   private Timer mFailTimer;
 
   protected AbsThreadTask(StateConstance constance, IEventListener listener,
@@ -76,7 +78,10 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
     }
     mBufSize = manager.getDownloadConfig().getBuffSize();
     setMaxSpeed(AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMsxSpeed());
+    mTaskType = getTaskType();
   }
+
+  protected abstract String getTaskType();
 
   public void setMaxSpeed(double maxSpeed) {
     if (-0.9999 < maxSpeed && maxSpeed < 0.00001) {
@@ -93,7 +98,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
   }
 
   /**
-   * 停止下载
+   * 停止任务
    */
   public void stop() {
     synchronized (AriaManager.LOCK) {
@@ -124,7 +129,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
   }
 
   /**
-   * 下载中
+   * 执行中
    */
   protected void progress(long len) {
     synchronized (AriaManager.LOCK) {
@@ -134,7 +139,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
   }
 
   /**
-   * 取消下载
+   * 取消任务
    */
   public void cancel() {
     synchronized (AriaManager.LOCK) {
@@ -185,6 +190,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
         } else {
           Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
           mListener.onFail(true);
+          ErrorHelp.saveError(mTaskType, mEntity, "", CommonUtil.getPrintException(ex));
         }
       } catch (IOException e) {
         e.printStackTrace();

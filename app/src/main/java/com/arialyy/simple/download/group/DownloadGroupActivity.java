@@ -24,6 +24,7 @@ import android.widget.Button;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -48,6 +49,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     Aria.download(this).register();
     setTitle("任务组");
     mUrls = getModule(GroupModule.class).getUrls();
+    DownloadGroupEntity e = Aria.download(this).getGroupTaskList().get(0);
     DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(mUrls);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
@@ -82,7 +84,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         Aria.download(this).load(mUrls).stop();
         break;
       case R.id.cancel:
-        Aria.download(this).load(mUrls).cancel();
+        Aria.download(this).load(mUrls).cancel(true);
         break;
     }
   }

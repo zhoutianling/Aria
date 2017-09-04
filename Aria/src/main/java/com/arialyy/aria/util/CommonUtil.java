@@ -27,10 +27,13 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.command.normal.AbsNormalCmd;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -214,7 +217,7 @@ public class CommonUtil {
   }
 
   /**
-   * 删除上传任务的配置，包括
+   * 删除上传任务的配置
    *
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
@@ -236,7 +239,7 @@ public class CommonUtil {
   }
 
   /**
-   * 删除下载任务的配置，包括
+   * 删除下载任务的配置
    *
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经下载完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录

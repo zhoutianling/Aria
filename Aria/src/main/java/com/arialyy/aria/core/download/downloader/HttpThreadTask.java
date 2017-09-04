@@ -126,4 +126,8 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       }
     }
   }
+
+  @Override protected String getTaskType() {
+    return "HTTP_DOWNLOAD";
+  }
 }

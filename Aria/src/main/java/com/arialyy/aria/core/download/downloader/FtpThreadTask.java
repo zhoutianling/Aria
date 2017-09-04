@@ -148,4 +148,8 @@ class FtpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEntity> {
       }
     }
   }
+
+  @Override protected String getTaskType() {
+    return "FTP_DOWNLOAD";
+  }
 }

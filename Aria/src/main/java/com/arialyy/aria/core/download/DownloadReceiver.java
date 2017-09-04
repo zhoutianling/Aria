@@ -16,7 +16,9 @@
 package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.command.normal.CancelAllCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.core.inf.AbsEntity;
@@ -205,8 +207,10 @@ public class DownloadReceiver extends AbsReceiver {
    */
   public DownloadTaskEntity getDownloadTask(String downloadUrl) {
     CheckUtil.checkDownloadUrl(downloadUrl);
-    return DbEntity.findFirst(DownloadTaskEntity.class, "groupName=? and isGroupTask='false'",
-        downloadUrl);
+    DownloadEntity entity = getDownloadEntity(downloadUrl);
+    if (entity == null || TextUtils.isEmpty(entity.getDownloadPath())) return null;
+    return DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",
+        entity.getDownloadPath());
   }
 
   /**
@@ -295,9 +299,11 @@ public class DownloadReceiver extends AbsReceiver {
    */
   @Override public void removeAllTask(boolean removeFile) {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
-    ariaManager.setCmd(CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
-        NormalCmdFactory.TASK_CANCEL_ALL)).exe();
-
+    CancelAllCmd cancelCmd =
+        (CancelAllCmd) CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
+            NormalCmdFactory.TASK_CANCEL_ALL);
+    cancelCmd.removeFile = removeFile;
+    ariaManager.setCmd(cancelCmd).exe();
     Set<String> keys = ariaManager.getReceiver().keySet();
     for (String key : keys) {
       ariaManager.getReceiver().remove(key);

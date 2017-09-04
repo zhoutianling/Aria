@@ -20,6 +20,7 @@ import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
+import com.arialyy.aria.util.ErrorHelp;
 
 /**
  * Created by lyy on 2015/8/25.
@@ -83,6 +84,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
 
   private void failDownload(String msg) {
     mListener.onFail(true);
+    ErrorHelp.saveError("HTTP_DOWNLOAD", mTaskEntity.getEntity(), msg, "");
   }
 
   @Override public void run() {

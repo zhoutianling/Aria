@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download.downloader;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.util.ErrorHelp;
 import java.util.Set;
 
 /**
@@ -47,6 +48,7 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
 
         @Override public void onFail(String url, String errorMsg) {
           mListener.onFail(true);
+          ErrorHelp.saveError("FTP_DIR", mTaskEntity.getEntity(), "", errorMsg);
         }
       }).start();
     }

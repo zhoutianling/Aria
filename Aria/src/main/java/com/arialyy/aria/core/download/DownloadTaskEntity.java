@@ -28,6 +28,11 @@ public class DownloadTaskEntity extends AbsTaskEntity<DownloadEntity> {
   @OneToOne(table = DownloadEntity.class, key = "downloadPath") public DownloadEntity entity;
 
   /**
+   * 任务的url
+   */
+  public String url = "";
+
+  /**
    * 所属的任务组组名，如果不属于任务组，则为null
    */
   public String groupName = "";
