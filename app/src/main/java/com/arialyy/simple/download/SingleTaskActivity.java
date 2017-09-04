@@ -198,7 +198,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
             .addHeader("groupName", "value")
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/hhhhhhhh.apk")
             .start();
-
         break;
       case R.id.stop:
         Aria.download(this).load(DOWNLOAD_URL).stop();
