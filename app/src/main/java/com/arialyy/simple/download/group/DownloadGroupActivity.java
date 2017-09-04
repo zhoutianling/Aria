@@ -49,6 +49,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     Aria.download(this).register();
     setTitle("任务组");
     mUrls = getModule(GroupModule.class).getUrls();
+    DownloadGroupEntity e = Aria.download(this).getGroupTaskList().get(0);
     DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(mUrls);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();

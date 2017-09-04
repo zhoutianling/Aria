@@ -17,6 +17,7 @@ package com.arialyy.aria.orm;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -91,11 +92,11 @@ final class SqlUtil {
       throw new IllegalArgumentException("List中元素必须被@NormalList注解");
     }
     if (TextUtils.isEmpty(str)) return null;
-    String[] datas = str.split("$$");
+    String[] datas = str.split("\\$\\$");
     List list = new ArrayList();
     String type = normalList.clazz().getName();
     for (String data : datas) {
-      list.add(checkData(data, type));
+      list.add(checkData(type, data));
     }
     return list;
   }
@@ -176,18 +177,14 @@ final class SqlUtil {
   }
 
   private static Object checkData(String type, String data) {
-    switch (type) {
-      case "String":
-        return data;
-      case "int":
-      case "Integer":
-        return Integer.parseInt(data);
-      case "double":
-      case "Double":
-        return Double.parseDouble(data);
-      case "float":
-      case "Float":
-        return Float.parseFloat(data);
+    if (type.equalsIgnoreCase("java.lang.String")){
+      return data;
+    }else if (type.equalsIgnoreCase("int") || type.equals("java.lang.Integer")){
+      return Integer.parseInt(data);
+    }else if (type.equalsIgnoreCase("double") || type.equals("java.lang.Double")){
+      return Double.parseDouble(data);
+    }else if (type.equalsIgnoreCase("float") || type.equals("java.lang.Float")){
+      return Float.parseFloat(data);
     }
     return null;
   }
