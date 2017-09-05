@@ -55,18 +55,18 @@
   </string-array>
 
   <string-array name="group_urls_1">
-    <item>http://droidweb.smartgame-down.com/201708171123/C183E9C2010C7CABACFB398250A3DB75/new/game1/1/107001/qq_1502875308555.apk?f=web_1</item>
-    <item>http://droidweb.smartgame-down.com/201708171124/6E5AF91791661236D0A2F60125D3B45F/new/game1/93/113093/00D42A6AA63A039485F510C2E4D69BAA_1498831237.apk?f=web_1</item>
+    <item>http://hzdown.muzhiwan.com/2017/05/08/nl.noio.kingdom_59104935e56f0.apk</item>
+    <item>http://hzdown.muzhiwan.com/2017/09/05/com.mir.iphone.empire83jie.mzw_59ae6d5a3638d.apk</item>
   </string-array>
 
   <string-array name="group_urls_2">
-    <item>http://droidweb.smartgame-down.com/201708171125/005BCF0FFBB75510958D14074286B25F/new/game1/2/106202/qqkj_1502868291416.apk?f=web_1</item>
-    <item>http://droidweb.smartgame-down.com/201708171126/05FAAA4FD294BC63AA8F792636961D19/new/game1/72/110472/com.taobao.taobao-6.9.0-157-0629_1498744826.apk?f=web_1</item>
+    <item>http://down.muzhiwan.com/2017/04/05/org.sanguoqy01_58e4993914424.apk</item>
+    <item>http://apk500.bce.baidu-mgame.com/game/67000/67734/20170622040827_oem_5502845.apk?r=1</item>
   </string-array>
 
   <string-array name="group_urls_3">
-    <item>http://droidweb.smartgame-down.com/201708171127/F55445FD8B7BBA8D72CA4B7D7BD91F90/new/game1/84/33184/txtim_1502854269836.apk?f=web_1</item>
-    <item>http://droidweb.smartgame-down.com/201708171128/5C4D0289F0B83690BF252420F473FB9F/new/game1/46/108046/com.shuqi.controller-10.5.2.50-137-0703_1499083244.apk?f=web_1</item>
+    <item>http://apk500.bce.baidu-mgame.com/game/883000/883227/20170828102306_oem_5502845.apk?r=1</item>
+    <item>http://static.gaoshouyou.com/d/92/12/5592a647b8126755647abbe8074fde39.apk</item>
   </string-array>
 
   <string-array name="group_names">
@@ -76,18 +76,18 @@
   </string-array>
 
   <string-array name="group_names_1">
-    <item>QQ.apk</item>
-    <item>百度贴吧.apk</item>
+    <item>新大陆.apk</item>
+    <item>罗马战争.apk</item>
   </string-array>
 
   <string-array name="group_names_2">
-    <item>QQ空间.apk</item>
-    <item>淘宝.apk</item>
+    <item>三国群英传.apk</item>
+    <item>海岛骑兵</item>
   </string-array>
 
   <string-array name="group_names_3">
-    <item>TIM.apk</item>
-    <item>书旗小说.apk</item>
+    <item>部落冲突.apk</item>
+    <item>城堡争霸.apk</item>
   </string-array>
 
 </resources>
