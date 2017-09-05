@@ -14,23 +14,13 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.core.command;
-
-import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.queue.ITaskQueue;
+package com.arialyy.aria.core.inf;
 
 /**
- * Created by AriaL on 2017/6/29.
+ * Created by lyy on 2017/9/5.
  */
-public abstract class AbsCmd<T extends AbsTaskEntity> implements ICmd {
-  protected ITaskQueue mQueue;
-  protected T mTaskEntity;
-  protected String TAG;
-  protected String mTargetName;
-
-  /**
-   * 是否是下载任务的命令
-   * {@code true} 下载任务的命令，{@code false} 上传任务的命令
-   */
-  protected boolean isDownloadCmd = true;
+public abstract class BaseGroupTaskEntity<ENTITY extends AbsGroupEntity> extends AbsTaskEntity<ENTITY>{
+  @Override public ENTITY getEntity() {
+    return null;
+  }
 }

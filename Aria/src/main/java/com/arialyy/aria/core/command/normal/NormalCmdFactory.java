@@ -24,7 +24,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
  * Created by Lyy on 2016/9/23.
  * 命令工厂
  */
-public class NormalCmdFactory extends AbsCmdFactory<AbsNormalCmd> {
+public class NormalCmdFactory extends AbsCmdFactory<AbsTaskEntity, AbsNormalCmd> {
   /**
    * 创建任务
    */
@@ -82,7 +82,7 @@ public class NormalCmdFactory extends AbsCmdFactory<AbsNormalCmd> {
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}、{@link #TASK_HIGHEST_PRIORITY}、{@link #TASK_STOP_ALL}、{@link #TASK_RESUME_ALL}
    */
-  public <T extends AbsTaskEntity> AbsNormalCmd<T> createCmd(String target, T entity, int type) {
+  public  AbsNormalCmd createCmd(String target, AbsTaskEntity entity, int type) {
     switch (type) {
       case TASK_CREATE:
         return new AddCmd<>(target, entity);
@@ -105,4 +105,5 @@ public class NormalCmdFactory extends AbsCmdFactory<AbsNormalCmd> {
         return null;
     }
   }
+
 }

@@ -92,7 +92,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   @Override public void removeAllTask(boolean removeFile) {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
 
-    am.setCmd(CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
+    am.setCmd(CommonUtil.createNormalCmd(targetName, new DownloadTaskEntity(),
         NormalCmdFactory.TASK_CANCEL_ALL)).exe();
 
     Set<String> keys = am.getReceiver().keySet();

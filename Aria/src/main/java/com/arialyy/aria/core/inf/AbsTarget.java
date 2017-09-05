@@ -162,7 +162,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    */
   @Override public void start() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START))
+        .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START))
         .exe();
   }
 
@@ -177,7 +177,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
 
   @Override public void stop() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_STOP))
+        .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_STOP))
         .exe();
   }
 
@@ -186,7 +186,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    */
   @Override public void resume() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START))
+        .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START))
         .exe();
   }
 
@@ -195,7 +195,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    */
   @Override public void cancel() {
     AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL))
+        .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL))
         .exe();
   }
 
@@ -207,7 +207,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    */
   public void cancel(boolean removeFile) {
     CancelCmd cancelCmd =
-        (CancelCmd) CommonUtil.createCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL);
+        (CancelCmd) CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL);
     cancelCmd.removeFile = removeFile;
     AriaManager.getInstance(AriaManager.APP).setCmd(cancelCmd).exe();
   }

@@ -17,17 +17,15 @@ package com.arialyy.simple.download.group;
 
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.frame.util.AndroidUtils;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
@@ -62,6 +60,18 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
             : (int) (groupEntity.getCurrentProgress() * 100 / groupEntity.getFileSize()));
       }
     }
+
+    mChildList.setOnItemClickListener(new SubStateLinearLayout.OnItemClickListener() {
+      @Override public void onItemClick(int position, View view) {
+        showPopupWindow(position);
+      }
+    });
+  }
+
+  private void showPopupWindow(int position) {
+    ChildHandleDialog dialog =
+        new ChildHandleDialog(this, "任务组测试", mChildList.getSubData().get(position));
+    dialog.show(getSupportFragmentManager(), "sub_dialog");
   }
 
   @Override protected int setLayoutId() {
@@ -77,7 +87,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
                 Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_3")
             .setGroupAlias("任务组测试")
             .setSubFileName(getModule(GroupModule.class).getSubName())
-            .setFileSize(32895492)
+            //.setFileSize(32895492)
             .start();
         break;
       case R.id.stop:
@@ -99,7 +109,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     }
     L.d(TAG, "group task pre");
     getBinding().setFileSize(task.getConvertFileSize());
-    if (mChildList.getSubData().size() <= 0){
+    if (mChildList.getSubData().size() <= 0) {
       mChildList.addData(task.getEntity().getSubTask());
     }
   }
@@ -109,7 +119,6 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
-    L.d(TAG, "P ==> " + task.getPercent());
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
     mChildList.updateChildProgress(task.getEntity().getSubTask());

@@ -300,7 +300,7 @@ public class DownloadReceiver extends AbsReceiver {
   @Override public void removeAllTask(boolean removeFile) {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
     CancelAllCmd cancelCmd =
-        (CancelAllCmd) CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
+        (CancelAllCmd) CommonUtil.createNormalCmd(targetName, new DownloadTaskEntity(),
             NormalCmdFactory.TASK_CANCEL_ALL);
     cancelCmd.removeFile = removeFile;
     ariaManager.setCmd(cancelCmd).exe();

@@ -10,13 +10,13 @@
     <include layout="@layout/layout_bar"/>
 
     <Button
-        android:onClick="onClick"
-        android:id="@+id/download"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="多任务同时下载"
-        style="?buttonBarButtonStyle"
-        />
+      android:onClick="onClick"
+      android:id="@+id/download"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="多任务同时下载"
+      style="?buttonBarButtonStyle"
+      />
 
   </LinearLayout>
 </layout>

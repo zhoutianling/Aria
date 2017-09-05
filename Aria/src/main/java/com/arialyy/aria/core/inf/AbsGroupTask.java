@@ -15,17 +15,53 @@
  */
 package com.arialyy.aria.core.inf;
 
+import com.arialyy.aria.core.download.downloader.AbsGroupUtil;
 
 /**
  * Created by AriaL on 2017/6/29.
+ * 任务组任务抽象类
  */
 public abstract class AbsGroupTask<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsGroupEntity>
     extends AbsTask<ENTITY> {
 
   protected TASK_ENTITY mTaskEntity;
 
+  protected AbsGroupUtil mUtil;
 
   @Override public String getKey() {
     return mEntity.getGroupName();
+  }
+
+  /**
+   * 启动任务组中的子任务
+   *
+   * @param url 子任务下载地址
+   */
+  public void startSubTask(String url) {
+    if (mUtil != null) {
+      mUtil.startSubTask(url);
+    }
+  }
+
+  /**
+   * 停止任务组中的子任务
+   *
+   * @param url 子任务下载地址
+   */
+  public void stopSubTask(String url) {
+    if (mUtil != null) {
+      mUtil.stopSubTask(url);
+    }
+  }
+
+  /**
+   * 删除子任务组中的子任务
+   *
+   * @param url 子任务下载地址
+   */
+  public void cancelSubTask(String url) {
+    if (mUtil != null) {
+      mUtil.cancelSunTask(url);
+    }
   }
 }

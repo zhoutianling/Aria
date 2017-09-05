@@ -24,16 +24,16 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.command.group.AbsGroupCmd;
+import com.arialyy.aria.core.command.group.GroupCmdFactory;
 import com.arialyy.aria.core.command.normal.AbsNormalCmd;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadGroupEntity;
-import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
-import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -43,6 +43,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URLEncoder;
@@ -58,11 +63,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
 
 /**
  * Created by lyy on 2016/1/22.
@@ -398,8 +398,22 @@ public class CommonUtil {
     }
   }
 
-  public static <T extends AbsTaskEntity> AbsNormalCmd createCmd(String target, T entity, int cmd) {
+  /**
+   * 创建任务命令
+   */
+  public static <T extends AbsTaskEntity> AbsNormalCmd createNormalCmd(String target, T entity,
+      int cmd) {
     return NormalCmdFactory.getInstance().createCmd(target, entity, cmd);
+  }
+
+  /**
+   * 创建任务组命令
+   *
+   * @param childUrl 子任务url
+   */
+  public static <T extends BaseGroupTaskEntity> AbsGroupCmd createGroupCmd(String target, T entity,
+      int cmd, String childUrl) {
+    return GroupCmdFactory.getInstance().createCmd(target, entity, cmd, childUrl);
   }
 
   /**

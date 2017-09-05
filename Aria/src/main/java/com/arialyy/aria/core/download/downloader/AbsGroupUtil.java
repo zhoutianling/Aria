@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -38,7 +39,7 @@ import java.util.concurrent.Executors;
  * Created by AriaL on 2017/6/30.
  * 任务组核心逻辑
  */
-abstract class AbsGroupUtil implements IUtil {
+public abstract class AbsGroupUtil implements IUtil {
   private final String TAG = "AbsGroupUtil";
   /**
    * 任务组所有任务总大小
@@ -125,6 +126,55 @@ abstract class AbsGroupUtil implements IUtil {
       mTaskEntity.getEntity().setFileSize(mTotalSize);
       mTaskEntity.getEntity().update();
     }
+  }
+  /**
+   * 启动子任务下载
+   *
+   * @param url 子任务下载地址
+   */
+  public void startSubTask(String url) {
+    Downloader d = getDownloader(url);
+    if (d != null && !d.isRunning()) {
+      d.start();
+    }
+  }
+
+  /**
+   * 停止子任务下载
+   *
+   * @param url 子任务下载地址
+   */
+  public void stopSubTask(String url) {
+    Downloader d = getDownloader(url);
+    if (d != null && d.isRunning()) {
+      d.stop();
+    }
+  }
+
+  /**
+   * 删除子任务
+   *
+   * @param url 子任务下载地址
+   */
+  public void cancelSunTask(String url) {
+    Downloader d = getDownloader(url);
+    if (d != null) {
+      d.cancel();
+    }
+  }
+
+  /**
+   * 通过地址获取下载器
+   *
+   * @param url 子任务下载地址
+   */
+  private Downloader getDownloader(String url) {
+    Downloader d = mDownloaderMap.get(url);
+    if (d == null) {
+      Log.e(TAG, "链接【" + url + "】对应的下载器不存在");
+      return null;
+    }
+    return d;
   }
 
   @Override public long getFileSize() {
