@@ -16,6 +16,7 @@
 package com.arialyy.compiler;
 
 import com.arialyy.annotations.Download;
+import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.annotations.Upload;
 import com.google.auto.service.AutoService;
 import java.util.LinkedHashSet;
@@ -54,16 +55,15 @@ import javax.lang.model.element.TypeElement;
     annotataions.add(Download.onTaskStart.class.getCanonicalName());
     annotataions.add(Download.onTaskStop.class.getCanonicalName());
     //下载任务的注解
-    annotataions.add(Download.onPre.class.getCanonicalName());
-    annotataions.add(Download.onNoSupportBreakPoint.class.getCanonicalName());
-    annotataions.add(Download.onTaskCancel.class.getCanonicalName());
-    annotataions.add(Download.onTaskComplete.class.getCanonicalName());
-    annotataions.add(Download.onTaskFail.class.getCanonicalName());
-    annotataions.add(Download.onTaskPre.class.getCanonicalName());
-    annotataions.add(Download.onTaskResume.class.getCanonicalName());
-    annotataions.add(Download.onTaskRunning.class.getCanonicalName());
-    annotataions.add(Download.onTaskStart.class.getCanonicalName());
-    annotataions.add(Download.onTaskStop.class.getCanonicalName());
+    annotataions.add(DownloadGroup.onPre.class.getCanonicalName());
+    annotataions.add(DownloadGroup.onTaskCancel.class.getCanonicalName());
+    annotataions.add(DownloadGroup.onTaskComplete.class.getCanonicalName());
+    annotataions.add(DownloadGroup.onTaskFail.class.getCanonicalName());
+    annotataions.add(DownloadGroup.onTaskPre.class.getCanonicalName());
+    annotataions.add(DownloadGroup.onTaskResume.class.getCanonicalName());
+    annotataions.add(DownloadGroup.onTaskRunning.class.getCanonicalName());
+    annotataions.add(DownloadGroup.onTaskStart.class.getCanonicalName());
+    annotataions.add(DownloadGroup.onTaskStop.class.getCanonicalName());
     //上传任务的注解
     annotataions.add(Upload.onPre.class.getCanonicalName());
     annotataions.add(Upload.onNoSupportBreakPoint.class.getCanonicalName());
