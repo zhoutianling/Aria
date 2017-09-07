@@ -17,13 +17,17 @@ package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
-import com.arialyy.aria.core.inf.IEventListener;
 
 /**
  * Created by Aria.Lao on 2017/7/20.
  * 下载任务组事件
  */
 public interface IDownloadGroupListener extends IDownloadListener {
+
+  /**
+   * 子任务预处理
+   */
+  void onSubPre(DownloadEntity subEntity);
 
   /**
    * 子任务支持断点回调
@@ -56,4 +60,9 @@ public interface IDownloadGroupListener extends IDownloadListener {
    * 子任务取消下载
    */
   void onSubCancel(DownloadEntity subEntity);
+
+  /**
+   * 子任务执行中
+   */
+  void onSubRunning(DownloadEntity subEntity);
 }

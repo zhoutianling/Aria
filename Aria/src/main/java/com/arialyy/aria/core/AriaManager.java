@@ -398,7 +398,6 @@ import org.xml.sax.SAXException;
       if (key.contains(clsName)) {
         IReceiver receiver = mReceivers.get(key);
         if (receiver != null) {
-          receiver.removeSchedulerListener();
           receiver.unRegister();
           receiver.destroy();
         }

@@ -25,6 +25,11 @@ import com.arialyy.aria.core.inf.AbsTask;
  */
 public interface ISchedulers<Task extends AbsTask> extends Handler.Callback {
   /**
+   * 为任务组任务
+   */
+  int IS_SUB_TASK = 0xd1;
+
+  /**
    * 断点支持
    */
   int SUPPORT_BREAK_POINT = 9;
@@ -67,18 +72,39 @@ public interface ISchedulers<Task extends AbsTask> extends Handler.Callback {
   int RESUME = 8;
 
   /**
-   * 注册下载器监听，一个观察者只能注册一次监听
-   *
-   * @param targetName 观察者，创建该监听器的对象类名
-   * @param schedulerListener {@link ISchedulerListener}
+   * 任务组子任务预处理
    */
-  void addSchedulerListener(String targetName, ISchedulerListener<Task> schedulerListener);
+  int SUB_PRE = 0xa1;
 
   /**
-   * @param targetName 观察者，创建该监听器的对象类名
-   * 取消注册监听器
+   * 任务组子任务开始
    */
-  void removeSchedulerListener(String targetName, ISchedulerListener<Task> schedulerListener);
+  int SUB_START = 0xa2;
+
+  /**
+   * 任务组子任务停止
+   */
+  int SUB_STOP = 0xa3;
+
+  /**
+   * 任务组子任务取消
+   */
+  int SUB_CANCEL = 0xa4;
+
+  /**
+   * 任务组子任务失败
+   */
+  int SUB_FAIL = 0xa5;
+
+  /**
+   * 任务组子任务执行执行中
+   */
+  int SUB_RUNNING = 0xa6;
+
+  /**
+   * 任务组子任务完成
+   */
+  int SUB_COMPLETE = 0xa7;
 
   /**
    * 将当前类注册到Aria

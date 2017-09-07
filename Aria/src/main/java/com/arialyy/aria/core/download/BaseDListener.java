@@ -30,7 +30,7 @@ import java.lang.ref.WeakReference;
  */
 class BaseDListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     implements IDownloadListener {
-  private WeakReference<Handler> outHandler;
+  protected WeakReference<Handler> outHandler;
   private long mLastLen = 0;   //上一次发送长度
   private boolean isFirst = true;
   protected ENTITY mEntity;
@@ -117,6 +117,7 @@ class BaseDListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     } else {
       mEntity.setSpeed(speed < 0 ? 0 : speed);
     }
+    mEntity.setPercent((int) (mEntity.getCurrentProgress() * 100 / mEntity.getFileSize()));
   }
 
   /**

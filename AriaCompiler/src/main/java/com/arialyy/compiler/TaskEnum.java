@@ -22,9 +22,11 @@ package com.arialyy.compiler;
 enum TaskEnum {
   DOWNLOAD("com.arialyy.aria.core.download", "DownloadTask",
       "$$DownloadListenerProxy"), DOWNLOAD_GROUP("com.arialyy.aria.core.download",
-      "DownloadGroupTask", "$$DownloadGroupListenerProxy"), UPLOAD("com.arialyy.aria.core.upload",
-      "UploadTask", "$$UploadListenerProxy"), UPLOAD_GROUP("com.arialyy.aria.core.upload",
-      "UploadGroupTask", "$$UploadGroupListenerProxy");
+      "DownloadGroupTask", "$$DownloadGroupListenerProxy"), DOWNLOAD_GROUP_SUB(
+      "com.arialyy.aria.core.download", "DownloadGroupTask",
+      "$$DownloadGroupListenerProxy"), UPLOAD("com.arialyy.aria.core.upload", "UploadTask",
+      "$$UploadListenerProxy"), UPLOAD_GROUP("com.arialyy.aria.core.upload", "UploadGroupTask",
+      "$$UploadGroupListenerProxy"), NORMAL("com.arialyy.aria.core.inf", "AbsNormalTask", "");
 
   String pkg, className, proxySuffix;
 

@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Handler;
 import com.arialyy.aria.core.download.downloader.IDownloadGroupListener;
+import com.arialyy.aria.core.scheduler.ISchedulers;
 
 /**
  * Created by Aria.Lao on 2017/7/20.
@@ -30,28 +31,51 @@ class DownloadGroupListener extends BaseDListener<DownloadGroupEntity, DownloadG
     super(task, outHandler);
   }
 
+  @Override public void onSubPre(DownloadEntity subEntity) {
+    sendInState2Target(ISchedulers.SUB_PRE);
+  }
+
   @Override public void supportBreakpoint(boolean support, DownloadEntity subEntity) {
 
   }
 
   @Override public void onSubStart(DownloadEntity subEntity) {
-
+    sendInState2Target(ISchedulers.SUB_START);
   }
 
   @Override public void onSubStop(DownloadEntity subEntity) {
     saveCurrentLocation();
+    sendInState2Target(ISchedulers.SUB_STOP);
   }
 
   @Override public void onSubComplete(DownloadEntity subEntity) {
     saveCurrentLocation();
+    sendInState2Target(ISchedulers.SUB_COMPLETE);
   }
 
   @Override public void onSubFail(DownloadEntity subEntity) {
     saveCurrentLocation();
+    sendInState2Target(ISchedulers.SUB_FAIL);
   }
 
   @Override public void onSubCancel(DownloadEntity entity) {
     saveCurrentLocation();
+    sendInState2Target(ISchedulers.SUB_CANCEL);
+  }
+
+  @Override public void onSubRunning(DownloadEntity subEntity) {
+    sendInState2Target(ISchedulers.SUB_RUNNING);
+  }
+
+  /**
+   * 将任务状态发送给下载器
+   *
+   * @param state {@link ISchedulers#START}
+   */
+  private void sendInState2Target(int state) {
+    if (outHandler.get() != null) {
+      outHandler.get().obtainMessage(state, ISchedulers.IS_SUB_TASK, 0, mTask).sendToTarget();
+    }
   }
 
   private void saveCurrentLocation() {

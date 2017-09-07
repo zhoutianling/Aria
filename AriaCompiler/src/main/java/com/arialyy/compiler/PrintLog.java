@@ -55,7 +55,7 @@ class PrintLog {
     mMessager.printMessage(Diagnostic.Kind.ERROR, String.format(msg, args));
   }
 
-  private void warning(String msg) {
+  public void warning(String msg) {
     mMessager.printMessage(Diagnostic.Kind.WARNING, msg);
   }
 

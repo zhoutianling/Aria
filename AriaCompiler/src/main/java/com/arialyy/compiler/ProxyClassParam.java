@@ -22,11 +22,30 @@ import java.util.Set;
 
 /**
  * Created by Aria.Lao on 2017/6/7.
- * 创建代理方法的参数
+ * 代理类参数
  */
-class ProxyMethodParam {
+class ProxyClassParam {
+  /**
+   * 代理文件名
+   */
+  String proxyClassName;
+  /**
+   * 被代理的类所在的包
+   */
   String packageName;
+  /**
+   * 被代理的类
+   */
   String className;
+  /**
+   * 主任务泛型参数
+   */
+  TaskEnum mainTaskEnum;
+  /**
+   * 子任务泛型参数
+   */
+  TaskEnum subTaskEnum = TaskEnum.NORMAL;
+
   Set<TaskEnum> taskEnums;
   Map<String, Set<String>> keyMappings = new HashMap<>();
   Map<TaskEnum, Map<Class<? extends Annotation>, String>> methods = new HashMap<>();

@@ -21,6 +21,7 @@ import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
@@ -45,9 +46,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
 
   protected QUEUE mQueue;
 
-  private Map<String, ISchedulerListener<TASK>> mSchedulerListeners = new ConcurrentHashMap<>();
-
-  private Map<String, AbsSchedulerListener<TASK>> mObservers = new ConcurrentHashMap<>();
+  private Map<String, AbsSchedulerListener<TASK, AbsNormalTask>> mObservers = new ConcurrentHashMap<>();
 
   /**
    * 设置调度器类型
@@ -59,33 +58,9 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
    */
   abstract String getProxySuffix();
 
-  /**
-   * @param targetName 观察者，创建该监听器的对象类名
-   * @param schedulerListener {@link ISchedulerListener}
-   * @see #register(Object)
-   */
-  @Deprecated @Override public void addSchedulerListener(String targetName,
-      ISchedulerListener<TASK> schedulerListener) {
-    mSchedulerListeners.put(targetName, schedulerListener);
-  }
-
-  /**
-   * @param targetName 观察者，创建该监听器的对象类名
-   * @see #unRegister(Object)
-   */
-  @Override public void removeSchedulerListener(String targetName,
-      ISchedulerListener<TASK> schedulerListener) {
-    //该内存泄露解决方案：http://stackoverflow.com/questions/14585829/how-safe-is-to-delete-already-removed-concurrenthashmap-element
-    for (Iterator<Map.Entry<String, ISchedulerListener<TASK>>> iter =
-        mSchedulerListeners.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry<String, ISchedulerListener<TASK>> entry = iter.next();
-      if (entry.getKey().equals(targetName)) iter.remove();
-    }
-  }
-
   @Override public void register(Object obj) {
     String targetName = obj.getClass().getName();
-    AbsSchedulerListener<TASK> listener = mObservers.get(targetName);
+    AbsSchedulerListener<TASK, AbsNormalTask> listener = mObservers.get(targetName);
     if (listener == null) {
       listener = createListener(targetName);
       if (listener != null) {
@@ -98,9 +73,9 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
   }
 
   @Override public void unRegister(Object obj) {
-    for (Iterator<Map.Entry<String, AbsSchedulerListener<TASK>>> iter =
+    for (Iterator<Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalTask>>> iter =
         mObservers.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry<String, AbsSchedulerListener<TASK>> entry = iter.next();
+      Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalTask>> entry = iter.next();
       if (entry.getKey().equals(obj.getClass().getName())) iter.remove();
     }
   }
@@ -110,11 +85,11 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
    *
    * @param targetName 通过观察者创建对应的Aria事件代理
    */
-  private AbsSchedulerListener<TASK> createListener(String targetName) {
-    AbsSchedulerListener<TASK> listener = null;
+  private AbsSchedulerListener<TASK, AbsNormalTask> createListener(String targetName) {
+    AbsSchedulerListener<TASK, AbsNormalTask> listener = null;
     try {
       Class clazz = Class.forName(targetName + getProxySuffix());
-      listener = (AbsSchedulerListener<TASK>) clazz.newInstance();
+      listener = (AbsSchedulerListener<TASK, AbsNormalTask>) clazz.newInstance();
     } catch (ClassNotFoundException e) {
       Log.e(TAG, targetName + "，没有Aria的Download或Upload注解方法");
     } catch (InstantiationException e) {
@@ -131,8 +106,52 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
       Log.e(TAG, "请传入下载任务");
       return true;
     }
+
+    if (msg.arg1 == IS_SUB_TASK) {
+      handleSubEvent(task, msg.what);
+    } else {
+      handleNormalEvent(task, msg.what);
+    }
+
+    return true;
+  }
+
+  /**
+   * 处理任务组子任务事件
+   */
+  private void handleSubEvent(TASK task, int what) {
     ENTITY entity = task.getEntity();
-    switch (msg.what) {
+    if (mObservers.size() > 0) {
+      Set<String> keys = mObservers.keySet();
+      for (String key : keys) {
+        AbsSchedulerListener<TASK, AbsNormalTask> listener = mObservers.get(key);
+        switch (what) {
+          case SUB_PRE:
+            //listener.onSubTaskPre(task, );
+            break;
+          case SUB_START:
+            break;
+          case SUB_STOP:
+            break;
+          case SUB_FAIL:
+            break;
+          case SUB_RUNNING:
+            break;
+          case SUB_CANCEL:
+            break;
+          case SUB_COMPLETE:
+            break;
+        }
+      }
+    }
+  }
+
+  /**
+   * 处理普通任务事件
+   */
+  private void handleNormalEvent(TASK task, int what) {
+    ENTITY entity = task.getEntity();
+    switch (what) {
       case STOP:
         if (task.getEntity().getState() == IEntity.STATE_WAIT) {
           break;
@@ -153,8 +172,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
         handleFailTask(task);
         break;
     }
-    callback(msg.what, task);
-    return true;
+    callback(what, task);
   }
 
   /**
@@ -163,12 +181,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
    * @param state 状态
    */
   private void callback(int state, TASK task) {
-    if (mSchedulerListeners.size() > 0) {
-      Set<String> keys = mSchedulerListeners.keySet();
-      for (String key : keys) {
-        callback(state, task, mSchedulerListeners.get(key));
-      }
-    } else if (mObservers.size() > 0) {
+    if (mObservers.size() > 0) {
       Set<String> keys = mObservers.keySet();
       for (String key : keys) {
         callback(state, task, mObservers.get(key));
@@ -176,7 +189,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
     }
   }
 
-  private void callback(int state, TASK task, ISchedulerListener<TASK> listener) {
+  private void callback(int state, TASK task, AbsSchedulerListener<TASK, AbsNormalTask> listener) {
     if (listener != null) {
       if (task == null) {
         Log.e(TAG, "TASK 为null，回调失败");
@@ -211,9 +224,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
           listener.onTaskFail(task);
           break;
         case SUPPORT_BREAK_POINT:
-          if (listener instanceof IDownloadSchedulerListener) {
-            ((IDownloadSchedulerListener<TASK>) listener).onNoSupportBreakPoint(task);
-          }
+          listener.onNoSupportBreakPoint(task);
           break;
       }
     }

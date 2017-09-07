@@ -27,7 +27,9 @@ import android.widget.RadioGroup;
 import android.widget.Toast;
 import butterknife.Bind;
 import com.arialyy.annotations.Download;
+import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -112,6 +114,14 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       T.showShort(this, msg);
     }
     return true;
+  }
+
+  @DownloadGroup.onSubTaskFail void onSubTaskFail(DownloadGroupTask groupTask, DownloadTask subTask){
+
+  }
+
+  @DownloadGroup.onPre void onGroupPre(DownloadGroupTask groupTask){
+
   }
 
   @Download.onPre(DOWNLOAD_URL) protected void onPre(DownloadTask task) {

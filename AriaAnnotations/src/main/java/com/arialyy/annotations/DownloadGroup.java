@@ -111,48 +111,48 @@ import java.lang.annotation.Target;
    * 任务组子任务预处理的注解
    */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onSubTaskPre {
-    String value() default AriaConstance.NO_URL;
+    String[] value() default { AriaConstance.NO_URL };
   }
 
   /**
    * 任务组子任务开始的注解
    */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onSubTaskStart {
-    String value() default AriaConstance.NO_URL;
+    String[] value() default { AriaConstance.NO_URL };
   }
 
   /**
    * 任务组子任务停止的注解
    */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onSubTaskStop {
-    String value() default AriaConstance.NO_URL;
+    String[] value() default { AriaConstance.NO_URL };
   }
 
   /**
    * 任务组子任务删除的注解
    */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onSubTaskCancel {
-    String value() default AriaConstance.NO_URL;
+    String[] value() default { AriaConstance.NO_URL };
   }
 
   /**
    * 任务组子任务失败的注解
    */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onSubTaskFail {
-    String value() default AriaConstance.NO_URL;
+    String[] value() default { AriaConstance.NO_URL };
   }
 
   /**
    * 任务组子任务完成的注解
    */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onSubTaskComplete {
-    String value() default AriaConstance.NO_URL;
+    String[] value() default { AriaConstance.NO_URL };
   }
 
   /**
    * 任务组子任务正在执行的注解
    */
   @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onSubTaskRunning {
-    String value() default AriaConstance.NO_URL;
+    String[] value() default { AriaConstance.NO_URL };
   }
 }

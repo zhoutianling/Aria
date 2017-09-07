@@ -127,6 +127,7 @@ public abstract class AbsGroupUtil implements IUtil {
       mTaskEntity.getEntity().update();
     }
   }
+
   /**
    * 启动子任务下载
    *
@@ -457,6 +458,7 @@ public abstract class AbsGroupUtil implements IUtil {
     private void handleSpeed(long speed) {
       entity.setSpeed(speed);
       entity.setConvertSpeed(speed <= 0 ? "" : CommonUtil.formatFileSize(speed) + "/s");
+      entity.setPercent((int) (entity.getCurrentProgress() * 100 / entity.getFileSize()));
     }
 
     private void saveData(int state, long location) {

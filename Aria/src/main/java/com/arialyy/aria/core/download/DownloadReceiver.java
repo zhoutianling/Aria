@@ -166,29 +166,6 @@ public class DownloadReceiver extends AbsReceiver {
     }
   }
 
-  /**
-   * 添加调度器回调
-   *
-   * @see #register()
-   */
-  @Deprecated public DownloadReceiver addSchedulerListener(
-      ISchedulerListener<DownloadTask> listener) {
-    this.listener = listener;
-    DownloadSchedulers.getInstance().addSchedulerListener(targetName, listener);
-    return this;
-  }
-
-  /**
-   * 移除回调
-   *
-   * @see #unRegister()
-   */
-  @Deprecated @Override public void removeSchedulerListener() {
-    if (listener != null) {
-      DownloadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
-    }
-  }
-
   @Override public void destroy() {
     targetName = null;
     listener = null;

@@ -317,6 +317,7 @@ Aria.download(this).load(DOWNLOAD_URL).setExtendField(str)
 -keep class com.arialyy.aria.**{*;}
 -keep class **$$DownloadListenerProxy{ *; }
 -keep class **$$UploadListenerProxy{ *; }
+-keep class **$$DownloadGroupSubListenerProxy{*;}
 -keepclasseswithmembernames class * {
     @Download.* <methods>;
     @Upload.* <methods>;

@@ -26,10 +26,6 @@ public interface IReceiver<ENTITY extends IEntity> {
    */
   void destroy();
 
-  /**
-   * 移除事件回调
-   */
-  void removeSchedulerListener();
 
   /**
    * 移除观察者
