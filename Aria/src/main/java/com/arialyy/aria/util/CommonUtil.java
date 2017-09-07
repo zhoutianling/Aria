@@ -29,11 +29,14 @@ import com.arialyy.aria.core.command.group.GroupCmdFactory;
 import com.arialyy.aria.core.command.normal.AbsNormalCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -217,6 +220,39 @@ public class CommonUtil {
   }
 
   /**
+   * 删除下载任务组的配置
+   *
+   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
+   * {@code false}如果任务已经完成，只删除任务数据库记录
+   */
+  public static void delDownloadGroupTaskConfig(boolean removeFile,
+      DownloadGroupTaskEntity tEntity) {
+    DownloadGroupEntity entity = tEntity.getEntity();
+    List<DownloadTaskEntity> tasks =
+        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", tEntity.key);
+    if (tasks != null && !tasks.isEmpty()) {
+      for (DownloadTaskEntity taskEntity : tasks) {
+        delDownloadTaskConfig(removeFile, taskEntity);
+      }
+    }
+
+    File dir = new File(tEntity.getEntity().getDirPath());
+    if (removeFile) {
+      if (dir.exists()) {
+        dir.delete();
+      }
+    } else {
+      if (!tEntity.getEntity().isComplete()) {
+        dir.delete();
+      }
+    }
+    if (entity != null) {
+      entity.deleteData();
+    }
+    tEntity.deleteData();
+  }
+
+  /**
    * 删除上传任务的配置
    *
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
@@ -246,6 +282,7 @@ public class CommonUtil {
    */
   public static void delDownloadTaskConfig(boolean removeFile, DownloadTaskEntity tEntity) {
     DownloadEntity dEntity = tEntity.getEntity();
+    if (dEntity == null) return;
     File file = new File(dEntity.getDownloadPath());
     if (removeFile) {
       if (file.exists()) {
