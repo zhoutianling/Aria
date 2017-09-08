@@ -44,7 +44,7 @@ class ProxyClassParam {
   /**
    * 子任务泛型参数
    */
-  TaskEnum subTaskEnum = TaskEnum.NORMAL;
+  TaskEnum subTaskEnum = TaskEnum.NORMAL_ENTITY;
 
   Set<TaskEnum> taskEnums;
   Map<String, Set<String>> keyMappings = new HashMap<>();

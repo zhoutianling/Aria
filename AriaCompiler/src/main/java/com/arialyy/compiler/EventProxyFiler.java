@@ -112,7 +112,7 @@ final class EventProxyFiler {
 
     String callCode;
     if (taskEnum == TaskEnum.DOWNLOAD_GROUP_SUB) {
-      callCode = "task, subTask";
+      callCode = "task, subEntity";
     } else {
       callCode = "task";
     }
@@ -143,9 +143,9 @@ final class EventProxyFiler {
 
     //任务组接口
     if (taskEnum == TaskEnum.DOWNLOAD_GROUP_SUB) {
-      ClassName subTask = ClassName.get(TaskEnum.DOWNLOAD.pkg, TaskEnum.DOWNLOAD.className);
+      ClassName subTask = ClassName.get(TaskEnum.DOWNLOAD_ENTITY.pkg, TaskEnum.DOWNLOAD_ENTITY.className);
       ParameterSpec subTaskParam =
-          ParameterSpec.builder(subTask, "subTask").addModifiers(Modifier.FINAL).build();
+          ParameterSpec.builder(subTask, "subEntity").addModifiers(Modifier.FINAL).build();
 
       builder.addParameter(subTaskParam);
     }

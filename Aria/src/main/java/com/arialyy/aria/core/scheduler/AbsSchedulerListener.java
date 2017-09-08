@@ -15,13 +15,13 @@
  */
 package com.arialyy.aria.core.scheduler;
 
-import com.arialyy.aria.core.inf.AbsNormalTask;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.ITask;
 
 /**
  * Created by Aria.Lao on 2017/6/7.
  */
-public class AbsSchedulerListener<TASK extends ITask, SUB_TASK extends AbsNormalTask> implements ISchedulerListener<TASK> {
+public class AbsSchedulerListener<TASK extends ITask, SUB_ENTITY extends AbsNormalEntity> implements ISchedulerListener<TASK> {
 
   @Override public void onPre(TASK task) {
 
@@ -67,31 +67,31 @@ public class AbsSchedulerListener<TASK extends ITask, SUB_TASK extends AbsNormal
 
   }
 
-  public void onSubTaskPre(TASK task, SUB_TASK subTask) {
+  public void onSubTaskPre(TASK task, SUB_ENTITY subTask) {
 
   }
 
-  public void onSubTaskStart(TASK task, SUB_TASK subTask) {
+  public void onSubTaskStart(TASK task, SUB_ENTITY subTask) {
 
   }
 
-  public void onSubTaskStop(TASK task, SUB_TASK subTask) {
+  public void onSubTaskStop(TASK task, SUB_ENTITY subTask) {
 
   }
 
-  public void onSubTaskCancel(TASK task, SUB_TASK subTask) {
+  public void onSubTaskCancel(TASK task, SUB_ENTITY subTask) {
 
   }
 
-  public void onSubTaskComplete(TASK task, SUB_TASK subTask) {
+  public void onSubTaskComplete(TASK task, SUB_ENTITY subTask) {
 
   }
 
-  public void onSubTaskFail(TASK task, SUB_TASK subTask) {
+  public void onSubTaskFail(TASK task, SUB_ENTITY subTask) {
 
   }
 
-  public void onSubTaskRunning(TASK task, SUB_TASK subTask) {
+  public void onSubTaskRunning(TASK task, SUB_ENTITY subTask) {
 
   }
 }

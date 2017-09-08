@@ -17,15 +17,14 @@ package com.arialyy.simple.download.group;
 
 import android.os.Bundle;
 import android.os.Environment;
-import android.view.Gravity;
 import android.view.View;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
-import com.arialyy.frame.util.AndroidUtils;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
@@ -97,6 +96,11 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         Aria.download(this).load(mUrls).cancel(true);
         break;
     }
+  }
+
+  @DownloadGroup.onSubTaskRunning void onSubTaskRunning(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    L.d(TAG, subEntity.getPercent() + "");
   }
 
   @DownloadGroup.onPre() protected void onPre(DownloadGroupTask task) {

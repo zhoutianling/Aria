@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Handler;
 import com.arialyy.aria.core.download.downloader.IDownloadGroupListener;
+import com.arialyy.aria.core.inf.GroupSendParams;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 
 /**
@@ -26,13 +27,16 @@ import com.arialyy.aria.core.scheduler.ISchedulers;
 class DownloadGroupListener extends BaseDListener<DownloadGroupEntity, DownloadGroupTask>
     implements IDownloadGroupListener {
   private final String TAG = "DownloadGroupListener";
+  private GroupSendParams<DownloadGroupTask, DownloadEntity> mSeedEntity;
 
   DownloadGroupListener(DownloadGroupTask task, Handler outHandler) {
     super(task, outHandler);
+    mSeedEntity = new GroupSendParams<>();
+    mSeedEntity.groupTask = task;
   }
 
   @Override public void onSubPre(DownloadEntity subEntity) {
-    sendInState2Target(ISchedulers.SUB_PRE);
+    sendInState2Target(ISchedulers.SUB_PRE, subEntity);
   }
 
   @Override public void supportBreakpoint(boolean support, DownloadEntity subEntity) {
@@ -40,31 +44,31 @@ class DownloadGroupListener extends BaseDListener<DownloadGroupEntity, DownloadG
   }
 
   @Override public void onSubStart(DownloadEntity subEntity) {
-    sendInState2Target(ISchedulers.SUB_START);
+    sendInState2Target(ISchedulers.SUB_START, subEntity);
   }
 
   @Override public void onSubStop(DownloadEntity subEntity) {
     saveCurrentLocation();
-    sendInState2Target(ISchedulers.SUB_STOP);
+    sendInState2Target(ISchedulers.SUB_STOP, subEntity);
   }
 
   @Override public void onSubComplete(DownloadEntity subEntity) {
     saveCurrentLocation();
-    sendInState2Target(ISchedulers.SUB_COMPLETE);
+    sendInState2Target(ISchedulers.SUB_COMPLETE, subEntity);
   }
 
   @Override public void onSubFail(DownloadEntity subEntity) {
     saveCurrentLocation();
-    sendInState2Target(ISchedulers.SUB_FAIL);
+    sendInState2Target(ISchedulers.SUB_FAIL, subEntity);
   }
 
-  @Override public void onSubCancel(DownloadEntity entity) {
+  @Override public void onSubCancel(DownloadEntity subEntity) {
     saveCurrentLocation();
-    sendInState2Target(ISchedulers.SUB_CANCEL);
+    sendInState2Target(ISchedulers.SUB_CANCEL, subEntity);
   }
 
   @Override public void onSubRunning(DownloadEntity subEntity) {
-    sendInState2Target(ISchedulers.SUB_RUNNING);
+    sendInState2Target(ISchedulers.SUB_RUNNING, subEntity);
   }
 
   /**
@@ -72,9 +76,10 @@ class DownloadGroupListener extends BaseDListener<DownloadGroupEntity, DownloadG
    *
    * @param state {@link ISchedulers#START}
    */
-  private void sendInState2Target(int state) {
+  private void sendInState2Target(int state, DownloadEntity subEntity) {
     if (outHandler.get() != null) {
-      outHandler.get().obtainMessage(state, ISchedulers.IS_SUB_TASK, 0, mTask).sendToTarget();
+      mSeedEntity.entity = subEntity;
+      outHandler.get().obtainMessage(state, ISchedulers.IS_SUB_TASK, 0, mSeedEntity).sendToTarget();
     }
   }
 

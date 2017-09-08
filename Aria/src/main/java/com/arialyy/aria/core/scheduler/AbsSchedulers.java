@@ -21,9 +21,10 @@ import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.aria.core.inf.AbsNormalTask;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.GroupSendParams;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -46,7 +47,8 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
 
   protected QUEUE mQueue;
 
-  private Map<String, AbsSchedulerListener<TASK, AbsNormalTask>> mObservers = new ConcurrentHashMap<>();
+  private Map<String, AbsSchedulerListener<TASK, AbsNormalEntity>> mObservers =
+      new ConcurrentHashMap<>();
 
   /**
    * 设置调度器类型
@@ -60,7 +62,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
 
   @Override public void register(Object obj) {
     String targetName = obj.getClass().getName();
-    AbsSchedulerListener<TASK, AbsNormalTask> listener = mObservers.get(targetName);
+    AbsSchedulerListener<TASK, AbsNormalEntity> listener = mObservers.get(targetName);
     if (listener == null) {
       listener = createListener(targetName);
       if (listener != null) {
@@ -73,9 +75,9 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
   }
 
   @Override public void unRegister(Object obj) {
-    for (Iterator<Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalTask>>> iter =
+    for (Iterator<Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalEntity>>> iter =
         mObservers.entrySet().iterator(); iter.hasNext(); ) {
-      Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalTask>> entry = iter.next();
+      Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalEntity>> entry = iter.next();
       if (entry.getKey().equals(obj.getClass().getName())) iter.remove();
     }
   }
@@ -85,11 +87,11 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
    *
    * @param targetName 通过观察者创建对应的Aria事件代理
    */
-  private AbsSchedulerListener<TASK, AbsNormalTask> createListener(String targetName) {
-    AbsSchedulerListener<TASK, AbsNormalTask> listener = null;
+  private AbsSchedulerListener<TASK, AbsNormalEntity> createListener(String targetName) {
+    AbsSchedulerListener<TASK, AbsNormalEntity> listener = null;
     try {
       Class clazz = Class.forName(targetName + getProxySuffix());
-      listener = (AbsSchedulerListener<TASK, AbsNormalTask>) clazz.newInstance();
+      listener = (AbsSchedulerListener<TASK, AbsNormalEntity>) clazz.newInstance();
     } catch (ClassNotFoundException e) {
       Log.e(TAG, targetName + "，没有Aria的Download或Upload注解方法");
     } catch (InstantiationException e) {
@@ -101,49 +103,54 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
   }
 
   @Override public boolean handleMessage(Message msg) {
+    if (msg.arg1 == IS_SUB_TASK) {
+      return handleSubEvent(msg);
+    }
+
     TASK task = (TASK) msg.obj;
     if (task == null) {
       Log.e(TAG, "请传入下载任务");
       return true;
     }
-
-    if (msg.arg1 == IS_SUB_TASK) {
-      handleSubEvent(task, msg.what);
-    } else {
-      handleNormalEvent(task, msg.what);
-    }
-
+    handleNormalEvent(task, msg.what);
     return true;
   }
 
   /**
    * 处理任务组子任务事件
    */
-  private void handleSubEvent(TASK task, int what) {
-    ENTITY entity = task.getEntity();
+  private boolean handleSubEvent(Message msg) {
+    GroupSendParams params = (GroupSendParams) msg.obj;
     if (mObservers.size() > 0) {
       Set<String> keys = mObservers.keySet();
       for (String key : keys) {
-        AbsSchedulerListener<TASK, AbsNormalTask> listener = mObservers.get(key);
-        switch (what) {
+        AbsSchedulerListener<TASK, AbsNormalEntity> listener = mObservers.get(key);
+        switch (msg.what) {
           case SUB_PRE:
-            //listener.onSubTaskPre(task, );
+            listener.onSubTaskPre((TASK) params.groupTask, params.entity);
             break;
           case SUB_START:
+            listener.onSubTaskStart((TASK) params.groupTask, params.entity);
             break;
           case SUB_STOP:
+            listener.onSubTaskStop((TASK) params.groupTask, params.entity);
             break;
           case SUB_FAIL:
+            listener.onSubTaskFail((TASK) params.groupTask, params.entity);
             break;
           case SUB_RUNNING:
+            listener.onSubTaskRunning((TASK) params.groupTask, params.entity);
             break;
           case SUB_CANCEL:
+            listener.onSubTaskCancel((TASK) params.groupTask, params.entity);
             break;
           case SUB_COMPLETE:
+            listener.onSubTaskComplete((TASK) params.groupTask, params.entity);
             break;
         }
       }
     }
+    return true;
   }
 
   /**
@@ -189,7 +196,8 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
     }
   }
 
-  private void callback(int state, TASK task, AbsSchedulerListener<TASK, AbsNormalTask> listener) {
+  private void callback(int state, TASK task,
+      AbsSchedulerListener<TASK, AbsNormalEntity> listener) {
     if (listener != null) {
       if (task == null) {
         Log.e(TAG, "TASK 为null，回调失败");

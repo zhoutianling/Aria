@@ -84,7 +84,7 @@ class ParamObtainUtil {
           proxyEntity.proxyClassName = proxyEntity.className + taskEnum.proxySuffix;
           proxyEntity.mainTaskEnum = taskEnum;
           if (taskEnum == TaskEnum.DOWNLOAD_GROUP_SUB || taskEnum == TaskEnum.DOWNLOAD_GROUP) {
-            proxyEntity.subTaskEnum = TaskEnum.DOWNLOAD;
+            proxyEntity.subTaskEnum = TaskEnum.DOWNLOAD_ENTITY;
           }
           mMethodParams.put(key, proxyEntity);
         }
@@ -214,7 +214,7 @@ class ParamObtainUtil {
    */
   private String getCheckSubParams(TaskEnum taskEnum) {
     if (taskEnum == TaskEnum.DOWNLOAD_GROUP_SUB) {
-      return TaskEnum.DOWNLOAD.pkg + "." + TaskEnum.DOWNLOAD.className;
+      return TaskEnum.DOWNLOAD_ENTITY.pkg + "." + TaskEnum.DOWNLOAD_ENTITY.className;
     }
     return "";
   }

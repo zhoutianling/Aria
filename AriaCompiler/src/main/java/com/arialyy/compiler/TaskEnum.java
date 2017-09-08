@@ -23,10 +23,11 @@ enum TaskEnum {
   DOWNLOAD("com.arialyy.aria.core.download", "DownloadTask",
       "$$DownloadListenerProxy"), DOWNLOAD_GROUP("com.arialyy.aria.core.download",
       "DownloadGroupTask", "$$DownloadGroupListenerProxy"), DOWNLOAD_GROUP_SUB(
-      "com.arialyy.aria.core.download", "DownloadGroupTask",
-      "$$DownloadGroupListenerProxy"), UPLOAD("com.arialyy.aria.core.upload", "UploadTask",
-      "$$UploadListenerProxy"), UPLOAD_GROUP("com.arialyy.aria.core.upload", "UploadGroupTask",
-      "$$UploadGroupListenerProxy"), NORMAL("com.arialyy.aria.core.inf", "AbsNormalTask", "");
+      "com.arialyy.aria.core.download", "DownloadGroupTask", "$$DownloadGroupListenerProxy"), UPLOAD(
+      "com.arialyy.aria.core.upload", "UploadTask", "$$UploadListenerProxy"), UPLOAD_GROUP(
+      "com.arialyy.aria.core.upload", "UploadGroupTask",
+      "$$UploadGroupListenerProxy"), NORMAL_ENTITY("com.arialyy.aria.core.inf", "AbsNormalEntity",
+      ""), DOWNLOAD_ENTITY("com.arialyy.aria.core.download", "DownloadEntity", "");
 
   String pkg, className, proxySuffix;
 
