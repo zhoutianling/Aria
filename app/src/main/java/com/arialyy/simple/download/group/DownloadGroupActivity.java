@@ -46,7 +46,6 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     Aria.download(this).register();
     setTitle("任务组");
     mUrls = getModule(GroupModule.class).getUrls();
-    DownloadGroupEntity e = Aria.download(this).getGroupTaskList().get(0);
     DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(mUrls);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
@@ -96,11 +95,6 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         Aria.download(this).load(mUrls).cancel(true);
         break;
     }
-  }
-
-  @DownloadGroup.onSubTaskRunning void onSubTaskRunning(DownloadGroupTask groupTask,
-      DownloadEntity subEntity) {
-    L.d(TAG, subEntity.getPercent() + "");
   }
 
   @DownloadGroup.onPre() protected void onPre(DownloadGroupTask task) {
@@ -154,4 +148,42 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     T.showShort(this, "任务组下载完成");
     L.d(TAG, "任务组下载完成");
   }
+
+  ///////////////////////////////////任务组子任务///////////////////////////////////
+
+  @DownloadGroup.onSubTaskRunning void onSubTaskRunning(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    L.d(TAG, subEntity.getFileName() + "__________" + subEntity.getPercent() + "");
+  }
+
+  @DownloadGroup.onSubTaskPre void onSubTaskPre(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    L.d(TAG, subEntity.getPercent() + "");
+  }
+
+  @DownloadGroup.onSubTaskStop void onSubTaskStop(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    L.d(TAG, subEntity.getPercent() + "");
+  }
+
+  @DownloadGroup.onSubTaskStart void onSubTaskStart(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    L.d(TAG, subEntity.getPercent() + "");
+  }
+
+  @DownloadGroup.onSubTaskCancel void onSubTaskCancel(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    L.d(TAG, subEntity.getPercent() + "");
+  }
+
+  @DownloadGroup.onSubTaskComplete void onSubTaskComplete(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    L.d(TAG, subEntity.getPercent() + "");
+  }
+
+  @DownloadGroup.onSubTaskFail void onSubTaskFail(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    L.d(TAG, subEntity.getPercent() + "");
+  }
+
 }

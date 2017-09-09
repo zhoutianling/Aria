@@ -372,16 +372,19 @@ public abstract class AbsGroupUtil implements IUtil {
       entity.setFileSize(fileSize);
       entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
       saveData(IEntity.STATE_POST_PRE, -1);
+      mListener.onSubPre(entity);
     }
 
     @Override public void onResume(long resumeLocation) {
       saveData(IEntity.STATE_POST_PRE, IEntity.STATE_RUNNING);
       lastLen = resumeLocation;
+      mListener.onSubStart(entity);
     }
 
     @Override public void onStart(long startLocation) {
       saveData(IEntity.STATE_POST_PRE, IEntity.STATE_RUNNING);
       lastLen = startLocation;
+      mListener.onSubStart(entity);
     }
 
     @Override public void onProgress(long currentLocation) {
@@ -390,6 +393,7 @@ public abstract class AbsGroupUtil implements IUtil {
       lastLen = currentLocation;
       entity.setCurrentProgress(currentLocation);
       handleSpeed(speed);
+      mListener.onSubRunning(entity);
     }
 
     @Override public void onStop(long stopLocation) {
