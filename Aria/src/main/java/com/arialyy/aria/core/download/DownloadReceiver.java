@@ -139,10 +139,12 @@ public class DownloadReceiver extends AbsReceiver {
     String className = obj.getClass().getName();
     Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
     Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
+    Set<String> dgsCounter = ProxyHelper.getInstance().downloadGroupSubCounter;
     if (dCounter != null && dCounter.contains(className)) {
       DownloadSchedulers.getInstance().register(obj);
     }
-    if (dgCounter != null && dgCounter.contains(className)) {
+    if ((dgCounter != null && dgCounter.contains(className)) || (dgsCounter != null
+        && dgsCounter.contains(className))) {
       DownloadGroupSchedulers.getInstance().register(obj);
     }
     return this;
@@ -155,10 +157,12 @@ public class DownloadReceiver extends AbsReceiver {
     String className = obj.getClass().getName();
     Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
     Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
+    Set<String> dgsCounter = ProxyHelper.getInstance().downloadGroupSubCounter;
     if (dCounter != null && dCounter.contains(className)) {
       DownloadSchedulers.getInstance().unRegister(obj);
     }
-    if (dgCounter != null && dgCounter.contains(className)) {
+    if (dgCounter != null && dgCounter.contains(className) || (dgsCounter != null
+        && dgsCounter.contains(className))) {
       DownloadGroupSchedulers.getInstance().unRegister(obj);
     }
     if (needRmReceiver) {

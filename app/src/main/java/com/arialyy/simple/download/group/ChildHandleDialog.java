@@ -18,7 +18,6 @@ package com.arialyy.simple.download.group;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +30,7 @@ import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
+import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseDialog;
 import com.arialyy.simple.databinding.DialogSubTaskHandlerBinding;
@@ -47,13 +47,15 @@ import java.util.List;
   @Bind(R.id.pb) HorizontalProgressBarWithNumber mPb;
   private String mGroupName;
   private String mChildName;
+  private List<String> mUrls;
   private DownloadEntity mChildEntity;
 
-  public ChildHandleDialog(Context context, String groupAliaName, DownloadEntity childEntity) {
+  public ChildHandleDialog(Context context, List<String> urls, DownloadEntity childEntity) {
     super(context);
     setStyle(STYLE_NO_TITLE, R.style.Theme_Light_Dialog);
     mChildEntity = childEntity;
-    mGroupName = groupAliaName;
+    mGroupName = "任务组测试";
+    mUrls = urls;
     mChildName = childEntity.getFileName();
   }
 
@@ -81,39 +83,64 @@ import java.util.List;
     window.setWindowAnimations(R.style.dialogStyle);
   }
 
-  @DownloadGroup.onTaskResume void onTaskResume(DownloadGroupTask task) {
-    mSub.setText("子任务：" + mChildName + "，状态：下载中");
+  @DownloadGroup.onSubTaskRunning void onSubTaskRunning(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    if (!subEntity.getUrl().equals(mChildEntity.getUrl())) return;
+    L.d(TAG, "p ==> " + subEntity.getPercent());
+    mPb.setProgress(subEntity.getPercent());
   }
 
-  @DownloadGroup.onTaskCancel void onTaskCancel(DownloadGroupTask task) {
-    mSub.setText("子任务：" + mChildName + "，状态：取消下载");
+  @DownloadGroup.onSubTaskPre void onSubTaskPre(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    if (!subEntity.getUrl().equals(mChildEntity.getUrl())) return;
+    L.d(TAG, subEntity.getPercent() + "");
   }
 
-  @DownloadGroup.onTaskRunning void onTaskRunning(DownloadGroupTask task) {
-    mPb.setProgress((int) (mChildEntity.getCurrentProgress() * 100 / mChildEntity.getFileSize()));
-  }
-
-  @DownloadGroup.onTaskStop void onTaskStop(DownloadGroupTask task) {
+  @DownloadGroup.onSubTaskStop void onSubTaskStop(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    if (!subEntity.getUrl().equals(mChildEntity.getUrl())) return;
     mSub.setText("子任务：" + mChildName + "，状态：任务停止");
   }
 
-  @DownloadGroup.onTaskComplete void onTaskComplete(DownloadGroupTask task) {
+  @DownloadGroup.onSubTaskStart void onSubTaskStart(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    if (!subEntity.getUrl().equals(mChildEntity.getUrl())) return;
+    mSub.setText("子任务：" + mChildName + "，状态：下载中");
+  }
+
+  //@DownloadGroup.onSubTaskCancel void onSubTaskCancel(DownloadGroupTask groupTask,
+  //    DownloadEntity subEntity) {
+  //  mSub.setText("子任务：" + mChildName + "，状态：取消下载");
+  //}
+
+  @DownloadGroup.onSubTaskComplete void onSubTaskComplete(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    if (!subEntity.getUrl().equals(mChildEntity.getUrl())) return;
     mSub.setText("子任务：" + mChildName + "，状态：任务完成");
     mPb.setProgress(100);
+  }
+
+  @DownloadGroup.onSubTaskFail void onSubTaskFail(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    if (!subEntity.getUrl().equals(mChildEntity.getUrl())) return;
+    L.d(TAG, subEntity.getPercent() + "");
   }
 
   @Override protected int setLayoutId() {
     return R.layout.dialog_sub_task_handler;
   }
 
-  @OnClick({ R.id.start, R.id.stop, R.id.cancel }) void onClick(View view) {
+  @OnClick({ R.id.start, R.id.stop }) void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
+        Aria.download(this).load(mUrls).getSubTaskManager().startSubTask(mChildEntity.getUrl());
         break;
       case R.id.stop:
+        Aria.download(this).load(mUrls).getSubTaskManager().stopSubTask(mChildEntity.getUrl());
         break;
-      case R.id.cancel:
-        break;
+      //case R.id.cancel:
+      //  Aria.download(this).load(mUrls).getSubTaskManager().cancelSubTask(mChildEntity.getUrl());
+      //  break;
     }
   }
 

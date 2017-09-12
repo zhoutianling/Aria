@@ -47,7 +47,7 @@ final class ValuesUtil {
         values = method.getAnnotation(DownloadGroup.onSubTaskComplete.class).value();
         break;
       case ProxyConstance.TASK_CANCEL:
-        values = method.getAnnotation(DownloadGroup.onSubTaskCancel.class).value();
+        //values = method.getAnnotation(DownloadGroup.onSubTaskCancel.class).value();
         break;
       case ProxyConstance.TASK_FAIL:
         values = method.getAnnotation(DownloadGroup.onSubTaskFail.class).value();

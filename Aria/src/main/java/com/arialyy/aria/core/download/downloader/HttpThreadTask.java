@@ -86,7 +86,6 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         if (mSleepTime > 0) Thread.sleep(mSleepTime);
         file.write(buffer, 0, len);
         progress(len);
-        Log.d(TAG, len + "");
       }
       if (STATE.isCancel || STATE.isStop) return;
       //支持断点的处理

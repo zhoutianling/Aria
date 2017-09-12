@@ -66,7 +66,7 @@ import javax.lang.model.element.TypeElement;
     annotataions.add(DownloadGroup.onTaskStop.class.getCanonicalName());
     //任务组子任务的注解
     annotataions.add(DownloadGroup.onSubTaskPre.class.getCanonicalName());
-    annotataions.add(DownloadGroup.onSubTaskCancel.class.getCanonicalName());
+    //annotataions.add(DownloadGroup.onSubTaskCancel.class.getCanonicalName());
     annotataions.add(DownloadGroup.onSubTaskComplete.class.getCanonicalName());
     annotataions.add(DownloadGroup.onSubTaskFail.class.getCanonicalName());
     annotataions.add(DownloadGroup.onSubTaskRunning.class.getCanonicalName());

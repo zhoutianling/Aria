@@ -47,6 +47,7 @@ interface ProxyConstance {
 
   String COUNT_METHOD_DOWNLOAD = "getDownloadCounter";
   String COUNT_METHOD_DOWNLOAD_GROUP = "getDownloadGroupCounter";
+  String COUNT_METHOD_DOWNLOAD_GROUP_SUB = "getDownloadGroupSubCounter";
   String COUNT_METHOD_UPLOAD = "getUploadCounter";
 
   int PRE = 0X11;

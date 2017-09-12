@@ -15,7 +15,6 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -82,6 +81,8 @@ public abstract class AbsGroupUtil implements IUtil {
   private int mCompleteNum = 0;
   //失败的任务数
   private int mFailNum = 0;
+  //停止的任务数
+  private int mStopNum = 0;
   //实际的下载任务数
   int mActualTaskNum = 0;
   /**
@@ -98,6 +99,7 @@ public abstract class AbsGroupUtil implements IUtil {
     if (tasks != null && !tasks.isEmpty()) {
       for (DownloadTaskEntity te : tasks) {
         te.removeFile = mTaskEntity.removeFile;
+        if (te.getEntity() == null) continue;
         mTasksMap.put(te.getEntity().getUrl(), te);
       }
     }
@@ -108,6 +110,7 @@ public abstract class AbsGroupUtil implements IUtil {
       if (entity.getState() == IEntity.STATE_COMPLETE && file.exists()) {
         mCompleteNum++;
         mInitNum++;
+        mStopNum++;
         mCurrentLocation += entity.getFileSize();
       } else {
         mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
@@ -134,6 +137,10 @@ public abstract class AbsGroupUtil implements IUtil {
    * @param url 子任务下载地址
    */
   public void startSubTask(String url) {
+    isRunning = true;
+    if (mTimer == null) {
+      startTimer();
+    }
     Downloader d = getDownloader(url);
     if (d != null && !d.isRunning()) {
       d.start();
@@ -172,8 +179,7 @@ public abstract class AbsGroupUtil implements IUtil {
   private Downloader getDownloader(String url) {
     Downloader d = mDownloaderMap.get(url);
     if (d == null) {
-      Log.e(TAG, "链接【" + url + "】对应的下载器不存在");
-      return null;
+      return startChildDownload(mExeMap.get(url));
     }
     return d;
   }
@@ -283,6 +289,7 @@ public abstract class AbsGroupUtil implements IUtil {
     if (mTimer != null) {
       mTimer.purge();
       mTimer.cancel();
+      mTimer = null;
     }
   }
 
@@ -293,6 +300,10 @@ public abstract class AbsGroupUtil implements IUtil {
     closeTimer(true);
     mListener.onPostPre(mTotalSize);
     mListener.onStart(mCurrentLocation);
+    startTimer();
+  }
+
+  private void startTimer() {
     mTimer = new Timer(true);
     mTimer.schedule(new TimerTask() {
       @Override public void run() {
@@ -308,12 +319,13 @@ public abstract class AbsGroupUtil implements IUtil {
   /**
    * 启动子任务下载器
    */
-  void startChildDownload(DownloadTaskEntity taskEntity) {
+  Downloader startChildDownload(DownloadTaskEntity taskEntity) {
     ChildDownloadListener listener = new ChildDownloadListener(taskEntity);
     Downloader dt = new Downloader(listener, taskEntity);
     mDownloaderMap.put(taskEntity.getEntity().getUrl(), dt);
-    if (mExePool.isShutdown()) return;
+    if (mExePool.isShutdown()) return dt;
     mExePool.execute(dt);
+    return dt;
   }
 
   /**
@@ -400,6 +412,11 @@ public abstract class AbsGroupUtil implements IUtil {
       saveData(IEntity.STATE_STOP, stopLocation);
       handleSpeed(0);
       mListener.onSubStop(entity);
+      mStopNum++;
+      if (mStopNum >= mInitNum) {
+        closeTimer(false);
+        mListener.onStop(mCurrentLocation);
+      }
     }
 
     @Override public void onCancel() {

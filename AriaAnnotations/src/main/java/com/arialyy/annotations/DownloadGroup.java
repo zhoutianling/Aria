@@ -128,12 +128,12 @@ import java.lang.annotation.Target;
     String[] value() default { AriaConstance.NO_URL };
   }
 
-  /**
-   * 任务组子任务删除的注解
-   */
-  @Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onSubTaskCancel {
-    String[] value() default { AriaConstance.NO_URL };
-  }
+  ///**
+  // * 任务组子任务删除的注解
+  // */
+  //@Retention(RetentionPolicy.CLASS) @Target(ElementType.METHOD) @interface onSubTaskCancel {
+  //  String[] value() default { AriaConstance.NO_URL };
+  //}
 
   /**
    * 任务组子任务失败的注解

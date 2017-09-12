@@ -27,7 +27,7 @@ import static java.util.Collections.unmodifiableSet;
  * 代理参数获取
  */
 public class ProxyHelper {
-  public Set<String> downloadCounter, uploadCounter, downloadGroupCounter;
+  public Set<String> downloadCounter, uploadCounter, downloadGroupCounter, downloadGroupSubCounter;
 
   public static volatile ProxyHelper INSTANCE = null;
 
@@ -49,6 +49,7 @@ public class ProxyHelper {
       Class clazz = Class.forName("com.arialyy.aria.ProxyClassCounter");
       Method download = clazz.getMethod("getDownloadCounter");
       Method downloadGroup = clazz.getMethod("getDownloadGroupCounter");
+      Method downloadGroupSub = clazz.getMethod("getDownloadGroupSubCounter");
       Method upload = clazz.getMethod("getUploadCounter");
       Object object = clazz.newInstance();
       Object dc = download.invoke(object);
@@ -58,6 +59,10 @@ public class ProxyHelper {
       Object dgc = downloadGroup.invoke(object);
       if (dgc != null) {
         downloadGroupCounter = unmodifiableSet((Set<String>) dgc);
+      }
+      Object dgsc = downloadGroupSub.invoke(object);
+      if (dgsc != null){
+        downloadGroupSubCounter = unmodifiableSet((Set<? extends String>) dgsc);
       }
       Object uc = upload.invoke(object);
       if (uc != null) {

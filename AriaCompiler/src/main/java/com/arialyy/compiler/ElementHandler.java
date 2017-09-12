@@ -95,8 +95,8 @@ class ElementHandler {
   void handleDownloadGroupSub(RoundEnvironment roundEnv) {
     mPbUtil.saveMethod(TaskEnum.DOWNLOAD_GROUP_SUB, roundEnv, DownloadGroup.onSubTaskPre.class,
         ProxyConstance.TASK_PRE);
-    mPbUtil.saveMethod(TaskEnum.DOWNLOAD_GROUP_SUB, roundEnv, DownloadGroup.onSubTaskCancel.class,
-        ProxyConstance.TASK_CANCEL);
+    //mPbUtil.saveMethod(TaskEnum.DOWNLOAD_GROUP_SUB, roundEnv, DownloadGroup.onSubTaskCancel.class,
+    //    ProxyConstance.TASK_CANCEL);
     mPbUtil.saveMethod(TaskEnum.DOWNLOAD_GROUP_SUB, roundEnv, DownloadGroup.onSubTaskComplete.class,
         ProxyConstance.TASK_COMPLETE);
     mPbUtil.saveMethod(TaskEnum.DOWNLOAD_GROUP_SUB, roundEnv, DownloadGroup.onSubTaskFail.class,
@@ -146,5 +146,6 @@ class ElementHandler {
 
   void clean() {
     mPbUtil.getMethodParams().clear();
+    mPbUtil.getListenerClass().clear();
   }
 }

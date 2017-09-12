@@ -48,6 +48,7 @@ final class CountFiler {
    */
   void createCountFile() throws IOException {
     Set<String> keys = mPbUtil.getListenerClass().keySet();
+    if (keys.size() == 0) return;
     TypeSpec.Builder builder = TypeSpec.classBuilder(ProxyConstance.PROXY_COUNTER_NAME)
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
@@ -76,6 +77,8 @@ final class CountFiler {
         createMethod(ProxyConstance.COUNT_METHOD_UPLOAD, ProxyConstance.COUNT_UPLOAD));
     builder.addMethod(createMethod(ProxyConstance.COUNT_METHOD_DOWNLOAD_GROUP,
         ProxyConstance.COUNT_DOWNLOAD_GROUP));
+    builder.addMethod(createMethod(ProxyConstance.COUNT_METHOD_DOWNLOAD_GROUP_SUB,
+        ProxyConstance.COUNT_DOWNLOAD_GROUP_SUB));
 
     JavaFile jf = JavaFile.builder(ProxyConstance.PROXY_COUNTER_PACKAGE, builder.build()).build();
     createFile(jf);
@@ -113,6 +116,7 @@ final class CountFiler {
   }
 
   private void createFile(JavaFile jf) throws IOException {
+    //jf.writeTo(System.out);
     if (ProxyConstance.DEBUG) {
       // 如果需要在控制台打印生成的文件，则去掉下面的注释
       jf.writeTo(System.out);

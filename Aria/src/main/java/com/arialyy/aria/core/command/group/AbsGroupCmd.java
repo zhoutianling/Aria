@@ -19,6 +19,7 @@ import android.util.Log;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.inf.AbsGroupTask;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.util.CommonUtil;
@@ -48,11 +49,24 @@ public abstract class AbsGroupCmd<T extends BaseGroupTaskEntity> extends AbsCmd<
     }
   }
 
+  /**
+   * 创建任务
+   *
+   * @return 创建的任务
+   */
+  AbsTask createTask() {
+    tempTask = (AbsGroupTask) mQueue.createTask(mTargetName, mTaskEntity);
+    return tempTask;
+  }
+
   boolean checkTask() {
     tempTask = (AbsGroupTask) mQueue.getTask(mTaskEntity.getEntity());
-    if (tempTask == null || !tempTask.isRunning()) {
-      Log.d(TAG, "任务组没有执行，先执行任务组任务才能够执行子任务");
-      return false;
+    if (tempTask == null) {
+      createTask();
+      if (tempTask.isComplete()) {
+        Log.w(TAG, "任务已完成");
+        return false;
+      }
     }
     return true;
   }

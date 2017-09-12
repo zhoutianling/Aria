@@ -78,21 +78,11 @@ final class EventProxyFiler {
    * 创建任务事件代理文件
    */
   void createEventProxyFile() throws IOException {
-    Map<String, ProxyClassParam> map = mPbUtil.getMethodParams();
     Set<String> keys = mPbUtil.getMethodParams().keySet();
     for (String key : keys) {
-      //if (key.equals(
-      //    "com.arialyy.simple.download.SingleTaskActivity$$DownloadGroupListenerProxy")) {
-      //
-      //  ProxyClassParam entity = mPbUtil.getMethodParams().get(key);
-      //  JavaFile jf = JavaFile.builder(entity.packageName, createProxyClass(entity)).build();
-      //  createFile(jf);
-      //}
-
       ProxyClassParam entity = mPbUtil.getMethodParams().get(key);
       JavaFile jf = JavaFile.builder(entity.packageName, createProxyClass(entity)).build();
       createFile(jf);
-
     }
   }
 
@@ -149,9 +139,6 @@ final class EventProxyFiler {
 
       builder.addParameter(subTaskParam);
     }
-
-    //PrintLog.getInstance().info(builder.build().toString());
-
     return builder.build();
   }
 

@@ -17,6 +17,7 @@ package com.arialyy.simple.download.group;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
@@ -64,11 +65,12 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         showPopupWindow(position);
       }
     });
+
   }
 
   private void showPopupWindow(int position) {
     ChildHandleDialog dialog =
-        new ChildHandleDialog(this, "任务组测试", mChildList.getSubData().get(position));
+        new ChildHandleDialog(this, mUrls, mChildList.getSubData().get(position));
     dialog.show(getSupportFragmentManager(), "sub_dialog");
   }
 
@@ -147,43 +149,6 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     mChildList.updateChildProgress(task.getEntity().getSubTask());
     T.showShort(this, "任务组下载完成");
     L.d(TAG, "任务组下载完成");
-  }
-
-  ///////////////////////////////////任务组子任务///////////////////////////////////
-
-  @DownloadGroup.onSubTaskRunning void onSubTaskRunning(DownloadGroupTask groupTask,
-      DownloadEntity subEntity) {
-    L.d(TAG, subEntity.getFileName() + "__________" + subEntity.getPercent() + "");
-  }
-
-  @DownloadGroup.onSubTaskPre void onSubTaskPre(DownloadGroupTask groupTask,
-      DownloadEntity subEntity) {
-    L.d(TAG, subEntity.getPercent() + "");
-  }
-
-  @DownloadGroup.onSubTaskStop void onSubTaskStop(DownloadGroupTask groupTask,
-      DownloadEntity subEntity) {
-    L.d(TAG, subEntity.getPercent() + "");
-  }
-
-  @DownloadGroup.onSubTaskStart void onSubTaskStart(DownloadGroupTask groupTask,
-      DownloadEntity subEntity) {
-    L.d(TAG, subEntity.getPercent() + "");
-  }
-
-  @DownloadGroup.onSubTaskCancel void onSubTaskCancel(DownloadGroupTask groupTask,
-      DownloadEntity subEntity) {
-    L.d(TAG, subEntity.getPercent() + "");
-  }
-
-  @DownloadGroup.onSubTaskComplete void onSubTaskComplete(DownloadGroupTask groupTask,
-      DownloadEntity subEntity) {
-    L.d(TAG, subEntity.getPercent() + "");
-  }
-
-  @DownloadGroup.onSubTaskFail void onSubTaskFail(DownloadGroupTask groupTask,
-      DownloadEntity subEntity) {
-    L.d(TAG, subEntity.getPercent() + "");
   }
 
 }
