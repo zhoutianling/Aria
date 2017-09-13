@@ -86,7 +86,6 @@ import java.util.List;
   @DownloadGroup.onSubTaskRunning void onSubTaskRunning(DownloadGroupTask groupTask,
       DownloadEntity subEntity) {
     if (!subEntity.getUrl().equals(mChildEntity.getUrl())) return;
-    L.d(TAG, "p ==> " + subEntity.getPercent());
     mPb.setProgress(subEntity.getPercent());
   }
 

@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -48,7 +49,7 @@ public abstract class AbsGroupUtil implements IUtil {
   private ExecutorService mExePool;
   protected IDownloadGroupListener mListener;
   protected DownloadGroupTaskEntity mTaskEntity;
-  private boolean isRunning = true;
+  private boolean isRunning = false;
   private Timer mTimer;
   /**
    * 初始化完成的任务书数
@@ -137,12 +138,14 @@ public abstract class AbsGroupUtil implements IUtil {
    * @param url 子任务下载地址
    */
   public void startSubTask(String url) {
-    isRunning = true;
-    if (mTimer == null) {
+    if (!checkSubTask(url, "开始")) return;
+    if (!isRunning) {
+      isRunning = true;
       startTimer();
     }
-    Downloader d = getDownloader(url);
+    Downloader d = getDownloader(url, false);
     if (d != null && !d.isRunning()) {
+      d.setNewTask(false);
       d.start();
     }
   }
@@ -153,7 +156,8 @@ public abstract class AbsGroupUtil implements IUtil {
    * @param url 子任务下载地址
    */
   public void stopSubTask(String url) {
-    Downloader d = getDownloader(url);
+    if (!checkSubTask(url, "停止")) return;
+    Downloader d = getDownloader(url, false);
     if (d != null && d.isRunning()) {
       d.stop();
     }
@@ -165,21 +169,43 @@ public abstract class AbsGroupUtil implements IUtil {
    * @param url 子任务下载地址
    */
   public void cancelSunTask(String url) {
-    Downloader d = getDownloader(url);
+    Downloader d = getDownloader(url, false);
     if (d != null) {
       d.cancel();
     }
   }
 
   /**
+   * 检查子任务
+   *
+   * @param url 子任务url
+   * @param type 任务类型
+   * @return {@code true} 任务可以下载
+   */
+  private boolean checkSubTask(String url, String type) {
+    DownloadTaskEntity entity = mTasksMap.get(url);
+    if (entity != null) {
+      if (entity.getState() == IEntity.STATE_COMPLETE) {
+        Log.w(TAG, "任务【" + url + "】已完成，" + type + "失败");
+        return false;
+      }
+    } else {
+      Log.w(TAG, "任务组中没有该任务【" + url + "】，" + type + "失败");
+      return false;
+    }
+    return true;
+  }
+
+  /**
    * 通过地址获取下载器
    *
    * @param url 子任务下载地址
+   * @param start 是否启动任务
    */
-  private Downloader getDownloader(String url) {
+  private Downloader getDownloader(String url, boolean start) {
     Downloader d = mDownloaderMap.get(url);
     if (d == null) {
-      return startChildDownload(mExeMap.get(url));
+      return createChildDownload(mTasksMap.get(url), start);
     }
     return d;
   }
@@ -317,14 +343,25 @@ public abstract class AbsGroupUtil implements IUtil {
   }
 
   /**
-   * 启动子任务下载器
+   * 创建子任务下载器，默认创建完成自动启动
    */
-  Downloader startChildDownload(DownloadTaskEntity taskEntity) {
+  Downloader createChildDownload(DownloadTaskEntity taskEntity) {
+    return createChildDownload(taskEntity, true);
+  }
+
+  /**
+   * 创建子任务下载器，启动子任务下载器
+   *
+   * @param start 是否启动下载
+   */
+  Downloader createChildDownload(DownloadTaskEntity taskEntity, boolean start) {
     ChildDownloadListener listener = new ChildDownloadListener(taskEntity);
     Downloader dt = new Downloader(listener, taskEntity);
     mDownloaderMap.put(taskEntity.getEntity().getUrl(), dt);
     if (mExePool.isShutdown()) return dt;
-    mExePool.execute(dt);
+    if (start) {
+      mExePool.execute(dt);
+    }
     return dt;
   }
 
@@ -339,6 +376,7 @@ public abstract class AbsGroupUtil implements IUtil {
       taskEntity.userName = mTaskEntity.userName;
       taskEntity.userPw = mTaskEntity.userPw;
       taskEntity.account = mTaskEntity.account;
+      mTasksMap.put(entity.getUrl(), taskEntity);
       return taskEntity;
     }
     taskEntity = new DownloadTaskEntity();
@@ -356,6 +394,7 @@ public abstract class AbsGroupUtil implements IUtil {
     taskEntity.account = mTaskEntity.account;
     taskEntity.key = entity.getDownloadPath();
     taskEntity.save();
+    mTasksMap.put(entity.getUrl(), taskEntity);
     return taskEntity;
   }
 
@@ -402,10 +441,10 @@ public abstract class AbsGroupUtil implements IUtil {
     @Override public void onProgress(long currentLocation) {
       long speed = currentLocation - lastLen;
       mCurrentLocation += speed;
-      lastLen = currentLocation;
       entity.setCurrentProgress(currentLocation);
       handleSpeed(speed);
       mListener.onSubRunning(entity);
+      lastLen = currentLocation;
     }
 
     @Override public void onStop(long stopLocation) {
@@ -413,7 +452,7 @@ public abstract class AbsGroupUtil implements IUtil {
       handleSpeed(0);
       mListener.onSubStop(entity);
       mStopNum++;
-      if (mStopNum >= mInitNum) {
+      if (mStopNum + mCompleteNum >= mInitNum) {
         closeTimer(false);
         mListener.onStop(mCurrentLocation);
       }

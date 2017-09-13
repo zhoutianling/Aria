@@ -65,7 +65,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
       if (taskEntity != null) {
         if (taskEntity.getState() != IEntity.STATE_FAIL
             && taskEntity.getState() != IEntity.STATE_WAIT) {
-          startChildDownload(taskEntity);
+          createChildDownload(taskEntity);
           i++;
         } else {
           mInfoPool.execute(createFileInfoThread(taskEntity));
@@ -94,7 +94,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
             if (isNeedLoadFileSize) {
               mTotalSize += te.getEntity().getFileSize();
             }
-            startChildDownload(te);
+            createChildDownload(te);
           }
           mInitNum++;
           if (mInitNum + mInitFailNum >= mTaskEntity.getEntity().getSubTask().size()
