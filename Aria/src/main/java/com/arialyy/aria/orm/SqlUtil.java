@@ -145,8 +145,11 @@ final class SqlUtil {
     // field.isSynthetic(), 使用as热启动App时，AS会自动给你的class添加change字段
     Ignore ignore = field.getAnnotation(Ignore.class);
     int modifiers = field.getModifiers();
+    String fieldName = field.getName();
     return (ignore != null && ignore.value())
-        || field.getName().equals("rowID")
+        || fieldName.equals("rowID")
+        || fieldName.equals("shadow$_klass_")
+        || fieldName.equals("shadow$_monitor_")
         || field.isSynthetic()
         || Modifier.isStatic(modifiers)
         || Modifier.isFinal(modifiers);
