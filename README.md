@@ -27,8 +27,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.2.26'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.2.26'
+compile 'com.arialyy.aria:aria-core:3.3.0'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.0'
 ```
 
 ***
