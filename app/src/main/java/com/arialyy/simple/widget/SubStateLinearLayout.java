@@ -1,8 +1,24 @@
+/*
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.arialyy.simple.widget;
 
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -17,16 +33,22 @@ import java.util.WeakHashMap;
 /**
  * Created by Aria.Lao on 2017/7/17.
  */
-public class SubStateLinearLayout extends LinearLayout {
+public class SubStateLinearLayout extends LinearLayout implements View.OnClickListener {
 
   interface OnShowCallback {
     void onShow(boolean visibility);
   }
 
-  OnShowCallback callback;
+  public interface OnItemClickListener {
+    void onItemClick(int position, View view);
+  }
+
+  OnShowCallback mShowCallback;
+  OnItemClickListener mItemClickListener;
 
   List<DownloadEntity> mSubData = new LinkedList<>();
   Map<String, Integer> mPosition = new WeakHashMap<>();
+  SparseArray<View> mViews = new SparseArray<>();
 
   public SubStateLinearLayout(Context context) {
     super(context);
@@ -50,15 +72,25 @@ public class SubStateLinearLayout extends LinearLayout {
     createShowView();
     int i = 1;
     for (DownloadEntity entity : datas) {
-      TextView view = createView(entity);
+      TextView view = createView(i - 1, entity);
       mPosition.put(entity.getDownloadPath(), i);
       addView(view, i);
       i++;
     }
   }
 
+  @Override public void onClick(View v) {
+    if (mItemClickListener != null) {
+      mItemClickListener.onItemClick(mViews.indexOfValue(v), v);
+    }
+  }
+
   public void setOnShowCallback(OnShowCallback callback) {
-    this.callback = callback;
+    this.mShowCallback = callback;
+  }
+
+  public void setOnItemClickListener(OnItemClickListener listener) {
+    this.mItemClickListener = listener;
   }
 
   public List<DownloadEntity> getSubData() {
@@ -79,10 +111,12 @@ public class SubStateLinearLayout extends LinearLayout {
     }
   }
 
-  private TextView createView(DownloadEntity entity) {
+  private TextView createView(int position, DownloadEntity entity) {
     TextView view =
         (TextView) LayoutInflater.from(getContext()).inflate(R.layout.layout_child_state, null);
     view.setText(entity.getFileName() + ": " + getPercent(entity) + "%");
+    view.setOnClickListener(this);
+    mViews.append(position, view);
     return view;
   }
 

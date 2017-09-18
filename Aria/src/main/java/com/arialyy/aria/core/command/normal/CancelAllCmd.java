@@ -47,7 +47,6 @@ public class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     if (mTaskEntity instanceof DownloadTaskEntity
         || mTaskEntity instanceof DownloadGroupTaskEntity) {
       handleDownloadRemove();
-      handleDownloadRemove();
       handleDownloadGroupRemove();
     } else if (mTaskEntity instanceof UploadTaskEntity) {
       handleUploadRemove();

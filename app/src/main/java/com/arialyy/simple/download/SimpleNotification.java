@@ -20,6 +20,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
+import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.simple.R;
@@ -50,14 +51,13 @@ public class SimpleNotification {
         .setProgress(100, 0, false)
         .setSmallIcon(R.mipmap.ic_launcher);
     mManager.notify(mNotifiyId, mBuilder.build());
-    Aria.download(mContext).addSchedulerListener(new DownloadCallback(mBuilder, mManager));
+    Aria.download(mContext).register();
   }
 
   public void start() {
     Aria.download(mContext)
         .load(DOWNLOAD_URL)
-        .setDownloadPath(
-            Environment.getExternalStorageDirectory() + "/Download/消灭星星.apk")
+        .setDownloadPath(Environment.getExternalStorageDirectory() + "/Download/消灭星星.apk")
         .start();
   }
 
@@ -65,47 +65,31 @@ public class SimpleNotification {
     Aria.download(mContext).load(DOWNLOAD_URL).pause();
   }
 
-  private static class DownloadCallback extends Aria.DownloadSchedulerListener {
-    NotificationCompat.Builder mBuilder;
-    NotificationManager mManager;
+  @Download.onTaskStart public void onTaskStart(DownloadTask task) {
+  }
 
-    private DownloadCallback(NotificationCompat.Builder builder, NotificationManager manager) {
-      mBuilder = builder;
-      mManager = manager;
-    }
+  @Download.onTaskPre public void onTaskPre(DownloadTask task) {
+  }
 
-    @Override public void onTaskStart(DownloadTask task) {
-      super.onTaskStart(task);
-    }
+  @Download.onTaskStop public void onTaskStop(DownloadTask task) {
+  }
 
-    @Override public void onTaskPre(DownloadTask task) {
-      super.onTaskPre(task);
+  @Download.onTaskRunning public void onTaskRunning(DownloadTask task) {
+    long len = task.getFileSize();
+    int p = (int) (task.getCurrentProgress() * 100 / len);
+    if (mBuilder != null) {
+      mBuilder.setProgress(100, p, false);
+      mManager.notify(mNotifiyId, mBuilder.build());
     }
+  }
 
-    @Override public void onTaskStop(DownloadTask task) {
-      super.onTaskStop(task);
+  @Download.onTaskComplete public void onTaskComplete(DownloadTask task) {
+    if (mBuilder != null) {
+      mBuilder.setProgress(100, 100, false);
+      mManager.notify(mNotifiyId, mBuilder.build());
     }
+  }
 
-    @Override public void onTaskRunning(DownloadTask task) {
-      super.onTaskRunning(task);
-      long len = task.getFileSize();
-      int p = (int) (task.getCurrentProgress() * 100 / len);
-      if (mBuilder != null) {
-        mBuilder.setProgress(100, p, false);
-        mManager.notify(mNotifiyId, mBuilder.build());
-      }
-    }
-
-    @Override public void onTaskComplete(DownloadTask task) {
-      super.onTaskComplete(task);
-      if (mBuilder != null) {
-        mBuilder.setProgress(100, 100, false);
-        mManager.notify(mNotifiyId, mBuilder.build());
-      }
-    }
-
-    @Override public void onTaskCancel(DownloadTask task) {
-      super.onTaskCancel(task);
-    }
+  @Download.onTaskCancel public void onTaskCancel(DownloadTask task) {
   }
 }

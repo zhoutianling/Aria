@@ -15,21 +15,26 @@
  */
 package com.arialyy.aria.core.command.group;
 
+import android.util.Log;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.AbsGroupTask;
+import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
-import com.arialyy.aria.core.queue.DownloadTaskQueue;
-import com.arialyy.aria.core.queue.UploadTaskQueue;
-import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by AriaL on 2017/6/29.
  * 任务组命令
  */
-abstract class AbsGroupCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
+public abstract class AbsGroupCmd<T extends BaseGroupTaskEntity> extends AbsCmd<T> {
+  /**
+   * 需要控制的子任务url
+   */
+  String childUrl;
+
+  AbsGroupTask tempTask;
 
   /**
    * @param targetName 创建任务的对象名
@@ -42,5 +47,27 @@ abstract class AbsGroupCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
       mQueue = DownloadGroupTaskQueue.getInstance();
       isDownloadCmd = true;
     }
+  }
+
+  /**
+   * 创建任务
+   *
+   * @return 创建的任务
+   */
+  AbsTask createTask() {
+    tempTask = (AbsGroupTask) mQueue.createTask(mTargetName, mTaskEntity);
+    return tempTask;
+  }
+
+  boolean checkTask() {
+    tempTask = (AbsGroupTask) mQueue.getTask(mTaskEntity.getEntity());
+    if (tempTask == null) {
+      createTask();
+      if (tempTask.isComplete()) {
+        Log.w(TAG, "任务已完成");
+        return false;
+      }
+    }
+    return true;
   }
 }

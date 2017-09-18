@@ -17,14 +17,12 @@ package com.arialyy.simple.download.group;
 
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.util.Log;
+import android.support.design.widget.FloatingActionButton;
 import android.view.View;
-import android.widget.Button;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.common.RequestEnum;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -49,7 +47,6 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     Aria.download(this).register();
     setTitle("任务组");
     mUrls = getModule(GroupModule.class).getUrls();
-    DownloadGroupEntity e = Aria.download(this).getGroupTaskList().get(0);
     DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(mUrls);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
@@ -62,6 +59,19 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
             : (int) (groupEntity.getCurrentProgress() * 100 / groupEntity.getFileSize()));
       }
     }
+
+    mChildList.setOnItemClickListener(new SubStateLinearLayout.OnItemClickListener() {
+      @Override public void onItemClick(int position, View view) {
+        showPopupWindow(position);
+      }
+    });
+
+  }
+
+  private void showPopupWindow(int position) {
+    ChildHandleDialog dialog =
+        new ChildHandleDialog(this, mUrls, mChildList.getSubData().get(position));
+    dialog.show(getSupportFragmentManager(), "sub_dialog");
   }
 
   @Override protected int setLayoutId() {
@@ -77,7 +87,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
                 Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_3")
             .setGroupAlias("任务组测试")
             .setSubFileName(getModule(GroupModule.class).getSubName())
-            .setFileSize(32895492)
+            //.setFileSize(32895492)
             .start();
         break;
       case R.id.stop:
@@ -99,7 +109,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     }
     L.d(TAG, "group task pre");
     getBinding().setFileSize(task.getConvertFileSize());
-    if (mChildList.getSubData().size() <= 0){
+    if (mChildList.getSubData().size() <= 0) {
       mChildList.addData(task.getEntity().getSubTask());
     }
   }
@@ -109,7 +119,6 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
-    L.d(TAG, "P ==> " + task.getPercent());
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
     mChildList.updateChildProgress(task.getEntity().getSubTask());
@@ -141,4 +150,5 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     T.showShort(this, "任务组下载完成");
     L.d(TAG, "任务组下载完成");
   }
+
 }

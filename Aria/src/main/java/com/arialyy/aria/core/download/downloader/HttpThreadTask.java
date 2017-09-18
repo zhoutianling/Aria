@@ -24,6 +24,7 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,7 +46,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
 
   @Override public void run() {
     HttpURLConnection conn = null;
-    InputStream is = null;
+    BufferedInputStream is = null;
     BufferedRandomAccessFile file = null;
     try {
       URL url = new URL(CommonUtil.convertUrl(mConfig.URL));
@@ -69,7 +70,8 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       conn = ConnectionHelp.setConnectParam(mConfig.TASK_ENTITY, conn);
       conn.setConnectTimeout(STATE.CONNECT_TIME_OUT);
       conn.setReadTimeout(STATE.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
-      is = conn.getInputStream();
+      //is = conn.getInputStream();
+      is = new BufferedInputStream(conn.getInputStream());
       //创建可设置位置的文件
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
       //设置每条线程写入文件的位置

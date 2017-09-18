@@ -66,4 +66,8 @@ public interface ISchedulerListener<TASK extends ITask> {
    * 任务执行中
    */
   void onTaskRunning(TASK task);
+
+
+
+
 }

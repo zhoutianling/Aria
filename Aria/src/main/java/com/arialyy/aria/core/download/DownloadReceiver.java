@@ -139,10 +139,12 @@ public class DownloadReceiver extends AbsReceiver {
     String className = obj.getClass().getName();
     Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
     Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
+    Set<String> dgsCounter = ProxyHelper.getInstance().downloadGroupSubCounter;
     if (dCounter != null && dCounter.contains(className)) {
       DownloadSchedulers.getInstance().register(obj);
     }
-    if (dgCounter != null && dgCounter.contains(className)) {
+    if ((dgCounter != null && dgCounter.contains(className)) || (dgsCounter != null
+        && dgsCounter.contains(className))) {
       DownloadGroupSchedulers.getInstance().register(obj);
     }
     return this;
@@ -155,37 +157,16 @@ public class DownloadReceiver extends AbsReceiver {
     String className = obj.getClass().getName();
     Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
     Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
+    Set<String> dgsCounter = ProxyHelper.getInstance().downloadGroupSubCounter;
     if (dCounter != null && dCounter.contains(className)) {
       DownloadSchedulers.getInstance().unRegister(obj);
     }
-    if (dgCounter != null && dgCounter.contains(className)) {
+    if (dgCounter != null && dgCounter.contains(className) || (dgsCounter != null
+        && dgsCounter.contains(className))) {
       DownloadGroupSchedulers.getInstance().unRegister(obj);
     }
     if (needRmReceiver) {
       AriaManager.getInstance(AriaManager.APP).removeReceiver(obj);
-    }
-  }
-
-  /**
-   * 添加调度器回调
-   *
-   * @see #register()
-   */
-  @Deprecated public DownloadReceiver addSchedulerListener(
-      ISchedulerListener<DownloadTask> listener) {
-    this.listener = listener;
-    DownloadSchedulers.getInstance().addSchedulerListener(targetName, listener);
-    return this;
-  }
-
-  /**
-   * 移除回调
-   *
-   * @see #unRegister()
-   */
-  @Deprecated @Override public void removeSchedulerListener() {
-    if (listener != null) {
-      DownloadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
     }
   }
 
@@ -300,7 +281,7 @@ public class DownloadReceiver extends AbsReceiver {
   @Override public void removeAllTask(boolean removeFile) {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
     CancelAllCmd cancelCmd =
-        (CancelAllCmd) CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
+        (CancelAllCmd) CommonUtil.createNormalCmd(targetName, new DownloadTaskEntity(),
             NormalCmdFactory.TASK_CANCEL_ALL);
     cancelCmd.removeFile = removeFile;
     ariaManager.setCmd(cancelCmd).exe();

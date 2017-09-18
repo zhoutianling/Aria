@@ -20,6 +20,7 @@ package com.arialyy.compiler;
  * 扫描器常量
  */
 interface ProxyConstance {
+  boolean DEBUG = false;
   /**
    * 设置观察者的方法
    */
@@ -41,10 +42,12 @@ interface ProxyConstance {
 
   String COUNT_DOWNLOAD = "download";
   String COUNT_DOWNLOAD_GROUP = "downloadGroup";
+  String COUNT_DOWNLOAD_GROUP_SUB = "downloadGroupSub";
   String COUNT_UPLOAD = "upload";
 
   String COUNT_METHOD_DOWNLOAD = "getDownloadCounter";
   String COUNT_METHOD_DOWNLOAD_GROUP = "getDownloadGroupCounter";
+  String COUNT_METHOD_DOWNLOAD_GROUP_SUB = "getDownloadGroupSubCounter";
   String COUNT_METHOD_UPLOAD = "getUploadCounter";
 
   int PRE = 0X11;

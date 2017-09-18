@@ -16,9 +16,10 @@
 package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.SubTaskManager;
 import com.arialyy.aria.core.inf.AbsDownloadTarget;
 import com.arialyy.aria.core.inf.AbsTarget;
-import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -28,7 +29,7 @@ import java.util.List;
 /**
  * Created by Aria.Lao on 2017/7/26.
  */
-abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends AbsTaskEntity>
+abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends BaseGroupTaskEntity>
     extends AbsDownloadTarget<TARGET, DownloadGroupEntity, TASK_ENTITY> {
 
   List<String> mUrls = new ArrayList<>();
@@ -41,6 +42,8 @@ abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends Abs
    * 是否已经设置了文件路径
    */
   private boolean isSetDirPathed = false;
+
+  private SubTaskManager mSubTaskManager;
 
   /**
    * 查询任务组实体，如果数据库不存在该实体，则新创建一个新的任务组实体
@@ -55,6 +58,18 @@ abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends Abs
       entity.insert();
     }
     return entity;
+  }
+
+  /**
+   * 获取子任务管理器
+   *
+   * @return 子任务管理器
+   */
+  public SubTaskManager getSubTaskManager() {
+    if (mSubTaskManager == null) {
+      mSubTaskManager = new SubTaskManager(mTargetName, mTaskEntity);
+    }
+    return mSubTaskManager;
   }
 
   /**

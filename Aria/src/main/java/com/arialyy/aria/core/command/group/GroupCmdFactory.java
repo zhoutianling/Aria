@@ -16,25 +16,25 @@
 package com.arialyy.aria.core.command.group;
 
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.command.AbsCmdFactory;
-import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
 
 /**
  * Created by AriaL on 2017/6/29.
+ * 任务组子任务控制命令
  */
-class GroupCmdFactory extends AbsCmdFactory<AbsGroupCmd> {
+public class GroupCmdFactory {
   /**
-   * 启动任务
+   * 启动子任务
    */
-  public static final int TASK_START = 0xa1;
+  public static final int SUB_TASK_START = 0xa1;
   /**
-   * 停止任务
+   * 停止子任务
    */
-  public static final int TASK_STOP = 0xa2;
+  public static final int SUB_TASK_STOP = 0xa2;
   /**
-   * 取消任务
+   * 取消子任务
    */
-  public static final int TASK_CANCEL = 0xa3;
+  public static final int SUB_TASK_CANCEL = 0xa3;
 
   private static volatile GroupCmdFactory INSTANCE = null;
 
@@ -54,18 +54,25 @@ class GroupCmdFactory extends AbsCmdFactory<AbsGroupCmd> {
   /**
    * @param target 创建任务的对象
    * @param entity 下载实体
-   * @param type 命令类型{@link #TASK_START}、{@link #TASK_CANCEL}、{@link #TASK_STOP}
+   * @param type 命令类型{@link #SUB_TASK_START}、{@link #SUB_TASK_STOP}、{@link #SUB_TASK_CANCEL}
+   * @param childUrl 需要控制的子任务url
    */
-  public <T extends AbsTaskEntity> AbsGroupCmd<T> createCmd(String target, T entity, int type) {
+  public AbsGroupCmd createCmd(String target, BaseGroupTaskEntity entity, int type,
+      String childUrl) {
+    AbsGroupCmd cmd = null;
     switch (type) {
-      case TASK_START:
-        return new GroupStartCmd<>(target, entity);
-      case TASK_STOP:
-        return new GroupStopCmd<>(target, entity);
-      case TASK_CANCEL:
-        return new GroupCancelCmd<>(target, entity);
-      default:
-        return null;
+      case SUB_TASK_START:
+        cmd = new GroupStartCmd<>(target, entity);
+        break;
+      case SUB_TASK_STOP:
+        cmd = new GroupStopCmd<>(target, entity);
+        break;
+      case SUB_TASK_CANCEL:
+        cmd = new GroupCancelCmd<>(target, entity);
     }
+    if (cmd != null) {
+      cmd.childUrl = childUrl;
+    }
+    return cmd;
   }
 }

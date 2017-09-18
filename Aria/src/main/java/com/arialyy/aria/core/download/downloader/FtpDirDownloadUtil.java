@@ -60,7 +60,7 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
     for (String key : keys) {
       DownloadTaskEntity taskEntity = mExeMap.get(key);
       if (taskEntity != null) {
-        startChildDownload(taskEntity);
+        createChildDownload(taskEntity);
         i++;
       }
     }

@@ -15,13 +15,13 @@
  */
 package com.arialyy.aria.core.command.group;
 
-import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
 
 /**
  * Created by AriaL on 2017/6/29.
  * 删除任务组
  */
-class GroupCancelCmd<T extends AbsTaskEntity> extends AbsGroupCmd<T> {
+class GroupCancelCmd<T extends BaseGroupTaskEntity> extends AbsGroupCmd<T> {
   /**
    * @param targetName 创建任务的对象名
    */
@@ -30,6 +30,8 @@ class GroupCancelCmd<T extends AbsTaskEntity> extends AbsGroupCmd<T> {
   }
 
   @Override public void executeCmd() {
-
+    if (checkTask()) {
+      tempTask.cancelSubTask(childUrl);
+    }
   }
 }

@@ -17,7 +17,7 @@
         />
   </data>
 
-  <LinearLayout
+  <RelativeLayout
       android:layout_width="match_parent"
       android:layout_height="match_parent"
       android:orientation="vertical"
@@ -27,18 +27,24 @@
 
     <include
         layout="@layout/content_single"
+        android:id="@+id/content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
         bind:fileSize="@{fileSize}"
         bind:progress="@{progress}"
         bind:speed="@{speed}"
         />
 
     <com.arialyy.simple.widget.SubStateLinearLayout
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp"
         android:id="@+id/child_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/content"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         />
+  </RelativeLayout>
 
-  </LinearLayout>
+
 </layout>

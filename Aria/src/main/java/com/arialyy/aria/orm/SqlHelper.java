@@ -26,6 +26,7 @@ import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -180,7 +181,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     print(FIND_DATA, sql);
     Cursor cursor = db.rawQuery(sql, null);
     List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
-    cursor.close();
+    closeCursor(cursor);
     close(db);
     return data;
   }
@@ -223,7 +224,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     print(FIND_DATA, sb.toString());
     Cursor cursor = db.rawQuery(sb.toString(), null);
     List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
-    cursor.close();
+    closeCursor(cursor);
     close(db);
     return data;
   }
@@ -238,7 +239,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     print(FIND_ALL_DATA, sb.toString());
     Cursor cursor = db.rawQuery(sb.toString(), null);
     List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
-    cursor.close();
+    closeCursor(cursor);
     close(db);
     return data;
   }
@@ -394,7 +395,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     } catch (Exception e) {
       e.printStackTrace();
     } finally {
-      if (cursor != null) cursor.close();
+      closeCursor(cursor);
       close(db);
     }
     return false;
@@ -564,7 +565,7 @@ final class SqlHelper extends SQLiteOpenHelper {
           entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
           entitys.add(entity);
         }
-        cursor.close();
+        closeCursor(cursor);
       } catch (InstantiationException e) {
         e.printStackTrace();
       } catch (IllegalAccessException e) {
@@ -584,6 +585,16 @@ final class SqlHelper extends SQLiteOpenHelper {
       String childParams) {
     String[] params = childParams.split("\\$\\$");
     return findData(db, params[0], params[1] + "=?", primary);
+  }
+
+  private static void closeCursor(Cursor cursor){
+    if (cursor != null && !cursor.isClosed()) {
+      try {
+        cursor.close();
+      } catch (android.database.SQLException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   private static void close(SQLiteDatabase db) {

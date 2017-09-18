@@ -17,7 +17,10 @@ package com.arialyy.aria.core.inf;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.arialyy.aria.orm.NormalList;
 import com.arialyy.aria.orm.Primary;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by AriaL on 2017/6/3.
@@ -32,6 +35,19 @@ public abstract class AbsGroupEntity extends AbsEntity implements Parcelable {
    * 任务组别名
    */
   private String alias = "";
+
+  /**
+   * 子任务链接组
+   */
+  @NormalList(clazz = String.class) private List<String> urls = new ArrayList<>();
+
+  public List<String> getUrls() {
+    return urls;
+  }
+
+  public void setUrls(List<String> urls) {
+    this.urls = urls;
+  }
 
   public String getGroupName() {
     return groupName;

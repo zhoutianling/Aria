@@ -13,21 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.compiler;
-
-import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+package com.arialyy.aria.core.inf;
 
 /**
- * Created by Aria.Lao on 2017/6/7.
- * 创建代理方法的参数
+ * Created by lyy on 2017/9/8.
+ * 任务组参数传递
  */
-class ProxyMethodParam {
-  String packageName;
-  String className;
-  Set<TaskEnum> taskEnums;
-  Map<String, Set<String>> keyMappings = new HashMap<>();
-  Map<TaskEnum, Map<Class<? extends Annotation>, String>> methods = new HashMap<>();
+public class GroupSendParams<GROUP_TASK extends AbsGroupTask, ENTITY extends AbsNormalEntity> {
+
+  public GROUP_TASK groupTask;
+  public ENTITY entity;
+
+  public GroupSendParams() {
+  }
+
+  public GroupSendParams(GROUP_TASK groupTask, ENTITY entity) {
+    this.groupTask = groupTask;
+    this.entity = entity;
+  }
 }

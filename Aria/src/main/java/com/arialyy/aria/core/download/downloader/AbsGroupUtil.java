@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -38,7 +39,7 @@ import java.util.concurrent.Executors;
  * Created by AriaL on 2017/6/30.
  * 任务组核心逻辑
  */
-abstract class AbsGroupUtil implements IUtil {
+public abstract class AbsGroupUtil implements IUtil {
   private final String TAG = "AbsGroupUtil";
   /**
    * 任务组所有任务总大小
@@ -48,7 +49,7 @@ abstract class AbsGroupUtil implements IUtil {
   private ExecutorService mExePool;
   protected IDownloadGroupListener mListener;
   protected DownloadGroupTaskEntity mTaskEntity;
-  private boolean isRunning = true;
+  private boolean isRunning = false;
   private Timer mTimer;
   /**
    * 初始化完成的任务书数
@@ -81,6 +82,8 @@ abstract class AbsGroupUtil implements IUtil {
   private int mCompleteNum = 0;
   //失败的任务数
   private int mFailNum = 0;
+  //停止的任务数
+  private int mStopNum = 0;
   //实际的下载任务数
   int mActualTaskNum = 0;
   /**
@@ -97,6 +100,7 @@ abstract class AbsGroupUtil implements IUtil {
     if (tasks != null && !tasks.isEmpty()) {
       for (DownloadTaskEntity te : tasks) {
         te.removeFile = mTaskEntity.removeFile;
+        if (te.getEntity() == null) continue;
         mTasksMap.put(te.getEntity().getUrl(), te);
       }
     }
@@ -107,6 +111,7 @@ abstract class AbsGroupUtil implements IUtil {
       if (entity.getState() == IEntity.STATE_COMPLETE && file.exists()) {
         mCompleteNum++;
         mInitNum++;
+        mStopNum++;
         mCurrentLocation += entity.getFileSize();
       } else {
         mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
@@ -125,6 +130,84 @@ abstract class AbsGroupUtil implements IUtil {
       mTaskEntity.getEntity().setFileSize(mTotalSize);
       mTaskEntity.getEntity().update();
     }
+  }
+
+  /**
+   * 启动子任务下载
+   *
+   * @param url 子任务下载地址
+   */
+  public void startSubTask(String url) {
+    if (!checkSubTask(url, "开始")) return;
+    if (!isRunning) {
+      isRunning = true;
+      startTimer();
+    }
+    Downloader d = getDownloader(url, false);
+    if (d != null && !d.isRunning()) {
+      d.setNewTask(false);
+      d.start();
+    }
+  }
+
+  /**
+   * 停止子任务下载
+   *
+   * @param url 子任务下载地址
+   */
+  public void stopSubTask(String url) {
+    if (!checkSubTask(url, "停止")) return;
+    Downloader d = getDownloader(url, false);
+    if (d != null && d.isRunning()) {
+      d.stop();
+    }
+  }
+
+  /**
+   * 删除子任务
+   *
+   * @param url 子任务下载地址
+   */
+  public void cancelSunTask(String url) {
+    Downloader d = getDownloader(url, false);
+    if (d != null) {
+      d.cancel();
+    }
+  }
+
+  /**
+   * 检查子任务
+   *
+   * @param url 子任务url
+   * @param type 任务类型
+   * @return {@code true} 任务可以下载
+   */
+  private boolean checkSubTask(String url, String type) {
+    DownloadTaskEntity entity = mTasksMap.get(url);
+    if (entity != null) {
+      if (entity.getState() == IEntity.STATE_COMPLETE) {
+        Log.w(TAG, "任务【" + url + "】已完成，" + type + "失败");
+        return false;
+      }
+    } else {
+      Log.w(TAG, "任务组中没有该任务【" + url + "】，" + type + "失败");
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * 通过地址获取下载器
+   *
+   * @param url 子任务下载地址
+   * @param start 是否启动任务
+   */
+  private Downloader getDownloader(String url, boolean start) {
+    Downloader d = mDownloaderMap.get(url);
+    if (d == null) {
+      return createChildDownload(mTasksMap.get(url), start);
+    }
+    return d;
   }
 
   @Override public long getFileSize() {
@@ -232,6 +315,7 @@ abstract class AbsGroupUtil implements IUtil {
     if (mTimer != null) {
       mTimer.purge();
       mTimer.cancel();
+      mTimer = null;
     }
   }
 
@@ -242,6 +326,10 @@ abstract class AbsGroupUtil implements IUtil {
     closeTimer(true);
     mListener.onPostPre(mTotalSize);
     mListener.onStart(mCurrentLocation);
+    startTimer();
+  }
+
+  private void startTimer() {
     mTimer = new Timer(true);
     mTimer.schedule(new TimerTask() {
       @Override public void run() {
@@ -255,14 +343,26 @@ abstract class AbsGroupUtil implements IUtil {
   }
 
   /**
-   * 启动子任务下载器
+   * 创建子任务下载器，默认创建完成自动启动
    */
-  void startChildDownload(DownloadTaskEntity taskEntity) {
+  Downloader createChildDownload(DownloadTaskEntity taskEntity) {
+    return createChildDownload(taskEntity, true);
+  }
+
+  /**
+   * 创建子任务下载器，启动子任务下载器
+   *
+   * @param start 是否启动下载
+   */
+  Downloader createChildDownload(DownloadTaskEntity taskEntity, boolean start) {
     ChildDownloadListener listener = new ChildDownloadListener(taskEntity);
     Downloader dt = new Downloader(listener, taskEntity);
     mDownloaderMap.put(taskEntity.getEntity().getUrl(), dt);
-    if (mExePool.isShutdown()) return;
-    mExePool.execute(dt);
+    if (mExePool.isShutdown()) return dt;
+    if (start) {
+      mExePool.execute(dt);
+    }
+    return dt;
   }
 
   /**
@@ -276,6 +376,7 @@ abstract class AbsGroupUtil implements IUtil {
       taskEntity.userName = mTaskEntity.userName;
       taskEntity.userPw = mTaskEntity.userPw;
       taskEntity.account = mTaskEntity.account;
+      mTasksMap.put(entity.getUrl(), taskEntity);
       return taskEntity;
     }
     taskEntity = new DownloadTaskEntity();
@@ -293,6 +394,7 @@ abstract class AbsGroupUtil implements IUtil {
     taskEntity.account = mTaskEntity.account;
     taskEntity.key = entity.getDownloadPath();
     taskEntity.save();
+    mTasksMap.put(entity.getUrl(), taskEntity);
     return taskEntity;
   }
 
@@ -321,30 +423,39 @@ abstract class AbsGroupUtil implements IUtil {
       entity.setFileSize(fileSize);
       entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
       saveData(IEntity.STATE_POST_PRE, -1);
+      mListener.onSubPre(entity);
     }
 
     @Override public void onResume(long resumeLocation) {
       saveData(IEntity.STATE_POST_PRE, IEntity.STATE_RUNNING);
       lastLen = resumeLocation;
+      mListener.onSubStart(entity);
     }
 
     @Override public void onStart(long startLocation) {
       saveData(IEntity.STATE_POST_PRE, IEntity.STATE_RUNNING);
       lastLen = startLocation;
+      mListener.onSubStart(entity);
     }
 
     @Override public void onProgress(long currentLocation) {
       long speed = currentLocation - lastLen;
       mCurrentLocation += speed;
-      lastLen = currentLocation;
       entity.setCurrentProgress(currentLocation);
       handleSpeed(speed);
+      mListener.onSubRunning(entity);
+      lastLen = currentLocation;
     }
 
     @Override public void onStop(long stopLocation) {
       saveData(IEntity.STATE_STOP, stopLocation);
       handleSpeed(0);
       mListener.onSubStop(entity);
+      mStopNum++;
+      if (mStopNum + mCompleteNum >= mInitNum) {
+        closeTimer(false);
+        mListener.onStop(mCurrentLocation);
+      }
     }
 
     @Override public void onCancel() {
@@ -407,6 +518,7 @@ abstract class AbsGroupUtil implements IUtil {
     private void handleSpeed(long speed) {
       entity.setSpeed(speed);
       entity.setConvertSpeed(speed <= 0 ? "" : CommonUtil.formatFileSize(speed) + "/s");
+      entity.setPercent((int) (entity.getCurrentProgress() * 100 / entity.getFileSize()));
     }
 
     private void saveData(int state, long location) {

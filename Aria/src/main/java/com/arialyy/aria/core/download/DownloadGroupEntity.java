@@ -32,11 +32,6 @@ public class DownloadGroupEntity extends AbsGroupEntity {
       new ArrayList<>();
 
   /**
-   * 子任务链接组
-   */
-  @NormalList(clazz = String.class) private List<String> urls = new ArrayList<>();
-
-  /**
    * 任务组下载文件的文件夹地址
    *
    * @see DownloadGroupTarget#setDownloadDirPath(String)
@@ -57,14 +52,6 @@ public class DownloadGroupEntity extends AbsGroupEntity {
 
   public void setDirPath(String dirPath) {
     this.dirPath = dirPath;
-  }
-
-  public List<String> getUrls() {
-    return urls;
-  }
-
-  public void setUrls(List<String> urls) {
-    this.urls = urls;
   }
 
   void setGroupName(String key) {

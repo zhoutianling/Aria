@@ -13,44 +13,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.inf;
+package com.arialyy.compiler;
 
-import java.util.List;
+import java.lang.annotation.Annotation;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
- * Created by lyy on 2017/2/6.
+ * Created by Aria.Lao on 2017/6/7.
+ * 代理类参数
  */
-public interface IReceiver<ENTITY extends IEntity> {
+class ProxyClassParam {
   /**
-   * Receiver 销毁
+   * 代理文件名
    */
-  void destroy();
-
-
+  String proxyClassName;
   /**
-   * 移除观察者
+   * 被代理的类所在的包
    */
-  void unRegister();
-
+  String packageName;
   /**
-   * 停止所有任务
+   * 被代理的类
    */
-  void stopAllTask();
-
+  String className;
   /**
-   * 删除所有任务
+   * 主任务泛型参数
    */
-  void removeAllTask(boolean removeFile);
-
+  TaskEnum mainTaskEnum;
   /**
-   * 任务是否存在
-   *
-   * @param key 下载时为下载路径，上传时为文件路径
+   * 子任务泛型参数
    */
-  boolean taskExists(String key);
+  TaskEnum subTaskEnum = TaskEnum.NORMAL_ENTITY;
 
-  /**
-   * 获取任务列表
-   */
-  List<ENTITY> getSimpleTaskList();
+  Set<TaskEnum> taskEnums;
+  Map<String, Set<String>> keyMappings = new HashMap<>();
+  Map<TaskEnum, Map<Class<? extends Annotation>, String>> methods = new HashMap<>();
 }

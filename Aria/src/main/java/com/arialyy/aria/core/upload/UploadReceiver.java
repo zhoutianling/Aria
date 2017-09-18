@@ -92,13 +92,11 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   @Override public void removeAllTask(boolean removeFile) {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
 
-    am.setCmd(CommonUtil.createCmd(targetName, new DownloadTaskEntity(),
+    am.setCmd(CommonUtil.createNormalCmd(targetName, new DownloadTaskEntity(),
         NormalCmdFactory.TASK_CANCEL_ALL)).exe();
 
     Set<String> keys = am.getReceiver().keySet();
     for (String key : keys) {
-      IReceiver receiver = am.getReceiver().get(key);
-      receiver.removeSchedulerListener();
       am.getReceiver().remove(key);
     }
   }
@@ -106,26 +104,6 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   @Override public void destroy() {
     targetName = null;
     listener = null;
-  }
-
-  /**
-   * 添加调度器回调
-   *
-   * @see #register()
-   */
-  @Deprecated public UploadReceiver addSchedulerListener(ISchedulerListener<UploadTask> listener) {
-    this.listener = listener;
-    UploadSchedulers.getInstance().addSchedulerListener(targetName, listener);
-    return this;
-  }
-
-  /**
-   * @see #unRegister()
-   */
-  @Deprecated @Override public void removeSchedulerListener() {
-    if (listener != null) {
-      UploadSchedulers.getInstance().removeSchedulerListener(targetName, listener);
-    }
   }
 
   /**

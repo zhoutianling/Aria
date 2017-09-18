@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.Looper;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
+import com.arialyy.aria.core.download.downloader.AbsGroupUtil;
 import com.arialyy.aria.core.download.downloader.DownloadGroupUtil;
 import com.arialyy.aria.core.download.downloader.FtpDirDownloadUtil;
 import com.arialyy.aria.core.inf.AbsGroupTask;
@@ -33,7 +34,6 @@ import com.arialyy.aria.util.CheckUtil;
 public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, DownloadGroupEntity> {
   private final String TAG = "DownloadGroupTask";
   private DownloadGroupListener mListener;
-  private IUtil mUtil;
 
   private DownloadGroupTask(DownloadGroupTaskEntity taskEntity, Handler outHandler) {
     mTaskEntity = taskEntity;

@@ -21,11 +21,11 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
  * Created by AriaL on 2017/6/29.
  * 抽象命令工厂
  */
-public abstract class AbsCmdFactory<CMD extends AbsCmd> {
+public abstract class AbsCmdFactory<TASK_ENTITY extends AbsTaskEntity, CMD extends AbsCmd> {
 
   /**
    * @param target 创建任务的对象
    * @param entity 下载实体
    */
-  public abstract <T extends AbsTaskEntity> CMD createCmd(String target, T entity, int type);
+  public abstract CMD createCmd(String target, TASK_ENTITY entity, int type);
 }
