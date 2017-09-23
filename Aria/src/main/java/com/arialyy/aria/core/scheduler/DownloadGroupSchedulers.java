@@ -43,10 +43,6 @@ public class DownloadGroupSchedulers extends
     return INSTANCE;
   }
 
-  @Override int getSchedulerType() {
-    return DOWNLOAD_GROUP;
-  }
-
   @Override String getProxySuffix() {
     return "$$DownloadGroupListenerProxy";
   }

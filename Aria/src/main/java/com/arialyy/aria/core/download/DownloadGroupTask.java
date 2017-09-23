@@ -61,18 +61,14 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
 
   @Override public void stop() {
     if (!mUtil.isRunning()) {
-      if (mOutHandler != null) {
-        mOutHandler.obtainMessage(ISchedulers.STOP, this).sendToTarget();
-      }
+      mListener.onStop(mEntity.getCurrentProgress());
     }
     mUtil.stop();
   }
 
   @Override public void cancel() {
     if (!mUtil.isRunning()) {
-      if (mOutHandler != null) {
-        mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
-      }
+      mListener.onCancel();
     }
     mUtil.cancel();
   }

@@ -17,13 +17,13 @@ package com.arialyy.aria.core.inf;
 
 import android.content.Context;
 import android.os.Handler;
-import com.arialyy.aria.orm.Ignore;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by AriaL on 2017/6/29.
  */
 public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY> {
+
   /**
    * 是否需要重试，默认为true
    */

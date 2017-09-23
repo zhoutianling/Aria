@@ -28,39 +28,39 @@ public class NormalCmdFactory extends AbsCmdFactory<AbsTaskEntity, AbsNormalCmd>
   /**
    * 创建任务
    */
-  public static final int TASK_CREATE = 0x122;
+  public static final int TASK_CREATE = 0xb1;
   /**
    * 启动任务
    */
-  public static final int TASK_START = 0x123;
+  public static final int TASK_START = 0xb2;
   /**
    * 恢复任务
    */
-  public static final int TASK_RESUME = 0x127;
+  public static final int TASK_RESUME = 0xb3;
   /**
    * 取消任务
    */
-  public static final int TASK_CANCEL = 0x124;
+  public static final int TASK_CANCEL = 0xb4;
   /**
    * 停止任务
    */
-  public static final int TASK_STOP = 0x125;
+  public static final int TASK_STOP = 0xb5;
   /**
    * 设置任务为最高优先级
    */
-  public static final int TASK_HIGHEST_PRIORITY = 0x128;
+  public static final int TASK_HIGHEST_PRIORITY = 0xb6;
   /**
    * 停止所有任务
    */
-  public static final int TASK_STOP_ALL = 0x129;
+  public static final int TASK_STOP_ALL = 0xb7;
   /**
    * 恢复所有停止的任务
    */
-  public static final int TASK_RESUME_ALL = 0x130;
+  public static final int TASK_RESUME_ALL = 0xb8;
   /**
    * 删除所有任务，
    */
-  public static final int TASK_CANCEL_ALL = 0x131;
+  public static final int TASK_CANCEL_ALL = 0xb9;
   private static volatile NormalCmdFactory INSTANCE = null;
 
   private NormalCmdFactory() {

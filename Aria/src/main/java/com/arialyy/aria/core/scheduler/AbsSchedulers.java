@@ -19,6 +19,7 @@ import android.os.CountDownTimer;
 import android.os.Message;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
@@ -28,6 +29,7 @@ import com.arialyy.aria.core.inf.GroupSendParams;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadTask;
+import com.arialyy.aria.util.NetUtils;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -41,19 +43,10 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
     implements ISchedulers<TASK> {
   private final String TAG = "AbsSchedulers";
 
-  static final int DOWNLOAD = 0xa1;
-  static final int UPLOAD = 0xa2;
-  static final int DOWNLOAD_GROUP = 0xa3;
-
   protected QUEUE mQueue;
 
   private Map<String, AbsSchedulerListener<TASK, AbsNormalEntity>> mObservers =
       new ConcurrentHashMap<>();
-
-  /**
-   * 设置调度器类型
-   */
-  abstract int getSchedulerType();
 
   /**
    * 设置代理类后缀名
@@ -282,7 +275,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
   /**
    * 启动下一个任务，条件：任务停止，取消下载，任务完成
    */
-  protected void startNextTask() {
+  private void startNextTask() {
     TASK newTask = mQueue.getNextTask();
     if (newTask == null) {
       Log.w(TAG, "没有下一任务");
@@ -291,21 +284,5 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
     if (newTask.getEntity().getState() == IEntity.STATE_WAIT) {
       mQueue.startTask(newTask);
     }
-  }
-
-  /**
-   * 是否有下一任务
-   *
-   * @return {@code true} 有，{@code false} 无
-   */
-  boolean hasNextTask() {
-    return mQueue.getCurrentCachePoolNum() > 0;
-  }
-
-  /**
-   * 获取正在执行的队列数
-   */
-  int getExeTaskNum() {
-    return mQueue.getCurrentExePoolNum();
   }
 }

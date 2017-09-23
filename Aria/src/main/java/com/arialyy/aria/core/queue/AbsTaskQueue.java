@@ -18,18 +18,13 @@ package com.arialyy.aria.core.queue;
 
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
-import java.security.Key;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import com.arialyy.aria.util.NetUtils;
 
 /**
  * Created by lyy on 2017/2/23.
@@ -187,7 +182,11 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
 
   @Override public void reTryStart(TASK task) {
     if (task == null) {
-      Log.w(TAG, "重试下载失败，task 为null");
+      Log.w(TAG, "重试失败，task 为null");
+      return;
+    }
+    if (!NetUtils.isConnected(AriaManager.APP)){
+      Log.w(TAG, "重试失败，网络未连接");
       return;
     }
     if (!task.isRunning()) {

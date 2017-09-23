@@ -60,19 +60,13 @@ public class UploadTask extends AbsNormalTask<UploadEntity> {
     if (mUtil.isRunning()) {
       mUtil.stop();
     } else {
-      mEntity.setState(IEntity.STATE_STOP);
-      mEntity.update();
-      if (mOutHandler != null) {
-        mOutHandler.obtainMessage(ISchedulers.STOP, this).sendToTarget();
-      }
+      mListener.onStop(mEntity.getCurrentProgress());
     }
   }
 
   @Override public void cancel() {
     if (!mUtil.isRunning()) {
-      if (mOutHandler != null) {
-        mOutHandler.obtainMessage(ISchedulers.CANCEL, this).sendToTarget();
-      }
+      mListener.onCancel();
     }
     mUtil.cancel();
   }

@@ -25,6 +25,7 @@ import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.ErrorHelp;
+import com.arialyy.aria.util.NetUtils;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -172,9 +173,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
   protected void fail(long currentLocation, String msg, Exception ex) {
     synchronized (AriaManager.LOCK) {
       try {
-        //STATE.FAIL_NUM++;
-        //STATE.isRunning = false;
-        //STATE.isStop = true;
         if (ex != null) {
           Log.e(TAG, msg + "\n" + CommonUtil.getPrintException(ex));
         } else {
@@ -182,10 +180,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
         }
         if (mConfig.SUPPORT_BP) {
           writeConfig(false, currentLocation);
-          //if (STATE.isFail()) {
-          //  Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
-          //  mListener.onFail(true);
-          //}
           retryThis(true);
         } else {
           Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
@@ -204,6 +198,10 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
    * @param needRetry 是否可以重试
    */
   private void retryThis(boolean needRetry) {
+    if (!NetUtils.isConnected(AriaManager.APP)){
+      Log.w(TAG, "重试线程失败，网络未连接");
+      return;
+    }
     if (mFailNum < RETRY_NUM && needRetry) {
       if (mFailTimer != null) {
         mFailTimer.purge();

@@ -35,9 +35,7 @@ import java.io.File;
  * Ftp下载测试
  */
 public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding> {
-  //private final String URL = "ftp://172.18.104.129:21/haha/large.rar";
-  //private final String URL = "ftp://172.18.104.129:21/haha/large.rar";
-  private final String URL = "ftp://172.18.104.66:21/haha/成都.mp3";
+  private final String URL = "ftp://192.168.8.2:21/test.apk";
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
