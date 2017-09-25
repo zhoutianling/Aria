@@ -34,8 +34,8 @@ import com.arialyy.simple.databinding.ActivityFtpUploadBinding;
  * Ftp 文件上传demo
  */
 public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
-  private final String FILE_PATH = "/mnt/sdcard/Download/group_test_3/战斗吧剑灵.apk";
-  private final String URL = "ftp://172.18.104.66:21/upload/";
+  private final String FILE_PATH = "/mnt/sdcard/成都.mp3";
+  private final String URL = "ftp://172.18.104.229:21/upload/测试";
 
   @Override protected void init(Bundle savedInstanceState) {
     setTile("FTP 文件上传");

@@ -25,6 +25,7 @@ import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.NetUtils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -405,7 +406,8 @@ public abstract class AbsGroupUtil implements IUtil {
 
     DownloadTaskEntity taskEntity;
     DownloadEntity entity;
-
+    private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
+    private long mLastSaveTime;
     long lastLen = 0;
 
     ChildDownloadListener(DownloadTaskEntity entity) {
@@ -413,6 +415,7 @@ public abstract class AbsGroupUtil implements IUtil {
       this.entity = taskEntity.getEntity();
       lastLen = this.entity.getCurrentProgress();
       this.entity.setFailNum(0);
+      mLastSaveTime = System.currentTimeMillis();
     }
 
     @Override public void onPre() {
@@ -444,6 +447,10 @@ public abstract class AbsGroupUtil implements IUtil {
       entity.setCurrentProgress(currentLocation);
       handleSpeed(speed);
       mListener.onSubRunning(entity);
+      if (System.currentTimeMillis() - mLastSaveTime >= RUN_SAVE_INTERVAL) {
+        saveData(IEntity.STATE_RUNNING, currentLocation);
+        mLastSaveTime = System.currentTimeMillis();
+      }
       lastLen = currentLocation;
     }
 
@@ -491,7 +498,8 @@ public abstract class AbsGroupUtil implements IUtil {
      */
     private void reTry(boolean needRetry) {
       synchronized (AriaManager.LOCK) {
-        if (entity.getFailNum() < 5 && isRunning && needRetry) {
+        if (entity.getFailNum() < 5 && isRunning && needRetry && NetUtils.isConnected(
+            AriaManager.APP)) {
           reStartTask();
         } else {
           mFailNum++;

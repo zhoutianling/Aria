@@ -180,7 +180,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
         }
         if (mConfig.SUPPORT_BP) {
           writeConfig(false, currentLocation);
-          retryThis(true);
+          retryThis(STATE.THREAD_NUM != 1);
         } else {
           Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
           mListener.onFail(true);
@@ -198,11 +198,11 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
    * @param needRetry 是否可以重试
    */
   private void retryThis(boolean needRetry) {
-    if (!NetUtils.isConnected(AriaManager.APP)){
-      Log.w(TAG, "重试线程失败，网络未连接");
-      return;
+    if (!NetUtils.isConnected(AriaManager.APP)) {
+      Log.w(TAG,
+          "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__重试失败，网络未连接");
     }
-    if (mFailNum < RETRY_NUM && needRetry) {
+    if (mFailNum < RETRY_NUM && needRetry && NetUtils.isConnected(AriaManager.APP)) {
       if (mFailTimer != null) {
         mFailTimer.purge();
         mFailTimer.cancel();
@@ -219,10 +219,12 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
       }, RETRY_INTERVAL);
     } else {
       STATE.FAIL_NUM++;
-      STATE.isRunning = false;
-      STATE.isStop = true;
-      Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
-      mListener.onFail(true);
+      if (STATE.isFail()) {
+        STATE.isRunning = false;
+        STATE.isStop = true;
+        Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
+        mListener.onFail(true);
+      }
     }
   }
 
