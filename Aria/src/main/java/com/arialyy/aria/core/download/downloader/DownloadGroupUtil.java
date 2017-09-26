@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download.downloader;
 
 import android.util.SparseArray;
 import com.arialyy.aria.core.common.IUtil;
+import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;

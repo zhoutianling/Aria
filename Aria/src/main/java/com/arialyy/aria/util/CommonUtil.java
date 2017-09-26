@@ -705,6 +705,7 @@ public class CommonUtil {
    * 设置打印的异常格式
    */
   public static String getPrintException(Throwable ex) {
+    if (ex == null) return "";
     StringBuilder err = new StringBuilder();
     err.append("ExceptionDetailed:\n");
     err.append("====================Exception Info====================\n");

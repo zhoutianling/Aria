@@ -28,42 +28,32 @@ import org.apache.commons.net.ftp.FTPFileEntryParserImpl;
  * If the cached parser wont match due to the server changed the dirstyle,
  * a new matching parser will be searched.
  */
-public class CompositeFileEntryParser extends FTPFileEntryParserImpl
-{
-    private final FTPFileEntryParser[] ftpFileEntryParsers;
-    private FTPFileEntryParser cachedFtpFileEntryParser;
+public class CompositeFileEntryParser extends FTPFileEntryParserImpl {
+  private final FTPFileEntryParser[] ftpFileEntryParsers;
+  private FTPFileEntryParser cachedFtpFileEntryParser;
 
-    public CompositeFileEntryParser(FTPFileEntryParser[] ftpFileEntryParsers)
-    {
-        super();
+  public CompositeFileEntryParser(FTPFileEntryParser[] ftpFileEntryParsers) {
+    super();
 
-        this.cachedFtpFileEntryParser = null;
-        this.ftpFileEntryParsers = ftpFileEntryParsers;
-    }
+    this.cachedFtpFileEntryParser = null;
+    this.ftpFileEntryParsers = ftpFileEntryParsers;
+  }
 
-    @Override
-    public FTPFile parseFTPEntry(String listEntry)
-    {
-        if (cachedFtpFileEntryParser != null)
-        {
-            FTPFile matched = cachedFtpFileEntryParser.parseFTPEntry(listEntry);
-            if (matched != null)
-            {
-                return matched;
-            }
+  @Override public FTPFile parseFTPEntry(String listEntry) {
+    if (cachedFtpFileEntryParser != null) {
+      FTPFile matched = cachedFtpFileEntryParser.parseFTPEntry(listEntry);
+      if (matched != null) {
+        return matched;
+      }
+    } else {
+      for (FTPFileEntryParser ftpFileEntryParser : ftpFileEntryParsers) {
+        FTPFile matched = ftpFileEntryParser.parseFTPEntry(listEntry);
+        if (matched != null) {
+          cachedFtpFileEntryParser = ftpFileEntryParser;
+          return matched;
         }
-        else
-        {
-            for (FTPFileEntryParser ftpFileEntryParser : ftpFileEntryParsers)
-            {
-                FTPFile matched = ftpFileEntryParser.parseFTPEntry(listEntry);
-                if (matched != null)
-                {
-                    cachedFtpFileEntryParser = ftpFileEntryParser;
-                    return matched;
-                }
-            }
-        }
-        return null;
+      }
     }
+    return null;
+  }
 }

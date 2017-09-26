@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download.downloader;
+package com.arialyy.aria.core.upload.uploader;
 
 import com.arialyy.aria.core.common.AbsFtpInfoThread;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
+import org.apache.commons.net.ftp.FTPFile;
 
 /**
- * Created by Aria.Lao on 2017/7/25.
- * 获取ftp文件信息
+ * Created by Aria.Lao on 2017/9/26.
+ * FTP远程服务器文件信息
  */
-class FtpFileInfoThread extends AbsFtpInfoThread<DownloadEntity, DownloadTaskEntity> {
+class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity> {
+  static final int CODE_EXISTS = 0xab1;
+  private boolean exists = false;
 
-  FtpFileInfoThread(DownloadTaskEntity taskEntity, OnFileInfoCallback callback) {
+  FtpFileInfoThread(UploadTaskEntity taskEntity, OnFileInfoCallback callback) {
     super(taskEntity, callback);
   }
 
@@ -37,11 +40,16 @@ class FtpFileInfoThread extends AbsFtpInfoThread<DownloadEntity, DownloadTaskEnt
         + mEntity.getFileName();
   }
 
+  @Override protected void handleFile(String remotePath, FTPFile ftpFile) {
+    super.handleFile(remotePath, ftpFile);
+    //远程文件已完成
+    if (ftpFile != null && ftpFile.getSize() == mEntity.getFileSize()) {
+      exists = true;
+    }
+  }
+
   @Override protected void onPreComplete(int code) {
     super.onPreComplete(code);
-    if (mSize != mTaskEntity.getEntity().getFileSize()) {
-      mTaskEntity.isNewTask = true;
-    }
-    mEntity.setFileSize(mSize);
+    mCallback.onComplete(mEntity.getKey(), exists ? CODE_EXISTS : code);
   }
 }

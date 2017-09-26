@@ -16,6 +16,7 @@
  */
 
 package org.apache.commons.net;
+
 import java.util.EventListener;
 
 /***
@@ -36,23 +37,21 @@ import java.util.EventListener;
  * @see ProtocolCommandSupport
  ***/
 
-public interface ProtocolCommandListener extends EventListener
-{
+public interface ProtocolCommandListener extends EventListener {
 
-    /***
-     * This method is invoked by a ProtocolCommandEvent source after
-     * sending a protocol command to a server.
-     *
-     * @param event The ProtocolCommandEvent fired.
-     ***/
-    public void protocolCommandSent(ProtocolCommandEvent event);
+  /***
+   * This method is invoked by a ProtocolCommandEvent source after
+   * sending a protocol command to a server.
+   *
+   * @param event The ProtocolCommandEvent fired.
+   ***/
+  public void protocolCommandSent(ProtocolCommandEvent event);
 
-    /***
-     * This method is invoked by a ProtocolCommandEvent source after
-     * receiving a reply from a server.
-     *
-     * @param event The ProtocolCommandEvent fired.
-     ***/
-    public void protocolReplyReceived(ProtocolCommandEvent event);
-
+  /***
+   * This method is invoked by a ProtocolCommandEvent source after
+   * receiving a reply from a server.
+   *
+   * @param event The ProtocolCommandEvent fired.
+   ***/
+  public void protocolReplyReceived(ProtocolCommandEvent event);
 }
