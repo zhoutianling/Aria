@@ -49,7 +49,7 @@ public class SimpleUploadUtil implements IUtil, Runnable {
     mListener.onPre();
     new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
       @Override public void onComplete(String url, int code) {
-        if (code == FtpFileInfoThread.CODE_EXISTS) {
+        if (code == FtpFileInfoThread.CODE_COMPLETE) {
           mListener.onComplete();
         } else {
           mUploader.start();

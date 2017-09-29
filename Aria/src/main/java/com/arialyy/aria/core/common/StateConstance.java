@@ -35,7 +35,7 @@ public class StateConstance {
   public StateConstance() {
   }
 
-  public void cleanState() {
+  public void resetState() {
     isCancel = false;
     isStop = false;
     isRunning = true;

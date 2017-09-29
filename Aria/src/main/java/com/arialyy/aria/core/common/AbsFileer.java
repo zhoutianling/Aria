@@ -96,8 +96,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     if (mListener instanceof IDownloadListener) {
       ((IDownloadListener) mListener).onPostPre(mEntity.getFileSize());
     }
-    mConstance.cleanState();
-    mConstance.isRunning = true;
+    mConstance.resetState();
     if (!mTaskEntity.isSupportBP) {
       mThreadNum = 1;
       mConstance.THREAD_NUM = mThreadNum;
@@ -125,7 +124,10 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     mTimer = new Timer(true);
     mTimer.schedule(new TimerTask() {
       @Override public void run() {
-        if (mConstance.isComplete() || !mConstance.isRunning) {
+        if (mConstance.isComplete()
+            || mConstance.isStop()
+            || mConstance.isCancel()
+            || !mConstance.isRunning) {
           closeTimer();
         } else if (mConstance.CURRENT_LOCATION >= 0) {
           mListener.onProgress(mConstance.CURRENT_LOCATION);
@@ -179,9 +181,9 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
 
   @Override public void stop() {
     closeTimer();
-    if (mConstance.isComplete()) return;
-    mConstance.isStop = true;
     mConstance.isRunning = false;
+    mConstance.isStop = true;
+    if (mConstance.isComplete()) return;
     if (mFixedThreadPool != null) {
       mFixedThreadPool.shutdown();
     }
@@ -393,5 +395,4 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 选择单任务线程的类型
    */
   protected abstract AbsThreadTask selectThreadTask(SubThreadConfig<TASK_ENTITY> config);
-
 }

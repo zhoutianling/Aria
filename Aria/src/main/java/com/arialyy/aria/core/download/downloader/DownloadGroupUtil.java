@@ -74,7 +74,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
       }
     }
     if (i != 0 && i == mExeMap.size()) startRunningFlow();
-    if (mCurrentLocation == mTotalSize) {
+    if (mCurrentLocation == mTotalLen) {
       mListener.onComplete();
     }
   }
@@ -93,7 +93,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
             if (isNeedLoadFileSize) {
-              mTotalSize += te.getEntity().getFileSize();
+              mTotalLen += te.getEntity().getFileSize();
             }
             createChildDownload(te);
           }

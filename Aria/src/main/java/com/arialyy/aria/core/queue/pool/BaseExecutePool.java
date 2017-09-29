@@ -20,9 +20,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
-import com.arialyy.aria.core.inf.ITask;
 import com.arialyy.aria.util.CommonUtil;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -185,8 +183,11 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
       }
       String convertKey = CommonUtil.keyToHashKey(key);
       TASK task = mExecuteMap.get(convertKey);
-      mExecuteMap.remove(convertKey);
-      return mExecuteQueue.remove(task);
+      if (mExecuteQueue.remove(task)) {
+        mExecuteMap.remove(convertKey);
+        return true;
+      }
+      return false;
     }
   }
 

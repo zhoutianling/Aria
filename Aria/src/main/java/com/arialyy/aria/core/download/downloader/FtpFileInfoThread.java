@@ -32,9 +32,7 @@ class FtpFileInfoThread extends AbsFtpInfoThread<DownloadEntity, DownloadTaskEnt
 
   @Override protected String setRemotePath() {
     String url = mEntity.getUrl();
-    return url.substring(url.indexOf(mPort) + mPort.length(), url.length())
-        + "/"
-        + mEntity.getFileName();
+    return url.substring(url.indexOf(mPort) + mPort.length(), url.length());
   }
 
   @Override protected void onPreComplete(int code) {
@@ -43,5 +41,6 @@ class FtpFileInfoThread extends AbsFtpInfoThread<DownloadEntity, DownloadTaskEnt
       mTaskEntity.isNewTask = true;
     }
     mEntity.setFileSize(mSize);
+    mCallback.onComplete(mEntity.getUrl(), code);
   }
 }

@@ -22,9 +22,9 @@ import java.io.InputStream;
 
 /**
  * Created by lyy on 2017/9/26.
- * 具有进度的InputStream
+ * BufferedRandomAccessFile 转 InputStream 适配器
  */
-final class ProgressInputStream extends InputStream {
+final class FtpFISAdapter extends InputStream {
 
   private BufferedRandomAccessFile mIs;
   private ProgressCallback mCallback;
@@ -34,12 +34,12 @@ final class ProgressInputStream extends InputStream {
     void onProgressCallback(byte[] buffer, int byteOffset, int byteCount) throws IOException;
   }
 
-  ProgressInputStream(@NonNull BufferedRandomAccessFile is, @NonNull ProgressCallback callback) {
+  FtpFISAdapter(@NonNull BufferedRandomAccessFile is, @NonNull ProgressCallback callback) {
     mIs = is;
     mCallback = callback;
   }
 
-  ProgressInputStream(@NonNull BufferedRandomAccessFile is) {
+  FtpFISAdapter(@NonNull BufferedRandomAccessFile is) {
     mIs = is;
   }
 

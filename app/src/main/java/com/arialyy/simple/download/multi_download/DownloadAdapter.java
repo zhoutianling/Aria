@@ -19,6 +19,7 @@ package com.arialyy.simple.download.multi_download;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -182,7 +183,7 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
         color = android.R.color.holo_red_light;
         break;
       case IEntity.STATE_COMPLETE:
-        str = "重新开始？";
+        str = "完成";
         holder.progress.setProgress(100);
         break;
     }
@@ -206,9 +207,9 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
         mData.remove(entity);
         notifyDataSetChanged();
         if (isSimpleDownload(entity)) {
-          Aria.download(getContext()).load((DownloadEntity) entity).cancel();
+          Aria.download(getContext()).load((DownloadEntity) entity).cancel(true);
         } else {
-          Aria.download(getContext()).load((DownloadGroupEntity) entity).cancel();
+          Aria.download(getContext()).load((DownloadGroupEntity) entity).cancel(true);
         }
       }
     });
@@ -254,13 +255,15 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
         case IEntity.STATE_OTHER:
         case IEntity.STATE_FAIL:
         case IEntity.STATE_STOP:
-        case IEntity.STATE_COMPLETE:
         case IEntity.STATE_PRE:
         case IEntity.STATE_POST_PRE:
           start(entity);
           break;
         case IEntity.STATE_RUNNING:
           stop(entity);
+          break;
+        case IEntity.STATE_COMPLETE:
+          Log.d(TAG, "任务已完成");
           break;
       }
     }

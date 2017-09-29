@@ -266,7 +266,7 @@ public class CommonUtil {
         file.delete();
       }
     }
-    File config = new File(getFileConfig(false, uEntity.getFileName()));
+    File config = new File(getFileConfigPath(false, uEntity.getFileName()));
     if (config.exists()) {
       config.delete();
     }
@@ -296,7 +296,7 @@ public class CommonUtil {
       }
     }
 
-    File config = new File(getFileConfig(true, dEntity.getFileName()));
+    File config = new File(getFileConfigPath(true, dEntity.getFileName()));
     if (config.exists()) {
       config.delete();
     }
@@ -730,11 +730,11 @@ public class CommonUtil {
   }
 
   /**
-   * 通过文件名获取下载配置文件
+   * 通过文件名获取下载配置文件路径
    *
    * @param fileName 文件名
    */
-  public static String getFileConfig(boolean isDownload, String fileName) {
+  public static String getFileConfigPath(boolean isDownload, String fileName) {
     return AriaManager.APP.getFilesDir().getPath() + (isDownload ? AriaManager.DOWNLOAD_TEMP_DIR
         : AriaManager.UPLOAD_TEMP_DIR) + fileName + ".properties";
   }
@@ -765,8 +765,8 @@ public class CommonUtil {
 
   private static void renameConfig(boolean isDownload, String oldName, String newName) {
     if (oldName.equals(newName)) return;
-    File oldFile = new File(getFileConfig(isDownload, oldName));
-    File newFile = new File(getFileConfig(isDownload, oldName));
+    File oldFile = new File(getFileConfigPath(isDownload, oldName));
+    File newFile = new File(getFileConfigPath(isDownload, oldName));
     if (!oldFile.exists()) {
       createFile(newFile.getPath());
     } else {

@@ -43,6 +43,8 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
               mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
             }
             mActualTaskNum = mTaskEntity.entity.getSubTask().size();
+            mGroupSize = mActualTaskNum;
+            mTotalLen = mTaskEntity.entity.getFileSize();
             startDownload();
           }
         }

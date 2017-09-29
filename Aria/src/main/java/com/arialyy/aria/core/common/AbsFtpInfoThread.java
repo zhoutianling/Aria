@@ -23,7 +23,6 @@ import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
-import com.arialyy.aria.util.CommonUtil;
 import java.io.IOException;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -37,7 +36,7 @@ import org.apache.commons.net.ftp.FTPReply;
 public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     implements Runnable {
 
-  private final String TAG = "HttpFileInfoThread";
+  private final String TAG = "AbsFtpInfoThread";
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
   private int mConnectTimeOut;
@@ -86,6 +85,9 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
         }
       }
       mTaskEntity.code = reply;
+      if (mSize != 0 && !isUpload) {
+        mEntity.setFileSize(mSize);
+      }
       mEntity.update();
       mTaskEntity.update();
       onPreComplete(reply);
@@ -170,9 +172,9 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
         size += file.getSize();
         handleFile(path + file.getName(), file);
       } else {
-        size += getFileSize(client.listFiles(
-            CommonUtil.strCharSetConvert(path + file.getName(), mTaskEntity.charSet)), client,
-            path + file.getName());
+        String remotePath =
+            new String((path + file.getName()).getBytes(charSet), AbsFtpThreadTask.SERVER_CHARSET);
+        size += getFileSize(client.listFiles(remotePath), client, path + file.getName());
       }
     }
     return size;

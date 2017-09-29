@@ -25,14 +25,10 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.OnFtpInputStreamListener;
-import org.apache.commons.net.io.CopyStreamEvent;
-import org.apache.commons.net.io.CopyStreamListener;
 
 /**
  * Created by Aria.Lao on 2017/7/28.
@@ -70,8 +66,8 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       client.setRestartOffset(mConfig.START_LOCATION);
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
       if (mConfig.START_LOCATION != 0) {
-        file.skipBytes((int) mConfig.START_LOCATION);
-        //file.seek(mConfig.START_LOCATION);
+        //file.skipBytes((int) mConfig.START_LOCATION);
+        file.seek(mConfig.START_LOCATION);
       }
       upload(client, file);
       if (STATE.isCancel || STATE.isStop) return;
@@ -113,27 +109,16 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
 
   private void upload(final FTPClient client, final BufferedRandomAccessFile bis)
       throws IOException {
-    //client.storeFile(remotePath,
-    //    new ProgressInputStream(bis, new ProgressInputStream.ProgressCallback() {
-    //      @Override public void onProgressCallback(byte[] buffer, int byteOffset, int byteCount)
-    //          throws IOException {
-    //        if (STATE.isCancel || STATE.isStop) {
-    //          long s = client.abor();
-    //          Log.d(TAG, "s = " + s);
-    //          client.disconnect();
-    //        }
-    //        progress(byteCount);
-    //      }
-    //    }));
-
-
 
     try {
-      client.storeFile(remotePath, new ProgressInputStream(bis), new OnFtpInputStreamListener() {
+      client.storeFile(remotePath, new FtpFISAdapter(bis), new OnFtpInputStreamListener() {
+        boolean isStoped = false;
+
         @Override public void onFtpInputStream(FTPClient client, long totalBytesTransferred,
             int bytesTransferred, long streamSize) {
-          if (STATE.isCancel || STATE.isStop) {
+          if ((STATE.isCancel || STATE.isStop) && !isStoped) {
             try {
+              isStoped = true;
               client.abor();
             } catch (IOException e) {
               e.printStackTrace();
@@ -142,40 +127,21 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
           progress(bytesTransferred);
         }
       });
-
     } catch (IOException e) {
-      //e.printStackTrace();
+      if (e.getMessage().contains("IOException caught while copying")) {
+        e.printStackTrace();
+      } else {
+        fail(mChildCurrentLocation, "上传失败", e);
+      }
     }
 
     int reply = client.getReplyCode();
     if (!FTPReply.isPositiveCompletion(reply)) {
-      client.disconnect();
-      fail(mChildCurrentLocation, "上传文件错误，错误码为：" + reply, null);
-    }
-
-  }
-
-  /**
-   * 执行上传操作
-   */
-  private void upload(BufferedRandomAccessFile file, OutputStream os)
-      throws IOException, InterruptedException {
-    int len;
-    byte[] buffer = new byte[mBufSize];
-    while ((len = file.read(buffer)) != -1) {
-      if (STATE.isCancel) break;
-      if (STATE.isStop) break;
-      if (mSleepTime > 0) Thread.sleep(mSleepTime);
-      if (mChildCurrentLocation + len >= mConfig.END_LOCATION) {
-        len = (int) (mConfig.END_LOCATION - mChildCurrentLocation);
-        os.write(buffer, 0, len);
-        progress(len);
-        break;
-      } else {
-        os.write(buffer, 0, len);
-        progress(len);
+      if (client.isConnected()) {
+        client.disconnect();
       }
-      Log.d(TAG, len + "");
+      if (reply == FTPReply.TRANSFER_ABORTED) return;
+      fail(mChildCurrentLocation, "上传文件错误，错误码为：" + reply, null);
     }
   }
 

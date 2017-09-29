@@ -6,9 +6,10 @@ Aria项目源于工作中遇到的一个文件下载管理的需求，当时被�
 Aria有以下特点：
  + 简单、方便
    - 可以在Activity、Service、Fragment、Dialog、popupWindow、Notification等组件中使用
-   - 一行代码实现HTTP\FTP断线续传、多任务自动调度
-   - 一行代码实现HTTP任务组\FTP文件夹下载
-   - 一行代码实现HTTP\FTP断点续传上传
+   - 支持HTTP\FTP断点续传、多任务自动调度
+   - 支持HTTP任务组\FTP文件夹，断点续传下载
+   - 支持HTTP表单上传
+   - 支持文件FTP断点续传上传
  + 支持https地址下载
    - 在配置文件中很容易就可以设置CA证书的信息
  + 支持300、301、302重定向下载链接下载

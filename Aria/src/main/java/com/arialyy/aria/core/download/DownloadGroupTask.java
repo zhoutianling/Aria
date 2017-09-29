@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.downloader.AbsGroupUtil;
@@ -56,7 +57,11 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
   }
 
   @Override public void start() {
-    mUtil.start();
+    if (mUtil.isRunning()) {
+      Log.d(TAG, "任务正在下载");
+    } else {
+      mUtil.start();
+    }
   }
 
   @Override public void stop() {

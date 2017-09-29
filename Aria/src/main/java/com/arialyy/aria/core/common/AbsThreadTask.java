@@ -229,7 +229,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    */
   protected void writeConfig(boolean isComplete, final long record) throws IOException {
     synchronized (AriaManager.LOCK) {
-      Log.d(TAG, "really record == " + record);
       String key = null, value = null;
       if (0 < record && record < mConfig.END_LOCATION) {
         key = mConfig.TEMP_FILE.getName() + "_record_" + mConfig.THREAD_ID;

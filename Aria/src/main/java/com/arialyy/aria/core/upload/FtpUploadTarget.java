@@ -47,7 +47,7 @@ public class FtpUploadTarget
     mEntity.setFileSize(file.length());
 
     //暂时不支持断点续传上传
-    mTaskEntity.isSupportBP = false;
+    //mTaskEntity.isSupportBP = false;
   }
 
   /**

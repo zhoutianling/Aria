@@ -31,7 +31,7 @@ public class TaskManager {
   private static volatile TaskManager INSTANCE = null;
   private Map<String, AbsTask> map = new ConcurrentHashMap<>();
 
-  public TaskManager getInstance() {
+  public static TaskManager getInstance() {
     if (INSTANCE == null) {
       synchronized (AriaManager.LOCK) {
         INSTANCE = new TaskManager();
