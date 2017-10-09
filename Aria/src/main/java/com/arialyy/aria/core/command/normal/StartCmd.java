@@ -21,8 +21,8 @@ import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.inf.AbsTask;
-import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.util.NetUtils;
 
 /**

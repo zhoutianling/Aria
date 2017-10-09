@@ -85,6 +85,9 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   @Override public void run() {
+    if (mConstance.isRunning) {
+      return;
+    }
     startFlow();
   }
 
@@ -92,11 +95,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 开始下载流程
    */
   private void startFlow() {
+    mConstance.resetState();
     checkTask();
     if (mListener instanceof IDownloadListener) {
       ((IDownloadListener) mListener).onPostPre(mEntity.getFileSize());
     }
-    mConstance.resetState();
     if (!mTaskEntity.isSupportBP) {
       mThreadNum = 1;
       mConstance.THREAD_NUM = mThreadNum;
