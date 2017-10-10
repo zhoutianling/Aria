@@ -88,16 +88,18 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
    * @param maxNum 下载数
    */
   public void setMaxNum(int maxNum) {
-    try {
-      ArrayBlockingQueue<TASK> temp = new ArrayBlockingQueue<>(maxNum);
-      TASK task;
-      while ((task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS)) != null) {
-        temp.offer(task);
+    synchronized (AriaManager.LOCK) {
+      try {
+        ArrayBlockingQueue<TASK> temp = new ArrayBlockingQueue<>(maxNum);
+        TASK task;
+        while ((task = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS)) != null) {
+          temp.offer(task);
+        }
+        mExecuteQueue = temp;
+        mSize = maxNum;
+      } catch (InterruptedException e) {
+        e.printStackTrace();
       }
-      mExecuteQueue = temp;
-      mSize = maxNum;
-    } catch (InterruptedException e) {
-      e.printStackTrace();
     }
   }
 
@@ -107,33 +109,37 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
    * @param newTask 新任务
    */
   boolean putNewTask(TASK newTask) {
-    String url = newTask.getKey();
-    boolean s = mExecuteQueue.offer(newTask);
-    Log.w(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
-    if (s) {
-      mExecuteMap.put(CommonUtil.keyToHashKey(url), newTask);
+    synchronized (AriaManager.LOCK) {
+      String url = newTask.getKey();
+      boolean s = mExecuteQueue.offer(newTask);
+      Log.w(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
+      if (s) {
+        mExecuteMap.put(CommonUtil.keyToHashKey(url), newTask);
+      }
+      return s;
     }
-    return s;
   }
 
   /**
    * 队列满时，将移除下载队列中的第一个任务
    */
   boolean pollFirstTask() {
-    try {
-      TASK oldTask = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
-      if (oldTask == null) {
-        Log.e(TAG, "移除任务失败");
+    synchronized (AriaManager.LOCK) {
+      try {
+        TASK oldTask = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
+        if (oldTask == null) {
+          Log.e(TAG, "移除任务失败");
+          return false;
+        }
+        oldTask.stop();
+        String key = CommonUtil.keyToHashKey(oldTask.getKey());
+        mExecuteMap.remove(key);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
         return false;
       }
-      oldTask.stop();
-      String key = CommonUtil.keyToHashKey(oldTask.getKey());
-      mExecuteMap.remove(key);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-      return false;
+      return true;
     }
-    return true;
   }
 
   @Override public TASK pollTask() {
@@ -183,7 +189,10 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
       }
       String convertKey = CommonUtil.keyToHashKey(key);
       TASK task = mExecuteMap.get(convertKey);
-      if (mExecuteQueue.remove(task)) {
+      final int oldQueueSize = mExecuteQueue.size();
+      boolean isSuccess = mExecuteQueue.remove(task);
+      final int newQueueSize = mExecuteQueue.size();
+      if (isSuccess && newQueueSize != oldQueueSize) {
         mExecuteMap.remove(convertKey);
         return true;
       }
