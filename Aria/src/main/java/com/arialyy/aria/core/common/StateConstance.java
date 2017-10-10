@@ -35,7 +35,7 @@ public class StateConstance {
   public StateConstance() {
   }
 
-  public void cleanState() {
+  public void resetState() {
     isCancel = false;
     isStop = false;
     isRunning = true;
@@ -56,7 +56,7 @@ public class StateConstance {
    * 所有子线程是否都已经下载失败
    */
   public boolean isFail() {
-    return FAIL_NUM == THREAD_NUM;
+    return FAIL_NUM + COMPLETE_THREAD_NUM >= THREAD_NUM;
   }
 
   /**

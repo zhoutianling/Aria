@@ -31,12 +31,14 @@ import java.lang.ref.WeakReference;
 class BaseUListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     implements IUploadListener {
   private WeakReference<Handler> outHandler;
+  private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
   private long mLastLen = 0;   //上一次发送长度
   private boolean isFirst = true;
   protected ENTITY mEntity;
   protected TASK mTask;
   private boolean isConvertSpeed = false;
   boolean isWait = false;
+  private long mLastSaveTime;
 
   BaseUListener(TASK task, Handler outHandler) {
     this.outHandler = new WeakReference<>(outHandler);
@@ -45,6 +47,7 @@ class BaseUListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     final AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     isConvertSpeed = manager.getDownloadConfig().isConvertSpeed();
     mLastLen = mEntity.getCurrentProgress();
+    mLastSaveTime = System.currentTimeMillis();
   }
 
   @Override public void onPre() {
@@ -71,6 +74,10 @@ class BaseUListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     }
     handleSpeed(speed);
     sendInState2Target(ISchedulers.RUNNING);
+    if (System.currentTimeMillis() - mLastSaveTime >= RUN_SAVE_INTERVAL) {
+      saveData(IEntity.STATE_RUNNING, currentLocation);
+      mLastSaveTime = System.currentTimeMillis();
+    }
     mLastLen = currentLocation;
   }
 

@@ -19,6 +19,8 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.Ignore;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Created by AriaL on 2017/6/29.

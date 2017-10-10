@@ -19,12 +19,13 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.ErrorHelp;
+import com.arialyy.aria.util.NetUtils;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -36,7 +37,7 @@ import java.util.TimerTask;
  * Created by lyy on 2017/1/18.
  * 任务线程
  */
-public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
+public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     implements Runnable {
   /**
    * 线程重试次数
@@ -55,10 +56,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
   protected SubThreadConfig<TASK_ENTITY> mConfig;
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
-  /**
-   * FTP 服务器编码
-   */
-  public static String SERVER_CHARSET = "ISO-8859-1";
   private int mFailNum = 0;
   private String mTaskType;
   private Timer mFailTimer;
@@ -73,9 +70,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
     mConfig = info;
     mTaskEntity = mConfig.TASK_ENTITY;
     mEntity = mTaskEntity.getEntity();
-    if (mConfig.SUPPORT_BP) {
-      mConfigFPath = info.CONFIG_FILE_PATH;
-    }
+    mConfigFPath = info.CONFIG_FILE_PATH;
     mBufSize = manager.getDownloadConfig().getBuffSize();
     setMaxSpeed(AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMsxSpeed());
     mTaskType = getTaskType();
@@ -104,14 +99,15 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
     synchronized (AriaManager.LOCK) {
       try {
         if (mConfig.SUPPORT_BP) {
+          final long currentTemp = mChildCurrentLocation;
           STATE.STOP_NUM++;
           Log.d(TAG, "任务【"
               + mConfig.TEMP_FILE.getName()
               + "】thread__"
               + mConfig.THREAD_ID
               + "__停止, stop location ==> "
-              + mChildCurrentLocation);
-          writeConfig(false, mChildCurrentLocation);
+              + currentTemp);
+          writeConfig(false, currentTemp);
           if (STATE.isStop()) {
             Log.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已停止");
             STATE.isRunning = false;
@@ -169,12 +165,9 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
   /**
    * 任务失败
    */
-  protected void fail(long currentLocation, String msg, Exception ex) {
+  protected void fail(final long currentLocation, String msg, Exception ex) {
     synchronized (AriaManager.LOCK) {
       try {
-        //STATE.FAIL_NUM++;
-        //STATE.isRunning = false;
-        //STATE.isStop = true;
         if (ex != null) {
           Log.e(TAG, msg + "\n" + CommonUtil.getPrintException(ex));
         } else {
@@ -182,11 +175,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
         }
         if (mConfig.SUPPORT_BP) {
           writeConfig(false, currentLocation);
-          //if (STATE.isFail()) {
-          //  Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
-          //  mListener.onFail(true);
-          //}
-          retryThis(true);
+          retryThis(STATE.THREAD_NUM != 1);
         } else {
           Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
           mListener.onFail(true);
@@ -204,7 +193,11 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
    * @param needRetry 是否可以重试
    */
   private void retryThis(boolean needRetry) {
-    if (mFailNum < RETRY_NUM && needRetry) {
+    if (!NetUtils.isConnected(AriaManager.APP)) {
+      Log.w(TAG,
+          "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__重试失败，网络未连接");
+    }
+    if (mFailNum < RETRY_NUM && needRetry && NetUtils.isConnected(AriaManager.APP)) {
       if (mFailTimer != null) {
         mFailTimer.purge();
         mFailTimer.cancel();
@@ -215,23 +208,26 @@ public abstract class AbsThreadTask<ENTITY extends AbsEntity, TASK_ENTITY extend
           mFailNum++;
           Log.w(TAG,
               "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__正在重试");
-          mConfig.START_LOCATION = mChildCurrentLocation;
+          final long retryLocation = mChildCurrentLocation;
+          mConfig.START_LOCATION = retryLocation;
           AbsThreadTask.this.run();
         }
       }, RETRY_INTERVAL);
     } else {
       STATE.FAIL_NUM++;
-      STATE.isRunning = false;
-      STATE.isStop = true;
-      Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
-      mListener.onFail(true);
+      if (STATE.isFail()) {
+        STATE.isRunning = false;
+        STATE.isStop = true;
+        Log.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
+        mListener.onFail(true);
+      }
     }
   }
 
   /**
    * 将记录写入到配置文件
    */
-  protected void writeConfig(boolean isComplete, long record) throws IOException {
+  protected void writeConfig(boolean isComplete, final long record) throws IOException {
     synchronized (AriaManager.LOCK) {
       String key = null, value = null;
       if (0 < record && record < mConfig.END_LOCATION) {

@@ -16,7 +16,6 @@
 package com.arialyy.aria.core.download.downloader;
 
 import android.util.Log;
-import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsFileer;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -43,10 +42,7 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
   }
 
   @Override protected void checkTask() {
-    mConfigFile = new File(mContext.getFilesDir().getPath()
-        + AriaManager.DOWNLOAD_TEMP_DIR
-        + mEntity.getFileName()
-        + ".properties");
+    mConfigFile = new File(CommonUtil.getFileConfigPath(true, mEntity.getFileName()));
     mTempFile = new File(mEntity.getDownloadPath());
     if (!mTaskEntity.isSupportBP) {
       isNewTask = true;

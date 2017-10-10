@@ -24,37 +24,30 @@ import javax.net.ssl.X509TrustManager;
 
 /**
  * Do not use.
+ *
  * @since 2.0
  * @deprecated 3.0 use
  * {@link org.apache.commons.net.util.TrustManagerUtils#getValidateServerCertificateTrustManager()
- *  TrustManagerUtils#getValidateServerCertificateTrustManager()} instead
+ * TrustManagerUtils#getValidateServerCertificateTrustManager()} instead
  */
-@Deprecated
-public class FTPSTrustManager implements X509TrustManager
-{
-    private static final X509Certificate[] EMPTY_X509CERTIFICATE_ARRAY = new X509Certificate[]{};
+@Deprecated public class FTPSTrustManager implements X509TrustManager {
+  private static final X509Certificate[] EMPTY_X509CERTIFICATE_ARRAY = new X509Certificate[] {};
 
-    /**
-     * No-op
-     */
-    @Override
-    public void checkClientTrusted(X509Certificate[] certificates, String authType)
-    {
-        return;
-    }
+  /**
+   * No-op
+   */
+  @Override public void checkClientTrusted(X509Certificate[] certificates, String authType) {
+    return;
+  }
 
-    @Override
-    public void checkServerTrusted(X509Certificate[] certificates, String authType) throws CertificateException
-    {
-        for (X509Certificate certificate : certificates)
-        {
-            certificate.checkValidity();
-        }
+  @Override public void checkServerTrusted(X509Certificate[] certificates, String authType)
+      throws CertificateException {
+    for (X509Certificate certificate : certificates) {
+      certificate.checkValidity();
     }
+  }
 
-    @Override
-    public X509Certificate[] getAcceptedIssuers()
-    {
-        return EMPTY_X509CERTIFICATE_ARRAY;
-    }
+  @Override public X509Certificate[] getAcceptedIssuers() {
+    return EMPTY_X509CERTIFICATE_ARRAY;
+  }
 }

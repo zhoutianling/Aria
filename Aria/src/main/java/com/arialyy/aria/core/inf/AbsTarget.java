@@ -19,10 +19,13 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.CancelCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.util.CommonUtil;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -200,14 +203,24 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   }
 
   /**
+   * 重试下载
+   */
+  public void reTry() {
+    List<ICmd> cmds = new ArrayList<>();
+    cmds.add(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_STOP));
+    cmds.add(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START));
+    AriaManager.getInstance(AriaManager.APP).setCmds(cmds).exe();
+  }
+
+  /**
    * 删除任务
    *
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录，
    */
   public void cancel(boolean removeFile) {
-    CancelCmd cancelCmd =
-        (CancelCmd) CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL);
+    CancelCmd cancelCmd = (CancelCmd) CommonUtil.createNormalCmd(mTargetName, mTaskEntity,
+        NormalCmdFactory.TASK_CANCEL);
     cancelCmd.removeFile = removeFile;
     AriaManager.getInstance(AriaManager.APP).setCmd(cancelCmd).exe();
   }

@@ -25,6 +25,7 @@ import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.NetUtils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
@@ -42,23 +43,15 @@ import java.util.concurrent.Executors;
 public abstract class AbsGroupUtil implements IUtil {
   private final String TAG = "AbsGroupUtil";
   /**
-   * 任务组所有任务总大小
+   * 任务组所有任务总长度
    */
-  long mTotalSize = 0;
+  long mTotalLen = 0;
   long mCurrentLocation = 0;
   private ExecutorService mExePool;
   protected IDownloadGroupListener mListener;
   protected DownloadGroupTaskEntity mTaskEntity;
   private boolean isRunning = false;
   private Timer mTimer;
-  /**
-   * 初始化完成的任务书数
-   */
-  int mInitNum = 0;
-  /**
-   * 初始化失败的任务数
-   */
-  int mInitFailNum = 0;
   /**
    * 保存所有没有下载完成的任务，key为下载地址
    */
@@ -78,18 +71,26 @@ public abstract class AbsGroupUtil implements IUtil {
    * 该任务组对应的所有任务
    */
   private Map<String, DownloadTaskEntity> mTasksMap = new HashMap<>();
+  /**
+   * 是否需要读取文件长度，{@code true}需要
+   */
+  boolean isNeedLoadFileSize = true;
   //已经完成的任务数
   private int mCompleteNum = 0;
   //失败的任务数
   private int mFailNum = 0;
   //停止的任务数
   private int mStopNum = 0;
+
   //实际的下载任务数
   int mActualTaskNum = 0;
-  /**
-   * 是否需要读取文件长度，{@code true}需要
-   */
-  boolean isNeedLoadFileSize = true;
+  //初始化完成的任务数
+  int mInitNum = 0;
+  // 初始化失败的任务数
+  int mInitFailNum = 0;
+
+  //任务组大小
+  int mGroupSize = 0;
 
   AbsGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity taskEntity) {
     mListener = listener;
@@ -104,14 +105,13 @@ public abstract class AbsGroupUtil implements IUtil {
         mTasksMap.put(te.getEntity().getUrl(), te);
       }
     }
-    mTotalSize = taskEntity.getEntity().getFileSize();
-    isNeedLoadFileSize = mTotalSize <= 1;
+    mGroupSize = mTaskEntity.entity.getSubTask().size();
+    mTotalLen = taskEntity.getEntity().getFileSize();
+    isNeedLoadFileSize = mTotalLen <= 1;
     for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
       File file = new File(entity.getDownloadPath());
       if (entity.getState() == IEntity.STATE_COMPLETE && file.exists()) {
         mCompleteNum++;
-        mInitNum++;
-        mStopNum++;
         mCurrentLocation += entity.getFileSize();
       } else {
         mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
@@ -119,7 +119,7 @@ public abstract class AbsGroupUtil implements IUtil {
         mActualTaskNum++;
       }
       if (isNeedLoadFileSize) {
-        mTotalSize += entity.getFileSize();
+        mTotalLen += entity.getFileSize();
       }
     }
     updateFileSize();
@@ -127,7 +127,7 @@ public abstract class AbsGroupUtil implements IUtil {
 
   void updateFileSize() {
     if (isNeedLoadFileSize) {
-      mTaskEntity.getEntity().setFileSize(mTotalSize);
+      mTaskEntity.getEntity().setFileSize(mTotalLen);
       mTaskEntity.getEntity().update();
     }
   }
@@ -211,7 +211,7 @@ public abstract class AbsGroupUtil implements IUtil {
   }
 
   @Override public long getFileSize() {
-    return mTotalSize;
+    return mTotalLen;
   }
 
   @Override public long getCurrentLocation() {
@@ -271,7 +271,6 @@ public abstract class AbsGroupUtil implements IUtil {
 
   @Override public void stop() {
     closeTimer(false);
-    mListener.onStop(mCurrentLocation);
     onStop();
     if (!mExePool.isShutdown()) {
       mExePool.shutdown();
@@ -324,7 +323,7 @@ public abstract class AbsGroupUtil implements IUtil {
    */
   void startRunningFlow() {
     closeTimer(true);
-    mListener.onPostPre(mTotalSize);
+    mListener.onPostPre(mTotalLen);
     mListener.onStart(mCurrentLocation);
     startTimer();
   }
@@ -405,14 +404,16 @@ public abstract class AbsGroupUtil implements IUtil {
 
     DownloadTaskEntity taskEntity;
     DownloadEntity entity;
-
+    private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
+    private long mLastSaveTime;
     long lastLen = 0;
 
     ChildDownloadListener(DownloadTaskEntity entity) {
       this.taskEntity = entity;
       this.entity = taskEntity.getEntity();
-      lastLen = this.entity.getCurrentProgress();
       this.entity.setFailNum(0);
+      lastLen = this.entity.getCurrentProgress();
+      mLastSaveTime = System.currentTimeMillis();
     }
 
     @Override public void onPre() {
@@ -444,6 +445,10 @@ public abstract class AbsGroupUtil implements IUtil {
       entity.setCurrentProgress(currentLocation);
       handleSpeed(speed);
       mListener.onSubRunning(entity);
+      if (System.currentTimeMillis() - mLastSaveTime >= RUN_SAVE_INTERVAL) {
+        saveData(IEntity.STATE_RUNNING, currentLocation);
+        mLastSaveTime = System.currentTimeMillis();
+      }
       lastLen = currentLocation;
     }
 
@@ -451,10 +456,12 @@ public abstract class AbsGroupUtil implements IUtil {
       saveData(IEntity.STATE_STOP, stopLocation);
       handleSpeed(0);
       mListener.onSubStop(entity);
-      mStopNum++;
-      if (mStopNum + mCompleteNum >= mInitNum) {
-        closeTimer(false);
-        mListener.onStop(mCurrentLocation);
+      synchronized (AbsGroupUtil.class) {
+        mStopNum++;
+        if (mStopNum + mCompleteNum + mInitFailNum + mFailNum >= mGroupSize) {
+          closeTimer(false);
+          mListener.onStop(mCurrentLocation);
+        }
       }
     }
 
@@ -466,16 +473,19 @@ public abstract class AbsGroupUtil implements IUtil {
 
     @Override public void onComplete() {
       saveData(IEntity.STATE_COMPLETE, entity.getFileSize());
-      mCompleteNum++;
       handleSpeed(0);
       mListener.onSubComplete(entity);
-      //如果子任务完成的数量和总任务数一致，表示任务组任务已经完成
-      if (mCompleteNum >= mTaskEntity.getEntity().getSubTask().size()) {
-        closeTimer(false);
-        mListener.onComplete();
-      } else if (mCompleteNum + mFailNum >= mActualTaskNum) {
-        //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
-        closeTimer(false);
+      synchronized (AbsGroupUtil.class) {
+        mCompleteNum++;
+        //如果子任务完成的数量和总任务数一致，表示任务组任务已经完成
+        if (mCompleteNum >= mGroupSize) {
+          closeTimer(false);
+          mListener.onComplete();
+        } else if (mStopNum + mCompleteNum + mInitFailNum + mFailNum >= mGroupSize) {
+          //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
+          closeTimer(false);
+          mListener.onStop(mCurrentLocation);
+        }
       }
     }
 
@@ -491,7 +501,8 @@ public abstract class AbsGroupUtil implements IUtil {
      */
     private void reTry(boolean needRetry) {
       synchronized (AriaManager.LOCK) {
-        if (entity.getFailNum() < 5 && isRunning && needRetry) {
+        if (entity.getFailNum() < 5 && isRunning && needRetry && NetUtils.isConnected(
+            AriaManager.APP)) {
           reStartTask();
         } else {
           mFailNum++;

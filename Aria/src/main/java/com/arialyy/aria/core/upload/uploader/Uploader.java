@@ -15,7 +15,6 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
-import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsFileer;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -47,10 +46,7 @@ class Uploader extends AbsFileer<UploadEntity, UploadTaskEntity> {
    * 5、不支持断点，则是新任务
    */
   protected void checkTask() {
-    mConfigFile = new File(mContext.getFilesDir().getPath()
-        + AriaManager.UPLOAD_TEMP_DIR
-        + mEntity.getFileName()
-        + ".properties");
+    mConfigFile = new File(CommonUtil.getFileConfigPath(false, mEntity.getFileName()));
     if (!mTaskEntity.isSupportBP) {
       isNewTask = true;
       return;

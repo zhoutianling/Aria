@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download.downloader;
 
 import android.util.SparseArray;
 import com.arialyy.aria.core.common.IUtil;
+import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
@@ -73,7 +74,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
       }
     }
     if (i != 0 && i == mExeMap.size()) startRunningFlow();
-    if (mCurrentLocation == mTotalSize) {
+    if (mCurrentLocation == mTotalLen) {
       mListener.onComplete();
     }
   }
@@ -92,7 +93,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
             if (isNeedLoadFileSize) {
-              mTotalSize += te.getEntity().getFileSize();
+              mTotalLen += te.getEntity().getFileSize();
             }
             createChildDownload(te);
           }

@@ -15,9 +15,8 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
-import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.common.AbsThreadTask;
+import com.arialyy.aria.core.common.AbsFtpThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.inf.IEventListener;
@@ -26,29 +25,26 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStream;
-import org.apache.commons.net.ftp.FTP;
+import java.io.UnsupportedEncodingException;
 import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+import org.apache.commons.net.ftp.OnFtpInputStreamListener;
 
 /**
  * Created by Aria.Lao on 2017/7/28.
  * FTP 单线程上传任务，需要FTP 服务器给用户打开删除和读入IO的权限
  */
-class FtpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
+class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
   private final String TAG = "FtpThreadTask";
-  private String dir, remotePath, charSet;
+  private String dir, remotePath;
 
   FtpThreadTask(StateConstance constance, IEventListener listener,
       SubThreadConfig<UploadTaskEntity> info) {
     super(constance, listener, info);
   }
 
-
   @Override public void run() {
     FTPClient client = null;
-    OutputStream os = null;
     BufferedRandomAccessFile file = null;
     try {
       Log.d(TAG, "任务【"
@@ -64,22 +60,16 @@ class FtpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       mChildCurrentLocation = mConfig.START_LOCATION;
       client = createClient();
       if (client == null) return;
+      initPath();
       client.makeDirectory(dir);
       client.changeWorkingDirectory(dir);
       client.setRestartOffset(mConfig.START_LOCATION);
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
-      file.seek(mConfig.START_LOCATION);
-      if (!isRemoteComplete(client)) {
-        os = client.storeFileStream(new String(remotePath.getBytes(charSet), SERVER_CHARSET));
-        //发送第二次指令时，还需要再做一次判断
-        int reply = client.getReplyCode();
-        if (!FTPReply.isPositivePreliminary(reply)) {
-          client.disconnect();
-          fail(mChildCurrentLocation, "上传文件错误，错误码为：" + reply, null);
-          return;
-        }
-        upload(file, os);
+      if (mConfig.START_LOCATION != 0) {
+        //file.skipBytes((int) mConfig.START_LOCATION);
+        file.seek(mConfig.START_LOCATION);
       }
+      upload(client, file);
       if (STATE.isCancel || STATE.isStop) return;
       Log.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__上传完毕");
       writeConfig(true, 1);
@@ -101,9 +91,6 @@ class FtpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
         if (file != null) {
           file.close();
         }
-        if (os != null) {
-          os.close();
-        }
         if (client != null && client.isConnected()) {
           client.disconnect();
         }
@@ -113,78 +100,52 @@ class FtpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     }
   }
 
-  /**
-   * 远程文件是否已经玩飞车
-   *
-   * @return true 任务已经完成
-   */
-  private boolean isRemoteComplete(FTPClient client) throws IOException {
-    FTPFile[] files = client.listFiles(new String(remotePath.getBytes(charSet), SERVER_CHARSET));
-    return files.length != 0 && files[0].getSize() == mEntity.getFileSize();
+  private void initPath() throws UnsupportedEncodingException {
+    String url = mEntity.getUrl();
+    String temp = url.substring(url.indexOf(port) + port.length(), url.length());
+    dir = new String(temp.getBytes(charSet), SERVER_CHARSET);
+    remotePath = new String((temp + "/" + mEntity.getFileName()).getBytes(charSet), SERVER_CHARSET);
   }
 
-  /**
-   * 执行上传操作
-   */
-  private void upload(BufferedRandomAccessFile file, OutputStream os)
-      throws IOException, InterruptedException {
-    int len;
-    byte[] buffer = new byte[mBufSize];
-    while ((len = file.read(buffer)) != -1) {
-      if (STATE.isCancel) break;
-      if (STATE.isStop) break;
-      if (mSleepTime > 0) Thread.sleep(mSleepTime);
-      if (mChildCurrentLocation + len >= mConfig.END_LOCATION) {
-        len = (int) (mConfig.END_LOCATION - mChildCurrentLocation);
-        os.write(buffer, 0, len);
-        progress(len);
-        break;
+  private void upload(final FTPClient client, final BufferedRandomAccessFile bis)
+      throws IOException {
+
+    try {
+      client.storeFile(remotePath, new FtpFISAdapter(bis), new OnFtpInputStreamListener() {
+        boolean isStoped = false;
+
+        @Override public void onFtpInputStream(FTPClient client, long totalBytesTransferred,
+            int bytesTransferred, long streamSize) {
+          if ((STATE.isCancel || STATE.isStop) && !isStoped) {
+            try {
+              isStoped = true;
+              client.abor();
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+          }
+          progress(bytesTransferred);
+        }
+      });
+    } catch (IOException e) {
+      if (e.getMessage().contains("IOException caught while copying")) {
+        e.printStackTrace();
       } else {
-        os.write(buffer, 0, len);
-        progress(len);
+        fail(mChildCurrentLocation, "上传失败", e);
       }
     }
-  }
 
-  /**
-   * 构建FTP客户端
-   */
-  private FTPClient createClient() throws IOException {
-    String url = mEntity.getUrl();
-    String[] pp = url.split("/")[2].split(":");
-    String serverIp = pp[0];
-    int port = Integer.parseInt(pp[1]);
-    dir = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
-    remotePath = dir + "/" + mEntity.getFileName();
-    FTPClient client = new FTPClient();
-    client.connect(serverIp, port);
-    if (!TextUtils.isEmpty(mTaskEntity.account)) {
-      client.login(mTaskEntity.userName, mTaskEntity.userPw);
-    } else {
-      client.login(mTaskEntity.userName, mTaskEntity.userPw, mTaskEntity.account);
-    }
     int reply = client.getReplyCode();
     if (!FTPReply.isPositiveCompletion(reply)) {
-      client.disconnect();
-      fail(STATE.CURRENT_LOCATION, "无法连接到ftp服务器，错误码为：" + reply, null);
-      return null;
+      if (client.isConnected()) {
+        client.disconnect();
+      }
+      if (reply == FTPReply.TRANSFER_ABORTED) return;
+      fail(mChildCurrentLocation, "上传文件错误，错误码为：" + reply, null);
     }
-    charSet = "UTF-8";
-    // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
-    if (!TextUtils.isEmpty(mTaskEntity.charSet) || !FTPReply.isPositiveCompletion(
-        client.sendCommand("OPTS UTF8", "ON"))) {
-      charSet = mTaskEntity.charSet;
-    }
-    client.setControlEncoding(charSet);
-    client.setDataTimeout(STATE.READ_TIME_OUT);
-    client.enterLocalPassiveMode();
-    client.setFileType(FTP.BINARY_FILE_TYPE);
-    client.allocate(mBufSize);
-    return client;
   }
 
   @Override protected String getTaskType() {
     return "FTP_UPLOAD";
   }
-
 }

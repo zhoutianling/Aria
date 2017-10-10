@@ -3,7 +3,7 @@ publish {
   artifactId = 'aria-ftp-plug'
   userOrg = rootProject.userOrg
   groupId = rootProject.groupId
-  uploadName = 'AriaFtpPlug'
+  uploadName = 'FtpPlug'
   publishVersion = rootProject.publishVersion
   description = rootProject.description
   website = rootProject.website

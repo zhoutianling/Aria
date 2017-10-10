@@ -6,9 +6,10 @@ Aria项目源于工作中遇到的一个文件下载管理的需求，当时被�
 Aria有以下特点：
  + 简单、方便
    - 可以在Activity、Service、Fragment、Dialog、popupWindow、Notification等组件中使用
-   - 一行代码实现HTTP\FTP断线续传、多任务自动调度
-   - 一行代码实现HTTP任务组\FTP文件夹下载
-   - 一行代码实现HTTP\FTP断点续传上传
+   - 支持HTTP\FTP断点续传、多任务自动调度
+   - 支持HTTP任务组\FTP文件夹，断点续传下载
+   - 支持HTTP表单上传
+   - 支持文件FTP断点续传上传
  + 支持https地址下载
    - 在配置文件中很容易就可以设置CA证书的信息
  + 支持300、301、302重定向下载链接下载
@@ -27,8 +28,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.3.2'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.2'
+compile 'com.arialyy.aria:aria-core:3.3.3'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.3'
 ```
 
 ***
@@ -38,6 +39,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.2'
 <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 ```
 
 ## 使用Aria

@@ -230,7 +230,7 @@ final class SqlHelper extends SQLiteOpenHelper {
   }
 
   /**
-   * 遍历所有数据
+   * 查找表的所有数据
    */
   static synchronized <T extends DbEntity> List<T> findAllData(SQLiteDatabase db, Class<T> clazz) {
     db = checkDb(db);

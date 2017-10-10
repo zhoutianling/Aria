@@ -44,10 +44,6 @@ public class UploadSchedulers
     return INSTANCE;
   }
 
-  @Override int getSchedulerType() {
-    return UPLOAD;
-  }
-
   @Override String getProxySuffix() {
     return "$$UploadListenerProxy";
   }

@@ -1,6 +1,6 @@
-package com.arialyy.aria.core.download.downloader;
+package com.arialyy.aria.core.common;
 
-interface OnFileInfoCallback {
+public interface OnFileInfoCallback {
   /**
    * 处理完成
    *

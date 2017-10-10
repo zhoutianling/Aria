@@ -45,10 +45,6 @@ public class DownloadSchedulers
     return INSTANCE;
   }
 
-  @Override int getSchedulerType() {
-    return DOWNLOAD;
-  }
-
   @Override String getProxySuffix() {
     return "$$DownloadListenerProxy";
   }

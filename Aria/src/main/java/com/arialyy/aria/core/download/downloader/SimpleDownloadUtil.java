@@ -17,6 +17,7 @@
 package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.common.IUtil;
+import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;

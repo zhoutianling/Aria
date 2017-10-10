@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -42,6 +43,8 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
               mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
             }
             mActualTaskNum = mTaskEntity.entity.getSubTask().size();
+            mGroupSize = mActualTaskNum;
+            mTotalLen = mTaskEntity.entity.getFileSize();
             startDownload();
           }
         }

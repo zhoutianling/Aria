@@ -15,9 +15,8 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.common.AbsThreadTask;
+import com.arialyy.aria.core.common.AbsFtpThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -27,7 +26,6 @@ import com.arialyy.aria.util.BufferedRandomAccessFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
@@ -35,7 +33,7 @@ import org.apache.commons.net.ftp.FTPReply;
  * Created by Aria.Lao on 2017/7/24.
  * Ftp下载任务
  */
-class FtpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEntity> {
+class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity> {
   private final String TAG = "FtpThreadTask";
 
   FtpThreadTask(StateConstance constance, IDownloadListener listener,
@@ -57,40 +55,16 @@ class FtpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEntity> {
           + "，结束位置："
           + mConfig.END_LOCATION
           + "】");
+      client = createClient();
+      if (client == null) return;
       String url = mEntity.getUrl();
-      String[] pp = url.split("/")[2].split(":");
-      String serverIp = pp[0];
-      int port = Integer.parseInt(pp[1]);
-      String remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
-      client = new FTPClient();
-      client.connect(serverIp, port);
-      if (!TextUtils.isEmpty(mTaskEntity.account)) {
-        client.login(mTaskEntity.userName, mTaskEntity.userPw);
-      } else {
-        client.login(mTaskEntity.userName, mTaskEntity.userPw, mTaskEntity.account);
-      }
-      int reply = client.getReplyCode();
-      if (!FTPReply.isPositiveCompletion(reply)) {
-        client.disconnect();
-        fail(STATE.CURRENT_LOCATION, "无法连接到ftp服务器，错误码为：" + reply, null);
-        return;
-      }
-      String charSet = "UTF-8";
-      // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
-      if (!TextUtils.isEmpty(mTaskEntity.charSet) || !FTPReply.isPositiveCompletion(
-          client.sendCommand("OPTS UTF8", "ON"))) {
-        charSet = mTaskEntity.charSet;
-      }
-      client.setControlEncoding(charSet);
-      client.setDataTimeout(STATE.READ_TIME_OUT);
-      client.enterLocalPassiveMode();
-      client.setFileType(FTP.BINARY_FILE_TYPE);
+      String remotePath = new String(
+          url.substring(url.indexOf(port) + port.length(), url.length()).getBytes(charSet),
+          SERVER_CHARSET);
       client.setRestartOffset(mConfig.START_LOCATION);
-      client.allocate(mBufSize);
-      is = client.retrieveFileStream(
-          new String(remotePath.getBytes(charSet), SERVER_CHARSET));
+      is = client.retrieveFileStream(remotePath);
       //发送第二次指令时，还需要再做一次判断
-      reply = client.getReplyCode();
+      int reply = client.getReplyCode();
       if (!FTPReply.isPositivePreliminary(reply)) {
         client.disconnect();
         fail(mChildCurrentLocation, "获取文件信息错误，错误码为：" + reply, null);

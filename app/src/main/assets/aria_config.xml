@@ -44,7 +44,7 @@
     <maxTaskNum value="2"/>
 
     <!--设置上传失败，重试次数，默认为10-->
-    <reTryNum value="10"/>
+    <reTryNum value="2"/>
 
     <!--设置重试间隔，单位为毫秒-->
     <reTryInterval value="2000"/>

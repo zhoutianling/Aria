@@ -35,7 +35,7 @@ import com.arialyy.simple.widget.SubStateLinearLayout;
  * Created by Aria.Lao on 2017/7/6.
  */
 public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBinding> {
-  private static final String dir = "ftp://172.18.104.66:21/haha/";
+  private static final String dir = "ftp://172.18.104.49:21/haha/";
 
   @Bind(R.id.child_list) SubStateLinearLayout mChildList;
 

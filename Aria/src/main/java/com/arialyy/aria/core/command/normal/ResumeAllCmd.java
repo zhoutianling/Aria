@@ -1,5 +1,7 @@
 package com.arialyy.aria.core.command.normal;
 
+import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
@@ -9,6 +11,7 @@ import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.NetUtils;
 import java.util.List;
 
 /**
@@ -26,6 +29,10 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   }
 
   @Override public void executeCmd() {
+    if (!NetUtils.isConnected(AriaManager.APP)) {
+      Log.w(TAG, "恢复任务失败，网络未连接");
+      return;
+    }
     if (isDownloadCmd) {
       resumeDownload();
     } else {
@@ -41,18 +48,22 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
         DbEntity.findDatas(DownloadTaskEntity.class, "isGroupTask=?", "false");
     if (dTaskEntity != null && !dTaskEntity.isEmpty()) {
       for (DownloadTaskEntity te : dTaskEntity) {
+        if (te == null || te.getEntity() == null) continue;
         int state = te.getState();
-        if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
-        resumeEntity(te);
+        if (state == IEntity.STATE_STOP || state == IEntity.STATE_OTHER) {
+          resumeEntity(te);
+        }
       }
     }
 
     List<DownloadGroupTaskEntity> groupTask = DbEntity.findAllData(DownloadGroupTaskEntity.class);
     if (groupTask != null && !groupTask.isEmpty()) {
       for (DownloadGroupTaskEntity te : groupTask) {
+        if (te == null || te.getEntity() == null) continue;
         int state = te.getState();
-        if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
-        resumeEntity(te);
+        if (state == IEntity.STATE_STOP || state == IEntity.STATE_OTHER) {
+          resumeEntity(te);
+        }
       }
     }
   }
@@ -65,9 +76,11 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
         DbEntity.findDatas(UploadTaskEntity.class, "isGroupTask=?", "false");
     if (dTaskEntity != null && !dTaskEntity.isEmpty()) {
       for (UploadTaskEntity te : dTaskEntity) {
+        if (te == null || te.getEntity() == null) continue;
         int state = te.getState();
-        if (state == IEntity.STATE_COMPLETE || state == IEntity.STATE_FAIL) continue;
-        resumeEntity(te);
+        if (state == IEntity.STATE_STOP || state == IEntity.STATE_OTHER) {
+          resumeEntity(te);
+        }
       }
     }
   }
