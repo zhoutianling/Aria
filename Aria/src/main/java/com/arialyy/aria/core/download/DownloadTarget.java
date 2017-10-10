@@ -74,7 +74,6 @@ public class DownloadTarget
       entity.save();
       mTaskEntity.save();
     }
-
     mEntity = mTaskEntity.entity;
   }
 

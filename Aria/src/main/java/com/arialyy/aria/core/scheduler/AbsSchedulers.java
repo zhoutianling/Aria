@@ -154,6 +154,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
         if (task.getEntity().getState() == IEntity.STATE_WAIT) {
           break;
         }
+        startNextTask();
       case CANCEL:
         mQueue.removeTask(entity);
         if (mQueue.getCurrentExePoolNum() < AriaManager.getInstance(AriaManager.APP)
