@@ -19,7 +19,7 @@ package com.arialyy.aria.core.inf;
 /**
  * Created by lyy on 2017/9/5.
  */
-public abstract class BaseGroupTaskEntity<ENTITY extends AbsGroupEntity> extends AbsTaskEntity<ENTITY>{
+public abstract class AbsGroupTaskEntity<ENTITY extends AbsGroupEntity> extends AbsTaskEntity<ENTITY>{
   @Override public ENTITY getEntity() {
     return null;
   }

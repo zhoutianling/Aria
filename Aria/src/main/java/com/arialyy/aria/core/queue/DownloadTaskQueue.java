@@ -35,7 +35,7 @@ import java.util.Set;
  * 下载任务队列
  */
 public class DownloadTaskQueue
-    extends AbsTaskQueue<DownloadTask, DownloadTaskEntity, DownloadEntity> {
+    extends AbsTaskQueue<DownloadTask, DownloadTaskEntity> {
   private static final String TAG = "DownloadTaskQueue";
   private static volatile DownloadTaskQueue INSTANCE = null;
 
@@ -57,10 +57,6 @@ public class DownloadTaskQueue
 
   @Override BaseExecutePool<DownloadTask> setExecutePool() {
     return DownloadSharePool.getInstance().executePool;
-  }
-
-  @Override public String getKey(DownloadEntity entity) {
-    return entity.getUrl();
   }
 
   @Override public int getConfigMaxNum() {

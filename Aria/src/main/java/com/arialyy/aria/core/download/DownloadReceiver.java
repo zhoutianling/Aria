@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.CancelAllCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.ProxyHelper;
@@ -256,7 +257,8 @@ public class DownloadReceiver extends AbsReceiver {
   @Override public void stopAllTask() {
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(NormalCmdFactory.getInstance()
-            .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL))
+            .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL,
+                ICmd.TASK_TYPE_DOWNLOAD))
         .exe();
   }
 
@@ -268,7 +270,8 @@ public class DownloadReceiver extends AbsReceiver {
   public void resumeAllTask() {
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(NormalCmdFactory.getInstance()
-            .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_RESUME_ALL))
+            .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_RESUME_ALL,
+                ICmd.TASK_TYPE_DOWNLOAD))
         .exe();
   }
 
@@ -282,7 +285,7 @@ public class DownloadReceiver extends AbsReceiver {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
     CancelAllCmd cancelCmd =
         (CancelAllCmd) CommonUtil.createNormalCmd(targetName, new DownloadTaskEntity(),
-            NormalCmdFactory.TASK_CANCEL_ALL);
+            NormalCmdFactory.TASK_CANCEL_ALL, ICmd.TASK_TYPE_DOWNLOAD);
     cancelCmd.removeFile = removeFile;
     ariaManager.setCmd(cancelCmd).exe();
     Set<String> keys = ariaManager.getReceiver().keySet();

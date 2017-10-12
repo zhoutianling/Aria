@@ -18,8 +18,8 @@ package com.arialyy.aria.core.upload;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.AbsNormalTask;
-import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.core.upload.uploader.SimpleUploadUtil;
 
@@ -27,25 +27,29 @@ import com.arialyy.aria.core.upload.uploader.SimpleUploadUtil;
  * Created by lyy on 2017/2/23.
  * 上传任务
  */
-public class UploadTask extends AbsNormalTask<UploadEntity> {
+public class UploadTask extends AbsNormalTask<UploadTaskEntity> {
   private static final String TAG = "UploadTask";
 
   private SimpleUploadUtil mUtil;
-  private BaseUListener<UploadEntity, UploadTask> mListener;
+  private BaseUListener<UploadEntity, UploadTaskEntity, UploadTask> mListener;
 
   private UploadTask(UploadTaskEntity taskEntity, Handler outHandler) {
+    mTaskEntity = taskEntity;
     mOutHandler = outHandler;
-    mEntity = taskEntity.getEntity();
     mListener = new BaseUListener<>(this, mOutHandler);
     mUtil = new SimpleUploadUtil(taskEntity, mListener);
   }
 
   @Override public String getKey() {
-    return mEntity.getFilePath();
+    return mTaskEntity.getEntity().getFilePath();
   }
 
   @Override public boolean isRunning() {
     return mUtil.isRunning();
+  }
+
+  public UploadEntity getEntity() {
+    return mTaskEntity.getEntity();
   }
 
   @Override public void start() {
@@ -60,7 +64,7 @@ public class UploadTask extends AbsNormalTask<UploadEntity> {
     if (mUtil.isRunning()) {
       mUtil.stop();
     } else {
-      mListener.onStop(mEntity.getCurrentProgress());
+      mListener.onStop(getCurrentProgress());
     }
   }
 

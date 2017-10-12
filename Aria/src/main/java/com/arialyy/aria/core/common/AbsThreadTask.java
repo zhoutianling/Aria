@@ -59,6 +59,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   private int mFailNum = 0;
   private String mTaskType;
   private Timer mFailTimer;
+  private long mLastSaveTime;
 
   protected AbsThreadTask(StateConstance constance, IEventListener listener,
       SubThreadConfig<TASK_ENTITY> info) {
@@ -74,6 +75,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     mBufSize = manager.getDownloadConfig().getBuffSize();
     setMaxSpeed(AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMsxSpeed());
     mTaskType = getTaskType();
+    mLastSaveTime = System.currentTimeMillis();
   }
 
   protected abstract String getTaskType();
@@ -131,6 +133,19 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     synchronized (AriaManager.LOCK) {
       mChildCurrentLocation += len;
       STATE.CURRENT_LOCATION += len;
+      if (System.currentTimeMillis() - mLastSaveTime > 5000) {
+        mLastSaveTime = System.currentTimeMillis();
+        new Thread(new Runnable() {
+          @Override public void run() {
+            final long currentTemp = mChildCurrentLocation;
+            try {
+              writeConfig(false, currentTemp);
+            } catch (IOException e) {
+              e.printStackTrace();
+            }
+          }
+        }).start();
+      }
     }
   }
 

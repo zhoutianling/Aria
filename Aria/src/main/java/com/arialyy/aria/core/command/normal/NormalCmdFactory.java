@@ -18,6 +18,7 @@ package com.arialyy.aria.core.command.normal;
 
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.AbsCmdFactory;
+import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
@@ -81,29 +82,30 @@ public class NormalCmdFactory extends AbsCmdFactory<AbsTaskEntity, AbsNormalCmd>
    * @param entity 下载实体
    * @param type 命令类型{@link #TASK_CREATE}、{@link #TASK_START}、{@link #TASK_CANCEL}、{@link
    * #TASK_STOP}、{@link #TASK_HIGHEST_PRIORITY}、{@link #TASK_STOP_ALL}、{@link #TASK_RESUME_ALL}
+   * @param taskType {@link ICmd#TASK_TYPE_DOWNLOAD}、{@link ICmd#TASK_TYPE_DOWNLOAD_GROUP}、{@link
+   * ICmd#TASK_TYPE_UPLOAD}
    */
-  public  AbsNormalCmd createCmd(String target, AbsTaskEntity entity, int type) {
+  public AbsNormalCmd createCmd(String target, AbsTaskEntity entity, int type, int taskType) {
     switch (type) {
       case TASK_CREATE:
-        return new AddCmd<>(target, entity);
+        return new AddCmd<>(target, entity, taskType);
       case TASK_RESUME:
       case TASK_START:
-        return new StartCmd<>(target, entity);
+        return new StartCmd<>(target, entity, taskType);
       case TASK_CANCEL:
-        return new CancelCmd<>(target, entity);
+        return new CancelCmd<>(target, entity, taskType);
       case TASK_STOP:
-        return new StopCmd<>(target, entity);
+        return new StopCmd<>(target, entity, taskType);
       case TASK_HIGHEST_PRIORITY:
-        return new HighestPriorityCmd<>(target, entity);
+        return new HighestPriorityCmd<>(target, entity, taskType);
       case TASK_STOP_ALL:
-        return new StopAllCmd<>(target, entity);
+        return new StopAllCmd<>(target, entity, taskType);
       case TASK_RESUME_ALL:
-        return new ResumeAllCmd<>(target, entity);
+        return new ResumeAllCmd<>(target, entity, taskType);
       case TASK_CANCEL_ALL:
-        return new CancelAllCmd<>(target, entity);
+        return new CancelAllCmd<>(target, entity, taskType);
       default:
         return null;
     }
   }
-
 }

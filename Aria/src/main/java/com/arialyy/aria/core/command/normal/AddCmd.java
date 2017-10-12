@@ -27,8 +27,8 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
  */
 class AddCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
-  AddCmd(String targetName, T entity) {
-    super(targetName, entity);
+  AddCmd(String targetName, T entity, int taskType) {
+    super(targetName, entity, taskType);
   }
 
   @Override public void executeCmd() {

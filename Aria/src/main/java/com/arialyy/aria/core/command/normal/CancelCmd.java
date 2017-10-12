@@ -31,8 +31,8 @@ public class CancelCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    */
   public boolean removeFile = false;
 
-  CancelCmd(String targetName, T entity) {
-    super(targetName, entity);
+  CancelCmd(String targetName, T entity, int taskType) {
+    super(targetName, entity, taskType);
   }
 
   @Override public void executeCmd() {

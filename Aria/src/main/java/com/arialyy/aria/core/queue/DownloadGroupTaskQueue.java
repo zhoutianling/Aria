@@ -32,7 +32,7 @@ import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
  * 任务组下载队列
  */
 public class DownloadGroupTaskQueue
-    extends AbsTaskQueue<DownloadGroupTask, DownloadGroupTaskEntity, DownloadGroupEntity> {
+    extends AbsTaskQueue<DownloadGroupTask, DownloadGroupTaskEntity> {
   private static volatile DownloadGroupTaskQueue INSTANCE = null;
 
   private final String TAG = "DownloadGroupTaskQueue";
@@ -68,10 +68,6 @@ public class DownloadGroupTaskQueue
       Log.e(TAG, "target name 为 null！！");
     }
     return task;
-  }
-
-  @Override public String getKey(DownloadGroupEntity entity) {
-    return entity.getGroupName();
   }
 
   @Override public int getConfigMaxNum() {

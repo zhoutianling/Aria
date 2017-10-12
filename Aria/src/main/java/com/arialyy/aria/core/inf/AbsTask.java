@@ -22,13 +22,13 @@ import com.arialyy.aria.util.CommonUtil;
 /**
  * Created by AriaL on 2017/6/29.
  */
-public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY> {
+public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity> implements ITask<TASK_ENTITY> {
 
   /**
    * 是否需要重试，默认为true
    */
   public boolean needRetry = true;
-  protected ENTITY mEntity;
+  protected TASK_ENTITY mTaskEntity;
   protected Handler mOutHandler;
 
   /**
@@ -44,14 +44,14 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
    * @return {@code true} 已经完成，{@code false} 未完成
    */
   public boolean isComplete() {
-    return mEntity.isComplete();
+    return mTaskEntity.getEntity().isComplete();
   }
 
   /**
    * 获取当前下载进度
    */
   @Override public long getCurrentProgress() {
-    return mEntity.getCurrentProgress();
+    return mTaskEntity.getEntity().getCurrentProgress();
   }
 
   /**
@@ -60,10 +60,10 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
    * @return 如：已经下载3mb的大小，则返回{@code 3mb}
    */
   @Override public String getConvertCurrentProgress() {
-    if (mEntity.getCurrentProgress() == 0) {
+    if (mTaskEntity.getEntity().getCurrentProgress() == 0) {
       return "0b";
     }
-    return CommonUtil.formatFileSize(mEntity.getCurrentProgress());
+    return CommonUtil.formatFileSize(mTaskEntity.getEntity().getCurrentProgress());
   }
 
   /**
@@ -72,17 +72,17 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
    * @return 如果文件长度为0，则返回0m，否则返回转换后的长度1b、1kb、1mb、1gb、1tb
    */
   @Override public String getConvertFileSize() {
-    if (mEntity.getFileSize() == 0) {
+    if (mTaskEntity.getEntity().getFileSize() == 0) {
       return "0mb";
     }
-    return CommonUtil.formatFileSize(mEntity.getFileSize());
+    return CommonUtil.formatFileSize(mTaskEntity.getEntity().getFileSize());
   }
 
   /**
    * 获取文件大小
    */
   @Override public long getFileSize() {
-    return mEntity.getFileSize();
+    return mTaskEntity.getEntity().getFileSize();
   }
 
   /**
@@ -91,10 +91,11 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
    * @return 返回百分比进度，如果文件长度为0，返回0
    */
   @Override public int getPercent() {
-    if (mEntity.getFileSize() == 0) {
+    if (mTaskEntity.getEntity().getFileSize() == 0) {
       return 0;
     }
-    return (int) (mEntity.getCurrentProgress() * 100 / mEntity.getFileSize());
+    return (int) (mTaskEntity.getEntity().getCurrentProgress() * 100 / mTaskEntity.getEntity()
+        .getFileSize());
   }
 
   /**
@@ -103,7 +104,8 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
    * @return {@link IEntity}
    */
   public int getState() {
-    return mEntity == null ? IEntity.STATE_OTHER : mEntity.getState();
+    return mTaskEntity.getEntity() == null ? IEntity.STATE_OTHER
+        : mTaskEntity.getEntity().getState();
   }
 
   /**
@@ -112,7 +114,7 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
    * @return 如果实体不存在，则返回null，否则返回扩展字段
    */
   @Override public String getExtendField() {
-    return mEntity == null ? null : mEntity.getStr();
+    return mTaskEntity.getEntity() == null ? null : mTaskEntity.getEntity().getStr();
   }
 
   /**
@@ -133,7 +135,7 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
    * 才能生效
    */
   @Override public long getSpeed() {
-    return mEntity.getSpeed();
+    return mTaskEntity.getEntity().getSpeed();
   }
 
   /**
@@ -154,11 +156,11 @@ public abstract class AbsTask<ENTITY extends AbsEntity> implements ITask<ENTITY>
    * 才能生效
    */
   @Override public String getConvertSpeed() {
-    return mEntity.getConvertSpeed();
+    return mTaskEntity.getEntity().getConvertSpeed();
   }
 
-  @Override public ENTITY getEntity() {
-    return mEntity;
+  @Override public TASK_ENTITY getTaskEntity() {
+    return mTaskEntity;
   }
 
   public String getTargetName() {

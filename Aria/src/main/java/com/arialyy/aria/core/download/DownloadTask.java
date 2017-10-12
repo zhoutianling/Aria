@@ -23,7 +23,6 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.downloader.SimpleDownloadUtil;
 import com.arialyy.aria.core.inf.AbsNormalTask;
-import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import java.io.File;
 
@@ -31,18 +30,20 @@ import java.io.File;
  * Created by lyy on 2016/8/11.
  * 下载任务类
  */
-public class DownloadTask extends AbsNormalTask<DownloadEntity> {
+public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
   public static final String TAG = "DownloadTask";
 
   private DownloadListener mListener;
+  private DownloadEntity mEntity;
   private IUtil mUtil;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
-    mEntity = taskEntity.getEntity();
+    mTaskEntity = taskEntity;
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
     mListener = new DownloadListener(this, mOutHandler);
     mUtil = new SimpleDownloadUtil(taskEntity, mListener);
+    mEntity = taskEntity.getEntity();
   }
 
   /**
@@ -56,6 +57,10 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity> {
       return null;
     }
     return mEntity.getDownloadPath();
+  }
+
+  public DownloadEntity getEntity() {
+    return mTaskEntity.getEntity();
   }
 
   /**

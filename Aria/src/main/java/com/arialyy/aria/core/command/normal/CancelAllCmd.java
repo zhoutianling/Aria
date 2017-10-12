@@ -38,8 +38,8 @@ public class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   /**
    * @param targetName 产生任务的对象名
    */
-  CancelAllCmd(String targetName, T entity) {
-    super(targetName, entity);
+  CancelAllCmd(String targetName, T entity, int taskType) {
+    super(targetName, entity, taskType);
   }
 
   @Override public void executeCmd() {

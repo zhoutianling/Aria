@@ -159,14 +159,13 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
     }
   }
 
-  @Override public TASK getTask(String downloadUrl) {
+  @Override public TASK getTask(String key) {
     synchronized (AriaManager.LOCK) {
-      if (TextUtils.isEmpty(downloadUrl)) {
+      if (TextUtils.isEmpty(key)) {
         Log.e(TAG, "请传入有效的任务key");
         return null;
       }
-      String key = CommonUtil.keyToHashKey(downloadUrl);
-      return mExecuteMap.get(key);
+      return mExecuteMap.get(CommonUtil.keyToHashKey(key));
     }
   }
 

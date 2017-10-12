@@ -20,10 +20,16 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.QueueMod;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.NetUtils;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by lyy on 2016/8/22.
@@ -32,8 +38,8 @@ import com.arialyy.aria.util.NetUtils;
  */
 class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
-  StartCmd(String targetName, T entity) {
-    super(targetName, entity);
+  StartCmd(String targetName, T entity, int taskType) {
+    super(targetName, entity, taskType);
   }
 
   @Override public void executeCmd() {
@@ -65,6 +71,9 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       } else if (mod.equals(QueueMod.WAIT.getTag())) {
         if (mQueue.getCurrentExePoolNum() < maxTaskNum
             || task.getState() == IEntity.STATE_STOP
+            || task.getState() == IEntity.STATE_FAIL
+            || task.getState() == IEntity.STATE_OTHER
+            || task.getState() == IEntity.STATE_POST_PRE
             || task.getState() == IEntity.STATE_COMPLETE) {
           startTask();
         }
@@ -72,6 +81,62 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     } else {
       if (!task.isRunning()) {
         startTask();
+      }
+    }
+    if (mQueue.getCurrentCachePoolNum() == 0){
+      findAllWaitTask();
+    }
+  }
+
+  /**
+   * 当缓冲队列为null时，查找数据库中所有等待中的任务
+   */
+  private void findAllWaitTask() {
+    new Thread(new WaitTaskThread()).start();
+  }
+
+  private class WaitTaskThread implements Runnable {
+
+    @Override public void run() {
+      if (isDownloadCmd) {
+        handleTask(findWaitData(1));
+        handleTask(findWaitData(2));
+      } else {
+        handleTask(findWaitData(3));
+      }
+    }
+
+    private List<AbsTaskEntity> findWaitData(int type) {
+      List<AbsTaskEntity> waitList = new ArrayList<>();
+      switch (type) {
+        case 1:
+          List<DownloadTaskEntity> dEntity =
+              DbEntity.findDatas(DownloadTaskEntity.class, "groupName=? and state=?", "", "3");
+          if (dEntity != null && !dEntity.isEmpty()) {
+            waitList.addAll(dEntity);
+          }
+          break;
+        case 2:
+          List<DownloadGroupTaskEntity> dgEntity =
+              DbEntity.findDatas(DownloadGroupTaskEntity.class, "state=?", "3");
+          if (dgEntity != null && !dgEntity.isEmpty()) {
+            waitList.addAll(dgEntity);
+          }
+          break;
+        case 3:
+          List<UploadTaskEntity> uEntity =
+              DbEntity.findDatas(UploadTaskEntity.class, "groupName=? and state=?", "", "3");
+          if (uEntity != null && !uEntity.isEmpty()) {
+            waitList.addAll(uEntity);
+          }
+          break;
+      }
+      return waitList;
+    }
+
+    private void handleTask(List<AbsTaskEntity> waitList) {
+      for (AbsTaskEntity te : waitList) {
+        createTask(te);
       }
     }
   }

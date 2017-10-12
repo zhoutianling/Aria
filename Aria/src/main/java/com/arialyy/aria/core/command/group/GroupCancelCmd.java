@@ -15,13 +15,13 @@
  */
 package com.arialyy.aria.core.command.group;
 
-import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
+import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
 
 /**
  * Created by AriaL on 2017/6/29.
  * 删除任务组
  */
-class GroupCancelCmd<T extends BaseGroupTaskEntity> extends AbsGroupCmd<T> {
+class GroupCancelCmd<T extends AbsGroupTaskEntity> extends AbsGroupCmd<T> {
   /**
    * @param targetName 创建任务的对象名
    */
