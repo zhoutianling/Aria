@@ -25,6 +25,9 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.NetUtils;
@@ -83,7 +86,7 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
         startTask();
       }
     }
-    if (mQueue.getCurrentCachePoolNum() == 0){
+    if (mQueue.getCurrentCachePoolNum() == 0) {
       findAllWaitTask();
     }
   }
@@ -136,6 +139,13 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
     private void handleTask(List<AbsTaskEntity> waitList) {
       for (AbsTaskEntity te : waitList) {
+        if (te instanceof DownloadTaskEntity) {
+          mQueue = DownloadTaskQueue.getInstance();
+        } else if (te instanceof UploadTaskEntity) {
+          mQueue = UploadTaskQueue.getInstance();
+        } else if (te instanceof DownloadGroupTaskEntity) {
+          mQueue = DownloadGroupTaskQueue.getInstance();
+        }
         createTask(te);
       }
     }

@@ -67,7 +67,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
         break;
       case R.id.stop_all:
         Aria.download(this).stopAllTask();
-        //Aria.download(this).removeAllTask(true);
+        //Aria.download(this).removeAllTask(false);
         break;
       case R.id.turn:
         startActivity(new Intent(this, MultiDownloadActivity.class));
