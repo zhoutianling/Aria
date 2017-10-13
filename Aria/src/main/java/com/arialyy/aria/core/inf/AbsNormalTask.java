@@ -18,7 +18,8 @@ package com.arialyy.aria.core.inf;
 /**
  * Created by lyy on 2017/6/3.
  */
-public abstract class AbsNormalTask<ENTITY extends AbsEntity> extends AbsTask<ENTITY> {
+public abstract class AbsNormalTask<TASK_ENTITY extends AbsNormalTaskEntity>
+    extends AbsTask<TASK_ENTITY> {
 
   /**
    * 暂停任务，并让任务处于等待状态
@@ -39,6 +40,4 @@ public abstract class AbsNormalTask<ENTITY extends AbsEntity> extends AbsTask<EN
   public void setHighestPriority(boolean isHighestPriority) {
     isHeighestTask = isHighestPriority;
   }
-
-
 }

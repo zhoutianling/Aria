@@ -17,7 +17,6 @@ package com.arialyy.aria.core.scheduler;
 
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
-import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 
@@ -25,8 +24,7 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
  * Created by lyy on 2017/2/27.
  * 上传任务调度器
  */
-public class UploadSchedulers
-    extends AbsSchedulers<UploadTaskEntity, UploadEntity, UploadTask, UploadTaskQueue> {
+public class UploadSchedulers extends AbsSchedulers<UploadTaskEntity, UploadTask, UploadTaskQueue> {
   private static final String TAG = "UploadSchedulers";
   private static volatile UploadSchedulers INSTANCE = null;
 

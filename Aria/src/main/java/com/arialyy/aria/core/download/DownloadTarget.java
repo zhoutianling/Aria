@@ -74,7 +74,6 @@ public class DownloadTarget
       entity.save();
       mTaskEntity.save();
     }
-
     mEntity = mTaskEntity.entity;
   }
 
@@ -165,7 +164,7 @@ public class DownloadTarget
    * 是否在下载
    */
   public boolean isDownloading() {
-    DownloadTask task = DownloadTaskQueue.getInstance().getTask(mEntity);
+    DownloadTask task = DownloadTaskQueue.getInstance().getTask(mEntity.getKey());
     return task != null && task.isRunning();
   }
 }

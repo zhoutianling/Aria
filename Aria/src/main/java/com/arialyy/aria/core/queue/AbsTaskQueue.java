@@ -18,7 +18,6 @@ package com.arialyy.aria.core.queue;
 
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
@@ -30,8 +29,8 @@ import com.arialyy.aria.util.NetUtils;
  * Created by lyy on 2017/2/23.
  * 任务队列
  */
-abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity>
-    implements ITaskQueue<TASK, TASK_ENTITY, ENTITY> {
+abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity>
+    implements ITaskQueue<TASK, TASK_ENTITY> {
   private final String TAG = "AbsTaskQueue";
   BaseCachePool<TASK> mCachePool;
   BaseExecutePool<TASK> mExecutePool;
@@ -73,11 +72,6 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   @Override public int getMaxTaskNum() {
     return AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
   }
-
-  /**
-   * 获取实体的索引
-   */
-  public abstract String getKey(ENTITY entity);
 
   /**
    * 获取配置文件配置的最大可执行任务数
@@ -154,7 +148,7 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   @Override public void startTask(TASK task) {
     if (mExecutePool.putTask(task)) {
       mCachePool.removeTask(task);
-      task.getEntity().setFailNum(0);
+      task.getTaskEntity().getEntity().setFailNum(0);
       task.start();
     }
   }
@@ -169,12 +163,12 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     }
   }
 
-  @Override public void removeTask(ENTITY entity) {
-    TASK task = mExecutePool.getTask(getKey(entity));
+  @Override public void removeTaskFormQueue(String key) {
+    TASK task = mExecutePool.getTask(key);
     if (task != null) {
       Log.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
     }
-    task = mCachePool.getTask(getKey(entity));
+    task = mCachePool.getTask(key);
     if (task != null) {
       Log.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
     }
@@ -185,7 +179,7 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
       Log.w(TAG, "重试失败，task 为null");
       return;
     }
-    if (!NetUtils.isConnected(AriaManager.APP)){
+    if (!NetUtils.isConnected(AriaManager.APP)) {
       Log.w(TAG, "重试失败，网络未连接");
       return;
     }
@@ -196,11 +190,7 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     }
   }
 
-  @Override public TASK getTask(ENTITY entity) {
-    return getTask(getKey(entity));
-  }
-
-  @Override public void removeTask(TASK task) {
+  @Override public void cancelTask(TASK task) {
     task.cancel();
   }
 

@@ -31,7 +31,7 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
  * Created by lyy on 2017/2/27.
  * 上传任务队列
  */
-public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, UploadEntity> {
+public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity> {
   private static final String TAG = "UploadTaskQueue";
   private static volatile UploadTaskQueue INSTANCE = null;
 
@@ -53,10 +53,6 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity, 
 
   @Override BaseExecutePool<UploadTask> setExecutePool() {
     return UploadSharePool.getInstance().executePool;
-  }
-
-  @Override public String getKey(UploadEntity entity) {
-    return entity.getFilePath();
   }
 
   @Override public int getConfigMaxNum() {

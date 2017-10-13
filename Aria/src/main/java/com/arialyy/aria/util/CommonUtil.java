@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.group.AbsGroupCmd;
 import com.arialyy.aria.core.command.group.GroupCmdFactory;
 import com.arialyy.aria.core.command.normal.AbsNormalCmd;
@@ -33,7 +34,7 @@ import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
+import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
@@ -437,10 +438,13 @@ public class CommonUtil {
 
   /**
    * 创建任务命令
+   *
+   * @param taskType {@link ICmd#TASK_TYPE_DOWNLOAD}、{@link ICmd#TASK_TYPE_DOWNLOAD_GROUP}、{@link
+   * ICmd#TASK_TYPE_UPLOAD}
    */
   public static <T extends AbsTaskEntity> AbsNormalCmd createNormalCmd(String target, T entity,
-      int cmd) {
-    return NormalCmdFactory.getInstance().createCmd(target, entity, cmd);
+      int cmd, int taskType) {
+    return NormalCmdFactory.getInstance().createCmd(target, entity, cmd, taskType);
   }
 
   /**
@@ -448,7 +452,7 @@ public class CommonUtil {
    *
    * @param childUrl 子任务url
    */
-  public static <T extends BaseGroupTaskEntity> AbsGroupCmd createGroupCmd(String target, T entity,
+  public static <T extends AbsGroupTaskEntity> AbsGroupCmd createGroupCmd(String target, T entity,
       int cmd, String childUrl) {
     return GroupCmdFactory.getInstance().createCmd(target, entity, cmd, childUrl);
   }

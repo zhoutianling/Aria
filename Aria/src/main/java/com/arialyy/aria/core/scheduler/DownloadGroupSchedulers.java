@@ -26,7 +26,7 @@ import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
  * 任务组调度器
  */
 public class DownloadGroupSchedulers extends
-    AbsSchedulers<DownloadGroupTaskEntity, DownloadGroupEntity, DownloadGroupTask, DownloadGroupTaskQueue> {
+    AbsSchedulers<DownloadGroupTaskEntity, DownloadGroupTask, DownloadGroupTaskQueue> {
   private final String TAG = "DownloadGroupSchedulers";
   private static volatile DownloadGroupSchedulers INSTANCE = null;
 

@@ -19,6 +19,7 @@ import android.os.Handler;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
@@ -28,13 +29,14 @@ import java.lang.ref.WeakReference;
 /**
  * 下载监听类
  */
-class BaseDListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
+class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>, TASK extends AbsTask<TASK_ENTITY>>
     implements IDownloadListener {
   protected WeakReference<Handler> outHandler;
   private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
   private long mLastLen = 0;   //上一次发送长度
   private boolean isFirst = true;
   protected ENTITY mEntity;
+  protected TASK_ENTITY mTaskEntity;
   protected TASK mTask;
   private boolean isConvertSpeed = false;
   boolean isWait = false;
@@ -43,7 +45,8 @@ class BaseDListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
   BaseDListener(TASK task, Handler outHandler) {
     this.outHandler = new WeakReference<>(outHandler);
     this.mTask = new WeakReference<>(task).get();
-    this.mEntity = this.mTask.getEntity();
+    this.mEntity = mTask.getTaskEntity().getEntity();
+    this.mTaskEntity = mTask.getTaskEntity();
     final AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     isConvertSpeed = manager.getDownloadConfig().isConvertSpeed();
     mLastLen = mEntity.getCurrentProgress();
@@ -85,7 +88,7 @@ class BaseDListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
     }
     handleSpeed(speed);
     sendInState2Target(ISchedulers.RUNNING);
-    if (System.currentTimeMillis() - mLastSaveTime >= RUN_SAVE_INTERVAL){
+    if (System.currentTimeMillis() - mLastSaveTime >= RUN_SAVE_INTERVAL) {
       saveData(IEntity.STATE_RUNNING, currentLocation);
       mLastSaveTime = System.currentTimeMillis();
     }
@@ -141,6 +144,7 @@ class BaseDListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
 
   private void saveData(int state, long location) {
     mEntity.setComplete(state == IEntity.STATE_COMPLETE);
+    mTaskEntity.state = state;
     if (state == IEntity.STATE_CANCEL) {
       mEntity.setState(state);
       mEntity.deleteData();
@@ -156,5 +160,6 @@ class BaseDListener<ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>>
       }
       mEntity.update();
     }
+    mTaskEntity.update();
   }
 }

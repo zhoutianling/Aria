@@ -10,8 +10,8 @@ final class StopAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   /**
    * @param targetName 产生任务的对象名
    */
-  StopAllCmd(String targetName, T entity) {
-    super(targetName, entity);
+  StopAllCmd(String targetName, T entity, int taskType) {
+    super(targetName, entity, taskType);
   }
 
   @Override public void executeCmd() {

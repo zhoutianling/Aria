@@ -16,7 +16,7 @@
 package com.arialyy.aria.core.command.group;
 
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
+import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
 
 /**
  * Created by AriaL on 2017/6/29.
@@ -57,7 +57,7 @@ public class GroupCmdFactory {
    * @param type 命令类型{@link #SUB_TASK_START}、{@link #SUB_TASK_STOP}、{@link #SUB_TASK_CANCEL}
    * @param childUrl 需要控制的子任务url
    */
-  public AbsGroupCmd createCmd(String target, BaseGroupTaskEntity entity, int type,
+  public AbsGroupCmd createCmd(String target, AbsGroupTaskEntity entity, int type,
       String childUrl) {
     AbsGroupCmd cmd = null;
     switch (type) {

@@ -16,15 +16,11 @@
 
 package com.arialyy.aria.core.queue;
 
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTask;
-import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.aria.core.inf.AbsNormalTask;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTask;
-import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 
@@ -32,7 +28,7 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
  * Created by lyy on 2016/8/16.
  * 任务功能接口
  */
-public interface ITaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity> {
+public interface ITaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEntity> {
 
   /**
    * 通过key判断任务是否正在执行
@@ -67,18 +63,18 @@ public interface ITaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   void stopTask(TASK task);
 
   /**
-   * 通过任务任务实体删除任务
+   * 取消下载任务
    *
    * @param task {@link DownloadTask}、{@link UploadTask}
    */
-  void removeTask(TASK task);
+  void cancelTask(TASK task);
 
   /**
-   * 通过工作实体删除任务
+   * 通过key从队列中删除任务
    *
-   * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}
+   * @param key 如果是下载，则为下载链接；如果是上传，为文件保存路径；如果是下载任务组，则为任务组名
    */
-  void removeTask(ENTITY entity);
+  void removeTaskFormQueue(String key);
 
   /**
    * 重试下载
@@ -121,18 +117,10 @@ public interface ITaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   /**
    * 通过工作实体缓存池或任务池搜索下载任务，如果缓存池或任务池都没有任务，则创建新任务
    *
-   * @param entity 工作实体{@link DownloadEntity}、{@link UploadEntity}
-   * @return {@link DownloadTask}、{@link UploadTask}
+   * @param key 如果是下载，则为下载链接；如果是上传，为文件保存路径；如果是下载任务组，则为任务组名
+   * @return {@link DownloadTask}、{@link UploadTask}、{@link DownloadGroupTask}
    */
-  TASK getTask(ENTITY entity);
-
-  /**
-   * 通过工作实体缓存池或任务池搜索下载任务，如果缓存池或任务池都没有任务，则创建新任务
-   *
-   * @param url 链接地址，如果是下载，则为下载链接，如果是上传，为文件保存路径
-   * @return {@link DownloadTask}、{@link UploadTask}
-   */
-  TASK getTask(String url);
+  TASK getTask(String key);
 
   /**
    * 获取缓存池的下一个任务

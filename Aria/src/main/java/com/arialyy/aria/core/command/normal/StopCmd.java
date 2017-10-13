@@ -28,8 +28,8 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
  */
 class StopCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
-  StopCmd(String targetName, T entity) {
-    super(targetName, entity);
+  StopCmd(String targetName, T entity, int taskType) {
+    super(targetName, entity, taskType);
   }
 
   @Override public void executeCmd() {

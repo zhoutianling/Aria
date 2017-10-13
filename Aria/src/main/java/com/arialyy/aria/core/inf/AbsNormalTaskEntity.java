@@ -13,25 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.command.group;
-
-import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
+package com.arialyy.aria.core.inf;
 
 /**
- * Created by AriaL on 2017/6/29.
- * 停止任务组的命令
+ * Created by Aria.Lao on 2017/10/12.
+ * 当任务实体
  */
-class GroupStopCmd<T extends AbsGroupTaskEntity> extends AbsGroupCmd<T> {
-  /**
-   * @param targetName 创建任务的对象名
-   */
-  GroupStopCmd(String targetName, T entity) {
-    super(targetName, entity);
-  }
-
-  @Override public void executeCmd() {
-    if (checkTask()) {
-      tempTask.stopSubTask(childUrl);
-    }
-  }
+public abstract class AbsNormalTaskEntity<ENTITY extends AbsEntity> extends AbsTaskEntity<ENTITY> {
 }

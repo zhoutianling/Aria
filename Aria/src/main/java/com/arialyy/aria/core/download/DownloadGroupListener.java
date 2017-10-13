@@ -24,7 +24,8 @@ import com.arialyy.aria.core.scheduler.ISchedulers;
  * Created by Aria.Lao on 2017/7/20.
  * 任务组下载事件
  */
-class DownloadGroupListener extends BaseDListener<DownloadGroupEntity, DownloadGroupTask>
+class DownloadGroupListener
+    extends BaseDListener<DownloadGroupEntity, DownloadGroupTaskEntity, DownloadGroupTask>
     implements IDownloadGroupListener {
   private final String TAG = "DownloadGroupListener";
   private GroupSendParams<DownloadGroupTask, DownloadEntity> mSeedEntity;

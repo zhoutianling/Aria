@@ -19,8 +19,8 @@ import android.util.Log;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.inf.AbsGroupTask;
+import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
 import com.arialyy.aria.core.inf.AbsTask;
-import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.util.CommonUtil;
 
@@ -28,7 +28,7 @@ import com.arialyy.aria.util.CommonUtil;
  * Created by AriaL on 2017/6/29.
  * 任务组命令
  */
-public abstract class AbsGroupCmd<T extends BaseGroupTaskEntity> extends AbsCmd<T> {
+public abstract class AbsGroupCmd<T extends AbsGroupTaskEntity> extends AbsCmd<T> {
   /**
    * 需要控制的子任务url
    */
@@ -60,7 +60,7 @@ public abstract class AbsGroupCmd<T extends BaseGroupTaskEntity> extends AbsCmd<
   }
 
   boolean checkTask() {
-    tempTask = (AbsGroupTask) mQueue.getTask(mTaskEntity.getEntity());
+    tempTask = (AbsGroupTask) mQueue.getTask(mTaskEntity.getEntity().getKey());
     if (tempTask == null) {
       createTask();
       if (tempTask.isComplete()) {

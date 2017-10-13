@@ -27,7 +27,7 @@ import com.arialyy.aria.core.download.DownloadTask;
  * 任务下载器，提供抽象的方法供具体的实现类操作
  */
 public class DownloadSchedulers
-    extends AbsSchedulers<DownloadTaskEntity, DownloadEntity, DownloadTask, DownloadTaskQueue> {
+    extends AbsSchedulers<DownloadTaskEntity, DownloadTask, DownloadTaskQueue> {
 
   private final String TAG = "DownloadSchedulers";
   private static volatile DownloadSchedulers INSTANCE = null;

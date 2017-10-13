@@ -328,9 +328,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       //如果有记录，则恢复下载
       if (!isNewTask && record != null && Long.parseLong(record + "") >= 0) {
         Long r = Long.parseLong(record + "");
-        mConstance.CURRENT_LOCATION += r - startL;
+        if (r > startL) {
+          mConstance.CURRENT_LOCATION += r - startL;
+          startL = r;
+        }
         Log.d(TAG, "任务【" + mEntity.getFileName() + "】线程__" + i + "__恢复下载");
-        startL = r;
         recordL[rl] = i;
         rl++;
       } else {

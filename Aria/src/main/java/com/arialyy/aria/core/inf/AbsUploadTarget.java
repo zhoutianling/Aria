@@ -76,7 +76,7 @@ public abstract class AbsUploadTarget<TARGET extends AbsUploadTarget, ENTITY ext
    * 是否在下载
    */
   public boolean isUploading() {
-    UploadTask task = UploadTaskQueue.getInstance().getTask(mEntity);
+    UploadTask task = UploadTaskQueue.getInstance().getTask(mEntity.getKey());
     return task != null && task.isRunning();
   }
 }

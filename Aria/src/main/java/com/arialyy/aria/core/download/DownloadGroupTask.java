@@ -19,8 +19,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.common.IUtil;
-import com.arialyy.aria.core.download.downloader.AbsGroupUtil;
 import com.arialyy.aria.core.download.downloader.DownloadGroupUtil;
 import com.arialyy.aria.core.download.downloader.FtpDirDownloadUtil;
 import com.arialyy.aria.core.inf.AbsGroupTask;
@@ -32,13 +30,12 @@ import com.arialyy.aria.util.CheckUtil;
  * Created by AriaL on 2017/6/27.
  * 任务组任务
  */
-public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, DownloadGroupEntity> {
+public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
   private final String TAG = "DownloadGroupTask";
   private DownloadGroupListener mListener;
 
   private DownloadGroupTask(DownloadGroupTaskEntity taskEntity, Handler outHandler) {
     mTaskEntity = taskEntity;
-    mEntity = taskEntity.getEntity();
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
     mListener = new DownloadGroupListener(this, mOutHandler);
@@ -56,6 +53,10 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
     return mUtil.isRunning();
   }
 
+  public DownloadGroupEntity getEntity() {
+    return mTaskEntity.getEntity();
+  }
+
   @Override public void start() {
     if (mUtil.isRunning()) {
       Log.d(TAG, "任务正在下载");
@@ -66,7 +67,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity, Dow
 
   @Override public void stop() {
     if (!mUtil.isRunning()) {
-      mListener.onStop(mEntity.getCurrentProgress());
+      mListener.onStop(getCurrentProgress());
     }
     mUtil.stop();
   }

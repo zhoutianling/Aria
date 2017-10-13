@@ -19,7 +19,7 @@ import android.text.TextUtils;
 import com.arialyy.aria.core.SubTaskManager;
 import com.arialyy.aria.core.inf.AbsDownloadTarget;
 import com.arialyy.aria.core.inf.AbsTarget;
-import com.arialyy.aria.core.inf.BaseGroupTaskEntity;
+import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -29,7 +29,7 @@ import java.util.List;
 /**
  * Created by Aria.Lao on 2017/7/26.
  */
-abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends BaseGroupTaskEntity>
+abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends AbsGroupTaskEntity>
     extends AbsDownloadTarget<TARGET, DownloadGroupEntity, TASK_ENTITY> {
 
   List<String> mUrls = new ArrayList<>();

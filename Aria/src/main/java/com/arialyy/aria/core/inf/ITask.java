@@ -18,7 +18,7 @@ package com.arialyy.aria.core.inf;
 /**
  * Created by lyy on 2017/2/13.
  */
-public interface ITask<ENTITY extends AbsEntity> {
+public interface ITask<TASK_ENTITY extends AbsTaskEntity> {
 
   /**
    * 获取下载状态
@@ -45,7 +45,7 @@ public interface ITask<ENTITY extends AbsEntity> {
   /**
    * 获取信息实体
    */
-  ENTITY getEntity();
+  TASK_ENTITY getTaskEntity();
 
   void start();
 
@@ -91,5 +91,4 @@ public interface ITask<ENTITY extends AbsEntity> {
   String getConvertCurrentProgress();
 
   void setTargetName(String targetName);
-
 }

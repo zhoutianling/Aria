@@ -24,6 +24,7 @@ import java.util.Map;
 
 /**
  * Created by lyy on 2017/2/23.
+ * 所有任务实体的父类
  */
 public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   /**
@@ -59,6 +60,11 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
    * 是否是新任务，{@code true} 新任务
    */
   @Ignore public boolean isNewTask = false;
+
+  /**
+   * 任务状态，和Entity的state同步
+   */
+  public int state = IEntity.STATE_WAIT;
 
   /**
    * 请求类型

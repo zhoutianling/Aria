@@ -16,7 +16,9 @@
 
 package com.arialyy.aria.core.command.normal;
 
+import android.util.Log;
 import com.arialyy.aria.core.command.AbsCmd;
+import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsEntity;
@@ -39,27 +41,43 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
   boolean canExeCmd = true;
 
   private AbsTask tempTask = null;
+  int taskType;
 
   /**
    * @param targetName 产生任务的对象名
+   * @param taskType 下载任务类型{@link ICmd#TASK_TYPE_DOWNLOAD}、{@link ICmd#TASK_TYPE_DOWNLOAD_GROUP}、{@link
+   * ICmd#TASK_TYPE_UPLOAD}
    */
-  AbsNormalCmd(String targetName, T entity) {
-    //canExeCmd = CheckUtil.checkCmdEntity(entity,
-    //    !(this instanceof CancelCmd) || !(this instanceof StopCmd));
+  AbsNormalCmd(String targetName, T entity, int taskType) {
+    this.taskType = taskType;
     mTargetName = targetName;
     mTaskEntity = entity;
     TAG = CommonUtil.getClassName(this);
-    if (entity instanceof DownloadTaskEntity) {
+    if (taskType == ICmd.TASK_TYPE_DOWNLOAD) {
+      if (!(entity instanceof DownloadTaskEntity)) {
+        Log.w(TAG, "任务类型错误，任务类型应该为ICM.TASK_TYPE_DOWNLOAD");
+        return;
+      }
       mQueue = DownloadTaskQueue.getInstance();
-      isDownloadCmd = true;
-    } else if (entity instanceof UploadTaskEntity) {
-      mQueue = UploadTaskQueue.getInstance();
-      isDownloadCmd = false;
-    } else if (entity instanceof DownloadGroupTaskEntity) {
+    } else if (taskType == ICmd.TASK_TYPE_DOWNLOAD_GROUP) {
+      if (!(entity instanceof DownloadGroupTaskEntity)) {
+        Log.w(TAG, "任务类型错误，任务类型应该为ICM.TASK_TYPE_DOWNLOAD_GROUP");
+        return;
+      }
       mQueue = DownloadGroupTaskQueue.getInstance();
-      isDownloadCmd = true;
+    } else if (taskType == ICmd.TASK_TYPE_UPLOAD) {
+      if (!(entity instanceof UploadTaskEntity)) {
+        Log.w(TAG, "任务类型错误，任务类型应该为ICM.TASK_TYPE_UPLOAD");
+        return;
+      }
+      mQueue = UploadTaskQueue.getInstance();
+    } else {
+      Log.w(TAG, "任务类型错误，任务类型应该为ICM.TASK_TYPE_DOWNLOAD、TASK_TYPE_DOWNLOAD_GROUP、TASK_TYPE_UPLOAD");
     }
+    isDownloadCmd = taskType < ICmd.TASK_TYPE_UPLOAD;
   }
+
+
 
   /**
    * 删除所有任务
@@ -88,7 +106,7 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
    */
   void removeTask() {
     if (tempTask == null) createTask();
-    mQueue.removeTask(tempTask);
+    mQueue.cancelTask(tempTask);
   }
 
   /**
@@ -113,7 +131,7 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
    * @return 执行任务
    */
   AbsTask getTask() {
-    tempTask = mQueue.getTask(mTaskEntity.getEntity());
+    tempTask = mQueue.getTask(mTaskEntity.getEntity().getKey());
     return tempTask;
   }
 
@@ -123,7 +141,7 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
    * @return 执行任务
    */
   AbsTask getTask(AbsEntity entity) {
-    tempTask = mQueue.getTask(entity);
+    tempTask = mQueue.getTask(entity.getKey());
     return tempTask;
   }
 

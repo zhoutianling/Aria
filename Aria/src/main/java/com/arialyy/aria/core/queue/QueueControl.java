@@ -90,7 +90,8 @@ public class QueueControl implements Handler.Callback {
   @Override public boolean handleMessage(Message msg) {
     switch (msg.what) {
       case CMD_GET_TASK:
-        outHandler.obtainMessage(CMD_GET_TASK, queue.getTask((AbsEntity) msg.obj)).sendToTarget();
+        outHandler.obtainMessage(CMD_GET_TASK, queue.getTask(((AbsEntity) msg.obj).getKey()))
+            .sendToTarget();
         break;
       case CMD_CREATE_TASK:
         SparseArray params = (SparseArray) msg.obj;
@@ -105,7 +106,7 @@ public class QueueControl implements Handler.Callback {
         queue.stopTask((AbsTask) msg.obj);
         break;
       case CMD_CANCEL_TASK:
-        queue.removeTask((AbsTask) msg.obj);
+        queue.cancelTask((AbsTask) msg.obj);
         break;
       case CMD_STOP_ALL_TASK:
         queue.stopAllTask();

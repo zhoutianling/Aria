@@ -17,6 +17,7 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -79,7 +80,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   @Override public void stopAllTask() {
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(NormalCmdFactory.getInstance()
-            .createCmd(targetName, new UploadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL))
+            .createCmd(targetName, new UploadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL, ICmd.TASK_TYPE_UPLOAD))
         .exe();
   }
 
@@ -93,7 +94,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
 
     am.setCmd(CommonUtil.createNormalCmd(targetName, new DownloadTaskEntity(),
-        NormalCmdFactory.TASK_CANCEL_ALL)).exe();
+        NormalCmdFactory.TASK_CANCEL_ALL, ICmd.TASK_TYPE_UPLOAD)).exe();
 
     Set<String> keys = am.getReceiver().keySet();
     for (String key : keys) {

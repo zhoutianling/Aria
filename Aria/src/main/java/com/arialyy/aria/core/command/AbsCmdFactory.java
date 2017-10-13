@@ -26,6 +26,8 @@ public abstract class AbsCmdFactory<TASK_ENTITY extends AbsTaskEntity, CMD exten
   /**
    * @param target 创建任务的对象
    * @param entity 下载实体
+   * @param taskType {@link ICmd#TASK_TYPE_DOWNLOAD}、{@link ICmd#TASK_TYPE_DOWNLOAD_GROUP}、{@link
+   * ICmd#TASK_TYPE_UPLOAD}
    */
-  public abstract CMD createCmd(String target, TASK_ENTITY entity, int type);
+  public abstract CMD createCmd(String target, TASK_ENTITY entity, int type, int taskType);
 }

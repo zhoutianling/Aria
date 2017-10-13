@@ -26,6 +26,5 @@ dependencies {
   compile 'com.arialyy.aria:aria-ftp-plug:1.0.3'
 
 //  compile project(':AriaFtpPlug')
-
 }
 apply from: 'bintray-release.gradle'

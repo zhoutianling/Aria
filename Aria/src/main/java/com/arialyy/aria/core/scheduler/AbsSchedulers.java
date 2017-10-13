@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by lyy on 2017/6/4.
  * 事件调度器，用于处理任务状态的调度
  */
-abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends AbsEntity, TASK extends AbsTask<ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY, ENTITY>>
+abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends AbsTask<TASK_ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY>>
     implements ISchedulers<TASK> {
   private final String TAG = "AbsSchedulers";
 
@@ -148,14 +148,13 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
    * 处理普通任务事件
    */
   private void handleNormalEvent(TASK task, int what) {
-    ENTITY entity = task.getEntity();
     switch (what) {
       case STOP:
-        if (task.getEntity().getState() == IEntity.STATE_WAIT) {
+        if (task.getState() == IEntity.STATE_WAIT) {
           break;
         }
       case CANCEL:
-        mQueue.removeTask(entity);
+        mQueue.removeTaskFormQueue(task.getKey());
         if (mQueue.getCurrentExePoolNum() < AriaManager.getInstance(AriaManager.APP)
             .getUploadConfig()
             .getMaxTaskNum()) {
@@ -163,7 +162,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
         }
         break;
       case COMPLETE:
-        mQueue.removeTask(entity);
+        mQueue.removeTaskFormQueue(task.getKey());
         startNextTask();
         break;
       case FAIL:
@@ -236,7 +235,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
    */
   private void handleFailTask(final TASK task) {
     if (!task.needRetry) {
-      mQueue.removeTask(task.getEntity());
+      mQueue.removeTaskFormQueue(task.getKey());
       startNextTask();
       return;
     }
@@ -257,12 +256,12 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
       }
 
       @Override public void onFinish() {
-        ENTITY entity = task.getEntity();
+        AbsEntity entity = task.getTaskEntity().getEntity();
         if (entity.getFailNum() < reTryNum) {
-          TASK task = mQueue.getTask(entity);
+          TASK task = mQueue.getTask(entity.getKey());
           mQueue.reTryStart(task);
         } else {
-          mQueue.removeTask(entity);
+          mQueue.removeTaskFormQueue(task.getKey());
           startNextTask();
         }
       }
@@ -279,7 +278,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, ENTITY extends A
       Log.w(TAG, "没有下一任务");
       return;
     }
-    if (newTask.getEntity().getState() == IEntity.STATE_WAIT) {
+    if (newTask.getState() == IEntity.STATE_WAIT) {
       mQueue.startTask(newTask);
     }
   }

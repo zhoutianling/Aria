@@ -40,8 +40,8 @@ final class HighestPriorityCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> 
   /**
    * @param targetName 产生任务的对象名
    */
-  HighestPriorityCmd(String targetName, T entity) {
-    super(targetName, entity);
+  HighestPriorityCmd(String targetName, T entity, int taskType) {
+    super(targetName, entity, taskType);
   }
 
   @Override public void executeCmd() {
