@@ -77,7 +77,7 @@ public class TaskManager {
   /**
    * 通过key获取任务
    *
-   * @return 入梅找不到任务，返回null，否则返回key对应的任务
+   * @return 如果找不到任务，返回null，否则返回key对应的任务
    */
   public AbsTask getTask(String key) {
     return map.get(CommonUtil.keyToHashKey(key));

@@ -251,6 +251,18 @@ final class SqlHelper extends SQLiteOpenHelper {
       String... expression) {
     db = checkDb(db);
     CheckUtil.checkSqlExpression(expression);
+
+    //List<Field> fields = CommonUtil.getAllFields(clazz);
+    //for (Field field : fields) {
+    //  if (SqlUtil.isOneToOne(field)) {
+    //    OneToOne oto = field.getAnnotation(OneToOne.class);
+    //    delData(db, oto.table(), oto.key() + "=?", );
+    //  } else if (SqlUtil.isOneToMany(field)) {
+    //    OneToMany otm = field.getAnnotation(OneToMany.class);
+    //    delData(db, otm.table(), otm.key() + "=?", otm.key());
+    //  }
+    //}
+
     String sql = "DELETE FROM " + CommonUtil.getClassName(clazz) + " WHERE " + expression[0] + " ";
     sql = sql.replace("?", "%s");
     Object[] params = new String[expression.length - 1];
@@ -422,11 +434,8 @@ final class SqlHelper extends SQLiteOpenHelper {
         }
         Class<?> type = field.getType();
         sb.append(field.getName());
-        if (type == String.class
-            || type == Map.class
-            || type == List.class
-            || SqlUtil.isOneToOne(field)
-            || type.isEnum()) {
+        if (type == String.class || type == Map.class || type == List.class || SqlUtil.isOneToOne(
+            field) || type.isEnum()) {
           sb.append(" varchar");
         } else if (type == int.class || type == Integer.class) {
           sb.append(" interger");
@@ -446,8 +455,17 @@ final class SqlHelper extends SQLiteOpenHelper {
           continue;
         }
         if (SqlUtil.isPrimary(field)) {
-          //sb.append(" PRIMARY KEY");
-          sb.append(" NOT NULL");
+          sb.append(" PRIMARY KEY");
+        }
+        if (SqlUtil.isForeign(field)) {
+          Foreign foreign = field.getAnnotation(Foreign.class);
+          sb.append(",FOREIGN KEY (")
+              .append(field.getName())
+              .append(") REFERENCES ")
+              .append(foreign.table())
+              .append("(")
+              .append(foreign.column())
+              .append(")");
         }
         sb.append(",");
       }
@@ -587,7 +605,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     return findData(db, params[0], params[1] + "=?", primary);
   }
 
-  private static void closeCursor(Cursor cursor){
+  private static void closeCursor(Cursor cursor) {
     if (cursor != null && !cursor.isClosed()) {
       try {
         cursor.close();

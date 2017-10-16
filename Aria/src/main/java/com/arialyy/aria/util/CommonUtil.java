@@ -301,7 +301,8 @@ public class CommonUtil {
     if (config.exists()) {
       config.delete();
     }
-    dEntity.deleteData();
+    //dEntity.deleteData();
+    //tEntity.deleteData();
     tEntity.deleteData();
   }
 

@@ -59,7 +59,7 @@ public abstract class AbsGroupTask<TASK_ENTITY extends AbsGroupTaskEntity>
    */
   public void cancelSubTask(String url) {
     if (mUtil != null) {
-      mUtil.cancelSunTask(url);
+      mUtil.cancelSubTask(url);
     }
   }
 }

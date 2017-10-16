@@ -17,6 +17,8 @@ package com.arialyy.aria.core.inf;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.orm.Foreign;
 import com.arialyy.aria.orm.NormalList;
 import com.arialyy.aria.orm.Primary;
 import java.util.ArrayList;
@@ -29,7 +31,8 @@ public abstract class AbsGroupEntity extends AbsEntity implements Parcelable {
   /**
    * 组名，组名为任务地址相加的urlMd5
    */
-  @Primary protected String groupName = "";
+  @Primary @Foreign(table = DownloadGroupTaskEntity.class, column = "key") protected String
+      groupName = "";
 
   /**
    * 任务组别名

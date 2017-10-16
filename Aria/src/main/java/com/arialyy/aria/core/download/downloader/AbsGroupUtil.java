@@ -168,11 +168,26 @@ public abstract class AbsGroupUtil implements IUtil {
    *
    * @param url 子任务下载地址
    */
-  public void cancelSunTask(String url) {
-    Downloader d = getDownloader(url, false);
-    if (d != null) {
-      d.cancel();
-    }
+  public void cancelSubTask(String url) {
+    //List<String> urls = mTaskEntity.entity.getUrls();
+    //if (urls != null && !urls.isEmpty() && urls.contains(url)) {
+    //  urls.remove(url);
+    //  DownloadTaskEntity det =
+    //      DbEntity.findFirst(DownloadTaskEntity.class, "url=? and isGroupTask='true'", url);
+    //  if (det != null) {
+    //    mTotalLen -= det.getEntity().getFileSize();
+    //    mGroupSize--;
+    //    if (mGroupSize == 0) {
+    //      closeTimer(false);
+    //      mListener.onCancel();
+    //    }
+    //  }
+    //  mTaskEntity.getEntity().update();
+    //}
+    //Downloader d = getDownloader(url, false);
+    //if (d != null) {
+    //  d.cancel();
+    //}
   }
 
   /**

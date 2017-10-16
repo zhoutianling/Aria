@@ -15,9 +15,7 @@
  */
 package com.arialyy.aria.orm;
 
-import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -136,8 +134,6 @@ final class SqlUtil {
     return TextUtils.isEmpty(str) ? str : str.substring(0, str.length() - 1);
   }
 
-
-
   /**
    * @return true 忽略该字段
    */
@@ -146,13 +142,9 @@ final class SqlUtil {
     Ignore ignore = field.getAnnotation(Ignore.class);
     int modifiers = field.getModifiers();
     String fieldName = field.getName();
-    return (ignore != null && ignore.value())
-        || fieldName.equals("rowID")
-        || fieldName.equals("shadow$_klass_")
-        || fieldName.equals("shadow$_monitor_")
-        || field.isSynthetic()
-        || Modifier.isStatic(modifiers)
-        || Modifier.isFinal(modifiers);
+    return (ignore != null && ignore.value()) || fieldName.equals("rowID") || fieldName.equals(
+        "shadow$_klass_") || fieldName.equals("shadow$_monitor_") || field.isSynthetic() || Modifier
+        .isStatic(modifiers) || Modifier.isFinal(modifiers);
   }
 
   /**
@@ -172,26 +164,47 @@ final class SqlUtil {
   }
 
   /**
-   * 判断是否是主键
+   * 判断是否是主键约束
+   *
+   * @return {@code true}主键约束
    */
   static boolean isPrimary(Field field) {
     Primary pk = field.getAnnotation(Primary.class);
     return pk != null;
   }
 
+  /**
+   * 判断是否是外键约束
+   *
+   * @return {@code true}外键约束
+   */
+  static boolean isForeign(Field field) {
+    Foreign fk = field.getAnnotation(Foreign.class);
+    return fk != null;
+  }
+
+  /**
+   * 判断是否是主外键约束
+   *
+   * @return {@code true}主外键约束
+   */
+  static boolean isPrimaryAndForeign(Field field) {
+    PrimaryAndForeign fk = field.getAnnotation(PrimaryAndForeign.class);
+    return fk != null;
+  }
+
   private static Object checkData(String type, String data) {
-    if (type.equalsIgnoreCase("java.lang.String")){
+    if (type.equalsIgnoreCase("java.lang.String")) {
       return data;
-    }else if (type.equalsIgnoreCase("int") || type.equals("java.lang.Integer")){
+    } else if (type.equalsIgnoreCase("int") || type.equals("java.lang.Integer")) {
       return Integer.parseInt(data);
-    }else if (type.equalsIgnoreCase("double") || type.equals("java.lang.Double")){
+    } else if (type.equalsIgnoreCase("double") || type.equals("java.lang.Double")) {
       return Double.parseDouble(data);
-    }else if (type.equalsIgnoreCase("float") || type.equals("java.lang.Float")){
+    } else if (type.equalsIgnoreCase("float") || type.equals("java.lang.Float")) {
       return Float.parseFloat(data);
     }
     return null;
   }
-
 
   /**
    * 查找class的主键字段

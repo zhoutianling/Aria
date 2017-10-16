@@ -18,6 +18,7 @@ package com.arialyy.simple.download.group;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -109,6 +110,7 @@ import java.util.List;
 
   //@DownloadGroup.onSubTaskCancel void onSubTaskCancel(DownloadGroupTask groupTask,
   //    DownloadEntity subEntity) {
+  //  Log.d(TAG, "new Size: " + groupTask.getConvertFileSize());
   //  mSub.setText("子任务：" + mChildName + "，状态：取消下载");
   //}
 
@@ -129,7 +131,7 @@ import java.util.List;
     return R.layout.dialog_sub_task_handler;
   }
 
-  @OnClick({ R.id.start, R.id.stop }) void onClick(View view) {
+  @OnClick({ R.id.start, R.id.stop, R.id.cancel }) void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
         Aria.download(this).load(mUrls).getSubTaskManager().startSubTask(mChildEntity.getUrl());
