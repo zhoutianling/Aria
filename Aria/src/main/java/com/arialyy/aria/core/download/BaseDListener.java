@@ -143,22 +143,17 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
   }
 
   private void saveData(int state, long location) {
-    mEntity.setComplete(state == IEntity.STATE_COMPLETE);
     mTaskEntity.state = state;
+    mEntity.setState(state);
+    mEntity.setComplete(state == IEntity.STATE_COMPLETE);
     if (state == IEntity.STATE_CANCEL) {
-      mEntity.setState(state);
-      mEntity.deleteData();
-    } else if (state == IEntity.STATE_COMPLETE) {
-      mEntity.setState(state);
+      mTaskEntity.deleteData();
+      return;
+    } else if (mEntity.isComplete()) {
       mEntity.setCompleteTime(System.currentTimeMillis());
       mEntity.setCurrentProgress(mEntity.getFileSize());
-      mEntity.update();
-    } else {
-      mEntity.setState(state);
-      if (location != -1) {
-        mEntity.setCurrentProgress(location);
-      }
-      mEntity.update();
+    } else if (location > 0) {
+      mEntity.setCurrentProgress(location);
     }
     mTaskEntity.update();
   }

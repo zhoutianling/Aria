@@ -184,13 +184,13 @@ final class SqlUtil {
   }
 
   /**
-   * 判断是否是主外键约束
+   * 判断是否是非空约束
    *
-   * @return {@code true}主外键约束
+   * @return {@code true}为非空约束
    */
-  static boolean isPrimaryAndForeign(Field field) {
-    PrimaryAndForeign fk = field.getAnnotation(PrimaryAndForeign.class);
-    return fk != null;
+  static boolean isNoNull(Field field) {
+    NoNull nn = field.getAnnotation(NoNull.class);
+    return nn != null;
   }
 
   private static Object checkData(String type, String data) {

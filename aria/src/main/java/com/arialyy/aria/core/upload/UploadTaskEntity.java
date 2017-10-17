@@ -29,6 +29,7 @@ public class UploadTaskEntity extends AbsNormalTaskEntity<UploadEntity> {
   public String contentType = "multipart/form-data"; //上传的文件类型
   public String userAgent = "User-Agent";
   @OneToOne(table = UploadEntity.class, key = "filePath") public UploadEntity entity;
+  public String filePath = "";
 
   /**
    * 文件上传表单
@@ -40,5 +41,13 @@ public class UploadTaskEntity extends AbsNormalTaskEntity<UploadEntity> {
 
   @Override public UploadEntity getEntity() {
     return entity;
+  }
+
+  public void save(UploadEntity entity) {
+    filePath = entity.getFilePath();
+    key = entity.getKey();
+    this.entity = entity;
+    entity.save();
+    save();
   }
 }

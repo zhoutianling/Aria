@@ -45,7 +45,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    * 删除记录
    */
   public void removeRecord() {
-    mEntity.deleteData();
+    mTaskEntity.deleteData();
   }
 
   /**

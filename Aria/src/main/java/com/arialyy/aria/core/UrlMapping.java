@@ -13,27 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download;
+package com.arialyy.aria.core;
 
-import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
-import com.arialyy.aria.orm.OneToOne;
+import com.arialyy.aria.orm.DbEntity;
 
 /**
- * Created by AriaL on 2017/7/1.
+ * Created by lyy on 2017/10/17.
+ * Url 映射表
  */
-public class DownloadGroupTaskEntity extends AbsGroupTaskEntity<DownloadGroupEntity> {
+public class UrlMapping extends DbEntity {
+  /**
+   * 各实体对应的key
+   */
+  public String key;
 
-  @OneToOne(table = DownloadGroupEntity.class, key = "groupName") public DownloadGroupEntity entity;
-
-  @Override public DownloadGroupEntity getEntity() {
-    return entity;
-  }
-
-
-  public void save(DownloadGroupEntity groupEntity){
-    key = groupEntity.getKey();
-    entity = groupEntity;
-    groupEntity.save();
-    save();
-  }
+  /**
+   * 链接
+   */
+  public String url;
 }

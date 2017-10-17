@@ -26,7 +26,6 @@ import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -423,6 +422,8 @@ final class SqlHelper extends SQLiteOpenHelper {
     db = checkDb(db);
     List<Field> fields = CommonUtil.getAllFields(clazz);
     if (fields != null && fields.size() > 0) {
+      //外键Map，在Sqlite3中foreign修饰的字段必须放在最后
+      final List<Field> foreignArray = new ArrayList<>();
       StringBuilder sb = new StringBuilder();
       sb.append("create table ")
           .append(TextUtils.isEmpty(tableName) ? CommonUtil.getClassName(clazz) : tableName)
@@ -458,17 +459,26 @@ final class SqlHelper extends SQLiteOpenHelper {
           sb.append(" PRIMARY KEY");
         }
         if (SqlUtil.isForeign(field)) {
-          Foreign foreign = field.getAnnotation(Foreign.class);
-          sb.append(",FOREIGN KEY (")
-              .append(field.getName())
-              .append(") REFERENCES ")
-              .append(foreign.table())
-              .append("(")
-              .append(foreign.column())
-              .append(")");
+          foreignArray.add(field);
+        }
+
+        if (SqlUtil.isNoNull(field)) {
+          sb.append(" NOT NULL");
         }
         sb.append(",");
       }
+
+      for (Field field : foreignArray) {
+        Foreign foreign = field.getAnnotation(Foreign.class);
+        sb.append("FOREIGN KEY (")
+            .append(field.getName())
+            .append(") REFERENCES ")
+            .append(CommonUtil.getClassName(foreign.table()))
+            .append("(")
+            .append(foreign.column())
+            .append("),");
+      }
+
       String str = sb.toString();
       str = str.substring(0, str.length() - 1) + ");";
       print(CREATE_TABLE, str);

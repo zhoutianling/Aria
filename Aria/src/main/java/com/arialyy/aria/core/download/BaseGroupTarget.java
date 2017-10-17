@@ -55,7 +55,6 @@ abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends Abs
       entity = new DownloadGroupEntity();
       entity.setGroupName(mGroupName);
       entity.setUrls(mUrls);
-      entity.insert();
     }
     return entity;
   }

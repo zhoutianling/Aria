@@ -50,12 +50,10 @@ public class FtpDirDownloadTarget
     mTaskEntity = DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", key);
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadGroupTaskEntity();
-      mTaskEntity.key = key;
-      mTaskEntity.entity = getDownloadGroupEntity();
-      mTaskEntity.insert();
+      mTaskEntity.save(getDownloadGroupEntity());
     }
     if (mTaskEntity.entity == null) {
-      mTaskEntity.entity = getDownloadGroupEntity();
+      mTaskEntity.save(getDownloadGroupEntity());
     }
     mEntity = mTaskEntity.entity;
   }

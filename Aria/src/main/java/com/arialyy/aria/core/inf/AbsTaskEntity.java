@@ -143,4 +143,18 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   public int getState() {
     return getEntity().getState();
   }
+
+  @Override public void deleteData() {
+    if (getEntity() != null) {
+      getEntity().deleteData();
+    }
+    super.deleteData();
+  }
+
+  @Override public void update() {
+    if (getEntity() != null) {
+      getEntity().update();
+    }
+    super.update();
+  }
 }

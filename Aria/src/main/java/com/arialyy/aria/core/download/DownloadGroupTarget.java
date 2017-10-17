@@ -49,13 +49,10 @@ public class DownloadGroupTarget
     mTaskEntity = DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", key);
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadGroupTaskEntity();
-      mTaskEntity.key = key;
-      mTaskEntity.entity = getDownloadGroupEntity();
-      mTaskEntity.insert();
+      mTaskEntity.save(getDownloadGroupEntity());
     }
     if (mTaskEntity.entity == null || TextUtils.isEmpty(mTaskEntity.entity.getKey())) {
-      mTaskEntity.entity = getDownloadGroupEntity();
-      mTaskEntity.save();
+      mTaskEntity.save(getDownloadGroupEntity());
     }
     mEntity = mTaskEntity.entity;
   }

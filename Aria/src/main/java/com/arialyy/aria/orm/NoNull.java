@@ -13,27 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download;
 
-import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
-import com.arialyy.aria.orm.OneToOne;
+package com.arialyy.aria.orm;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created by AriaL on 2017/7/1.
+ * Created by lyy on 2015/11/2.
+ * 非空字段
  */
-public class DownloadGroupTaskEntity extends AbsGroupTaskEntity<DownloadGroupEntity> {
-
-  @OneToOne(table = DownloadGroupEntity.class, key = "groupName") public DownloadGroupEntity entity;
-
-  @Override public DownloadGroupEntity getEntity() {
-    return entity;
-  }
-
-
-  public void save(DownloadGroupEntity groupEntity){
-    key = groupEntity.getKey();
-    entity = groupEntity;
-    groupEntity.save();
-    save();
-  }
+@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface NoNull {
+  boolean value() default true;
 }

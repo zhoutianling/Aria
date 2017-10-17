@@ -118,7 +118,6 @@ class HttpFileInfoThread implements Runnable {
       if (onFileInfoListener != null) {
         onFileInfoListener.onComplete(mEntity.getUrl(), code);
       }
-      mEntity.update();
       mTaskEntity.update();
     }
   }

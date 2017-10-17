@@ -75,7 +75,6 @@ public class FtpDownloadTarget extends DownloadTarget {
         mEntity.setDownloadPath(downloadPath);
         mEntity.setFileName(newFile.getName());
         mTaskEntity.key = downloadPath;
-        mEntity.update();
         mTaskEntity.update();
         CommonUtil.renameDownloadConfig(oldFile.getName(), newFile.getName());
       }

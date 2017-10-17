@@ -40,7 +40,6 @@ public abstract class AbsUploadTarget<TARGET extends AbsUploadTarget, ENTITY ext
     CheckUtil.checkDownloadUrl(uploadUrl);
     if (mEntity.getUrl().equals(uploadUrl)) return (TARGET) this;
     mEntity.setUrl(uploadUrl);
-    //mEntity.setUrl(CommonUtil.convertUrl(uploadUrl));
     mEntity.update();
     return (TARGET) this;
   }

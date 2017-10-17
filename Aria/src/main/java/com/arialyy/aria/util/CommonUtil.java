@@ -247,9 +247,6 @@ public class CommonUtil {
         dir.delete();
       }
     }
-    if (entity != null) {
-      entity.deleteData();
-    }
     tEntity.deleteData();
   }
 
@@ -271,7 +268,7 @@ public class CommonUtil {
     if (config.exists()) {
       config.delete();
     }
-    uEntity.deleteData();
+    //uEntity.deleteData();
     tEntity.deleteData();
   }
 

@@ -169,25 +169,25 @@ public abstract class AbsGroupUtil implements IUtil {
    * @param url 子任务下载地址
    */
   public void cancelSubTask(String url) {
-    //List<String> urls = mTaskEntity.entity.getUrls();
-    //if (urls != null && !urls.isEmpty() && urls.contains(url)) {
-    //  urls.remove(url);
-    //  DownloadTaskEntity det =
-    //      DbEntity.findFirst(DownloadTaskEntity.class, "url=? and isGroupTask='true'", url);
-    //  if (det != null) {
-    //    mTotalLen -= det.getEntity().getFileSize();
-    //    mGroupSize--;
-    //    if (mGroupSize == 0) {
-    //      closeTimer(false);
-    //      mListener.onCancel();
-    //    }
-    //  }
-    //  mTaskEntity.getEntity().update();
-    //}
-    //Downloader d = getDownloader(url, false);
-    //if (d != null) {
-    //  d.cancel();
-    //}
+    List<String> urls = mTaskEntity.entity.getUrls();
+    if (urls != null && !urls.isEmpty() && urls.contains(url)) {
+      urls.remove(url);
+      DownloadTaskEntity det =
+          DbEntity.findFirst(DownloadTaskEntity.class, "url=? and isGroupTask='true'", url);
+      if (det != null) {
+        mTotalLen -= det.getEntity().getFileSize();
+        mGroupSize--;
+        if (mGroupSize == 0) {
+          closeTimer(false);
+          mListener.onCancel();
+        }
+      }
+      mTaskEntity.update();
+    }
+    Downloader d = getDownloader(url, false);
+    if (d != null) {
+      d.cancel();
+    }
   }
 
   /**
@@ -416,19 +416,18 @@ public abstract class AbsGroupUtil implements IUtil {
    * 子任务事件监听
    */
   private class ChildDownloadListener implements IDownloadListener {
-
-    DownloadTaskEntity taskEntity;
-    DownloadEntity entity;
+    private DownloadTaskEntity subTaskEntity;
+    private DownloadEntity subEntity;
     private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
-    private long mLastSaveTime;
-    long lastLen = 0;
+    private long lastSaveTime;
+    private long lastLen = 0;
 
     ChildDownloadListener(DownloadTaskEntity entity) {
-      this.taskEntity = entity;
-      this.entity = taskEntity.getEntity();
-      this.entity.setFailNum(0);
-      lastLen = this.entity.getCurrentProgress();
-      mLastSaveTime = System.currentTimeMillis();
+      subTaskEntity = entity;
+      subEntity = subTaskEntity.getEntity();
+      subEntity.setFailNum(0);
+      lastLen = subEntity.getCurrentProgress();
+      lastSaveTime = System.currentTimeMillis();
     }
 
     @Override public void onPre() {
@@ -436,33 +435,33 @@ public abstract class AbsGroupUtil implements IUtil {
     }
 
     @Override public void onPostPre(long fileSize) {
-      entity.setFileSize(fileSize);
-      entity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
+      subEntity.setFileSize(fileSize);
+      subEntity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
       saveData(IEntity.STATE_POST_PRE, -1);
-      mListener.onSubPre(entity);
+      mListener.onSubPre(subEntity);
     }
 
     @Override public void onResume(long resumeLocation) {
       saveData(IEntity.STATE_POST_PRE, IEntity.STATE_RUNNING);
       lastLen = resumeLocation;
-      mListener.onSubStart(entity);
+      mListener.onSubStart(subEntity);
     }
 
     @Override public void onStart(long startLocation) {
       saveData(IEntity.STATE_POST_PRE, IEntity.STATE_RUNNING);
       lastLen = startLocation;
-      mListener.onSubStart(entity);
+      mListener.onSubStart(subEntity);
     }
 
     @Override public void onProgress(long currentLocation) {
       long speed = currentLocation - lastLen;
       mCurrentLocation += speed;
-      entity.setCurrentProgress(currentLocation);
+      subEntity.setCurrentProgress(currentLocation);
       handleSpeed(speed);
-      mListener.onSubRunning(entity);
-      if (System.currentTimeMillis() - mLastSaveTime >= RUN_SAVE_INTERVAL) {
+      mListener.onSubRunning(subEntity);
+      if (System.currentTimeMillis() - lastSaveTime >= RUN_SAVE_INTERVAL) {
         saveData(IEntity.STATE_RUNNING, currentLocation);
-        mLastSaveTime = System.currentTimeMillis();
+        lastSaveTime = System.currentTimeMillis();
       }
       lastLen = currentLocation;
     }
@@ -470,7 +469,7 @@ public abstract class AbsGroupUtil implements IUtil {
     @Override public void onStop(long stopLocation) {
       saveData(IEntity.STATE_STOP, stopLocation);
       handleSpeed(0);
-      mListener.onSubStop(entity);
+      mListener.onSubStop(subEntity);
       synchronized (AbsGroupUtil.class) {
         mStopNum++;
         if (mStopNum + mCompleteNum + mInitFailNum + mFailNum >= mGroupSize) {
@@ -483,13 +482,13 @@ public abstract class AbsGroupUtil implements IUtil {
     @Override public void onCancel() {
       saveData(IEntity.STATE_CANCEL, -1);
       handleSpeed(0);
-      mListener.onSubCancel(entity);
+      mListener.onSubCancel(subEntity);
     }
 
     @Override public void onComplete() {
-      saveData(IEntity.STATE_COMPLETE, entity.getFileSize());
+      saveData(IEntity.STATE_COMPLETE, subEntity.getFileSize());
       handleSpeed(0);
-      mListener.onSubComplete(entity);
+      mListener.onSubComplete(subEntity);
       synchronized (AbsGroupUtil.class) {
         mCompleteNum++;
         //如果子任务完成的数量和总任务数一致，表示任务组任务已经完成
@@ -505,7 +504,7 @@ public abstract class AbsGroupUtil implements IUtil {
     }
 
     @Override public void onFail(boolean needRetry) {
-      entity.setFailNum(entity.getFailNum() + 1);
+      subEntity.setFailNum(subEntity.getFailNum() + 1);
       saveData(IEntity.STATE_FAIL, lastLen);
       handleSpeed(0);
       reTry(needRetry);
@@ -516,12 +515,12 @@ public abstract class AbsGroupUtil implements IUtil {
      */
     private void reTry(boolean needRetry) {
       synchronized (AriaManager.LOCK) {
-        if (entity.getFailNum() < 5 && isRunning && needRetry && NetUtils.isConnected(
+        if (subEntity.getFailNum() < 5 && isRunning && needRetry && NetUtils.isConnected(
             AriaManager.APP)) {
           reStartTask();
         } else {
           mFailNum++;
-          mListener.onSubFail(entity);
+          mListener.onSubFail(subEntity);
           //如果失败的任务数大于实际的下载任务数，任务组停止下载
           if (mFailNum >= mActualTaskNum) {
             closeTimer(false);
@@ -535,28 +534,32 @@ public abstract class AbsGroupUtil implements IUtil {
       Timer timer = new Timer();
       timer.schedule(new TimerTask() {
         @Override public void run() {
-          Downloader dt = mDownloaderMap.get(entity.getUrl());
+          Downloader dt = mDownloaderMap.get(subEntity.getUrl());
           dt.start();
         }
       }, 3000);
     }
 
     private void handleSpeed(long speed) {
-      entity.setSpeed(speed);
-      entity.setConvertSpeed(speed <= 0 ? "" : CommonUtil.formatFileSize(speed) + "/s");
-      entity.setPercent((int) (entity.getCurrentProgress() * 100 / entity.getFileSize()));
+      subEntity.setSpeed(speed);
+      subEntity.setConvertSpeed(speed <= 0 ? "" : CommonUtil.formatFileSize(speed) + "/s");
+      subEntity.setPercent((int) (subEntity.getCurrentProgress() * 100 / subEntity.getFileSize()));
     }
 
     private void saveData(int state, long location) {
-      entity.setState(state);
-      entity.setComplete(state == IEntity.STATE_COMPLETE);
-      if (entity.isComplete()) {
-        entity.setCompleteTime(System.currentTimeMillis());
-        entity.setCurrentProgress(entity.getFileSize());
+      subTaskEntity.state = state;
+      subEntity.setState(state);
+      subEntity.setComplete(state == IEntity.STATE_COMPLETE);
+      if (state == IEntity.STATE_CANCEL) {
+        subTaskEntity.deleteData();
+        return;
+      } else if (subEntity.isComplete()) {
+        subEntity.setCompleteTime(System.currentTimeMillis());
+        subEntity.setCurrentProgress(subEntity.getFileSize());
       } else if (location > 0) {
-        entity.setCurrentProgress(location);
+        subEntity.setCurrentProgress(location);
       }
-      entity.update();
+      subTaskEntity.update();
     }
 
     @Override public void supportBreakpoint(boolean support) {

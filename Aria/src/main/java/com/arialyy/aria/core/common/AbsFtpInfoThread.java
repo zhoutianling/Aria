@@ -88,7 +88,6 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       if (mSize != 0 && !isUpload) {
         mEntity.setFileSize(mSize);
       }
-      mEntity.update();
       mTaskEntity.update();
       onPreComplete(reply);
     } catch (IOException e) {

@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 import com.arialyy.aria.core.inf.AbsNormalTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.orm.NoNull;
 import com.arialyy.aria.orm.OneToOne;
 
 /**
@@ -31,7 +32,7 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
   /**
    * 任务的url
    */
-  public String url = "";
+  @NoNull public String url = "";
 
   /**
    * 所属的任务组组名，如果不属于任务组，则为null
@@ -48,5 +49,13 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
 
   @Override public DownloadEntity getEntity() {
     return entity;
+  }
+
+  public void save(DownloadEntity entity) {
+    url = entity.getUrl();
+    key = entity.getDownloadPath();
+    this.entity = entity;
+    entity.save();
+    save();
   }
 }

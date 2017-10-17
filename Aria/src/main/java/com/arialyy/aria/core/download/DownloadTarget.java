@@ -61,20 +61,13 @@ public class DownloadTarget
             entity.getDownloadPath(), entity.getUrl());
     if (mTaskEntity == null) {
       mTaskEntity = new DownloadTaskEntity();
-      mTaskEntity.url = entity.getUrl();
-      mTaskEntity.key = entity.getDownloadPath();
-      mTaskEntity.entity = entity;
-      mTaskEntity.save();
+      mTaskEntity.save(entity);
     } else if (mTaskEntity.entity == null || TextUtils.isEmpty(mTaskEntity.entity.getUrl())) {
-      mTaskEntity.entity = entity;
-      mTaskEntity.save();
+      mTaskEntity.save(entity);
     } else if (!mTaskEntity.entity.getUrl().equals(entity.getUrl())) {  //处理地址切换而保存路径不变
-      mTaskEntity.entity.deleteData();
-      mTaskEntity.entity = entity;
-      entity.save();
-      mTaskEntity.save();
+      mTaskEntity.save(entity);
     }
-    mEntity = mTaskEntity.entity;
+    mEntity = entity;
   }
 
   /**
