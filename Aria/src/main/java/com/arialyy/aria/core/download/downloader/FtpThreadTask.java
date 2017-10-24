@@ -42,6 +42,8 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
   }
 
   @Override public void run() {
+    //当前子线程的下载位置
+    mChildCurrentLocation = mConfig.START_LOCATION;
     FTPClient client = null;
     InputStream is = null;
     BufferedRandomAccessFile file = null;
@@ -72,8 +74,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       file.seek(mConfig.START_LOCATION);
       byte[] buffer = new byte[mBufSize];
       int len;
-      //当前子线程的下载位置
-      mChildCurrentLocation = mConfig.START_LOCATION;
+
       while ((len = is.read(buffer)) != -1) {
         if (STATE.isCancel) break;
         if (STATE.isStop) break;

@@ -133,6 +133,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     synchronized (AriaManager.LOCK) {
       mChildCurrentLocation += len;
       STATE.CURRENT_LOCATION += len;
+      //mIncrement += len;
       if (System.currentTimeMillis() - mLastSaveTime > 5000) {
         mLastSaveTime = System.currentTimeMillis();
         new Thread(new Runnable() {
@@ -223,7 +224,8 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
           mFailNum++;
           Log.w(TAG,
               "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__正在重试");
-          final long retryLocation = mChildCurrentLocation;
+          final long retryLocation =
+              mChildCurrentLocation == 0 ? mConfig.START_LOCATION : mChildCurrentLocation;
           mConfig.START_LOCATION = retryLocation;
           AbsThreadTask.this.run();
         }

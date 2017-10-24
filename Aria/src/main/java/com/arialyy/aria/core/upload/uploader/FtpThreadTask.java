@@ -44,6 +44,8 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
   }
 
   @Override public void run() {
+    //当前子线程的下载位置
+    mChildCurrentLocation = mConfig.START_LOCATION;
     FTPClient client = null;
     BufferedRandomAccessFile file = null;
     try {
@@ -56,8 +58,6 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
           + "，结束位置："
           + mConfig.END_LOCATION
           + "】");
-      //当前子线程的下载位置
-      mChildCurrentLocation = mConfig.START_LOCATION;
       client = createClient();
       if (client == null) return;
       initPath();

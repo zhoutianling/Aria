@@ -48,6 +48,8 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     HttpURLConnection conn = null;
     BufferedInputStream is = null;
     BufferedRandomAccessFile file = null;
+    //当前子线程的下载位置
+    mChildCurrentLocation = mConfig.START_LOCATION;
     try {
       URL url = new URL(CommonUtil.convertUrl(mConfig.URL));
       conn = ConnectionHelp.handleConnection(url);
@@ -78,8 +80,6 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       file.seek(mConfig.START_LOCATION);
       byte[] buffer = new byte[mBufSize];
       int len;
-      //当前子线程的下载位置
-      mChildCurrentLocation = mConfig.START_LOCATION;
       while ((len = is.read(buffer)) != -1) {
         if (STATE.isCancel) break;
         if (STATE.isStop) break;
