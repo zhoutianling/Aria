@@ -18,6 +18,7 @@ package com.arialyy.simple.download;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -125,6 +126,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   @Download.onTaskRunning(DOWNLOAD_URL) protected void running(DownloadTask task) {
+
     long len = task.getFileSize();
     if (len == 0) {
       getBinding().setProgress(0);
@@ -195,11 +197,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        startD();
-        startD();
-        startD();
-        startD();
-        startD();
         startD();
         //new Thread(new Runnable() {
         //  @Override public void run() {

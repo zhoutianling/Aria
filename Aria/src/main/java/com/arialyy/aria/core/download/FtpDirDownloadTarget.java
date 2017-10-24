@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by Aria.Lao on 2017/7/26.
@@ -27,22 +28,12 @@ import com.arialyy.aria.orm.DbEntity;
 public class FtpDirDownloadTarget
     extends BaseGroupTarget<FtpDirDownloadTarget, DownloadGroupTaskEntity> {
   private final String TAG = "FtpDirDownloadTarget";
-  private String serverIp, remotePath;
-  private int port;
 
   FtpDirDownloadTarget(String url, String targetName) {
     init(url);
-    String[] pp = url.split("/")[2].split(":");
     mTargetName = targetName;
-    serverIp = pp[0];
-    port = Integer.parseInt(pp[1]);
+    mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(url);
     mTaskEntity.requestType = AbsTaskEntity.FTP_DIR;
-    mTaskEntity.serverIp = serverIp;
-    mTaskEntity.port = port;
-    remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
-    if (TextUtils.isEmpty(remotePath)) {
-      throw new NullPointerException("ftp服务器地址不能为null");
-    }
   }
 
   private void init(String key) {
@@ -92,9 +83,10 @@ public class FtpDirDownloadTarget
       Log.e(TAG, "密码不能为null");
       return this;
     }
-    mTaskEntity.userName = userName;
-    mTaskEntity.userPw = password;
-    mTaskEntity.account = account;
+    mTaskEntity.urlEntity.needLogin = true;
+    mTaskEntity.urlEntity.user = userName;
+    mTaskEntity.urlEntity.password = password;
+    mTaskEntity.urlEntity.account = account;
     return this;
   }
 }

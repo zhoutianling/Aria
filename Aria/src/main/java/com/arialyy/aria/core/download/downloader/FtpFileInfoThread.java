@@ -31,8 +31,7 @@ class FtpFileInfoThread extends AbsFtpInfoThread<DownloadEntity, DownloadTaskEnt
   }
 
   @Override protected String setRemotePath() {
-    String url = mEntity.getUrl();
-    return url.substring(url.indexOf(mPort) + mPort.length(), url.length());
+    return mTaskEntity.urlEntity.remotePath;
   }
 
   @Override protected void onPreComplete(int code) {

@@ -57,11 +57,9 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
           + "】");
       client = createClient();
       if (client == null) return;
-      String url = mEntity.getUrl();
-      String remotePath = new String(
-          url.substring(url.indexOf(port) + port.length(), url.length()).getBytes(charSet),
-          SERVER_CHARSET);
       client.setRestartOffset(mConfig.START_LOCATION);
+      String remotePath =
+          new String(mTaskEntity.urlEntity.remotePath.getBytes(charSet), SERVER_CHARSET);
       is = client.retrieveFileStream(remotePath);
       //发送第二次指令时，还需要再做一次判断
       int reply = client.getReplyCode();

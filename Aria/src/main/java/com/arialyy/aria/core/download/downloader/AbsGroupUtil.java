@@ -387,9 +387,7 @@ public abstract class AbsGroupUtil implements IUtil {
     if (taskEntity != null) {
       taskEntity.entity = entity;
       //ftp登录的
-      taskEntity.userName = mTaskEntity.userName;
-      taskEntity.userPw = mTaskEntity.userPw;
-      taskEntity.account = mTaskEntity.account;
+      taskEntity.urlEntity = mTaskEntity.urlEntity;
       mTasksMap.put(entity.getUrl(), taskEntity);
       return taskEntity;
     }
@@ -403,9 +401,7 @@ public abstract class AbsGroupUtil implements IUtil {
     taskEntity.isGroupTask = true;
     taskEntity.requestType = mTaskEntity.requestType;
     //ftp登录的
-    taskEntity.userName = mTaskEntity.userName;
-    taskEntity.userPw = mTaskEntity.userPw;
-    taskEntity.account = mTaskEntity.account;
+    taskEntity.urlEntity = mTaskEntity.urlEntity;
     taskEntity.key = entity.getDownloadPath();
     taskEntity.save();
     mTasksMap.put(entity.getUrl(), taskEntity);

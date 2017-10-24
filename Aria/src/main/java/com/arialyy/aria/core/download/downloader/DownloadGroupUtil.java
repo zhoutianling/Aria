@@ -105,7 +105,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
           }
         }
 
-        @Override public void onFail(String url, String errorMsg) {
+        @Override public void onFail(String url, String errorMsg, boolean needRetry) {
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
             mFailMap.put(url, te);

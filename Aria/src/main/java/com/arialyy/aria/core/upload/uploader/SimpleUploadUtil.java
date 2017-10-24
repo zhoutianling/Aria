@@ -56,8 +56,8 @@ public class SimpleUploadUtil implements IUtil, Runnable {
         }
       }
 
-      @Override public void onFail(String url, String errorMsg) {
-        mListener.onFail(true);
+      @Override public void onFail(String url, String errorMsg, boolean needRetry) {
+        mListener.onFail(needRetry);
       }
     }).start();
   }

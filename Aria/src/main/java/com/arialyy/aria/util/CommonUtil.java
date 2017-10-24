@@ -24,6 +24,7 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.group.AbsGroupCmd;
 import com.arialyy.aria.core.command.group.GroupCmdFactory;
@@ -33,8 +34,8 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
@@ -73,6 +74,41 @@ import java.util.regex.Pattern;
  */
 public class CommonUtil {
   private static final String TAG = "CommonUtil";
+
+  /**
+   * 分割获取url，协议，ip/域名，端口，内容
+   *
+   * @param url 输入的url{@code String url = "ftp://z:z@dygod18.com:21211/[电影天堂www.dy2018.com]猩球崛起3：终极之战BD国英双语中英双字.mkv";}
+   */
+  public static FtpUrlEntity getFtpUrlInfo(String url) {
+    FtpUrlEntity entity = new FtpUrlEntity();
+    entity.url = url;
+    //String regex = "(\\w+)://(.*):(\\d*)/(.*)";
+    String regex = Regular.REG_FTP_URL;
+    Pattern p = Pattern.compile(regex);
+    Matcher m = p.matcher(url);
+    if (m.find() && m.groupCount() > 0) {
+      entity.protocol = m.group(1);
+      String str = m.group(2);
+      if (str.contains("@")) {
+        entity.needLogin = true;
+        //String hostReg = "(\\w+):?(\\w+)?@(.*)";
+        String hostReg = Regular.REG_FTP_HOST_NAME;
+        Pattern hp = Pattern.compile(hostReg);
+        Matcher hm = hp.matcher(str);
+        if (hm.find() && hm.groupCount() > 0) {
+          entity.user = hm.group(1);
+          entity.password = TextUtils.isEmpty(hm.group(2)) ? "" : hm.group(2);
+          entity.hostName = hm.group(3);
+        }
+      } else {
+        entity.hostName = str;
+      }
+      entity.port = m.group(3);
+      entity.remotePath = TextUtils.isEmpty(m.group(4)) ? "/" : "/" + m.group(4);
+    }
+    return entity;
+  }
 
   /**
    * 转换Url

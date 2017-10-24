@@ -15,11 +15,15 @@
  */
 package com.arialyy.aria.core.upload;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
+import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.AbsUploadTarget;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.CheckUtil;
+import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 
 /**
@@ -29,6 +33,7 @@ import java.io.File;
 public class FtpUploadTarget
     extends AbsUploadTarget<FtpUploadTarget, UploadEntity, UploadTaskEntity> {
   private final String TAG = "FtpUploadTarget";
+  private FtpUrlEntity mUrlEntity;
 
   FtpUploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
@@ -45,13 +50,25 @@ public class FtpUploadTarget
     File file = new File(filePath);
     mEntity.setFileName(file.getName());
     mEntity.setFileSize(file.length());
-
-    //暂时不支持断点续传上传
-    //mTaskEntity.isSupportBP = false;
   }
 
   /**
-   * ftp 用户登录信息
+   * 设置上传路径
+   *
+   * @param uploadUrl 上传路径
+   */
+  public FtpUploadTarget setUploadUrl(@NonNull String uploadUrl) {
+    CheckUtil.checkDownloadUrl(uploadUrl);
+    mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(uploadUrl);
+    if (mEntity.getUrl().equals(uploadUrl)) return this;
+    mEntity.setUrl(uploadUrl);
+    mEntity.update();
+    return this;
+  }
+
+  /**
+   * ftp 用户登录信。
+   * 设置登录信息需要在设置上传链接之后{@link #setUploadUrl(String)}
    *
    * @param userName ftp用户名
    * @param password ftp用户密码
@@ -62,6 +79,7 @@ public class FtpUploadTarget
 
   /**
    * ftp 用户登录信息
+   * 设置登录信息需要在设置上传链接之后{@link #setUploadUrl(String)}
    *
    * @param userName ftp用户名
    * @param password ftp用户密码
@@ -75,9 +93,10 @@ public class FtpUploadTarget
       Log.e(TAG, "密码不能为null");
       return this;
     }
-    mTaskEntity.userName = userName;
-    mTaskEntity.userPw = password;
-    mTaskEntity.account = account;
+    mTaskEntity.urlEntity.needLogin = true;
+    mTaskEntity.urlEntity.user = userName;
+    mTaskEntity.urlEntity.password = password;
+    mTaskEntity.urlEntity.account = account;
     return this;
   }
 }

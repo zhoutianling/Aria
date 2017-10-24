@@ -47,7 +47,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
 
   @OnClick({
       R.id.download, R.id.upload, R.id.download_task_group, R.id.ftp_download,
-      R.id.ftp_dir_download, R.id.ftp_upload
+      R.id.ftp_dir_download, R.id.ftp_upload, R.id.kotlin_download
   }) public void funcation(View view) {
     switch (view.getId()) {
       case R.id.download:
@@ -68,7 +68,9 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
       case R.id.ftp_upload:
         startActivity(new Intent(this, FtpUploadActivity.class));
         break;
+      case R.id.kotlin_download:
+        //startActivity(new Intent(this, KotlinDownloadActivity.class));
+        break;
     }
   }
-
 }

@@ -83,8 +83,8 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
     mDownloader.setMaxSpeed(maxSpeed);
   }
 
-  private void failDownload(String msg) {
-    mListener.onFail(true);
+  private void failDownload(String msg, boolean needRetry) {
+    mListener.onFail(needRetry);
     ErrorHelp.saveError("HTTP_DOWNLOAD", mTaskEntity.getEntity(), msg, "");
   }
 
@@ -108,8 +108,8 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
             mDownloader.start();
           }
 
-          @Override public void onFail(String url, String errorMsg) {
-            failDownload(errorMsg);
+          @Override public void onFail(String url, String errorMsg, boolean needRetry) {
+            failDownload(errorMsg, needRetry);
           }
         });
       case AbsTaskEntity.HTTP:
@@ -118,8 +118,8 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
             mDownloader.start();
           }
 
-          @Override public void onFail(String url, String errorMsg) {
-            failDownload(errorMsg);
+          @Override public void onFail(String url, String errorMsg, boolean needRetry) {
+            failDownload(errorMsg, needRetry);
           }
         });
     }

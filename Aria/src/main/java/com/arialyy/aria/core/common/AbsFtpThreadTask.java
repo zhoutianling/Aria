@@ -16,9 +16,11 @@
 package com.arialyy.aria.core.common;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
+import com.arialyy.aria.util.CommonUtil;
 import java.io.IOException;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
@@ -45,18 +47,18 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
    * 构建FTP客户端
    */
   protected FTPClient createClient() throws IOException {
-    String url = mEntity.getUrl();
-    String[] pp = url.split("/")[2].split(":");
-    serverIp = pp[0];
-    port = pp[1];
     FTPClient client = new FTPClient();
-    // 连接服务器
-    client.connect(serverIp, Integer.parseInt(port));
-    if (!TextUtils.isEmpty(mTaskEntity.account)) {
-      client.login(mTaskEntity.userName, mTaskEntity.userPw);
-    } else {
-      client.login(mTaskEntity.userName, mTaskEntity.userPw, mTaskEntity.account);
+    final FtpUrlEntity urlEntity = mTaskEntity.urlEntity;
+    client.connect(urlEntity.validAddr, Integer.parseInt(urlEntity.port));
+
+    if (urlEntity.needLogin) {
+      if (TextUtils.isEmpty(urlEntity.account)) {
+        client.login(urlEntity.user, urlEntity.password);
+      } else {
+        client.login(urlEntity.user, urlEntity.password, urlEntity.account);
+      }
     }
+
     int reply = client.getReplyCode();
     if (!FTPReply.isPositiveCompletion(reply)) {
       client.disconnect();
@@ -70,12 +72,10 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       charSet = mTaskEntity.charSet;
     }
     client.setControlEncoding(charSet);
-    client.setDataTimeout(STATE.READ_TIME_OUT);
+    client.setDataTimeout(10 * 1000);
     client.enterLocalPassiveMode();
     client.setFileType(FTP.BINARY_FILE_TYPE);
-    client.setBufferSize(mBufSize);
     client.setControlKeepAliveTimeout(5);
-    //client.setCopyStreamListener();
     return client;
   }
 }

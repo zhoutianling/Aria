@@ -22,6 +22,7 @@ import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.Regular;
 import java.util.regex.Pattern;
 
 /**
@@ -53,7 +54,8 @@ public abstract class AbsUploadTarget<TARGET extends AbsUploadTarget, ENTITY ext
     UploadEntity entity = UploadEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
     if (entity == null) {
       entity = new UploadEntity();
-      String regex = "[/|\\\\|//]";
+      //String regex = "[/|\\\\|//]";
+      String regex = Regular.REG_FILE_NAME;
       Pattern p = Pattern.compile(regex);
       String[] strs = p.split(filePath);
       String fileName = strs[strs.length - 1];

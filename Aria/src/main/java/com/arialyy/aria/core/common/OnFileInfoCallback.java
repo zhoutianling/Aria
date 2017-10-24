@@ -13,5 +13,5 @@ public interface OnFileInfoCallback {
    *
    * @param errorMsg 错误信息
    */
-  void onFail(String url, String errorMsg);
+  void onFail(String url, String errorMsg, boolean needRetry);
 }

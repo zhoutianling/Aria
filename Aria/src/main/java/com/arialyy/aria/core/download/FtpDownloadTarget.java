@@ -28,8 +28,6 @@ import java.io.File;
  */
 public class FtpDownloadTarget extends DownloadTarget {
   private final String TAG = "FtpDownloadTarget";
-  private String serverIp, remotePath;
-  private int port;
 
   FtpDownloadTarget(String url, String targetName) {
     this(url, targetName, false);
@@ -37,19 +35,11 @@ public class FtpDownloadTarget extends DownloadTarget {
 
   FtpDownloadTarget(String url, String targetName, boolean refreshInfo) {
     super(url, targetName);
-    String[] pp = url.split("/")[2].split(":");
-    this.serverIp = pp[0];
-    this.port = Integer.parseInt(pp[1]);
-    mTaskEntity.requestType = AbsTaskEntity.FTP;
-    remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
-    if (TextUtils.isEmpty(remotePath)) {
-      throw new NullPointerException("ftp服务器地址不能为null");
-    }
     int lastIndex = url.lastIndexOf("/");
-    mTaskEntity.serverIp = serverIp;
-    mTaskEntity.port = port;
     mEntity.setFileName(url.substring(lastIndex + 1, url.length()));
+    mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(url);
     mTaskEntity.refreshInfo = refreshInfo;
+    mTaskEntity.requestType = AbsTaskEntity.FTP;
   }
 
   /**
@@ -116,9 +106,10 @@ public class FtpDownloadTarget extends DownloadTarget {
       Log.e(TAG, "密码不能为null");
       return this;
     }
-    mTaskEntity.userName = userName;
-    mTaskEntity.userPw = password;
-    mTaskEntity.account = account;
+    mTaskEntity.urlEntity.needLogin = true;
+    mTaskEntity.urlEntity.user = userName;
+    mTaskEntity.urlEntity.password = password;
+    mTaskEntity.urlEntity.account = account;
     return this;
   }
 }

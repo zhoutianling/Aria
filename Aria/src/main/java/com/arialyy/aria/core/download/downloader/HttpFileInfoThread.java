@@ -61,7 +61,7 @@ class HttpFileInfoThread implements Runnable {
           + "】\n【filePath:"
           + mEntity.getDownloadPath()
           + "】\n"
-          + CommonUtil.getPrintException(e));
+          + CommonUtil.getPrintException(e), true);
     } finally {
       if (conn != null) {
         conn.disconnect();
@@ -103,7 +103,7 @@ class HttpFileInfoThread implements Runnable {
       mTaskEntity.isSupportBP = false;
       isComplete = true;
     } else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
-      failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：404");
+      failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：404", true);
     } else if (code == HttpURLConnection.HTTP_MOVED_TEMP
         || code == HttpURLConnection.HTTP_MOVED_PERM
         || code == HttpURLConnection.HTTP_SEE_OTHER) {
@@ -112,7 +112,7 @@ class HttpFileInfoThread implements Runnable {
       mEntity.setRedirectUrl(mTaskEntity.redirectUrl);
       handle302Turn(conn);
     } else {
-      failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：" + code);
+      failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：" + code, true);
     }
     if (isComplete) {
       if (onFileInfoListener != null) {
@@ -130,7 +130,7 @@ class HttpFileInfoThread implements Runnable {
     Log.d(TAG, "30x跳转，location【 " + mTaskEntity.redirectUrlKey + "】" + "新url为【" + newUrl + "】");
     if (TextUtils.isEmpty(newUrl) || newUrl.equalsIgnoreCase("null")) {
       if (onFileInfoListener != null) {
-        onFileInfoListener.onFail(mEntity.getUrl(), "获取重定向链接失败");
+        onFileInfoListener.onFail(mEntity.getUrl(), "获取重定向链接失败", false);
       }
       return;
     }
@@ -156,16 +156,16 @@ class HttpFileInfoThread implements Runnable {
       mTaskEntity.isNewTask = true;
     }
     if (len < 0) {
-      failDownload("任务【" + mEntity.getUrl() + "】下载失败，文件长度小于0");
+      failDownload("任务【" + mEntity.getUrl() + "】下载失败，文件长度小于0", true);
       return false;
     }
     return true;
   }
 
-  private void failDownload(String errorMsg) {
+  private void failDownload(String errorMsg, boolean needRetry) {
     Log.e(TAG, errorMsg);
     if (onFileInfoListener != null) {
-      onFileInfoListener.onFail(mEntity.getUrl(), errorMsg);
+      onFileInfoListener.onFail(mEntity.getUrl(), errorMsg, needRetry);
     }
   }
 }

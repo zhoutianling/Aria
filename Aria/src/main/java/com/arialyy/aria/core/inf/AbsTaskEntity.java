@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.inf;
 
+import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.Ignore;
@@ -48,8 +49,9 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   /**
    * 账号和密码
    */
-  @Ignore public String userName, userPw, account, serverIp;
-  @Ignore public int port;
+  @Ignore public FtpUrlEntity urlEntity;
+  //@Ignore public String userName, userPw, account, serverIp;
+  //@Ignore public int port;
 
   /**
    * 刷新信息 {@code true} 重新刷新下载信息

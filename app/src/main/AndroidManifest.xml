@@ -36,6 +36,7 @@
     <activity android:name=".download.group.FTPDirDownloadActivity"/>
     <activity android:name=".upload.HttpUploadActivity"/>
     <activity android:name=".upload.FtpUploadActivity"/>
+    <activity android:name=".download.KotlinDownloadActivity"/>
 
     <service android:name=".download.service_download.DownloadService"/>
   </application>

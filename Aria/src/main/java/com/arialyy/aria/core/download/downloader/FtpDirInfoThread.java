@@ -37,7 +37,7 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
 
   @Override protected String setRemotePath() {
     String url = mEntity.getKey();
-    return url.substring(url.indexOf(mPort) + mPort.length(), url.length());
+    return mTaskEntity.urlEntity.remotePath;
   }
 
   @Override protected void handleFile(String remotePath, FTPFile ftpFile) {
@@ -53,7 +53,7 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
 
   private void addEntity(String remotePath, FTPFile ftpFile) {
     DownloadEntity entity = new DownloadEntity();
-    entity.setUrl("ftp://" + mTaskEntity.serverIp + ":" + mTaskEntity.port + remotePath);
+    entity.setUrl(mTaskEntity.urlEntity.url);
     entity.setDownloadPath(mEntity.getDirPath() + "/" + remotePath);
     int lastIndex = remotePath.lastIndexOf("/");
     String fileName = lastIndex < 0 ? CommonUtil.keyToHashKey(remotePath)
