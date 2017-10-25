@@ -51,7 +51,7 @@ public class TaskManager {
    * @param task 任务
    * @return {@code true}添加成功
    */
-  public boolean addTask(String key, AbsTask task) {
+  public <T extends AbsTask> boolean addTask(String key, Class<T> clazz, T task) {
     String hash = CommonUtil.keyToHashKey(key);
     if (map.keySet().contains(hash)) {
       ALog.e(TAG, "任务【" + key + "】已存在");

@@ -44,13 +44,22 @@ import java.util.concurrent.Executors;
 public abstract class AbsGroupUtil implements IUtil {
   private final String TAG = "AbsGroupUtil";
   /**
+   * FTP文件夹
+   */
+  protected int FTP_DIR = 0xa1;
+  /**
+   * HTTP 任务组
+   */
+  protected int HTTP_GROUP = 0xa2;
+
+  /**
    * 任务组所有任务总长度
    */
   long mTotalLen = 0;
   long mCurrentLocation = 0;
   private ExecutorService mExePool;
   protected IDownloadGroupListener mListener;
-  protected DownloadGroupTaskEntity mTaskEntity;
+  protected DownloadGroupTaskEntity mGTEntity;
   private boolean isRunning = false;
   private Timer mTimer;
   /**
@@ -82,34 +91,32 @@ public abstract class AbsGroupUtil implements IUtil {
   private int mFailNum = 0;
   //停止的任务数
   private int mStopNum = 0;
-
   //实际的下载任务数
   int mActualTaskNum = 0;
   //初始化完成的任务数
   int mInitNum = 0;
   // 初始化失败的任务数
   int mInitFailNum = 0;
-
   //任务组大小
   int mGroupSize = 0;
 
-  AbsGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity taskEntity) {
+  AbsGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity groupEntity) {
     mListener = listener;
-    mTaskEntity = taskEntity;
+    mGTEntity = groupEntity;
     mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     List<DownloadTaskEntity> tasks =
-        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mTaskEntity.key);
+        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mGTEntity.key);
     if (tasks != null && !tasks.isEmpty()) {
       for (DownloadTaskEntity te : tasks) {
-        te.removeFile = mTaskEntity.removeFile;
+        te.removeFile = mGTEntity.removeFile;
         if (te.getEntity() == null) continue;
         mTasksMap.put(te.getEntity().getUrl(), te);
       }
     }
-    mGroupSize = mTaskEntity.entity.getSubTask().size();
-    mTotalLen = taskEntity.getEntity().getFileSize();
+    mGroupSize = mGTEntity.entity.getSubTask().size();
+    mTotalLen = groupEntity.getEntity().getFileSize();
     isNeedLoadFileSize = mTotalLen <= 1;
-    for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
+    for (DownloadEntity entity : mGTEntity.entity.getSubTask()) {
       File file = new File(entity.getDownloadPath());
       if (entity.getState() == IEntity.STATE_COMPLETE && file.exists()) {
         mCompleteNum++;
@@ -126,10 +133,20 @@ public abstract class AbsGroupUtil implements IUtil {
     updateFileSize();
   }
 
+  /**
+   * 获取任务类型
+   *
+   * @return {@link #FTP_DIR}、{@link #HTTP_GROUP}
+   */
+  abstract int getTaskType();
+
+  /**
+   * 更新任务组文件大小
+   */
   void updateFileSize() {
     if (isNeedLoadFileSize) {
-      mTaskEntity.getEntity().setFileSize(mTotalLen);
-      mTaskEntity.getEntity().update();
+      mGTEntity.getEntity().setFileSize(mTotalLen);
+      mGTEntity.getEntity().update();
     }
   }
 
@@ -170,7 +187,7 @@ public abstract class AbsGroupUtil implements IUtil {
    * @param url 子任务下载地址
    */
   public void cancelSubTask(String url) {
-    List<String> urls = mTaskEntity.entity.getUrls();
+    List<String> urls = mGTEntity.entity.getUrls();
     if (urls != null && !urls.isEmpty() && urls.contains(url)) {
       urls.remove(url);
       DownloadTaskEntity det =
@@ -183,7 +200,7 @@ public abstract class AbsGroupUtil implements IUtil {
           mListener.onCancel();
         }
       }
-      mTaskEntity.update();
+      mGTEntity.update();
     }
     Downloader d = getDownloader(url, false);
     if (d != null) {
@@ -254,7 +271,7 @@ public abstract class AbsGroupUtil implements IUtil {
       }
     }
     delDownloadInfo();
-    mTaskEntity.deleteData();
+    mGTEntity.deleteData();
   }
 
   public void onCancel() {
@@ -266,20 +283,20 @@ public abstract class AbsGroupUtil implements IUtil {
    */
   private void delDownloadInfo() {
     List<DownloadTaskEntity> tasks =
-        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mTaskEntity.key);
+        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mGTEntity.key);
     if (tasks != null && !tasks.isEmpty()) {
       for (DownloadTaskEntity taskEntity : tasks) {
-        CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile, taskEntity);
+        CommonUtil.delDownloadTaskConfig(mGTEntity.removeFile, taskEntity);
       }
     }
 
-    File dir = new File(mTaskEntity.getEntity().getDirPath());
-    if (mTaskEntity.removeFile) {
+    File dir = new File(mGTEntity.getEntity().getDirPath());
+    if (mGTEntity.removeFile) {
       if (dir.exists()) {
         dir.delete();
       }
     } else {
-      if (!mTaskEntity.getEntity().isComplete()) {
+      if (!mGTEntity.getEntity().isComplete()) {
         dir.delete();
       }
     }
@@ -387,30 +404,34 @@ public abstract class AbsGroupUtil implements IUtil {
     DownloadTaskEntity taskEntity = mTasksMap.get(entity.getUrl());
     if (taskEntity != null) {
       taskEntity.entity = entity;
-      //ftp登录的
-      taskEntity.urlEntity = createFtpUrlEntity(entity);
+      if (getTaskType() == FTP_DIR) {
+        taskEntity.urlEntity = createFtpUrlEntity(entity);
+      }
       mTasksMap.put(entity.getUrl(), taskEntity);
       return taskEntity;
     }
     taskEntity = new DownloadTaskEntity();
     taskEntity.entity = entity;
-    taskEntity.headers = mTaskEntity.headers;
-    taskEntity.requestEnum = mTaskEntity.requestEnum;
-    taskEntity.redirectUrlKey = mTaskEntity.redirectUrlKey;
-    taskEntity.removeFile = mTaskEntity.removeFile;
-    taskEntity.groupName = mTaskEntity.key;
+    taskEntity.headers = mGTEntity.headers;
+    taskEntity.requestEnum = mGTEntity.requestEnum;
+    taskEntity.redirectUrlKey = mGTEntity.redirectUrlKey;
+    taskEntity.removeFile = mGTEntity.removeFile;
+    taskEntity.groupName = mGTEntity.key;
     taskEntity.isGroupTask = true;
-    taskEntity.requestType = mTaskEntity.requestType;
-    //ftp登录的
-    taskEntity.urlEntity = createFtpUrlEntity(entity);
+    taskEntity.requestType = mGTEntity.requestType;
+    taskEntity.key = entity.getDownloadPath();
+    if (getTaskType() == FTP_DIR) {
+      taskEntity.urlEntity = createFtpUrlEntity(entity);
+    }
     taskEntity.save();
     mTasksMap.put(entity.getUrl(), taskEntity);
     return taskEntity;
   }
 
   private FtpUrlEntity createFtpUrlEntity(DownloadEntity entity) {
-    FtpUrlEntity urlEntity = CommonUtil.getFtpUrlInfo(entity.getUrl());
-    urlEntity.validAddr = mTaskEntity.urlEntity.validAddr;
+    FtpUrlEntity urlEntity = mGTEntity.urlEntity.clone();
+    urlEntity.url = entity.getUrl();
+    urlEntity.remotePath = CommonUtil.getRemotePath(entity.getUrl());
     return urlEntity;
   }
 

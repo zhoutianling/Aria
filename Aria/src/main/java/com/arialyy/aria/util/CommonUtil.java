@@ -110,6 +110,23 @@ public class CommonUtil {
   }
 
   /**
+   * 通过url获取FTP文件的remotePath
+   *
+   * @return remotePath。如果没有找到，返回""
+   */
+  public static String getRemotePath(String url) {
+    String remotePath = null;
+    String regex = Regular.REG_FTP_URL;
+    Pattern p = Pattern.compile(regex);
+    Matcher m = p.matcher(url);
+    if (m.find() && m.groupCount() > 0) {
+      return TextUtils.isEmpty(m.group(4)) ? "" : "/" + m.group(4);
+    }
+    ALog.w(TAG, "链接【" + url + "】没有找到remotePath");
+    return "";
+  }
+
+  /**
    * 转换Url
    *
    * @param url 原地址

@@ -70,17 +70,30 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
     FTPClient client = null;
     try {
       client = createFtpClient();
-      if (client == null) return;
+      if (client == null) {
+        failDownload("创建FTP客户端失败", true);
+        return;
+      }
       String remotePath =
           new String(setRemotePath().getBytes(charSet), AbsFtpThreadTask.SERVER_CHARSET);
       FTPFile[] files = client.listFiles(remotePath);
+
       boolean isExist = files.length != 0;
       if (!isExist && !isUpload) {
-        client.disconnect();
         failDownload("文件不存在，任务链接【" + mTaskEntity.urlEntity.url + "】", false);
+        FTPFile[] files1 = client.listFiles();
+        if (files1.length > 0) {
+          ALog.i(TAG, "路径【" + setRemotePath() + "】该下文件列表 ===================================");
+          for (FTPFile file : files1) {
+            ALog.d(TAG, file.toString());
+          }
+          ALog.i(TAG, "================================= --end-- ===================================");
+        }
+        client.disconnect();
         return;
       }
-      mSize = getFileSize(files, client, remotePath);
+      //为了防止编码错乱，需要使用原始字符串
+      mSize = getFileSize(files, client, setRemotePath());
       int reply = client.getReplyCode();
       if (!FTPReply.isPositiveCompletion(reply)) {
         if (isUpload) {
@@ -159,10 +172,15 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
 
       boolean loginSuccess = true;
       if (urlEntity.needLogin) {
-        if (TextUtils.isEmpty(urlEntity.account)) {
-          loginSuccess = client.login(urlEntity.user, urlEntity.password);
-        } else {
-          loginSuccess = client.login(urlEntity.user, urlEntity.password, urlEntity.account);
+        try {
+          if (TextUtils.isEmpty(urlEntity.account)) {
+            loginSuccess = client.login(urlEntity.user, urlEntity.password);
+          } else {
+            loginSuccess = client.login(urlEntity.user, urlEntity.password, urlEntity.account);
+          }
+        } catch (IOException e) {
+          ALog.e(TAG, client.getReplyString());
+          return null;
         }
       }
 

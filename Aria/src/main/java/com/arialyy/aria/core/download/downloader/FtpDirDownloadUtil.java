@@ -31,27 +31,31 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
     super(listener, taskEntity);
   }
 
+  @Override int getTaskType() {
+    return FTP_DIR;
+  }
+
   @Override protected void onStart() {
     super.onStart();
-    if (mTaskEntity.getEntity().getFileSize() > 1) {
+    if (mGTEntity.getEntity().getFileSize() > 1) {
       startDownload();
     } else {
-      new FtpDirInfoThread(mTaskEntity, new OnFileInfoCallback() {
+      new FtpDirInfoThread(mGTEntity, new OnFileInfoCallback() {
         @Override public void onComplete(String url, int code) {
           if (code >= 200 && code < 300) {
-            for (DownloadEntity entity : mTaskEntity.entity.getSubTask()) {
+            for (DownloadEntity entity : mGTEntity.entity.getSubTask()) {
               mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
             }
-            mActualTaskNum = mTaskEntity.entity.getSubTask().size();
+            mActualTaskNum = mGTEntity.entity.getSubTask().size();
             mGroupSize = mActualTaskNum;
-            mTotalLen = mTaskEntity.entity.getFileSize();
+            mTotalLen = mGTEntity.entity.getFileSize();
             startDownload();
           }
         }
 
         @Override public void onFail(String url, String errorMsg, boolean needRetry) {
           mListener.onFail(needRetry);
-          ErrorHelp.saveError("FTP_DIR", mTaskEntity.getEntity(), "", errorMsg);
+          ErrorHelp.saveError("FTP_DIR", mGTEntity.getEntity(), "", errorMsg);
         }
       }).start();
     }

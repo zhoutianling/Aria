@@ -43,6 +43,10 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
     mInfoPool = Executors.newCachedThreadPool();
   }
 
+  @Override int getTaskType() {
+    return HTTP_GROUP;
+  }
+
   @Override public void onCancel() {
     super.onCancel();
     if (!mInfoPool.isShutdown()) {
@@ -98,7 +102,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
             createChildDownload(te);
           }
           mInitNum++;
-          if (mInitNum + mInitFailNum >= mTaskEntity.getEntity().getSubTask().size()
+          if (mInitNum + mInitFailNum >= mGTEntity.getEntity().getSubTask().size()
               || !isNeedLoadFileSize) {
             startRunningFlow();
             updateFileSize();
@@ -121,7 +125,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
             if (mActualTaskNum < 0) mActualTaskNum = 0;
           }
           failNum++;
-          if (mInitNum + mInitFailNum >= mTaskEntity.getEntity().getSubTask().size()
+          if (mInitNum + mInitFailNum >= mGTEntity.getEntity().getSubTask().size()
               || !isNeedLoadFileSize) {
             startRunningFlow();
             updateFileSize();

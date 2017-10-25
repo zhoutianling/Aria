@@ -23,7 +23,7 @@ import java.net.InetAddress;
  * Created by Aria.Lao on 2017/10/24.
  * ftp url 信息链接实体
  */
-public class FtpUrlEntity {
+public class FtpUrlEntity implements Cloneable {
 
   public String remotePath;
 
@@ -67,4 +67,14 @@ public class FtpUrlEntity {
    * 有效的ip地址
    */
   public InetAddress validAddr;
+
+  @Override public FtpUrlEntity clone() {
+    FtpUrlEntity entity = null;
+    try {
+      entity = (FtpUrlEntity) super.clone();
+    } catch (CloneNotSupportedException e) {
+      e.printStackTrace();
+    }
+    return entity;
+  }
 }

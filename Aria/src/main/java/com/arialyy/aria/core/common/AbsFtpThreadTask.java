@@ -20,8 +20,10 @@ import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
-import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.ALog;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
@@ -32,7 +34,8 @@ import org.apache.commons.net.ftp.FTPReply;
  */
 public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     extends AbsThreadTask<ENTITY, TASK_ENTITY> {
-  protected String charSet, serverIp, port;
+  private final String TAG = "AbsFtpThreadTask";
+  protected String charSet, port;
   /**
    * FTP 服务器编码
    */
@@ -46,36 +49,91 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
   /**
    * 构建FTP客户端
    */
-  protected FTPClient createClient() throws IOException {
-    FTPClient client = new FTPClient();
+  protected FTPClient createClient() {
+    FTPClient client = null;
     final FtpUrlEntity urlEntity = mTaskEntity.urlEntity;
-    client.connect(urlEntity.validAddr, Integer.parseInt(urlEntity.port));
-
-    if (urlEntity.needLogin) {
-      if (TextUtils.isEmpty(urlEntity.account)) {
-        client.login(urlEntity.user, urlEntity.password);
-      } else {
-        client.login(urlEntity.user, urlEntity.password, urlEntity.account);
+    if (urlEntity.validAddr == null) {
+      try {
+        InetAddress[] ips = InetAddress.getAllByName(urlEntity.hostName);
+        client = connect(new FTPClient(), ips, 0, Integer.parseInt(urlEntity.port));
+        if (client == null) {
+          return null;
+        }
+      } catch (UnknownHostException e) {
+        e.printStackTrace();
+      }
+    } else {
+      client = new FTPClient();
+      try {
+        client.connect(urlEntity.validAddr, Integer.parseInt(urlEntity.port));
+      } catch (IOException e) {
+        ALog.e(TAG, ALog.getExceptionString(e));
+        return null;
       }
     }
 
-    int reply = client.getReplyCode();
-    if (!FTPReply.isPositiveCompletion(reply)) {
-      client.disconnect();
-      fail(STATE.CURRENT_LOCATION, "无法连接到ftp服务器，错误码为：" + reply, null);
+    if (client == null){
       return null;
     }
-    // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
-    charSet = "UTF-8";
-    if (!TextUtils.isEmpty(mTaskEntity.charSet) || !FTPReply.isPositiveCompletion(
-        client.sendCommand("OPTS UTF8", "ON"))) {
-      charSet = mTaskEntity.charSet;
+
+    try {
+      if (urlEntity.needLogin) {
+        if (TextUtils.isEmpty(urlEntity.account)) {
+          client.login(urlEntity.user, urlEntity.password);
+        } else {
+          client.login(urlEntity.user, urlEntity.password, urlEntity.account);
+        }
+      }
+      int reply = client.getReplyCode();
+      if (!FTPReply.isPositiveCompletion(reply)) {
+        client.disconnect();
+        fail(STATE.CURRENT_LOCATION, "无法连接到ftp服务器，错误码为：" + reply, null);
+        return null;
+      }
+      // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
+      charSet = "UTF-8";
+      if (!TextUtils.isEmpty(mTaskEntity.charSet) || !FTPReply.isPositiveCompletion(
+          client.sendCommand("OPTS UTF8", "ON"))) {
+        charSet = mTaskEntity.charSet;
+      }
+      client.setControlEncoding(charSet);
+      client.setDataTimeout(10 * 1000);
+      client.enterLocalPassiveMode();
+      client.setFileType(FTP.BINARY_FILE_TYPE);
+      client.setControlKeepAliveTimeout(5);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-    client.setControlEncoding(charSet);
-    client.setDataTimeout(10 * 1000);
-    client.enterLocalPassiveMode();
-    client.setFileType(FTP.BINARY_FILE_TYPE);
-    client.setControlKeepAliveTimeout(5);
     return client;
+  }
+
+  /**
+   * 连接到ftp服务器
+   */
+  private FTPClient connect(FTPClient client, InetAddress[] ips, int index, int port) {
+    try {
+      client.connect(ips[index], port);
+      mTaskEntity.urlEntity.validAddr = ips[index];
+      return client;
+    } catch (IOException e) {
+      try {
+        if (client.isConnected()) {
+          client.disconnect();
+        }
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
+      if (index + 1 >= ips.length) {
+        ALog.w(TAG, "遇到[ECONNREFUSED-连接被服务器拒绝]错误，已没有其他地址，链接失败");
+        return null;
+      }
+      try {
+        Thread.sleep(1000);
+      } catch (InterruptedException e1) {
+        e1.printStackTrace();
+      }
+      ALog.w(TAG, "遇到[ECONNREFUSED-连接被服务器拒绝]错误，正在尝试下一个地址");
+      return connect(new FTPClient(), ips, index + 1, port);
+    }
   }
 }

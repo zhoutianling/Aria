@@ -16,7 +16,6 @@
 package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
@@ -35,7 +34,6 @@ public class FtpDirDownloadTarget
     mTargetName = targetName;
     mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(url);
     mTaskEntity.requestType = AbsTaskEntity.FTP_DIR;
-    Log.d(TAG, "FTP_TARGET_MD5:" + mTaskEntity.hashCode());
   }
 
   private void init(String key) {
