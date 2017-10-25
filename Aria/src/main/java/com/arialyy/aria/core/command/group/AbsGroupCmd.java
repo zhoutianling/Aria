@@ -15,13 +15,13 @@
  */
 package com.arialyy.aria.core.command.group;
 
-import android.util.Log;
 import com.arialyy.aria.core.command.AbsCmd;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.inf.AbsGroupTask;
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
@@ -64,7 +64,7 @@ public abstract class AbsGroupCmd<T extends AbsGroupTaskEntity> extends AbsCmd<T
     if (tempTask == null) {
       createTask();
       if (tempTask.isComplete()) {
-        Log.w(TAG, "任务已完成");
+        ALog.i(TAG, "任务已完成");
         return false;
       }
     }

@@ -21,8 +21,8 @@ import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
-import android.util.Log;
 import android.widget.PopupWindow;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 
@@ -62,7 +62,7 @@ final class WidgetLiftManager {
       PopupWindow.OnDismissListener listener =
           (PopupWindow.OnDismissListener) dismissField.get(popupWindow);
       if (listener != null) {
-        Log.e(TAG, "你已经对PopupWindow设置了Dismiss事件。为了防止内存泄露，"
+        ALog.e(TAG, "你已经对PopupWindow设置了Dismiss事件。为了防止内存泄露，"
             + "请在dismiss方法中调用Aria.download(this).unRegister();来注销事件");
         return true;
       } else {
@@ -97,7 +97,7 @@ final class WidgetLiftManager {
         Field cancelField = CommonUtil.getField(dialog.getClass(), "mCancelMessage");
         Message cancelMsg = (Message) cancelField.get(dialog);
         if (cancelMsg != null) {
-          Log.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。"
+          ALog.e(TAG, "你已经对Dialog设置了Dismiss和cancel事件。"
               + "为了防止内存泄露，请在dismiss方法中调用Aria.download(this).unRegister();来注销事件\n"
               + "如果你使用的是DialogFragment，那么你需要在onDestroy()中进行销毁Aria事件操作");
           return true;

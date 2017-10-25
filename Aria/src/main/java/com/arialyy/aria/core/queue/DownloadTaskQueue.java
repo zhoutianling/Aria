@@ -17,15 +17,14 @@
 package com.arialyy.aria.core.queue;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.core.queue.pool.DownloadSharePool;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
+import com.arialyy.aria.util.ALog;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -75,7 +74,7 @@ public class DownloadTaskQueue
         DownloadTask temp = exeTasks.get(key);
         if (temp != null && temp.isRunning() && temp.isHighestPriorityTask() && !temp.getKey()
             .equals(task.getKey())) {
-          Log.e(TAG, "设置最高优先级任务失败，失败原因【任务中已经有最高优先级任务，请等待上一个最高优先级任务完成，或手动暂停该任务】");
+          ALog.e(TAG, "设置最高优先级任务失败，失败原因【任务中已经有最高优先级任务，请等待上一个最高优先级任务完成，或手动暂停该任务】");
           task.setHighestPriority(false);
           return;
         }
@@ -126,7 +125,7 @@ public class DownloadTaskQueue
       entity.key = entity.getEntity().getDownloadPath();
       mCachePool.putTask(task);
     } else {
-      Log.e(TAG, "target name 为 null！！");
+      ALog.e(TAG, "target name 为 null！！");
     }
 
     return task;

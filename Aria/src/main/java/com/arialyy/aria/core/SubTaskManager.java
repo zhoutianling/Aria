@@ -16,9 +16,9 @@
 package com.arialyy.aria.core;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.command.group.GroupCmdFactory;
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.List;
 
@@ -86,16 +86,16 @@ public class SubTaskManager {
    */
   private boolean checkUrl(String url) {
     if (TextUtils.isEmpty(url)) {
-      Log.e(TAG, "子任务地址不能为null");
+      ALog.e(TAG, "子任务地址不能为null");
       return false;
     }
     List<String> urls = mEntity.getEntity().getUrls();
     if (urls == null || urls.isEmpty()) {
-      Log.e(TAG, "任务组任务链接为null");
+      ALog.e(TAG, "任务组任务链接为null");
       return false;
     }
     if (!urls.contains(url)) {
-      Log.e(TAG, "任务组中没有改Url【+ " + url + "】");
+      ALog.e(TAG, "任务组中没有改Url【+ " + url + "】");
       return false;
     }
     return true;

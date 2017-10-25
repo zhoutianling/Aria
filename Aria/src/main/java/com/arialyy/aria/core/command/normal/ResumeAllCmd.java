@@ -1,6 +1,5 @@
 package com.arialyy.aria.core.command.normal;
 
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -11,6 +10,7 @@ import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.NetUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
   @Override public void executeCmd() {
     if (!NetUtils.isConnected(AriaManager.APP)) {
-      Log.w(TAG, "恢复任务失败，网络未连接");
+      ALog.w(TAG, "恢复任务失败，网络未连接");
       return;
     }
     if (isDownloadCmd) {

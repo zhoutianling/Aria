@@ -16,7 +16,6 @@
 package com.arialyy.aria.core.common;
 
 import android.content.Context;
-import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -25,6 +24,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.util.Properties;
@@ -264,7 +264,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    */
   private boolean resumeRecordLocation(int i, long startL, long endL) {
     mConstance.CURRENT_LOCATION += endL - startL;
-    Log.d(TAG, "++++++++++ 线程_" + i + "_已经下载完成 ++++++++++");
+    ALog.d(TAG, "++++++++++ 线程_" + i + "_已经下载完成 ++++++++++");
     mConstance.COMPLETE_THREAD_NUM++;
     mConstance.STOP_NUM++;
     mConstance.CANCEL_NUM++;
@@ -332,7 +332,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
           mConstance.CURRENT_LOCATION += r - startL;
           startL = r;
         }
-        Log.d(TAG, "任务【" + mEntity.getFileName() + "】线程__" + i + "__恢复下载");
+        ALog.d(TAG, "任务【" + mEntity.getFileName() + "】线程__" + i + "__恢复下载");
         recordL[rl] = i;
         rl++;
       } else {

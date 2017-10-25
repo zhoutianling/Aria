@@ -15,19 +15,18 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import android.util.Log;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -54,7 +53,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       URL url = new URL(CommonUtil.convertUrl(mConfig.URL));
       conn = ConnectionHelp.handleConnection(url);
       if (mConfig.SUPPORT_BP) {
-        Log.d(TAG, "任务【"
+        ALog.d(TAG, "任务【"
             + mConfig.TEMP_FILE.getName()
             + "】线程__"
             + mConfig.THREAD_ID
@@ -67,7 +66,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         conn.setRequestProperty("Range",
             "bytes=" + mConfig.START_LOCATION + "-" + (mConfig.END_LOCATION - 1));
       } else {
-        Log.w(TAG, "该下载不支持断点");
+        ALog.w(TAG, "该下载不支持断点");
       }
       conn = ConnectionHelp.setConnectParam(mConfig.TASK_ENTITY, conn);
       conn.setConnectTimeout(STATE.CONNECT_TIME_OUT);
@@ -90,7 +89,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       if (STATE.isCancel || STATE.isStop) return;
       //支持断点的处理
       if (mConfig.SUPPORT_BP) {
-        Log.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
+        ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
         writeConfig(true, 1);
         STATE.COMPLETE_THREAD_NUM++;
         if (STATE.isComplete()) {
@@ -102,7 +101,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
           mListener.onComplete();
         }
       } else {
-        Log.i(TAG, "下载任务完成");
+        ALog.i(TAG, "下载任务完成");
         STATE.isRunning = false;
         mListener.onComplete();
       }

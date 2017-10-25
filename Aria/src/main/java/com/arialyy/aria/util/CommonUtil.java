@@ -22,7 +22,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.command.ICmd;
@@ -251,7 +250,7 @@ public class CommonUtil {
       md.update(sb.toString().getBytes());
       md5 = new BigInteger(1, md.digest()).toString(16);
     } catch (NoSuchAlgorithmException e) {
-      Log.e(TAG, e.getMessage());
+      ALog.e(TAG, e.getMessage());
     }
     return md5;
   }
@@ -356,12 +355,12 @@ public class CommonUtil {
       File dir = new File("/sys/devices/system/cpu/");
       //Filter to only list the devices we care about
       File[] files = dir.listFiles(new CpuFilter());
-      Log.d(TAG, "CPU Count: " + files.length);
+      ALog.d(TAG, "CPU Count: " + files.length);
       //Return the number of cores (virtual CPU devices)
       return files.length;
     } catch (Exception e) {
       //Print exception
-      Log.d(TAG, "CPU Count: Failed.");
+      ALog.d(TAG, "CPU Count: Failed.");
       e.printStackTrace();
       //Default to return 1 core
       return 1;
@@ -391,13 +390,13 @@ public class CommonUtil {
    */
   public static boolean checkMD5(String md5, File updateFile) {
     if (TextUtils.isEmpty(md5) || updateFile == null) {
-      Log.e(TAG, "MD5 string empty or updateFile null");
+      ALog.e(TAG, "MD5 string empty or updateFile null");
       return false;
     }
 
     String calculatedDigest = getFileMD5(updateFile);
     if (calculatedDigest == null) {
-      Log.e(TAG, "calculatedDigest null");
+      ALog.e(TAG, "calculatedDigest null");
       return false;
     }
     return calculatedDigest.equalsIgnoreCase(md5);
@@ -408,13 +407,13 @@ public class CommonUtil {
    */
   public static boolean checkMD5(String md5, InputStream is) {
     if (TextUtils.isEmpty(md5) || is == null) {
-      Log.e(TAG, "MD5 string empty or updateFile null");
+      ALog.e(TAG, "MD5 string empty or updateFile null");
       return false;
     }
 
     String calculatedDigest = getFileMD5(is);
     if (calculatedDigest == null) {
-      Log.e(TAG, "calculatedDigest null");
+      ALog.e(TAG, "calculatedDigest null");
       return false;
     }
     return calculatedDigest.equalsIgnoreCase(md5);
@@ -428,7 +427,7 @@ public class CommonUtil {
     try {
       is = new FileInputStream(updateFile);
     } catch (FileNotFoundException e) {
-      Log.e(TAG, "Exception while getting FileInputStream", e);
+      ALog.e(TAG, e);
       return null;
     }
 
@@ -443,7 +442,7 @@ public class CommonUtil {
     try {
       digest = MessageDigest.getInstance("MD5");
     } catch (NoSuchAlgorithmException e) {
-      Log.e(TAG, "Exception while getting digest", e);
+      ALog.e(TAG, e);
       return null;
     }
 
@@ -465,7 +464,7 @@ public class CommonUtil {
       try {
         is.close();
       } catch (IOException e) {
-        Log.e(TAG, "Exception on closing MD5 input stream", e);
+        ALog.e(TAG, e);
       }
     }
   }
@@ -699,7 +698,7 @@ public class CommonUtil {
     File file = new File(path);
     if (!file.exists()) {
       if (!file.mkdirs()) {
-        Log.d(TAG, "创建失败，请检查路径和是否配置文件权限！");
+        ALog.d(TAG, "创建失败，请检查路径和是否配置文件权限！");
         return false;
       }
       return true;
@@ -714,14 +713,14 @@ public class CommonUtil {
    */
   public static void createFile(String path) {
     if (TextUtils.isEmpty(path)) {
-      Log.e(TAG, "文件路径不能为null");
+      ALog.e(TAG, "文件路径不能为null");
       return;
     }
     File file = new File(path);
     if (!file.getParentFile().exists()) {
-      Log.d(TAG, "目标文件所在路径不存在，准备创建……");
+      ALog.d(TAG, "目标文件所在路径不存在，准备创建……");
       if (!createDir(file.getParent())) {
-        Log.d(TAG, "创建目录文件所在的目录失败！文件路径【" + path + "】");
+        ALog.d(TAG, "创建目录文件所在的目录失败！文件路径【" + path + "】");
       }
     }
     // 创建目标文件
@@ -732,7 +731,7 @@ public class CommonUtil {
     }
     try {
       if (file.createNewFile()) {
-        Log.d(TAG, "创建文件成功:" + file.getAbsolutePath());
+        ALog.d(TAG, "创建文件成功:" + file.getAbsolutePath());
       }
     } catch (IOException e) {
       e.printStackTrace();

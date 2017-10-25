@@ -27,7 +27,6 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.common.QueueMod;
@@ -42,6 +41,7 @@ import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.DbUtil;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
@@ -67,6 +67,16 @@ import org.xml.sax.SAXException;
   public static final Object LOCK = new Object();
   public static final String DOWNLOAD_TEMP_DIR = "/Aria/temp/download/";
   public static final String UPLOAD_TEMP_DIR = "/Aria/temp/upload/";
+
+  public static final int LOG_LEVEL_VERBOSE = 2;
+  public static final int LOG_LEVEL_DEBUG = 3;
+  public static final int LOG_LEVEL_INFO = 4;
+  public static final int LOG_LEVEL_WARN = 5;
+  public static final int LOG_LEVEL_ERROR = 6;
+  public static final int LOG_LEVEL_ASSERT = 7;
+  public static final int LOG_CLOSE = 8;
+  public static final int LOG_DEFAULT = LOG_LEVEL_DEBUG;
+
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
   private Map<String, IReceiver> mReceivers = new ConcurrentHashMap<>();
   public static Context APP;
@@ -92,6 +102,15 @@ import org.xml.sax.SAXException;
 
   public Map<String, IReceiver> getReceiver() {
     return mReceivers;
+  }
+
+  /**
+   * 设置Aria 日志级别
+   *
+   * @param level {@link #LOG_LEVEL_VERBOSE}
+   */
+  public void setLogLevel(int level) {
+    ALog.LOG_LEVEL = level;
   }
 
   /**
@@ -356,7 +375,7 @@ import org.xml.sax.SAXException;
       CommonUtil.createFileFormInputStream(APP.getAssets().open("aria_config.xml"),
           APP.getFilesDir().getPath() + Configuration.XML_FILE);
     } catch (ParserConfigurationException | IOException | SAXException e) {
-      Log.e(TAG, e.toString());
+      ALog.e(TAG, e.toString());
     }
   }
 

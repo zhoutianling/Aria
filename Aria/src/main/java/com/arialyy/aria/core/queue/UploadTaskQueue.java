@@ -17,15 +17,14 @@
 package com.arialyy.aria.core.queue;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.core.queue.pool.UploadSharePool;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
-import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.util.ALog;
 
 /**
  * Created by lyy on 2017/2/27.
@@ -67,7 +66,7 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity> 
       entity.key = entity.getEntity().getFilePath();
       mCachePool.putTask(task);
     } else {
-      Log.e(TAG, "target name 为 null是！！");
+      ALog.e(TAG, "target name 为 null是！！");
     }
     return task;
   }

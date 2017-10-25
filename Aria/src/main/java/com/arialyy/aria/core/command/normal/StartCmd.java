@@ -17,7 +17,6 @@
 package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -30,6 +29,7 @@ import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.NetUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +48,7 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   @Override public void executeCmd() {
     if (!canExeCmd) return;
     if (!NetUtils.isConnected(AriaManager.APP)) {
-      Log.w(TAG, "启动任务失败，网络未连接");
+      ALog.e(TAG, "启动任务失败，网络未连接");
       return;
     }
     String mod;

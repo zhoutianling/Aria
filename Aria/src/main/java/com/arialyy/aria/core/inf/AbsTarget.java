@@ -17,7 +17,6 @@ package com.arialyy.aria.core.inf;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.CancelCmd;
@@ -26,6 +25,7 @@ import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.List;
@@ -120,7 +120,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    */
   @Override public int getPercent() {
     if (mEntity == null) {
-      Log.e("AbsTarget", "下载管理器中没有该任务");
+      ALog.e("AbsTarget", "下载管理器中没有该任务");
       return 0;
     }
     if (mEntity.getFileSize() != 0) {

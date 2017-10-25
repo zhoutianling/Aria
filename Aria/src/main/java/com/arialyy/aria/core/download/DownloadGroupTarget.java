@@ -16,8 +16,8 @@
 package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.List;
@@ -67,7 +67,7 @@ public class DownloadGroupTarget
    */
   public DownloadGroupTarget setFileSize(long fileSize) {
     if (fileSize <= 0) {
-      Log.w(TAG, "文件大小不能小于 0");
+      ALog.e(TAG, "文件大小不能小于 0");
       return this;
     }
     if (mEntity.getFileSize() <= 1 || mEntity.getFileSize() != fileSize) {

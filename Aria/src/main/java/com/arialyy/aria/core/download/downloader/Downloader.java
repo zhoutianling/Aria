@@ -15,7 +15,6 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import android.util.Log;
 import com.arialyy.aria.core.common.AbsFileer;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -24,6 +23,7 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.ErrorHelp;
@@ -102,7 +102,7 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
 
   private void failDownload(String errorMsg) {
     closeTimer();
-    Log.e(TAG, errorMsg);
+    ALog.e(TAG, errorMsg);
     mConstance.isRunning = false;
     mListener.onFail(false);
     ErrorHelp.saveError("", mEntity, "", errorMsg);

@@ -16,12 +16,11 @@
 package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
-import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.NetUtils;
 
 /**
@@ -47,7 +46,7 @@ final class HighestPriorityCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> 
   @Override public void executeCmd() {
     if (!canExeCmd) return;
     if (!NetUtils.isConnected(AriaManager.APP)){
-      Log.w(TAG, "启动任务失败，网络未连接");
+      ALog.e(TAG, "启动任务失败，网络未连接");
       return;
     }
     DownloadTask task = (DownloadTask) getTask();

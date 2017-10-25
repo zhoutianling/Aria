@@ -17,15 +17,14 @@
 package com.arialyy.aria.core.queue;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.core.queue.pool.DownloadSharePool;
 import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
+import com.arialyy.aria.util.ALog;
 
 /**
  * Created by AriaL on 2017/6/29.
@@ -65,7 +64,7 @@ public class DownloadGroupTaskQueue
       entity.key = entity.getEntity().getGroupName();
       mCachePool.putTask(task);
     } else {
-      Log.e(TAG, "target name 为 null！！");
+      ALog.e(TAG, "target name 为 null！！");
     }
     return task;
   }

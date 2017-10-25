@@ -24,6 +24,7 @@ import com.arialyy.aria.core.download.downloader.FtpDirDownloadUtil;
 import com.arialyy.aria.core.inf.AbsGroupTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 
 /**
@@ -47,6 +48,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
         mUtil = new FtpDirDownloadUtil(mListener, mTaskEntity);
         break;
     }
+    Log.d(TAG, "FTP_TASK_MD5:" + mTaskEntity.hashCode());
   }
 
   @Override public boolean isRunning() {
@@ -59,7 +61,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
 
   @Override public void start() {
     if (mUtil.isRunning()) {
-      Log.d(TAG, "任务正在下载");
+      ALog.d(TAG, "任务正在下载");
     } else {
       mUtil.start();
     }

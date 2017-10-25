@@ -16,10 +16,10 @@
 
 package com.arialyy.aria.core.command.normal;
 
-import android.util.Log;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.util.ALog;
 
 /**
  * Created by lyy on 2016/8/22.
@@ -38,7 +38,7 @@ class AddCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
       createTask();
     } else {
-      Log.w(TAG, "添加命令执行失败，【该任务已经存在】");
+      ALog.w(TAG, "添加命令执行失败，【该任务已经存在】");
     }
   }
 }

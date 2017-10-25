@@ -18,12 +18,12 @@ package com.arialyy.aria.core.download;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.downloader.SimpleDownloadUtil;
 import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.scheduler.ISchedulers;
+import com.arialyy.aria.util.ALog;
 import java.io.File;
 
 /**
@@ -115,7 +115,7 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
   @Override public void start() {
     mListener.isWait = false;
     if (mUtil.isRunning()) {
-      Log.d(TAG, "任务正在下载");
+      ALog.d(TAG, "任务正在下载");
     } else {
       mUtil.start();
     }

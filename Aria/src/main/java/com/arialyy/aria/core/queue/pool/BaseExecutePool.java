@@ -17,9 +17,9 @@
 package com.arialyy.aria.core.queue.pool;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -62,12 +62,12 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
   @Override public boolean putTask(TASK task) {
     synchronized (AriaManager.LOCK) {
       if (task == null) {
-        Log.e(TAG, "任务不能为空！！");
+        ALog.e(TAG, "任务不能为空！！");
         return false;
       }
       String url = task.getKey();
       if (mExecuteQueue.contains(task)) {
-        Log.e(TAG, "队列中已经包含了该任务，任务key【" + url + "】");
+        ALog.e(TAG, "队列中已经包含了该任务，任务key【" + url + "】");
         return false;
       } else {
         if (mExecuteQueue.size() >= mSize) {
@@ -112,7 +112,7 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
     synchronized (AriaManager.LOCK) {
       String url = newTask.getKey();
       boolean s = mExecuteQueue.offer(newTask);
-      Log.w(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
+      ALog.d(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
       if (s) {
         mExecuteMap.put(CommonUtil.keyToHashKey(url), newTask);
       }
@@ -128,7 +128,7 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
       try {
         TASK oldTask = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
         if (oldTask == null) {
-          Log.e(TAG, "移除任务失败");
+          ALog.w(TAG, "移除任务失败");
           return false;
         }
         oldTask.stop();
@@ -162,7 +162,7 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
   @Override public TASK getTask(String key) {
     synchronized (AriaManager.LOCK) {
       if (TextUtils.isEmpty(key)) {
-        Log.e(TAG, "请传入有效的任务key");
+        ALog.e(TAG, "请传入有效的任务key");
         return null;
       }
       return mExecuteMap.get(CommonUtil.keyToHashKey(key));
@@ -172,7 +172,7 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
   @Override public boolean removeTask(TASK task) {
     synchronized (AriaManager.LOCK) {
       if (task == null) {
-        Log.e(TAG, "任务不能为空");
+        ALog.e(TAG, "任务不能为空");
         return false;
       } else {
         return removeTask(task.getKey());
@@ -183,7 +183,7 @@ public class BaseExecutePool<TASK extends AbsTask> implements IPool<TASK> {
   @Override public boolean removeTask(String key) {
     synchronized (AriaManager.LOCK) {
       if (TextUtils.isEmpty(key)) {
-        Log.e(TAG, "请传入有效的任务key");
+        ALog.e(TAG, "请传入有效的任务key");
         return false;
       }
       String convertKey = CommonUtil.keyToHashKey(key);

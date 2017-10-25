@@ -17,7 +17,6 @@ package com.arialyy.aria.core.scheduler;
 
 import android.os.CountDownTimer;
 import android.os.Message;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
@@ -28,6 +27,7 @@ import com.arialyy.aria.core.inf.GroupSendParams;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadTask;
+import com.arialyy.aria.util.ALog;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -60,7 +60,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
         listener.setListener(obj);
         mObservers.put(targetName, listener);
       } else {
-        Log.e(TAG, "注册错误，没有【" + targetName + "】观察者");
+        ALog.e(TAG, "注册错误，没有【" + targetName + "】观察者");
       }
     }
   }
@@ -84,11 +84,11 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
       Class clazz = Class.forName(targetName + getProxySuffix());
       listener = (AbsSchedulerListener<TASK, AbsNormalEntity>) clazz.newInstance();
     } catch (ClassNotFoundException e) {
-      Log.e(TAG, targetName + "，没有Aria的Download或Upload注解方法");
+      ALog.e(TAG, targetName + "，没有Aria的Download或Upload注解方法");
     } catch (InstantiationException e) {
-      Log.e(TAG, e.getMessage());
+      ALog.e(TAG, e.getMessage());
     } catch (IllegalAccessException e) {
-      Log.e(TAG, e.getMessage());
+      ALog.e(TAG, e.getMessage());
     }
     return listener;
   }
@@ -100,7 +100,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
 
     TASK task = (TASK) msg.obj;
     if (task == null) {
-      Log.e(TAG, "请传入下载任务");
+      ALog.e(TAG, "请传入下载任务");
       return true;
     }
     handleNormalEvent(task, msg.what);
@@ -190,7 +190,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
       AbsSchedulerListener<TASK, AbsNormalEntity> listener) {
     if (listener != null) {
       if (task == null) {
-        Log.e(TAG, "TASK 为null，回调失败");
+        ALog.e(TAG, "TASK 为null，回调失败");
         return;
       }
       switch (state) {
@@ -275,7 +275,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
   private void startNextTask() {
     TASK newTask = mQueue.getNextTask();
     if (newTask == null) {
-      Log.w(TAG, "没有下一任务");
+      ALog.d(TAG, "没有下一任务");
       return;
     }
     if (newTask.getState() == IEntity.STATE_WAIT) {

@@ -15,8 +15,8 @@
  */
 package com.arialyy.aria.core;
 
-import android.util.Log;
 import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.Iterator;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class TaskManager {
   public boolean addTask(String key, AbsTask task) {
     String hash = CommonUtil.keyToHashKey(key);
     if (map.keySet().contains(hash)) {
-      Log.e(TAG, "任务【" + key + "】已存在");
+      ALog.e(TAG, "任务【" + key + "】已存在");
       return false;
     }
     map.put(CommonUtil.keyToHashKey(key), task);

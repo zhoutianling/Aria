@@ -22,8 +22,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
@@ -96,10 +96,10 @@ final class SqlHelper extends SQLiteOpenHelper {
    */
   private void handleDbUpdate(SQLiteDatabase db) {
     if (db == null) {
-      Log.d("SqlHelper", "db 为 null");
+      ALog.e("SqlHelper", "db 为 null");
       return;
     } else if (!db.isOpen()) {
-      Log.d("SqlHelper", "db已关闭");
+      ALog.e("SqlHelper", "db已关闭");
       return;
     }
     Set<String> tables = DBConfig.mapping.keySet();
@@ -206,10 +206,10 @@ final class SqlHelper extends SQLiteOpenHelper {
       Class<T> clazz, @NonNull String[] wheres, @NonNull String[] values) {
     db = checkDb(db);
     if (wheres.length <= 0 || values.length <= 0) {
-      Log.e(TAG, "请输入查询条件");
+      ALog.e(TAG, "请输入查询条件");
       return null;
     } else if (wheres.length != values.length) {
-      Log.e(TAG, "groupName 和 vaule 长度不相等");
+      ALog.e(TAG, "groupName 和 vaule 长度不相等");
       return null;
     }
     StringBuilder sb = new StringBuilder();
@@ -517,7 +517,7 @@ final class SqlHelper extends SQLiteOpenHelper {
         str = "遍历整个数据库 >>>> ";
         break;
     }
-    Log.v(TAG, str + sql);
+    ALog.v(TAG, str + sql);
   }
 
   /**

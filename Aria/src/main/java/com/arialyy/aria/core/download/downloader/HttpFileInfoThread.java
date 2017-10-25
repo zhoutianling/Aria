@@ -16,11 +16,11 @@
 package com.arialyy.aria.core.download.downloader;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -127,7 +127,7 @@ class HttpFileInfoThread implements Runnable {
    */
   private void handle302Turn(HttpURLConnection conn) throws IOException {
     String newUrl = conn.getHeaderField(mTaskEntity.redirectUrlKey);
-    Log.d(TAG, "30x跳转，location【 " + mTaskEntity.redirectUrlKey + "】" + "新url为【" + newUrl + "】");
+    ALog.d(TAG, "30x跳转，location【 " + mTaskEntity.redirectUrlKey + "】" + "新url为【" + newUrl + "】");
     if (TextUtils.isEmpty(newUrl) || newUrl.equalsIgnoreCase("null")) {
       if (onFileInfoListener != null) {
         onFileInfoListener.onFail(mEntity.getUrl(), "获取重定向链接失败", false);
@@ -163,7 +163,7 @@ class HttpFileInfoThread implements Runnable {
   }
 
   private void failDownload(String errorMsg, boolean needRetry) {
-    Log.e(TAG, errorMsg);
+    ALog.e(TAG, errorMsg);
     if (onFileInfoListener != null) {
       onFileInfoListener.onFail(mEntity.getUrl(), errorMsg, needRetry);
     }

@@ -36,7 +36,9 @@ import java.io.File;
  */
 public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding> {
   //private final String URL = "ftp://192.168.1.9:21/下载/AriaPrj.zip";
-  private final String URL = "ftp://192.168.1.9:21/下载/[电影天堂www.dy2018.com]赛车总动员3BD中英双字.mp4";
+  //private final String URL = "ftp://192.168.1.9:21/下载/[电影天堂www.dy2018.com]赛车总动员3BD中英双字.mp4";
+  //private final String URL = "ftp://d:d@dygodj8.com:12311/[电影天堂www.dy2018.com]光辉岁月BD韩语中字.rmvb";
+  private final String URL = "ftp://172.18.104.64:21/upload/成都.mp3";
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
@@ -58,8 +60,8 @@ public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding
     switch (view.getId()) {
       case R.id.start:
         Aria.download(this).loadFtp(URL, true)
-            .charSet("GBK")
-            //.login("lao", "123456")
+            //.charSet("GBK")
+            .login("lao", "123456")
             .setDownloadPath("/mnt/sdcard/").start();
         break;
       case R.id.stop:

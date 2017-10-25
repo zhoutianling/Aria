@@ -15,13 +15,13 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import android.util.Log;
 import com.arialyy.aria.core.common.AbsFtpThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +48,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
     InputStream is = null;
     BufferedRandomAccessFile file = null;
     try {
-      Log.d(TAG, "任务【"
+      ALog.d(TAG, "任务【"
           + mConfig.TEMP_FILE.getName()
           + "】线程__"
           + mConfig.THREAD_ID
@@ -90,7 +90,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         }
       }
       if (STATE.isCancel || STATE.isStop) return;
-      Log.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
+      ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
       writeConfig(true, 1);
       STATE.COMPLETE_THREAD_NUM++;
       if (STATE.isComplete()) {

@@ -21,8 +21,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.List;
@@ -203,10 +203,10 @@ public class DbUtil {
   synchronized int getRowId(Class clazz, Object[] wheres, Object[] values) {
     checkDb();
     if (wheres.length <= 0 || values.length <= 0) {
-      Log.e(TAG, "请输入删除条件");
+      ALog.e(TAG, "请输入删除条件");
       return -1;
     } else if (wheres.length != values.length) {
-      Log.e(TAG, "groupName 和 vaule 长度不相等");
+      ALog.e(TAG, "groupName 和 vaule 长度不相等");
       return -1;
     }
     StringBuilder sb = new StringBuilder();

@@ -17,12 +17,10 @@
 package com.arialyy.aria.core.queue.pool;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
-import com.arialyy.aria.core.inf.ITask;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -87,16 +85,16 @@ public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
   @Override public boolean putTask(TASK task) {
     synchronized (AriaManager.LOCK) {
       if (task == null) {
-        Log.e(TAG, "下载任务不能为空！！");
+        ALog.e(TAG, "下载任务不能为空！！");
         return false;
       }
       String url = task.getKey();
       if (mCacheQueue.contains(task)) {
-        Log.w(TAG, "队列中已经包含了该任务，任务下载链接【" + url + "】");
+        ALog.w(TAG, "队列中已经包含了该任务，任务下载链接【" + url + "】");
         return false;
       } else {
         boolean s = mCacheQueue.offer(task);
-        Log.d(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
+        ALog.d(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
         if (s) {
           mCacheMap.put(CommonUtil.keyToHashKey(url), task);
         }
@@ -125,7 +123,7 @@ public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
   @Override public TASK getTask(String downloadUrl) {
     synchronized (AriaManager.LOCK) {
       if (TextUtils.isEmpty(downloadUrl)) {
-        Log.e(TAG, "请传入有效的下载链接");
+        ALog.e(TAG, "请传入有效的下载链接");
         return null;
       }
       String key = CommonUtil.keyToHashKey(downloadUrl);
@@ -136,7 +134,7 @@ public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
   @Override public boolean removeTask(TASK task) {
     synchronized (AriaManager.LOCK) {
       if (task == null) {
-        Log.e(TAG, "任务不能为空");
+        ALog.e(TAG, "任务不能为空");
         return false;
       } else {
         String key = CommonUtil.keyToHashKey(task.getKey());
@@ -149,7 +147,7 @@ public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
   @Override public boolean removeTask(String downloadUrl) {
     synchronized (AriaManager.LOCK) {
       if (TextUtils.isEmpty(downloadUrl)) {
-        Log.e(TAG, "请传入有效的下载链接");
+        ALog.e(TAG, "请传入有效的下载链接");
         return false;
       }
       String key = CommonUtil.keyToHashKey(downloadUrl);

@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.common.AbsFtpInfoThread;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -52,8 +53,10 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
   }
 
   private void addEntity(String remotePath, FTPFile ftpFile) {
+    final FtpUrlEntity urlEntity = mTaskEntity.urlEntity;
     DownloadEntity entity = new DownloadEntity();
-    entity.setUrl(mTaskEntity.urlEntity.url);
+    entity.setUrl(
+        urlEntity.protocol + "://" + urlEntity.hostName + ":" + urlEntity.port + remotePath);
     entity.setDownloadPath(mEntity.getDirPath() + "/" + remotePath);
     int lastIndex = remotePath.lastIndexOf("/");
     String fileName = lastIndex < 0 ? CommonUtil.keyToHashKey(remotePath)

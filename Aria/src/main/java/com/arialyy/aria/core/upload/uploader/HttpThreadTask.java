@@ -15,13 +15,13 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
-import android.util.Log;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.inf.IUploadListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.util.ALog;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -56,7 +56,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
   @Override public void run() {
     File uploadFile = new File(mEntity.getFilePath());
     if (!uploadFile.exists()) {
-      Log.e(TAG, "【" + mEntity.getFilePath() + "】，文件不存在。");
+      ALog.e(TAG, "【" + mEntity.getFilePath() + "】，文件不存在。");
       fail();
       return;
     }
@@ -89,7 +89,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
         addFormField(writer, key, mTaskEntity.formFields.get(key));
       }
       uploadFile(writer, mTaskEntity.attachment, uploadFile);
-      Log.d(TAG, finish(writer) + "");
+      finish(writer);
     } catch (IOException e) {
       e.printStackTrace();
       fail();
@@ -193,7 +193,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       reader.close();
       mHttpConn.disconnect();
     } else {
-      Log.w(TAG, "state_code = " + status);
+      ALog.w(TAG, "state_code = " + status);
       fail();
     }
 

@@ -16,12 +16,12 @@
 package com.arialyy.aria.core.common;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.Regular;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -73,11 +73,6 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       if (client == null) return;
       String remotePath =
           new String(setRemotePath().getBytes(charSet), AbsFtpThreadTask.SERVER_CHARSET);
-      FTPFile[] files_1 = client.listFiles();
-      for (FTPFile tf : files_1) {
-
-        Log.d(TAG, tf.getName());
-      }
       FTPFile[] files = client.listFiles(remotePath);
       boolean isExist = files.length != 0;
       if (!isExist && !isUpload) {
@@ -122,8 +117,8 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
    * @return {@code true}存在
    */
   private boolean checkFileExist(FTPFile[] ftpFiles, String fileName) {
-    for (FTPFile ff : ftpFiles){
-      if (ff.getName().equals(fileName)){
+    for (FTPFile ff : ftpFiles) {
+      if (ff.getName().equals(fileName)) {
         return true;
       }
     }
@@ -186,7 +181,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       charSet = "UTF-8";
       if (!TextUtils.isEmpty(mTaskEntity.charSet) || !FTPReply.isPositiveCompletion(
           client.sendCommand("OPTS UTF8", "ON"))) {
-        Log.d(TAG, "FTP 服务器不支持开启UTF8编码，尝试使用Aria手动设置的编码");
+        ALog.i(TAG, "FTP 服务器不支持开启UTF8编码，尝试使用Aria手动设置的编码");
         charSet = mTaskEntity.charSet;
       }
       client.setControlEncoding(charSet);
@@ -210,8 +205,15 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       return client;
     } catch (IOException e) {
       //e.printStackTrace();
+      try {
+        if (client.isConnected()) {
+          client.disconnect();
+        }
+      } catch (IOException e1) {
+        e1.printStackTrace();
+      }
       if (index + 1 >= ips.length) {
-        Log.e(TAG, "遇到[ECONNREFUSED-连接被服务器拒绝]错误，已没有其他地址，链接失败");
+        ALog.w(TAG, "遇到[ECONNREFUSED-连接被服务器拒绝]错误，已没有其他地址，链接失败");
         return null;
       }
       try {
@@ -219,7 +221,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       } catch (InterruptedException e1) {
         e1.printStackTrace();
       }
-      Log.e(TAG, "遇到[ECONNREFUSED-连接被服务器拒绝]错误，正在尝试下一个地址");
+      ALog.w(TAG, "遇到[ECONNREFUSED-连接被服务器拒绝]错误，正在尝试下一个地址");
       return connect(new FTPClient(), ips, index + 1, port);
     }
   }
@@ -255,7 +257,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
   }
 
   private void failDownload(String errorMsg, boolean needRetry) {
-    Log.e(TAG, errorMsg);
+    ALog.e(TAG, errorMsg);
     if (mCallback != null) {
       mCallback.onFail(mEntity.getKey(), errorMsg, needRetry);
     }

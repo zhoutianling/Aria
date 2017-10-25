@@ -16,7 +16,7 @@
 package com.arialyy.aria.core;
 
 import android.text.TextUtils;
-import android.util.Log;
+import com.arialyy.aria.util.ALog;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -210,7 +210,7 @@ class ConfigHelper extends DefaultHandler {
       num = Integer.parseInt(value);
     }
     if (num < 1) {
-      Log.e(TAG, "任务队列数不能小于 1");
+      ALog.w(TAG, "任务队列数不能小于 1");
       num = 2;
     }
     if (isDownloadConfig) {
@@ -227,7 +227,7 @@ class ConfigHelper extends DefaultHandler {
       num = Integer.parseInt(value);
     }
     if (num < 1) {
-      Log.e(TAG, "下载线程数不能小于 1");
+      ALog.e(TAG, "下载线程数不能小于 1");
       num = 1;
     }
     if (isDownloadConfig) {

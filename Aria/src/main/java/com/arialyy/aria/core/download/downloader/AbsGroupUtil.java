@@ -15,8 +15,8 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -24,6 +24,7 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.NetUtils;
 import java.io.File;
@@ -201,11 +202,11 @@ public abstract class AbsGroupUtil implements IUtil {
     DownloadTaskEntity entity = mTasksMap.get(url);
     if (entity != null) {
       if (entity.getState() == IEntity.STATE_COMPLETE) {
-        Log.w(TAG, "任务【" + url + "】已完成，" + type + "失败");
+        ALog.w(TAG, "任务【" + url + "】已完成，" + type + "失败");
         return false;
       }
     } else {
-      Log.w(TAG, "任务组中没有该任务【" + url + "】，" + type + "失败");
+      ALog.w(TAG, "任务组中没有该任务【" + url + "】，" + type + "失败");
       return false;
     }
     return true;
@@ -387,7 +388,7 @@ public abstract class AbsGroupUtil implements IUtil {
     if (taskEntity != null) {
       taskEntity.entity = entity;
       //ftp登录的
-      taskEntity.urlEntity = mTaskEntity.urlEntity;
+      taskEntity.urlEntity = createFtpUrlEntity(entity);
       mTasksMap.put(entity.getUrl(), taskEntity);
       return taskEntity;
     }
@@ -401,11 +402,16 @@ public abstract class AbsGroupUtil implements IUtil {
     taskEntity.isGroupTask = true;
     taskEntity.requestType = mTaskEntity.requestType;
     //ftp登录的
-    taskEntity.urlEntity = mTaskEntity.urlEntity;
-    taskEntity.key = entity.getDownloadPath();
+    taskEntity.urlEntity = createFtpUrlEntity(entity);
     taskEntity.save();
     mTasksMap.put(entity.getUrl(), taskEntity);
     return taskEntity;
+  }
+
+  private FtpUrlEntity createFtpUrlEntity(DownloadEntity entity) {
+    FtpUrlEntity urlEntity = CommonUtil.getFtpUrlInfo(entity.getUrl());
+    urlEntity.validAddr = mTaskEntity.urlEntity.validAddr;
+    return urlEntity;
   }
 
   /**

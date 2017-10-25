@@ -15,9 +15,9 @@
  */
 package com.arialyy.aria.core.queue.pool;
 
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -36,13 +36,13 @@ class DownloadExecutePool<TASK extends AbsTask> extends BaseExecutePool<TASK> {
   @Override public boolean putTask(TASK task) {
     synchronized (AriaManager.LOCK) {
       if (task == null) {
-        Log.e(TAG, "任务不能为空！！");
+        ALog.e(TAG, "任务不能为空！！");
         return false;
       }
       String url = task.getKey();
       if (mExecuteQueue.contains(task)) {
         if (!task.isRunning()) return true;
-        Log.e(TAG, "队列中已经包含了该任务，任务key【" + url + "】");
+        ALog.e(TAG, "队列中已经包含了该任务，任务key【" + url + "】");
         return false;
       } else {
         if (mExecuteQueue.size() >= mSize) {
@@ -65,7 +65,7 @@ class DownloadExecutePool<TASK extends AbsTask> extends BaseExecutePool<TASK> {
     try {
       TASK oldTask = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
       if (oldTask == null) {
-        Log.e(TAG, "移除任务失败");
+        ALog.e(TAG, "移除任务失败");
         return false;
       }
       if (oldTask.isHighestPriorityTask()) {

@@ -16,10 +16,10 @@
 package com.arialyy.aria.core.inf;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
@@ -107,7 +107,7 @@ public abstract class AbsDownloadTarget<TARGET extends AbsTarget, ENTITY extends
    */
   public void setRedirectUrlKey(String redirectUrlKey) {
     if (TextUtils.isEmpty(redirectUrlKey)) {
-      Log.w("AbsDownloadTarget", "重定向后，新url的key不能为null");
+      ALog.e("AbsDownloadTarget", "重定向后，新url的key不能为null");
       return;
     }
     mTaskEntity.redirectUrlKey = redirectUrlKey;

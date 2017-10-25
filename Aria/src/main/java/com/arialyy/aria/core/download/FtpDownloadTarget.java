@@ -19,6 +19,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 
@@ -100,10 +101,10 @@ public class FtpDownloadTarget extends DownloadTarget {
    */
   public FtpDownloadTarget login(String userName, String password, String account) {
     if (TextUtils.isEmpty(userName)) {
-      Log.e(TAG, "用户名不能为null");
+      ALog.e(TAG, "用户名不能为null");
       return this;
     } else if (TextUtils.isEmpty(password)) {
-      Log.e(TAG, "密码不能为null");
+      ALog.e(TAG, "密码不能为null");
       return this;
     }
     mTaskEntity.urlEntity.needLogin = true;

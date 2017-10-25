@@ -17,7 +17,6 @@
 package com.arialyy.aria.util;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
@@ -135,20 +134,20 @@ public class CheckUtil {
     if (entity instanceof DownloadTaskEntity) {
       DownloadEntity entity1 = ((DownloadTaskEntity) entity).getEntity();
       if (entity1 == null) {
-        Log.e(TAG, "下载实体不能为空");
+        ALog.e(TAG, "下载实体不能为空");
       } else if (checkType && TextUtils.isEmpty(entity1.getUrl())) {
-        Log.e(TAG, "下载链接不能为空");
+        ALog.e(TAG, "下载链接不能为空");
       } else if (checkType && TextUtils.isEmpty(entity1.getDownloadPath())) {
-        Log.e(TAG, "保存路径不能为空");
+        ALog.e(TAG, "保存路径不能为空");
       } else {
         b = true;
       }
     } else if (entity instanceof UploadTaskEntity) {
       UploadEntity entity1 = ((UploadTaskEntity) entity).getEntity();
       if (entity1 == null) {
-        Log.e(TAG, "上传实体不能为空");
+        ALog.e(TAG, "上传实体不能为空");
       } else if (TextUtils.isEmpty(entity1.getFilePath())) {
-        Log.e(TAG, "上传文件路径不能为空");
+        ALog.e(TAG, "上传文件路径不能为空");
       } else {
         b = true;
       }

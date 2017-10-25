@@ -17,11 +17,10 @@ package com.arialyy.aria.core.upload;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.core.upload.uploader.SimpleUploadUtil;
+import com.arialyy.aria.util.ALog;
 
 /**
  * Created by lyy on 2017/2/23.
@@ -54,7 +53,7 @@ public class UploadTask extends AbsNormalTask<UploadTaskEntity> {
 
   @Override public void start() {
     if (mUtil.isRunning()) {
-      Log.d(TAG, "任务正在下载");
+      ALog.d(TAG, "任务正在下载");
     } else {
       mUtil.start();
     }

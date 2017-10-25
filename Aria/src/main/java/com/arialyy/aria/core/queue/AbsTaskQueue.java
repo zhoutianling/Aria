@@ -16,13 +16,13 @@
 
 package com.arialyy.aria.core.queue;
 
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.NetUtils;
 
 /**
@@ -114,7 +114,7 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     int oldMaxSize = getConfigMaxNum();
     int diff = downloadNum - oldMaxSize;
     if (oldMaxSize == downloadNum) {
-      Log.d(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");
+      ALog.e(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");
       return;
     }
     //设置的任务数小于配置任务数
@@ -154,39 +154,39 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   }
 
   @Override public void stopTask(TASK task) {
-    if (!task.isRunning()) Log.w(TAG, "停止任务失败，【任务已经停止】");
+    if (!task.isRunning()) ALog.w(TAG, "停止任务失败，【任务已经停止】");
     if (mExecutePool.removeTask(task)) {
       task.stop();
     } else {
       task.stop();
-      Log.w(TAG, "删除任务失败，【执行队列中没有该任务】");
+      ALog.w(TAG, "删除任务失败，【执行队列中没有该任务】");
     }
   }
 
   @Override public void removeTaskFormQueue(String key) {
     TASK task = mExecutePool.getTask(key);
     if (task != null) {
-      Log.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
+      ALog.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
     }
     task = mCachePool.getTask(key);
     if (task != null) {
-      Log.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
+      ALog.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
     }
   }
 
   @Override public void reTryStart(TASK task) {
     if (task == null) {
-      Log.w(TAG, "重试失败，task 为null");
+      ALog.e(TAG, "重试失败，task 为null");
       return;
     }
     if (!NetUtils.isConnected(AriaManager.APP)) {
-      Log.w(TAG, "重试失败，网络未连接");
+      ALog.e(TAG, "重试失败，网络未连接");
       return;
     }
     if (!task.isRunning()) {
       task.start();
     } else {
-      Log.w(TAG, "任务没有完全停止，重试下载失败");
+      ALog.e(TAG, "任务没有完全停止，重试下载失败");
     }
   }
 
