@@ -47,7 +47,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
       //"http://sitcac.daxincf.cn/wp-content/uploads/swift_vido/01/element.mp4_1";
   //"http://120.25.196.56:8000/filereq?id=15692406294&ipncid=105635&client=android&filename=20170819185541.avi";
   //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
@@ -59,6 +59,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   //"http://172.18.104.50:8080/download/_302turn";
   //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
+  "http://172.21.1.99:8080/download/test+ 中文123.zip";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -73,8 +74,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
    * 设置start 和 stop 按钮状态
    */
   private void setBtState(boolean state) {
-    //mStart.setEnabled(state);
-    //mStop.setEnabled(!state);
+    mStart.setEnabled(state);
+    mStop.setEnabled(!state);
   }
 
   @Override public boolean onCreateOptionsMenu(Menu menu) {
@@ -117,7 +118,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     return true;
   }
 
-  @Download.onPre(DOWNLOAD_URL) protected void onPre(DownloadTask task) {
+  @Download.onPre protected void onPre(DownloadTask task) {
     setBtState(false);
   }
 
@@ -125,7 +126,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     getBinding().setFileSize(task.getConvertFileSize());
   }
 
-  @Download.onTaskRunning(DOWNLOAD_URL) protected void running(DownloadTask task) {
+  @Download.onTaskRunning protected void running(DownloadTask task) {
 
     long len = task.getFileSize();
     if (len == 0) {
@@ -136,18 +137,18 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     getBinding().setSpeed(task.getConvertSpeed());
   }
 
-  @Download.onTaskResume(DOWNLOAD_URL) void taskResume(DownloadTask task) {
+  @Download.onTaskResume void taskResume(DownloadTask task) {
     mStart.setText("暂停");
     setBtState(false);
   }
 
-  @Download.onTaskStop(DOWNLOAD_URL) void taskStop(DownloadTask task) {
+  @Download.onTaskStop void taskStop(DownloadTask task) {
     mStart.setText("恢复");
     setBtState(true);
     getBinding().setSpeed("");
   }
 
-  @Download.onTaskCancel(DOWNLOAD_URL) void taskCancel(DownloadTask task) {
+  @Download.onTaskCancel void taskCancel(DownloadTask task) {
     getBinding().setProgress(0);
     Toast.makeText(SingleTaskActivity.this, "取消下载", Toast.LENGTH_SHORT).show();
     mStart.setText("开始");
@@ -155,12 +156,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     getBinding().setSpeed("");
   }
 
-  @Download.onTaskFail(DOWNLOAD_URL) void taskFail(DownloadTask task) {
+  @Download.onTaskFail void taskFail(DownloadTask task) {
     Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
     setBtState(true);
   }
 
-  @Download.onTaskComplete(DOWNLOAD_URL) void taskComplete(DownloadTask task) {
+  @Download.onTaskComplete void taskComplete(DownloadTask task) {
     getBinding().setProgress(100);
     Toast.makeText(SingleTaskActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
     mStart.setText("重新开始？");
@@ -170,7 +171,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     L.d(TAG, "md5Code ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
   }
 
-  @Download.onNoSupportBreakPoint(DOWNLOAD_URL)
+  @Download.onNoSupportBreakPoint
   public void onNoSupportBreakPoint(DownloadTask task) {
     T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
   }
@@ -220,8 +221,9 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private void startD(){
+    Aria.download(this).load("aaaa.apk");
     Aria.download(SingleTaskActivity.this)
-        .load(DOWNLOAD_URL, true)
+        .load(DOWNLOAD_URL)
         .addHeader("groupName", "value")
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/hhhhhhhh.apk")
         .start();

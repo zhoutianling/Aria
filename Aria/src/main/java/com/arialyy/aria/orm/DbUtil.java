@@ -65,6 +65,17 @@ public class DbUtil {
   }
 
   /**
+   * 检查某个字段的值是否存在
+   *
+   * @param expression 字段和值"url=xxx"
+   * @return {@code true}该字段的对应的value已存在
+   */
+  synchronized boolean checkDataExist(Class clazz, String... expression) {
+    checkDb();
+    return SqlHelper.checkDataExist(mDb, clazz, expression);
+  }
+
+  /**
    * 清空表数据
    */
   synchronized <T extends DbEntity> void clean(Class<T> clazz) {

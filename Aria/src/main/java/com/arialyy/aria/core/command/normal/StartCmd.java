@@ -139,6 +139,7 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
     private void handleTask(List<AbsTaskEntity> waitList) {
       for (AbsTaskEntity te : waitList) {
+        if (te.getEntity() == null) continue;
         if (te instanceof DownloadTaskEntity) {
           mQueue = DownloadTaskQueue.getInstance();
         } else if (te instanceof UploadTaskEntity) {

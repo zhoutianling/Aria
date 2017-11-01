@@ -50,8 +50,7 @@ public class DownloadTarget
   DownloadTarget(String url, String targetName, boolean refreshInfo) {
     this.url = url;
     mTargetName = targetName;
-    DownloadEntity entity = getEntity(url);
-    initTask(entity);
+    initTask(getEntity(url));
     mTaskEntity.refreshInfo = refreshInfo;
   }
 
@@ -83,7 +82,6 @@ public class DownloadTarget
       entity = new DownloadEntity();
       entity.setUrl(downloadUrl);
       entity.setGroupChild(false);
-      entity.save();
     }
     File file = new File(entity.getDownloadPath());
     if (!file.exists()) {
@@ -107,6 +105,8 @@ public class DownloadTarget
 
   /**
    * 下载任务是否存在
+   *
+   * @return {@code true}任务存在
    */
   @Override public boolean taskExists() {
     return DownloadTaskQueue.getInstance().getTask(mEntity.getUrl()) != null;
@@ -125,16 +125,18 @@ public class DownloadTarget
     }
     File file = new File(downloadPath);
     if (file.isDirectory()) {
-      throw new IllegalArgumentException("文件不能为文件夹");
+      throw new IllegalArgumentException("保存路径不能为文件夹，路径需要是完整的文件路径，如：/mnt/sdcard/game.zip");
     }
     if (!downloadPath.equals(mEntity.getDownloadPath())) {
+      if (!mTaskEntity.refreshInfo && DbEntity.checkDataExist(DownloadEntity.class, "downloadPath=?", downloadPath)) {
+        throw new IllegalArgumentException("保存路径【" + downloadPath + "】已经被其它任务占用，请设置其它保存路径");
+      }
       File oldFile = new File(mEntity.getDownloadPath());
       File newFile = new File(downloadPath);
       if (TextUtils.isEmpty(mEntity.getDownloadPath()) || oldFile.renameTo(newFile)) {
         mEntity.setDownloadPath(downloadPath);
         mEntity.setFileName(newFile.getName());
         mTaskEntity.key = downloadPath;
-        mEntity.update();
         mTaskEntity.update();
         CommonUtil.renameDownloadConfig(oldFile.getName(), newFile.getName());
       }

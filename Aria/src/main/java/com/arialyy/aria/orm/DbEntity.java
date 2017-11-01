@@ -37,6 +37,16 @@ public class DbEntity {
   }
 
   /**
+   * 检查某个字段的值是否存在
+   *
+   * @param expression 字段和值"downloadPath=?"
+   * @return {@code true}该字段的对应的value已存在
+   */
+  public static boolean checkDataExist(Class clazz, String... expression) {
+    return DbUtil.getInstance().checkDataExist(clazz, expression);
+  }
+
+  /**
    * 清空表数据
    */
   public static <T extends DbEntity> void clean(Class<T> clazz) {

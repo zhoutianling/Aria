@@ -166,7 +166,7 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
       try {
         outHandler = new Handler(schedulers);
       } catch (Exception e) {
-        e.printStackTrace();
+        ALog.w(TAG, ALog.getExceptionString(e));
         outHandler = new Handler(Looper.getMainLooper(), schedulers);
       }
       return this;

@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.arialyy.aria.core.manager;
 
-package com.arialyy.aria.core.inf;
+import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
- * Created by AriaL on 2017/6/27.
+ * Created by Aria.Lao on 2017/11/1.
  */
-
-public abstract class AbsReceiver<ENTITY extends AbsEntity> implements IReceiver<ENTITY> {
-  public String targetName;
-  public Object obj;
+interface IEntityFactory<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>> {
   /**
-   * 当dialog、dialogFragment、popupwindow已经被设置了关闭监听时，需要手动移除receiver
+   * 通过信息实体创建任务实体
    */
-  public boolean needRmListener = false;
+  TASK_ENTITY create(ENTITY entity);
 
-  public void unRegisterListener(){
-
-  }
+  /**
+   * 通过key创建任务，只适应于单任务
+   */
+  TASK_ENTITY create(String key);
 }

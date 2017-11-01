@@ -35,6 +35,7 @@ import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadReceiver;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadReceiver;
@@ -78,7 +79,7 @@ import org.xml.sax.SAXException;
   public static final int LOG_DEFAULT = LOG_LEVEL_DEBUG;
 
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
-  private Map<String, IReceiver> mReceivers = new ConcurrentHashMap<>();
+  private Map<String, AbsReceiver> mReceivers = new ConcurrentHashMap<>();
   public static Context APP;
   private List<ICmd> mCommands = new ArrayList<>();
   private Configuration.DownloadConfig mDConfig;
@@ -100,7 +101,7 @@ import org.xml.sax.SAXException;
     return INSTANCE;
   }
 
-  public Map<String, IReceiver> getReceiver() {
+  public Map<String, AbsReceiver> getReceiver() {
     return mReceivers;
   }
 
@@ -264,22 +265,51 @@ import org.xml.sax.SAXException;
     }
 
     if (receiver == null) {
+      AbsReceiver absReceiver;
       if (isDownload) {
-        DownloadReceiver dReceiver = new DownloadReceiver();
-        dReceiver.targetName = obj.getClass().getName();
-        dReceiver.obj = obj;
-        dReceiver.needRmReceiver = needRmReceiver;
-        mReceivers.put(key, dReceiver);
-        receiver = dReceiver;
+        absReceiver = new DownloadReceiver();
       } else {
-        UploadReceiver uReceiver = new UploadReceiver();
-        uReceiver.targetName = obj.getClass().getName();
-        uReceiver.obj = obj;
-        uReceiver.needRmReceiver = needRmReceiver;
-        mReceivers.put(key, uReceiver);
-        receiver = uReceiver;
+        absReceiver = new UploadReceiver();
+      }
+      receiver = checkTarget(key, absReceiver, obj, needRmReceiver);
+    }
+    return receiver;
+  }
+
+  /**
+   * 不允许在"onDestroy"、"finish"、"onStop"这三个方法中添加注册器
+   */
+  private AbsReceiver checkTarget(String key, AbsReceiver receiver, Object obj, boolean needRmReceiver) {
+    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+    int i = 0;
+    for (StackTraceElement e : stack) {
+      String name = e.getClassName();
+      if (!name.equals(AriaManager.class.getName())) {
+        i++;
+      } else {
+        break;
       }
     }
+    i += 4;
+    String methodName = stack[i].getMethodName();
+    boolean isDestroyed =
+        methodName.equals("onDestroy") || methodName.equals("finish") || methodName.equals(
+            "onStop");
+
+    if (isDestroyed) {
+      ALog.w(TAG,
+          "请不要在Activity或Fragment的onDestroy、finish、onStop等方法中调用Aria，Aria的unRegister会在Activity页面销毁时自动执行");
+    }
+
+    if (obj instanceof Activity && isDestroyed) {
+      return receiver;
+    } else if (obj instanceof Fragment && isDestroyed) {
+      return receiver;
+    }
+    receiver.targetName = obj.getClass().getName();
+    receiver.obj = obj;
+    receiver.needRmListener = needRmReceiver;
+    mReceivers.put(key, receiver);
     return receiver;
   }
 
@@ -394,10 +424,11 @@ import org.xml.sax.SAXException;
    * 移除指定对象的receiver
    */
   public void removeReceiver(Object obj) {
+    if (obj == null) return;
     String clsName = obj.getClass().getName();
-    for (Iterator<Map.Entry<String, IReceiver>> iter = mReceivers.entrySet().iterator();
+    for (Iterator<Map.Entry<String, AbsReceiver>> iter = mReceivers.entrySet().iterator();
         iter.hasNext(); ) {
-      Map.Entry<String, IReceiver> entry = iter.next();
+      Map.Entry<String, AbsReceiver> entry = iter.next();
       String key = entry.getKey();
       if (key.contains(clsName)) {
         iter.remove();
@@ -410,14 +441,14 @@ import org.xml.sax.SAXException;
    */
   void destroySchedulerListener(Object obj) {
     String clsName = obj.getClass().getName();
-    for (Iterator<Map.Entry<String, IReceiver>> iter = mReceivers.entrySet().iterator();
+    for (Iterator<Map.Entry<String, AbsReceiver>> iter = mReceivers.entrySet().iterator();
         iter.hasNext(); ) {
-      Map.Entry<String, IReceiver> entry = iter.next();
+      Map.Entry<String, AbsReceiver> entry = iter.next();
       String key = entry.getKey();
       if (key.contains(clsName)) {
-        IReceiver receiver = mReceivers.get(key);
+        AbsReceiver receiver = mReceivers.get(key);
         if (receiver != null) {
-          receiver.unRegister();
+          receiver.unRegisterListener();
           receiver.destroy();
         }
         iter.remove();

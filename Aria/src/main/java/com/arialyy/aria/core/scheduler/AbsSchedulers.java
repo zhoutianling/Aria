@@ -17,6 +17,7 @@ package com.arialyy.aria.core.scheduler;
 
 import android.os.CountDownTimer;
 import android.os.Message;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
@@ -66,10 +67,15 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
   }
 
   @Override public void unRegister(Object obj) {
+    if (!mObservers.containsKey(obj.getClass().getName())) {
+      return;
+    }
     for (Iterator<Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalEntity>>> iter =
         mObservers.entrySet().iterator(); iter.hasNext(); ) {
       Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalEntity>> entry = iter.next();
-      if (entry.getKey().equals(obj.getClass().getName())) iter.remove();
+      if (entry.getKey().equals(obj.getClass().getName())) {
+        iter.remove();
+      }
     }
   }
 

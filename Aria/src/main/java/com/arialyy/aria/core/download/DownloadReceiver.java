@@ -67,6 +67,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @param refreshInfo 是否刷新下载信息
    */
   public DownloadTarget load(DownloadEntity entity, boolean refreshInfo) {
+    CheckUtil.checkDownloadUrl(entity.getUrl());
     return new DownloadTarget(entity, targetName, refreshInfo);
   }
 
@@ -152,9 +153,17 @@ public class DownloadReceiver extends AbsReceiver {
   }
 
   /**
-   * 取消注册
+   * 取消注册，如果是Activity或fragment，Aria会界面销毁时自动调用该方法。
+   * 如果是Dialog或popupwindow，需要你在撤销界面时调用该方法
    */
   @Override public void unRegister() {
+    if (needRmListener) {
+      unRegisterListener();
+    }
+    AriaManager.getInstance(AriaManager.APP).removeReceiver(obj);
+  }
+
+  @Override public void unRegisterListener() {
     String className = obj.getClass().getName();
     Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
     Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
@@ -165,9 +174,6 @@ public class DownloadReceiver extends AbsReceiver {
     if (dgCounter != null && dgCounter.contains(className) || (dgsCounter != null
         && dgsCounter.contains(className))) {
       DownloadGroupSchedulers.getInstance().unRegister(obj);
-    }
-    if (needRmReceiver) {
-      AriaManager.getInstance(AriaManager.APP).removeReceiver(obj);
     }
   }
 

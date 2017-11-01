@@ -16,8 +16,6 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsNormalTaskEntity;
-import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.orm.Ignore;
 import com.arialyy.aria.orm.NoNull;
 import com.arialyy.aria.orm.OneToOne;
 
@@ -52,10 +50,12 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
   }
 
   public void save(DownloadEntity entity) {
-    url = entity.getUrl();
-    key = entity.getDownloadPath();
     this.entity = entity;
-    entity.save();
+    if (entity != null) {
+      url = entity.getUrl();
+      key = entity.getDownloadPath();
+      entity.save();
+    }
     save();
   }
 }

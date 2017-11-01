@@ -134,8 +134,10 @@ public class CommonUtil {
    */
   public static String convertUrl(String url) {
     if (hasDoubleCharacter(url)) {
+      //预先处理空格，URLEncoder只会把空格转换为+
+      url = url.replaceAll(" ", "%20");
       //匹配双字节字符(包括汉字在内)
-      String regex = "[^\\x00-\\xff]";
+      String regex = Regular.REG_DOUBLE_CHAR_AND_SPACE;
       Pattern p = Pattern.compile(regex);
       Matcher m = p.matcher(url);
       Set<String> strs = new HashSet<>();
@@ -146,6 +148,7 @@ public class CommonUtil {
         for (String str : strs) {
           url = url.replaceAll(str, URLEncoder.encode(str, "UTF-8"));
         }
+
       } catch (UnsupportedEncodingException e) {
         e.printStackTrace();
       }
@@ -154,7 +157,7 @@ public class CommonUtil {
   }
 
   /**
-   * 判断是否有双字节字符(包括汉字在内)
+   * 判断是否有双字节字符(包括汉字在内) 和空格、制表符、回车
    *
    * @param chineseStr 需要进行判断的字符串
    * @return {@code true}有双字节字符，{@code false} 无双字节字符
@@ -162,7 +165,8 @@ public class CommonUtil {
   public static boolean hasDoubleCharacter(String chineseStr) {
     char[] charArray = chineseStr.toCharArray();
     for (char aCharArray : charArray) {
-      if ((aCharArray >= 0x0391) && (aCharArray <= 0xFFE5)) {
+      if (((aCharArray >= 0x0391) && (aCharArray <= 0xFFE5)) || (aCharArray == 0x0d) || (aCharArray
+          == 0x0a) || (aCharArray == 0x20)) {
         return true;
       }
     }

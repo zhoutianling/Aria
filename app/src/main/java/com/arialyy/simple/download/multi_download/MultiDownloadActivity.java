@@ -136,4 +136,9 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
   @DownloadGroup.onTaskRunning() void groupTaskRunning(DownloadGroupTask task) {
     mAdapter.setProgress(task.getEntity());
   }
+
+  @Override protected void onDestroy() {
+    super.onDestroy();
+    //Aria.download(this).unRegister();
+  }
 }

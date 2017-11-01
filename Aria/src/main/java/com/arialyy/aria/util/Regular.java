@@ -25,4 +25,8 @@ public interface Regular {
    */
   String REG_IP_V4 = "(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])";
 
+  /**
+   * 匹配双字节字符、空格、制表符、换行符
+   */
+  String REG_DOUBLE_CHAR_AND_SPACE = "[^\\x00-\\xff]|[\\s\\p{Zs}]";
 }

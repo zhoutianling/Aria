@@ -18,11 +18,10 @@ package com.arialyy.aria.core.upload;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
-import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
-import com.arialyy.aria.core.inf.IReceiver;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
@@ -80,7 +79,8 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   @Override public void stopAllTask() {
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(NormalCmdFactory.getInstance()
-            .createCmd(targetName, new UploadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL, ICmd.TASK_TYPE_UPLOAD))
+            .createCmd(targetName, new UploadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL,
+                ICmd.TASK_TYPE_UPLOAD))
         .exe();
   }
 
@@ -119,14 +119,22 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
     return this;
   }
 
+  /**
+   * 取消注册，如果是Activity或fragment，Aria会界面销毁时自动调用该方法。
+   * 如果是Dialog或popupwindow，需要你在撤销界面时调用该方法
+   */
   @Override public void unRegister() {
+    if (needRmListener) {
+      unRegisterListener();
+    }
+    AriaManager.getInstance(AriaManager.APP).removeReceiver(obj);
+  }
+
+  @Override public void unRegisterListener() {
     String className = obj.getClass().getName();
     Set<String> dCounter = ProxyHelper.getInstance().uploadCounter;
     if (dCounter != null && dCounter.contains(className)) {
       UploadSchedulers.getInstance().unRegister(obj);
-    }
-    if (needRmReceiver) {
-      AriaManager.getInstance(AriaManager.APP).removeReceiver(obj);
     }
   }
 }

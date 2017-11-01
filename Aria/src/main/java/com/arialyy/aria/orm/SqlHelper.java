@@ -163,6 +163,32 @@ final class SqlHelper extends SQLiteOpenHelper {
   }
 
   /**
+   * 检查某个字段的值是否存在
+   *
+   * @param expression 字段和值"url=xxx"
+   * @return {@code true}该字段的对应的value已存在
+   */
+  static synchronized boolean checkDataExist(SQLiteDatabase db, Class clazz,
+      String... expression) {
+    db = checkDb(db);
+    CheckUtil.checkSqlExpression(expression);
+    String sql =
+        "SELECT rowid, * FROM " + CommonUtil.getClassName(clazz) + " WHERE " + expression[0] + " ";
+    sql = sql.replace("?", "%s");
+    Object[] params = new String[expression.length - 1];
+    for (int i = 0, len = params.length; i < len; i++) {
+      params[i] = "'" + expression[i + 1] + "'";
+    }
+    sql = String.format(sql, params);
+    print(FIND_DATA, sql);
+    Cursor cursor = db.rawQuery(sql, null);
+    final boolean isExist = cursor.getCount() > 0;
+    closeCursor(cursor);
+    close(db);
+    return isExist;
+  }
+
+  /**
    * 条件查寻数据
    */
   static synchronized <T extends DbEntity> List<T> findData(SQLiteDatabase db, Class<T> clazz,
@@ -456,7 +482,8 @@ final class SqlHelper extends SQLiteOpenHelper {
           continue;
         }
         if (SqlUtil.isPrimary(field)) {
-          sb.append(" PRIMARY KEY");
+          //sb.append(" PRIMARY KEY");
+
         }
         if (SqlUtil.isForeign(field)) {
           foreignArray.add(field);
