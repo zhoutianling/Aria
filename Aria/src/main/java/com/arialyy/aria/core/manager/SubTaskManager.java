@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core;
+package com.arialyy.aria.core.manager;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.group.GroupCmdFactory;
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
 import com.arialyy.aria.util.ALog;

@@ -23,6 +23,7 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
@@ -161,6 +162,7 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
    * @return 创建的任务
    */
   AbsTask createTask(AbsTaskEntity taskEntity) {
+    TEManager.getInstance().addTEntity(taskEntity);
     return mQueue.createTask(mTargetName, taskEntity);
   }
 }

@@ -17,10 +17,9 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.AbsUploadTarget;
-import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -33,23 +32,22 @@ import java.io.File;
 public class FtpUploadTarget
     extends AbsUploadTarget<FtpUploadTarget, UploadEntity, UploadTaskEntity> {
   private final String TAG = "FtpUploadTarget";
-  private FtpUrlEntity mUrlEntity;
 
   FtpUploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
-    mTaskEntity = DbEntity.findFirst(UploadTaskEntity.class, "key=?", filePath);
+    initTask(filePath);
+  }
+
+  private void initTask(String filePath) {
+    mTaskEntity = TEManager.getInstance().getTEntity(UploadTaskEntity.class, filePath);
     if (mTaskEntity == null) {
-      mTaskEntity = new UploadTaskEntity();
-      mTaskEntity.entity = getUploadEntity(filePath);
+      mTaskEntity = TEManager.getInstance().createTEntity(UploadTaskEntity.class, filePath);
     }
-    if (mTaskEntity.entity == null) {
-      mTaskEntity.entity = getUploadEntity(filePath);
-    }
-    mTaskEntity.requestType = AbsTaskEntity.FTP;
     mEntity = mTaskEntity.entity;
     File file = new File(filePath);
     mEntity.setFileName(file.getName());
     mEntity.setFileSize(file.length());
+    mTaskEntity.requestType = AbsTaskEntity.FTP;
   }
 
   /**

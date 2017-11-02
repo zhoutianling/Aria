@@ -15,43 +15,67 @@
  */
 package com.arialyy.aria.core.manager;
 
-import android.text.TextUtils;
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.Regular;
+import java.util.regex.Pattern;
 
 /**
  * Created by Aria.Lao on 2017/11/1.
  * 任务实体工厂
  */
-class DTaskEntityFactory implements ITaskEntityFactory<DownloadEntity, DownloadTaskEntity> {
-  private static final String TAG = "DTaskEntityFactory";
-  private static volatile DTaskEntityFactory INSTANCE = null;
+class UTEntityFactory implements ITEntityFactory<UploadEntity, UploadTaskEntity> {
+  private static final String TAG = "DTEntityFactory";
+  private static volatile UTEntityFactory INSTANCE = null;
 
-  private DTaskEntityFactory() {
+  private UTEntityFactory() {
   }
 
-  public static DTaskEntityFactory getInstance() {
+  public static UTEntityFactory getInstance() {
     if (INSTANCE == null) {
-      synchronized (DTaskEntityFactory.class) {
-        INSTANCE = new DTaskEntityFactory();
+      synchronized (UTEntityFactory.class) {
+        INSTANCE = new UTEntityFactory();
       }
     }
     return INSTANCE;
   }
 
-  @Override public DownloadTaskEntity create(DownloadEntity entity) {
-    DownloadTaskEntity taskEntity =
-        DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false' and url=?",
-            entity.getDownloadPath(), entity.getUrl());
-    if (taskEntity == null) {
-      taskEntity = new DownloadTaskEntity();
-      taskEntity.save(entity);
-    } else if (taskEntity.entity == null || TextUtils.isEmpty(taskEntity.entity.getUrl())) {
-      taskEntity.save(entity);
-    } else if (!taskEntity.entity.getUrl().equals(entity.getUrl())) {  //处理地址切换而保存路径不变
-      taskEntity.save(entity);
+  @Override public UploadTaskEntity create(UploadEntity entity) {
+    UploadTaskEntity uTaskEntity =
+        DbEntity.findFirst(UploadTaskEntity.class, "key=?", entity.getFilePath());
+    if (uTaskEntity == null) {
+      uTaskEntity = new UploadTaskEntity();
+      uTaskEntity.entity = entity;
     }
-    return taskEntity;
+    if (uTaskEntity.entity == null) {
+      uTaskEntity.entity = entity;
+    }
+    return uTaskEntity;
+  }
+
+  @Override public UploadTaskEntity create(String key) {
+    return create(getUploadEntity(key));
+  }
+
+  /**
+   * 从数据中读取上传实体，如果数据库查不到，则新创建一个上传实体
+   *
+   * @param filePath 上传文件的文件路径
+   */
+  private UploadEntity getUploadEntity(String filePath) {
+    UploadEntity entity = UploadEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
+    if (entity == null) {
+      entity = new UploadEntity();
+      //String regex = "[/|\\\\|//]";
+      String regex = Regular.REG_FILE_NAME;
+      Pattern p = Pattern.compile(regex);
+      String[] strs = p.split(filePath);
+      String fileName = strs[strs.length - 1];
+      entity.setFileName(fileName);
+      entity.setFilePath(filePath);
+      entity.insert();
+    }
+    return entity;
   }
 }

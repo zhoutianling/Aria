@@ -17,7 +17,6 @@ package com.arialyy.aria.core.scheduler;
 
 import android.os.CountDownTimer;
 import android.os.Message;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
@@ -26,6 +25,7 @@ import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.GroupSendParams;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.util.ALog;
@@ -175,6 +175,9 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
         handleFailTask(task);
         break;
     }
+    if (what == CANCEL || what == COMPLETE) {
+      TEManager.getInstance().removeTEntity(task.getKey());
+    }
     callback(what, task);
   }
 
@@ -269,6 +272,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
         } else {
           mQueue.removeTaskFormQueue(task.getKey());
           startNextTask();
+          TEManager.getInstance().removeTEntity(task.getKey());
         }
       }
     };
@@ -281,7 +285,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
   private void startNextTask() {
     TASK newTask = mQueue.getNextTask();
     if (newTask == null) {
-      ALog.d(TAG, "没有下一任务");
+      ALog.i(TAG, "没有下一任务");
       return;
     }
     if (newTask.getState() == IEntity.STATE_WAIT) {

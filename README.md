@@ -91,6 +91,8 @@ protected void onCreate(Bundle savedInstanceState) {
 
 ### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
+### [历史版本说明](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
+
 ## 混淆配置
 ```
 -dontwarn com.arialyy.aria.**

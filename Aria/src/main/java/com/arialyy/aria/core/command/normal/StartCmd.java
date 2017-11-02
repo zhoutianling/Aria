@@ -24,6 +24,7 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;

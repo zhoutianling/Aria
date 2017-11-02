@@ -54,7 +54,7 @@ public class DownloadGroupEntity extends AbsGroupEntity {
     this.dirPath = dirPath;
   }
 
-  void setGroupName(String key) {
+  public void setGroupName(String key) {
     this.groupName = key;
   }
 

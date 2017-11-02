@@ -16,12 +16,9 @@
 package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
-import com.arialyy.aria.core.inf.AbsDownloadTarget;
 import com.arialyy.aria.core.inf.AbsUploadTarget;
-import com.arialyy.aria.core.queue.UploadTaskQueue;
-import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import java.io.File;
-import java.util.regex.Pattern;
 
 /**
  * Created by lyy on 2017/2/28.
@@ -31,18 +28,18 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
 
   UploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
-    mTaskEntity = DbEntity.findFirst(UploadTaskEntity.class, "key=?", filePath);
+    initTask(filePath);
+  }
+
+  private void initTask(String filePath) {
+    mTaskEntity = TEManager.getInstance().getTEntity(UploadTaskEntity.class, filePath);
     if (mTaskEntity == null) {
-      mTaskEntity = new UploadTaskEntity();
-      mTaskEntity.entity = getUploadEntity(filePath);
-    }
-    if (mTaskEntity.entity == null) {
-      mTaskEntity.entity = getUploadEntity(filePath);
+      mTaskEntity = TEManager.getInstance().createTEntity(UploadTaskEntity.class, filePath);
     }
     mEntity = mTaskEntity.entity;
     File file = new File(filePath);
+    mEntity.setFileName(file.getName());
     mEntity.setFileSize(file.length());
-    mEntity = mTaskEntity.entity;
     //http暂时不支持断点上传
     mTaskEntity.isSupportBP = false;
   }

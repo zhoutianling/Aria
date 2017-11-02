@@ -1,5 +1,6 @@
 package com.arialyy.aria.core.command.normal;
 
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;

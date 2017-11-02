@@ -69,14 +69,7 @@ import org.xml.sax.SAXException;
   public static final String DOWNLOAD_TEMP_DIR = "/Aria/temp/download/";
   public static final String UPLOAD_TEMP_DIR = "/Aria/temp/upload/";
 
-  public static final int LOG_LEVEL_VERBOSE = 2;
-  public static final int LOG_LEVEL_DEBUG = 3;
-  public static final int LOG_LEVEL_INFO = 4;
-  public static final int LOG_LEVEL_WARN = 5;
-  public static final int LOG_LEVEL_ERROR = 6;
-  public static final int LOG_LEVEL_ASSERT = 7;
-  public static final int LOG_CLOSE = 8;
-  public static final int LOG_DEFAULT = LOG_LEVEL_DEBUG;
+
 
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
   private Map<String, AbsReceiver> mReceivers = new ConcurrentHashMap<>();
@@ -108,7 +101,7 @@ import org.xml.sax.SAXException;
   /**
    * 设置Aria 日志级别
    *
-   * @param level {@link #LOG_LEVEL_VERBOSE}
+   * @param level {@link ALog#LOG_LEVEL_VERBOSE}
    */
   public void setLogLevel(int level) {
     ALog.LOG_LEVEL = level;

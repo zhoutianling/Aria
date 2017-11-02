@@ -16,10 +16,10 @@
 package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
-import com.arialyy.aria.core.SubTaskManager;
 import com.arialyy.aria.core.inf.AbsDownloadTarget;
-import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
+import com.arialyy.aria.core.inf.AbsTarget;
+import com.arialyy.aria.core.manager.SubTaskManager;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -44,20 +44,6 @@ abstract class BaseGroupTarget<TARGET extends AbsTarget, TASK_ENTITY extends Abs
   private boolean isSetDirPathed = false;
 
   private SubTaskManager mSubTaskManager;
-
-  /**
-   * 查询任务组实体，如果数据库不存在该实体，则新创建一个新的任务组实体
-   */
-  DownloadGroupEntity getDownloadGroupEntity() {
-    DownloadGroupEntity entity =
-        DbEntity.findFirst(DownloadGroupEntity.class, "groupName=?", mGroupName);
-    if (entity == null) {
-      entity = new DownloadGroupEntity();
-      entity.setGroupName(mGroupName);
-      entity.setUrls(mUrls);
-    }
-    return entity;
-  }
 
   /**
    * 获取子任务管理器

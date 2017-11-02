@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core;
+package com.arialyy.aria.core.manager;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
@@ -26,14 +27,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by Aria.Lao on 2017/9/1.
  * 任务管理器
  */
-public class TaskManager {
+class TaskManager {
   private static final String TAG = "TaskManager";
   private static volatile TaskManager INSTANCE = null;
   private Map<String, AbsTask> map = new ConcurrentHashMap<>();
 
   public static TaskManager getInstance() {
     if (INSTANCE == null) {
-      synchronized (AriaManager.LOCK) {
+      synchronized (TaskManager.class) {
         INSTANCE = new TaskManager();
       }
     }

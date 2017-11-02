@@ -8,7 +8,7 @@
     <threadNum value="1"/>
 
     <!--设置下载队列最大任务数， 默认为2-->
-    <maxTaskNum value="1"/>
+    <maxTaskNum value="2"/>
 
     <!--设置下载失败，重试次数，默认为10-->
     <reTryNum value="2"/>
@@ -17,7 +17,7 @@
     <reTryInterval value="5000"/>
 
     <!--设置url连接超时时间，单位为毫秒，默认5000毫秒-->
-    <connectTimeOut value="1000"/>
+    <connectTimeOut value="5000"/>
 
     <!--设置IO流读取时间，单位为毫秒，默认20000毫秒，该时间不能少于10000毫秒-->
     <iOTimeOut value="10000"/>

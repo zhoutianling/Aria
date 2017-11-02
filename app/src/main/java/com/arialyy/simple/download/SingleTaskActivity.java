@@ -34,6 +34,7 @@ import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
@@ -47,7 +48,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
       //"http://sitcac.daxincf.cn/wp-content/uploads/swift_vido/01/element.mp4_1";
   //"http://120.25.196.56:8000/filereq?id=15692406294&ipncid=105635&client=android&filename=20170819185541.avi";
   //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
@@ -59,7 +60,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   //"http://172.18.104.50:8080/download/_302turn";
   //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
-  "http://172.21.1.99:8080/download/test+ 中文123.zip";
+  //"http://172.21.1.99:8080/download/test+ 中文123.zip";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -221,11 +222,17 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   private void startD(){
-    Aria.download(this).load("aaaa.apk");
+    //Aria.get(this).setLogLevel(ALog.LOG_CLOSE);
+    //Aria.download(this).load("aaaa.apk");
     Aria.download(SingleTaskActivity.this)
         .load(DOWNLOAD_URL)
         .addHeader("groupName", "value")
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/hhhhhhhh.apk")
         .start();
+  }
+
+  @Override protected void onDestroy() {
+    super.onDestroy();
+    Aria.download(this).unRegister();
   }
 }

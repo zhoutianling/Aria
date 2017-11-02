@@ -15,8 +15,7 @@
  */
 package com.arialyy.aria.core.download;
 
-import android.text.TextUtils;
-import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -35,24 +34,23 @@ public class DownloadGroupTarget
     if (groupEntity.getUrls() != null && !groupEntity.getUrls().isEmpty()) {
       this.mUrls.addAll(groupEntity.getUrls());
     }
-    init(groupEntity.getGroupName());
+    mGroupName = CommonUtil.getMd5Code(groupEntity.getUrls());
+    mTaskEntity = TEManager.getInstance()
+        .getTEntity(DownloadGroupTaskEntity.class, mGroupName);
+    if (mTaskEntity == null) {
+      mTaskEntity =
+          TEManager.getInstance().createTEntity(DownloadGroupTaskEntity.class, groupEntity);
+    }
+    mEntity = mTaskEntity.entity;
   }
 
   DownloadGroupTarget(List<String> urls, String targetName) {
     this.mTargetName = targetName;
     this.mUrls = urls;
-    init(CommonUtil.getMd5Code(urls));
-  }
-
-  private void init(String key) {
-    mGroupName = key;
-    mTaskEntity = DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", key);
+    mGroupName = CommonUtil.getMd5Code(urls);
+    mTaskEntity = TEManager.getInstance().getTEntity(DownloadGroupTaskEntity.class, mGroupName);
     if (mTaskEntity == null) {
-      mTaskEntity = new DownloadGroupTaskEntity();
-      mTaskEntity.save(getDownloadGroupEntity());
-    }
-    if (mTaskEntity.entity == null || TextUtils.isEmpty(mTaskEntity.entity.getKey())) {
-      mTaskEntity.save(getDownloadGroupEntity());
+      mTaskEntity = TEManager.getInstance().createGTEntity(DownloadGroupTaskEntity.class, mUrls);
     }
     mEntity = mTaskEntity.entity;
   }

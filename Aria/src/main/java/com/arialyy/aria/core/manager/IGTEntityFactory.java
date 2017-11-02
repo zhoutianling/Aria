@@ -17,18 +17,16 @@ package com.arialyy.aria.core.manager;
 
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import java.util.List;
 
 /**
+ * 任务组通过组创建任务
  * Created by Aria.Lao on 2017/11/1.
  */
-interface IEntityFactory<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>> {
-  /**
-   * 通过信息实体创建任务实体
-   */
-  TASK_ENTITY create(ENTITY entity);
+interface IGTEntityFactory<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>> {
 
   /**
-   * 通过key创建任务，只适应于单任务
+   * 通过key创建任务
    */
-  TASK_ENTITY create(String key);
+  TASK_ENTITY create(String groupName, List<String> urls);
 }

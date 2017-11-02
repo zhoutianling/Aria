@@ -43,6 +43,37 @@ public class FtpDownloadTarget extends DownloadTarget {
   }
 
   /**
+   * 设置文件保存文件夹路径
+   * 关于文件名：
+   * 1、如果保存路径是该文件的保存路径，如：/mnt/sdcard/file.zip，则使用路径中的文件名file.zip
+   * 2、如果保存路径是文件夹路径，如：/mnt/sdcard/，则使用FTP服务器该文件的文件名
+   *
+   * @param downloadPath 路径必须为文件路径，不能为文件夹路径
+   */
+  @Override public FtpDownloadTarget setDownloadPath(@NonNull String downloadPath) {
+    if (TextUtils.isEmpty(downloadPath)) {
+      throw new IllegalArgumentException("文件保持路径不能为null");
+    }
+    File file = new File(downloadPath);
+    if (file.isDirectory()) {
+      downloadPath += mEntity.getFileName();
+    }
+    if (!downloadPath.equals(mEntity.getDownloadPath())) {
+      File oldFile = new File(mEntity.getDownloadPath());
+      File newFile = new File(downloadPath);
+      if (TextUtils.isEmpty(mEntity.getDownloadPath()) || oldFile.renameTo(newFile)) {
+        mEntity.setDownloadPath(downloadPath);
+        mEntity.setFileName(newFile.getName());
+        mTaskEntity.key = downloadPath;
+        mEntity.update();
+        mTaskEntity.update();
+        CommonUtil.renameDownloadConfig(oldFile.getName(), newFile.getName());
+      }
+    }
+    return this;
+  }
+
+  /**
    * 设置字符编码
    */
   public FtpDownloadTarget charSet(String charSet) {

@@ -46,27 +46,6 @@ public abstract class AbsUploadTarget<TARGET extends AbsUploadTarget, ENTITY ext
   }
 
   /**
-   * 从数据中读取上传实体，如果数据库查不到，则新创建一个上传实体
-   *
-   * @param filePath 上传文件的文件路径
-   */
-  protected UploadEntity getUploadEntity(String filePath) {
-    UploadEntity entity = UploadEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
-    if (entity == null) {
-      entity = new UploadEntity();
-      //String regex = "[/|\\\\|//]";
-      String regex = Regular.REG_FILE_NAME;
-      Pattern p = Pattern.compile(regex);
-      String[] strs = p.split(filePath);
-      String fileName = strs[strs.length - 1];
-      entity.setFileName(fileName);
-      entity.setFilePath(filePath);
-      entity.insert();
-    }
-    return entity;
-  }
-
-  /**
    * 下载任务是否存在
    */
   @Override public boolean taskExists() {

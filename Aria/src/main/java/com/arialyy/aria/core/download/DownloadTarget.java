@@ -17,8 +17,9 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.inf.AbsDownloadTarget;
-import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
@@ -39,7 +40,11 @@ public class DownloadTarget
   DownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
     this.url = entity.getUrl();
     mTargetName = targetName;
-    initTask(entity);
+    mTaskEntity = TEManager.getInstance().getTEntity(DownloadTaskEntity.class, url);
+    if (mTaskEntity == null) {
+      mTaskEntity = TEManager.getInstance().createTEntity(DownloadTaskEntity.class, entity);
+    }
+    mEntity = mTaskEntity.entity;
     mTaskEntity.refreshInfo = refreshInfo;
   }
 
@@ -50,44 +55,12 @@ public class DownloadTarget
   DownloadTarget(String url, String targetName, boolean refreshInfo) {
     this.url = url;
     mTargetName = targetName;
-    initTask(getEntity(url));
-    mTaskEntity.refreshInfo = refreshInfo;
-  }
-
-  private void initTask(DownloadEntity entity) {
-    mTaskEntity =
-        DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false' and url=?",
-            entity.getDownloadPath(), entity.getUrl());
+    mTaskEntity = TEManager.getInstance().getTEntity(DownloadTaskEntity.class, url);
     if (mTaskEntity == null) {
-      mTaskEntity = new DownloadTaskEntity();
-      mTaskEntity.save(entity);
-    } else if (mTaskEntity.entity == null || TextUtils.isEmpty(mTaskEntity.entity.getUrl())) {
-      mTaskEntity.save(entity);
-    } else if (!mTaskEntity.entity.getUrl().equals(entity.getUrl())) {  //处理地址切换而保存路径不变
-      mTaskEntity.save(entity);
+      mTaskEntity = TEManager.getInstance().createTEntity(DownloadTaskEntity.class, url);
     }
-    mEntity = entity;
-  }
-
-  /**
-   * 如果任务存在，但是下载实体不存在，则通过下载地址获取下载实体
-   *
-   * @param downloadUrl 下载地址
-   */
-  private DownloadEntity getEntity(String downloadUrl) {
-    DownloadEntity entity =
-        DownloadEntity.findFirst(DownloadEntity.class, "url=? and isGroupChild='false'",
-            downloadUrl);
-    if (entity == null) {
-      entity = new DownloadEntity();
-      entity.setUrl(downloadUrl);
-      entity.setGroupChild(false);
-    }
-    File file = new File(entity.getDownloadPath());
-    if (!file.exists()) {
-      entity.setState(IEntity.STATE_WAIT);
-    }
-    return entity;
+    mEntity = mTaskEntity.entity;
+    mTaskEntity.refreshInfo = refreshInfo;
   }
 
   /**
@@ -128,7 +101,8 @@ public class DownloadTarget
       throw new IllegalArgumentException("保存路径不能为文件夹，路径需要是完整的文件路径，如：/mnt/sdcard/game.zip");
     }
     if (!downloadPath.equals(mEntity.getDownloadPath())) {
-      if (!mTaskEntity.refreshInfo && DbEntity.checkDataExist(DownloadEntity.class, "downloadPath=?", downloadPath)) {
+      if (!mTaskEntity.refreshInfo && DbEntity.checkDataExist(DownloadEntity.class,
+          "downloadPath=?", downloadPath)) {
         throw new IllegalArgumentException("保存路径【" + downloadPath + "】已经被其它任务占用，请设置其它保存路径");
       }
       File oldFile = new File(mEntity.getDownloadPath());

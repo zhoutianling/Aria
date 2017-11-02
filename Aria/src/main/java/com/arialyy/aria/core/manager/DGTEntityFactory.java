@@ -19,28 +19,33 @@ import android.text.TextUtils;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.CommonUtil;
+import java.util.List;
 
 /**
  * Created by Aria.Lao on 2017/11/1.
  * 任务实体工厂
  */
-class DGTaskEntityFactory
-    implements ITaskEntityFactory<DownloadGroupEntity, DownloadGroupTaskEntity> {
-  private static final String TAG = "DTaskEntityFactory";
-  private static volatile DGTaskEntityFactory INSTANCE = null;
+class DGTEntityFactory implements ITEntityFactory<DownloadGroupEntity, DownloadGroupTaskEntity>,
+    IGTEntityFactory<DownloadGroupEntity, DownloadGroupTaskEntity> {
+  private static final String TAG = "DTEntityFactory";
+  private static volatile DGTEntityFactory INSTANCE = null;
 
-  private DGTaskEntityFactory() {
+  private DGTEntityFactory() {
   }
 
-  public static DGTaskEntityFactory getInstance() {
+  public static DGTEntityFactory getInstance() {
     if (INSTANCE == null) {
-      synchronized (DGTaskEntityFactory.class) {
-        INSTANCE = new DGTaskEntityFactory();
+      synchronized (DGTEntityFactory.class) {
+        INSTANCE = new DGTEntityFactory();
       }
     }
     return INSTANCE;
   }
 
+  /**
+   * 通过下载实体创建任务实体
+   */
   @Override public DownloadGroupTaskEntity create(DownloadGroupEntity entity) {
     DownloadGroupTaskEntity dgTaskEntity =
         DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", entity.getGroupName());
@@ -52,5 +57,42 @@ class DGTaskEntityFactory
       dgTaskEntity.save(entity);
     }
     return dgTaskEntity;
+  }
+
+  /**
+   * 对于任务组，不能使用这个，可用于FTP文件夹下载
+   *
+   * @deprecated {@link #create(String, List)}
+   */
+  @Override @Deprecated public DownloadGroupTaskEntity create(String key) {
+    DownloadGroupTaskEntity dgTaskEntity =
+        DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", key);
+    if (dgTaskEntity == null) {
+      dgTaskEntity = new DownloadGroupTaskEntity();
+      dgTaskEntity.save(getDownloadGroupEntity(key, null));
+    }
+    if (dgTaskEntity.entity == null || TextUtils.isEmpty(dgTaskEntity.entity.getKey())) {
+      dgTaskEntity.save(getDownloadGroupEntity(key, null));
+    }
+    dgTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(key);
+    return dgTaskEntity;
+  }
+
+  @Override public DownloadGroupTaskEntity create(String groupName, List<String> urls) {
+    return create(getDownloadGroupEntity(groupName, urls));
+  }
+
+  /**
+   * 查询任务组实体，如果数据库不存在该实体，则新创建一个新的任务组实体
+   */
+  private DownloadGroupEntity getDownloadGroupEntity(String groupName, List<String> urls) {
+    DownloadGroupEntity entity =
+        DbEntity.findFirst(DownloadGroupEntity.class, "groupName=?", groupName);
+    if (entity == null) {
+      entity = new DownloadGroupEntity();
+      entity.setGroupName(groupName);
+      entity.setUrls(urls);
+    }
+    return entity;
   }
 }

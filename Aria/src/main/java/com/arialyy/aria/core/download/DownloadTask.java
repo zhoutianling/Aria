@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.downloader.SimpleDownloadUtil;

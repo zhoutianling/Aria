@@ -37,7 +37,7 @@ import java.io.File;
 public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding> {
   //private final String URL = "ftp://192.168.1.9:21/下载/AriaPrj.zip";
   //private final String URL = "ftp://192.168.1.9:21/下载/[电影天堂www.dy2018.com]赛车总动员3BD中英双字.mp4";
-  private final String URL = "ftp://j:j@g.dygod18.com:7978/江湖告急BD国粤双语中字[电影天堂www.dy2018.com].mkv";
+  private final String URL = "ftp://h:h@tv.dl1234.com:2199/付岩洞复仇者们05.mkv";
   //private final String URL = "ftp://172.18.104.64:21/upload/测试/成都.mp3";
 
   @Override protected void init(Bundle savedInstanceState) {

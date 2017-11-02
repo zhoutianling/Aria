@@ -15,79 +15,194 @@
  */
 package com.arialyy.aria.core.manager;
 
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by Aria.Lao on 2017/11/1.
  * 任务实体管理器，负责
  */
-public class TaskEntityManager {
+public class TEManager {
   private static final String TAG = "TaskManager";
-  private static volatile TaskEntityManager INSTANCE = null;
+  private static volatile TEManager INSTANCE = null;
   private Map<String, AbsTaskEntity> map = new ConcurrentHashMap<>();
+  private Lock lock;
 
-  public static TaskEntityManager getInstance() {
+  public static TEManager getInstance() {
     if (INSTANCE == null) {
-      synchronized (TaskEntityManager.class) {
-        INSTANCE = new TaskEntityManager();
+      synchronized (TEManager.class) {
+        INSTANCE = new TEManager();
       }
     }
     return INSTANCE;
   }
 
-  /**
-   * 通过下载实体获取下载任务实体，如果查找不到任务实体，则重新创建任务实体
-   */
-  public DownloadTaskEntity getDTEntity(DownloadEntity entity) {
-    AbsTaskEntity tEntity = map.get(convertKey(entity.getKey()));
-    if (tEntity == null || !(tEntity instanceof DownloadTaskEntity)) {
-      tEntity = DTEntityFactory.getInstance().create(entity);
-      map.put(convertKey(entity.getKey()), tEntity);
-    }
-    return (DownloadTaskEntity) tEntity;
+  private TEManager() {
+    lock = new ReentrantLock();
   }
 
   /**
-   * 通过下载实体获取下载任务组实体，如果查找不到任务组实体，则重新创建任务组实体
+   * 通过key创建任务，只适应于单任务，不能用于HTTP任务组，可用于Ftp文件夹
+   * 如果是任务组，请使用{@link #createGTEntity(Class, List)}
+   *
+   * @return 如果任务实体创建失败，返回null
    */
-  public DownloadGroupTaskEntity getDGTEntity(DownloadGroupEntity entity) {
-    AbsTaskEntity tEntity = map.get(convertKey(entity.getKey()));
-    if (tEntity == null || !(tEntity instanceof DownloadGroupTaskEntity)) {
-      tEntity = DGTEntityFactory.getInstance().create(entity);
-      map.put(convertKey(entity.getKey()), tEntity);
+  public <TE extends AbsTaskEntity> TE createTEntity(Class<TE> clazz, String key) {
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      AbsTaskEntity tEntity = map.get(convertKey(key));
+      if (tEntity == null || tEntity.getClass() != clazz) {
+        ITEntityFactory factory = chooseFactory(clazz);
+        if (factory == null) {
+          ALog.e(TAG, "任务实体创建失败");
+          return null;
+        }
+        tEntity = factory.create(key);
+        map.put(convertKey(key), tEntity);
+      }
+      return (TE) tEntity;
+    } finally {
+      lock.unlock();
     }
-    return (DownloadGroupTaskEntity) tEntity;
   }
 
   /**
-   * 通过下载实体获取下载任务组实体，如果查找不到任务组实体，则重新创建任务组实体
+   * 创建任务组实体
+   *
+   * @return 如果任务实体创建失败，返回null
    */
-  public UploadTaskEntity getUTEntity(UploadEntity entity) {
-    AbsTaskEntity tEntity = map.get(convertKey(entity.getKey()));
-    if (tEntity == null || !(tEntity instanceof UploadTaskEntity)) {
-      tEntity = UTEntityFactory.getInstance().create(entity);
-      map.put(convertKey(entity.getKey()), tEntity);
+  public <TE extends AbsTaskEntity> TE createGTEntity(Class<TE> clazz, List<String> urls) {
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      String groupName = CommonUtil.getMd5Code(urls);
+      AbsTaskEntity tEntity = map.get(convertKey(groupName));
+      if (tEntity == null || tEntity.getClass() != clazz) {
+        IGTEntityFactory factory = chooseGroupFactory(clazz);
+        if (factory == null) {
+          ALog.e(TAG, "任务实体创建失败");
+          return null;
+        }
+        tEntity = factory.create(groupName, urls);
+        map.put(convertKey(groupName), tEntity);
+      }
+      return (TE) tEntity;
+    } finally {
+      lock.unlock();
     }
-    return (UploadTaskEntity) tEntity;
+  }
+
+  /**
+   * 通过实体创建任务
+   *
+   * @return 如果任务实体创建失败，返回null
+   */
+  public <TE extends AbsTaskEntity> TE createTEntity(Class<TE> clazz, AbsEntity absEntity) {
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      AbsTaskEntity tEntity = map.get(convertKey(absEntity.getKey()));
+      if (tEntity == null || tEntity.getClass() != clazz) {
+        ITEntityFactory factory = chooseFactory(clazz);
+        if (factory == null) {
+          ALog.e(TAG, "任务实体创建失败");
+          return null;
+        }
+        tEntity = factory.create(absEntity);
+        map.put(convertKey(absEntity.getKey()), tEntity);
+      }
+      return (TE) tEntity;
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  private IGTEntityFactory chooseGroupFactory(Class clazz) {
+    if (clazz == DownloadGroupTaskEntity.class) {
+      return DGTEntityFactory.getInstance();
+    }
+    return null;
+  }
+
+  private ITEntityFactory chooseFactory(Class clazz) {
+    if (clazz == DownloadTaskEntity.class) {
+      return DTEntityFactory.getInstance();
+    } else if (clazz == UploadTaskEntity.class) {
+      return UTEntityFactory.getInstance();
+    } else if (clazz == DownloadGroupTaskEntity.class) {
+      return DGTEntityFactory.getInstance();
+    }
+    return null;
+  }
+
+  /**
+   * 从任务实体管理器中获取任务实体
+   */
+  public <TE extends AbsTaskEntity> TE getTEntity(Class<TE> clazz, String key) {
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      AbsTaskEntity tEntity = map.get(convertKey(key));
+      if (tEntity == null) {
+        return null;
+      } else {
+        return (TE) tEntity;
+      }
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * 向管理器中增加任务实体
+   *
+   * @return {@code false} 实体为null，添加失败
+   */
+  public boolean addTEntity(AbsTaskEntity te) {
+    if (te == null) {
+      ALog.e(TAG, "任务实体添加失败");
+      return false;
+    }
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      return map.put(convertKey(te.key), te) != null;
+    } finally {
+      lock.unlock();
+    }
   }
 
   /**
    * 通过key删除任务实体
    */
   public AbsTaskEntity removeTEntity(String key) {
-    return map.remove(convertKey(key));
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      return map.remove(convertKey(key));
+    } finally {
+      lock.unlock();
+    }
   }
 
   private String convertKey(String key) {
-    return CommonUtil.encryptBASE64(key);
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      return CommonUtil.keyToHashKey(key);
+    } finally {
+      lock.unlock();
+    }
   }
 }

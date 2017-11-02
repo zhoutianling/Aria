@@ -20,6 +20,7 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.util.ALog;
@@ -164,6 +165,7 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   }
 
   @Override public void removeTaskFormQueue(String key) {
+    //TEManager.getInstance().removeTEntity(key);
     TASK task = mExecutePool.getTask(key);
     if (task != null) {
       ALog.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
@@ -172,6 +174,7 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     if (task != null) {
       ALog.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
     }
+
   }
 
   @Override public void reTryStart(TASK task) {

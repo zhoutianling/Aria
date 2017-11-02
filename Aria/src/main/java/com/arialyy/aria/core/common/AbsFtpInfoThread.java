@@ -83,11 +83,12 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
         failDownload("文件不存在，任务链接【" + mTaskEntity.urlEntity.url + "】", false);
         FTPFile[] files1 = client.listFiles();
         if (files1.length > 0) {
-          ALog.i(TAG, "路径【" + setRemotePath() + "】该下文件列表 ===================================");
+          ALog.i(TAG, "路径【" + setRemotePath() + "】下的文件列表 ===================================");
           for (FTPFile file : files1) {
             ALog.d(TAG, file.toString());
           }
-          ALog.i(TAG, "================================= --end-- ===================================");
+          ALog.i(TAG,
+              "================================= --end-- ===================================");
         }
         client.disconnect();
         return;
@@ -206,7 +207,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       client.setDataTimeout(10 * 1000);
       client.enterLocalPassiveMode();
       client.setFileType(FTP.BINARY_FILE_TYPE);
-      client.setControlKeepAliveTimeout(5);
+      client.setConnectTimeout(mConnectTimeOut);
     } catch (IOException e) {
       e.printStackTrace();
     }

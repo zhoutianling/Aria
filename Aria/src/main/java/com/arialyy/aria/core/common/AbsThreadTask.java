@@ -107,8 +107,8 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
               + mConfig.TEMP_FILE.getName()
               + "】thread__"
               + mConfig.THREAD_ID
-              + "__停止, stop location ==> "
-              + currentTemp);
+              + "__停止【停止位置： "
+              + currentTemp + "】");
           writeConfig(false, currentTemp);
           if (STATE.isStop()) {
             ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已停止");

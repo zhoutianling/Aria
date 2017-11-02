@@ -367,6 +367,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         mFixedThreadPool.execute(task);
       }
     }
+    mTaskEntity.isNewTask = false;
   }
 
   /**

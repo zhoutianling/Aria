@@ -19,7 +19,6 @@ package com.arialyy.aria.util;
 
 import android.text.TextUtils;
 import android.util.Log;
-import com.arialyy.aria.core.AriaManager;
 
 /**
  * Created by Aria.Lao on 2017/10/25.
@@ -27,7 +26,16 @@ import com.arialyy.aria.core.AriaManager;
  */
 public class ALog {
 
-  public static int LOG_LEVEL = AriaManager.LOG_DEFAULT;
+  public static final int LOG_LEVEL_VERBOSE = 2;
+  public static final int LOG_LEVEL_DEBUG = 3;
+  public static final int LOG_LEVEL_INFO = 4;
+  public static final int LOG_LEVEL_WARN = 5;
+  public static final int LOG_LEVEL_ERROR = 6;
+  public static final int LOG_LEVEL_ASSERT = 7;
+  public static final int LOG_CLOSE = 8;
+  public static final int LOG_DEFAULT = LOG_LEVEL_DEBUG;
+
+  public static int LOG_LEVEL = LOG_DEFAULT;
 
   public static int v(String tag, String msg) {
     return println(Log.VERBOSE, tag, msg);

@@ -17,9 +17,8 @@ package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.util.ALog;
-import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by Aria.Lao on 2017/7/26.
@@ -30,22 +29,17 @@ public class FtpDirDownloadTarget
   private final String TAG = "FtpDirDownloadTarget";
 
   FtpDirDownloadTarget(String url, String targetName) {
-    init(url);
     mTargetName = targetName;
-    mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(url);
-    mTaskEntity.requestType = AbsTaskEntity.FTP_DIR;
+    init(url);
   }
 
   private void init(String key) {
     mGroupName = key;
-    mTaskEntity = DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", key);
+    mTaskEntity = TEManager.getInstance().getTEntity(DownloadGroupTaskEntity.class, key);
     if (mTaskEntity == null) {
-      mTaskEntity = new DownloadGroupTaskEntity();
-      mTaskEntity.save(getDownloadGroupEntity());
+      mTaskEntity = TEManager.getInstance().createTEntity(DownloadGroupTaskEntity.class, key);
     }
-    if (mTaskEntity.entity == null) {
-      mTaskEntity.save(getDownloadGroupEntity());
-    }
+    mTaskEntity.requestType = AbsTaskEntity.FTP_DIR;
     mEntity = mTaskEntity.entity;
   }
 
