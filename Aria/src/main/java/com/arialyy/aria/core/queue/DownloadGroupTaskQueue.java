@@ -56,6 +56,10 @@ public class DownloadGroupTaskQueue
     return DownloadSharePool.getInstance().executePool;
   }
 
+  @Override public int getMaxTaskNum() {
+    return AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
+  }
+
   @Override public DownloadGroupTask createTask(String targetName, DownloadGroupTaskEntity entity) {
     DownloadGroupTask task = null;
     if (!TextUtils.isEmpty(targetName)) {

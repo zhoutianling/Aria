@@ -90,7 +90,9 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
 
   @Override public void run() {
     mListener.onPre();
-    if (mTaskEntity.getEntity().getFileSize() <= 1 || mTaskEntity.refreshInfo) {
+    if (mTaskEntity.getEntity().getFileSize() <= 1
+        || mTaskEntity.refreshInfo
+        || mTaskEntity.requestType == AbsTaskEntity.FTP) {
       new Thread(createInfoThread()).start();
     } else {
       mDownloader.start();

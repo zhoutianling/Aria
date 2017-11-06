@@ -20,7 +20,6 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.util.ALog;
@@ -60,6 +59,23 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   }
 
   /**
+   * 恢复任务
+   * 如果执行队列任务未满，则直接启动任务。
+   * 如果执行队列已经满了，则暂停执行队列队首任务，并恢复指定任务
+   *
+   * @param task 需要恢复飞任务
+   */
+  @Override public void resumeTask(TASK task) {
+    if (mExecutePool.size() >= getMaxTaskNum()) {
+      task.getTaskEntity().getEntity().setState(IEntity.STATE_WAIT);
+      mCachePool.putTaskToFirst(task);
+      stopTask(mExecutePool.pollTask());
+    } else {
+      startTask(task);
+    }
+  }
+
+  /**
    * 停止所有任务
    */
   @Override public void stopAllTask() {
@@ -68,10 +84,6 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
       TASK task = mExecutePool.getAllTask().get(key);
       if (task != null && task.isRunning()) task.stop();
     }
-  }
-
-  @Override public int getMaxTaskNum() {
-    return AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
   }
 
   /**
@@ -115,7 +127,7 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     int oldMaxSize = getConfigMaxNum();
     int diff = downloadNum - oldMaxSize;
     if (oldMaxSize == downloadNum) {
-      ALog.e(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");
+      ALog.w(TAG, "设置的下载任务数和配置文件的下载任务数一直，跳过");
       return;
     }
     //设置的任务数小于配置任务数
@@ -174,7 +186,6 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     if (task != null) {
       ALog.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
     }
-
   }
 
   @Override public void reTryStart(TASK task) {

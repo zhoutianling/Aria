@@ -28,6 +28,7 @@ import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
@@ -68,6 +69,11 @@ public class DownloadReceiver extends AbsReceiver {
    */
   public DownloadTarget load(DownloadEntity entity, boolean refreshInfo) {
     CheckUtil.checkDownloadUrl(entity.getUrl());
+    if (entity.getUrl().startsWith("ftp")) {
+      ALog.w(TAG,
+          "使用实体启动FTP下载，如果你的FTP服务器需要登录，那么你需要调用登录的接口，如：Aria.download(this).load(url).login(user, pw).start()");
+      return new FtpDownloadTarget(entity, targetName, refreshInfo);
+    }
     return new DownloadTarget(entity, targetName, refreshInfo);
   }
 

@@ -17,6 +17,7 @@
 package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -24,13 +25,13 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.NetUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,14 +54,12 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       return;
     }
     String mod;
-    int maxTaskNum;
+    int maxTaskNum = mQueue.getMaxTaskNum();
     AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     if (isDownloadCmd) {
       mod = manager.getDownloadConfig().getQueueMod();
-      maxTaskNum = manager.getDownloadConfig().getMaxTaskNum();
     } else {
       mod = manager.getUploadConfig().getQueueMod();
-      maxTaskNum = manager.getUploadConfig().getMaxTaskNum();
     }
 
     AbsTask task = getTask();
@@ -79,12 +78,14 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
             || task.getState() == IEntity.STATE_OTHER
             || task.getState() == IEntity.STATE_POST_PRE
             || task.getState() == IEntity.STATE_COMPLETE) {
-          startTask();
+          //startTask();
+          resumeTask();
         }
       }
     } else {
       if (!task.isRunning()) {
-        startTask();
+        //startTask();
+        resumeTask();
       }
     }
     if (mQueue.getCurrentCachePoolNum() == 0) {
@@ -142,6 +143,9 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       for (AbsTaskEntity te : waitList) {
         if (te.getEntity() == null) continue;
         if (te instanceof DownloadTaskEntity) {
+          if (te.requestType == AbsTaskEntity.FTP) {
+            te.urlEntity = CommonUtil.getFtpUrlInfo(te.getEntity().getKey());
+          }
           mQueue = DownloadTaskQueue.getInstance();
         } else if (te instanceof UploadTaskEntity) {
           mQueue = UploadTaskQueue.getInstance();

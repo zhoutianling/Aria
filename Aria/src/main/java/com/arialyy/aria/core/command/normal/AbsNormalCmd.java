@@ -117,6 +117,13 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
   }
 
   /**
+   * 恢复任务
+   */
+  void resumeTask() {
+    mQueue.resumeTask(tempTask);
+  }
+
+  /**
    * 启动指定任务
    *
    * @param task 指定任务

@@ -12,6 +12,7 @@ import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.NetUtils;
 import java.util.ArrayList;
 import java.util.List;
@@ -105,13 +106,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    * 处理等待状态的任务
    */
   private void resumeWaitTask() {
-    int maxTaskNum;
-    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
-    if (isDownloadCmd) {
-      maxTaskNum = manager.getDownloadConfig().getMaxTaskNum();
-    } else {
-      maxTaskNum = manager.getUploadConfig().getMaxTaskNum();
-    }
+    int maxTaskNum = mQueue.getMaxTaskNum();
     if (mWaitList == null || mWaitList.isEmpty()) return;
     for (AbsTaskEntity te : mWaitList) {
       if (mQueue.getCurrentExePoolNum() < maxTaskNum) {
@@ -129,6 +124,9 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    */
   private void resumeEntity(AbsTaskEntity te) {
     if (te instanceof DownloadTaskEntity) {
+      if (te.requestType == AbsTaskEntity.FTP) {
+        te.urlEntity = CommonUtil.getFtpUrlInfo(te.getEntity().getKey());
+      }
       mQueue = DownloadTaskQueue.getInstance();
     } else if (te instanceof UploadTaskEntity) {
       mQueue = UploadTaskQueue.getInstance();

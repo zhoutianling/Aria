@@ -29,12 +29,21 @@ import java.io.File;
 public class FtpDownloadTarget extends DownloadTarget {
   private final String TAG = "FtpDownloadTarget";
 
+  FtpDownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
+    super(entity, targetName, refreshInfo);
+    init(refreshInfo);
+  }
+
   FtpDownloadTarget(String url, String targetName) {
     this(url, targetName, false);
   }
 
   FtpDownloadTarget(String url, String targetName, boolean refreshInfo) {
     super(url, targetName);
+    init(refreshInfo);
+  }
+
+  private void init(boolean refreshInfo) {
     int lastIndex = url.lastIndexOf("/");
     mEntity.setFileName(url.substring(lastIndex + 1, url.length()));
     mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(url);

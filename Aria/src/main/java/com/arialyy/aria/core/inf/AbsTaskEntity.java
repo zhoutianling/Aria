@@ -68,7 +68,7 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
 
   /**
    * 请求类型
-   * {@link AbsTaskEntity#HTTP}、{@link AbsTaskEntity#FTP}
+   * {@link AbsTaskEntity#HTTP}、{@link AbsTaskEntity#FTP}、{@link AbsTaskEntity#FTP_DIR}
    */
   public int requestType = HTTP;
 

@@ -89,6 +89,9 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
           }
           ALog.i(TAG,
               "================================= --end-- ===================================");
+        }else {
+          String msg = client.getReplyString();
+          ALog.w(TAG, msg);
         }
         client.disconnect();
         return;

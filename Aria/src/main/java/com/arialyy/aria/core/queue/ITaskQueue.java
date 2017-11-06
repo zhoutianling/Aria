@@ -39,6 +39,15 @@ public interface ITaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   boolean taskIsRunning(String key);
 
   /**
+   * 恢复任务
+   * 如果执行队列任务未满，则直接启动任务。
+   * 如果执行队列已经满了，则暂停执行队列队首任务，并恢复指定任务
+   *
+   * @param task 需要恢复飞任务
+   */
+  void resumeTask(TASK task);
+
+  /**
    * 停止所有任务
    */
   void stopAllTask();

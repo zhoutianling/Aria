@@ -1,9 +1,10 @@
 ## 开发日志
   + v_3.3.6
     - 增加日志输出级别控制
-    - 修复公网FTP地址不能下载的问题
-    - 修复http下载地址有空格的时候下载失败的问题
+    - 修复公网FTP地址不能下载的问题  https://github.com/AriaLyy/Aria/issues/146
+    - 修复http下载地址有空格的时候下载失败的问题 https://github.com/AriaLyy/Aria/issues/131
     - 修复Activity在`onDestroy()`中调用`Aria.download(this).unRegister();`导致回调失效的问题
+    - 修复Adapter下载FTP任务问题、任务调度问题 https://github.com/AriaLyy/Aria/issues/157
     - 优化代码，优化了IO性能
   + v_3.3.5 修复任务组、上传任务无法启动的bug
   + v_3.3.4 优化任务代码结构，修复上一个版本暂停后无法自动执行任务的问题

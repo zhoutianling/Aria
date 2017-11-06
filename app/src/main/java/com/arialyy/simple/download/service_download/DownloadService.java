@@ -30,7 +30,6 @@ import com.arialyy.frame.util.show.T;
  * 在服务中使用 Aria进行下载
  */
 public class DownloadService extends Service {
-
   private static final String DOWNLOAD_URL =
       "http://rs.0.gaoshouyou.com/d/df/db/03df9eab61dbc48a5939f671f05f1cdf.apk";
   private DownloadNotification mNotify;

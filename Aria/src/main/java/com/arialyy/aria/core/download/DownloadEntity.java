@@ -113,6 +113,8 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     return this;
   }
 
+
+
   @Override public DownloadEntity clone() throws CloneNotSupportedException {
     return (DownloadEntity) super.clone();
   }

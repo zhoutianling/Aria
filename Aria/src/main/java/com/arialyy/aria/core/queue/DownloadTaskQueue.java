@@ -135,4 +135,8 @@ public class DownloadTaskQueue
     task.setHighestPriority(false);
     super.stopTask(task);
   }
+
+  @Override public int getMaxTaskNum() {
+    return AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxTaskNum();
+  }
 }

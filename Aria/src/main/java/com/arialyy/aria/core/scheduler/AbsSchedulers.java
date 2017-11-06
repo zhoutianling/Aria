@@ -161,9 +161,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
         }
       case CANCEL:
         mQueue.removeTaskFormQueue(task.getKey());
-        if (mQueue.getCurrentExePoolNum() < AriaManager.getInstance(AriaManager.APP)
-            .getUploadConfig()
-            .getMaxTaskNum()) {
+        if (mQueue.getCurrentExePoolNum() < mQueue.getMaxTaskNum()) {
           startNextTask();
         }
         break;
