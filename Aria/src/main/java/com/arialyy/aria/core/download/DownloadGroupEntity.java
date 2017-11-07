@@ -17,7 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Parcel;
 import com.arialyy.aria.core.inf.AbsGroupEntity;
-import com.arialyy.aria.orm.NormalList;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,6 +56,10 @@ public class DownloadGroupEntity extends AbsGroupEntity {
 
   public void setGroupName(String key) {
     this.groupName = key;
+  }
+
+  @Override public int getTaskType() {
+    return getKey().startsWith("ftp") ? AbsTaskEntity.D_FTP_DIR : AbsTaskEntity.DG_HTTP;
   }
 
   public DownloadGroupEntity() {

@@ -18,6 +18,7 @@ package com.arialyy.aria.core.upload;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.inf.AbsUploadTarget;
 import com.arialyy.aria.core.manager.TEManager;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import java.io.File;
 
 /**
@@ -42,6 +43,7 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
     mEntity.setFileSize(file.length());
     //http暂时不支持断点上传
     mTaskEntity.isSupportBP = false;
+    mTaskEntity.requestType = AbsTaskEntity.U_HTTP;
   }
 
   /**

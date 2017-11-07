@@ -47,7 +47,7 @@ public class FtpUploadTarget
     File file = new File(filePath);
     mEntity.setFileName(file.getName());
     mEntity.setFileSize(file.length());
-    mTaskEntity.requestType = AbsTaskEntity.FTP;
+    mTaskEntity.requestType = AbsTaskEntity.U_FTP;
   }
 
   /**
@@ -56,7 +56,7 @@ public class FtpUploadTarget
    * @param uploadUrl 上传路径
    */
   public FtpUploadTarget setUploadUrl(@NonNull String uploadUrl) {
-    CheckUtil.checkDownloadUrl(uploadUrl);
+    CheckUtil.checkUrl(uploadUrl);
     mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(uploadUrl);
     if (mEntity.getUrl().equals(uploadUrl)) return this;
     mEntity.setUrl(uploadUrl);

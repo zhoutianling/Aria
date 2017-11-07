@@ -68,12 +68,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @param refreshInfo 是否刷新下载信息
    */
   public DownloadTarget load(DownloadEntity entity, boolean refreshInfo) {
-    CheckUtil.checkDownloadUrl(entity.getUrl());
-    if (entity.getUrl().startsWith("ftp")) {
-      ALog.w(TAG,
-          "使用实体启动FTP下载，如果你的FTP服务器需要登录，那么你需要调用登录的接口，如：Aria.download(this).load(url).login(user, pw).start()");
-      return new FtpDownloadTarget(entity, targetName, refreshInfo);
-    }
+    CheckUtil.checkDownloadEntity(entity);
     return new DownloadTarget(entity, targetName, refreshInfo);
   }
 
@@ -93,7 +88,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @param refreshInfo 是否刷新下载信息
    */
   public DownloadTarget load(@NonNull String url, boolean refreshInfo) {
-    CheckUtil.checkDownloadUrl(url);
+    CheckUtil.checkUrl(url);
     return new DownloadTarget(url, targetName, refreshInfo);
   }
 
@@ -103,6 +98,28 @@ public class DownloadReceiver extends AbsReceiver {
   public DownloadGroupTarget load(List<String> urls) {
     CheckUtil.checkDownloadUrls(urls);
     return new DownloadGroupTarget(urls, targetName);
+  }
+
+  /**
+   * 使用下载实体执行FTP下载操作
+   *
+   * @param entity 下载实体
+   */
+  public FtpDownloadTarget loadFtp(DownloadEntity entity) {
+    return loadFtp(entity, false);
+  }
+
+  /**
+   * 使用下载实体执行下载操作
+   *
+   * @param refreshInfo 是否刷新下载信息
+   */
+  public FtpDownloadTarget loadFtp(DownloadEntity entity, boolean refreshInfo) {
+    CheckUtil.checkDownloadEntity(entity);
+    if (!entity.getUrl().startsWith("ftp")) {
+      throw new IllegalArgumentException("非FTP请求不能使用该方法");
+    }
+    return new FtpDownloadTarget(entity, targetName, refreshInfo);
   }
 
   /**
@@ -118,7 +135,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @param refreshInfo 是否刷新下载信息
    */
   public FtpDownloadTarget loadFtp(@NonNull String url, boolean refreshInfo) {
-    CheckUtil.checkDownloadUrl(url);
+    CheckUtil.checkUrl(url);
     return new FtpDownloadTarget(url, targetName, refreshInfo);
   }
 
@@ -136,7 +153,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 加载ftp文件夹下载地址
    */
   public FtpDirDownloadTarget loadFtpDir(@NonNull String dirUrl) {
-    CheckUtil.checkDownloadUrl(dirUrl);
+    CheckUtil.checkUrl(dirUrl);
     return new FtpDirDownloadTarget(dirUrl, targetName);
   }
 
@@ -192,7 +209,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 通过下载链接获取下载实体
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
-    CheckUtil.checkDownloadUrl(downloadUrl);
+    CheckUtil.checkUrl(downloadUrl);
     return DbEntity.findFirst(DownloadEntity.class, "url=? and isGroupChild='false'", downloadUrl);
   }
 
@@ -200,7 +217,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 通过下载链接获取保存在数据库的下载任务实体
    */
   public DownloadTaskEntity getDownloadTask(String downloadUrl) {
-    CheckUtil.checkDownloadUrl(downloadUrl);
+    CheckUtil.checkUrl(downloadUrl);
     DownloadEntity entity = getDownloadEntity(downloadUrl);
     if (entity == null || TextUtils.isEmpty(entity.getDownloadPath())) return null;
     return DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",

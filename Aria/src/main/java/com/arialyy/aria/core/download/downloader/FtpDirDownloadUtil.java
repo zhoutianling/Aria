@@ -55,7 +55,7 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
 
         @Override public void onFail(String url, String errorMsg, boolean needRetry) {
           mListener.onFail(needRetry);
-          ErrorHelp.saveError("FTP_DIR", mGTEntity.getEntity(), "", errorMsg);
+          ErrorHelp.saveError("D_FTP_DIR", mGTEntity.getEntity(), "", errorMsg);
         }
       }).start();
     }

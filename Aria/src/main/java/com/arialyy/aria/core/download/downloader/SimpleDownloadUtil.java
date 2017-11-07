@@ -25,7 +25,7 @@ import com.arialyy.aria.util.ErrorHelp;
 
 /**
  * Created by lyy on 2015/8/25.
- * HTTP\FTP单任务下载工具
+ * D_HTTP\FTP单任务下载工具
  */
 public class SimpleDownloadUtil implements IUtil, Runnable {
   private static final String TAG = "SimpleDownloadUtil";
@@ -92,7 +92,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
     mListener.onPre();
     if (mTaskEntity.getEntity().getFileSize() <= 1
         || mTaskEntity.refreshInfo
-        || mTaskEntity.requestType == AbsTaskEntity.FTP) {
+        || mTaskEntity.requestType == AbsTaskEntity.D_FTP) {
       new Thread(createInfoThread()).start();
     } else {
       mDownloader.start();
@@ -104,7 +104,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
    */
   private Runnable createInfoThread() {
     switch (mTaskEntity.requestType) {
-      case AbsTaskEntity.FTP:
+      case AbsTaskEntity.D_FTP:
         return new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
           @Override public void onComplete(String url, int code) {
             mDownloader.start();
@@ -114,7 +114,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
             failDownload(errorMsg, needRetry);
           }
         });
-      case AbsTaskEntity.HTTP:
+      case AbsTaskEntity.D_HTTP:
         return new HttpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
           @Override public void onComplete(String url, int code) {
             mDownloader.start();

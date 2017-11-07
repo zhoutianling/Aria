@@ -21,9 +21,6 @@ import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.CheckUtil;
-import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.Regular;
-import java.util.regex.Pattern;
 
 /**
  * Created by AriaL on 2017/6/29.
@@ -38,7 +35,7 @@ public abstract class AbsUploadTarget<TARGET extends AbsUploadTarget, ENTITY ext
    * @param uploadUrl 上传路径
    */
   public TARGET setUploadUrl(@NonNull String uploadUrl) {
-    CheckUtil.checkDownloadUrl(uploadUrl);
+    CheckUtil.checkUrl(uploadUrl);
     if (mEntity.getUrl().equals(uploadUrl)) return (TARGET) this;
     mEntity.setUrl(uploadUrl);
     mEntity.update();

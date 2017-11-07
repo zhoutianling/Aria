@@ -76,8 +76,9 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       int len;
 
       while ((len = is.read(buffer)) != -1) {
-        if (STATE.isCancel) break;
-        if (STATE.isStop) break;
+        if (STATE.isCancel || STATE.isStop){
+          break;
+        }
         if (mSleepTime > 0) Thread.sleep(mSleepTime);
         if (mChildCurrentLocation + len >= mConfig.END_LOCATION) {
           len = (int) (mConfig.END_LOCATION - mChildCurrentLocation);

@@ -1,6 +1,5 @@
 package com.arialyy.aria.core.command.normal;
 
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -124,7 +123,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    */
   private void resumeEntity(AbsTaskEntity te) {
     if (te instanceof DownloadTaskEntity) {
-      if (te.requestType == AbsTaskEntity.FTP) {
+      if (te.requestType == AbsTaskEntity.D_FTP || te.requestType == AbsTaskEntity.U_FTP) {
         te.urlEntity = CommonUtil.getFtpUrlInfo(te.getEntity().getKey());
       }
       mQueue = DownloadTaskQueue.getInstance();

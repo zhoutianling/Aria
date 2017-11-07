@@ -29,17 +29,30 @@ import java.util.Map;
  */
 public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   /**
-   * HTTP下载
+   * HTTP单任务载
    */
-  public static final int HTTP = 0x11;
+  public static final int D_HTTP = 0x11;
   /**
-   * FTP当文件下载
+   * HTTP任务组下载
    */
-  public static final int FTP = 0x12;
+  public static final int DG_HTTP = 0x12;
+  /**
+   * HTTP单文件上传
+   */
+  public static final int U_HTTP = 0xA1;
+
+  /**
+   * FTP单文件下载
+   */
+  public static final int D_FTP = 0x13;
   /**
    * FTP文件夹下载，为避免登录过多，子任务由单线程进行处理
    */
-  public static final int FTP_DIR = 0x13;
+  public static final int D_FTP_DIR = 0x14;
+  /**
+   * FTP单文件上传
+   */
+  public static final int U_FTP = 0xA2;
 
   /**
    * Task实体对应的key
@@ -68,9 +81,9 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
 
   /**
    * 请求类型
-   * {@link AbsTaskEntity#HTTP}、{@link AbsTaskEntity#FTP}、{@link AbsTaskEntity#FTP_DIR}
+   * {@link AbsTaskEntity#D_HTTP}、{@link AbsTaskEntity#D_FTP}、{@link AbsTaskEntity#D_FTP_DIR}。。。
    */
-  public int requestType = HTTP;
+  public int requestType = D_HTTP;
 
   /**
    * http 请求头

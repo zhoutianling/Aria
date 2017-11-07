@@ -39,7 +39,7 @@ public class FtpDirDownloadTarget
     if (mTaskEntity == null) {
       mTaskEntity = TEManager.getInstance().createTEntity(DownloadGroupTaskEntity.class, key);
     }
-    mTaskEntity.requestType = AbsTaskEntity.FTP_DIR;
+    mTaskEntity.requestType = AbsTaskEntity.D_FTP_DIR;
     mEntity = mTaskEntity.entity;
   }
 

@@ -19,8 +19,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.Ignore;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Created by AriaL on 2017/6/29.
@@ -161,6 +159,14 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
    * 实体唯一标识符
    */
   public abstract String getKey();
+
+  /**
+   * 实体驱动的下载任务类型
+   *
+   * @return {@link AbsTaskEntity#D_FTP}、{@link AbsTaskEntity#D_FTP_DIR}、{@link
+   * AbsTaskEntity#U_HTTP}...
+   */
+  public abstract int getTaskType();
 
   public AbsEntity() {
   }

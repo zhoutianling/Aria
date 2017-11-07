@@ -17,7 +17,6 @@
 package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -130,7 +129,7 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
           break;
         case 3:
           List<UploadTaskEntity> uEntity =
-              DbEntity.findDatas(UploadTaskEntity.class, "groupName=? and state=?", "", "3");
+              DbEntity.findDatas(UploadTaskEntity.class, "state=?", "3");
           if (uEntity != null && !uEntity.isEmpty()) {
             waitList.addAll(uEntity);
           }
@@ -143,7 +142,7 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       for (AbsTaskEntity te : waitList) {
         if (te.getEntity() == null) continue;
         if (te instanceof DownloadTaskEntity) {
-          if (te.requestType == AbsTaskEntity.FTP) {
+          if (te.requestType == AbsTaskEntity.D_FTP || te.requestType == AbsTaskEntity.U_FTP) {
             te.urlEntity = CommonUtil.getFtpUrlInfo(te.getEntity().getKey());
           }
           mQueue = DownloadTaskQueue.getInstance();

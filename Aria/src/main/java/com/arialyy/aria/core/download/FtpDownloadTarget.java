@@ -48,7 +48,7 @@ public class FtpDownloadTarget extends DownloadTarget {
     mEntity.setFileName(url.substring(lastIndex + 1, url.length()));
     mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(url);
     mTaskEntity.refreshInfo = refreshInfo;
-    mTaskEntity.requestType = AbsTaskEntity.FTP;
+    mTaskEntity.requestType = AbsTaskEntity.D_FTP;
   }
 
   /**

@@ -35,10 +35,10 @@ import com.arialyy.simple.databinding.ActivityFtpUploadBinding;
  */
 public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
   private final String FILE_PATH = "/mnt/sdcard/Download/me.jpg";
-  private final String URL = "ftp://172.18.104.49:21/upload/测试";
+  private final String URL = "ftp://172.18.104.65:21/upload/测试";
 
   @Override protected void init(Bundle savedInstanceState) {
-    setTile("FTP 文件上传");
+    setTile("D_FTP 文件上传");
     super.init(savedInstanceState);
     Aria.upload(this).register();
     UploadEntity entity = Aria.upload(this).getUploadEntity(FILE_PATH);

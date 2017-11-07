@@ -37,7 +37,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
   private final String TAG = "AbsFtpThreadTask";
   protected String charSet, port;
   /**
-   * FTP 服务器编码
+   * D_FTP 服务器编码
    */
   public static String SERVER_CHARSET = "ISO-8859-1";
 
