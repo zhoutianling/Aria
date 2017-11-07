@@ -36,7 +36,7 @@ public class FtpDirDownloadTarget
     mTargetName = targetName;
     serverIp = pp[0];
     port = Integer.parseInt(pp[1]);
-    mTaskEntity.requestType = AbsTaskEntity.FTP_DIR;
+    mTaskEntity.requestType = AbsTaskEntity.D_FTP_DIR;
     mTaskEntity.serverIp = serverIp;
     mTaskEntity.port = port;
     remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());

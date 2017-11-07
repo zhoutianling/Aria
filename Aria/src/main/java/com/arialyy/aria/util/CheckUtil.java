@@ -72,19 +72,33 @@ public class CheckUtil {
   }
 
   /**
-   * 检测下载链接是否为null
+   * 检查下载实体
    */
-  public static void checkDownloadUrl(String downloadUrl) {
-    if (TextUtils.isEmpty(downloadUrl)) throw new IllegalArgumentException("下载链接不能为null");
+  public static void checkDownloadEntity(DownloadEntity entity) {
+    checkUrl(entity.getUrl());
+    checkPath(entity.getDownloadPath());
   }
 
   /**
    * 检测下载链接是否为null
    */
-  public static void checkUploadUrl(String downloadUrl) {
-    if (TextUtils.isEmpty(downloadUrl)) throw new IllegalArgumentException("上传地址不能为null");
+  public static void checkPath(String path) {
+    if (TextUtils.isEmpty(path)) {
+      throw new IllegalArgumentException("保存路径不能为null");
+    }
   }
 
+  /**
+   * 检测下载链接是否为null
+   */
+  public static void checkUrl(String url) {
+    Log.d(TAG, url.startsWith("http") + "");
+    if (TextUtils.isEmpty(url)) {
+      throw new IllegalArgumentException("下载链接不能为null");
+    } else if (!url.startsWith("http") && !url.startsWith("ftp")) {
+      throw new IllegalArgumentException("url错误");
+    }
+  }
 
   /**
    * 检测下载链接组是否为null
@@ -108,9 +122,13 @@ public class CheckUtil {
    * 检测上传地址是否为null
    */
   public static void checkUploadPath(String uploadPath) {
-    if (TextUtils.isEmpty(uploadPath)) throw new IllegalArgumentException("上传地址不能为null");
+    if (TextUtils.isEmpty(uploadPath)) {
+      throw new IllegalArgumentException("上传地址不能为null");
+    }
     File file = new File(uploadPath);
-    if (!file.exists()) throw new IllegalArgumentException("上传文件不存在");
+    if (!file.exists()) {
+      throw new IllegalArgumentException("上传文件不存在");
+    }
   }
 
   /**

@@ -40,7 +40,7 @@ public class FtpUploadTarget
     if (mTaskEntity.entity == null) {
       mTaskEntity.entity = getUploadEntity(filePath);
     }
-    mTaskEntity.requestType = AbsTaskEntity.FTP;
+    mTaskEntity.requestType = AbsTaskEntity.U_FTP;
     mEntity = mTaskEntity.entity;
     File file = new File(filePath);
     mEntity.setFileName(file.getName());

@@ -35,7 +35,8 @@ import java.io.File;
  * Ftp下载测试
  */
 public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding> {
-  private final String URL = "ftp://172.18.104.229:21/haha/测试ss123/ftp_test.apk";
+  //private final String URL = "ftp://172.18.104.229:21/haha/测试ss123/ftp_test.apk";
+  private final String URL = "ftp://ygdy8:ygdy8@yg72.dydytt.net:8073/[阳光电影www.ygdy8.com].杀人者的记忆法.HD.720p.韩语中字.rmvb";
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
@@ -58,7 +59,8 @@ public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding
       case R.id.start:
         Aria.download(this)
             .loadFtp(URL, true)
-            .login("lao", "123456")
+            .charSet("gbk")
+            //.login("lao", "123456")
             .setDownloadPath("/mnt/sdcard/")
             .start();
         break;

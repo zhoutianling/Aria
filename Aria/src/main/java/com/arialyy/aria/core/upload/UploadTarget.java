@@ -16,12 +16,10 @@
 package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
-import com.arialyy.aria.core.inf.AbsDownloadTarget;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.AbsUploadTarget;
-import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
-import java.util.regex.Pattern;
 
 /**
  * Created by lyy on 2017/2/28.
@@ -45,6 +43,7 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
     mEntity = mTaskEntity.entity;
     //http暂时不支持断点上传
     mTaskEntity.isSupportBP = false;
+    mTaskEntity.requestType = AbsTaskEntity.U_HTTP;
   }
 
   /**

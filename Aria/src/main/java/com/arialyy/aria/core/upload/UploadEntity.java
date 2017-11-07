@@ -18,7 +18,7 @@ package com.arialyy.aria.core.upload;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
-import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.Primary;
 
 /**
@@ -26,9 +26,7 @@ import com.arialyy.aria.orm.Primary;
  * 上传文件实体
  */
 public class UploadEntity extends AbsNormalEntity implements Parcelable {
-  @Primary
-  private String filePath;  //文件路径
-
+  @Primary private String filePath;  //文件路径
 
   public String getFilePath() {
     return filePath;
@@ -40,6 +38,10 @@ public class UploadEntity extends AbsNormalEntity implements Parcelable {
 
   @Override public String getKey() {
     return filePath;
+  }
+
+  @Override public int getTaskType() {
+    return getUrl().startsWith("ftp") ? AbsTaskEntity.D_FTP : AbsTaskEntity.D_HTTP;
   }
 
   public UploadEntity() {

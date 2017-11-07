@@ -40,10 +40,10 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
     mContext = AriaManager.APP;
     mListener = new DownloadGroupListener(this, mOutHandler);
     switch (taskEntity.requestType) {
-      case AbsTaskEntity.HTTP:
+      case AbsTaskEntity.D_HTTP:
         mUtil = new DownloadGroupUtil(mListener, mTaskEntity);
         break;
-      case AbsTaskEntity.FTP_DIR:
+      case AbsTaskEntity.D_FTP_DIR:
         mUtil = new FtpDirDownloadUtil(mListener, mTaskEntity);
         break;
     }

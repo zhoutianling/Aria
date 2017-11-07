@@ -28,6 +28,7 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.simple.R;
@@ -206,11 +207,7 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
       @Override public void onClick(View v) {
         mData.remove(entity);
         notifyDataSetChanged();
-        if (isSimpleDownload(entity)) {
-          Aria.download(getContext()).load((DownloadEntity) entity).cancel(true);
-        } else {
-          Aria.download(getContext()).load((DownloadGroupEntity) entity).cancel(true);
-        }
+        cancel(entity);
       }
     });
     //if (holder instanceof GroupHolder){
@@ -267,21 +264,58 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
           break;
       }
     }
+  }
 
-    private void start(AbsEntity entity) {
-      if (isSimpleDownload(entity)) {
-        Aria.download(getContext()).load((DownloadEntity) entity).start();
-      } else {
-        Aria.download(getContext()).load((DownloadGroupEntity) entity).start();
-      }
+  private void cancel(AbsEntity entity) {
+    switch (entity.getTaskType()) {
+      case AbsTaskEntity.D_FTP:
+        Aria.download(getContext())
+            .loadFtp((DownloadEntity) entity)
+            //.login("lao", "123456")
+            .cancel(true);
+        break;
+      case AbsTaskEntity.D_FTP_DIR:
+        break;
+      case AbsTaskEntity.D_HTTP:
+        Aria.download(getContext()).load((DownloadEntity) entity).cancel(true);
+        break;
+      case AbsTaskEntity.DG_HTTP:
+        Aria.download(getContext()).load((DownloadGroupEntity) entity).cancel(true);
+        break;
     }
+  }
 
-    private void stop(AbsEntity entity) {
-      if (isSimpleDownload(entity)) {
+  private void start(AbsEntity entity) {
+    switch (entity.getTaskType()) {
+      case AbsTaskEntity.D_FTP:
+        //Aria.download(getContext()).loadFtp((DownloadEntity) entity).login("lao", "123456").start();
+        Aria.download(getContext()).loadFtp((DownloadEntity) entity).charSet("GBK").start();
+        break;
+      case AbsTaskEntity.D_FTP_DIR:
+        break;
+      case AbsTaskEntity.D_HTTP:
+        Aria.download(getContext()).load((DownloadEntity) entity).start();
+        break;
+      case AbsTaskEntity.DG_HTTP:
+        Aria.download(getContext()).load((DownloadGroupEntity) entity).start();
+        break;
+    }
+  }
+
+  private void stop(AbsEntity entity) {
+    switch (entity.getTaskType()) {
+      case AbsTaskEntity.D_FTP:
+        //Aria.download(getContext()).loadFtp((DownloadEntity) entity).login("lao", "123456").stop();
+        Aria.download(getContext()).loadFtp((DownloadEntity) entity).charSet("GBK").stop();
+        break;
+      case AbsTaskEntity.D_FTP_DIR:
+        break;
+      case AbsTaskEntity.D_HTTP:
         Aria.download(getContext()).load((DownloadEntity) entity).stop();
-      } else {
+        break;
+      case AbsTaskEntity.DG_HTTP:
         Aria.download(getContext()).load((DownloadGroupEntity) entity).stop();
-      }
+        break;
     }
   }
 

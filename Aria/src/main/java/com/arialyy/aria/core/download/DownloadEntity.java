@@ -56,6 +56,10 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     return getUrl();
   }
 
+  @Override public int getTaskType() {
+    return getUrl().startsWith("ftp") ? AbsTaskEntity.D_FTP : AbsTaskEntity.D_HTTP;
+  }
+
   public DownloadEntity() {
   }
 

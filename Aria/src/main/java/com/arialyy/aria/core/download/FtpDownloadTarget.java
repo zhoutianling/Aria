@@ -35,12 +35,21 @@ public class FtpDownloadTarget extends DownloadTarget {
     this(url, targetName, false);
   }
 
+  FtpDownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
+    super(entity, targetName);
+    init(refreshInfo);
+  }
+
   FtpDownloadTarget(String url, String targetName, boolean refreshInfo) {
     super(url, targetName);
+    init(refreshInfo);
+  }
+
+  private void init(boolean refreshInfo) {
     String[] pp = url.split("/")[2].split(":");
     this.serverIp = pp[0];
     this.port = Integer.parseInt(pp[1]);
-    mTaskEntity.requestType = AbsTaskEntity.FTP;
+    mTaskEntity.requestType = AbsTaskEntity.D_FTP;
     remotePath = url.substring(url.indexOf(pp[1]) + pp[1].length(), url.length());
     if (TextUtils.isEmpty(remotePath)) {
       throw new NullPointerException("ftp服务器地址不能为null");
