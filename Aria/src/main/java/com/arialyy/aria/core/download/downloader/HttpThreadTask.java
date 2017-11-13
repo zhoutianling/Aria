@@ -100,8 +100,12 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
           STATE.isRunning = false;
           mListener.onComplete();
         }
+        if (STATE.isFail()){
+          STATE.isRunning = false;
+          mListener.onFail(false);
+        }
       } else {
-        ALog.i(TAG, "下载任务完成");
+        ALog.i(TAG, "任务下载完成");
         STATE.isRunning = false;
         mListener.onComplete();
       }

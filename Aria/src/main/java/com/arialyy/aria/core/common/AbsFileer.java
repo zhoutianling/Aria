@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
  */
 public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     implements Runnable, IUtil {
-  private final String TAG = "Downloader";
+  private final String TAG = "AbsFileer";
   protected IEventListener mListener;
   protected TASK_ENTITY mTaskEntity;
   protected ENTITY mEntity;
@@ -50,7 +50,12 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   protected boolean isNewTask = true;
   protected StateConstance mConstance;
   private ExecutorService mFixedThreadPool;
-  private int mThreadNum, mRealThreadNum;
+  //总线程数
+  private int mTotalThreadNum;
+  //启动线程数
+  private int mStartThreadNum;
+  //已完成的线程数
+  private int mCompleteThreadNum;
   private SparseArray<AbsThreadTask> mTask = new SparseArray<>();
 
   /**
@@ -72,7 +77,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   @Override public void setMaxSpeed(double maxSpeed) {
-    for (int i = 0; i < mThreadNum; i++) {
+    for (int i = 0; i < mTotalThreadNum; i++) {
       AbsThreadTask task = mTask.get(i);
       if (task != null) {
         task.setMaxSpeed(maxSpeed);
@@ -101,12 +106,13 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       ((IDownloadListener) mListener).onPostPre(mEntity.getFileSize());
     }
     if (!mTaskEntity.isSupportBP) {
-      mThreadNum = 1;
-      mConstance.THREAD_NUM = mThreadNum;
+      mTotalThreadNum = 1;
+      mStartThreadNum = 1;
+      mConstance.THREAD_NUM = mTotalThreadNum;
       handleNoSupportBP();
     } else {
-      mThreadNum = isNewTask ? (getNewTaskThreadNum()) : mRealThreadNum;
-      mConstance.THREAD_NUM = mThreadNum;
+      mTotalThreadNum = isNewTask ? (getNewTaskThreadNum()) : mStartThreadNum + mCompleteThreadNum;
+      mConstance.THREAD_NUM = mTotalThreadNum;
       handleBreakpoint();
     }
     startTimer();
@@ -116,8 +122,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 设置新任务的最大线程数
    */
   protected int getNewTaskThreadNum() {
-    return mEntity.getFileSize() <= SUB_LEN || mTaskEntity.requestType == AbsTaskEntity.D_FTP_DIR ? 1
-        : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
+    return mEntity.getFileSize() <= SUB_LEN || mTaskEntity.requestType == AbsTaskEntity.D_FTP_DIR
+        ? 1 : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
   }
 
   /**
@@ -169,7 +175,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     if (mFixedThreadPool != null) {
       mFixedThreadPool.shutdown();
     }
-    for (int i = 0; i < mThreadNum; i++) {
+    for (int i = 0; i < mStartThreadNum; i++) {
       AbsThreadTask task = mTask.get(i);
       if (task != null) {
         task.cancel();
@@ -190,7 +196,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     if (mFixedThreadPool != null) {
       mFixedThreadPool.shutdown();
     }
-    for (int i = 0; i < mThreadNum; i++) {
+    for (int i = 0; i < mStartThreadNum; i++) {
       AbsThreadTask task = mTask.get(i);
       if (task != null) {
         task.stop();
@@ -230,6 +236,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 检查记录文件，如果是新任务返回{@code true}，否则返回{@code false}
    */
   protected boolean checkConfigFile() {
+    mStartThreadNum = 0;
+    mCompleteThreadNum = 0;
     Properties pro = CommonUtil.loadConfig(mConfigFile);
     if (pro.isEmpty()) {
       return true;
@@ -237,15 +245,18 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     Set<Object> keys = pro.keySet();
     int num = 0;
     for (Object key : keys) {
-      if (String.valueOf(key).contains("_record_")) {
+      String str = String.valueOf(key);
+      if (str.contains("_record_")) {
         num++;
+      } else if (str.contains("_state_")) {
+        mCompleteThreadNum++;
       }
     }
     if (num == 0) {
       return true;
     }
-    mRealThreadNum = num;
-    for (int i = 0; i < mRealThreadNum; i++) {
+    mStartThreadNum = num;
+    for (int i = 0; i < mStartThreadNum; i++) {
       if (pro.getProperty(mTempFile.getName() + "_record_" + i) == null) {
         Object state = pro.getProperty(mTempFile.getName() + "_state_" + i);
         if (state != null && Integer.parseInt(state + "") == 1) {
@@ -264,8 +275,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    */
   private boolean resumeRecordLocation(int i, long startL, long endL) {
     mConstance.CURRENT_LOCATION += endL - startL;
-    ALog.d(TAG, "++++++++++ 线程_" + i + "_已经下载完成 ++++++++++");
-    mConstance.COMPLETE_THREAD_NUM++;
+    ALog.d(TAG, "任务【" + mTaskEntity.getEntity().getFileName() + "】线程__" + i + "__已完成");
+    mConstance.COMPLETE_THREAD_NUM = mCompleteThreadNum;
     mConstance.STOP_NUM++;
     mConstance.CANCEL_NUM++;
     if (mConstance.isComplete()) {
@@ -307,16 +318,16 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   private void handleBreakpoint() {
     long fileLength = mEntity.getFileSize();
     Properties pro = CommonUtil.loadConfig(mConfigFile);
-    long blockSize = fileLength / mThreadNum;
-    int[] recordL = new int[mThreadNum];
-    for (int i = 0; i < mThreadNum; i++) {
+    long blockSize = fileLength / mTotalThreadNum;
+    int[] recordL = new int[mTotalThreadNum];
+    for (int i = 0; i < mTotalThreadNum; i++) {
       recordL[i] = -1;
     }
     int rl = 0;
     if (isNewTask) {
       handleNewTask();
     }
-    for (int i = 0; i < mThreadNum; i++) {
+    for (int i = 0; i < mTotalThreadNum; i++) {
       long startL = i * blockSize, endL = (i + 1) * blockSize;
       Object state = pro.getProperty(mTempFile.getName() + "_state_" + i);
       if (state != null && Integer.parseInt(state + "") == 1) {  //该线程已经完成
@@ -339,7 +350,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         recordL[rl] = i;
         rl++;
       }
-      if (i == (mThreadNum - 1)) {
+      if (i == (mTotalThreadNum - 1)) {
         //最后一个线程的结束位置即为文件的总长度
         endL = fileLength;
       }

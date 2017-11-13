@@ -30,7 +30,6 @@ import com.arialyy.aria.core.command.group.GroupCmdFactory;
 import com.arialyy.aria.core.command.normal.AbsNormalCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
@@ -148,7 +147,6 @@ public class CommonUtil {
         for (String str : strs) {
           url = url.replaceAll(str, URLEncoder.encode(str, "UTF-8"));
         }
-
       } catch (UnsupportedEncodingException e) {
         e.printStackTrace();
       }
@@ -284,7 +282,6 @@ public class CommonUtil {
    */
   public static void delDownloadGroupTaskConfig(boolean removeFile,
       DownloadGroupTaskEntity tEntity) {
-    DownloadGroupEntity entity = tEntity.getEntity();
     List<DownloadTaskEntity> tasks =
         DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", tEntity.key);
     if (tasks != null && !tasks.isEmpty()) {
@@ -293,17 +290,19 @@ public class CommonUtil {
       }
     }
 
-    File dir = new File(tEntity.getEntity().getDirPath());
-    if (removeFile) {
-      if (dir.exists()) {
-        dir.delete();
+    if (tEntity.getEntity() != null) {
+      File dir = new File(tEntity.getEntity().getDirPath());
+      if (removeFile) {
+        if (dir.exists()) {
+          dir.delete();
+        }
+      } else {
+        if (!tEntity.getEntity().isComplete()) {
+          dir.delete();
+        }
       }
-    } else {
-      if (!tEntity.getEntity().isComplete()) {
-        dir.delete();
-      }
+      tEntity.deleteData();
     }
-    tEntity.deleteData();
   }
 
   /**
@@ -314,6 +313,9 @@ public class CommonUtil {
    */
   public static void delUploadTaskConfig(boolean removeFile, UploadTaskEntity tEntity) {
     UploadEntity uEntity = tEntity.getEntity();
+    if (uEntity == null) {
+      return;
+    }
     File file = new File(uEntity.getFilePath());
     if (removeFile) {
       if (file.exists()) {

@@ -82,6 +82,10 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
         STATE.isRunning = false;
         mListener.onComplete();
       }
+      if (STATE.isFail()){
+        STATE.isRunning = false;
+        mListener.onFail(false);
+      }
     } catch (IOException e) {
       fail(mChildCurrentLocation, "上传失败【" + mConfig.URL + "】", e);
     } catch (Exception e) {

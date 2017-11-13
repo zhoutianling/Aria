@@ -38,7 +38,7 @@ public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding
   //private final String URL = "ftp://192.168.1.9:21/下载/AriaPrj.zip";
   //private final String URL = "ftp://192.168.1.9:21/下载/[电影天堂www.dy2018.com]赛车总动员3BD中英双字.mp4";
   //private final String URL = "ftp://h:h@tv.dl1234.com:2199/付岩洞复仇者们05.mkv";
-  private final String URL = "ftp://z:z@dygod18.com:21211/[电影天堂www.dy2018.com]英格丽向西行BD中英双字.mp4";
+  private final String URL = "ftp://z:z@dygod18.com:21211/[破晓电影www.poxiao.com]情遇曼哈顿HD国语中字.mkv";
   //private final String URL = "ftp://172.18.104.71:21/upload/AS.zip";
 
   @Override protected void init(Bundle savedInstanceState) {

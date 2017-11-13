@@ -42,7 +42,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   /**
    * 线程重试次数
    */
-  private final int RETRY_NUM = 5;
+  private final int RETRY_NUM = 2;
   /**
    * 线程重试间隔
    */
@@ -108,7 +108,8 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
               + "】thread__"
               + mConfig.THREAD_ID
               + "__停止【停止位置： "
-              + currentTemp + "】");
+              + currentTemp
+              + "】");
           writeConfig(false, currentTemp);
           if (STATE.isStop()) {
             ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已停止");
@@ -134,7 +135,8 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
       mChildCurrentLocation += len;
       STATE.CURRENT_LOCATION += len;
       //mIncrement += len;
-      if (System.currentTimeMillis() - mLastSaveTime > 5000) {
+      if (System.currentTimeMillis() - mLastSaveTime > 5000
+          && mChildCurrentLocation < mConfig.END_LOCATION) {
         mLastSaveTime = System.currentTimeMillis();
         new Thread(new Runnable() {
           @Override public void run() {
@@ -209,15 +211,15 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    * @param needRetry 是否可以重试
    */
   private void retryThis(boolean needRetry) {
+    if (mFailTimer != null) {
+      mFailTimer.purge();
+      mFailTimer.cancel();
+    }
     if (!NetUtils.isConnected(AriaManager.APP)) {
       ALog.w(TAG,
           "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__重试失败，网络未连接");
     }
     if (mFailNum < RETRY_NUM && needRetry && NetUtils.isConnected(AriaManager.APP)) {
-      if (mFailTimer != null) {
-        mFailTimer.purge();
-        mFailTimer.cancel();
-      }
       mFailTimer = new Timer(true);
       mFailTimer.schedule(new TimerTask() {
         @Override public void run() {
@@ -247,12 +249,12 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected void writeConfig(boolean isComplete, final long record) throws IOException {
     synchronized (AriaManager.LOCK) {
       String key = null, value = null;
-      if (0 < record && record < mConfig.END_LOCATION) {
-        key = mConfig.TEMP_FILE.getName() + "_record_" + mConfig.THREAD_ID;
-        value = String.valueOf(record);
-      } else if (record >= mConfig.END_LOCATION || isComplete) {
+      if (record >= mConfig.END_LOCATION || isComplete) {
         key = mConfig.TEMP_FILE.getName() + "_state_" + mConfig.THREAD_ID;
         value = "1";
+      } else if (0 < record && record < mConfig.END_LOCATION) {
+        key = mConfig.TEMP_FILE.getName() + "_record_" + mConfig.THREAD_ID;
+        value = String.valueOf(record);
       }
       if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)) {
         File configFile = new File(mConfigFPath);

@@ -76,7 +76,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       int len;
 
       while ((len = is.read(buffer)) != -1) {
-        if (STATE.isCancel || STATE.isStop){
+        if (STATE.isCancel || STATE.isStop) {
           break;
         }
         if (mSleepTime > 0) Thread.sleep(mSleepTime);
@@ -101,6 +101,10 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         }
         STATE.isRunning = false;
         mListener.onComplete();
+      }
+      if (STATE.isFail()) {
+        STATE.isRunning = false;
+        mListener.onFail(false);
       }
     } catch (IOException e) {
       fail(mChildCurrentLocation, "下载失败【" + mConfig.URL + "】", e);
