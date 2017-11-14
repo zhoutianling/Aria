@@ -1,4 +1,7 @@
 ## 开发日志
+  + v_3.3.7
+    - 修复一个线程重启的问题 https://github.com/AriaLyy/Aria/issues/160
+    - 修复配置文件异常问题、格式化速度为0问题 https://github.com/AriaLyy/Aria/issues/161
   + v_3.3.6
     - 增加日志输出级别控制
     - 修复公网FTP地址不能下载的问题  https://github.com/AriaLyy/Aria/issues/146

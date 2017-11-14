@@ -128,7 +128,9 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
     } else {
       mEntity.setSpeed(speed < 0 ? 0 : speed);
     }
-    mEntity.setPercent((int) (mEntity.getCurrentProgress() * 100 / mEntity.getFileSize()));
+
+    mEntity.setPercent((int) (mEntity.getFileSize() <= 0 ? 0
+        : mEntity.getCurrentProgress() * 100 / mEntity.getFileSize()));
   }
 
   /**

@@ -152,7 +152,8 @@ class Configuration {
               : UPLOAD_CONFIG_FILE));
       if (file.exists()) {
         Properties properties = CommonUtil.loadConfig(file);
-        List<Field> fields = CommonUtil.getAllFields(getClass());
+        List<Field> fields =
+            CommonUtil.getAllFields(isDownload ? DownloadConfig.class : UploadConfig.class);
         try {
           for (Field field : fields) {
             int m = field.getModifiers();
