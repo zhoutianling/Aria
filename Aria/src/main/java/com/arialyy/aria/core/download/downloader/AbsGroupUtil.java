@@ -566,7 +566,8 @@ public abstract class AbsGroupUtil implements IUtil {
     private void handleSpeed(long speed) {
       subEntity.setSpeed(speed);
       subEntity.setConvertSpeed(speed <= 0 ? "" : CommonUtil.formatFileSize(speed) + "/s");
-      subEntity.setPercent((int) (subEntity.getCurrentProgress() * 100 / subEntity.getFileSize()));
+      subEntity.setPercent((int) (subEntity.getFileSize() <= 0 ? 0
+          : subEntity.getCurrentProgress() * 100 / subEntity.getFileSize()));
     }
 
     private void saveData(int state, long location) {
