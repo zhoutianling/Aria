@@ -80,13 +80,18 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       byte[] buffer = new byte[mBufSize];
       int len;
       while ((len = is.read(buffer)) != -1) {
-        if (STATE.isCancel) break;
-        if (STATE.isStop) break;
-        if (mSleepTime > 0) Thread.sleep(mSleepTime);
+        if (STATE.isCancel || STATE.isStop){
+          break;
+        }
+        if (mSleepTime > 0) {
+          Thread.sleep(mSleepTime);
+        }
         file.write(buffer, 0, len);
         progress(len);
       }
-      if (STATE.isCancel || STATE.isStop) return;
+      if (STATE.isCancel || STATE.isStop){
+        return;
+      }
       //支持断点的处理
       if (mConfig.SUPPORT_BP) {
         ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
