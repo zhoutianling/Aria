@@ -74,13 +74,17 @@ protected void onCreate(Bundle savedInstanceState) {
  
 ```java
 //在这里处理任务执行中的状态，如进度进度条的刷新
-@Download.onTaskRunning(DOWNLOAD_URL) protected void running(DownloadTask task) {
+@Download.onTaskRunning protected void running(DownloadTask task) {
+	if(task.getUrl().eques(url)){
+		....
+		可以通过url判断是否是指定任务的回调
+	}
 	int p = task.getPercent();	//任务进度百分比
     String speed = task.getConvertSpeed();	//转换单位后的下载速度，单位转换需要在配置文件中打开
    	String speed1 = task.getSpeed(); //原始byte长度速度
 }
 
-@Download.onTaskComplete(DOWNLOAD_URL) void taskComplete(DownloadTask task) {
+@Download.onTaskComplete void taskComplete(DownloadTask task) {
 	//在这里处理任务完成的状态
 }
 ```
