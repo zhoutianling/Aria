@@ -28,8 +28,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.3.6'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.6'
+compile 'com.arialyy.aria:aria-core:3.3.7'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.7'
 ```
 如果你使用的是kotlin，请使用kotlin官方提供的方法配置apt，[kotlin kapt官方配置传送门](https://www.kotlincn.net/docs/reference/kapt.html)
 
@@ -92,7 +92,12 @@ protected void onCreate(Bundle savedInstanceState) {
 
 ### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
-### [历史版本说明](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
+### 升级日志
++ v_3.3.7
+    - 修复一个线程重启的问题 https://github.com/AriaLyy/Aria/issues/160
+    - 修复配置文件异常问题、格式化速度为0问题 https://github.com/AriaLyy/Aria/issues/161
+
+[更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 
 ## 混淆配置
 ```

@@ -59,7 +59,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   //不支持断点的链接
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   //"http://172.18.104.50:8080/download/_302turn";
-  "http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
+  //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
+  "http://shouji.360tpcdn.com/160824/2c0407dbab4a86c7a84fa7340b9969e7/block.app.wars_30.apk";
   //"http://172.21.1.99:8080/download/test+ 中文123.zip";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
