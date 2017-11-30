@@ -17,7 +17,6 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.inf.AbsDownloadTarget;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
@@ -61,6 +60,18 @@ public class DownloadTarget
     }
     mEntity = mTaskEntity.entity;
     mTaskEntity.refreshInfo = refreshInfo;
+  }
+
+  /**
+   * 是否使用服务器通过content-disposition传递的文件名，内容格式{@code attachment;filename=***}
+   * 如果获取不到服务器文件名，则使用用户设置的文件名
+   * 只适用于HTTP请求
+   *
+   * @param use {@code true} 使用
+   */
+  @Deprecated public DownloadTarget useServerFileName(boolean use) {
+    mTaskEntity.useServerFileName = use;
+    return this;
   }
 
   /**

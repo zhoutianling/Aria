@@ -29,6 +29,7 @@ import butterknife.Bind;
 import com.arialyy.annotations.Download;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTarget;
@@ -60,8 +61,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   //"http://172.18.104.50:8080/download/_302turn";
   //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
-  "http://shouji.360tpcdn.com/160824/2c0407dbab4a86c7a84fa7340b9969e7/block.app.wars_30.apk";
-  //"http://172.21.1.99:8080/download/test+ 中文123.zip";
+  //"http://shouji.360tpcdn.com/160824/2c0407dbab4a86c7a84fa7340b9969e7/block.app.wars_30.apk";
+  "http://172.21.1.72:8080/download/test+ 中文123.zip";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -228,6 +229,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     Aria.download(SingleTaskActivity.this)
         .load(DOWNLOAD_URL)
         .addHeader("groupName", "value")
+        .setRequestMode(RequestEnum.POST)
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/hhhhhhhh.apk")
         .start();
   }
