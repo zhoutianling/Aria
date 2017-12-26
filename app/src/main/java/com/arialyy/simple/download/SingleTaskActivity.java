@@ -29,6 +29,7 @@ import butterknife.Bind;
 import com.arialyy.annotations.Download;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTarget;
@@ -216,6 +217,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     Aria.download(SingleTaskActivity.this)
         .load(DOWNLOAD_URL)
         .addHeader("groupName", "value")
+        .setRequestMode(RequestEnum.POST)
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/hhhhhhhh.apk")
         .start();
   }

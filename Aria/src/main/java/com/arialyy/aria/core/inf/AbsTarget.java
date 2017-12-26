@@ -168,7 +168,8 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   }
 
   /**
-   * 设置请求类型
+   * 设置请求类型，POST或GET，默认为在GET
+   * 只试用于HTTP请求
    *
    * @param requestEnum {@link RequestEnum}
    */

@@ -28,8 +28,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.3.6'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.6'
+compile 'com.arialyy.aria:aria-core:3.3.7'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.7'
 ```
 如果你使用的是kotlin，请使用kotlin官方提供的方法配置apt，[kotlin kapt官方配置传送门](https://www.kotlincn.net/docs/reference/kapt.html)
 
@@ -74,13 +74,17 @@ protected void onCreate(Bundle savedInstanceState) {
  
 ```java
 //在这里处理任务执行中的状态，如进度进度条的刷新
-@Download.onTaskRunning(DOWNLOAD_URL) protected void running(DownloadTask task) {
+@Download.onTaskRunning protected void running(DownloadTask task) {
+	if(task.getUrl().eques(url)){
+		....
+		可以通过url判断是否是指定任务的回调
+	}
 	int p = task.getPercent();	//任务进度百分比
     String speed = task.getConvertSpeed();	//转换单位后的下载速度，单位转换需要在配置文件中打开
    	String speed1 = task.getSpeed(); //原始byte长度速度
 }
 
-@Download.onTaskComplete(DOWNLOAD_URL) void taskComplete(DownloadTask task) {
+@Download.onTaskComplete void taskComplete(DownloadTask task) {
 	//在这里处理任务完成的状态
 }
 ```
@@ -92,7 +96,12 @@ protected void onCreate(Bundle savedInstanceState) {
 
 ### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
-### [历史版本说明](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
+### 升级日志
++ v_3.3.7
+    - 修复一个线程重启的问题 https://github.com/AriaLyy/Aria/issues/160
+    - 修复配置文件异常问题、格式化速度为0问题 https://github.com/AriaLyy/Aria/issues/161
+
+[更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 
 ## 混淆配置
 ```

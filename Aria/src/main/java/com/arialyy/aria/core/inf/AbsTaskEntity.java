@@ -106,6 +106,12 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   public String md5Key = "Content-MD5";
 
   /**
+   * 是否使用服务器通过content-disposition传递的文件名，内容格式{@code attachment;filename=***}
+   * {@code true} 使用
+   */
+  public boolean useServerFileName = false;
+
+  /**
    * 从header中获取文件描述信息所需要的key
    */
   public String dispositionKey = "Content-Disposition";
