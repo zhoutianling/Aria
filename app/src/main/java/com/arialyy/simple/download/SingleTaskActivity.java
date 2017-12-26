@@ -58,9 +58,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   //"http://down8.androidgame-store.com/201706122321/97967927DD4E53D9905ECAA7874C8128/new/game1/19/45319/com.neuralprisma-2.5.2.174-2000174_1494784835.apk?f=web_1";
   //不支持断点的链接
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
-  //"http://172.18.104.50:8080/download/_302turn";
   "http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
-  //"http://172.21.1.99:8080/download/test+ 中文123.zip";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -170,6 +168,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     setBtState(true);
     getBinding().setSpeed("");
     L.d(TAG, "md5Code ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
+    L.d(TAG, "data ==> " + Aria.download(this).getDownloadEntity(DOWNLOAD_URL));
   }
 
   @Download.onNoSupportBreakPoint
@@ -200,20 +199,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     switch (view.getId()) {
       case R.id.start:
         startD();
-        //new Thread(new Runnable() {
-        //  @Override public void run() {
-        //    startD();
-        //  }
-        //}).start();
-        //
-        //new Thread(new Runnable() {
-        //  @Override public void run() {
-        //    startD();
-        //  }
-        //}).start();
         break;
       case R.id.stop:
         Aria.download(this).load(DOWNLOAD_URL).stop();
+        //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
       case R.id.cancel:
         Aria.download(this).load(DOWNLOAD_URL).cancel();

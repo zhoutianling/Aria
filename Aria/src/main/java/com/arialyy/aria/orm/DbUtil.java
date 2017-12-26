@@ -65,6 +65,17 @@ public class DbUtil {
   }
 
   /**
+   * 关键字模糊检索全文
+   *
+   * @param column 需要查找的列
+   * @param mathSql 关键字语法，exsimple “white OR green”、“blue AND red”、“white NOT green”
+   */
+  public <T extends DbEntity> List<T> searchData(Class<T> clazz, String column, String mathSql) {
+    checkDb();
+    return SqlHelper.searchData(mDb, clazz, column, mathSql);
+  }
+
+  /**
    * 检查某个字段的值是否存在
    *
    * @param expression 字段和值"url=xxx"

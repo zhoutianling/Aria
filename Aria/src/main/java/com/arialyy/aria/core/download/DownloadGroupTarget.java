@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.manager.TEManager;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -85,5 +86,10 @@ public class DownloadGroupTarget
     mEntity.setGroupName(CommonUtil.getMd5Code(urls));
     mEntity.update();
     return this;
+  }
+
+  @Override public boolean isRunning() {
+    DownloadGroupTask task = DownloadGroupTaskQueue.getInstance().getTask(mEntity.getKey());
+    return task != null && task.isRunning();
   }
 }

@@ -42,10 +42,24 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   protected String mTargetName;
 
   /**
-   * 删除记录
+   * 删除记录，如果任务正在执行，则会删除正在下载的任务
    */
   public void removeRecord() {
-    mTaskEntity.deleteData();
+    if (isRunning()) {
+      ALog.d("AbsTarget", "任务正在下载，即将删除任务");
+      cancel();
+    } else {
+      mTaskEntity.deleteData();
+    }
+  }
+
+  /**
+   * 任务是否在执行
+   *
+   * @return {@code true} 任务正在执行
+   */
+  public boolean isRunning() {
+    return false;
   }
 
   /**

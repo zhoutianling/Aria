@@ -86,7 +86,7 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
       setBtState(false);
     }
     mSize.setText(target.getConvertFileSize());
-    List<DownloadEntity> temp = Aria.download(this).getSimpleTaskList();
+    List<DownloadEntity> temp = Aria.download(this).getTaskList();
     if (temp != null && !temp.isEmpty()) {
       for (DownloadEntity entity : temp) {
         if (entity.getUrl().equals(DOWNLOAD_URL)) continue;

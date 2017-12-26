@@ -157,8 +157,13 @@ class Configuration {
         try {
           for (Field field : fields) {
             int m = field.getModifiers();
-            if (field.getName().equals("oldMaxTaskNum") || Modifier.isFinal(m) || Modifier.isStatic(
-                m)) {
+            String fileName = field.getName();
+            if (fileName.equals("oldMaxTaskNum")
+                || field.isSynthetic()
+                || Modifier.isFinal(m)
+                || Modifier.isStatic(m)
+                || fileName.equals("shadow$_klass_")
+                || fileName.equals("shadow$_monitor_")) {
               continue;
             }
             field.setAccessible(true);
@@ -265,6 +270,11 @@ class Configuration {
       saveKey("msxSpeed", String.valueOf(msxSpeed));
       DownloadTaskQueue.getInstance().setMaxSpeed(msxSpeed);
       return this;
+    }
+
+    public void setThreadNum(int threadNum){
+      this.threadNum = threadNum;
+      saveKey("threadNum", String.valueOf(threadNum));
     }
 
     public DownloadConfig setIOTimeOut(int iOTimeOut) {

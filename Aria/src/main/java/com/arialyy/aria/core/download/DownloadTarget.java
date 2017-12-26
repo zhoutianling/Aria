@@ -17,7 +17,6 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.inf.AbsDownloadTarget;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
@@ -131,8 +130,14 @@ public class DownloadTarget
 
   /**
    * 是否在下载
+   *
+   * @deprecated {@link #isRunning()}
    */
   public boolean isDownloading() {
+    return isRunning();
+  }
+
+  @Override public boolean isRunning() {
     DownloadTask task = DownloadTaskQueue.getInstance().getTask(mEntity.getKey());
     return task != null && task.isRunning();
   }

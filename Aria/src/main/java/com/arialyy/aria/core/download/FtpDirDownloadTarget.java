@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.manager.TEManager;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.util.ALog;
 
 /**
@@ -82,5 +83,10 @@ public class FtpDirDownloadTarget
     mTaskEntity.urlEntity.password = password;
     mTaskEntity.urlEntity.account = account;
     return this;
+  }
+
+  @Override public boolean isRunning() {
+    DownloadGroupTask task = DownloadGroupTaskQueue.getInstance().getTask(mEntity.getKey());
+    return task != null && task.isRunning();
   }
 }

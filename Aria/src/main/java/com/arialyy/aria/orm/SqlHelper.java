@@ -163,13 +163,33 @@ final class SqlHelper extends SQLiteOpenHelper {
   }
 
   /**
+   * 关键字模糊检索全文
+   *
+   * @param column 需要查找的列
+   * @param mathSql 关键字语法，exsimple “white OR green”、“blue AND red”、“white NOT green”
+   */
+  public static <T extends DbEntity> List<T> searchData(SQLiteDatabase db, Class<T> clazz,
+      String column, String mathSql) {
+    String sql = "SELECT * FROM "
+        + CommonUtil.getClassName(clazz)
+        + " WHERE "
+        + column
+        + " MATCH '"
+        + mathSql + "'";
+
+    Cursor cursor = db.rawQuery(sql, null);
+    List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
+    closeCursor(cursor);
+    return data;
+  }
+
+  /**
    * 检查某个字段的值是否存在
    *
    * @param expression 字段和值"url=xxx"
    * @return {@code true}该字段的对应的value已存在
    */
-  static synchronized boolean checkDataExist(SQLiteDatabase db, Class clazz,
-      String... expression) {
+  static synchronized boolean checkDataExist(SQLiteDatabase db, Class clazz, String... expression) {
     db = checkDb(db);
     CheckUtil.checkSqlExpression(expression);
     String sql =
@@ -414,12 +434,16 @@ final class SqlHelper extends SQLiteOpenHelper {
    * @return true，该数据库实体对应的表存在；false，不存在
    */
   static synchronized boolean tableExists(SQLiteDatabase db, Class clazz) {
+    return tableExists(db, CommonUtil.getClassName(clazz));
+  }
+
+  static synchronized boolean tableExists(SQLiteDatabase db, String tableName) {
     db = checkDb(db);
     Cursor cursor = null;
     try {
       StringBuilder sb = new StringBuilder();
       sb.append("SELECT COUNT(*) AS c FROM sqlite_master WHERE type='table' AND name='");
-      sb.append(CommonUtil.getClassName(clazz));
+      sb.append(tableName);
       sb.append("'");
       print(TABLE_EXISTS, sb.toString());
       cursor = db.rawQuery(sb.toString(), null);
@@ -446,14 +470,15 @@ final class SqlHelper extends SQLiteOpenHelper {
    */
   static synchronized void createTable(SQLiteDatabase db, Class clazz, String tableName) {
     db = checkDb(db);
+    createFTSTable(db);
     List<Field> fields = CommonUtil.getAllFields(clazz);
     if (fields != null && fields.size() > 0) {
       //外键Map，在Sqlite3中foreign修饰的字段必须放在最后
       final List<Field> foreignArray = new ArrayList<>();
       StringBuilder sb = new StringBuilder();
-      sb.append("create table ")
+      sb.append("create VIRTUAL table ")
           .append(TextUtils.isEmpty(tableName) ? CommonUtil.getClassName(clazz) : tableName)
-          .append("(");
+          .append(" USING fts4(");
       for (Field field : fields) {
         field.setAccessible(true);
         if (SqlUtil.ignoreField(field)) {
@@ -486,7 +511,7 @@ final class SqlHelper extends SQLiteOpenHelper {
 
         }
         if (SqlUtil.isForeign(field)) {
-          foreignArray.add(field);
+          //foreignArray.add(field);
         }
 
         if (SqlUtil.isNoNull(field)) {
@@ -512,6 +537,17 @@ final class SqlHelper extends SQLiteOpenHelper {
       db.execSQL(str);
     }
     close(db);
+  }
+
+  /**
+   * 创建分词表
+   */
+  private static void createFTSTable(SQLiteDatabase db) {
+    String tableName = "ariaFts";
+    String sql = "CREATE VIRTUAL TABLE " + tableName + " USING fts4(tokenize= porter)";
+    if (!tableExists(db, tableName)) {
+      db.execSQL(sql);
+    }
   }
 
   /**
