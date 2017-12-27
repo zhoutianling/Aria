@@ -150,7 +150,21 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    * @param header 头部value
    */
   public TARGET addHeader(@NonNull String key, @NonNull String header) {
+    return addHeader(key, header, false);
+  }
+
+  /**
+   * 给url请求添加头部
+   *
+   * @param key 头部key
+   * @param header 头部value
+   * @param refreshHeader 更新数据库中保存的头部信息
+   */
+  public TARGET addHeader(@NonNull String key, @NonNull String header, boolean refreshHeader) {
     mTaskEntity.headers.put(key, header);
+    if (refreshHeader) {
+      mTaskEntity.update();
+    }
     return (TARGET) this;
   }
 
@@ -158,11 +172,23 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    * 给url请求添加头部
    */
   public TARGET addHeaders(Map<String, String> headers) {
+    return addHeaders(headers, false);
+  }
+
+  /**
+   * 给url请求添加头部
+   *
+   * @param refreshHeader 更新数据库中保存的头部信息
+   */
+  public TARGET addHeaders(Map<String, String> headers, boolean refreshHeader) {
     if (headers != null && headers.size() > 0) {
       Set<String> keys = headers.keySet();
       for (String key : keys) {
         mTaskEntity.headers.put(key, headers.get(key));
       }
+    }
+    if (refreshHeader) {
+      mTaskEntity.update();
     }
     return (TARGET) this;
   }

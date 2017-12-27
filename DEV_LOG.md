@@ -1,6 +1,8 @@
 ## 开发日志
   + v_3.3.8
     - 添加POST支持
+    - 任务执行的过程中，如果调用removeRecord()方法，将会取消任务 https://github.com/AriaLyy/Aria/issues/174
+    - 修复一个数据库初始化的问题 https://github.com/AriaLyy/Aria/issues/173
   + v_3.3.7
     - 修复一个线程重启的问题 https://github.com/AriaLyy/Aria/issues/160
     - 修复配置文件异常问题、格式化速度为0问题 https://github.com/AriaLyy/Aria/issues/161

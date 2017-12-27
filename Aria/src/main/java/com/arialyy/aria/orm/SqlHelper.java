@@ -175,7 +175,8 @@ final class SqlHelper extends SQLiteOpenHelper {
         + " WHERE "
         + column
         + " MATCH '"
-        + mathSql + "'";
+        + mathSql
+        + "'";
 
     Cursor cursor = db.rawQuery(sql, null);
     List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
@@ -486,8 +487,7 @@ final class SqlHelper extends SQLiteOpenHelper {
         }
         Class<?> type = field.getType();
         sb.append(field.getName());
-        if (type == String.class || type == Map.class || type == List.class || SqlUtil.isOneToOne(
-            field) || type.isEnum()) {
+        if (type == String.class || SqlUtil.isOneToOne(field) || type.isEnum()) {
           sb.append(" varchar");
         } else if (type == int.class || type == Integer.class) {
           sb.append(" interger");
@@ -503,6 +503,8 @@ final class SqlHelper extends SQLiteOpenHelper {
           sb.append(" data");
         } else if (type == byte.class || type == Byte.class) {
           sb.append(" blob");
+        } else if (type == Map.class || type == List.class) {
+          sb.append(" text");
         } else {
           continue;
         }

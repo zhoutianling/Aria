@@ -43,6 +43,8 @@ import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
@@ -59,7 +61,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   //"http://down8.androidgame-store.com/201706122321/97967927DD4E53D9905ECAA7874C8128/new/game1/19/45319/com.neuralprisma-2.5.2.174-2000174_1494784835.apk?f=web_1";
   //不支持断点的链接
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
-  "http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
+  //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
+  "http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -214,11 +217,15 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private void startD(){
     //Aria.get(this).setLogLevel(ALog.LOG_CLOSE);
     //Aria.download(this).load("aaaa.apk");
+    Map<String, String> map = new HashMap<>();
+    map.put("User-Agent", "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 Mobile MQQBrowser/6.2 TBS/043722 Safari/537.36");
+    map.put("Cookie", "BAIDUID=DFC7EF42C60AD1ACF0BA94389AA67F13:FG=1; H_WISE_SIDS=121192_104493_114745_121434_119046_100098_120212_121140_118882_118858_118850_118820_118792_121254_121534_121214_117588_117242_117431_119974_120597_121043_121422_120943_121175_121272_117552_120482_121013_119962_119145_120851_120841_120034_121325_116407_121109_120654_110085_120708; PSINO=7; BDORZ=AE84CDB3A529C0F8A2B9DCDD1D18B695");
     Aria.download(SingleTaskActivity.this)
         .load(DOWNLOAD_URL)
-        .addHeader("groupName", "value")
-        .setRequestMode(RequestEnum.POST)
-        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/hhhhhhhh.apk")
+        //.addHeader("groupName", "value")
+        .addHeaders(map)
+        //.setRequestMode(RequestEnum.POST)
+        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/ggsg.apk")
         .start();
   }
 
