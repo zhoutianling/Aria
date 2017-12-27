@@ -28,7 +28,6 @@ import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
@@ -250,11 +249,29 @@ public class DownloadReceiver extends AbsReceiver {
   }
 
   /**
-   * 获取普通下载任务列表
+   * 获取所有普通下载任务
+   * 获取未完成的普通任务列表{@link #getAllNotCompletTask()}
+   * 获取已经完成的普通任务列表{@link #getAllCompleteTask()}
    */
-  @Override public List<DownloadEntity> getSimpleTaskList() {
+  @Override public List<DownloadEntity> getTaskList() {
     return DownloadEntity.findDatas(DownloadEntity.class, "isGroupChild=? and downloadPath!=''",
         "false");
+  }
+
+  /**
+   * 获取所有未完成的普通下载任务
+   */
+  public List<DownloadEntity> getAllNotCompletTask() {
+    return DownloadEntity.findDatas(DownloadEntity.class,
+        "isGroupChild=? and downloadPath!='' and isComplete=?", "false", "false");
+  }
+
+  /**
+   * 获取所有已经完成的普通任务
+   */
+  public List<DownloadEntity> getAllCompleteTask() {
+    return DownloadEntity.findDatas(DownloadEntity.class,
+        "isGroupChild=? and downloadPath!='' and isComplete=?", "false", "true");
   }
 
   /**
@@ -269,7 +286,7 @@ public class DownloadReceiver extends AbsReceiver {
    */
   public List<AbsEntity> getTotleTaskList() {
     List<AbsEntity> list = new ArrayList<>();
-    List<DownloadEntity> simpleTask = getSimpleTaskList();
+    List<DownloadEntity> simpleTask = getTaskList();
     List<DownloadGroupEntity> groupTask = getGroupTaskList();
     if (simpleTask != null && !simpleTask.isEmpty()) {
       list.addAll(simpleTask);

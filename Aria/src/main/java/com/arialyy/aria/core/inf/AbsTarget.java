@@ -42,10 +42,24 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   protected String mTargetName;
 
   /**
-   * 删除记录
+   * 删除记录，如果任务正在执行，则会删除正在下载的任务
    */
   public void removeRecord() {
-    mTaskEntity.deleteData();
+    if (isRunning()) {
+      ALog.d("AbsTarget", "任务正在下载，即将删除任务");
+      cancel();
+    } else {
+      mTaskEntity.deleteData();
+    }
+  }
+
+  /**
+   * 任务是否在执行
+   *
+   * @return {@code true} 任务正在执行
+   */
+  public boolean isRunning() {
+    return false;
   }
 
   /**
@@ -136,7 +150,21 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    * @param header 头部value
    */
   public TARGET addHeader(@NonNull String key, @NonNull String header) {
+    return addHeader(key, header, false);
+  }
+
+  /**
+   * 给url请求添加头部
+   *
+   * @param key 头部key
+   * @param header 头部value
+   * @param refreshHeader 更新数据库中保存的头部信息
+   */
+  public TARGET addHeader(@NonNull String key, @NonNull String header, boolean refreshHeader) {
     mTaskEntity.headers.put(key, header);
+    if (refreshHeader) {
+      mTaskEntity.update();
+    }
     return (TARGET) this;
   }
 
@@ -144,17 +172,30 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    * 给url请求添加头部
    */
   public TARGET addHeaders(Map<String, String> headers) {
+    return addHeaders(headers, false);
+  }
+
+  /**
+   * 给url请求添加头部
+   *
+   * @param refreshHeader 更新数据库中保存的头部信息
+   */
+  public TARGET addHeaders(Map<String, String> headers, boolean refreshHeader) {
     if (headers != null && headers.size() > 0) {
       Set<String> keys = headers.keySet();
       for (String key : keys) {
         mTaskEntity.headers.put(key, headers.get(key));
       }
     }
+    if (refreshHeader) {
+      mTaskEntity.update();
+    }
     return (TARGET) this;
   }
 
   /**
-   * 设置请求类型
+   * 设置请求类型，POST或GET，默认为在GET
+   * 只试用于HTTP请求
    *
    * @param requestEnum {@link RequestEnum}
    */

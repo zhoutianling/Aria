@@ -272,6 +272,11 @@ class Configuration {
       return this;
     }
 
+    public void setThreadNum(int threadNum){
+      this.threadNum = threadNum;
+      saveKey("threadNum", String.valueOf(threadNum));
+    }
+
     public DownloadConfig setIOTimeOut(int iOTimeOut) {
       this.iOTimeOut = iOTimeOut;
       saveKey("iOTimeOut", iOTimeOut + "");

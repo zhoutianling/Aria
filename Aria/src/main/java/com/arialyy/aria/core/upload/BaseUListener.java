@@ -113,9 +113,8 @@ class BaseUListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
   private void handleSpeed(long speed) {
     if (isConvertSpeed) {
       mEntity.setConvertSpeed(CommonUtil.formatFileSize(speed < 0 ? 0 : speed) + "/s");
-    } else {
-      mEntity.setSpeed(speed < 0 ? 0 : speed);
     }
+    mEntity.setSpeed(speed < 0 ? 0 : speed);
     mEntity.setPercent((int) (mEntity.getFileSize() <= 0 ? 0
         : mEntity.getCurrentProgress() * 100 / mEntity.getFileSize()));
   }

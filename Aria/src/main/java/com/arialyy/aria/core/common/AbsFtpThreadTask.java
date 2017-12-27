@@ -100,7 +100,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       client.setDataTimeout(10 * 1000);
       client.enterLocalPassiveMode();
       client.setFileType(FTP.BINARY_FILE_TYPE);
-      client.setControlKeepAliveTimeout(5);
+      client.setControlKeepAliveTimeout(5000);
     } catch (IOException e) {
       e.printStackTrace();
     }

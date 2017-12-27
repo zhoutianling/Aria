@@ -51,8 +51,14 @@ public abstract class AbsUploadTarget<TARGET extends AbsUploadTarget, ENTITY ext
 
   /**
    * 是否在下载
+   *
+   * @deprecated {@link #isRunning()}
    */
   public boolean isUploading() {
+    return isRunning();
+  }
+
+  @Override public boolean isRunning() {
     UploadTask task = UploadTaskQueue.getInstance().getTask(mEntity.getKey());
     return task != null && task.isRunning();
   }

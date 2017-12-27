@@ -52,5 +52,5 @@ public interface IReceiver<ENTITY extends IEntity> {
   /**
    * 获取任务列表
    */
-  List<ENTITY> getSimpleTaskList();
+  List<ENTITY> getTaskList();
 }
