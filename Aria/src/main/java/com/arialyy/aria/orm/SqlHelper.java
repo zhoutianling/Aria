@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
+import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.ALog;
@@ -49,6 +50,7 @@ final class SqlHelper extends SQLiteOpenHelper {
   private static final int DEL_DATA = 6;
 
   private static volatile SqlHelper INSTANCE = null;
+  private static LruCache<Integer, DbEntity> mDataCache = new LruCache<>(1024);
 
   static SqlHelper init(Context context) {
     if (INSTANCE == null) {
@@ -328,6 +330,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     db = checkDb(db);
     Class<?> clazz = dbEntity.getClass();
     List<Field> fields = CommonUtil.getAllFields(clazz);
+    DbEntity cacheEntity = mDataCache.get(dbEntity.hashCode());
     if (fields != null && fields.size() > 0) {
       StringBuilder sb = new StringBuilder();
       sb.append("UPDATE ").append(CommonUtil.getClassName(dbEntity)).append(" SET ");
@@ -337,8 +340,12 @@ final class SqlHelper extends SQLiteOpenHelper {
         if (SqlUtil.ignoreField(field)) {
           continue;
         }
-        sb.append(i > 0 ? ", " : "");
         try {
+          if (cacheEntity != null && field.get(dbEntity) == field.get(cacheEntity)) {
+            continue;
+          }
+
+          sb.append(i > 0 ? ", " : "");
           String value;
           sb.append(field.getName()).append("='");
           Type type = field.getType();
@@ -656,6 +663,7 @@ final class SqlHelper extends SQLiteOpenHelper {
             }
           }
           entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
+          mDataCache.put(entity.hashCode(), entity);
           entitys.add(entity);
         }
         closeCursor(cursor);

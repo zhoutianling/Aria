@@ -24,6 +24,7 @@ import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
@@ -50,6 +51,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
       cancel();
     } else {
       mTaskEntity.deleteData();
+      TEManager.getInstance().removeTEntity(mEntity.getKey());
     }
   }
 

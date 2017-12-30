@@ -110,10 +110,19 @@ final class SqlUtil {
     if (TextUtils.isEmpty(str)) {
       return map;
     }
+    boolean isDecode = false;
+    if (str.endsWith("_&_decode_&_")) {
+      isDecode = true;
+      str = str.substring(0, str.length() - 12);
+    }
     String[] element = str.split(",");
     for (String data : element) {
       String[] s = data.split("\\$");
-      map.put(s[0], s[1]);
+      if (isDecode) {
+        map.put(CommonUtil.decryptBASE64(s[0]), CommonUtil.decryptBASE64(s[1]));
+      } else {
+        map.put(s[0], s[1]);
+      }
     }
     return map;
   }
@@ -128,10 +137,18 @@ final class SqlUtil {
     StringBuilder sb = new StringBuilder();
     Set<String> keys = map.keySet();
     for (String key : keys) {
-      sb.append(key).append("$").append(map.get(key)).append(",");
+      sb.append(CommonUtil.encryptBASE64(key))
+          .append("$")
+          .append(CommonUtil.encryptBASE64(map.get(key)))
+          .append(",");
     }
     String str = sb.toString();
-    return TextUtils.isEmpty(str) ? str : str.substring(0, str.length() - 1);
+    str = TextUtils.isEmpty(str) ? str : str.substring(0, str.length() - 1);
+    //3.3.10版本之前没有decode，需要加标志
+    if (map.size() != 0) {
+      str += "_&_decode_&_";
+    }
+    return str;
   }
 
   /**

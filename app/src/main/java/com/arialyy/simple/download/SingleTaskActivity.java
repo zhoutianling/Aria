@@ -209,7 +209,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
       case R.id.cancel:
-        Aria.download(this).load(DOWNLOAD_URL).cancel();
+        //Aria.download(this).load(DOWNLOAD_URL).cancel();
+        Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
     }
   }
