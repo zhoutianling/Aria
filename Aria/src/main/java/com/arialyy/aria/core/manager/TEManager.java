@@ -184,6 +184,7 @@ public class TEManager {
 
   /**
    * 通过key删除任务实体
+   * 当任务complete或删除记录时将删除缓存
    */
   public AbsTaskEntity removeTEntity(String key) {
     final Lock lock = this.lock;

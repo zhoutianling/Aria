@@ -84,7 +84,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 加载Http、https单任务下载地址
    *
    * @param url 下载地址
-   * @param refreshInfo 是否刷新下载信息
+   * @param refreshInfo 是否刷新下载信息，当下载地址改变而保存路径不变，则需要设置该参数为{@code true}
    */
   public DownloadTarget load(@NonNull String url, boolean refreshInfo) {
     CheckUtil.checkUrl(url);
@@ -111,7 +111,7 @@ public class DownloadReceiver extends AbsReceiver {
   /**
    * 使用下载实体执行下载操作
    *
-   * @param refreshInfo 是否刷新下载信息
+   * @param refreshInfo 是否刷新下载信息，当下载地址改变而保存路径不变，则需要设置该参数为{@code true}
    */
   public FtpDownloadTarget loadFtp(DownloadEntity entity, boolean refreshInfo) {
     CheckUtil.checkDownloadEntity(entity);

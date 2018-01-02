@@ -1,4 +1,7 @@
 ## 开发日志
+  + v_3.3.10
+    - 修复地址切换导致下载失败的问题 https://github.com/AriaLyy/Aria/issues/181
+    - 添加重置状态的api，当下载信息不改变，只是替换了服务器的对应的文件，可用`Aria.download(this).load(url).resetState()`重置下载状态 https://github.com/AriaLyy/Aria/issues/182
   + v_3.3.9
     - 添加POST支持
     - 任务执行的过程中，如果调用removeRecord()方法，将会取消任务 https://github.com/AriaLyy/Aria/issues/174

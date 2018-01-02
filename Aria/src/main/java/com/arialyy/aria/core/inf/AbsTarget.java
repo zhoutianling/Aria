@@ -43,6 +43,15 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   protected String mTargetName;
 
   /**
+   * 重置下载状态，将任务状态设置为未开始状态
+   */
+  public TARGET resetState() {
+    mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
+    mTaskEntity.update();
+    return (TARGET) this;
+  }
+
+  /**
    * 删除记录，如果任务正在执行，则会删除正在下载的任务
    */
   public void removeRecord() {

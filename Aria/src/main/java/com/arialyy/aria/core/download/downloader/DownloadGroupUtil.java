@@ -21,6 +21,7 @@ import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.util.ALog;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -63,6 +64,11 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
 
   @Override protected void onStart() {
     super.onStart();
+    if (mExeMap.size() == 0){
+      ALog.e(TAG, "任务组无可执行任务");
+      mListener.onFail(false);
+      return;
+    }
     Set<String> keys = mExeMap.keySet();
     int i = 0;
     for (String key : keys) {

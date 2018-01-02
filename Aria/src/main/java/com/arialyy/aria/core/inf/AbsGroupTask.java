@@ -27,7 +27,7 @@ public abstract class AbsGroupTask<TASK_ENTITY extends AbsGroupTaskEntity>
   protected AbsGroupUtil mUtil;
 
   @Override public String getKey() {
-    return mTaskEntity.getEntity().getGroupName();
+    return mTaskEntity.getEntity().getKey();
   }
 
   /**

@@ -332,8 +332,9 @@ final class SqlHelper extends SQLiteOpenHelper {
     List<Field> fields = CommonUtil.getAllFields(clazz);
     DbEntity cacheEntity = mDataCache.get(dbEntity.hashCode());
     if (fields != null && fields.size() > 0) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("UPDATE ").append(CommonUtil.getClassName(dbEntity)).append(" SET ");
+      StringBuilder sql = new StringBuilder();
+      StringBuilder prams = new StringBuilder();
+      sql.append("UPDATE ").append(CommonUtil.getClassName(dbEntity)).append(" SET ");
       int i = 0;
       for (Field field : fields) {
         field.setAccessible(true);
@@ -345,9 +346,11 @@ final class SqlHelper extends SQLiteOpenHelper {
             continue;
           }
 
-          sb.append(i > 0 ? ", " : "");
+          //sb.append(i > 0 ? ", " : "");
+          //sb.append(field.getName()).append("='");
           String value;
-          sb.append(field.getName()).append("='");
+          prams.append(i > 0 ? ", " : "");
+          prams.append(field.getName()).append("='");
           Type type = field.getType();
           if (type == Map.class) {
             value = SqlUtil.map2Str((Map<String, String>) field.get(dbEntity));
@@ -364,16 +367,21 @@ final class SqlHelper extends SQLiteOpenHelper {
             value = obj == null ? "" : obj.toString();
           }
 
-          sb.append(value == null ? "" : value);
-          sb.append("'");
+          //sb.append(value == null ? "" : value);
+          //sb.append("'");
+          prams.append(TextUtils.isEmpty(value) ? "" : value);
+          prams.append("'");
         } catch (IllegalAccessException e) {
           e.printStackTrace();
         }
         i++;
       }
-      sb.append(" where rowid=").append(dbEntity.rowID);
-      print(MODIFY_DATA, sb.toString());
-      db.execSQL(sb.toString());
+      if (!TextUtils.isEmpty(prams.toString())) {
+        sql.append(prams.toString());
+        sql.append(" where rowid=").append(dbEntity.rowID);
+        print(MODIFY_DATA, sql.toString());
+        db.execSQL(sql.toString());
+      }
     }
     close(db);
   }

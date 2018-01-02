@@ -32,6 +32,13 @@ public class GroupModule extends BaseModule {
 
   List<String> getUrls() {
     List<String> urls = new ArrayList<>();
+    String[] str = getContext().getResources().getStringArray(R.array.group_urls_1);
+    Collections.addAll(urls, str);
+    return urls;
+  }
+
+  List<String> getUrls1() {
+    List<String> urls = new ArrayList<>();
     String[] str = getContext().getResources().getStringArray(R.array.group_urls);
     Collections.addAll(urls, str);
     return urls;
