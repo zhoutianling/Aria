@@ -1,5 +1,5 @@
 # Aria
-![图标](https://github.com/AriaLyy/DownloadUtil/blob/v_2.0/app/src/main/res/mipmap-hdpi/ic_launcher.png)</br>
+![图标](https://github.com/AriaLyy/DownloadUtil/blob/v_3.0/app/src/main/res/mipmap-hdpi/ic_launcher.png)</br>
 ## [ENGLISH DOC](https://github.com/AriaLyy/Aria/blob/master/ENGLISH_README.md)</br>
 Aria项目源于工作中遇到的一个文件下载管理的需求，当时被下载折磨的痛不欲生，从那时起便萌生了编写一个简单易用，稳当高效的下载框架，aria经历了1.0到3.0的开发，算是越来越接近当初所制定的目标了。
 
@@ -28,8 +28,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.3.7'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.7'
+compile 'com.arialyy.aria:aria-core:3.3.10'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.10'
 ```
 如果你使用的是kotlin，请使用kotlin官方提供的方法配置apt，[kotlin kapt官方配置传送门](https://www.kotlincn.net/docs/reference/kapt.html)
 
@@ -97,9 +97,9 @@ protected void onCreate(Bundle savedInstanceState) {
 ### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
 ### 升级日志
-+ v_3.3.7
-    - 修复一个线程重启的问题 https://github.com/AriaLyy/Aria/issues/160
-    - 修复配置文件异常问题、格式化速度为0问题 https://github.com/AriaLyy/Aria/issues/161
++ v_3.3.10
+     - 修复地址切换导致下载失败的问题 https://github.com/AriaLyy/Aria/issues/181
+     - 添加重置状态的api，当下载信息不改变，只是替换了服务器的对应的文件，可用`Aria.download(this).load(url).resetState()`重置下载状态 https://github.com/AriaLyy/Aria/issues/182
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 
