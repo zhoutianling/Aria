@@ -32,6 +32,8 @@ import java.math.BigDecimal;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by lyy on 2017/1/18.
@@ -60,6 +62,17 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   private String mTaskType;
   private Timer mFailTimer;
   private long mLastSaveTime;
+  private ExecutorService mConfigThreadPool;
+  private Thread mConfigThread = new Thread(new Runnable() {
+    @Override public void run() {
+      final long currentTemp = mChildCurrentLocation;
+      try {
+        writeConfig(false, currentTemp);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  });
 
   protected AbsThreadTask(StateConstance constance, IEventListener listener,
       SubThreadConfig<TASK_ENTITY> info) {
@@ -76,6 +89,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     setMaxSpeed(AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMsxSpeed());
     mTaskType = getTaskType();
     mLastSaveTime = System.currentTimeMillis();
+    mConfigThreadPool = Executors.newCachedThreadPool();
   }
 
   protected abstract String getTaskType();
@@ -92,6 +106,13 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
 
   private boolean filterVersion() {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+  }
+
+  @Override protected void finalize() throws Throwable {
+    super.finalize();
+    if (mConfigThreadPool != null) {
+      mConfigThreadPool.shutdown();
+    }
   }
 
   /**
@@ -134,20 +155,12 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     synchronized (AriaManager.LOCK) {
       mChildCurrentLocation += len;
       STATE.CURRENT_LOCATION += len;
-      //mIncrement += len;
       if (System.currentTimeMillis() - mLastSaveTime > 5000
           && mChildCurrentLocation < mConfig.END_LOCATION) {
         mLastSaveTime = System.currentTimeMillis();
-        new Thread(new Runnable() {
-          @Override public void run() {
-            final long currentTemp = mChildCurrentLocation;
-            try {
-              writeConfig(false, currentTemp);
-            } catch (IOException e) {
-              e.printStackTrace();
-            }
-          }
-        }).start();
+        if (!mConfigThreadPool.isShutdown()) {
+          mConfigThreadPool.execute(mConfigThread);
+        }
       }
     }
   }

@@ -209,7 +209,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
       case R.id.cancel:
-        Aria.download(this).load(DOWNLOAD_URL).cancel();
+        //Aria.download(this).load(DOWNLOAD_URL).cancel();
+        Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
     }
   }
@@ -225,7 +226,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         //.addHeader("groupName", "value")
         .addHeaders(map)
         //.setRequestMode(RequestEnum.POST)
-        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/ggsg.apk")
+        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
+        .resetState()
         .start();
   }
 

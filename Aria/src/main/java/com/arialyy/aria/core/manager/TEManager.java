@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.manager;
 
+import android.support.v4.util.LruCache;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsEntity;
@@ -23,8 +24,6 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -35,7 +34,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class TEManager {
   private static final String TAG = "TaskManager";
   private static volatile TEManager INSTANCE = null;
-  private Map<String, AbsTaskEntity> map = new ConcurrentHashMap<>();
+  private LruCache<String, AbsTaskEntity> cache = new LruCache<>(1024);
   private Lock lock;
 
   public static TEManager getInstance() {
@@ -61,7 +60,7 @@ public class TEManager {
     final Lock lock = this.lock;
     lock.lock();
     try {
-      AbsTaskEntity tEntity = map.get(convertKey(key));
+      AbsTaskEntity tEntity = cache.get(convertKey(key));
       if (tEntity == null || tEntity.getClass() != clazz) {
         ITEntityFactory factory = chooseFactory(clazz);
         if (factory == null) {
@@ -69,7 +68,7 @@ public class TEManager {
           return null;
         }
         tEntity = factory.create(key);
-        map.put(convertKey(key), tEntity);
+        cache.put(convertKey(key), tEntity);
       }
       return (TE) tEntity;
     } finally {
@@ -87,7 +86,7 @@ public class TEManager {
     lock.lock();
     try {
       String groupName = CommonUtil.getMd5Code(urls);
-      AbsTaskEntity tEntity = map.get(convertKey(groupName));
+      AbsTaskEntity tEntity = cache.get(convertKey(groupName));
       if (tEntity == null || tEntity.getClass() != clazz) {
         IGTEntityFactory factory = chooseGroupFactory(clazz);
         if (factory == null) {
@@ -95,7 +94,7 @@ public class TEManager {
           return null;
         }
         tEntity = factory.create(groupName, urls);
-        map.put(convertKey(groupName), tEntity);
+        cache.put(convertKey(groupName), tEntity);
       }
       return (TE) tEntity;
     } finally {
@@ -112,7 +111,7 @@ public class TEManager {
     final Lock lock = this.lock;
     lock.lock();
     try {
-      AbsTaskEntity tEntity = map.get(convertKey(absEntity.getKey()));
+      AbsTaskEntity tEntity = cache.get(convertKey(absEntity.getKey()));
       if (tEntity == null || tEntity.getClass() != clazz) {
         ITEntityFactory factory = chooseFactory(clazz);
         if (factory == null) {
@@ -120,7 +119,7 @@ public class TEManager {
           return null;
         }
         tEntity = factory.create(absEntity);
-        map.put(convertKey(absEntity.getKey()), tEntity);
+        cache.put(convertKey(absEntity.getKey()), tEntity);
       }
       return (TE) tEntity;
     } finally {
@@ -153,7 +152,7 @@ public class TEManager {
     final Lock lock = this.lock;
     lock.lock();
     try {
-      AbsTaskEntity tEntity = map.get(convertKey(key));
+      AbsTaskEntity tEntity = cache.get(convertKey(key));
       if (tEntity == null) {
         return null;
       } else {
@@ -177,7 +176,7 @@ public class TEManager {
     final Lock lock = this.lock;
     lock.lock();
     try {
-      return map.put(convertKey(te.key), te) != null;
+      return cache.put(convertKey(te.key), te) != null;
     } finally {
       lock.unlock();
     }
@@ -185,12 +184,13 @@ public class TEManager {
 
   /**
    * 通过key删除任务实体
+   * 当任务complete或删除记录时将删除缓存
    */
   public AbsTaskEntity removeTEntity(String key) {
     final Lock lock = this.lock;
     lock.lock();
     try {
-      return map.remove(convertKey(key));
+      return cache.remove(convertKey(key));
     } finally {
       lock.unlock();
     }

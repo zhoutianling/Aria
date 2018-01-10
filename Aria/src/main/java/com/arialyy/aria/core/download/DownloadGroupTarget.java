@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download;
 
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.util.ALog;
@@ -36,8 +37,7 @@ public class DownloadGroupTarget
       this.mUrls.addAll(groupEntity.getUrls());
     }
     mGroupName = CommonUtil.getMd5Code(groupEntity.getUrls());
-    mTaskEntity = TEManager.getInstance()
-        .getTEntity(DownloadGroupTaskEntity.class, mGroupName);
+    mTaskEntity = TEManager.getInstance().getTEntity(DownloadGroupTaskEntity.class, mGroupName);
     if (mTaskEntity == null) {
       mTaskEntity =
           TEManager.getInstance().createTEntity(DownloadGroupTaskEntity.class, groupEntity);

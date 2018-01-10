@@ -21,6 +21,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
+import android.support.v4.util.LruCache;
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.ALog;
@@ -49,6 +50,7 @@ final class SqlHelper extends SQLiteOpenHelper {
   private static final int DEL_DATA = 6;
 
   private static volatile SqlHelper INSTANCE = null;
+  private static LruCache<Integer, DbEntity> mDataCache = new LruCache<>(1024);
 
   static SqlHelper init(Context context) {
     if (INSTANCE == null) {
@@ -162,27 +164,27 @@ final class SqlHelper extends SQLiteOpenHelper {
     return count;
   }
 
-  /**
-   * 关键字模糊检索全文
-   *
-   * @param column 需要查找的列
-   * @param mathSql 关键字语法，exsimple “white OR green”、“blue AND red”、“white NOT green”
-   */
-  public static <T extends DbEntity> List<T> searchData(SQLiteDatabase db, Class<T> clazz,
-      String column, String mathSql) {
-    String sql = "SELECT * FROM "
-        + CommonUtil.getClassName(clazz)
-        + " WHERE "
-        + column
-        + " MATCH '"
-        + mathSql
-        + "'";
-
-    Cursor cursor = db.rawQuery(sql, null);
-    List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
-    closeCursor(cursor);
-    return data;
-  }
+  ///**
+  // * 关键字模糊检索全文
+  // *
+  // * @param column 需要查找的列
+  // * @param mathSql 关键字语法，exsimple “white OR green”、“blue AND red”、“white NOT green”
+  // */
+  //public static <T extends DbEntity> List<T> searchData(SQLiteDatabase db, Class<T> clazz,
+  //    String column, String mathSql) {
+  //  String sql = "SELECT * FROM "
+  //      + CommonUtil.getClassName(clazz)
+  //      + " WHERE "
+  //      + column
+  //      + " MATCH '"
+  //      + mathSql
+  //      + "'";
+  //
+  //  Cursor cursor = db.rawQuery(sql, null);
+  //  List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
+  //  closeCursor(cursor);
+  //  return data;
+  //}
 
   /**
    * 检查某个字段的值是否存在
@@ -328,19 +330,27 @@ final class SqlHelper extends SQLiteOpenHelper {
     db = checkDb(db);
     Class<?> clazz = dbEntity.getClass();
     List<Field> fields = CommonUtil.getAllFields(clazz);
+    DbEntity cacheEntity = mDataCache.get(dbEntity.hashCode());
     if (fields != null && fields.size() > 0) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("UPDATE ").append(CommonUtil.getClassName(dbEntity)).append(" SET ");
+      StringBuilder sql = new StringBuilder();
+      StringBuilder prams = new StringBuilder();
+      sql.append("UPDATE ").append(CommonUtil.getClassName(dbEntity)).append(" SET ");
       int i = 0;
       for (Field field : fields) {
         field.setAccessible(true);
         if (SqlUtil.ignoreField(field)) {
           continue;
         }
-        sb.append(i > 0 ? ", " : "");
         try {
+          if (cacheEntity != null && field.get(dbEntity) == field.get(cacheEntity)) {
+            continue;
+          }
+
+          //sb.append(i > 0 ? ", " : "");
+          //sb.append(field.getName()).append("='");
           String value;
-          sb.append(field.getName()).append("='");
+          prams.append(i > 0 ? ", " : "");
+          prams.append(field.getName()).append("='");
           Type type = field.getType();
           if (type == Map.class) {
             value = SqlUtil.map2Str((Map<String, String>) field.get(dbEntity));
@@ -357,16 +367,21 @@ final class SqlHelper extends SQLiteOpenHelper {
             value = obj == null ? "" : obj.toString();
           }
 
-          sb.append(value == null ? "" : value);
-          sb.append("'");
+          //sb.append(value == null ? "" : value);
+          //sb.append("'");
+          prams.append(TextUtils.isEmpty(value) ? "" : value);
+          prams.append("'");
         } catch (IllegalAccessException e) {
           e.printStackTrace();
         }
         i++;
       }
-      sb.append(" where rowid=").append(dbEntity.rowID);
-      print(MODIFY_DATA, sb.toString());
-      db.execSQL(sb.toString());
+      if (!TextUtils.isEmpty(prams.toString())) {
+        sql.append(prams.toString());
+        sql.append(" where rowid=").append(dbEntity.rowID);
+        print(MODIFY_DATA, sql.toString());
+        db.execSQL(sql.toString());
+      }
     }
     close(db);
   }
@@ -477,9 +492,11 @@ final class SqlHelper extends SQLiteOpenHelper {
       //外键Map，在Sqlite3中foreign修饰的字段必须放在最后
       final List<Field> foreignArray = new ArrayList<>();
       StringBuilder sb = new StringBuilder();
-      sb.append("create VIRTUAL table ")
+      //sb.append("create VIRTUAL table ")
+      sb.append("create table ")
           .append(TextUtils.isEmpty(tableName) ? CommonUtil.getClassName(clazz) : tableName)
-          .append(" USING fts4(");
+          //.append(" USING fts4(");
+          .append(" (");
       for (Field field : fields) {
         field.setAccessible(true);
         if (SqlUtil.ignoreField(field)) {
@@ -656,6 +673,7 @@ final class SqlHelper extends SQLiteOpenHelper {
             }
           }
           entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
+          mDataCache.put(entity.hashCode(), entity);
           entitys.add(entity);
         }
         closeCursor(cursor);
