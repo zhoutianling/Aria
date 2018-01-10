@@ -65,6 +65,7 @@
 
   <string-array name="group_urls_1">
     <item>http://hzdown.muzhiwan.com/2017/05/08/nl.noio.kingdom_59104935e56f0.apk</item>
+    <!--<item>https://atom-installer.github.com/v1.13.0/AtomSetup.exe</item>-->
     <item>http://hzdown.muzhiwan.com/2017/09/05/com.mir.iphone.empire83jie.mzw_59ae6d5a3638d.apk</item>
   </string-array>
 

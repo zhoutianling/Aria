@@ -61,8 +61,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   //"http://down8.androidgame-store.com/201706122321/97967927DD4E53D9905ECAA7874C8128/new/game1/19/45319/com.neuralprisma-2.5.2.174-2000174_1494784835.apk?f=web_1";
   //不支持断点的链接
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
-  "http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
-  //"http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
+  //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
+  "http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -227,6 +227,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         .addHeaders(map)
         //.setRequestMode(RequestEnum.POST)
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
+        .resetState()
         .start();
   }
 

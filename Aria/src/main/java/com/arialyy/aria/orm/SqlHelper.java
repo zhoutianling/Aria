@@ -164,27 +164,27 @@ final class SqlHelper extends SQLiteOpenHelper {
     return count;
   }
 
-  /**
-   * 关键字模糊检索全文
-   *
-   * @param column 需要查找的列
-   * @param mathSql 关键字语法，exsimple “white OR green”、“blue AND red”、“white NOT green”
-   */
-  public static <T extends DbEntity> List<T> searchData(SQLiteDatabase db, Class<T> clazz,
-      String column, String mathSql) {
-    String sql = "SELECT * FROM "
-        + CommonUtil.getClassName(clazz)
-        + " WHERE "
-        + column
-        + " MATCH '"
-        + mathSql
-        + "'";
-
-    Cursor cursor = db.rawQuery(sql, null);
-    List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
-    closeCursor(cursor);
-    return data;
-  }
+  ///**
+  // * 关键字模糊检索全文
+  // *
+  // * @param column 需要查找的列
+  // * @param mathSql 关键字语法，exsimple “white OR green”、“blue AND red”、“white NOT green”
+  // */
+  //public static <T extends DbEntity> List<T> searchData(SQLiteDatabase db, Class<T> clazz,
+  //    String column, String mathSql) {
+  //  String sql = "SELECT * FROM "
+  //      + CommonUtil.getClassName(clazz)
+  //      + " WHERE "
+  //      + column
+  //      + " MATCH '"
+  //      + mathSql
+  //      + "'";
+  //
+  //  Cursor cursor = db.rawQuery(sql, null);
+  //  List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
+  //  closeCursor(cursor);
+  //  return data;
+  //}
 
   /**
    * 检查某个字段的值是否存在
@@ -492,9 +492,11 @@ final class SqlHelper extends SQLiteOpenHelper {
       //外键Map，在Sqlite3中foreign修饰的字段必须放在最后
       final List<Field> foreignArray = new ArrayList<>();
       StringBuilder sb = new StringBuilder();
-      sb.append("create VIRTUAL table ")
+      //sb.append("create VIRTUAL table ")
+      sb.append("create table ")
           .append(TextUtils.isEmpty(tableName) ? CommonUtil.getClassName(clazz) : tableName)
-          .append(" USING fts4(");
+          //.append(" USING fts4(");
+          .append(" (");
       for (Field field : fields) {
         field.setAccessible(true);
         if (SqlUtil.ignoreField(field)) {
