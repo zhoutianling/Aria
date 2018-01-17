@@ -121,7 +121,7 @@ protected void onCreate(Bundle savedInstanceState) {
 ## 其他
  有任何问题，可以在[issues](https://github.com/AriaLyy/Aria/issues)给我留言反馈。</br>
  在提交问题前，希望你已经查看过[wiki](https://github.com/AriaLyy/Aria/wiki)或搜索过[issues](https://github.com/AriaLyy/Aria/issues)。</br>
-
+ Aria交流群：524329160（加群条件：对aria有过star、commit、issues）
 ***
 
 License
