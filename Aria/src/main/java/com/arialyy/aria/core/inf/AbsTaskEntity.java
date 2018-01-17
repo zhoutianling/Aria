@@ -36,10 +36,6 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
    * HTTP任务组下载
    */
   public static final int DG_HTTP = 0x12;
-  /**
-   * HTTP单文件上传
-   */
-  public static final int U_HTTP = 0xA1;
 
   /**
    * FTP单文件下载
@@ -49,6 +45,11 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
    * FTP文件夹下载，为避免登录过多，子任务由单线程进行处理
    */
   public static final int D_FTP_DIR = 0x14;
+
+  /**
+   * HTTP单文件上传
+   */
+  public static final int U_HTTP = 0xA1;
   /**
    * FTP单文件上传
    */

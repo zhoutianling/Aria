@@ -99,6 +99,7 @@ public abstract class AbsGroupUtil implements IUtil {
   int mInitFailNum = 0;
   //任务组大小
   int mGroupSize = 0;
+  long mUpdateInterval = 1000;
 
   AbsGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity groupEntity) {
     mListener = listener;
@@ -131,6 +132,8 @@ public abstract class AbsGroupUtil implements IUtil {
       }
     }
     updateFileSize();
+    mUpdateInterval =
+        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getUpdateInterval();
   }
 
   /**
@@ -371,7 +374,7 @@ public abstract class AbsGroupUtil implements IUtil {
           mListener.onProgress(mCurrentLocation);
         }
       }
-    }, 0, 1000);
+    }, 0, mUpdateInterval);
   }
 
   /**

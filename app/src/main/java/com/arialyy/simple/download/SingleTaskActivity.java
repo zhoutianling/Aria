@@ -157,6 +157,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     mStart.setText("开始");
     setBtState(true);
     getBinding().setSpeed("");
+    Log.d(TAG, "cancel");
   }
 
   @Download.onTaskFail void taskFail(DownloadTask task) {

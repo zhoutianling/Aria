@@ -63,6 +63,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    */
   private static final long SUB_LEN = 1024 * 1024;
   private Timer mTimer;
+  private long mUpdateInterval = 1000;
 
   protected AbsFileer(IEventListener listener, TASK_ENTITY taskEntity) {
     mListener = listener;
@@ -97,7 +98,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
-   * 开始下载流程
+   * 开始流程
    */
   private void startFlow() {
     mConstance.resetState();
@@ -145,7 +146,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
           mListener.onProgress(mConstance.CURRENT_LOCATION);
         }
       }
-    }, 0, 1000);
+    }, 0, mUpdateInterval);
   }
 
   protected void closeTimer() {
@@ -226,10 +227,24 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
+   * 设置定时器更新间隔
+   *
+   * @param interval 单位毫秒，不能小于0
+   */
+  protected long setUpdateInterval(long interval) {
+    if (interval < 0) {
+      ALog.w(TAG, "更新间隔不能小于0，默认为1000毫秒");
+      return 1000;
+    }
+    mUpdateInterval = interval;
+    return interval;
+  }
+
+  /**
    * 检查任务是否是新任务，新任务条件：
    * 1、文件不存在
-   * 2、下载记录文件不存在
-   * 3、下载记录文件缺失或不匹配
+   * 2、记录文件不存在
+   * 3、记录文件缺失或不匹配
    * 4、数据库记录不存在
    * 5、不支持断点，则是新任务
    */
@@ -274,7 +289,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   /**
    * 恢复记录地址
    *
-   * @return true 表示下载完成
+   * @return true 表示完成
    */
   private boolean resumeRecordLocation(int i, long startL, long endL) {
     mConstance.CURRENT_LOCATION += endL - startL;
@@ -346,7 +361,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
           mConstance.CURRENT_LOCATION += r - startL;
           startL = r;
         }
-        ALog.d(TAG, "任务【" + mEntity.getFileName() + "】线程__" + i + "__恢复下载");
+        ALog.d(TAG, "任务【" + mEntity.getFileName() + "】线程__" + i + "__恢复");
         recordL[rl] = i;
         rl++;
       } else {
@@ -365,7 +380,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
-   * 启动单线程下载任务
+   * 启动单线程处理任务
    */
   private void startSingleTask(int[] recordL) {
     if (mConstance.CURRENT_LOCATION > 0) {
@@ -390,7 +405,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   protected abstract void handleNewTask();
 
   /**
-   * 处理不支持断点的下载
+   * 处理不支持断点的任务
    */
   private void handleNoSupportBP() {
     SubThreadConfig<TASK_ENTITY> config = new SubThreadConfig<>();

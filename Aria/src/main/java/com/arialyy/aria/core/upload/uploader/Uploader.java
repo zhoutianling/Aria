@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsFileer;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -35,6 +36,8 @@ class Uploader extends AbsFileer<UploadEntity, UploadTaskEntity> {
   Uploader(IUploadListener listener, UploadTaskEntity taskEntity) {
     super(listener, taskEntity);
     mTempFile = new File(mEntity.getFilePath());
+    setUpdateInterval(
+        AriaManager.getInstance(AriaManager.APP).getUploadConfig().getUpdateInterval());
   }
 
   /**

@@ -86,7 +86,26 @@ class ConfigHelper extends DefaultHandler {
         case "queueMod":
           loadQueueMod(value);
           break;
+        case "updateInterval":
+          loadUpdateInterval(value);
+          break;
       }
+    }
+  }
+
+  private void loadUpdateInterval(String value) {
+    long temp = 1000;
+    if (!TextUtils.isEmpty(value)) {
+      temp = Long.parseLong(value);
+      if (temp <= 0) {
+        temp = 1000;
+      }
+    }
+    if (isDownloadConfig) {
+      mDownloadConfig.updateInterval = temp;
+    }
+    if (isUploadConfig) {
+      mUploadConfig.updateInterval = temp;
     }
   }
 

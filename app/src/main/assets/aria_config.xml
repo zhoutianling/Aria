@@ -34,6 +34,9 @@
     <!--执行队列类型，见com.arialyy.aria.core.QueueMod，默认类型为wait-->
     <queueMod value="wait"/>
 
+    <!--进度更新更新间隔，默认1000毫秒-->
+    <updateInterval value="1000"/>
+
   </download>
 
   <upload>
@@ -54,6 +57,9 @@
 
     <!--执行队列类型，见com.arialyy.aria.core.QueueMod，默认类型为wait-->
     <queueMod value="wait"/>
+
+    <!--进度更新更新间隔，默认1000毫秒-->
+    <updateInterval value="1000"/>
   </upload>
 
 </aria>

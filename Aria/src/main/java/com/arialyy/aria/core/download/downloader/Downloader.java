@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsFileer;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -39,6 +40,8 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
 
   Downloader(IDownloadListener listener, DownloadTaskEntity taskEntity) {
     super(listener, taskEntity);
+    setUpdateInterval(
+        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getUpdateInterval());
   }
 
   @Override protected void checkTask() {
