@@ -63,7 +63,7 @@ public class StateConstance {
    * 所有子线程是否都已经完成下载
    */
   public boolean isComplete() {
-    return COMPLETE_THREAD_NUM == THREAD_NUM;
+    return COMPLETE_THREAD_NUM >= THREAD_NUM;
   }
 
   /**
