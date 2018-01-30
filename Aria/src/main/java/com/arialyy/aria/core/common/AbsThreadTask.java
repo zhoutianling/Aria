@@ -263,10 +263,10 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     synchronized (AriaManager.LOCK) {
       String key = null, value = null;
       if (record >= mConfig.END_LOCATION || isComplete) {
-        key = mConfig.TEMP_FILE.getName() + "_state_" + mConfig.THREAD_ID;
+        key = mConfig.TEMP_FILE.getName() + AbsFileer.STATE + mConfig.THREAD_ID;
         value = "1";
       } else if (0 < record && record < mConfig.END_LOCATION) {
-        key = mConfig.TEMP_FILE.getName() + "_record_" + mConfig.THREAD_ID;
+        key = mConfig.TEMP_FILE.getName() + AbsFileer.RECORD + mConfig.THREAD_ID;
         value = String.valueOf(record);
       }
       if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)) {

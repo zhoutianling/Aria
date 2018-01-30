@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import butterknife.Bind;
 import com.arialyy.annotations.Download;
@@ -28,10 +29,12 @@ import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTask;
+import com.arialyy.frame.util.FileUtil;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiBinding;
 import com.arialyy.simple.download.DownloadModule;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -93,6 +96,10 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
 
   @Download.onTaskFail void taskFail(DownloadTask task) {
     mAdapter.updateBtState(task.getKey(), true);
+  }
+
+  @Download.onTaskComplete void taskComplete(DownloadTask task){
+    Log.d(TAG, FileUtil.getFileMD5(new File(task.getDownloadPath())));
   }
 
   //############################### 任务组 ##############################

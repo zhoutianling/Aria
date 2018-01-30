@@ -40,6 +40,9 @@ import java.util.concurrent.Executors;
  */
 public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     implements Runnable, IUtil {
+  public static final String STATE = "_state_";
+  public static final String RECORD = "_record_";
+
   private final String TAG = "AbsFileer";
   protected IEventListener mListener;
   protected TASK_ENTITY mTaskEntity;
@@ -63,6 +66,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    */
   private static final long SUB_LEN = 1024 * 1024;
   private Timer mTimer;
+  private long mUpdateInterval = 1000;
 
   protected AbsFileer(IEventListener listener, TASK_ENTITY taskEntity) {
     mListener = listener;
@@ -111,7 +115,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       mConstance.THREAD_NUM = mTotalThreadNum;
       handleNoSupportBP();
     } else {
-      mTotalThreadNum = isNewTask ? (getNewTaskThreadNum()) : mStartThreadNum + mCompleteThreadNum;
+      mTotalThreadNum = isNewTask ? (getNewTaskThreadNum()) : mStartThreadNum;
       mConstance.THREAD_NUM = mTotalThreadNum;
       handleBreakpoint();
     }
@@ -145,7 +149,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
           mListener.onProgress(mConstance.CURRENT_LOCATION);
         }
       }
-    }, 0, 1000);
+    }, 0, mUpdateInterval);
   }
 
   protected void closeTimer() {
@@ -154,6 +158,20 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       mTimer.cancel();
       mTimer = null;
     }
+  }
+
+  /**
+   * 设置定时器更新间隔
+   *
+   * @param interval 单位毫秒，不能小于0
+   */
+  protected long setUpdateInterval(long interval) {
+    if (interval < 0) {
+      ALog.w(TAG, "更新间隔不能小于0，默认为1000毫秒");
+      return 1000;
+    }
+    mUpdateInterval = interval;
+    return interval;
   }
 
   @Override public long getFileSize() {
@@ -249,10 +267,14 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     int num = 0;
     for (Object key : keys) {
       String str = String.valueOf(key);
-      if (str.contains("_record_")) {
+      Object state = pro.getProperty(str);
+      if (str.contains(RECORD)) {
         num++;
-      } else if (str.contains("_state_")) {
-        mCompleteThreadNum++;
+      } else if (state != null && str.contains(STATE) && Integer.parseInt(state + "") == 1) {
+        int i = Integer.parseInt(str.substring(str.length() - 1, str.length()));
+        if (pro.getProperty(mTempFile.getName() + RECORD + i) != null) {
+          mCompleteThreadNum++;
+        }
       }
     }
     if (num == 0) {
@@ -260,8 +282,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }
     mStartThreadNum = num;
     for (int i = 0; i < mStartThreadNum; i++) {
-      if (pro.getProperty(mTempFile.getName() + "_record_" + i) == null) {
-        Object state = pro.getProperty(mTempFile.getName() + "_state_" + i);
+      if (pro.getProperty(mTempFile.getName() + RECORD + i) == null) {
+        Object state = pro.getProperty(mTempFile.getName() + STATE + i);
         if (state != null && Integer.parseInt(state + "") == 1) {
           continue;
         }
@@ -332,17 +354,18 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }
     for (int i = 0; i < mTotalThreadNum; i++) {
       long startL = i * blockSize, endL = (i + 1) * blockSize;
-      Object state = pro.getProperty(mTempFile.getName() + "_state_" + i);
-      if (state != null && Integer.parseInt(state + "") == 1) {  //该线程已经完成
+      Object state = pro.getProperty(mTempFile.getName() + STATE + i);
+      Object record = pro.getProperty(mTempFile.getName() + RECORD + i);
+      if (state != null && Integer.parseInt(state + "") == 1 && record != null) {  //该线程已经完成
         if (resumeRecordLocation(i, startL, endL)) return;
         continue;
       }
-      //分配下载位置
-      Object record = pro.getProperty(mTempFile.getName() + "_record_" + i);
+
       //如果有记录，则恢复下载
       if (!isNewTask && record != null && Long.parseLong(record + "") >= 0) {
         Long r = Long.parseLong(record + "");
-        if (r > startL) {
+        //记录的位置需要在线程区间中
+        if (startL < r && r < (i == (mTotalThreadNum - 1) ? fileLength : endL)) {
           mConstance.CURRENT_LOCATION += r - startL;
           startL = r;
         }

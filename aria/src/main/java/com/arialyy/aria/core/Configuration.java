@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.lang.reflect.Field;
@@ -39,6 +40,11 @@ class Configuration {
    * 通用配置
    */
   public static class BaseConfig {
+    /**
+     * 进度刷新间隔，默认1秒
+     */
+    long updateInterval = 1000;
+
     /**
      * 旧任务数
      */
@@ -72,6 +78,25 @@ class Configuration {
      * @see QueueMod
      */
     String queueMod = "wait";
+
+    public long getUpdateInterval() {
+      return updateInterval;
+    }
+
+    /**
+     * 设置进度更新间隔，该设置对正在运行的任务无效，默认为1000毫秒
+     *
+     * @param updateInterval 不能小于0
+     */
+    public BaseConfig setUpdateInterval(long updateInterval) {
+      if (updateInterval <= 0) {
+        ALog.w("Configuration", "进度更新间隔不能小于0");
+        return this;
+      }
+      this.updateInterval = updateInterval;
+      saveKey("updateInterval", String.valueOf(updateInterval));
+      return this;
+    }
 
     public String getQueueMod() {
       return queueMod;
@@ -272,7 +297,7 @@ class Configuration {
       return this;
     }
 
-    public void setThreadNum(int threadNum){
+    public void setThreadNum(int threadNum) {
       this.threadNum = threadNum;
       saveKey("threadNum", String.valueOf(threadNum));
     }

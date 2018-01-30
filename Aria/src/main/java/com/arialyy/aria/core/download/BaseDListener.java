@@ -41,6 +41,7 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
   private boolean isConvertSpeed = false;
   boolean isWait = false;
   private long mLastSaveTime;
+  private long mUpdateInterval;
 
   BaseDListener(TASK task, Handler outHandler) {
     this.outHandler = new WeakReference<>(outHandler);
@@ -51,6 +52,7 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
     isConvertSpeed = manager.getDownloadConfig().isConvertSpeed();
     mLastLen = mEntity.getCurrentProgress();
     mLastSaveTime = System.currentTimeMillis();
+    mUpdateInterval = manager.getDownloadConfig().getUpdateInterval();
   }
 
   @Override public void onPre() {
@@ -123,6 +125,9 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
   }
 
   private void handleSpeed(long speed) {
+    if (mUpdateInterval != 1000) {
+      speed = speed * 1000 / mUpdateInterval;
+    }
     if (isConvertSpeed) {
       mEntity.setConvertSpeed(CommonUtil.formatFileSize(speed < 0 ? 0 : speed) + "/s");
     }

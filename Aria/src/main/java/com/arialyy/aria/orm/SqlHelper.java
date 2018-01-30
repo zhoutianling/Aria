@@ -200,7 +200,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     sql = sql.replace("?", "%s");
     Object[] params = new String[expression.length - 1];
     for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + expression[i + 1] + "'";
+      params[i] = "\"" + expression[i + 1] + "\"";
     }
     sql = String.format(sql, params);
     print(FIND_DATA, sql);
@@ -223,7 +223,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     sql = sql.replace("?", "%s");
     Object[] params = new String[expression.length - 1];
     for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + expression[i + 1] + "'";
+      params[i] = "\"" + expression[i + 1] + "\"";
     }
     sql = String.format(sql, params);
     print(FIND_DATA, sql);
@@ -265,7 +265,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     sb.append("SELECT rowid, * FROM ").append(CommonUtil.getClassName(clazz)).append(" where ");
     int i = 0;
     for (Object where : wheres) {
-      sb.append(where).append("=").append("'").append(values[i]).append("'");
+      sb.append(where).append("=").append("\"").append(values[i]).append("\"");
       sb.append(i >= wheres.length - 1 ? "" : " AND ");
       i++;
     }
@@ -315,7 +315,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     sql = sql.replace("?", "%s");
     Object[] params = new String[expression.length - 1];
     for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + expression[i + 1] + "'";
+      params[i] = "\"" + expression[i + 1] + "\"";
     }
     sql = String.format(sql, params);
     SqlHelper.print(DEL_DATA, sql);
@@ -350,7 +350,7 @@ final class SqlHelper extends SQLiteOpenHelper {
           //sb.append(field.getName()).append("='");
           String value;
           prams.append(i > 0 ? ", " : "");
-          prams.append(field.getName()).append("='");
+          prams.append(field.getName()).append("=\"");
           Type type = field.getType();
           if (type == Map.class) {
             value = SqlUtil.map2Str((Map<String, String>) field.get(dbEntity));
@@ -370,7 +370,7 @@ final class SqlHelper extends SQLiteOpenHelper {
           //sb.append(value == null ? "" : value);
           //sb.append("'");
           prams.append(TextUtils.isEmpty(value) ? "" : value);
-          prams.append("'");
+          prams.append("\"");
         } catch (IllegalAccessException e) {
           e.printStackTrace();
         }
@@ -415,7 +415,7 @@ final class SqlHelper extends SQLiteOpenHelper {
             continue;
           }
           sb.append(i > 0 ? ", " : "");
-          sb.append("'");
+          sb.append("\"");
           Type type = field.getType();
           if (type == Map.class) {
             sb.append(SqlUtil.map2Str((Map<String, String>) field.get(dbEntity)));
@@ -430,7 +430,7 @@ final class SqlHelper extends SQLiteOpenHelper {
           } else {
             sb.append(field.get(dbEntity));
           }
-          sb.append("'");
+          sb.append("\"");
           i++;
         }
       } catch (IllegalAccessException e) {

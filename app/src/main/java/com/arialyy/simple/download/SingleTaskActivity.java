@@ -62,7 +62,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   //不支持断点的链接
   //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
   //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
-  "http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
+  //"http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
+  "https://bogoe-res.mytbz.com/tbzengsong/If You're Happy.mp3";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -157,6 +158,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     mStart.setText("开始");
     setBtState(true);
     getBinding().setSpeed("");
+    Log.d(TAG, "cancel");
   }
 
   @Download.onTaskFail void taskFail(DownloadTask task) {
