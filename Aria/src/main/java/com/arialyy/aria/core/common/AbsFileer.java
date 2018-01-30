@@ -63,6 +63,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    */
   private static final long SUB_LEN = 1024 * 1024;
   private Timer mTimer;
+  private long mUpdateInterval = 1000;
 
   protected AbsFileer(IEventListener listener, TASK_ENTITY taskEntity) {
     mListener = listener;
@@ -145,7 +146,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
           mListener.onProgress(mConstance.CURRENT_LOCATION);
         }
       }
-    }, 0, 1000);
+    }, 0, mUpdateInterval);
   }
 
   protected void closeTimer() {
@@ -154,6 +155,20 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       mTimer.cancel();
       mTimer = null;
     }
+  }
+
+  /**
+   * 设置定时器更新间隔
+   *
+   * @param interval 单位毫秒，不能小于0
+   */
+  protected long setUpdateInterval(long interval) {
+    if (interval < 0) {
+      ALog.w(TAG, "更新间隔不能小于0，默认为1000毫秒");
+      return 1000;
+    }
+    mUpdateInterval = interval;
+    return interval;
   }
 
   @Override public long getFileSize() {
