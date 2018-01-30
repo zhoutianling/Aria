@@ -17,6 +17,7 @@ package com.arialyy.aria.core.upload.uploader;
 
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IUploadListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
@@ -47,19 +48,26 @@ public class SimpleUploadUtil implements IUtil, Runnable {
 
   @Override public void run() {
     mListener.onPre();
-    new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
-      @Override public void onComplete(String url, int code) {
-        if (code == FtpFileInfoThread.CODE_COMPLETE) {
-          mListener.onComplete();
-        } else {
-          mUploader.start();
-        }
-      }
+    switch (mTaskEntity.requestType) {
+      case AbsTaskEntity.U_FTP:
+        new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
+          @Override public void onComplete(String url, int code) {
+            if (code == FtpFileInfoThread.CODE_COMPLETE) {
+              mListener.onComplete();
+            } else {
+              mUploader.start();
+            }
+          }
 
-      @Override public void onFail(String url, String errorMsg, boolean needRetry) {
-        mListener.onFail(needRetry);
-      }
-    }).start();
+          @Override public void onFail(String url, String errorMsg, boolean needRetry) {
+            mListener.onFail(needRetry);
+          }
+        }).start();
+        break;
+      case AbsTaskEntity.U_HTTP:
+        mUploader.start();
+        break;
+    }
   }
 
   @Override public long getFileSize() {

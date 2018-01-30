@@ -90,7 +90,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       }
       uploadFile(writer, mTaskEntity.attachment, uploadFile);
       finish(writer);
-    } catch (IOException e) {
+    } catch (Exception e) {
       e.printStackTrace();
       fail();
     }

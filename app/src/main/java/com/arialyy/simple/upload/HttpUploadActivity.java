@@ -35,7 +35,7 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   private static final String TAG = "HttpUploadActivity";
   @Bind(R.id.pb) HorizontalProgressBarWithNumber mPb;
 
-  private static final String FILE_PATH = "/sdcard/large.rar";
+  private static final String FILE_PATH = "/mnt/sdcard/gg.zip";
 
   @Override protected int setLayoutId() {
     return R.layout.activity_upload;
@@ -50,7 +50,7 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   @OnClick(R.id.upload) void upload() {
     Aria.upload(HttpUploadActivity.this)
         .load(FILE_PATH)
-        .setUploadUrl("http://172.18.104.66:8080/upload/sign_file")
+        .setUploadUrl("http://127.0.0.1:8080/upload/")
         .setAttachment("file")
         .start();
   }
