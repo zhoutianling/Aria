@@ -50,8 +50,8 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   @OnClick(R.id.upload) void upload() {
     Aria.upload(HttpUploadActivity.this)
         .load(FILE_PATH)
-        .setUploadUrl("http://127.0.0.1:8080/upload/")
-        .setAttachment("file")
+        .setUploadUrl("http://192.168.1.9:8080/upload/")
+        .setAttachment("serveFile")
         .start();
   }
 

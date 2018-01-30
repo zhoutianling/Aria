@@ -40,6 +40,9 @@ import java.util.concurrent.Executors;
  */
 public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     implements Runnable, IUtil {
+  public static final String STATE = "_state_";
+  public static final String RECORD = "_record_";
+
   private final String TAG = "AbsFileer";
   protected IEventListener mListener;
   protected TASK_ENTITY mTaskEntity;
@@ -265,10 +268,13 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     for (Object key : keys) {
       String str = String.valueOf(key);
       Object state = pro.getProperty(str);
-      if (str.contains("_record_")) {
+      if (str.contains(RECORD)) {
         num++;
-      } else if (state != null && str.contains("_state_") && Integer.parseInt(state + "") == 1) {
-        mCompleteThreadNum++;
+      } else if (state != null && str.contains(STATE) && Integer.parseInt(state + "") == 1) {
+        int i = Integer.parseInt(str.substring(str.length() - 1, str.length()));
+        if (pro.getProperty(mTempFile.getName() + RECORD + i) != null) {
+          mCompleteThreadNum++;
+        }
       }
     }
     if (num == 0) {
@@ -276,8 +282,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }
     mStartThreadNum = num;
     for (int i = 0; i < mStartThreadNum; i++) {
-      if (pro.getProperty(mTempFile.getName() + "_record_" + i) == null) {
-        Object state = pro.getProperty(mTempFile.getName() + "_state_" + i);
+      if (pro.getProperty(mTempFile.getName() + RECORD + i) == null) {
+        Object state = pro.getProperty(mTempFile.getName() + STATE + i);
         if (state != null && Integer.parseInt(state + "") == 1) {
           continue;
         }
@@ -348,13 +354,13 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }
     for (int i = 0; i < mTotalThreadNum; i++) {
       long startL = i * blockSize, endL = (i + 1) * blockSize;
-      Object state = pro.getProperty(mTempFile.getName() + "_state_" + i);
-      if (state != null && Integer.parseInt(state + "") == 1) {  //该线程已经完成
+      Object state = pro.getProperty(mTempFile.getName() + STATE + i);
+      Object record = pro.getProperty(mTempFile.getName() + RECORD + i);
+      if (state != null && Integer.parseInt(state + "") == 1 && record != null) {  //该线程已经完成
         if (resumeRecordLocation(i, startL, endL)) return;
         continue;
       }
-      //分配下载位置
-      Object record = pro.getProperty(mTempFile.getName() + "_record_" + i);
+
       //如果有记录，则恢复下载
       if (!isNewTask && record != null && Long.parseLong(record + "") >= 0) {
         Long r = Long.parseLong(record + "");
