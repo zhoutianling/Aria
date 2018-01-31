@@ -96,7 +96,7 @@ protected void onCreate(Bundle savedInstanceState) {
 
 ### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
-### 升级日志
+### 版本日志
 + v_3.3.11
     - 添加进度更新间隔api，在`aria_config.xml`配置`<updateInterval value="1000"/>`或在代码中调用
       `AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setUpdateInterval(3000)`便可以改变进度刷新间隔

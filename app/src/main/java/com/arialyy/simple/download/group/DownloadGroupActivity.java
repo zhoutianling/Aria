@@ -17,16 +17,13 @@ package com.arialyy.simple.download.group;
 
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
-import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
@@ -66,8 +63,6 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         showPopupWindow(position);
       }
     });
-
-
   }
 
   private void showPopupWindow(int position) {
@@ -109,6 +104,10 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         //    .start();
         break;
     }
+  }
+
+  @DownloadGroup.onWait void taskWait(DownloadGroupTask task) {
+    L.d(TAG, task.getTaskName() + "wait");
   }
 
   @DownloadGroup.onPre() protected void onPre(DownloadGroupTask task) {
@@ -162,5 +161,4 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     T.showShort(this, "任务组下载完成");
     L.d(TAG, "任务组下载完成");
   }
-
 }

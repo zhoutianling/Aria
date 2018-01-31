@@ -34,7 +34,7 @@ import com.arialyy.simple.databinding.ActivityFtpUploadBinding;
  * Ftp 文件上传demo
  */
 public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
-  private final String FILE_PATH = "/mnt/sdcard/Download/me.jpg";
+  private final String FILE_PATH = "/mnt/sdcard/gg.zip";
   private final String URL = "ftp://192.168.1.2:21/upload/测试";
 
   @Override protected void init(Bundle savedInstanceState) {
@@ -56,7 +56,7 @@ public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.upload(this).loadFtp(FILE_PATH).setUploadUrl(URL).login("lao", "123456").start();
+        Aria.upload(this).loadFtp(FILE_PATH).setUploadUrl(URL).login("lao", "123456").add();
         break;
       case R.id.stop:
         Aria.upload(this).loadFtp(FILE_PATH).stop();
@@ -65,6 +65,10 @@ public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
         Aria.upload(this).loadFtp(FILE_PATH).cancel();
         break;
     }
+  }
+
+  @Upload.onWait void onWait(UploadTask task){
+    Log.d(TAG, task.getTaskName() + "_wait");
   }
 
   @Upload.onPre public void onPre(UploadTask task) {

@@ -79,6 +79,8 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
             || task.getState() == IEntity.STATE_COMPLETE) {
           //startTask();
           resumeTask();
+        } else {
+          sendWaitState();
         }
       }
     } else {
@@ -141,6 +143,8 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     private void handleTask(List<AbsTaskEntity> waitList) {
       for (AbsTaskEntity te : waitList) {
         if (te.getEntity() == null) continue;
+        AbsTask task = getTask(te.getEntity());
+        if (task != null) continue;
         if (te instanceof DownloadTaskEntity) {
           if (te.requestType == AbsTaskEntity.D_FTP || te.requestType == AbsTaskEntity.U_FTP) {
             te.urlEntity = CommonUtil.getFtpUrlInfo(te.getEntity().getKey());
@@ -152,6 +156,7 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
           mQueue = DownloadGroupTaskQueue.getInstance();
         }
         createTask(te);
+        sendWaitState();
       }
     }
   }

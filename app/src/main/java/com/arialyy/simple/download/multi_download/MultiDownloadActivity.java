@@ -76,13 +76,16 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
 
   @Download.onPre void onPre(DownloadTask task) {
     mAdapter.updateState(task.getEntity());
+    Log.d(TAG, task.getTaskName() + ", " + task.getState());
   }
 
   @Download.onTaskStart void taskStart(DownloadTask task) {
+    Log.d(TAG, task.getTaskName() + ", " + task.getState());
     mAdapter.updateState(task.getEntity());
   }
 
   @Download.onTaskResume void taskResume(DownloadTask task) {
+    Log.d(TAG, task.getTaskName() + ", " + task.getState());
     mAdapter.updateState(task.getEntity());
   }
 

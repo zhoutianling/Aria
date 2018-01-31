@@ -122,6 +122,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     return true;
   }
 
+  @Download.onWait void onWait(DownloadTask task){
+    Log.d(TAG, "wait ==> " + task.getDownloadEntity().getFileName());
+  }
+
   @Download.onPre protected void onPre(DownloadTask task) {
     setBtState(false);
   }
@@ -230,7 +234,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         //.setRequestMode(RequestEnum.POST)
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
         .resetState()
-        .start();
+        //.start();
+        .add();
   }
 
   @Override protected void onDestroy() {

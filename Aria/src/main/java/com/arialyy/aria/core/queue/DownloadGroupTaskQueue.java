@@ -63,10 +63,15 @@ public class DownloadGroupTaskQueue
   @Override public DownloadGroupTask createTask(String targetName, DownloadGroupTaskEntity entity) {
     DownloadGroupTask task = null;
     if (!TextUtils.isEmpty(targetName)) {
-      task = (DownloadGroupTask) TaskFactory.getInstance()
-          .createTask(targetName, entity, DownloadGroupSchedulers.getInstance());
-      entity.key = entity.getEntity().getGroupName();
-      mCachePool.putTask(task);
+      if (mCachePool.getTask(entity.getEntity().getKey()) == null
+          && mExecutePool.getTask(entity.getEntity().getKey()) == null) {
+        task = (DownloadGroupTask) TaskFactory.getInstance()
+            .createTask(targetName, entity, DownloadGroupSchedulers.getInstance());
+        entity.key = entity.getEntity().getGroupName();
+        mCachePool.putTask(task);
+      } else {
+        ALog.w(TAG, "任务已存在");
+      }
     } else {
       ALog.e(TAG, "target name 为 null！！");
     }

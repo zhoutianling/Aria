@@ -27,6 +27,7 @@ import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
+import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
@@ -77,6 +78,15 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
       return;
     }
     isDownloadCmd = taskType < ICmd.TASK_TYPE_UPLOAD;
+  }
+
+  /**
+   * 发送等待状态
+   */
+  void sendWaitState() {
+    if (tempTask != null) {
+      tempTask.getOutHandler().obtainMessage(ISchedulers.WAIT, tempTask).sendToTarget();
+    }
   }
 
   /**

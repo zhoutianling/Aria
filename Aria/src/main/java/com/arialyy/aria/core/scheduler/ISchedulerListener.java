@@ -21,6 +21,12 @@ import com.arialyy.aria.core.inf.ITask;
  * Target处理任务监听
  */
 public interface ISchedulerListener<TASK extends ITask> {
+
+  /**
+   * 队列已经满了，继续创建任务，将会回调该方法
+   */
+  void onWait(TASK task);
+
   /**
    * 预处理，有时有些地址链接比较慢，这时可以先在这个地方出来一些界面上的UI，如按钮的状态。
    * 在这个回调中，任务是获取不到文件大小，下载速度等参数
@@ -66,8 +72,4 @@ public interface ISchedulerListener<TASK extends ITask> {
    * 任务执行中
    */
   void onTaskRunning(TASK task);
-
-
-
-
 }

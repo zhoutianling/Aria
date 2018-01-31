@@ -74,6 +74,10 @@ public class UploadTask extends AbsNormalTask<UploadTaskEntity> {
     mUtil.cancel();
   }
 
+  @Override public String getTaskName() {
+    return mTaskEntity.getEntity().getFileName();
+  }
+
   public static class Builder {
     private Handler mOutHandler;
     private UploadTaskEntity mTaskEntity;

@@ -65,10 +65,15 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity> 
   @Override public UploadTask createTask(String targetName, UploadTaskEntity entity) {
     UploadTask task = null;
     if (!TextUtils.isEmpty(targetName)) {
-      task = (UploadTask) TaskFactory.getInstance()
-          .createTask(targetName, entity, UploadSchedulers.getInstance());
-      entity.key = entity.getEntity().getFilePath();
-      mCachePool.putTask(task);
+      if (mCachePool.getTask(entity.getEntity().getKey()) == null
+          && mExecutePool.getTask(entity.getEntity().getKey()) == null) {
+        task = (UploadTask) TaskFactory.getInstance()
+            .createTask(targetName, entity, UploadSchedulers.getInstance());
+        entity.key = entity.getEntity().getFilePath();
+        mCachePool.putTask(task);
+      } else {
+        ALog.w(TAG, "任务已存在");
+      }
     } else {
       ALog.e(TAG, "target name 为 null是！！");
     }

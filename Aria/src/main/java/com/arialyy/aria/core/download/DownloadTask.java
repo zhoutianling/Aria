@@ -148,6 +148,10 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
     mUtil.cancel();
   }
 
+  @Override public String getTaskName() {
+    return mEntity.getFileName();
+  }
+
   public static class Builder {
     DownloadTaskEntity taskEntity;
     Handler outHandler;

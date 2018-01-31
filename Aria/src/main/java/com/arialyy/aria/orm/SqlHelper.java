@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
@@ -31,9 +32,11 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by lyy on 2015/11/2.
@@ -50,7 +53,8 @@ final class SqlHelper extends SQLiteOpenHelper {
   private static final int DEL_DATA = 6;
 
   private static volatile SqlHelper INSTANCE = null;
-  private static LruCache<Integer, DbEntity> mDataCache = new LruCache<>(1024);
+  private static LruCache<String, DbEntity> mDataCache = new LruCache<>(1024);
+  //private static Map<String, DbEntity> mDataCache = new ConcurrentHashMap<>();
 
   static SqlHelper init(Context context) {
     if (INSTANCE == null) {
@@ -330,7 +334,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     db = checkDb(db);
     Class<?> clazz = dbEntity.getClass();
     List<Field> fields = CommonUtil.getAllFields(clazz);
-    DbEntity cacheEntity = mDataCache.get(dbEntity.hashCode());
+    DbEntity cacheEntity = mDataCache.get(getCacheKey(dbEntity));
     if (fields != null && fields.size() > 0) {
       StringBuilder sql = new StringBuilder();
       StringBuilder prams = new StringBuilder();
@@ -342,7 +346,15 @@ final class SqlHelper extends SQLiteOpenHelper {
           continue;
         }
         try {
-          if (cacheEntity != null && field.get(dbEntity) == field.get(cacheEntity)) {
+          if (cacheEntity != null
+              && field.get(dbEntity) == field.get(cacheEntity)
+              && !field.getName().equals("state")) {  //在LruCache中 state字段总是不能重新赋值...
+            //if (dbEntity instanceof DownloadEntity && field.getName().equals("state")) {
+            //  Log.i(TAG, "cacheState => "
+            //      + ((DownloadEntity) cacheEntity).getState()
+            //      + ", newState => "
+            //      + ((DownloadEntity) dbEntity).getState());
+            //}
             continue;
           }
 
@@ -383,7 +395,12 @@ final class SqlHelper extends SQLiteOpenHelper {
         db.execSQL(sql.toString());
       }
     }
+    mDataCache.put(getCacheKey(dbEntity), dbEntity);
     close(db);
+  }
+
+  private static String getCacheKey(DbEntity dbEntity) {
+    return dbEntity.getClass().getName() + "_" + dbEntity.rowID;
   }
 
   /**
@@ -673,7 +690,7 @@ final class SqlHelper extends SQLiteOpenHelper {
             }
           }
           entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
-          mDataCache.put(entity.hashCode(), entity);
+          mDataCache.put(getCacheKey(entity), entity);
           entitys.add(entity);
         }
         closeCursor(cursor);

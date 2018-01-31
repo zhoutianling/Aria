@@ -31,6 +31,7 @@ import java.lang.ref.WeakReference;
  */
 class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>, TASK extends AbsTask<TASK_ENTITY>>
     implements IDownloadListener {
+  private static final String TAG = "BaseDListener";
   protected WeakReference<Handler> outHandler;
   private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
   private long mLastLen = 0;   //上一次发送长度

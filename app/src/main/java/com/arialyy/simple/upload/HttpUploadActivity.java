@@ -17,6 +17,7 @@
 package com.arialyy.simple.upload;
 
 import android.os.Bundle;
+import android.util.Log;
 import butterknife.Bind;
 import butterknife.OnClick;
 import com.arialyy.annotations.Upload;
@@ -62,6 +63,7 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   @OnClick(R.id.remove) void remove() {
     Aria.upload(this).load(FILE_PATH).cancel();
   }
+
 
   @Upload.onPre public void onPre(UploadTask task) {
   }

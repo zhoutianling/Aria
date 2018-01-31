@@ -63,7 +63,7 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
    * 如果执行队列任务未满，则直接启动任务。
    * 如果执行队列已经满了，则暂停执行队列队首任务，并恢复指定任务
    *
-   * @param task 需要恢复飞任务
+   * @param task 需要恢复的任务
    */
   @Override public void resumeTask(TASK task) {
     if (mExecutePool.size() >= getMaxTaskNum()) {
@@ -167,12 +167,12 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   }
 
   @Override public void stopTask(TASK task) {
-    if (!task.isRunning()) ALog.w(TAG, "停止任务失败，【任务已经停止】");
+    if (!task.isRunning()) ALog.w(TAG, "停止任务【" + task.getTaskName() + "】失败，原因：已停止");
     if (mExecutePool.removeTask(task)) {
       task.stop();
     } else {
       task.stop();
-      ALog.w(TAG, "删除任务失败，【执行队列中没有该任务】");
+      ALog.w(TAG, "删除任务【" + task.getTaskName() + "】失败，原因：执行队列中没有该任务");
     }
   }
 
@@ -180,27 +180,29 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     //TEManager.getInstance().removeTEntity(key);
     TASK task = mExecutePool.getTask(key);
     if (task != null) {
-      ALog.d(TAG, "从执行池删除任务，删除" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
+      ALog.d(TAG,
+          "从执行池删除任务【" + task.getTaskName() + "】" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
     }
     task = mCachePool.getTask(key);
     if (task != null) {
-      ALog.d(TAG, "从缓存池删除任务，删除" + (mCachePool.removeTask(task) ? "成功" : "失败"));
+      ALog.d(TAG,
+          "从缓存池删除任务【" + task.getTaskName() + "】" + (mCachePool.removeTask(task) ? "成功" : "失败"));
     }
   }
 
   @Override public void reTryStart(TASK task) {
     if (task == null) {
-      ALog.e(TAG, "重试失败，task 为null");
+      ALog.e(TAG, "任务重试失败，原因：task 为null");
       return;
     }
     if (!NetUtils.isConnected(AriaManager.APP)) {
-      ALog.e(TAG, "重试失败，网络未连接");
+      ALog.e(TAG, "任务【" + task.getTaskName() + "】重试失败，原因：网络未连接");
       return;
     }
     if (!task.isRunning()) {
       task.start();
     } else {
-      ALog.e(TAG, "任务没有完全停止，重试下载失败");
+      ALog.e(TAG, "任务【" + task.getTaskName() + "】重试失败，原因：任务没有完全停止，");
     }
   }
 

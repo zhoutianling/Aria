@@ -38,6 +38,10 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity> implements ITas
   protected Context mContext;
   protected boolean isHeighestTask = false;
 
+  public Handler getOutHandler() {
+    return mOutHandler;
+  }
+
   /**
    * 任务是否完成
    *
@@ -162,6 +166,11 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity> implements ITas
   @Override public TASK_ENTITY getTaskEntity() {
     return mTaskEntity;
   }
+
+  /**
+   * 获取任务名，也就是文件名
+   */
+  public abstract String getTaskName();
 
   public String getTargetName() {
     return mTargetName;
