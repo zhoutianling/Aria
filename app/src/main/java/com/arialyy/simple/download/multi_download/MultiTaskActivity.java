@@ -78,6 +78,10 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     }
   }
 
+  @Download.onWait void taskWait(DownloadTask task){
+    Log.d(TAG, "wait ==> " + task.getDownloadEntity().getFileName());
+  }
+
   @Download.onTaskStart void taskStart(DownloadTask task) {
     mAdapter.updateBtState(task.getKey(), false);
   }

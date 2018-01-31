@@ -175,6 +175,8 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
     }
     if (what == CANCEL || what == COMPLETE) {
       TEManager.getInstance().removeTEntity(task.getKey());
+    } else {
+      TEManager.getInstance().putTEntity(task.getKey(), task.getTaskEntity());
     }
     callback(what, task);
   }
@@ -201,6 +203,9 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
         return;
       }
       switch (state) {
+        case WAIT:
+          listener.onWait(task);
+          break;
         case PRE:
           listener.onPre(task);
           break;

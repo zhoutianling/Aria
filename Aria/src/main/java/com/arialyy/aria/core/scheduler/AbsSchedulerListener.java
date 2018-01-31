@@ -21,7 +21,12 @@ import com.arialyy.aria.core.inf.ITask;
 /**
  * Created by Aria.Lao on 2017/6/7.
  */
-public class AbsSchedulerListener<TASK extends ITask, SUB_ENTITY extends AbsNormalEntity> implements ISchedulerListener<TASK> {
+public class AbsSchedulerListener<TASK extends ITask, SUB_ENTITY extends AbsNormalEntity>
+    implements ISchedulerListener<TASK> {
+
+  @Override public void onWait(TASK task) {
+
+  }
 
   @Override public void onPre(TASK task) {
 

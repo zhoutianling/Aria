@@ -50,6 +50,7 @@ interface ProxyConstance {
   String COUNT_METHOD_DOWNLOAD_GROUP_SUB = "getDownloadGroupSubCounter";
   String COUNT_METHOD_UPLOAD = "getUploadCounter";
 
+  int WAIT = 0X10;
   int PRE = 0X11;
   int TASK_PRE = 0X12;
   int TASK_RESUME = 0X13;

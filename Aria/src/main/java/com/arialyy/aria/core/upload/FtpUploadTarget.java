@@ -17,6 +17,8 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.AbsUploadTarget;
 import com.arialyy.aria.core.manager.TEManager;
@@ -96,5 +98,15 @@ public class FtpUploadTarget
     mTaskEntity.urlEntity.password = password;
     mTaskEntity.urlEntity.account = account;
     return this;
+  }
+
+  /**
+   * 添加任务
+   */
+  public void add() {
+    AriaManager.getInstance(AriaManager.APP)
+        .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CREATE,
+            checkTaskType()))
+        .exe();
   }
 }

@@ -44,6 +44,7 @@ class ElementHandler {
    * PackageElement 一般代表Package
    */
   void handleDownload(RoundEnvironment roundEnv) {
+    mPbUtil.saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onWait.class, ProxyConstance.WAIT);
     mPbUtil.saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onNoSupportBreakPoint.class,
         ProxyConstance.TASK_NO_SUPPORT_BREAKPOINT);
     mPbUtil.saveMethod(TaskEnum.DOWNLOAD, roundEnv, Download.onPre.class, ProxyConstance.PRE);
@@ -69,6 +70,8 @@ class ElementHandler {
    * 处理搜索到的下载任务组注解
    */
   void handleDownloadGroup(RoundEnvironment roundEnv) {
+    mPbUtil.saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onWait.class,
+        ProxyConstance.WAIT);
     mPbUtil.saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onPre.class,
         ProxyConstance.PRE);
     mPbUtil.saveMethod(TaskEnum.DOWNLOAD_GROUP, roundEnv, DownloadGroup.onTaskCancel.class,
@@ -113,6 +116,7 @@ class ElementHandler {
    * 处理搜索到的上传注解F
    */
   void handleUpload(RoundEnvironment roundEnv) {
+    mPbUtil.saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onWait.class, ProxyConstance.WAIT);
     mPbUtil.saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onNoSupportBreakPoint.class,
         ProxyConstance.TASK_NO_SUPPORT_BREAKPOINT);
     mPbUtil.saveMethod(TaskEnum.UPLOAD, roundEnv, Upload.onPre.class, ProxyConstance.PRE);

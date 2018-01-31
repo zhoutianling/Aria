@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.downloader.DownloadGroupUtil;
@@ -79,6 +80,11 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
       mListener.onCancel();
     }
     mUtil.cancel();
+  }
+
+  @Override public String getTaskName() {
+    return "任务组->" + (TextUtils.isEmpty(mTaskEntity.getEntity().getAlias())
+        ? mTaskEntity.getEntity().getGroupName() : mTaskEntity.getEntity().getAlias());
   }
 
   public static class Builder {

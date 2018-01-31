@@ -28,8 +28,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.3.11'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.11'
+compile 'com.arialyy.aria:aria-core:3.3.13'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.13'
 ```
 如果你使用的是kotlin，请使用kotlin官方提供的方法配置apt，[kotlin kapt官方配置传送门](https://www.kotlincn.net/docs/reference/kapt.html)
 
@@ -96,7 +96,7 @@ protected void onCreate(Bundle savedInstanceState) {
 
 ### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
-### 升级日志
+### 版本日志
 + v_3.3.11
     - 添加进度更新间隔api，在`aria_config.xml`配置`<updateInterval value="1000"/>`或在代码中调用
       `AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setUpdateInterval(3000)`便可以改变进度刷新间隔

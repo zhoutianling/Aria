@@ -33,8 +33,7 @@ import java.util.Set;
  * Created by lyy on 2016/8/17.
  * 下载任务队列
  */
-public class DownloadTaskQueue
-    extends AbsTaskQueue<DownloadTask, DownloadTaskEntity> {
+public class DownloadTaskQueue extends AbsTaskQueue<DownloadTask, DownloadTaskEntity> {
   private static final String TAG = "DownloadTaskQueue";
   private static volatile DownloadTaskQueue INSTANCE = null;
 
@@ -120,10 +119,15 @@ public class DownloadTaskQueue
   @Override public DownloadTask createTask(String target, DownloadTaskEntity entity) {
     DownloadTask task = null;
     if (!TextUtils.isEmpty(target)) {
-      task = (DownloadTask) TaskFactory.getInstance()
-          .createTask(target, entity, DownloadSchedulers.getInstance());
-      entity.key = entity.getEntity().getDownloadPath();
-      mCachePool.putTask(task);
+      if (mCachePool.getTask(entity.getEntity().getKey()) == null
+          && mExecutePool.getTask(entity.getEntity().getKey()) == null) {
+        task = (DownloadTask) TaskFactory.getInstance()
+            .createTask(target, entity, DownloadSchedulers.getInstance());
+        entity.key = entity.getEntity().getDownloadPath();
+        mCachePool.putTask(task);
+      } else {
+        ALog.w(TAG, "任务已存在");
+      }
     } else {
       ALog.e(TAG, "target name 为 null！！");
     }

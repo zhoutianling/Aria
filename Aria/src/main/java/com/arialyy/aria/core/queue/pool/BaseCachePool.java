@@ -54,8 +54,8 @@ public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
   /**
    * 清除所有缓存的任务
    */
-  public void clear(){
-    for (String key : mCacheMap.keySet()){
+  public void clear() {
+    for (String key : mCacheMap.keySet()) {
       TASK task = mCacheMap.get(key);
       mCacheQueue.remove(task);
       mCacheMap.remove(key);
@@ -85,16 +85,16 @@ public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
   @Override public boolean putTask(TASK task) {
     synchronized (AriaManager.LOCK) {
       if (task == null) {
-        ALog.e(TAG, "下载任务不能为空！！");
+        ALog.e(TAG, "任务不能为空！！");
         return false;
       }
       String url = task.getKey();
       if (mCacheQueue.contains(task)) {
-        ALog.w(TAG, "队列中已经包含了该任务，任务下载链接【" + url + "】");
+        ALog.w(TAG, "任务【" + task.getTaskName() + "】进入缓存队列失败，原因：已经在缓存队列中");
         return false;
       } else {
         boolean s = mCacheQueue.offer(task);
-        ALog.d(TAG, "任务添加" + (s ? "成功" : "失败，【" + url + "】"));
+        ALog.d(TAG, "任务【" + task.getTaskName() + "】进入缓存队列" + (s ? "成功" : "失败"));
         if (s) {
           mCacheMap.put(CommonUtil.keyToHashKey(url), task);
         }
@@ -120,14 +120,13 @@ public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
     return null;
   }
 
-  @Override public TASK getTask(String downloadUrl) {
+  @Override public TASK getTask(String key) {
     synchronized (AriaManager.LOCK) {
-      if (TextUtils.isEmpty(downloadUrl)) {
-        ALog.e(TAG, "请传入有效的下载链接");
+      if (TextUtils.isEmpty(key)) {
+        ALog.e(TAG, "key 为null");
         return null;
       }
-      String key = CommonUtil.keyToHashKey(downloadUrl);
-      return mCacheMap.get(key);
+      return mCacheMap.get(CommonUtil.keyToHashKey(key));
     }
   }
 
@@ -144,15 +143,15 @@ public class BaseCachePool<TASK extends AbsTask> implements IPool<TASK> {
     }
   }
 
-  @Override public boolean removeTask(String downloadUrl) {
+  @Override public boolean removeTask(String key) {
     synchronized (AriaManager.LOCK) {
-      if (TextUtils.isEmpty(downloadUrl)) {
+      if (TextUtils.isEmpty(key)) {
         ALog.e(TAG, "请传入有效的下载链接");
         return false;
       }
-      String key = CommonUtil.keyToHashKey(downloadUrl);
-      TASK task = mCacheMap.get(key);
-      mCacheMap.remove(key);
+      String temp = CommonUtil.keyToHashKey(key);
+      TASK task = mCacheMap.get(temp);
+      mCacheMap.remove(temp);
       return mCacheQueue.remove(task);
     }
   }

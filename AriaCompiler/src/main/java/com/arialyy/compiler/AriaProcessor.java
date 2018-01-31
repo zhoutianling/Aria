@@ -44,6 +44,7 @@ import javax.lang.model.element.TypeElement;
   @Override public Set<String> getSupportedAnnotationTypes() {
     Set<String> annotataions = new LinkedHashSet<>();
     //单任务下载的注解
+    annotataions.add(Download.onWait.class.getCanonicalName());
     annotataions.add(Download.onPre.class.getCanonicalName());
     annotataions.add(Download.onNoSupportBreakPoint.class.getCanonicalName());
     annotataions.add(Download.onTaskCancel.class.getCanonicalName());
@@ -55,6 +56,7 @@ import javax.lang.model.element.TypeElement;
     annotataions.add(Download.onTaskStart.class.getCanonicalName());
     annotataions.add(Download.onTaskStop.class.getCanonicalName());
     //下载任务组的注解
+    annotataions.add(DownloadGroup.onWait.class.getCanonicalName());
     annotataions.add(DownloadGroup.onPre.class.getCanonicalName());
     annotataions.add(DownloadGroup.onTaskCancel.class.getCanonicalName());
     annotataions.add(DownloadGroup.onTaskComplete.class.getCanonicalName());
@@ -73,6 +75,7 @@ import javax.lang.model.element.TypeElement;
     annotataions.add(DownloadGroup.onSubTaskStart.class.getCanonicalName());
     annotataions.add(DownloadGroup.onSubTaskStop.class.getCanonicalName());
     //上传任务的注解
+    annotataions.add(Upload.onWait.class.getCanonicalName());
     annotataions.add(Upload.onPre.class.getCanonicalName());
     annotataions.add(Upload.onNoSupportBreakPoint.class.getCanonicalName());
     annotataions.add(Upload.onTaskCancel.class.getCanonicalName());

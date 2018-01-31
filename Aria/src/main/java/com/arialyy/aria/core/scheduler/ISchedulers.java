@@ -70,6 +70,10 @@ public interface ISchedulers<Task extends AbsTask> extends Handler.Callback {
    * 恢复任务
    */
   int RESUME = 8;
+  /**
+   * 等待
+   */
+  int WAIT = 10;
 
   /**
    * 任务组子任务预处理

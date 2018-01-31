@@ -164,6 +164,19 @@ public class TEManager {
   }
 
   /**
+   * 更新任务实体
+   */
+  public void putTEntity(String key, AbsTaskEntity tEntity) {
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      cache.put(convertKey(key), tEntity);
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
    * 向管理器中增加任务实体
    *
    * @return {@code false} 实体为null，添加失败

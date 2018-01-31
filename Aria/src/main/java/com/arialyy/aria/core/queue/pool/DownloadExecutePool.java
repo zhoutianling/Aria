@@ -39,10 +39,9 @@ class DownloadExecutePool<TASK extends AbsTask> extends BaseExecutePool<TASK> {
         ALog.e(TAG, "任务不能为空！！");
         return false;
       }
-      String url = task.getKey();
       if (mExecuteQueue.contains(task)) {
         if (!task.isRunning()) return true;
-        ALog.e(TAG, "队列中已经包含了该任务，任务key【" + url + "】");
+        ALog.e(TAG, "任务【" + task.getTaskName() + "】进入执行队列失败，错误原因：已经在执行队列中");
         return false;
       } else {
         if (mExecuteQueue.size() >= mSize) {
@@ -65,7 +64,7 @@ class DownloadExecutePool<TASK extends AbsTask> extends BaseExecutePool<TASK> {
     try {
       TASK oldTask = mExecuteQueue.poll(TIME_OUT, TimeUnit.MICROSECONDS);
       if (oldTask == null) {
-        ALog.e(TAG, "移除任务失败");
+        ALog.w(TAG, "移除任务失败，错误原因：任务为null");
         return false;
       }
       if (oldTask.isHighestPriorityTask()) {
