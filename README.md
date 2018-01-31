@@ -28,8 +28,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.3.11'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.11'
+compile 'com.arialyy.aria:aria-core:3.3.13'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.13'
 ```
 如果你使用的是kotlin，请使用kotlin官方提供的方法配置apt，[kotlin kapt官方配置传送门](https://www.kotlincn.net/docs/reference/kapt.html)
 
