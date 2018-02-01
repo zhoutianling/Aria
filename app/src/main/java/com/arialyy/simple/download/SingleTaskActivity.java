@@ -238,6 +238,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Override protected void onDestroy() {
     super.onDestroy();
-    Aria.download(this).unRegister();
+    //Aria.download(this).unRegister();
   }
 }

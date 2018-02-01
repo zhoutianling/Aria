@@ -33,7 +33,7 @@ annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.13'
 ```
 如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:3.3.13'`替换为
 ```
-compile('com.arialyy.aria:<last-version>'){
+compile('com.arialyy.aria:aria-core:<last-version>'){
    exclude group: 'com.android.support'
 }
 ```

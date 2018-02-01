@@ -108,7 +108,7 @@ public class DownloadReceiver extends AbsReceiver {
    * </pre>
    */
   @Deprecated public DownloadTarget load(@NonNull String url, boolean refreshInfo) {
-    CheckUtil.checkUrl(url);
+    url = CheckUtil.checkUrl(url);
     return new DownloadTarget(url, targetName, refreshInfo);
   }
 
@@ -165,7 +165,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @param refreshInfo 是否刷新下载信息
    */
   public FtpDownloadTarget loadFtp(@NonNull String url, boolean refreshInfo) {
-    CheckUtil.checkUrl(url);
+    url = CheckUtil.checkUrl(url);
     return new FtpDownloadTarget(url, targetName, refreshInfo);
   }
 
@@ -183,7 +183,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 加载ftp文件夹下载地址
    */
   public FtpDirDownloadTarget loadFtpDir(@NonNull String dirUrl) {
-    CheckUtil.checkUrl(dirUrl);
+    dirUrl = CheckUtil.checkUrl(dirUrl);
     return new FtpDirDownloadTarget(dirUrl, targetName);
   }
 
@@ -239,7 +239,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 通过下载链接获取下载实体
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
-    CheckUtil.checkUrl(downloadUrl);
+    downloadUrl = CheckUtil.checkUrl(downloadUrl);
     return DbEntity.findFirst(DownloadEntity.class, "url=? and isGroupChild='false'", downloadUrl);
   }
 
@@ -247,7 +247,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 通过下载链接获取保存在数据库的下载任务实体
    */
   public DownloadTaskEntity getDownloadTask(String downloadUrl) {
-    CheckUtil.checkUrl(downloadUrl);
+    downloadUrl = CheckUtil.checkUrl(downloadUrl);
     DownloadEntity entity = getDownloadEntity(downloadUrl);
     if (entity == null || TextUtils.isEmpty(entity.getDownloadPath())) return null;
     return DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",

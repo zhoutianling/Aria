@@ -34,7 +34,7 @@ import org.apache.commons.net.ftp.FTPReply;
  * Ftp下载任务
  */
 class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity> {
-  private final String TAG = "FtpThreadTask";
+  private final String TAG = "FtpDownloadThreadTask";
 
   FtpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
@@ -64,22 +64,21 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       }
       //发送第二次指令时，还需要再做一次判断
       int reply = client.getReplyCode();
-      if (reply == FTPReply.SYNTAX_ERROR_IN_ARGUMENTS) {
-        ALog.e(TAG, "FTP没有打开写权限，断点续传失败，将从0开始读文件");
-      } else if (!FTPReply.isPositivePreliminary(reply) && reply != FTPReply.COMMAND_OK) {
-        client.disconnect();
+      if (!FTPReply.isPositivePreliminary(reply) && reply != FTPReply.COMMAND_OK) {
         fail(mChildCurrentLocation, "获取文件信息错误，错误码为：" + reply + "，msg：" + client.getReplyString(),
             null);
+        client.disconnect();
         return;
       }
       String remotePath =
           new String(mTaskEntity.urlEntity.remotePath.getBytes(charSet), SERVER_CHARSET);
+      ALog.i(TAG, "remotePath【" + remotePath + "】");
       is = client.retrieveFileStream(remotePath);
       reply = client.getReplyCode();
       if (!FTPReply.isPositivePreliminary(reply)) {
-        client.disconnect();
         fail(mChildCurrentLocation, "获取流失败，错误码为：" + reply + "，msg：" + client.getReplyString(),
             null);
+        client.disconnect();
         return;
       }
 

@@ -74,7 +74,7 @@ public class CheckUtil {
    * 检查下载实体
    */
   public static void checkDownloadEntity(DownloadEntity entity) {
-    checkUrl(entity.getUrl());
+    entity.setUrl(checkUrl(entity.getUrl()));
     checkPath(entity.getDownloadPath());
   }
 
@@ -88,14 +88,25 @@ public class CheckUtil {
   }
 
   /**
-   * 检测下载链接是否为null
+   * 检测下载链接是否合法，如果地址中path是"//"而不是"/"将会改为"/"；
    */
-  public static void checkUrl(String url) {
+  public static String checkUrl(String url) {
     if (TextUtils.isEmpty(url)) {
-      throw new IllegalArgumentException("下载链接不能为null");
+      throw new IllegalArgumentException("url不能为null");
     } else if (!url.startsWith("http") && !url.startsWith("ftp")) {
       throw new IllegalArgumentException("url错误");
     }
+    int index = url.indexOf("://");
+    if (index == -1) {
+      throw new IllegalArgumentException("url不合法");
+    }
+    String temp = url.substring(index + 3, url.length());
+    if (temp.contains("//")) {
+      temp = url.substring(0, index + 3) + temp.replaceAll("//", "/");
+      ALog.w(TAG, "url中含有//，//将转换为/，转换后的url为：" + temp);
+      return temp;
+    }
+    return url;
   }
 
   /**

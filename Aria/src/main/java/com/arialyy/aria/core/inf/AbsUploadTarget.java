@@ -35,7 +35,7 @@ public abstract class AbsUploadTarget<TARGET extends AbsUploadTarget, ENTITY ext
    * @param uploadUrl 上传路径
    */
   public TARGET setUploadUrl(@NonNull String uploadUrl) {
-    CheckUtil.checkUrl(uploadUrl);
+    uploadUrl = CheckUtil.checkUrl(uploadUrl);
     if (mEntity.getUrl().equals(uploadUrl)) return (TARGET) this;
     mEntity.setUrl(uploadUrl);
     mEntity.update();

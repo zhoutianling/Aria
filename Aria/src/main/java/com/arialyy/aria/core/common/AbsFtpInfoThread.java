@@ -79,7 +79,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
           new String(setRemotePath().getBytes(charSet), AbsFtpThreadTask.SERVER_CHARSET);
       FTPFile[] files = client.listFiles(remotePath);
       String s = client.getReplyString();
-      ALog.w(TAG, s);
+      ALog.i(TAG, s);
       boolean isExist = files.length != 0;
       if (!isExist && !isUpload) {
         failDownload("文件不存在，任务链接【" + mTaskEntity.urlEntity.url + "】", false);
