@@ -61,9 +61,28 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       client = createClient();
       if (client == null) return;
       initPath();
-      client.makeDirectory(dir);
-      client.changeWorkingDirectory(dir);
+      if (client.makeDirectory(dir)) {
+        fail(mChildCurrentLocation, "创建文件夹失败", null);
+        return;
+      }
+      if (client.changeWorkingDirectory(dir)) {
+        fail(mChildCurrentLocation, "选择工作文件夹失败", null);
+        return;
+      }
       client.setRestartOffset(mConfig.START_LOCATION);
+      int reply = client.getReplyCode();
+      if (reply == FTPReply.SYNTAX_ERROR_IN_ARGUMENTS) {
+        client.disconnect();
+        fail(mChildCurrentLocation,
+            "上传失败，FTP没有打开写权限，错误码为：" + reply + "，msg：" + client.getReplyString(), null);
+        return;
+      } else if (!FTPReply.isPositivePreliminary(reply) && reply != FTPReply.COMMAND_OK) {
+        client.disconnect();
+        fail(mChildCurrentLocation,
+            "上传失败，FTP没有打开写权限，错误码为：" + reply + "，msg：" + client.getReplyString(), null);
+        return;
+      }
+
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
       if (mConfig.START_LOCATION != 0) {
         //file.skipBytes((int) mConfig.START_LOCATION);
@@ -82,7 +101,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
         STATE.isRunning = false;
         mListener.onComplete();
       }
-      if (STATE.isFail()){
+      if (STATE.isFail()) {
         STATE.isRunning = false;
         mListener.onFail(false);
       }

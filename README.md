@@ -31,6 +31,12 @@ Aria有以下特点：
 compile 'com.arialyy.aria:aria-core:3.3.13'
 annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.13'
 ```
+如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:3.3.13'`替换为
+```
+compile('com.arialyy.aria:<last-version>'){
+   exclude group: 'com.android.support'
+}
+```
 如果你使用的是kotlin，请使用kotlin官方提供的方法配置apt，[kotlin kapt官方配置传送门](https://www.kotlincn.net/docs/reference/kapt.html)
 
 ***
@@ -97,12 +103,10 @@ protected void onCreate(Bundle savedInstanceState) {
 ### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
 ### 版本日志
-+ v_3.3.11
-    - 添加进度更新间隔api，在`aria_config.xml`配置`<updateInterval value="1000"/>`或在代码中调用
-      `AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setUpdateInterval(3000)`便可以改变进度刷新间隔
-    - 修复下载过程中kill进程可能出现的文件错误的问题 https://github.com/AriaLyy/Aria/issues/192
-    - 修复http上传的空指针问题 https://github.com/AriaLyy/Aria/issues/193
-    - 修复下载地址中含有`'`导致的崩溃问题 https://github.com/AriaLyy/Aria/issues/194
++ v_3.3.13
+    - 添加`@Download.onWait、@Upload.onWait、@DownloadGroup.onWait`三个新注解，队列已经满了，继续创建新任务，任务处于等待中，将会执行被这三个注解标志的方法
+    - app被kill，但是还存在等待中的任务A；第二次重新启动，先创建一个新的任务B，Aria会自动把B放进等待队列中，这时再次创建任务A，会导致重复下载，进度错乱的问题；本版本已修复这个问题
+
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 
