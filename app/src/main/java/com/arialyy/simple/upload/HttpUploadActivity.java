@@ -17,7 +17,6 @@
 package com.arialyy.simple.upload;
 
 import android.os.Bundle;
-import android.util.Log;
 import butterknife.Bind;
 import butterknife.OnClick;
 import com.arialyy.annotations.Upload;
@@ -36,7 +35,7 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   private static final String TAG = "HttpUploadActivity";
   @Bind(R.id.pb) HorizontalProgressBarWithNumber mPb;
 
-  private static final String FILE_PATH = "/mnt/sdcard/gg.zip";
+  private static final String FILE_PATH = "/mnt/sdcard/360sicheck.txt";
 
   @Override protected int setLayoutId() {
     return R.layout.activity_upload;
@@ -51,8 +50,10 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   @OnClick(R.id.upload) void upload() {
     Aria.upload(HttpUploadActivity.this)
         .load(FILE_PATH)
-        .setUploadUrl("http://192.168.1.9:8080/upload/")
-        .setAttachment("serveFile")
+        .setUploadUrl(
+            "http://lib-test.xzxyun.com:8042/Api/upload?data={\"type\":\"1\",\"fileType\":\".txt\"}")
+        .setAttachment("file")
+        .addHeader("iplanetdirectorypro", "")
         .start();
   }
 
@@ -63,7 +64,6 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   @OnClick(R.id.remove) void remove() {
     Aria.upload(this).load(FILE_PATH).cancel();
   }
-
 
   @Upload.onPre public void onPre(UploadTask task) {
   }
@@ -88,6 +88,7 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   @Upload.onTaskRunning public void taskRunning(UploadTask task) {
     getBinding().setSpeed(task.getConvertSpeed());
     getBinding().setProgress(task.getPercent());
+    L.d(TAG, "P => " + task.getPercent());
   }
 
   @Upload.onTaskComplete public void taskComplete(UploadTask task) {

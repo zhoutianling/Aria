@@ -58,8 +58,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
       //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
       //"http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
-      //"https://bogoe-res.mytbz.com/tbzengsong/If You're Happy.mp3";
-      "http://ozr0ucjs5.bkt.clouddn.com/51_box-104_20180131202610.apk";
+      "https://bogoe-res.mytbz.com/tbzengsong/If You're Happy.mp3";
+      //"http://ozr0ucjs5.bkt.clouddn.com/51_box-104_20180131202610.apk";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
