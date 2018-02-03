@@ -53,16 +53,28 @@ public class FtpUploadTarget
   }
 
   /**
-   * 设置上传路径
+   * 设置上传路径，FTP上传路径必须是从"/"开始的完整路径
    *
    * @param uploadUrl 上传路径
    */
   public FtpUploadTarget setUploadUrl(@NonNull String uploadUrl) {
-    CheckUtil.checkUrl(uploadUrl);
+    uploadUrl = CheckUtil.checkUrl(uploadUrl);
+    if (!uploadUrl.endsWith("/")) {
+      uploadUrl += "/";
+    }
     mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(uploadUrl);
     if (mEntity.getUrl().equals(uploadUrl)) return this;
     mEntity.setUrl(uploadUrl);
     mEntity.update();
+    return this;
+  }
+
+  /**
+   * 设置字符编码
+   */
+  public FtpUploadTarget charSet(String charSet) {
+    if (TextUtils.isEmpty(charSet)) return this;
+    mTaskEntity.charSet = charSet;
     return this;
   }
 

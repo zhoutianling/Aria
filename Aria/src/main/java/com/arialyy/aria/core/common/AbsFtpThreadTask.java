@@ -72,7 +72,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       }
     }
 
-    if (client == null){
+    if (client == null) {
       return null;
     }
 
@@ -87,7 +87,8 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       int reply = client.getReplyCode();
       if (!FTPReply.isPositiveCompletion(reply)) {
         client.disconnect();
-        fail(STATE.CURRENT_LOCATION, "无法连接到ftp服务器，错误码为：" + reply, null);
+        fail(STATE.CURRENT_LOCATION,
+            "无法连接到ftp服务器，错误码为：" + reply + "，msg:" + client.getReplyString(), null);
         return null;
       }
       // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码

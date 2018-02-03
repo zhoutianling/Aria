@@ -26,14 +26,8 @@ import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.widget.PopupWindow;
-import com.arialyy.annotations.Download;
-import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.download.DownloadReceiver;
-import com.arialyy.aria.core.scheduler.IDownloadSchedulerListener;
-import com.arialyy.aria.core.scheduler.ISchedulerListener;
-import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.upload.UploadReceiver;
-import com.arialyy.aria.core.upload.UploadTask;
 
 /**
  * Created by lyy on 2016/12/1.

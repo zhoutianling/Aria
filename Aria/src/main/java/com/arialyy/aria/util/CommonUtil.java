@@ -103,7 +103,8 @@ public class CommonUtil {
         entity.hostName = str;
       }
       entity.port = m.group(3);
-      entity.remotePath = TextUtils.isEmpty(m.group(4)) ? "/" : "/" + m.group(4);
+      //entity.remotePath = TextUtils.isEmpty(m.group(4)) ? "/" : "/" + m.group(4);
+      entity.remotePath = TextUtils.isEmpty(m.group(4)) ? "/" : m.group(4);
     }
     return entity;
   }

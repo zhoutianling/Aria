@@ -19,6 +19,7 @@ import com.arialyy.aria.core.common.AbsFtpInfoThread;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.util.Properties;
@@ -29,6 +30,7 @@ import org.apache.commons.net.ftp.FTPFile;
  * 单任务远程服务器文件信息
  */
 class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity> {
+  private static final String TAG = "FtpUploadFtpFileInfoThread";
   static final int CODE_COMPLETE = 0xab1;
   private boolean isComplete = false;
 
@@ -56,12 +58,21 @@ class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity>
       if (ftpFile.getSize() == mEntity.getFileSize()) {
         isComplete = true;
       } else {
+        ALog.w(TAG, "FTP服务器已存在未完成的文件【"
+            + ftpFile.getName()
+            + "，size: "
+            + ftpFile.getSize()
+            + "】"
+            + "尝试从位置："
+            + ftpFile.getSize()
+            + "开始上传");
         File configFile = new File(CommonUtil.getFileConfigPath(false, mEntity.getFileName()));
         Properties pro = CommonUtil.loadConfig(configFile);
         String key = mEntity.getFileName() + "_record_" + 0;
+        mTaskEntity.isNewTask = false;
         long oldRecord = Long.parseLong(pro.getProperty(key, "0"));
-        if (oldRecord != 0) {
-          //修改本地保存的停止地址为服务器上的真实地址
+        if (oldRecord == 0) {
+          //修改本地保存的停止地址为服务器上对应文件的大小
           pro.setProperty(key, ftpFile.getSize() + "");
           CommonUtil.saveConfig(configFile, pro);
         }

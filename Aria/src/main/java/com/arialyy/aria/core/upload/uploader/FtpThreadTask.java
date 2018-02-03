@@ -35,7 +35,7 @@ import org.apache.commons.net.ftp.OnFtpInputStreamListener;
  * FTP 单线程上传任务，需要FTP 服务器给用户打开删除和读入IO的权限
  */
 class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
-  private final String TAG = "FtpThreadTask";
+  private final String TAG = "FtpUploadThreadTask";
   private String dir, remotePath;
 
   FtpThreadTask(StateConstance constance, IEventListener listener,
@@ -64,6 +64,13 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       client.makeDirectory(dir);
       client.changeWorkingDirectory(dir);
       client.setRestartOffset(mConfig.START_LOCATION);
+      int reply = client.getReplyCode();
+      if (!FTPReply.isPositivePreliminary(reply) && reply != FTPReply.FILE_ACTION_OK) {
+        fail(mChildCurrentLocation, "上传失败，错误码为：" + reply + "，msg：" + client.getReplyString(), null);
+        client.disconnect();
+        return;
+      }
+
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
       if (mConfig.START_LOCATION != 0) {
         //file.skipBytes((int) mConfig.START_LOCATION);
@@ -82,7 +89,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
         STATE.isRunning = false;
         mListener.onComplete();
       }
-      if (STATE.isFail()){
+      if (STATE.isFail()) {
         STATE.isRunning = false;
         mListener.onFail(false);
       }
@@ -107,7 +114,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
   private void initPath() throws UnsupportedEncodingException {
     dir = new String(mTaskEntity.urlEntity.remotePath.getBytes(charSet), SERVER_CHARSET);
     remotePath = new String(
-        (mTaskEntity.urlEntity.remotePath + "/" + mEntity.getFileName()).getBytes(charSet),
+        ("/" + mTaskEntity.urlEntity.remotePath + mEntity.getFileName()).getBytes(charSet),
         SERVER_CHARSET);
   }
 
@@ -115,6 +122,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       throws IOException {
 
     try {
+      ALog.d(TAG, "remotePath【" + remotePath + "】");
       client.storeFile(remotePath, new FtpFISAdapter(bis), new OnFtpInputStreamListener() {
         boolean isStoped = false;
 
@@ -141,11 +149,13 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
 
     int reply = client.getReplyCode();
     if (!FTPReply.isPositiveCompletion(reply)) {
+      if (reply != FTPReply.TRANSFER_ABORTED) {
+        fail(mChildCurrentLocation, "上传文件错误，错误码为：" + reply + "，msg:" + client.getReplyString(),
+            null);
+      }
       if (client.isConnected()) {
         client.disconnect();
       }
-      if (reply == FTPReply.TRANSFER_ABORTED) return;
-      fail(mChildCurrentLocation, "上传文件错误，错误码为：" + reply, null);
     }
   }
 

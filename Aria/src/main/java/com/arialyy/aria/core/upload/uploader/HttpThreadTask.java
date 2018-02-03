@@ -89,7 +89,8 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
         addFormField(writer, key, mTaskEntity.formFields.get(key));
       }
       uploadFile(writer, mTaskEntity.attachment, uploadFile);
-      finish(writer);
+      mTaskEntity.getEntity().setResponseStr(finish(writer));
+      mListener.onComplete();
     } catch (Exception e) {
       e.printStackTrace();
       fail();
@@ -167,7 +168,6 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       STATE.isRunning = false;
       return;
     }
-    mListener.onComplete();
     STATE.isRunning = false;
   }
 
@@ -184,6 +184,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     writer.close();
 
     int status = mHttpConn.getResponseCode();
+
     if (status == HttpURLConnection.HTTP_OK) {
       BufferedReader reader = new BufferedReader(new InputStreamReader(mHttpConn.getInputStream()));
       String line;
@@ -193,10 +194,9 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       reader.close();
       mHttpConn.disconnect();
     } else {
-      ALog.w(TAG, "state_code = " + status);
-      fail();
+      ALog.e(TAG, "response msg: " + mHttpConn.getResponseMessage() + "，code: " + status);
+      //  fail();
     }
-
     writer.flush();
     writer.close();
     mOutputStream.close();

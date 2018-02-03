@@ -23,19 +23,20 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.frame.util.show.L;
+import com.arialyy.frame.util.FileUtil;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityFtpUploadBinding;
+import java.io.File;
 
 /**
  * Created by Aria.Lao on 2017/7/28.
  * Ftp 文件上传demo
  */
 public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
-  private final String FILE_PATH = "/mnt/sdcard/gg.zip";
-  private final String URL = "ftp://192.168.1.2:21/upload/测试";
+  private final String FILE_PATH = "/mnt/sdcard/AriaPrj.zip";
+  private final String URL = "ftp://192.168.1.6:21/aa/你好";
 
   @Override protected void init(Bundle savedInstanceState) {
     setTile("D_FTP 文件上传");
@@ -56,7 +57,7 @@ public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.upload(this).loadFtp(FILE_PATH).setUploadUrl(URL).login("lao", "123456").add();
+        Aria.upload(this).loadFtp(FILE_PATH).setUploadUrl(URL).login("lao", "123456").start();
         break;
       case R.id.stop:
         Aria.upload(this).loadFtp(FILE_PATH).stop();
@@ -67,7 +68,7 @@ public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
     }
   }
 
-  @Upload.onWait void onWait(UploadTask task){
+  @Upload.onWait void onWait(UploadTask task) {
     Log.d(TAG, task.getTaskName() + "_wait");
   }
 
@@ -76,7 +77,7 @@ public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
   }
 
   @Upload.onTaskStart public void taskStart(UploadTask task) {
-    Log.d(TAG, "开始上传");
+    Log.d(TAG, "开始上传，md5：" + FileUtil.getFileMD5(new File(task.getEntity().getFilePath())));
   }
 
   @Upload.onTaskResume public void taskResume(UploadTask task) {

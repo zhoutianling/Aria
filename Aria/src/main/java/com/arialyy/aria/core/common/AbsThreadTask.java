@@ -232,7 +232,11 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
       ALog.w(TAG,
           "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__重试失败，网络未连接");
     }
-    if (mFailNum < RETRY_NUM && needRetry && NetUtils.isConnected(AriaManager.APP)) {
+    if (mFailNum < RETRY_NUM
+        && needRetry
+        && NetUtils.isConnected(AriaManager.APP)
+        && !STATE.isCancel
+        && !STATE.isStop) {
       mFailTimer = new Timer(true);
       mFailTimer.schedule(new TimerTask() {
         @Override public void run() {

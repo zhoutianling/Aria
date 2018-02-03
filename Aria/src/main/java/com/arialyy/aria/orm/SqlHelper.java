@@ -23,20 +23,19 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by lyy on 2015/11/2.
@@ -204,7 +203,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     sql = sql.replace("?", "%s");
     Object[] params = new String[expression.length - 1];
     for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "\"" + expression[i + 1] + "\"";
+      params[i] = "'" + expression[i + 1] + "'";
     }
     sql = String.format(sql, params);
     print(FIND_DATA, sql);
@@ -227,7 +226,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     sql = sql.replace("?", "%s");
     Object[] params = new String[expression.length - 1];
     for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "\"" + expression[i + 1] + "\"";
+      params[i] = "'" + checkValue(expression[i + 1]) + "'";
     }
     sql = String.format(sql, params);
     print(FIND_DATA, sql);
@@ -269,7 +268,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     sb.append("SELECT rowid, * FROM ").append(CommonUtil.getClassName(clazz)).append(" where ");
     int i = 0;
     for (Object where : wheres) {
-      sb.append(where).append("=").append("\"").append(values[i]).append("\"");
+      sb.append(where).append("=").append("'").append(checkValue(values[i])).append("'");
       sb.append(i >= wheres.length - 1 ? "" : " AND ");
       i++;
     }
@@ -279,6 +278,13 @@ final class SqlHelper extends SQLiteOpenHelper {
     closeCursor(cursor);
     close(db);
     return data;
+  }
+
+  private static String checkValue(String value) {
+    if (value.contains("'")) {
+      return URLEncoder.encode(value);
+    }
+    return value;
   }
 
   /**
@@ -319,7 +325,7 @@ final class SqlHelper extends SQLiteOpenHelper {
     sql = sql.replace("?", "%s");
     Object[] params = new String[expression.length - 1];
     for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "\"" + expression[i + 1] + "\"";
+      params[i] = "'" + expression[i + 1] + "'";
     }
     sql = String.format(sql, params);
     SqlHelper.print(DEL_DATA, sql);
@@ -362,7 +368,7 @@ final class SqlHelper extends SQLiteOpenHelper {
           //sb.append(field.getName()).append("='");
           String value;
           prams.append(i > 0 ? ", " : "");
-          prams.append(field.getName()).append("=\"");
+          prams.append(field.getName()).append("='");
           Type type = field.getType();
           if (type == Map.class) {
             value = SqlUtil.map2Str((Map<String, String>) field.get(dbEntity));
@@ -376,13 +382,13 @@ final class SqlHelper extends SQLiteOpenHelper {
             value = SqlUtil.getOneToOneParams(field);
           } else {
             Object obj = field.get(dbEntity);
-            value = obj == null ? "" : obj.toString();
+            value = obj == null ? "" : checkValue(obj.toString());
           }
 
           //sb.append(value == null ? "" : value);
           //sb.append("'");
           prams.append(TextUtils.isEmpty(value) ? "" : value);
-          prams.append("\"");
+          prams.append("'");
         } catch (IllegalAccessException e) {
           e.printStackTrace();
         }
@@ -432,7 +438,7 @@ final class SqlHelper extends SQLiteOpenHelper {
             continue;
           }
           sb.append(i > 0 ? ", " : "");
-          sb.append("\"");
+          sb.append("'");
           Type type = field.getType();
           if (type == Map.class) {
             sb.append(SqlUtil.map2Str((Map<String, String>) field.get(dbEntity)));
@@ -445,9 +451,9 @@ final class SqlHelper extends SQLiteOpenHelper {
           } else if (SqlUtil.isOneToOne(field)) {
             sb.append(SqlUtil.getOneToOneParams(field));
           } else {
-            sb.append(field.get(dbEntity));
+            sb.append(checkValue(field.get(dbEntity).toString()));
           }
-          sb.append("\"");
+          sb.append("'");
           i++;
         }
       } catch (IllegalAccessException e) {
@@ -639,7 +645,7 @@ final class SqlHelper extends SQLiteOpenHelper {
             int column = cursor.getColumnIndex(field.getName());
             if (column == -1) continue;
             if (type == String.class) {
-              field.set(entity, cursor.getString(column));
+              field.set(entity, URLDecoder.decode(cursor.getString(column)));
             } else if (type == int.class || type == Integer.class) {
               field.setInt(entity, cursor.getInt(column));
             } else if (type == float.class || type == Float.class) {

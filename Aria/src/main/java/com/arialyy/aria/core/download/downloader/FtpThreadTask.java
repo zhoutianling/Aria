@@ -34,7 +34,7 @@ import org.apache.commons.net.ftp.FTPReply;
  * Ftp下载任务
  */
 class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity> {
-  private final String TAG = "FtpThreadTask";
+  private final String TAG = "FtpDownloadThreadTask";
 
   FtpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
@@ -59,17 +59,29 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
           + "】");
       client = createClient();
       if (client == null) return;
-      client.setRestartOffset(mConfig.START_LOCATION);
-      String remotePath =
-          new String(mTaskEntity.urlEntity.remotePath.getBytes(charSet), SERVER_CHARSET);
-      is = client.retrieveFileStream(remotePath);
+      if (mConfig.START_LOCATION > 0) {
+        client.setRestartOffset(mConfig.START_LOCATION);
+      }
       //发送第二次指令时，还需要再做一次判断
       int reply = client.getReplyCode();
-      if (!FTPReply.isPositivePreliminary(reply)) {
+      if (!FTPReply.isPositivePreliminary(reply) && reply != FTPReply.COMMAND_OK) {
+        fail(mChildCurrentLocation, "获取文件信息错误，错误码为：" + reply + "，msg：" + client.getReplyString(),
+            null);
         client.disconnect();
-        fail(mChildCurrentLocation, "获取文件信息错误，错误码为：" + reply, null);
         return;
       }
+      String remotePath =
+          new String(mTaskEntity.urlEntity.remotePath.getBytes(charSet), SERVER_CHARSET);
+      ALog.i(TAG, "remotePath【" + remotePath + "】");
+      is = client.retrieveFileStream(remotePath);
+      reply = client.getReplyCode();
+      if (!FTPReply.isPositivePreliminary(reply)) {
+        fail(mChildCurrentLocation, "获取流失败，错误码为：" + reply + "，msg：" + client.getReplyString(),
+            null);
+        client.disconnect();
+        return;
+      }
+
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
       file.seek(mConfig.START_LOCATION);
       byte[] buffer = new byte[mBufSize];

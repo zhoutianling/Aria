@@ -28,8 +28,14 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.3.13'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.13'
+compile 'com.arialyy.aria:aria-core:3.3.14'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.14'
+```
+如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:3.3.13'`替换为
+```
+compile('com.arialyy.aria:aria-core:<last-version>'){
+   exclude group: 'com.android.support'
+}
 ```
 如果你使用的是kotlin，请使用kotlin官方提供的方法配置apt，[kotlin kapt官方配置传送门](https://www.kotlincn.net/docs/reference/kapt.html)
 
@@ -97,12 +103,11 @@ protected void onCreate(Bundle savedInstanceState) {
 ### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
 ### 版本日志
-+ v_3.3.11
-    - 添加进度更新间隔api，在`aria_config.xml`配置`<updateInterval value="1000"/>`或在代码中调用
-      `AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setUpdateInterval(3000)`便可以改变进度刷新间隔
-    - 修复下载过程中kill进程可能出现的文件错误的问题 https://github.com/AriaLyy/Aria/issues/192
-    - 修复http上传的空指针问题 https://github.com/AriaLyy/Aria/issues/193
-    - 修复下载地址中含有`'`导致的崩溃问题 https://github.com/AriaLyy/Aria/issues/194
+ + v_3.3.14
+    - 修复ftp上传和下载的兼容性问题
+    - 如果url中的path有"//"将替换为"/"
+    - 修复http上传成功后，如果服务器没有设置返回码导致上传失败的问题
+    - 上传实体UploadEntity增加responseStr字段，http上传完成后，在被`@Upload.onComplete`注解的方法中，可通过`task.getEntity().getResponseStr())`获取服务器返回的数据
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 

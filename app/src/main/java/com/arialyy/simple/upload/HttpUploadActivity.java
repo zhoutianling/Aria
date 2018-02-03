@@ -17,17 +17,18 @@
 package com.arialyy.simple.upload;
 
 import android.os.Bundle;
-import android.util.Log;
 import butterknife.Bind;
 import butterknife.OnClick;
 import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.upload.UploadTask;
+import com.arialyy.frame.util.FileUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityUploadBinding;
 import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
+import java.io.File;
 
 /**
  * Created by Aria.Lao on 2017/2/9.
@@ -36,7 +37,7 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   private static final String TAG = "HttpUploadActivity";
   @Bind(R.id.pb) HorizontalProgressBarWithNumber mPb;
 
-  private static final String FILE_PATH = "/mnt/sdcard/gg.zip";
+  private static final String FILE_PATH = "/mnt/sdcard/test.txt";
 
   @Override protected int setLayoutId() {
     return R.layout.activity_upload;
@@ -49,10 +50,11 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   }
 
   @OnClick(R.id.upload) void upload() {
-    Aria.upload(HttpUploadActivity.this)
-        .load(FILE_PATH)
-        .setUploadUrl("http://192.168.1.9:8080/upload/")
-        .setAttachment("serveFile")
+    Aria.upload(HttpUploadActivity.this).load(FILE_PATH)
+        //.setUploadUrl(
+        //    "http://lib-test.xzxyun.com:8042/Api/upload?data={\"type\":\"1\",\"fileType\":\".txt\"}")
+        .setUploadUrl("http://192.168.1.6:8080/upload/sign_file/").setAttachment("file")
+        //.addHeader("iplanetdirectorypro", "11a09102fb934ad0bc206f9c611d7933")
         .start();
   }
 
@@ -64,12 +66,11 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
     Aria.upload(this).load(FILE_PATH).cancel();
   }
 
-
   @Upload.onPre public void onPre(UploadTask task) {
   }
 
   @Upload.onTaskStart public void taskStart(UploadTask task) {
-    L.d(TAG, "upload start");
+    L.d(TAG, "upload start，md5：" + FileUtil.getFileMD5(new File(task.getEntity().getFilePath())));
     getBinding().setFileSize(task.getConvertFileSize());
   }
 
@@ -88,10 +89,12 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   @Upload.onTaskRunning public void taskRunning(UploadTask task) {
     getBinding().setSpeed(task.getConvertSpeed());
     getBinding().setProgress(task.getPercent());
+    L.d(TAG, "P => " + task.getPercent());
   }
 
   @Upload.onTaskComplete public void taskComplete(UploadTask task) {
     L.d(TAG, "上传完成");
+    L.d(TAG, "上传成功返回数据（如果有的话）：" + task.getEntity().getResponseStr());
     getBinding().setSpeed("");
     getBinding().setProgress(100);
   }
