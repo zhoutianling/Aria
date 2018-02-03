@@ -82,7 +82,8 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       ALog.i(TAG, s);
       boolean isExist = files.length != 0;
       if (!isExist && !isUpload) {
-        failDownload("文件不存在，任务链接【" + mTaskEntity.urlEntity.url + "】", false);
+        failDownload("文件不存在，任务链接【" + mTaskEntity.urlEntity.url + "】，remotePath：" + remotePath,
+            false);
         int i = remotePath.lastIndexOf(File.separator);
         FTPFile[] files1;
         if (i == -1) {

@@ -28,8 +28,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.3.13'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.13'
+compile 'com.arialyy.aria:aria-core:3.3.14'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.14'
 ```
 如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:3.3.13'`替换为
 ```
@@ -103,10 +103,11 @@ protected void onCreate(Bundle savedInstanceState) {
 ### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
 ### 版本日志
-+ v_3.3.13
-    - 添加`@Download.onWait、@Upload.onWait、@DownloadGroup.onWait`三个新注解，队列已经满了，继续创建新任务，任务处于等待中，将会执行被这三个注解标志的方法
-    - app被kill，但是还存在等待中的任务A；第二次重新启动，先创建一个新的任务B，Aria会自动把B放进等待队列中，这时再次创建任务A，会导致重复下载，进度错乱的问题；本版本已修复这个问题
-
+ + v_3.3.14
+    - 修复ftp上传和下载的兼容性问题
+    - 如果url中的path有"//"将替换为"/"
+    - 修复http上传成功后，如果服务器没有设置返回码导致上传失败的问题
+    - 上传实体UploadEntity增加responseStr字段，http上传完成后，在被`@Upload.onComplete`注解的方法中，可通过`task.getEntity().getResponseStr())`获取服务器返回的数据
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 

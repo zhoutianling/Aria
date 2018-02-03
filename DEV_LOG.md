@@ -2,6 +2,9 @@
   + v_3.3.14
     - 修复ftp上传和下载的兼容性问题
     - 如果url中的path有"//"将替换为"/"
+    - 修复http上传成功后，如果服务器没有设置返回码导致上传失败的问题
+    - 上传实体UploadEntity增加responseStr字段，http上传完成后，在被`@Upload.onComplete`注解的方法中，可通过`task.getEntity().getResponseStr())`获取服务器返回的数据
+    - 如果服务器存在已上传了一部分的文件，用户执行删除该FTP上传任务，再次重新上传，会出现550，权限错误；本版本已修复该问题
   + v_3.3.13
     - 添加`@Download.onWait、@Upload.onWait、@DownloadGroup.onWait`三个新注解，队列已经满了，继续创建新任务，任务处于等待中，将会执行被这三个注解标志的方法
     - app被kill，但是还存在等待中的任务A；第二次重新启动，先创建一个新的任务B，Aria会自动把B放进等待队列中，这时再次创建任务A，会导致重复下载，进度错乱的问题；本版本已修复这个问题

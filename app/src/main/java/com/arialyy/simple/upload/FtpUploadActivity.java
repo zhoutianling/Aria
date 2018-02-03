@@ -23,11 +23,12 @@ import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.frame.util.show.L;
+import com.arialyy.frame.util.FileUtil;
 import com.arialyy.frame.util.show.T;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityFtpUploadBinding;
+import java.io.File;
 
 /**
  * Created by Aria.Lao on 2017/7/28.
@@ -67,7 +68,7 @@ public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
     }
   }
 
-  @Upload.onWait void onWait(UploadTask task){
+  @Upload.onWait void onWait(UploadTask task) {
     Log.d(TAG, task.getTaskName() + "_wait");
   }
 
@@ -76,7 +77,7 @@ public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
   }
 
   @Upload.onTaskStart public void taskStart(UploadTask task) {
-    Log.d(TAG, "开始上传");
+    Log.d(TAG, "开始上传，md5：" + FileUtil.getFileMD5(new File(task.getEntity().getFilePath())));
   }
 
   @Upload.onTaskResume public void taskResume(UploadTask task) {

@@ -18,8 +18,8 @@ package com.arialyy.aria.core.upload;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
-import com.arialyy.aria.orm.Foreign;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.orm.Foreign;
 import com.arialyy.aria.orm.Primary;
 
 /**
@@ -28,6 +28,19 @@ import com.arialyy.aria.orm.Primary;
  */
 public class UploadEntity extends AbsNormalEntity implements Parcelable {
   @Primary @Foreign(table = UploadTaskEntity.class, column = "key") private String filePath;  //文件路径
+
+  /**
+   * 上传完成后服务器返回的数据
+   */
+  private String responseStr = "";
+
+  public String getResponseStr() {
+    return responseStr;
+  }
+
+  public void setResponseStr(String responseStr) {
+    this.responseStr = responseStr;
+  }
 
   public String getFilePath() {
     return filePath;
