@@ -21,6 +21,7 @@ import butterknife.Bind;
 import butterknife.OnClick;
 import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.frame.util.FileUtil;
 import com.arialyy.frame.util.show.L;
@@ -37,7 +38,7 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   private static final String TAG = "HttpUploadActivity";
   @Bind(R.id.pb) HorizontalProgressBarWithNumber mPb;
 
-  private static final String FILE_PATH = "/mnt/sdcard/test.txt";
+  private static final String FILE_PATH = "/mnt/sdcard/test.apk";
 
   @Override protected int setLayoutId() {
     return R.layout.activity_upload;
@@ -51,10 +52,11 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
 
   @OnClick(R.id.upload) void upload() {
     Aria.upload(HttpUploadActivity.this).load(FILE_PATH)
-        //.setUploadUrl(
-        //    "http://lib-test.xzxyun.com:8042/Api/upload?data={\"type\":\"1\",\"fileType\":\".txt\"}")
-        .setUploadUrl("http://192.168.1.6:8080/upload/sign_file/").setAttachment("file")
+        .setUploadUrl(
+            "http://lib-test.xzxyun.com:8042/Api/upload?data={\"type\":\"1\",\"fileType\":\".apk\"}")
+        //.setUploadUrl("http://192.168.1.6:8080/upload/sign_file/").setAttachment("file")
         //.addHeader("iplanetdirectorypro", "11a09102fb934ad0bc206f9c611d7933")
+        .setRequestMode(RequestEnum.POST)
         .start();
   }
 

@@ -65,9 +65,11 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     try {
       url = new URL(mEntity.getUrl());
       mHttpConn = (HttpURLConnection) url.openConnection();
+      mHttpConn.setRequestMethod(mTaskEntity.requestEnum.name);
       mHttpConn.setUseCaches(false);
       mHttpConn.setDoOutput(true);
       mHttpConn.setDoInput(true);
+      mHttpConn.setRequestProperty("Connection", "Keep-Alive");
       mHttpConn.setRequestProperty("Content-Type",
           mTaskEntity.contentType + "; boundary=" + BOUNDARY);
       mHttpConn.setRequestProperty("User-Agent", mTaskEntity.userAgent);

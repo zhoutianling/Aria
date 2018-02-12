@@ -27,7 +27,7 @@ import java.util.Map;
 public class UploadTaskEntity extends AbsNormalTaskEntity<UploadEntity> {
   public String attachment;  //文件上传需要的key
   public String contentType = "multipart/form-data"; //上传的文件类型
-  public String userAgent = "User-Agent";
+  public String userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)";
   @OneToOne(table = UploadEntity.class, key = "filePath") public UploadEntity entity;
   public String filePath = "";
 
