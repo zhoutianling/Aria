@@ -288,8 +288,8 @@ import org.xml.sax.SAXException;
             "onStop");
 
     if (isDestroyed) {
-      ALog.w(TAG,
-          "请不要在Activity或Fragment的onDestroy、finish、onStop等方法中调用Aria，Aria的unRegister会在Activity页面销毁时自动执行");
+      ALog.e(TAG,
+          "请不要在Activity或Fragment的onDestroy、finish、onStop等方法中注册Aria，Aria的unRegister会在Activity页面销毁时自动执行");
     }
 
     if (obj instanceof Activity && isDestroyed) {

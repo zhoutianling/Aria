@@ -207,6 +207,7 @@ public class DownloadReceiver extends AbsReceiver {
 
   /**
    * 取消注册，如果是Activity或fragment，Aria会界面销毁时自动调用该方法。
+   * 如果在activity中一定要调用该方法，那么请在onDestroy()中调用
    * 如果是Dialog或popupwindow，需要你在撤销界面时调用该方法
    */
   @Override public void unRegister() {

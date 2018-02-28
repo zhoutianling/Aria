@@ -46,7 +46,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
       //"http://sitcac.daxincf.cn/wp-content/uploads/swift_vido/01/element.mp4_1";
       //"http://120.25.196.56:8000/filereq?id=15692406294&ipncid=105635&client=android&filename=20170819185541.avi";
       //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
@@ -58,7 +58,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
       //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
       //"http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
-      "https://bogoe-res.mytbz.com/tbzengsong/If You're Happy.mp3";
+      //"https://bogoe-res.mytbz.com/tbzengsong/If You're Happy.mp3";
       //"http://ozr0ucjs5.bkt.clouddn.com/51_box-104_20180131202610.apk";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
@@ -67,7 +67,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    Aria.download(this).register();
+    Aria.upload(this).register();
   }
 
   /**
@@ -239,5 +239,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   @Override protected void onDestroy() {
     super.onDestroy();
     //Aria.download(this).unRegister();
+  }
+
+  @Override protected void onStop() {
+    super.onStop();
+    Aria.download(this).unRegister();
   }
 }
