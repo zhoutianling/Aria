@@ -54,12 +54,12 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
 
   @Override public void register(Object obj) {
     String targetName = obj.getClass().getName();
-    AbsSchedulerListener<TASK, AbsNormalEntity> listener = mObservers.get(targetName);
+    AbsSchedulerListener<TASK, AbsNormalEntity> listener = mObservers.get(getKey(obj));
     if (listener == null) {
       listener = createListener(targetName);
       if (listener != null) {
         listener.setListener(obj);
-        mObservers.put(targetName, listener);
+        mObservers.put(getKey(obj), listener);
       } else {
         ALog.e(TAG, "注册错误，没有【" + targetName + "】观察者");
       }
@@ -73,10 +73,14 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
     for (Iterator<Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalEntity>>> iter =
         mObservers.entrySet().iterator(); iter.hasNext(); ) {
       Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalEntity>> entry = iter.next();
-      if (entry.getKey().equals(obj.getClass().getName())) {
+      if (entry.getKey().equals(getKey(obj))) {
         iter.remove();
       }
     }
+  }
+
+  private String getKey(Object obj) {
+    return obj.getClass().getName() + obj.hashCode();
   }
 
   /**

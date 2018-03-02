@@ -347,7 +347,7 @@ import org.xml.sax.SAXException;
     if (TextUtils.isEmpty(key)) {
       throw new IllegalArgumentException("未知类型");
     }
-    key += isDownload ? DOWNLOAD : UPLOAD;
+    key += (isDownload ? DOWNLOAD : UPLOAD) + obj.hashCode();
     return key;
   }
 
