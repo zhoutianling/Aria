@@ -36,7 +36,6 @@ import java.util.Set;
  */
 public class UploadReceiver extends AbsReceiver<UploadEntity> {
   private static final String TAG = "UploadReceiver";
-  public ISchedulerListener<UploadTask> listener;
 
   /**
    * 加载HTTP单文件上传任务
@@ -104,7 +103,6 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
 
   @Override public void destroy() {
     targetName = null;
-    listener = null;
   }
 
   /**

@@ -97,7 +97,7 @@ import org.xml.sax.SAXException;
   }
 
   /**
-   * 设置Aria 日志级别
+   * 设置Aria的日志级别
    *
    * @param level {@link ALog#LOG_LEVEL_VERBOSE}
    */
@@ -106,20 +106,34 @@ import org.xml.sax.SAXException;
   }
 
   /**
-   * 设置上传任务的执行队列类型
+   * 设置上传任务的执行队列类型，后续版本会删除该api，请使用：
+   * <pre>
+   *   <code>
+   *     Aria.get(this).getUploadConfig().setQueueMod(mod.tag)
+   *   </code>
+   * <pre/>
    *
    * @param mod {@link QueueMod}
+   * @deprecated 后续版本会删除该api
    */
+  @Deprecated
   public AriaManager setUploadQueueMod(QueueMod mod) {
     mUConfig.setQueueMod(mod.tag);
     return this;
   }
 
   /**
-   * 设置下载任务的执行队列类型
+   * 设置下载任务的执行队列类型，后续版本会删除该api，请使用：
+   * <pre>
+   *   <code>
+   *     Aria.get(this).getDownloadConfig().setQueueMod(mod.tag)
+   *   </code>
+   * <pre/>
    *
    * @param mod {@link QueueMod}
+   * @deprecated 后续版本会删除该api
    */
+  @Deprecated
   public AriaManager setDownloadQueueMod(QueueMod mod) {
     mDConfig.setQueueMod(mod.tag);
     return this;
@@ -270,7 +284,8 @@ import org.xml.sax.SAXException;
   /**
    * 不允许在"onDestroy"、"finish"、"onStop"这三个方法中添加注册器
    */
-  private AbsReceiver checkTarget(String key, AbsReceiver receiver, Object obj, boolean needRmReceiver) {
+  private AbsReceiver checkTarget(String key, AbsReceiver receiver, Object obj,
+      boolean needRmReceiver) {
     StackTraceElement[] stack = Thread.currentThread().getStackTrace();
     int i = 0;
     for (StackTraceElement e : stack) {

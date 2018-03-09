@@ -27,7 +27,6 @@ import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
-import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
@@ -41,7 +40,6 @@ import java.util.Set;
  */
 public class DownloadReceiver extends AbsReceiver {
   private final String TAG = "DownloadReceiver";
-  public ISchedulerListener<DownloadTask> listener;
 
   /**
    * 设置最大下载速度，单位：kb
@@ -114,8 +112,18 @@ public class DownloadReceiver extends AbsReceiver {
 
   /**
    * 加载下载地址，如果任务组的中的下载地址改变了，则任务从新的一个任务组
+   *
+   * @param urls 人刷谁
    */
+  @Deprecated
   public DownloadGroupTarget load(List<String> urls) {
+    return loadGroup(urls);
+  }
+
+  /**
+   * 加载下载地址，如果任务组的中的下载地址改变了，则任务从新的一个任务组
+   */
+  public DownloadGroupTarget loadGroup(List<String> urls) {
     CheckUtil.checkDownloadUrls(urls);
     return new DownloadGroupTarget(urls, targetName);
   }
@@ -170,12 +178,24 @@ public class DownloadReceiver extends AbsReceiver {
   }
 
   /**
+   * 使用任务组实体执行任务组的实体执行任务组的下载操作，后续版本会删除该api
+   *
+   * @param groupEntity 如果加载的任务实体没有子项的下载地址，
+   * 那么你需要使用{@link DownloadGroupTarget#setGroupUrl(List)}设置子项的下载地址
+   * @deprecated {@link #loadGroup(DownloadGroupEntity)}
+   */
+  @Deprecated
+  public DownloadGroupTarget load(DownloadGroupEntity groupEntity) {
+    return loadGroup(groupEntity);
+  }
+
+  /**
    * 使用任务组实体执行任务组的实体执行任务组的下载操作
    *
    * @param groupEntity 如果加载的任务实体没有子项的下载地址，
    * 那么你需要使用{@link DownloadGroupTarget#setGroupUrl(List)}设置子项的下载地址
    */
-  public DownloadGroupTarget load(DownloadGroupEntity groupEntity) {
+  public DownloadGroupTarget loadGroup(DownloadGroupEntity groupEntity) {
     return new DownloadGroupTarget(groupEntity, targetName);
   }
 
@@ -232,7 +252,6 @@ public class DownloadReceiver extends AbsReceiver {
 
   @Override public void destroy() {
     targetName = null;
-    listener = null;
   }
 
   /**
