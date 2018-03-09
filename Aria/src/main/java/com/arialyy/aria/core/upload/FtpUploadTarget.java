@@ -16,13 +16,12 @@
 package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.delegate.FtpDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.inf.AbsUploadTarget;
+import com.arialyy.aria.core.inf.IFtpTarget;
 import com.arialyy.aria.core.manager.TEManager;
-import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -31,9 +30,10 @@ import java.io.File;
  * Created by Aria.Lao on 2017/7/27.
  * ftp单任务上传
  */
-public class FtpUploadTarget
-    extends AbsUploadTarget<FtpUploadTarget, UploadEntity, UploadTaskEntity> {
+public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
+    implements IFtpTarget<FtpUploadTarget> {
   private final String TAG = "FtpUploadTarget";
+  private FtpDelegate<FtpUploadTarget, UploadEntity, UploadTaskEntity> mDelegate;
 
   FtpUploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
@@ -41,15 +41,9 @@ public class FtpUploadTarget
   }
 
   private void initTask(String filePath) {
-    mTaskEntity = TEManager.getInstance().getTEntity(UploadTaskEntity.class, filePath);
-    if (mTaskEntity == null) {
-      mTaskEntity = TEManager.getInstance().createTEntity(UploadTaskEntity.class, filePath);
-    }
-    mEntity = mTaskEntity.entity;
-    File file = new File(filePath);
-    mEntity.setFileName(file.getName());
-    mEntity.setFileSize(file.length());
+    initTarget(filePath);
     mTaskEntity.requestType = AbsTaskEntity.U_FTP;
+    mDelegate = new FtpDelegate<>(mTaskEntity);
   }
 
   /**
@@ -57,6 +51,7 @@ public class FtpUploadTarget
    *
    * @param uploadUrl 上传路径
    */
+  @Override
   public FtpUploadTarget setUploadUrl(@NonNull String uploadUrl) {
     uploadUrl = CheckUtil.checkUrl(uploadUrl);
     if (!uploadUrl.endsWith("/")) {
@@ -70,55 +65,26 @@ public class FtpUploadTarget
   }
 
   /**
-   * 设置字符编码
-   */
-  public FtpUploadTarget charSet(String charSet) {
-    if (TextUtils.isEmpty(charSet)) return this;
-    mTaskEntity.charSet = charSet;
-    return this;
-  }
-
-  /**
-   * ftp 用户登录信。
-   * 设置登录信息需要在设置上传链接之后{@link #setUploadUrl(String)}
-   *
-   * @param userName ftp用户名
-   * @param password ftp用户密码
-   */
-  public FtpUploadTarget login(String userName, String password) {
-    return login(userName, password, null);
-  }
-
-  /**
-   * ftp 用户登录信息
-   * 设置登录信息需要在设置上传链接之后{@link #setUploadUrl(String)}
-   *
-   * @param userName ftp用户名
-   * @param password ftp用户密码
-   * @param account ftp账号
-   */
-  public FtpUploadTarget login(String userName, String password, String account) {
-    if (TextUtils.isEmpty(userName)) {
-      ALog.e(TAG, "用户名不能为null");
-      return this;
-    } else if (TextUtils.isEmpty(password)) {
-      ALog.e(TAG, "密码不能为null");
-      return this;
-    }
-    mTaskEntity.urlEntity.needLogin = true;
-    mTaskEntity.urlEntity.user = userName;
-    mTaskEntity.urlEntity.password = password;
-    mTaskEntity.urlEntity.account = account;
-    return this;
-  }
-
-  /**
    * 添加任务
    */
   public void add() {
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CREATE,
-            checkTaskType()))
-        .exe();
+    if (checkEntity()) {
+      AriaManager.getInstance(AriaManager.APP)
+          .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CREATE,
+              checkTaskType()))
+          .exe();
+    }
+  }
+
+  @Override public FtpUploadTarget charSet(String charSet) {
+    return mDelegate.charSet(charSet);
+  }
+
+  @Override public FtpUploadTarget login(String userName, String password) {
+    return mDelegate.login(userName, password);
+  }
+
+  @Override public FtpUploadTarget login(String userName, String password, String account) {
+    return mDelegate.login(userName, password, account);
   }
 }
