@@ -74,6 +74,32 @@ public class CommonUtil {
   private static final String TAG = "CommonUtil";
 
   /**
+   * 创建文件名，如果url链接有后缀名，则使用url中的后缀名
+   *
+   * @return url 的 hashKey
+   */
+  public static String createFileName(String url) {
+    int end = url.indexOf("?");
+    String tempUrl, fileName = "";
+    if (end > 0) {
+      tempUrl = url.substring(0, end);
+      int tempEnd = tempUrl.lastIndexOf("/");
+      if (tempEnd > 0) {
+        fileName = tempUrl.substring(tempEnd + 1, tempUrl.length());
+      }
+    } else {
+      int tempEnd = url.lastIndexOf("/");
+      if (tempEnd > 0) {
+        fileName = url.substring(tempEnd + 1, url.length());
+      }
+    }
+    if (TextUtils.isEmpty(fileName)) {
+      fileName = CommonUtil.keyToHashKey(url);
+    }
+    return fileName;
+  }
+
+  /**
    * 分割获取url，协议，ip/域名，端口，内容
    *
    * @param url 输入的url{@code String url = "ftp://z:z@dygod18.com:21211/[电影天堂www.dy2018.com]猩球崛起3：终极之战BD国英双语中英双字.mkv";}

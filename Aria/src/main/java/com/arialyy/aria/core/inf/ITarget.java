@@ -15,14 +15,32 @@
  */
 package com.arialyy.aria.core.inf;
 
-import android.support.annotation.NonNull;
-import com.arialyy.aria.core.common.RequestEnum;
-import java.util.Map;
-
 /**
  * Created by AriaL on 2017/6/29.
  */
 public interface ITarget<TARGET extends ITarget> {
+
+  /**
+   * 获取任务状态
+   *
+   * @return {@link IEntity}
+   */
+  int getTaskState();
+
+  /**
+   * 任务是否在执行
+   *
+   * @return {@code true} 任务正在执行
+   */
+  boolean isRunning();
+
+  /**
+   * 任务是否存在
+   *
+   * @return {@code true} 任务存在
+   */
+  boolean taskExists();
+
   /**
    * 任务文件大小
    */
@@ -44,26 +62,6 @@ public interface ITarget<TARGET extends ITarget> {
   long getCurrentProgress();
 
   /**
-   * 给url请求添加头部
-   *
-   * @param key 头部key
-   * @param header 头部value
-   */
-  TARGET addHeader(@NonNull String key, @NonNull String header) ;
-
-  /**
-   * 给url请求添加头部
-   */
-  TARGET addHeaders(Map<String, String> headers);
-
-  /**
-   * 设置请求类型
-   *
-   * @param requestEnum {@link RequestEnum}
-   */
-  TARGET setRequestMode(RequestEnum requestEnum);
-
-  /**
    * 开始下载
    */
   void start();
@@ -82,5 +80,4 @@ public interface ITarget<TARGET extends ITarget> {
    * 取消下载
    */
   void cancel();
-
 }

@@ -66,7 +66,7 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
       case R.id.start:
         Aria.download(this)
             .loadFtpDir(dir)
-            .setDownloadDirPath(
+            .setDirPath(
                 Environment.getExternalStorageDirectory().getPath() + "/Download/ftp_dir")
             .setGroupAlias("ftp文件夹下载")
             //.setSubTaskFileName(getModule(GroupModule.class).getSubName())

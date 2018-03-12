@@ -34,7 +34,7 @@ public class DownloadGroupEntity extends AbsGroupEntity {
   /**
    * 任务组下载文件的文件夹地址
    *
-   * @see DownloadGroupTarget#setDownloadDirPath(String)
+   * @see DownloadGroupTarget#setDirPath(String)
    */
   private String dirPath = "";
 

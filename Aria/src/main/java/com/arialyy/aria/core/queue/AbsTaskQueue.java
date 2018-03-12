@@ -150,10 +150,10 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     }
   }
 
-  @Override public TASK getTask(String url) {
-    TASK task = mExecutePool.getTask(url);
+  @Override public TASK getTask(String key) {
+    TASK task = mExecutePool.getTask(key);
     if (task == null) {
-      task = mCachePool.getTask(url);
+      task = mCachePool.getTask(key);
     }
     return task;
   }
