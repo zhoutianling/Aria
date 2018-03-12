@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.upload.uploader;
 
 import com.arialyy.aria.core.common.AbsFtpInfoThread;
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
@@ -82,6 +83,6 @@ class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity>
 
   @Override protected void onPreComplete(int code) {
     super.onPreComplete(code);
-    mCallback.onComplete(mEntity.getKey(), isComplete ? CODE_COMPLETE : code);
+    mCallback.onComplete(mEntity.getKey(), new CompleteInfo(isComplete ? CODE_COMPLETE : code));
   }
 }

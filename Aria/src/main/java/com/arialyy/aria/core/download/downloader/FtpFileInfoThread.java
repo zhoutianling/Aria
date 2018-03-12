@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.common.AbsFtpInfoThread;
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -40,6 +41,6 @@ class FtpFileInfoThread extends AbsFtpInfoThread<DownloadEntity, DownloadTaskEnt
       mTaskEntity.isNewTask = true;
     }
     mEntity.setFileSize(mSize);
-    mCallback.onComplete(mEntity.getUrl(), code);
+    mCallback.onComplete(mEntity.getUrl(), new CompleteInfo(code));
   }
 }

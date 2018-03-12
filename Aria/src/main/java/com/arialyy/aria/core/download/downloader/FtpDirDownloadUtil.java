@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -41,8 +42,8 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
       startDownload();
     } else {
       new FtpDirInfoThread(mGTEntity, new OnFileInfoCallback() {
-        @Override public void onComplete(String url, int code) {
-          if (code >= 200 && code < 300) {
+        @Override public void onComplete(String url, CompleteInfo info) {
+          if (info.code >= 200 && info.code < 300) {
             for (DownloadEntity entity : mGTEntity.entity.getSubTask()) {
               mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
             }

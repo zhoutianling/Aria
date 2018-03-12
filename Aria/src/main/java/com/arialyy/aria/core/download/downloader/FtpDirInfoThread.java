@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.common.AbsFtpInfoThread;
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
@@ -48,7 +49,7 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
   @Override protected void onPreComplete(int code) {
     super.onPreComplete(code);
     mEntity.setFileSize(mSize);
-    mCallback.onComplete(mEntity.getKey(), code);
+    mCallback.onComplete(mEntity.getKey(), new CompleteInfo(code));
   }
 
   private void addEntity(String remotePath, FTPFile ftpFile) {

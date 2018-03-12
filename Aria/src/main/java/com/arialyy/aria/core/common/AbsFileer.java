@@ -129,7 +129,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     final int num =
         mEntity.getFileSize() <= SUB_LEN || mTaskEntity.requestType == AbsTaskEntity.D_FTP_DIR ? 1
             : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
-    mStartThreadNum = num;
+    if (mTaskEntity instanceof DownloadTaskEntity && ((DownloadTaskEntity) mTaskEntity).isChunked) {
+      mStartThreadNum = 1;
+    } else {
+      mStartThreadNum = num;
+    }
     return num;
   }
 

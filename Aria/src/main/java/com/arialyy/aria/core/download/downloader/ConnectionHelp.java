@@ -86,6 +86,7 @@ class ConnectionHelp {
           .append("image/jpeg, ")
           .append("image/pjpeg, ")
           .append("image/webp, ")
+          .append("image/apng, ")
           .append("application/xml, ")
           .append("application/xaml+xml, ")
           .append("application/xhtml+xml, ")

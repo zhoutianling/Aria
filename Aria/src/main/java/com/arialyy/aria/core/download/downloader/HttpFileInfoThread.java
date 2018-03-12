@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download.downloader;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -24,9 +25,12 @@ import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 下载文件信息获取
@@ -55,6 +59,9 @@ class HttpFileInfoThread implements Runnable {
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       conn.setConnectTimeout(mConnectTimeOut);
       conn.setRequestMethod(mTaskEntity.requestEnum.name);
+      conn.setDoOutput(true);
+      conn.setDoInput(true);
+      conn.setChunkedStreamingMode(0);
       conn.connect();
       handleConnect(conn);
     } catch (IOException e) {
@@ -84,7 +91,19 @@ class HttpFileInfoThread implements Runnable {
       mEntity.setMd5Code(md5Code);
     }
     String disposition = conn.getHeaderField(mTaskEntity.dispositionKey);
-    //Map<String, List<String>> headers = conn.getHeaderFields();
+    Map<String, List<String>> headers = conn.getHeaderFields();
+    boolean isChunked = false;
+    //https://my.oschina.net/ososchina/blog/666761
+    if (conn.getHeaderField("Transfer-Encoding").equals("chunked")) {
+      isChunked = true;
+      StringBuffer sb = new StringBuffer();
+      byte[] buffer = new byte[1024];
+      InputStream is = conn.getInputStream();
+      int l = 0;
+      //while (true){
+      //  is.read()
+      //}
+    }
     if (!TextUtils.isEmpty(disposition)) {
       mEntity.setDisposition(CommonUtil.encryptBASE64(disposition));
       if (disposition.contains(mTaskEntity.dispositionFileKey)) {
@@ -95,12 +114,16 @@ class HttpFileInfoThread implements Runnable {
 
     mTaskEntity.code = code;
     if (code == HttpURLConnection.HTTP_PARTIAL) {
-      if (!checkLen(len)) return;
+      if (!checkLen(len) && !isChunked) {
+        return;
+      }
       mEntity.setFileSize(len);
       mTaskEntity.isSupportBP = true;
       isComplete = true;
     } else if (code == HttpURLConnection.HTTP_OK) {
-      if (!checkLen(len)) return;
+      if (!checkLen(len) && !isChunked) {
+        return;
+      }
       mEntity.setFileSize(len);
       mTaskEntity.isSupportBP = false;
       isComplete = true;
@@ -117,10 +140,12 @@ class HttpFileInfoThread implements Runnable {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：" + code, true);
     }
     if (isComplete) {
-      if (onFileInfoListener != null) {
-        onFileInfoListener.onComplete(mEntity.getUrl(), code);
-      }
+      mTaskEntity.isChunked = isChunked;
       mTaskEntity.update();
+      if (onFileInfoListener != null) {
+        CompleteInfo info = new CompleteInfo(code);
+        onFileInfoListener.onComplete(mEntity.getUrl(), info);
+      }
     }
   }
 

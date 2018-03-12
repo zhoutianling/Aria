@@ -27,6 +27,8 @@ import com.arialyy.aria.util.CommonUtil;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -71,25 +73,21 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       conn = ConnectionHelp.setConnectParam(mConfig.TASK_ENTITY, conn);
       conn.setConnectTimeout(STATE.CONNECT_TIME_OUT);
       conn.setReadTimeout(STATE.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
+
       //is = conn.getInputStream();
       is = new BufferedInputStream(conn.getInputStream());
       //创建可设置位置的文件
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
       //设置每条线程写入文件的位置
       file.seek(mConfig.START_LOCATION);
-      byte[] buffer = new byte[mBufSize];
-      int len;
-      while ((len = is.read(buffer)) != -1) {
-        if (STATE.isCancel || STATE.isStop){
-          break;
-        }
-        if (mSleepTime > 0) {
-          Thread.sleep(mSleepTime);
-        }
-        file.write(buffer, 0, len);
-        progress(len);
+
+      if (mTaskEntity.isChunked) {
+        readChunk(is, file);
+      } else {
+        readNormal(is, file);
       }
-      if (STATE.isCancel || STATE.isStop){
+
+      if (STATE.isCancel || STATE.isStop) {
         return;
       }
       //支持断点的处理
@@ -105,7 +103,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
           STATE.isRunning = false;
           mListener.onComplete();
         }
-        if (STATE.isFail()){
+        if (STATE.isFail()) {
           STATE.isRunning = false;
           mListener.onFail(false);
         }
@@ -134,6 +132,33 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       } catch (IOException e) {
         e.printStackTrace();
       }
+    }
+  }
+
+  /**
+   * 读取chunk模式的文件流
+   */
+  private void readChunk(InputStream is, RandomAccessFile file)
+      throws IOException, InterruptedException {
+    
+  }
+
+  /**
+   * 读取普通的文件流
+   */
+  private void readNormal(InputStream is, RandomAccessFile file)
+      throws IOException, InterruptedException {
+    byte[] buffer = new byte[mBufSize];
+    int len;
+    while ((len = is.read(buffer)) != -1) {
+      if (STATE.isCancel || STATE.isStop) {
+        break;
+      }
+      if (mSleepTime > 0) {
+        Thread.sleep(mSleepTime);
+      }
+      file.write(buffer, 0, len);
+      progress(len);
     }
   }
 

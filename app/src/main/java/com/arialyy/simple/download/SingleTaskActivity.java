@@ -47,7 +47,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
       //"http://sitcac.daxincf.cn/wp-content/uploads/swift_vido/01/element.mp4_1";
       //"http://120.25.196.56:8000/filereq?id=15692406294&ipncid=105635&client=android&filename=20170819185541.avi";
       //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
@@ -61,6 +61,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
       //"https://bogoe-res.mytbz.com/tbzengsong/If You're Happy.mp3";
       //"http://ozr0ucjs5.bkt.clouddn.com/51_box-104_20180131202610.apk";
+      "http://kf.lyfz.net/api/v1/we_chat/Business/getMaterial?company_id=51454009d703c86c91353f61011ecf2f&appid=wx88c6052d06eaaf7d&media_id=qpkQb72KqNkZhBNIUw7asF0LuJouXCTBd3A-rS2bYl7H4kvTZstEXD3F-pDVeqA-&type=3";
+      //"https://www.baidu.com/link?url=_LFCuTPtnzFxVJByJ504QymRywIA1Z_T5xUxe9ZLuxcGM0C_RcdpWyB1eGjbJC-e5wv5wAKM4WmLMAS5KeF6EZJHB8Va3YqZUiaErqK_pxm&wd=&eqid=e8583fe70002d126000000065a99f864";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -222,15 +224,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private void startD() {
     //Aria.get(this).setLogLevel(ALog.LOG_CLOSE);
     //Aria.download(this).load("aaaa.apk");
-    Map<String, String> map = new HashMap<>();
-    map.put("User-Agent",
-        "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 Mobile MQQBrowser/6.2 TBS/043722 Safari/537.36");
-    map.put("Cookie",
-        "BAIDUID=DFC7EF42C60AD1ACF0BA94389AA67F13:FG=1; H_WISE_SIDS=121192_104493_114745_121434_119046_100098_120212_121140_118882_118858_118850_118820_118792_121254_121534_121214_117588_117242_117431_119974_120597_121043_121422_120943_121175_121272_117552_120482_121013_119962_119145_120851_120841_120034_121325_116407_121109_120654_110085_120708; PSINO=7; BDORZ=AE84CDB3A529C0F8A2B9DCDD1D18B695");
     Aria.download(SingleTaskActivity.this)
         .load(DOWNLOAD_URL)
-        //.addHeader("groupName", "value")
-        .addHeaders(map)
+        //.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+        .addHeader("Accept-Encoding", "gzip, deflate")
+        .addHeader("DNT", "1")
+        //.addHeader("Cookie", "BAIDUID=648E5FF020CC69E8DD6F492D1068AAA9:FG=1; BIDUPSID=648E5FF020CC69E8DD6F492D1068AAA9; PSTM=1519099573; BD_UPN=12314753; locale=zh; BDSVRTM=0")
         //.setRequestMode(RequestEnum.POST)
         .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
         .resetState()

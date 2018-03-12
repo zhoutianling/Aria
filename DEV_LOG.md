@@ -1,4 +1,6 @@
 ## 开发日志
+  + v_3.3.16
+    - 修复一个activity启动多次，无法进行回掉的bug https://github.com/AriaLyy/Aria/issues/200
   + v_3.3.14
     - 修复ftp上传和下载的兼容性问题
     - 如果url中的path有"//"将替换为"/"

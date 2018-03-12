@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download.downloader;
 
 import android.util.SparseArray;
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -99,7 +100,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
       callback = new OnFileInfoCallback() {
         int failNum = 0;
 
-        @Override public void onComplete(String url, int code) {
+        @Override public void onComplete(String url, CompleteInfo info) {
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
             if (isNeedLoadFileSize) {

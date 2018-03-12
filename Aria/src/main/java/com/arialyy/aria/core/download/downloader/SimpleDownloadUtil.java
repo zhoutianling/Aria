@@ -16,6 +16,7 @@
 
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -106,7 +107,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
     switch (mTaskEntity.requestType) {
       case AbsTaskEntity.D_FTP:
         return new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
-          @Override public void onComplete(String url, int code) {
+          @Override public void onComplete(String url, CompleteInfo info) {
             mDownloader.start();
           }
 
@@ -116,7 +117,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
         });
       case AbsTaskEntity.D_HTTP:
         return new HttpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
-          @Override public void onComplete(String url, int code) {
+          @Override public void onComplete(String url, CompleteInfo info) {
             mDownloader.start();
           }
 

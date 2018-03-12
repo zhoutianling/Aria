@@ -15,18 +15,17 @@
  */
 package com.arialyy.aria.core.common;
 
-public interface OnFileInfoCallback {
+/**
+ * Created by AriaL on 2018/3/3.
+ * 获取文件信息完成后 回调给下载线程的信息
+ */
+public class CompleteInfo {
   /**
-   * 处理完成
-   *
-   * @param info 一些回调的信息
+   * 自定义的状态码
    */
-  void onComplete(String url, CompleteInfo info);
+  public int code;
 
-  /**
-   * 请求失败
-   *
-   * @param errorMsg 错误信息
-   */
-  void onFail(String url, String errorMsg, boolean needRetry);
+  public CompleteInfo(int code) {
+    this.code = code;
+  }
 }

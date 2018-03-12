@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsNormalTaskEntity;
+import com.arialyy.aria.orm.Ignore;
 import com.arialyy.aria.orm.NoNull;
 import com.arialyy.aria.orm.OneToOne;
 
@@ -36,6 +37,11 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
    * 所属的任务组组名，如果不属于任务组，则为null
    */
   public String groupName = "";
+
+  /**
+   * 是否是chunk模式
+   */
+  public boolean isChunked = false;
 
   /**
    * 该任务是否属于任务组
