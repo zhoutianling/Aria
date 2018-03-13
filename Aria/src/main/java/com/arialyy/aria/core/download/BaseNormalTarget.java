@@ -47,6 +47,9 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
     }
     mEntity = mTaskEntity.entity;
     mTaskEntity.refreshInfo = refreshInfo;
+    if (mEntity != null) {
+      mTempFilePath = mEntity.getDownloadPath();
+    }
   }
 
   /**
@@ -61,6 +64,9 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
     }
     mEntity = mTaskEntity.entity;
     mTaskEntity.refreshInfo = refreshInfo;
+    if (mEntity != null) {
+      mTempFilePath = mEntity.getDownloadPath();
+    }
   }
 
   /**
@@ -97,8 +103,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
    *
    * @deprecated {@link #isRunning()}
    */
-  @Deprecated
-  public boolean isDownloading() {
+  @Deprecated public boolean isDownloading() {
     return isRunning();
   }
 
@@ -121,8 +126,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
    *
    * @return {@code true}合法
    */
-  @Override
-  protected boolean checkEntity() {
+  @Override protected boolean checkEntity() {
     return getTargetType() < GROUP_HTTP && checkUrl() && checkFilePath();
   }
 

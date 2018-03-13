@@ -67,7 +67,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
   }
 
   @Override public void unRegister(Object obj) {
-    if (!mObservers.containsKey(obj.getClass().getName())) {
+    if (!mObservers.containsKey(getKey(obj))) {
       return;
     }
     for (Iterator<Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalEntity>>> iter =

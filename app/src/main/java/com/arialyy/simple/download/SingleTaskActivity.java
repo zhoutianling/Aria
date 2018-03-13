@@ -200,7 +200,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       mStart.setText("恢复");
       mStart.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
       setBtState(true);
-    } else if (target.isDownloading()) {
+    } else if (target.isRunning()) {
       setBtState(false);
     }
     getBinding().setFileSize(target.getConvertFileSize());
@@ -212,12 +212,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         startD();
         break;
       case R.id.stop:
-        //Aria.download(this).load(DOWNLOAD_URL).stop();
-        startActivity(new Intent(this, SingleTaskActivity.class));
+        Aria.download(this).load(DOWNLOAD_URL).stop();
+        //startActivity(new Intent(this, SingleTaskActivity.class));
         //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
       case R.id.cancel:
-        //Aria.download(this).load(DOWNLOAD_URL).cancel();
+        Aria.download(this).load(DOWNLOAD_URL).cancel();
         Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
     }

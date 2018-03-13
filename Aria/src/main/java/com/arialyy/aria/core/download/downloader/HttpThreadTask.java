@@ -90,7 +90,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       if (STATE.isCancel || STATE.isStop) {
         return;
       }
-      handleStop();
+      handleComplete();
     } catch (MalformedURLException e) {
       fail(mChildCurrentLocation, "下载链接异常", e);
     } catch (IOException e) {
@@ -116,10 +116,11 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
 
   /**
    * 读取chunk模式的文件流
+   * @deprecated 暂时先这样处理，无chun
    */
   private void readChunk(InputStream is, RandomAccessFile file)
       throws IOException, InterruptedException {
-
+   readNormal(is, file);
   }
 
   /**
@@ -142,11 +143,11 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
   }
 
   /**
-   * 处理暂停或完成配置文件的更新或事件回调
+   * 处理完成配置文件的更新或事件回调
    *
    * @throws IOException
    */
-  private void handleStop() throws IOException {
+  private void handleComplete() throws IOException {
     //支持断点的处理
     if (mConfig.SUPPORT_BP) {
       if (mChildCurrentLocation == mConfig.END_LOCATION) {

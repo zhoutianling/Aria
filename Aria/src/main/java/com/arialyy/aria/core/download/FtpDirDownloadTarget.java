@@ -26,8 +26,8 @@ import com.arialyy.aria.util.ALog;
  * Created by Aria.Lao on 2017/7/26.
  * ftp文件夹下载
  */
-public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget> implements
-    IFtpTarget<FtpDirDownloadTarget> {
+public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
+    implements IFtpTarget<FtpDirDownloadTarget> {
   private final String TAG = "FtpDirDownloadTarget";
   private FtpDelegate<FtpDirDownloadTarget, DownloadGroupEntity, DownloadGroupTaskEntity> mDelegate;
 
@@ -44,7 +44,9 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget> 
     }
     mTaskEntity.requestType = AbsTaskEntity.D_FTP_DIR;
     mEntity = mTaskEntity.entity;
-
+    if (mEntity != null) {
+      mDirPathTemp = mEntity.getDirPath();
+    }
     mDelegate = new FtpDelegate<>(this, mTaskEntity);
   }
 

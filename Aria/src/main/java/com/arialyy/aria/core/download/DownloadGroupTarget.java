@@ -56,6 +56,10 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
           TEManager.getInstance().createTEntity(DownloadGroupTaskEntity.class, groupEntity);
     }
     mEntity = mTaskEntity.entity;
+
+    if (mEntity != null) {
+      mDirPathTemp = mEntity.getDirPath();
+    }
   }
 
   DownloadGroupTarget(List<String> urls, String targetName) {

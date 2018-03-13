@@ -15,9 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import android.location.Address;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
@@ -27,11 +25,8 @@ import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
@@ -86,11 +81,11 @@ class HttpFileInfoThread implements Runnable {
       len = TextUtils.isEmpty(temp) ? -1 : Long.parseLong(temp);
       // 某些服务，如果设置了conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       // 会返回 Content-Range: bytes 0-225427911/225427913
-      if (len < 0){
+      if (len < 0) {
         temp = conn.getHeaderField("Content-Range");
-        if (TextUtils.isEmpty(temp)){
+        if (TextUtils.isEmpty(temp)) {
           len = -1;
-        }else {
+        } else {
           int start = temp.indexOf("/");
           len = Long.parseLong(temp.substring(start + 1, temp.length()));
         }
@@ -103,19 +98,11 @@ class HttpFileInfoThread implements Runnable {
       mEntity.setMd5Code(md5Code);
     }
 
-    Map<String, List<String>> headers = conn.getHeaderFields();
+    //Map<String, List<String>> headers = conn.getHeaderFields();
     boolean isChunked = false;
-    //https://my.oschina.net/ososchina/blog/666761
     final String str = conn.getHeaderField("Transfer-Encoding");
     if (!TextUtils.isEmpty(str) && str.equals("chunked")) {
       isChunked = true;
-      //StringBuffer sb = new StringBuffer();
-      //byte[] buffer = new byte[1024];
-      //InputStream is = conn.getInputStream();
-      //int l = 0;
-      //while (true){
-      //  is.read()
-      //}
     }
     String disposition = conn.getHeaderField(mTaskEntity.dispositionKey);
     if (!TextUtils.isEmpty(disposition)) {

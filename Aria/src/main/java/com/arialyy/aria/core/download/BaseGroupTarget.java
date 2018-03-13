@@ -38,7 +38,7 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
   /**
    * 文件夹临时路径
    */
-  private String mDirPathTemp;
+  protected String mDirPathTemp;
 
   private SubTaskManager mSubTaskManager;
 
