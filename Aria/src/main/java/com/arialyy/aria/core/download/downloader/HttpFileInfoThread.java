@@ -15,7 +15,9 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import android.location.Address;
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
@@ -27,7 +29,9 @@ import com.arialyy.aria.util.CommonUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
@@ -58,10 +62,7 @@ class HttpFileInfoThread implements Runnable {
       conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       conn.setConnectTimeout(mConnectTimeOut);
-      conn.setRequestMethod(mTaskEntity.requestEnum.name);
-      conn.setDoOutput(true);
-      conn.setDoInput(true);
-      conn.setChunkedStreamingMode(0);
+      //conn.setChunkedStreamingMode(0);
       conn.connect();
       handleConnect(conn);
     } catch (IOException e) {
@@ -83,6 +84,17 @@ class HttpFileInfoThread implements Runnable {
     if (len < 0) {
       String temp = conn.getHeaderField(mTaskEntity.contentLength);
       len = TextUtils.isEmpty(temp) ? -1 : Long.parseLong(temp);
+      // 某些服务，如果设置了conn.setRequestProperty("Range", "bytes=" + 0 + "-");
+      // 会返回 Content-Range: bytes 0-225427911/225427913
+      if (len < 0){
+        temp = conn.getHeaderField("Content-Range");
+        if (TextUtils.isEmpty(temp)){
+          len = -1;
+        }else {
+          int start = temp.indexOf("/");
+          len = Long.parseLong(temp.substring(start + 1, temp.length()));
+        }
+      }
     }
     int code = conn.getResponseCode();
     boolean isComplete = false;
@@ -90,20 +102,22 @@ class HttpFileInfoThread implements Runnable {
       String md5Code = conn.getHeaderField(mTaskEntity.md5Key);
       mEntity.setMd5Code(md5Code);
     }
-    String disposition = conn.getHeaderField(mTaskEntity.dispositionKey);
+
     Map<String, List<String>> headers = conn.getHeaderFields();
     boolean isChunked = false;
     //https://my.oschina.net/ososchina/blog/666761
-    if (conn.getHeaderField("Transfer-Encoding").equals("chunked")) {
+    final String str = conn.getHeaderField("Transfer-Encoding");
+    if (!TextUtils.isEmpty(str) && str.equals("chunked")) {
       isChunked = true;
-      StringBuffer sb = new StringBuffer();
-      byte[] buffer = new byte[1024];
-      InputStream is = conn.getInputStream();
-      int l = 0;
+      //StringBuffer sb = new StringBuffer();
+      //byte[] buffer = new byte[1024];
+      //InputStream is = conn.getInputStream();
+      //int l = 0;
       //while (true){
       //  is.read()
       //}
     }
+    String disposition = conn.getHeaderField(mTaskEntity.dispositionKey);
     if (!TextUtils.isEmpty(disposition)) {
       mEntity.setDisposition(CommonUtil.encryptBASE64(disposition));
       if (disposition.contains(mTaskEntity.dispositionFileKey)) {

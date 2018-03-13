@@ -37,9 +37,12 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
   private static final String TAG = "HttpHeaderDelegate";
   private ENTITY mEntity;
   private TASK_ENTITY mTaskEntity;
+  private TARGET mTarget;
 
-  public HttpHeaderDelegate(TASK_ENTITY mTaskEntity) {
-    this.mTaskEntity = mTaskEntity;
+  public HttpHeaderDelegate(TARGET target, TASK_ENTITY taskEntity) {
+    mTarget = target;
+    mTaskEntity = taskEntity;
+
     mEntity = mTaskEntity.getEntity();
   }
 
@@ -54,10 +57,10 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
   public TARGET addHeader(@NonNull String key, @NonNull String value) {
     if (TextUtils.isEmpty(key)) {
       ALog.w(TAG, "设置header失败，header对应的key不能为null");
-      return (TARGET) this;
+      return mTarget;
     } else if (TextUtils.isEmpty(value)) {
       ALog.w(TAG, "设置header失败，header对应的value不能为null");
-      return (TARGET) this;
+      return mTarget;
     }
     if (mTaskEntity.headers.get(key) == null) {
       mTaskEntity.headers.put(key, value);
@@ -66,7 +69,7 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
       mTaskEntity.headers.put(key, value);
       mTaskEntity.update();
     }
-    return (TARGET) this;
+    return mTarget;
   }
 
   /**
@@ -79,7 +82,7 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
   public TARGET addHeaders(@NonNull Map<String, String> headers) {
     if (headers.size() == 0) {
       ALog.w(TAG, "设置header失败，map没有header数据");
-      return (TARGET) this;
+      return mTarget;
     }
     /*
       两个map比较逻辑
@@ -123,7 +126,7 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
       mTaskEntity.update();
     }
 
-    return (TARGET) this;
+    return mTarget;
   }
 
   /**
@@ -135,7 +138,7 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
   @Override
   public TARGET setRequestMode(RequestEnum requestEnum) {
     mTaskEntity.requestEnum = requestEnum;
-    return (TARGET) this;
+    return mTarget;
   }
 
   /**
@@ -145,12 +148,12 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
    */
   @Override
   public TARGET setHeaderMd5Key(String md5Key) {
-    if (TextUtils.isEmpty(md5Key)) return (TARGET) this;
+    if (TextUtils.isEmpty(md5Key)) return mTarget;
     mTaskEntity.md5Key = md5Key;
     if (TextUtils.isEmpty(mTaskEntity.md5Key) || !mTaskEntity.md5Key.equals(md5Key)) {
       mTaskEntity.update();
     }
-    return (TARGET) this;
+    return mTarget;
   }
 
   /**
@@ -159,13 +162,13 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
    */
   @Override
   public TARGET setHeaderContentLengthKey(String contentLength) {
-    if (TextUtils.isEmpty(contentLength)) return (TARGET) this;
+    if (TextUtils.isEmpty(contentLength)) return mTarget;
     mTaskEntity.contentLength = contentLength;
     if (TextUtils.isEmpty(mTaskEntity.contentLength) || !mTaskEntity.contentLength.equals(
         contentLength)) {
       mTaskEntity.update();
     }
-    return (TARGET) this;
+    return mTarget;
   }
 
   /**
@@ -175,13 +178,13 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
    */
   @Override
   public TARGET setHeaderDispositionKey(String dispositionKey) {
-    if (TextUtils.isEmpty(dispositionKey)) return (TARGET) this;
+    if (TextUtils.isEmpty(dispositionKey)) return mTarget;
     mTaskEntity.dispositionKey = dispositionKey;
     if (TextUtils.isEmpty(mTaskEntity.dispositionKey) || !mTaskEntity.dispositionKey.equals(
         dispositionKey)) {
       mTaskEntity.update();
     }
-    return (TARGET) this;
+    return mTarget;
   }
 
   /**
@@ -191,12 +194,12 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
    */
   @Override
   public TARGET setHeaderDispositionFileKey(String dispositionFileKey) {
-    if (TextUtils.isEmpty(dispositionFileKey)) return (TARGET) this;
+    if (TextUtils.isEmpty(dispositionFileKey)) return mTarget;
     mTaskEntity.dispositionFileKey = dispositionFileKey;
     if (TextUtils.isEmpty(mTaskEntity.dispositionFileKey) || !mTaskEntity.dispositionFileKey.equals(
         dispositionFileKey)) {
       mTaskEntity.update();
     }
-    return (TARGET) this;
+    return mTarget;
   }
 }

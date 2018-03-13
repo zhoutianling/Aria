@@ -19,7 +19,6 @@ package com.arialyy.aria.core.inf;
  * Created by AriaL on 2017/6/29.
  */
 public interface ITarget<TARGET extends ITarget> {
-
   /**
    * 获取任务状态
    *

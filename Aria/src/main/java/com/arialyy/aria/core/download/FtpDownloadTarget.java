@@ -51,7 +51,7 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
     mTaskEntity.refreshInfo = refreshInfo;
     mTaskEntity.requestType = AbsTaskEntity.D_FTP;
 
-    mDelegate = new FtpDelegate<>(mTaskEntity);
+    mDelegate = new FtpDelegate<>(this, mTaskEntity);
   }
 
   /**

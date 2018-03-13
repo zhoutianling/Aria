@@ -90,28 +90,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       if (STATE.isCancel || STATE.isStop) {
         return;
       }
-      //支持断点的处理
-      if (mConfig.SUPPORT_BP) {
-        ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
-        writeConfig(true, 1);
-        STATE.COMPLETE_THREAD_NUM++;
-        if (STATE.isComplete()) {
-          File configFile = new File(mConfigFPath);
-          if (configFile.exists()) {
-            configFile.delete();
-          }
-          STATE.isRunning = false;
-          mListener.onComplete();
-        }
-        if (STATE.isFail()) {
-          STATE.isRunning = false;
-          mListener.onFail(false);
-        }
-      } else {
-        ALog.i(TAG, "任务下载完成");
-        STATE.isRunning = false;
-        mListener.onComplete();
-      }
+      handleStop();
     } catch (MalformedURLException e) {
       fail(mChildCurrentLocation, "下载链接异常", e);
     } catch (IOException e) {
@@ -140,7 +119,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
    */
   private void readChunk(InputStream is, RandomAccessFile file)
       throws IOException, InterruptedException {
-    
+
   }
 
   /**
@@ -159,6 +138,40 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       }
       file.write(buffer, 0, len);
       progress(len);
+    }
+  }
+
+  /**
+   * 处理暂停或完成配置文件的更新或事件回调
+   *
+   * @throws IOException
+   */
+  private void handleStop() throws IOException {
+    //支持断点的处理
+    if (mConfig.SUPPORT_BP) {
+      if (mChildCurrentLocation == mConfig.END_LOCATION) {
+        ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
+        writeConfig(true, 1);
+        STATE.COMPLETE_THREAD_NUM++;
+        if (STATE.isComplete()) {
+          File configFile = new File(mConfigFPath);
+          if (configFile.exists()) {
+            configFile.delete();
+          }
+          STATE.isRunning = false;
+          mListener.onComplete();
+        }
+      } else {
+        STATE.FAIL_NUM++;
+      }
+      if (STATE.isFail()) {
+        STATE.isRunning = false;
+        mListener.onFail(false);
+      }
+    } else {
+      ALog.i(TAG, "任务下载完成");
+      STATE.isRunning = false;
+      mListener.onComplete();
     }
   }
 

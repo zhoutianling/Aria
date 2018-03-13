@@ -29,6 +29,7 @@ import android.widget.Toast;
 import butterknife.Bind;
 import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
@@ -61,8 +62,9 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
       //"https://bogoe-res.mytbz.com/tbzengsong/If You're Happy.mp3";
       //"http://ozr0ucjs5.bkt.clouddn.com/51_box-104_20180131202610.apk";
-      "http://kf.lyfz.net/api/v1/we_chat/Business/getMaterial?company_id=51454009d703c86c91353f61011ecf2f&appid=wx88c6052d06eaaf7d&media_id=qpkQb72KqNkZhBNIUw7asF0LuJouXCTBd3A-rS2bYl7H4kvTZstEXD3F-pDVeqA-&type=3";
+      //"http://kf.lyfz.net/api/v1/we_chat/Business/getMaterial?company_id=51454009d703c86c91353f61011ecf2f&appid=wx88c6052d06eaaf7d&media_id=qpkQb72KqNkZhBNIUw7asF0LuJouXCTBd3A-rS2bYl7H4kvTZstEXD3F-pDVeqA-&type=3";
       //"https://www.baidu.com/link?url=_LFCuTPtnzFxVJByJ504QymRywIA1Z_T5xUxe9ZLuxcGM0C_RcdpWyB1eGjbJC-e5wv5wAKM4WmLMAS5KeF6EZJHB8Va3YqZUiaErqK_pxm&wd=&eqid=e8583fe70002d126000000065a99f864";
+      "http://58.210.9.131/tpk/sipgt/TDLYZTGH.tpk";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -230,8 +232,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         .addHeader("Accept-Encoding", "gzip, deflate")
         .addHeader("DNT", "1")
         //.addHeader("Cookie", "BAIDUID=648E5FF020CC69E8DD6F492D1068AAA9:FG=1; BIDUPSID=648E5FF020CC69E8DD6F492D1068AAA9; PSTM=1519099573; BD_UPN=12314753; locale=zh; BDSVRTM=0")
-        //.setRequestMode(RequestEnum.POST)
-        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
+        .setRequestMode(RequestEnum.GET)
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
         .resetState()
         .start();
     //.add();

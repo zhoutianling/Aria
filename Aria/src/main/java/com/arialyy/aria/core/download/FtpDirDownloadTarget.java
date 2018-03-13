@@ -45,7 +45,7 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget> 
     mTaskEntity.requestType = AbsTaskEntity.D_FTP_DIR;
     mEntity = mTaskEntity.entity;
 
-    mDelegate = new FtpDelegate<>(mTaskEntity);
+    mDelegate = new FtpDelegate<>(this, mTaskEntity);
   }
 
   @Override protected int getTargetType() {

@@ -31,16 +31,18 @@ public class FtpDelegate<TARGET extends ITarget, ENTITY extends AbsEntity, TASK_
   private static final String TAG = "FtpDelegate";
   private ENTITY mEntity;
   private TASK_ENTITY mTaskEntity;
+  private TARGET mTarget;
 
-  public FtpDelegate(TASK_ENTITY mTaskEntity) {
-    this.mTaskEntity = mTaskEntity;
+  public FtpDelegate(TARGET target, TASK_ENTITY taskEntity) {
+    mTarget = target;
+    mTaskEntity = taskEntity;
     mEntity = mTaskEntity.getEntity();
   }
 
   @Override public TARGET charSet(String charSet) {
-    if (TextUtils.isEmpty(charSet)) return (TARGET) this;
+    if (TextUtils.isEmpty(charSet)) return mTarget;
     mTaskEntity.charSet = charSet;
-    return (TARGET) this;
+    return mTarget;
   }
 
   @Override public TARGET login(String userName, String password) {
@@ -50,15 +52,15 @@ public class FtpDelegate<TARGET extends ITarget, ENTITY extends AbsEntity, TASK_
   @Override public TARGET login(String userName, String password, String account) {
     if (TextUtils.isEmpty(userName)) {
       ALog.e(TAG, "用户名不能为null");
-      return (TARGET) this;
+      return mTarget;
     } else if (TextUtils.isEmpty(password)) {
       ALog.e(TAG, "密码不能为null");
-      return (TARGET) this;
+      return mTarget;
     }
     mTaskEntity.urlEntity.needLogin = true;
     mTaskEntity.urlEntity.user = userName;
     mTaskEntity.urlEntity.password = password;
     mTaskEntity.urlEntity.account = account;
-    return (TARGET) this;
+    return mTarget;
   }
 }

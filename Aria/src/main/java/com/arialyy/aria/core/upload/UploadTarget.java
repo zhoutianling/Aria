@@ -43,7 +43,7 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
     //http暂时不支持断点上传
     mTaskEntity.isSupportBP = false;
     mTaskEntity.requestType = AbsTaskEntity.U_HTTP;
-    mDelegate = new HttpHeaderDelegate<>(mTaskEntity);
+    mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
   }
 
   @Override public UploadTarget setUploadUrl(@NonNull String uploadUrl) {

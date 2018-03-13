@@ -21,10 +21,8 @@ import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.delegate.FtpDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IFtpTarget;
-import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
-import java.io.File;
 
 /**
  * Created by Aria.Lao on 2017/7/27.
@@ -43,7 +41,7 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
   private void initTask(String filePath) {
     initTarget(filePath);
     mTaskEntity.requestType = AbsTaskEntity.U_FTP;
-    mDelegate = new FtpDelegate<>(mTaskEntity);
+    mDelegate = new FtpDelegate<>(this, mTaskEntity);
   }
 
   /**

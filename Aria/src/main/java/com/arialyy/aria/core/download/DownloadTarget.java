@@ -49,7 +49,7 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
   }
 
   private void initTHis() {
-    mDelegate = new HttpHeaderDelegate<>(mTaskEntity);
+    mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
   }
 
   /**
