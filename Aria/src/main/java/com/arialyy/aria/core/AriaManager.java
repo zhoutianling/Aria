@@ -111,7 +111,7 @@ import org.xml.sax.SAXException;
    *   <code>
    *     Aria.get(this).getUploadConfig().setQueueMod(mod.tag)
    *   </code>
-   * <pre/>
+   * </pre>
    *
    * @param mod {@link QueueMod}
    * @deprecated 后续版本会删除该api
@@ -128,7 +128,7 @@ import org.xml.sax.SAXException;
    *   <code>
    *     Aria.get(this).getDownloadConfig().setQueueMod(mod.tag)
    *   </code>
-   * <pre/>
+   * </pre>
    *
    * @param mod {@link QueueMod}
    * @deprecated 后续版本会删除该api

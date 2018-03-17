@@ -16,7 +16,6 @@
 
 package com.arialyy.simple.download;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -40,8 +39,6 @@ import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
@@ -49,22 +46,9 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-      //"http://sitcac.daxincf.cn/wp-content/uploads/swift_vido/01/element.mp4_1";
-      //"http://120.25.196.56:8000/filereq?id=15692406294&ipncid=105635&client=android&filename=20170819185541.avi";
-      //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
-      //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
-      //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
-      //"http://oqcpqqvuf.bkt.clouddn.com/ceshi.txt";
-      //"http://down8.androidgame-store.com/201706122321/97967927DD4E53D9905ECAA7874C8128/new/game1/19/45319/com.neuralprisma-2.5.2.174-2000174_1494784835.apk?f=web_1";
-      //不支持断点的链接
-      //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
-      //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
-      //"http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
-      //"https://bogoe-res.mytbz.com/tbzengsong/If You're Happy.mp3";
-      //"http://ozr0ucjs5.bkt.clouddn.com/51_box-104_20180131202610.apk";
-      //"http://kf.lyfz.net/api/v1/we_chat/Business/getMaterial?company_id=51454009d703c86c91353f61011ecf2f&appid=wx88c6052d06eaaf7d&media_id=qpkQb72KqNkZhBNIUw7asF0LuJouXCTBd3A-rS2bYl7H4kvTZstEXD3F-pDVeqA-&type=3";
-      //"https://www.baidu.com/link?url=_LFCuTPtnzFxVJByJ504QymRywIA1Z_T5xUxe9ZLuxcGM0C_RcdpWyB1eGjbJC-e5wv5wAKM4WmLMAS5KeF6EZJHB8Va3YqZUiaErqK_pxm&wd=&eqid=e8583fe70002d126000000065a99f864";
-      "http://58.210.9.131/tpk/sipgt/TDLYZTGH.tpk";
+  //不支持断点的链接
+  "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
+  //"https://static.donguo.me//video/ip/course/pfys_1.mp4";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -234,7 +218,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         //.addHeader("Cookie", "BAIDUID=648E5FF020CC69E8DD6F492D1068AAA9:FG=1; BIDUPSID=648E5FF020CC69E8DD6F492D1068AAA9; PSTM=1519099573; BD_UPN=12314753; locale=zh; BDSVRTM=0")
         .setRequestMode(RequestEnum.GET)
         .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
-        .resetState()
+        //.resetState()
         .start();
     //.add();
   }

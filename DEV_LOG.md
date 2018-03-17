@@ -3,6 +3,7 @@
     - 修复一个activity启动多次，无法进行回掉的bug https://github.com/AriaLyy/Aria/issues/200
     - 优化target代码结构，移除路径被占用的提示
     - 添加支持chunked模式的下载
+    - 去掉上一个版本"//"的限制
   + v_3.3.14
     - 修复ftp上传和下载的兼容性问题
     - 如果url中的path有"//"将替换为"/"

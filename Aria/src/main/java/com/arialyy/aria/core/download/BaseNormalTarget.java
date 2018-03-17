@@ -147,7 +147,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
     File file = new File(filePath);
     if (file.isDirectory()) {
       if (getTargetType() == HTTP) {
-        ALog.e(TAG, "保存路径【" + filePath + "】不能为文件夹，路径需要是完整的文件路径，如：/mnt/sdcard/game.zip");
+        ALog.e(TAG, "下载失败，保存路径【" + filePath + "】不能为文件夹，路径需要是完整的文件路径，如：/mnt/sdcard/game.zip");
         return false;
       } else if (getTargetType() == FTP) {
         filePath += mEntity.getFileName();
@@ -157,7 +157,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
     if (!filePath.equals(mEntity.getDownloadPath())) {
       if (!mTaskEntity.refreshInfo && DbEntity.checkDataExist(DownloadEntity.class,
           "downloadPath=?", filePath)) {
-        ALog.e(TAG, "保存路径【" + filePath + "】已经被其它任务占用，请设置其它保存路径");
+        ALog.e(TAG, "下载失败，保存路径【" + filePath + "】已经被其它任务占用，请设置其它保存路径");
         return false;
       }
       File oldFile = new File(mEntity.getDownloadPath());
@@ -191,13 +191,6 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
     if (index == -1) {
       ALog.e(TAG, "下载失败，url【" + url + "】不合法");
       return false;
-    }
-    String temp = url.substring(index + 3, url.length());
-    if (temp.contains("//")) {
-      temp = url.substring(0, index + 3) + temp.replaceAll("//", "/");
-      ALog.w(TAG, "url中含有//，//将转换为/，转换后的url为：" + temp);
-      mEntity.setUrl(temp);
-      mEntity.update();
     }
     return true;
   }

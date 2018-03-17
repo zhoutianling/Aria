@@ -200,7 +200,6 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
     }
     Set<Integer> delItem = new HashSet<>();
 
-    Map<Integer, String> reSetUrl = new WeakHashMap<>();
     int i = 0;
     for (String url : mUrls) {
       if (TextUtils.isEmpty(url)) {
@@ -220,18 +219,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
         continue;
       }
 
-      String temp = url.substring(index + 3, url.length());
-      if (temp.contains("//")) {
-        temp = url.substring(0, index + 3) + temp.replaceAll("//", "/");
-        ALog.w(TAG, "url中含有//，//将转换为/，转换后的url为：" + temp);
-        reSetUrl.put(i, temp);
-      }
       i++;
-    }
-
-    Set<Integer> keys = reSetUrl.keySet();
-    for (Integer index : keys) {
-      mUrls.set(index, reSetUrl.get(index));
     }
 
     for (int index : delItem) {

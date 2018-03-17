@@ -100,42 +100,8 @@ public class CheckUtil {
     if (index == -1) {
       throw new IllegalArgumentException("url不合法");
     }
-    String temp = url.substring(index + 3, url.length());
-    if (temp.contains("//")) {
-      temp = url.substring(0, index + 3) + temp.replaceAll("//", "/");
-      ALog.w(TAG, "url中含有//，//将转换为/，转换后的url为：" + temp);
-      return temp;
-    }
     return url;
   }
-
-  ///**
-  // * 检查普通任务的下载地址
-  // *
-  // * @return {@code true}地址合法
-  // */
-  //public static boolean checkUrl(DownloadEntity entity, String url) {
-  //  if (TextUtils.isEmpty(url)) {
-  //    ALog.e(TAG, "下载失败，url为null");
-  //    return false;
-  //  } else if (!url.startsWith("http") && !url.startsWith("ftp")) {
-  //    ALog.e(TAG, "下载失败，url【" + url + "】错误");
-  //    return false;
-  //  }
-  //  int index = url.indexOf("://");
-  //  if (index == -1) {
-  //    ALog.e(TAG, "下载失败，url【" + url + "】不合法");
-  //    return false;
-  //  }
-  //  String temp = url.substring(index + 3, url.length());
-  //  if (temp.contains("//")) {
-  //    temp = url.substring(0, index + 3) + temp.replaceAll("//", "/");
-  //    ALog.w(TAG, "url中含有//，//将转换为/，转换后的url为：" + temp);
-  //    entity.setUrl(temp);
-  //    entity.update();
-  //  }
-  //  return true;
-  //}
 
   /**
    * 检测下载链接组是否为null

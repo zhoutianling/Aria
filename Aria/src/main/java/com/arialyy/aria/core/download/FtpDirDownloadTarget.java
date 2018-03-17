@@ -77,14 +77,6 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
       ALog.e(TAG, "下载失败，url【" + url + "】不合法");
       return false;
     }
-    String temp = url.substring(index + 3, url.length());
-    if (temp.contains("//")) {
-      temp = url.substring(0, index + 3) + temp.replaceAll("//", "/");
-      ALog.w(TAG, "url中含有//，//将转换为/，转换后的url为：" + temp);
-      mGroupName = temp;
-      mEntity.setGroupName(temp);
-      mEntity.update();
-    }
     return true;
   }
 

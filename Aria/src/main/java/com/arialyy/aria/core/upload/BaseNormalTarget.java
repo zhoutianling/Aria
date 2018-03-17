@@ -98,13 +98,6 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
       ALog.e(TAG, "上传失败，文件【" + filePath + "】不能死文件夹");
       return false;
     }
-
-    if (filePath.contains("//")) {
-      filePath = filePath.replaceAll("//", "/");
-      ALog.w(TAG, "url中含有//，//将转换为/，转换后的url为：" + filePath);
-      mEntity.setFilePath(filePath);
-      mEntity.update();
-    }
     return true;
   }
 
@@ -126,13 +119,6 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
     if (index == -1) {
       ALog.e(TAG, "上传失败，url【" + url + "】不合法");
       return false;
-    }
-    String temp = url.substring(index + 3, url.length());
-    if (temp.contains("//")) {
-      temp = url.substring(0, index + 3) + temp.replaceAll("//", "/");
-      ALog.w(TAG, "url中含有//，//将转换为/，转换后的url为：" + temp);
-      mEntity.setUrl(temp);
-      mEntity.update();
     }
     return true;
   }

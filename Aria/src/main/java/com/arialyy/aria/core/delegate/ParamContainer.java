@@ -13,31 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.inf;
+package com.arialyy.aria.core.delegate;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Created by laoyuyu on 2018/3/9.
+ * Created by AriaL on 2018/3/17.
+ * 参数容器，用来临时存储链式命令的需要的参数。
  */
-public interface IFtpTarget<TARGET extends ITarget> {
-  /**
-   * 设置字符编码
-   */
-  TARGET charSet(String charSet);
+public class ParamContainer {
 
-  /**
-   * ftp 用户登录信。
-   *
-   * @param userName ftp用户名
-   * @param password ftp用户密码
-   */
-  TARGET login(String userName, String password);
+  public String url;
+  public String filePath;
+  public String charSet;
+  public Map<String, String> header = new HashMap<>();
 
-  /**
-   * ftp 用户登录信息
-   *
-   * @param userName ftp用户名
-   * @param password ftp用户密码
-   * @param account ftp账号
-   */
-  TARGET login(String userName, String password, String account);
+  // ftp 相关的
+  public String userName, userPw, userAccount;
+  public boolean needLogin;
 }
