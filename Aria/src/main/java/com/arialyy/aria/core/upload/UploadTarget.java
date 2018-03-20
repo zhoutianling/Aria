@@ -95,20 +95,4 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
   @Override public UploadTarget setRequestMode(RequestEnum requestEnum) {
     return mDelegate.setRequestMode(requestEnum);
   }
-
-  @Override public UploadTarget setHeaderMd5Key(String md5Key) {
-    return mDelegate.setHeaderMd5Key(md5Key);
-  }
-
-  @Override public UploadTarget setHeaderContentLengthKey(String contentLength) {
-    return mDelegate.setHeaderContentLengthKey(contentLength);
-  }
-
-  @Override public UploadTarget setHeaderDispositionKey(String dispositionKey) {
-    return mDelegate.setHeaderDispositionKey(dispositionKey);
-  }
-
-  @Override public UploadTarget setHeaderDispositionFileKey(String dispositionFileKey) {
-    return mDelegate.setHeaderDispositionFileKey(dispositionFileKey);
-  }
 }

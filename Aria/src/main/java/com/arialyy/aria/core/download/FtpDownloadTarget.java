@@ -31,8 +31,7 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
   private FtpDelegate<FtpDownloadTarget, DownloadEntity, DownloadTaskEntity> mDelegate;
 
   FtpDownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
-    initTarget(entity, targetName, refreshInfo);
-    init(refreshInfo);
+    this(entity.getUrl(), targetName, refreshInfo);
   }
 
   FtpDownloadTarget(String url, String targetName) {

@@ -44,6 +44,12 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
         AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getUpdateInterval());
   }
 
+  @Override protected int setNewTaskThreadNum() {
+    return mEntity.getFileSize() <= SUB_LEN || mTaskEntity.requestType == AbsTaskEntity.D_FTP_DIR
+        ? 1
+        : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
+  }
+
   @Override protected void checkTask() {
     mConfigFile = new File(CommonUtil.getFileConfigPath(true, mEntity.getFileName()));
     mTempFile = new File(mEntity.getDownloadPath());

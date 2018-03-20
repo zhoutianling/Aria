@@ -218,7 +218,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         //.addHeader("Cookie", "BAIDUID=648E5FF020CC69E8DD6F492D1068AAA9:FG=1; BIDUPSID=648E5FF020CC69E8DD6F492D1068AAA9; PSTM=1519099573; BD_UPN=12314753; locale=zh; BDSVRTM=0")
         .setRequestMode(RequestEnum.GET)
         .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
-        //.resetState()
+        .resetState()
         .start();
     //.add();
   }

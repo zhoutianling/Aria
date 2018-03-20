@@ -35,8 +35,7 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
   }
 
   DownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
-    initTarget(entity, targetName, refreshInfo);
-    initTHis();
+    this(entity.getUrl(), targetName, refreshInfo);
   }
 
   DownloadTarget(String url, String targetName) {
@@ -45,10 +44,6 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
 
   DownloadTarget(String url, String targetName, boolean refreshInfo) {
     initTarget(url, targetName, refreshInfo);
-    initTHis();
-  }
-
-  private void initTHis() {
     mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
   }
 
@@ -109,21 +104,5 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
 
   @Override public DownloadTarget setRequestMode(RequestEnum requestEnum) {
     return mDelegate.setRequestMode(requestEnum);
-  }
-
-  @Override public DownloadTarget setHeaderMd5Key(String md5Key) {
-    return mDelegate.setHeaderMd5Key(md5Key);
-  }
-
-  @Override public DownloadTarget setHeaderContentLengthKey(String contentLength) {
-    return mDelegate.setHeaderContentLengthKey(contentLength);
-  }
-
-  @Override public DownloadTarget setHeaderDispositionKey(String dispositionKey) {
-    return mDelegate.setHeaderDispositionKey(dispositionKey);
-  }
-
-  @Override public DownloadTarget setHeaderDispositionFileKey(String dispositionFileKey) {
-    return mDelegate.setHeaderDispositionFileKey(dispositionFileKey);
   }
 }

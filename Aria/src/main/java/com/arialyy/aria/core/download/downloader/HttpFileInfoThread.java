@@ -28,8 +28,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.List;
-import java.util.Map;
 
 /**
  * 下载文件信息获取
@@ -77,7 +75,7 @@ class HttpFileInfoThread implements Runnable {
   private void handleConnect(HttpURLConnection conn) throws IOException {
     long len = conn.getContentLength();
     if (len < 0) {
-      String temp = conn.getHeaderField(mTaskEntity.contentLength);
+      String temp = conn.getHeaderField("Content-Length");
       len = TextUtils.isEmpty(temp) ? -1 : Long.parseLong(temp);
       // 某些服务，如果设置了conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       // 会返回 Content-Range: bytes 0-225427911/225427913
@@ -94,7 +92,7 @@ class HttpFileInfoThread implements Runnable {
     int code = conn.getResponseCode();
     boolean isComplete = false;
     if (TextUtils.isEmpty(mEntity.getMd5Code())) {
-      String md5Code = conn.getHeaderField(mTaskEntity.md5Key);
+      String md5Code = conn.getHeaderField("Content-MD5");
       mEntity.setMd5Code(md5Code);
     }
 
@@ -104,7 +102,7 @@ class HttpFileInfoThread implements Runnable {
     if (!TextUtils.isEmpty(str) && str.equals("chunked")) {
       isChunked = true;
     }
-    String disposition = conn.getHeaderField(mTaskEntity.dispositionKey);
+    String disposition = conn.getHeaderField("Content-Disposition");
     if (!TextUtils.isEmpty(disposition)) {
       mEntity.setDisposition(CommonUtil.encryptBASE64(disposition));
       if (disposition.contains(mTaskEntity.dispositionFileKey)) {
@@ -133,10 +131,10 @@ class HttpFileInfoThread implements Runnable {
     } else if (code == HttpURLConnection.HTTP_MOVED_TEMP
         || code == HttpURLConnection.HTTP_MOVED_PERM
         || code == HttpURLConnection.HTTP_SEE_OTHER) {
-      mTaskEntity.redirectUrl = conn.getHeaderField(mTaskEntity.redirectUrlKey);
+      mTaskEntity.redirectUrl = conn.getHeaderField("Location");
       mEntity.setRedirect(true);
       mEntity.setRedirectUrl(mTaskEntity.redirectUrl);
-      handle302Turn(conn);
+      handle302Turn(conn, mTaskEntity.redirectUrl);
     } else {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：" + code, true);
     }
@@ -153,9 +151,8 @@ class HttpFileInfoThread implements Runnable {
   /**
    * 处理30x跳转
    */
-  private void handle302Turn(HttpURLConnection conn) throws IOException {
-    String newUrl = conn.getHeaderField(mTaskEntity.redirectUrlKey);
-    ALog.d(TAG, "30x跳转，location【 " + mTaskEntity.redirectUrlKey + "】" + "新url为【" + newUrl + "】");
+  private void handle302Turn(HttpURLConnection conn, String newUrl) throws IOException {
+    ALog.d(TAG, "30x跳转，新url为【" + newUrl + "】");
     if (TextUtils.isEmpty(newUrl) || newUrl.equalsIgnoreCase("null") || !newUrl.startsWith(
         "http")) {
       if (onFileInfoListener != null) {

@@ -18,7 +18,6 @@ package com.arialyy.aria.core.delegate;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.common.RequestEnum;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IHttpHeaderTarget;
@@ -138,68 +137,6 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
   @Override
   public TARGET setRequestMode(RequestEnum requestEnum) {
     mTaskEntity.requestEnum = requestEnum;
-    return mTarget;
-  }
-
-  /**
-   * 如果你的下载链接的header中含有md5码信息，那么你可以通过设置key，来获取从header获取该md5码信息。
-   * key默认值为：Content-MD5
-   * 获取md5信息：{@link DownloadEntity#getMd5Code()}
-   */
-  @Override
-  public TARGET setHeaderMd5Key(String md5Key) {
-    if (TextUtils.isEmpty(md5Key)) return mTarget;
-    mTaskEntity.md5Key = md5Key;
-    if (TextUtils.isEmpty(mTaskEntity.md5Key) || !mTaskEntity.md5Key.equals(md5Key)) {
-      mTaskEntity.update();
-    }
-    return mTarget;
-  }
-
-  /**
-   * 如果你的文件长度是放在header中，那么你需要配置key来让Aria知道正确的文件长度
-   * key默认值为：Content-Length
-   */
-  @Override
-  public TARGET setHeaderContentLengthKey(String contentLength) {
-    if (TextUtils.isEmpty(contentLength)) return mTarget;
-    mTaskEntity.contentLength = contentLength;
-    if (TextUtils.isEmpty(mTaskEntity.contentLength) || !mTaskEntity.contentLength.equals(
-        contentLength)) {
-      mTaskEntity.update();
-    }
-    return mTarget;
-  }
-
-  /**
-   * 如果你的下载链接的header中含有文件描述信息，那么你可以通过设置key，来获取从header获取该文件描述信息。
-   * key默认值为：Content-Disposition
-   * 获取文件描述信息：{@link DownloadEntity#getDisposition()}
-   */
-  @Override
-  public TARGET setHeaderDispositionKey(String dispositionKey) {
-    if (TextUtils.isEmpty(dispositionKey)) return mTarget;
-    mTaskEntity.dispositionKey = dispositionKey;
-    if (TextUtils.isEmpty(mTaskEntity.dispositionKey) || !mTaskEntity.dispositionKey.equals(
-        dispositionKey)) {
-      mTaskEntity.update();
-    }
-    return mTarget;
-  }
-
-  /**
-   * 从文件描述信息{@link #setHeaderDispositionKey(String)}中含有文件名信息，你可以通过设置key来获取header中的文件名
-   * key默认值为：attachment;filename
-   * 获取文件名信息：{@link DownloadEntity#getServerFileName()}
-   */
-  @Override
-  public TARGET setHeaderDispositionFileKey(String dispositionFileKey) {
-    if (TextUtils.isEmpty(dispositionFileKey)) return mTarget;
-    mTaskEntity.dispositionFileKey = dispositionFileKey;
-    if (TextUtils.isEmpty(mTaskEntity.dispositionFileKey) || !mTaskEntity.dispositionFileKey.equals(
-        dispositionFileKey)) {
-      mTaskEntity.update();
-    }
     return mTarget;
   }
 }

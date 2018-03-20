@@ -182,7 +182,7 @@ public class DownloadReceiver extends AbsReceiver {
    *
    * @param groupEntity 如果加载的任务实体没有子项的下载地址，
    * 那么你需要使用{@link DownloadGroupTarget#setGroupUrl(List)}设置子项的下载地址
-   * @deprecated {@link #loadGroup(DownloadGroupEntity)}
+   * @deprecated 请使用 {@link #loadGroup(DownloadGroupEntity)}
    */
   @Deprecated
   public DownloadGroupTarget load(DownloadGroupEntity groupEntity) {

@@ -36,23 +36,6 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
   protected String url;
 
   /**
-   * 通过实体初始化target
-   */
-  void initTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
-    this.url = entity.getUrl();
-    mTargetName = targetName;
-    mTaskEntity = TEManager.getInstance().getTEntity(DownloadTaskEntity.class, url);
-    if (mTaskEntity == null) {
-      mTaskEntity = TEManager.getInstance().createTEntity(DownloadTaskEntity.class, entity);
-    }
-    mEntity = mTaskEntity.entity;
-    mTaskEntity.refreshInfo = refreshInfo;
-    if (mEntity != null) {
-      mTempFilePath = mEntity.getDownloadPath();
-    }
-  }
-
-  /**
    * 通过地址初始化target
    */
   void initTarget(String url, String targetName, boolean refreshInfo) {

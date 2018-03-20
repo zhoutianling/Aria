@@ -389,7 +389,7 @@ public abstract class AbsGroupUtil implements IUtil {
    *
    * @param start 是否启动下载
    */
-  Downloader createChildDownload(DownloadTaskEntity taskEntity, boolean start) {
+  private Downloader createChildDownload(DownloadTaskEntity taskEntity, boolean start) {
     ChildDownloadListener listener = new ChildDownloadListener(taskEntity);
     Downloader dt = new Downloader(listener, taskEntity);
     mDownloaderMap.put(taskEntity.getEntity().getUrl(), dt);
@@ -417,7 +417,6 @@ public abstract class AbsGroupUtil implements IUtil {
     taskEntity.entity = entity;
     taskEntity.headers = mGTEntity.headers;
     taskEntity.requestEnum = mGTEntity.requestEnum;
-    taskEntity.redirectUrlKey = mGTEntity.redirectUrlKey;
     taskEntity.removeFile = mGTEntity.removeFile;
     taskEntity.groupName = mGTEntity.key;
     taskEntity.isGroupTask = true;

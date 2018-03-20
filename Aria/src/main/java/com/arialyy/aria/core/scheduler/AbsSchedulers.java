@@ -38,8 +38,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by lyy on 2017/6/4.
  * 事件调度器，用于处理任务状态的调度
  */
-abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends AbsTask<TASK_ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY>>
-    implements ISchedulers<TASK> {
+abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends AbsTask<TASK_ENTITY>,
+    QUEUE extends ITaskQueue<TASK, TASK_ENTITY>> implements ISchedulers<TASK> {
   private final String TAG = "AbsSchedulers";
 
   protected QUEUE mQueue;

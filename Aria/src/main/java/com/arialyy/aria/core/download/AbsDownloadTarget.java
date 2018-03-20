@@ -15,13 +15,11 @@
  */
 package com.arialyy.aria.core.download;
 
-import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
@@ -70,17 +68,6 @@ abstract class AbsDownloadTarget<TARGET extends AbsTarget, ENTITY extends AbsEnt
               checkTaskType()))
           .exe();
     }
-  }
-
-  /**
-   * 重定向后，新url的key，默认为location
-   */
-  public void setRedirectUrlKey(String redirectUrlKey) {
-    if (TextUtils.isEmpty(redirectUrlKey)) {
-      ALog.e("AbsDownloadTarget", "重定向后，新url的key不能为null");
-      return;
-    }
-    mTaskEntity.redirectUrlKey = redirectUrlKey;
   }
 
   /**

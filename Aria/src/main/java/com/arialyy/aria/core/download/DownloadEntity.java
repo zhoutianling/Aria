@@ -43,13 +43,13 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
   @Foreign(table = DownloadTaskEntity.class, column = "key") private String taskKey = "";
 
   /**
-   * 通过{@link AbsTaskEntity#md5Key}从服务器的返回信息中获取的文件md5信息，如果服务器没有返回，则不会设置该信息
+   * 从服务器的返回信息中获取的文件md5信息，如果服务器没有返回，则不会设置该信息
    * 如果你已经设置了该任务的MD5信息，Aria也不会从服务器返回的信息中获取该信息
    */
   private String md5Code = "";
 
   /**
-   * 通过{@link AbsTaskEntity#dispositionKey}从服务器的返回信息中获取的文件描述信息
+   * 从服务器的返回信息中获取的文件描述信息
    */
   private String disposition = "";
 
@@ -116,8 +116,6 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     this.downloadPath = downloadPath;
     return this;
   }
-
-
 
   @Override public DownloadEntity clone() throws CloneNotSupportedException {
     return (DownloadEntity) super.clone();

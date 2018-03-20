@@ -49,31 +49,4 @@ public interface IHttpHeaderTarget<TARGET extends ITarget> {
    * @param requestEnum {@link RequestEnum}
    */
   TARGET setRequestMode(RequestEnum requestEnum);
-
-  /**
-   * 如果你的下载链接的header中含有md5码信息，那么你可以通过设置key，来获取从header获取该md5码信息。
-   * key默认值为：Content-MD5
-   * 获取md5信息：{@link DownloadEntity#getMd5Code()}
-   */
-  TARGET setHeaderMd5Key(String md5Key);
-
-  /**
-   * 如果你的文件长度是放在header中，那么你需要配置key来让Aria知道正确的文件长度
-   * key默认值为：Content-Length
-   */
-  TARGET setHeaderContentLengthKey(String contentLength);
-
-  /**
-   * 如果你的下载链接的header中含有文件描述信息，那么你可以通过设置key，来获取从header获取该文件描述信息。
-   * key默认值为：Content-Disposition
-   * 获取文件描述信息：{@link DownloadEntity#getDisposition()}
-   */
-  TARGET setHeaderDispositionKey(String dispositionKey);
-
-  /**
-   * 从文件描述信息{@link #setHeaderDispositionKey(String)}中含有文件名信息，你可以通过设置key来获取header中的文件名
-   * key默认值为：attachment;filename
-   * 获取文件名信息：{@link DownloadEntity#getServerFileName()}
-   */
-  TARGET setHeaderDispositionFileKey(String dispositionFileKey);
 }

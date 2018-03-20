@@ -18,7 +18,7 @@ package com.arialyy.aria.core.common;
 
 /**
  * Created by lyy on 2016/10/31.
- * 抽象的下载接口
+ * 任务功能接口
  */
 public interface IUtil {
 
@@ -28,39 +28,39 @@ public interface IUtil {
   long getFileSize();
 
   /**
-   * 获取当前下载位置
+   * 获取当前位置
    */
   long getCurrentLocation();
 
   /**
-   * 是否正在下载
+   * 任务是否正在执行
    *
-   * @return true, 正在下载
+   * @return {@code true} 任务正在执行
    */
   boolean isRunning();
 
   /**
-   * 取消下载
+   * 取消
    */
   void cancel();
 
   /**
-   * 停止下载
+   * 停止
    */
   void stop();
 
   /**
-   * 开始下载
+   * 开始
    */
   void start();
 
   /**
-   * 从上次断点恢复下载
+   * 从上次断点恢复
    */
   void resume();
 
   /**
-   * 设置最大下载速度
+   * 设置最大速度
    */
   void setMaxSpeed(double maxSpeed);
 }
