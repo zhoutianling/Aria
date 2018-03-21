@@ -17,9 +17,12 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
+import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 
 /**
@@ -95,7 +98,7 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
       return false;
     }
     if (file.isDirectory()) {
-      ALog.e(TAG, "上传失败，文件【" + filePath + "】不能死文件夹");
+      ALog.e(TAG, "上传失败，文件【" + filePath + "】不能是文件夹");
       return false;
     }
     return true;
