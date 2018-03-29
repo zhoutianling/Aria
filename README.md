@@ -28,10 +28,10 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.3.14'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.14'
+compile 'com.arialyy.aria:aria-core:3.3.16'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.16'
 ```
-如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:3.3.13'`替换为
+如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:<last-version>'`替换为
 ```
 compile('com.arialyy.aria:aria-core:<last-version>'){
    exclude group: 'com.android.support'
@@ -103,11 +103,11 @@ protected void onCreate(Bundle savedInstanceState) {
 ### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
 
 ### 版本日志
- + v_3.3.14
-    - 修复ftp上传和下载的兼容性问题
-    - 如果url中的path有"//"将替换为"/"
-    - 修复http上传成功后，如果服务器没有设置返回码导致上传失败的问题
-    - 上传实体UploadEntity增加responseStr字段，http上传完成后，在被`@Upload.onComplete`注解的方法中，可通过`task.getEntity().getResponseStr())`获取服务器返回的数据
+   + v_3.3.16
+     - 修复一个activity启动多次，无法进行回掉的bug https://github.com/AriaLyy/Aria/issues/200
+     - 优化target代码结构，移除路径被占用的提示
+     - 添加支持chunked模式的下载
+     - 去掉上一个版本"//"的限制
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 
