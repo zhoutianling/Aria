@@ -18,8 +18,7 @@ package com.arialyy.aria.core.inf;
 import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.orm.Ignore;
-import com.arialyy.aria.orm.Primary;
+import com.arialyy.aria.orm.annotation.Ignore;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,11 +53,6 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
    * FTP单文件上传
    */
   public static final int U_FTP = 0xA2;
-
-  /**
-   * Task实体对应的key
-   */
-  @Primary public String key = "";
 
   /**
    * 账号和密码
@@ -144,12 +138,7 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
     return getEntity().getState();
   }
 
-  @Override public void deleteData() {
-    if (getEntity() != null) {
-      getEntity().deleteData();
-    }
-    super.deleteData();
-  }
+  public abstract String getKey();
 
   @Override public void update() {
     if (getEntity() != null) {

@@ -24,16 +24,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 /**
  * Created by AriaL on 2017/6/29.
  * 下载任务组
  */
 public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
-  private final String TAG = "DownloadGroupTarget";
   /**
    * 子任务下载地址，
    */
@@ -50,12 +47,8 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
       this.mUrls.addAll(groupEntity.getUrls());
     }
     mGroupName = CommonUtil.getMd5Code(groupEntity.getUrls());
-    mTaskEntity = TEManager.getInstance().getTEntity(DownloadGroupTaskEntity.class, mGroupName);
-    if (mTaskEntity == null) {
-      mTaskEntity =
-          TEManager.getInstance().createTEntity(DownloadGroupTaskEntity.class, groupEntity);
-    }
-    mEntity = mTaskEntity.entity;
+    mTaskEntity = TEManager.getInstance().getGTEntity(DownloadGroupTaskEntity.class, mUrls);
+    mEntity = mTaskEntity.getEntity();
 
     if (mEntity != null) {
       mDirPathTemp = mEntity.getDirPath();
@@ -66,11 +59,8 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
     this.mTargetName = targetName;
     this.mUrls = urls;
     mGroupName = CommonUtil.getMd5Code(urls);
-    mTaskEntity = TEManager.getInstance().getTEntity(DownloadGroupTaskEntity.class, mGroupName);
-    if (mTaskEntity == null) {
-      mTaskEntity = TEManager.getInstance().createGTEntity(DownloadGroupTaskEntity.class, mUrls);
-    }
-    mEntity = mTaskEntity.entity;
+    mTaskEntity = TEManager.getInstance().getGTEntity(DownloadGroupTaskEntity.class, mUrls);
+    mEntity = mTaskEntity.getEntity();
   }
 
   /**
@@ -88,7 +78,6 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
     }
     if (mEntity.getFileSize() <= 1 || mEntity.getFileSize() != fileSize) {
       mEntity.setFileSize(fileSize);
-      mEntity.update();
     }
     return this;
   }
@@ -137,7 +126,8 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
       entity.setGroupName(mGroupName);
       entity.setGroupChild(true);
       entity.setFileName(fileName);
-      entity.insert();
+      // TODO: 2018/4/3 是否需要在这个插入？
+      //entity.insert();
       list.add(entity);
     }
     return list;
@@ -164,7 +154,6 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
       //文件夹路径通过后，并且该实体没有子任务，则创建子任务
       if (mEntity.getSubTask() == null || mEntity.getSubTask().isEmpty()) {
         mEntity.setSubTasks(createSubTask());
-        mTaskEntity.update();
       } else {
         updateSingleSubFileName();
       }
@@ -230,7 +219,6 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
     }
 
     mEntity.setGroupName(CommonUtil.getMd5Code(mUrls));
-    mEntity.update();
 
     return true;
   }
@@ -251,7 +239,8 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
           "UPDATE DownloadTaskEntity SET key='" + newPath + "' WHERE key='" + oldPath + "'");
       entity.setDownloadPath(newPath);
       entity.setFileName(newName);
-      entity.update();
+      // TODO: 2018/4/3 是否需要在这个更新？
+      //entity.update();
     }
   }
 

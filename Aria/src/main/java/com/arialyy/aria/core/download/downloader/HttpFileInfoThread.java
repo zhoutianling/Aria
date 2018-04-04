@@ -160,7 +160,10 @@ class HttpFileInfoThread implements Runnable {
       }
       return;
     }
-    newUrl = CheckUtil.checkUrl(newUrl);
+    if (!CheckUtil.checkUrl(newUrl)) {
+      failDownload("下载失败，重定向url错误", false);
+      return;
+    }
     String cookies = conn.getHeaderField("Set-Cookie");
     conn = (HttpURLConnection) new URL(newUrl).openConnection();
     conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);

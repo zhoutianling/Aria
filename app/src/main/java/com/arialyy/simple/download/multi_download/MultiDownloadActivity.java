@@ -26,16 +26,12 @@ import butterknife.Bind;
 import com.arialyy.annotations.Download;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.frame.util.FileUtil;
-import com.arialyy.frame.util.show.L;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMultiDownloadBinding;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +51,7 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
     super.init(savedInstanceState);
     Aria.download(this).register();
     setTitle("下载列表");
-    List<AbsEntity> temps = Aria.download(this).getTotleTaskList();
+    List<AbsEntity> temps = Aria.download(this).getTotalTaskList();
     if (temps != null && !temps.isEmpty()) {
       mData.addAll(temps);
     }

@@ -13,22 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core;
 
-import com.arialyy.aria.orm.DbEntity;
+package com.arialyy.aria.orm.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created by lyy on 2017/10/17.
- * Url 映射表
+ * Created by lyy on 2015/11/2.
+ * 非空字段
  */
-public class UrlMapping extends DbEntity {
-  /**
-   * 各实体对应的key
-   */
-  public String key;
-
-  /**
-   * 链接
-   */
-  public String url;
+@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface NoNull {
+  boolean value() default true;
 }

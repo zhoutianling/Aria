@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.orm;
+
+package com.arialyy.aria.orm.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -21,16 +22,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by AriaL on 2017/7/4.
- * 一对多
+ * Created by lyy on 2015/11/2.
+ * 默认数据
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface OneToMany {
-  /**
-   * 关联的表
-   */
-  Class<? extends DbEntity> table();
-  /**
-   * 关联的主键
-   */
-  String key();
+@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Default {
+  String value() default "";
 }

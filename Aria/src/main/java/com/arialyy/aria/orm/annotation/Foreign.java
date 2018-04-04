@@ -13,18 +13,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.arialyy.aria.orm.annotation;
 
-package com.arialyy.aria.orm;
-
+import com.arialyy.aria.orm.ActionPolicy;
+import com.arialyy.aria.orm.DbEntity;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by lyy on 2015/11/2.
- * 表ID字段指定
+ * Created by AriaL on 2017/7/4.
+ * 外键约束
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Primary {
-  int value() default -1;
+@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Foreign {
+
+  /**
+   * 关联的表
+   */
+  Class<? extends DbEntity> parent();
+
+  /**
+   * 父表对应的列名
+   */
+  String column();
+
+  /**
+   * ON UPDATE 约束
+   */
+  ActionPolicy onUpdate() default ActionPolicy.NO_ACTION;
+
+  /**
+   * ON DELETE 约束
+   */
+  ActionPolicy onDelete() default ActionPolicy.NO_ACTION;
 }

@@ -18,6 +18,8 @@ package com.arialyy.aria.core.manager;
 import android.text.TextUtils;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskWrapper;
+import com.arialyy.aria.core.download.DownloadGroupWrapper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.List;
@@ -46,36 +48,56 @@ class DGTEntityFactory implements ITEntityFactory<DownloadGroupEntity, DownloadG
   /**
    * 通过下载实体创建任务实体
    */
-  @Override public DownloadGroupTaskEntity create(DownloadGroupEntity entity) {
-    DownloadGroupTaskEntity dgTaskEntity =
-        DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", entity.getGroupName());
-    if (dgTaskEntity == null) {
+  private DownloadGroupTaskEntity create(DownloadGroupEntity entity) {
+    List<DownloadGroupTaskWrapper> wrapper =
+        DbEntity.findRelationData(DownloadGroupTaskWrapper.class, "DownloadGroupTaskWrapper.key=?",
+            entity.getGroupName());
+    DownloadGroupTaskEntity dgTaskEntity;
+
+    if (wrapper != null && !wrapper.isEmpty()) {
+      dgTaskEntity = wrapper.get(0).taskEntity;
+      if (dgTaskEntity == null) {
+        dgTaskEntity = new DownloadGroupTaskEntity();
+        dgTaskEntity.setEntity(entity);
+      } else if (dgTaskEntity.getEntity() == null || TextUtils.isEmpty(
+          dgTaskEntity.getEntity().getKey())) {
+        dgTaskEntity.setEntity(entity);
+      }
+    } else {
       dgTaskEntity = new DownloadGroupTaskEntity();
-      dgTaskEntity.save(entity);
+      dgTaskEntity.setEntity(entity);
     }
-    if (dgTaskEntity.entity == null || TextUtils.isEmpty(dgTaskEntity.entity.getKey())) {
-      dgTaskEntity.save(entity);
-    }
+
     return dgTaskEntity;
   }
 
   /**
-   * 对于任务组，不能使用这个，可用于FTP文件夹下载
+   * 对于任务组，不能使用这个，该方法只用于FTP文件夹下载
    *
-   * @deprecated {@link #create(String, List)}
+   * @deprecated 任务组使用：{@link #create(String, List)}
    */
   @Override @Deprecated public DownloadGroupTaskEntity create(String key) {
-    DownloadGroupTaskEntity dgTaskEntity =
-        DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", key);
-    if (dgTaskEntity == null) {
+    List<DownloadGroupTaskWrapper> wrapper =
+        DbEntity.findRelationData(DownloadGroupTaskWrapper.class, "DownloadGroupTaskWrapper.key=?",
+            key);
+    DownloadGroupTaskEntity dgTaskEntity;
+    if (wrapper != null && !wrapper.isEmpty()) {
+      dgTaskEntity = wrapper.get(0).taskEntity;
+      if (dgTaskEntity == null) {
+        dgTaskEntity = new DownloadGroupTaskEntity();
+        dgTaskEntity.setEntity(getDownloadGroupEntity(key, null));
+      } else if (dgTaskEntity.getEntity() == null || TextUtils.isEmpty(
+          dgTaskEntity.getEntity().getKey())) {
+        dgTaskEntity.setEntity(getDownloadGroupEntity(key, null));
+      }
+      dgTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(key);
+      return dgTaskEntity;
+    } else {
       dgTaskEntity = new DownloadGroupTaskEntity();
-      dgTaskEntity.save(getDownloadGroupEntity(key, null));
+      dgTaskEntity.setEntity(getDownloadGroupEntity(key, null));
+      dgTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(key);
+      return dgTaskEntity;
     }
-    if (dgTaskEntity.entity == null || TextUtils.isEmpty(dgTaskEntity.entity.getKey())) {
-      dgTaskEntity.save(getDownloadGroupEntity(key, null));
-    }
-    dgTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(key);
-    return dgTaskEntity;
   }
 
   @Override public DownloadGroupTaskEntity create(String groupName, List<String> urls) {
@@ -86,13 +108,21 @@ class DGTEntityFactory implements ITEntityFactory<DownloadGroupEntity, DownloadG
    * 查询任务组实体，如果数据库不存在该实体，则新创建一个新的任务组实体
    */
   private DownloadGroupEntity getDownloadGroupEntity(String groupName, List<String> urls) {
-    DownloadGroupEntity entity =
-        DbEntity.findFirst(DownloadGroupEntity.class, "groupName=?", groupName);
-    if (entity == null) {
-      entity = new DownloadGroupEntity();
-      entity.setGroupName(groupName);
-      entity.setUrls(urls);
+
+    List<DownloadGroupWrapper> wrapper =
+        DbEntity.findRelationData(DownloadGroupWrapper.class, "DownloadGroupEntity.groupName=?",
+            groupName);
+    DownloadGroupEntity groupEntity;
+    if (wrapper != null && !wrapper.isEmpty()) {
+      groupEntity = wrapper.get(0).groupEntity;
+      if (groupEntity == null) {
+        groupEntity = new DownloadGroupEntity();
+      }
+    } else {
+      groupEntity = new DownloadGroupEntity();
     }
-    return entity;
+    groupEntity.setGroupName(groupName);
+    groupEntity.setUrls(urls);
+    return groupEntity;
   }
 }

@@ -18,9 +18,11 @@ package com.arialyy.aria.core.manager;
 import android.text.TextUtils;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.DownloadTaskWrapper;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
+import java.util.List;
 
 /**
  * Created by Aria.Lao on 2017/11/1.
@@ -45,19 +47,26 @@ class DTEntityFactory implements ITEntityFactory<DownloadEntity, DownloadTaskEnt
   /**
    * 通过下载实体创建任务实体
    */
-  @Override public DownloadTaskEntity create(DownloadEntity entity) {
-    DownloadTaskEntity taskEntity =
-        DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false' and url=?",
-            entity.getDownloadPath(), entity.getUrl());
-    if (taskEntity == null) {
-      taskEntity = new DownloadTaskEntity();
-      taskEntity.save(entity);
-    } else if (taskEntity.entity == null || TextUtils.isEmpty(taskEntity.entity.getUrl())) {
-      taskEntity.save(entity);
-    } else if (!taskEntity.entity.getUrl().equals(entity.getUrl())) {  //处理地址切换而保存路径不变
-      taskEntity.save(entity);
+  private DownloadTaskEntity create(DownloadEntity entity) {
+    List<DownloadTaskWrapper> wrapper = DbEntity.findRelationData(DownloadTaskWrapper.class,
+        "DownloadTaskEntity.key=? and DownloadTaskEntity.isGroupTask='false' and DownloadTaskEntity.url=?",
+        entity.getDownloadPath(), entity.getUrl());
+
+    if (wrapper != null && !wrapper.isEmpty()) {
+      DownloadTaskEntity taskEntity = wrapper.get(0).taskEntity;
+      if (taskEntity == null) {
+        taskEntity = new DownloadTaskEntity();
+        taskEntity.entity = entity;
+      } else if (taskEntity.entity == null || TextUtils.isEmpty(taskEntity.entity.getUrl())) {
+        taskEntity.entity = entity;
+      }
+
+      return taskEntity;
+    } else {
+      DownloadTaskEntity taskEntity = new DownloadTaskEntity();
+      taskEntity.entity = entity;
+      return taskEntity;
     }
-    return taskEntity;
   }
 
   /**

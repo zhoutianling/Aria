@@ -21,8 +21,8 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.orm.Foreign;
-import com.arialyy.aria.orm.Primary;
+import com.arialyy.aria.orm.annotation.Foreign;
+import com.arialyy.aria.orm.annotation.Primary;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
@@ -35,12 +35,7 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
   /**
    * 所属任务组
    */
-  @Foreign(table = DownloadGroupEntity.class, column = "groupName") private String groupName = "";
-
-  /**
-   * 下载任务实体的key
-   */
-  @Foreign(table = DownloadTaskEntity.class, column = "key") private String taskKey = "";
+  @Foreign(parent = DownloadGroupEntity.class, column = "groupName") private String groupName = "";
 
   /**
    * 从服务器的返回信息中获取的文件md5信息，如果服务器没有返回，则不会设置该信息

@@ -25,9 +25,11 @@ import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.AbsTarget;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
@@ -106,14 +108,14 @@ public class DownloadReceiver extends AbsReceiver {
    * </pre>
    */
   @Deprecated public DownloadTarget load(@NonNull String url, boolean refreshInfo) {
-    url = CheckUtil.checkUrl(url);
+    CheckUtil.checkUrlInvalidThrow(url);
     return new DownloadTarget(url, targetName, refreshInfo);
   }
 
   /**
    * 加载下载地址，如果任务组的中的下载地址改变了，则任务从新的一个任务组
    *
-   * @param urls 人刷谁
+   * @param urls 任务组子任务下载地址列表
    */
   @Deprecated
   public DownloadGroupTarget load(List<String> urls) {
@@ -173,7 +175,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @param refreshInfo 是否刷新下载信息
    */
   public FtpDownloadTarget loadFtp(@NonNull String url, boolean refreshInfo) {
-    url = CheckUtil.checkUrl(url);
+    CheckUtil.checkUrlInvalidThrow(url);
     return new FtpDownloadTarget(url, targetName, refreshInfo);
   }
 
@@ -203,7 +205,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 加载ftp文件夹下载地址
    */
   public FtpDirDownloadTarget loadFtpDir(@NonNull String dirUrl) {
-    dirUrl = CheckUtil.checkUrl(dirUrl);
+    CheckUtil.checkUrlInvalidThrow(dirUrl);
     return new FtpDirDownloadTarget(dirUrl, targetName);
   }
 
@@ -257,39 +259,55 @@ public class DownloadReceiver extends AbsReceiver {
 
   /**
    * 通过下载链接获取下载实体
+   *
+   * @return 如果url错误或查找不到数据，则返回null
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
-    downloadUrl = CheckUtil.checkUrl(downloadUrl);
+    if (CheckUtil.checkUrl(downloadUrl)) {
+      return null;
+    }
     return DbEntity.findFirst(DownloadEntity.class, "url=? and isGroupChild='false'", downloadUrl);
   }
 
   /**
-   * 通过下载链接获取保存在数据库的下载任务实体
+   * 通过下载地址和文件保存路径获取下载任务实体
+   *
+   * @param downloadUrl 下载地址
+   * @return 如果url错误或查找不到数据，则返回null
    */
   public DownloadTaskEntity getDownloadTask(String downloadUrl) {
-    downloadUrl = CheckUtil.checkUrl(downloadUrl);
-    DownloadEntity entity = getDownloadEntity(downloadUrl);
-    if (entity == null || TextUtils.isEmpty(entity.getDownloadPath())) return null;
-    return DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false'",
-        entity.getDownloadPath());
+    if (CheckUtil.checkUrl(downloadUrl)) {
+      return null;
+    }
+    return TEManager.getInstance().getTEntity(DownloadTaskEntity.class, downloadUrl);
   }
 
   /**
    * 通过下载链接获取保存在数据库的下载任务组实体
+   *
+   * @param urls 任务组子任务下载地址列表
+   * @return 返回对应的任务组实体；如果查找不到对应的数据或子任务列表为null，返回null
    */
-  public DownloadGroupTaskEntity getDownloadGroupTask(List<String> urls) {
-    CheckUtil.checkDownloadUrls(urls);
-    String hashCode = CommonUtil.getMd5Code(urls);
-    return DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", hashCode);
+  public DownloadGroupTaskEntity getGroupTask(List<String> urls) {
+    if (urls == null || urls.isEmpty()) {
+      ALog.e(TAG, "获取任务组实体失败：任务组子任务下载地址列表为null");
+      return null;
+    }
+    return TEManager.getInstance().getGTEntity(DownloadGroupTaskEntity.class, urls);
   }
 
   /**
-   * 通过任务组key，获取任务组实体
-   * 如果是http，key为所有子任务下载地址拼接后取md5
-   * 如果是ftp，key为ftp服务器的文件夹路径
+   * 获取FTP文件夹下载任务实体
+   *
+   * @param dirPath FTP文件夹本地保存路径
+   * @return 返回对应的任务组实体；如果查找不到对应的数据或路径为null，返回null
    */
-  public DownloadGroupTaskEntity getDownloadGroupTask(String key) {
-    return DbEntity.findFirst(DownloadGroupTaskEntity.class, "key=?", key);
+  public DownloadGroupTaskEntity getFtpDirTask(String dirPath) {
+    if (TextUtils.isEmpty(dirPath)) {
+      ALog.e(TAG, "获取FTP文件夹实体失败：文件夹路径为null");
+      return null;
+    }
+    return TEManager.getInstance().getTEntity(DownloadGroupTaskEntity.class, dirPath);
   }
 
   /**
@@ -327,15 +345,25 @@ public class DownloadReceiver extends AbsReceiver {
 
   /**
    * 获取任务组列表
+   *
+   * @return 如果没有任务组列表，则返回null
    */
   public List<DownloadGroupEntity> getGroupTaskList() {
-    return DownloadEntity.findAllData(DownloadGroupEntity.class);
+    List<DownloadGroupWrapper> wrappers = DbEntity.findRelationData(DownloadGroupWrapper.class);
+    if (wrappers == null || wrappers.isEmpty()) {
+      return null;
+    }
+    List<DownloadGroupEntity> entities = new ArrayList<>();
+    for (DownloadGroupWrapper wrapper : wrappers) {
+      entities.add(wrapper.groupEntity);
+    }
+    return entities;
   }
 
   /**
    * 获取普通任务和任务组的任务列表
    */
-  public List<AbsEntity> getTotleTaskList() {
+  public List<AbsEntity> getTotalTaskList() {
     List<AbsEntity> list = new ArrayList<>();
     List<DownloadEntity> simpleTask = getTaskList();
     List<DownloadGroupEntity> groupTask = getGroupTaskList();

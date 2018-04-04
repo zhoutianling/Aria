@@ -44,12 +44,12 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
       new FtpDirInfoThread(mGTEntity, new OnFileInfoCallback() {
         @Override public void onComplete(String url, CompleteInfo info) {
           if (info.code >= 200 && info.code < 300) {
-            for (DownloadEntity entity : mGTEntity.entity.getSubTask()) {
+            for (DownloadEntity entity : mGTEntity.getEntity().getSubTask()) {
               mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
             }
-            mActualTaskNum = mGTEntity.entity.getSubTask().size();
+            mActualTaskNum = mGTEntity.getEntity().getSubTask().size();
             mGroupSize = mActualTaskNum;
-            mTotalLen = mGTEntity.entity.getFileSize();
+            mTotalLen = mGTEntity.getEntity().getFileSize();
             startDownload();
           }
         }

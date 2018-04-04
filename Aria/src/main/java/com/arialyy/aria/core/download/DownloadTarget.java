@@ -27,7 +27,6 @@ import java.util.Map;
  */
 public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
     implements IHttpHeaderTarget<DownloadTarget> {
-  private static final String TAG = "DownloadTarget";
   private HttpHeaderDelegate<DownloadTarget, DownloadEntity, DownloadTaskEntity> mDelegate;
 
   DownloadTarget(DownloadEntity entity, String targetName) {

@@ -106,7 +106,7 @@ public abstract class AbsGroupUtil implements IUtil {
     mGTEntity = groupEntity;
     mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     List<DownloadTaskEntity> tasks =
-        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mGTEntity.key);
+        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mGTEntity.getKey());
     if (tasks != null && !tasks.isEmpty()) {
       for (DownloadTaskEntity te : tasks) {
         te.removeFile = mGTEntity.removeFile;
@@ -114,10 +114,10 @@ public abstract class AbsGroupUtil implements IUtil {
         mTasksMap.put(te.getEntity().getUrl(), te);
       }
     }
-    mGroupSize = mGTEntity.entity.getSubTask().size();
+    mGroupSize = mGTEntity.getEntity().getSubTask().size();
     mTotalLen = groupEntity.getEntity().getFileSize();
     isNeedLoadFileSize = mTotalLen <= 1;
-    for (DownloadEntity entity : mGTEntity.entity.getSubTask()) {
+    for (DownloadEntity entity : mGTEntity.getEntity().getSubTask()) {
       File file = new File(entity.getDownloadPath());
       if (entity.getState() == IEntity.STATE_COMPLETE && file.exists()) {
         mCompleteNum++;
@@ -190,9 +190,10 @@ public abstract class AbsGroupUtil implements IUtil {
    * @param url 子任务下载地址
    */
   public void cancelSubTask(String url) {
-    List<String> urls = mGTEntity.entity.getUrls();
+    List<String> urls = mGTEntity.getEntity().getUrls();
     if (urls != null && !urls.isEmpty() && urls.contains(url)) {
       urls.remove(url);
+      // TODO: 2018/4/4 有问题
       DownloadTaskEntity det =
           DbEntity.findFirst(DownloadTaskEntity.class, "url=? and isGroupTask='true'", url);
       if (det != null) {
@@ -273,36 +274,12 @@ public abstract class AbsGroupUtil implements IUtil {
         dt.cancel();
       }
     }
-    delDownloadInfo();
+    CommonUtil.delDownloadGroupTaskConfig(mGTEntity.removeFile, mGTEntity.getEntity());
     mGTEntity.deleteData();
   }
 
   public void onCancel() {
 
-  }
-
-  /**
-   * 删除所有子任务的下载信息
-   */
-  private void delDownloadInfo() {
-    List<DownloadTaskEntity> tasks =
-        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mGTEntity.key);
-    if (tasks != null && !tasks.isEmpty()) {
-      for (DownloadTaskEntity taskEntity : tasks) {
-        CommonUtil.delDownloadTaskConfig(mGTEntity.removeFile, taskEntity);
-      }
-    }
-
-    File dir = new File(mGTEntity.getEntity().getDirPath());
-    if (mGTEntity.removeFile) {
-      if (dir.exists()) {
-        dir.delete();
-      }
-    } else {
-      if (!mGTEntity.getEntity().isComplete()) {
-        dir.delete();
-      }
-    }
   }
 
   @Override public void stop() {
@@ -418,7 +395,7 @@ public abstract class AbsGroupUtil implements IUtil {
     taskEntity.headers = mGTEntity.headers;
     taskEntity.requestEnum = mGTEntity.requestEnum;
     taskEntity.removeFile = mGTEntity.removeFile;
-    taskEntity.groupName = mGTEntity.key;
+    taskEntity.groupName = mGTEntity.getKey();
     taskEntity.isGroupTask = true;
     taskEntity.requestType = mGTEntity.requestType;
     taskEntity.key = entity.getDownloadPath();

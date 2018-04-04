@@ -30,7 +30,6 @@ import com.arialyy.aria.util.CommonUtil;
  */
 public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
     implements IFtpTarget<FtpUploadTarget> {
-  private final String TAG = "FtpUploadTarget";
   private FtpDelegate<FtpUploadTarget, UploadEntity, UploadTaskEntity> mDelegate;
 
   FtpUploadTarget(String filePath, String targetName) {
@@ -51,14 +50,15 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
    */
   @Override
   public FtpUploadTarget setUploadUrl(@NonNull String uploadUrl) {
-    uploadUrl = CheckUtil.checkUrl(uploadUrl);
+    if (!CheckUtil.checkUrl(uploadUrl)) {
+      return this;
+    }
     if (!uploadUrl.endsWith("/")) {
       uploadUrl += "/";
     }
     mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(uploadUrl);
     if (mEntity.getUrl().equals(uploadUrl)) return this;
     mEntity.setUrl(uploadUrl);
-    mEntity.update();
     return this;
   }
 

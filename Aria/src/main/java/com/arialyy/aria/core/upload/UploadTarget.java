@@ -29,7 +29,6 @@ import java.util.Map;
  */
 public class UploadTarget extends BaseNormalTarget<UploadTarget>
     implements IHttpHeaderTarget<UploadTarget> {
-  private static final String TAG = "UploadTarget";
   private HttpHeaderDelegate<UploadTarget, UploadEntity, UploadTaskEntity> mDelegate;
 
   UploadTarget(String filePath, String targetName) {
@@ -47,12 +46,13 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
   }
 
   @Override public UploadTarget setUploadUrl(@NonNull String uploadUrl) {
-    uploadUrl = CheckUtil.checkUrl(uploadUrl);
+    if (!CheckUtil.checkUrl(uploadUrl)){
+      return this;
+    }
     if (mEntity.getUrl().equals(uploadUrl)) {
       return this;
     }
     mEntity.setUrl(uploadUrl);
-    mEntity.update();
     return this;
   }
 

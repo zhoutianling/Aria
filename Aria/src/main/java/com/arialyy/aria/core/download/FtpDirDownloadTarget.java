@@ -28,7 +28,6 @@ import com.arialyy.aria.util.ALog;
  */
 public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
     implements IFtpTarget<FtpDirDownloadTarget> {
-  private final String TAG = "FtpDirDownloadTarget";
   private FtpDelegate<FtpDirDownloadTarget, DownloadGroupEntity, DownloadGroupTaskEntity> mDelegate;
 
   FtpDirDownloadTarget(String url, String targetName) {
@@ -39,11 +38,8 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
   private void init(String key) {
     mGroupName = key;
     mTaskEntity = TEManager.getInstance().getTEntity(DownloadGroupTaskEntity.class, key);
-    if (mTaskEntity == null) {
-      mTaskEntity = TEManager.getInstance().createTEntity(DownloadGroupTaskEntity.class, key);
-    }
     mTaskEntity.requestType = AbsTaskEntity.D_FTP_DIR;
-    mEntity = mTaskEntity.entity;
+    mEntity = mTaskEntity.getEntity();
     if (mEntity != null) {
       mDirPathTemp = mEntity.getDirPath();
     }
@@ -55,7 +51,11 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
   }
 
   @Override protected boolean checkEntity() {
-    return getTargetType() == GROUP_FTP_DIR && checkDirPath() && checkUrl();
+    boolean b = getTargetType() == GROUP_FTP_DIR && checkDirPath() && checkUrl();
+    if (b) {
+      mTaskEntity.save(mEntity);
+    }
+    return b;
   }
 
   /**

@@ -16,6 +16,14 @@
 package com.arialyy.aria.orm;
 
 import android.text.TextUtils;
+import com.arialyy.aria.orm.annotation.Default;
+import com.arialyy.aria.orm.annotation.Foreign;
+import com.arialyy.aria.orm.annotation.Ignore;
+import com.arialyy.aria.orm.annotation.Many;
+import com.arialyy.aria.orm.annotation.NoNull;
+import com.arialyy.aria.orm.annotation.One;
+import com.arialyy.aria.orm.annotation.Primary;
+import com.arialyy.aria.orm.annotation.Wrapper;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -32,31 +40,41 @@ import java.util.Set;
 final class SqlUtil {
 
   /**
-   * 获取一对一参数
+   * 获取主键字段名
    */
-  static String getOneToOneParams(Field field) {
-    OneToOne oneToOne = field.getAnnotation(OneToOne.class);
-    if (oneToOne == null) {
-      throw new IllegalArgumentException("@OneToOne注解的对象必须要有@Primary注解的字段");
+  static String getPrimaryName(Class clazz) {
+    List<Field> fields = CommonUtil.getAllFields(clazz);
+    String column;
+    if (fields != null && !fields.isEmpty()) {
+
+      for (Field field : fields) {
+        field.setAccessible(true);
+        if (isPrimary(field)) {
+          column = field.getName();
+          return column;
+        }
+      }
     }
-    return oneToOne.table().getName() + "$$" + oneToOne.key();
+    return null;
   }
 
   /**
-   * 获取List一对多参数
-   *
-   * @param field list反射字段
+   * 获取类中所有不被忽略的字段
    */
-  static String getOneToManyElementParams(Field field) {
-    OneToMany oneToMany = field.getAnnotation(OneToMany.class);
-    if (oneToMany == null) {
-      throw new IllegalArgumentException("一对多元素必须被@OneToMany注解");
+  static List<Field> getAllNotIgnoreField(Class clazz) {
+    List<Field> fields = CommonUtil.getAllFields(clazz);
+    List<Field> temp = new ArrayList<>();
+    if (fields != null && fields.size() > 0) {
+      for (Field f : fields) {
+        f.setAccessible(true);
+        if (!isIgnore(f)) {
+          temp.add(f);
+        }
+      }
+      return temp;
+    } else {
+      return null;
     }
-    //关联的表名
-    String tableName = oneToMany.table().getName();
-    //关联的字段
-    String key = oneToMany.key();
-    return tableName + "$$" + key;
   }
 
   /**
@@ -65,10 +83,6 @@ final class SqlUtil {
    * @param field list反射字段
    */
   static String list2Str(DbEntity dbEntity, Field field) throws IllegalAccessException {
-    NormalList normalList = field.getAnnotation(NormalList.class);
-    if (normalList == null) {
-      throw new IllegalArgumentException("List中元素必须被@NormalList注解");
-    }
     List list = (List) field.get(dbEntity);
     if (list == null || list.isEmpty()) return "";
     StringBuilder sb = new StringBuilder();
@@ -85,17 +99,17 @@ final class SqlUtil {
    * @return 如果str为null，则返回null
    */
   static List str2List(String str, Field field) {
-    NormalList normalList = field.getAnnotation(NormalList.class);
-    if (normalList == null) {
-      throw new IllegalArgumentException("List中元素必须被@NormalList注解");
-    }
     if (TextUtils.isEmpty(str)) return null;
     String[] datas = str.split("\\$\\$");
     List list = new ArrayList();
-    String type = normalList.clazz().getName();
-    for (String data : datas) {
-      list.add(checkData(type, data));
+    Class clazz = CommonUtil.getListParamType(field);
+    if (clazz != null) {
+      String type = clazz.getName();
+      for (String data : datas) {
+        list.add(checkData(type, data));
+      }
     }
+
     return list;
   }
 
@@ -152,9 +166,12 @@ final class SqlUtil {
   }
 
   /**
+   * shadow$_klass_、shadow$_monitor_、{@link Ignore}、rowID、{@link Field#isSynthetic()}、{@link
+   * Modifier#isFinal(int)}、{@link Modifier#isStatic(int)}将被忽略
+   *
    * @return true 忽略该字段
    */
-  static boolean ignoreField(Field field) {
+  static boolean isIgnore(Field field) {
     // field.isSynthetic(), 使用as热启动App时，AS会自动给你的class添加change字段
     Ignore ignore = field.getAnnotation(Ignore.class);
     int modifiers = field.getModifiers();
@@ -165,18 +182,28 @@ final class SqlUtil {
   }
 
   /**
+   * 判断是否是Wrapper注解
+   *
+   * @return {@code true} 是
+   */
+  static boolean isWrapper(Class clazz) {
+    Wrapper w = (Wrapper) clazz.getAnnotation(Wrapper.class);
+    return w != null;
+  }
+
+  /**
    * 判断是否一对多注解
    */
-  static boolean isOneToMany(Field field) {
-    OneToMany oneToMany = field.getAnnotation(OneToMany.class);
+  static boolean isMany(Field field) {
+    Many oneToMany = field.getAnnotation(Many.class);
     return oneToMany != null;
   }
 
   /**
    * 判断是否是一对一注解
    */
-  static boolean isOneToOne(Field field) {
-    OneToOne oneToOne = field.getAnnotation(OneToOne.class);
+  static boolean isOne(Field field) {
+    One oneToOne = field.getAnnotation(One.class);
     return oneToOne != null;
   }
 
@@ -210,6 +237,16 @@ final class SqlUtil {
     return nn != null;
   }
 
+  /**
+   * 判断是否是default
+   *
+   * @return {@code true}为default
+   */
+  static boolean isDefault(Field field) {
+    Default nn = field.getAnnotation(Default.class);
+    return nn != null;
+  }
+
   private static Object checkData(String type, String data) {
     if (type.equalsIgnoreCase("java.lang.String")) {
       return data;
@@ -219,19 +256,6 @@ final class SqlUtil {
       return Double.parseDouble(data);
     } else if (type.equalsIgnoreCase("float") || type.equals("java.lang.Float")) {
       return Float.parseFloat(data);
-    }
-    return null;
-  }
-
-  /**
-   * 查找class的主键字段
-   *
-   * @return 返回主键字段名
-   */
-  static String getPrimaryName(Class<? extends DbEntity> clazz) {
-    List<Field> fields = CommonUtil.getAllFields(clazz);
-    for (Field field : fields) {
-      if (isPrimary(field)) return field.getName();
     }
     return null;
   }

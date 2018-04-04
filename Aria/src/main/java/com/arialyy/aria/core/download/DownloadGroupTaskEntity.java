@@ -16,24 +16,42 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
-import com.arialyy.aria.orm.OneToOne;
+import com.arialyy.aria.orm.annotation.Foreign;
+import com.arialyy.aria.orm.annotation.Ignore;
+import com.arialyy.aria.orm.annotation.Primary;
 
 /**
  * Created by AriaL on 2017/7/1.
  */
 public class DownloadGroupTaskEntity extends AbsGroupTaskEntity<DownloadGroupEntity> {
 
-  @OneToOne(table = DownloadGroupEntity.class, key = "groupName") public DownloadGroupEntity entity;
+  @Ignore private DownloadGroupEntity entity;
+
+  @Primary @Foreign(parent = DownloadGroupEntity.class, column = "groupName")
+  private String key;
 
   @Override public DownloadGroupEntity getEntity() {
     return entity;
   }
 
+  public void setEntity(DownloadGroupEntity entity) {
+    this.entity = entity;
+  }
 
-  public void save(DownloadGroupEntity groupEntity){
-    key = groupEntity.getKey();
-    entity = groupEntity;
-    groupEntity.save();
+  @Override public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public void save(DownloadGroupEntity groupEntity) {
+    if (groupEntity != null) {
+      key = groupEntity.getKey();
+      entity = groupEntity;
+      groupEntity.save();
+    }
     save();
   }
 }

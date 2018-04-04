@@ -18,8 +18,7 @@ package com.arialyy.aria.core.download;
 import android.os.Parcel;
 import com.arialyy.aria.core.inf.AbsGroupEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.orm.OneToMany;
-import java.util.ArrayList;
+import com.arialyy.aria.orm.annotation.Ignore;
 import java.util.List;
 
 /**
@@ -28,8 +27,11 @@ import java.util.List;
  */
 public class DownloadGroupEntity extends AbsGroupEntity {
 
-  @OneToMany(table = DownloadEntity.class, key = "groupName") private List<DownloadEntity> subtask =
-      new ArrayList<>();
+  //@OneToMany(table = DownloadEntity.class, key = "groupName") private List<DownloadEntity> subtask =
+  //    new ArrayList<>();
+
+  @Ignore
+  private List<DownloadEntity> subtask;
 
   /**
    * 任务组下载文件的文件夹地址

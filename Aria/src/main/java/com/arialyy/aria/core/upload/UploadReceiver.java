@@ -20,9 +20,7 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.ProxyHelper;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
-import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
@@ -92,7 +90,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   @Override public void removeAllTask(boolean removeFile) {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
 
-    am.setCmd(CommonUtil.createNormalCmd(targetName, new DownloadTaskEntity(),
+    am.setCmd(CommonUtil.createNormalCmd(targetName, new UploadTaskEntity(),
         NormalCmdFactory.TASK_CANCEL_ALL, ICmd.TASK_TYPE_UPLOAD)).exe();
 
     Set<String> keys = am.getReceiver().keySet();

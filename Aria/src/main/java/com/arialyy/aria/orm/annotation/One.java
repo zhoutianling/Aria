@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.arialyy.aria.orm;
+package com.arialyy.aria.orm.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -22,9 +21,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by lyy on 2015/11/2.
- * 非空字段
+ * Created by AriaL on 2017/7/4.
+ * 一
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface NoNull {
-  boolean value() default true;
+@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface One {
+
 }

@@ -63,10 +63,8 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
     }
     if (mTaskEntity.headers.get(key) == null) {
       mTaskEntity.headers.put(key, value);
-      mTaskEntity.update();
     } else if (!mTaskEntity.headers.get(key).equals(value)) {
       mTaskEntity.headers.put(key, value);
-      mTaskEntity.update();
     }
     return mTarget;
   }
@@ -122,7 +120,6 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
       for (String key : keys) {
         mTaskEntity.headers.put(key, headers.get(key));
       }
-      mTaskEntity.update();
     }
 
     return mTarget;

@@ -77,7 +77,6 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
             || task.getState() == IEntity.STATE_OTHER
             || task.getState() == IEntity.STATE_POST_PRE
             || task.getState() == IEntity.STATE_COMPLETE) {
-          //startTask();
           resumeTask();
         } else {
           sendWaitState();
@@ -85,7 +84,6 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       }
     } else {
       if (!task.isRunning()) {
-        //startTask();
         resumeTask();
       }
     }

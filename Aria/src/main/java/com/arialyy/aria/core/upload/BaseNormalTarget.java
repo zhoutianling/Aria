@@ -17,12 +17,9 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
-import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 
 /**
@@ -30,13 +27,9 @@ import java.io.File;
  */
 abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
     extends AbsUploadTarget<TARGET, UploadEntity, UploadTaskEntity> {
-  private static final String TAG = "BaseNormalTarget";
 
   protected void initTarget(String filePath) {
     mTaskEntity = TEManager.getInstance().getTEntity(UploadTaskEntity.class, filePath);
-    if (mTaskEntity == null) {
-      mTaskEntity = TEManager.getInstance().createTEntity(UploadTaskEntity.class, filePath);
-    }
     mEntity = mTaskEntity.entity;
     File file = new File(filePath);
     mEntity.setFileName(file.getName());
@@ -74,7 +67,11 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
   }
 
   @Override protected boolean checkEntity() {
-    return checkUrl() && checkFilePath();
+    boolean b = checkUrl() && checkFilePath();
+    if (b) {
+      mTaskEntity.save(mEntity);
+    }
+    return b;
   }
 
   /**

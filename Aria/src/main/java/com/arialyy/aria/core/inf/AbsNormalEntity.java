@@ -17,8 +17,6 @@ package com.arialyy.aria.core.inf;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.orm.Ignore;
 
 /**
  * Created by AriaL on 2017/6/3.

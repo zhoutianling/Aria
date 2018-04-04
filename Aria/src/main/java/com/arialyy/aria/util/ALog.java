@@ -25,7 +25,7 @@ import android.util.Log;
  * Aria日志工具
  */
 public class ALog {
-
+  public static final boolean DEBUG = true;
   public static final int LOG_LEVEL_VERBOSE = 2;
   public static final int LOG_LEVEL_DEBUG = 3;
   public static final int LOG_LEVEL_INFO = 4;

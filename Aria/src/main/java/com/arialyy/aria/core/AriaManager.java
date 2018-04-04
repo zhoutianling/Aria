@@ -41,7 +41,7 @@ import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.orm.DbUtil;
+import com.arialyy.aria.orm.DelegateWrapper;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -77,7 +77,7 @@ import org.xml.sax.SAXException;
   private Configuration.UploadConfig mUConfig;
 
   private AriaManager(Context context) {
-    DbUtil.init(context.getApplicationContext());
+    DelegateWrapper.init(context.getApplicationContext());
     APP = context.getApplicationContext();
     regAppLifeCallback(context);
     initConfig();

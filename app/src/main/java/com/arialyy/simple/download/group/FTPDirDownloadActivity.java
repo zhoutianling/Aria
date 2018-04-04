@@ -43,7 +43,7 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
     super.init(savedInstanceState);
     Aria.download(this).register();
     setTitle("FTP文件夹下载");
-    DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(dir);
+    DownloadGroupTaskEntity entity = Aria.download(this).getFtpDirTask(dir);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
       mChildList.addData(groupEntity.getSubTask());

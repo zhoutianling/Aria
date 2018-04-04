@@ -22,10 +22,6 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
  * Created by Aria.Lao on 2017/11/1.
  */
 interface ITEntityFactory<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>> {
-  /**
-   * 通过信息实体创建任务实体
-   */
-  TASK_ENTITY create(ENTITY entity);
 
   /**
    * 通过key创建任务，只适应于单任务

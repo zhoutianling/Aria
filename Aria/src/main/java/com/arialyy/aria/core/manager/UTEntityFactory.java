@@ -15,10 +15,13 @@
  */
 package com.arialyy.aria.core.manager;
 
+import android.text.TextUtils;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.core.upload.UploadTaskWrapper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.Regular;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -41,17 +44,26 @@ class UTEntityFactory implements ITEntityFactory<UploadEntity, UploadTaskEntity>
     return INSTANCE;
   }
 
-  @Override public UploadTaskEntity create(UploadEntity entity) {
-    UploadTaskEntity uTaskEntity =
-        DbEntity.findFirst(UploadTaskEntity.class, "key=?", entity.getFilePath());
-    if (uTaskEntity == null) {
-      uTaskEntity = new UploadTaskEntity();
+  private UploadTaskEntity create(UploadEntity entity) {
+    List<UploadTaskWrapper> wrapper =
+        DbEntity.findRelationData(UploadTaskWrapper.class, "UploadTaskEntity.key=?",
+            entity.getFilePath());
+
+    if (wrapper != null && !wrapper.isEmpty()) {
+      UploadTaskEntity uTaskEntity = wrapper.get(0).taskEntity;
+      if (uTaskEntity == null) {
+        uTaskEntity = new UploadTaskEntity();
+        uTaskEntity.entity = entity;
+      } else if (uTaskEntity.entity == null || TextUtils.isEmpty(
+          uTaskEntity.entity.getFilePath())) {
+        uTaskEntity.entity = entity;
+      }
+      return uTaskEntity;
+    } else {
+      UploadTaskEntity uTaskEntity = new UploadTaskEntity();
       uTaskEntity.entity = entity;
+      return uTaskEntity;
     }
-    if (uTaskEntity.entity == null) {
-      uTaskEntity.entity = entity;
-    }
-    return uTaskEntity;
   }
 
   @Override public UploadTaskEntity create(String key) {
@@ -67,14 +79,12 @@ class UTEntityFactory implements ITEntityFactory<UploadEntity, UploadTaskEntity>
     UploadEntity entity = UploadEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
     if (entity == null) {
       entity = new UploadEntity();
-      //String regex = "[/|\\\\|//]";
       String regex = Regular.REG_FILE_NAME;
       Pattern p = Pattern.compile(regex);
       String[] strs = p.split(filePath);
       String fileName = strs[strs.length - 1];
       entity.setFileName(fileName);
       entity.setFilePath(filePath);
-      entity.insert();
     }
     return entity;
   }

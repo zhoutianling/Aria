@@ -18,7 +18,6 @@ package com.arialyy.aria.core.download;
 import android.text.TextUtils;
 import com.arialyy.aria.core.manager.SubTaskManager;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
-import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import java.io.File;
@@ -29,7 +28,6 @@ import java.util.List;
  */
 abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
     extends AbsDownloadTarget<TARGET, DownloadGroupEntity, DownloadGroupTaskEntity> {
-  private static final String TAG = "BaseGroupTarget";
 
   /**
    * 组任务名
@@ -60,7 +58,6 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
   public TARGET setGroupAlias(String alias) {
     if (TextUtils.isEmpty(alias)) return (TARGET) this;
     mEntity.setAlias(alias);
-    mEntity.update();
     return (TARGET) this;
   }
 
@@ -158,7 +155,6 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
       }
       mEntity.setDirPath(dirPath);
       reChangeDirPath(dirPath);
-      mEntity.update();
     }
 
     return true;

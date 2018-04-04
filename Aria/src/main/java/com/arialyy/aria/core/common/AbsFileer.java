@@ -18,11 +18,13 @@ package com.arialyy.aria.core.common;
 import android.content.Context;
 import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEventListener;
+import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
@@ -88,7 +90,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       }
     }
   }
-
 
   @Override public void run() {
     if (mConstance.isRunning) {
@@ -193,9 +194,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       }
     }
     if (mTaskEntity instanceof DownloadTaskEntity) {
-      CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile, (DownloadTaskEntity) mTaskEntity);
+      CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile,
+          (DownloadEntity) mTaskEntity.getEntity());
     } else if (mTaskEntity instanceof UploadTaskEntity) {
-      CommonUtil.delUploadTaskConfig(mTaskEntity.removeFile, (UploadTaskEntity) mTaskEntity);
+      CommonUtil.delUploadTaskConfig(mTaskEntity.removeFile,
+          (UploadEntity) mTaskEntity.getEntity());
     }
   }
 
@@ -225,7 +228,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   @Override public void resume() {
     start();
   }
-
 
   /**
    * 检查任务是否是新任务，新任务条件：

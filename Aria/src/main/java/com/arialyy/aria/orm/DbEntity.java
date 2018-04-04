@@ -28,7 +28,7 @@ import java.util.Map;
  * Created by lyy on 2015/11/2.
  * 所有数据库实体父类
  */
-public class DbEntity {
+public abstract class DbEntity {
   private static final Object LOCK = new Object();
   protected int rowID = -1;
 
@@ -36,15 +36,14 @@ public class DbEntity {
 
   }
 
-  ///**
-  // * 关键字模糊检索全文
-  // *
-  // * @param column 需要查找的列
-  // * @param mathSql 关键字语法，exsimple “white OR green”、“blue AND red”、“white NOT green”
-  // */
-  //public static <T extends DbEntity> List<T> searchData(Class<T> clazz, String column, String mathSql) {
-  //  return DbUtil.getInstance().searchData(clazz, column, mathSql);
-  //}
+  /**
+   * 查询关联数据
+   *
+   * @param expression 查询条件
+   */
+  public static <T extends AbsWrapper> List<T> findRelationData(Class<T> clazz, String... expression) {
+    return DelegateWrapper.getInstance().findRelationData(clazz, expression);
+  }
 
   /**
    * 检查某个字段的值是否存在
@@ -53,21 +52,21 @@ public class DbEntity {
    * @return {@code true}该字段的对应的value已存在
    */
   public static boolean checkDataExist(Class clazz, String... expression) {
-    return DbUtil.getInstance().checkDataExist(clazz, expression);
+    return DelegateWrapper.getInstance().checkDataExist(clazz, expression);
   }
 
   /**
    * 清空表数据
    */
   public static <T extends DbEntity> void clean(Class<T> clazz) {
-    DbUtil.getInstance().clean(clazz);
+    DelegateWrapper.getInstance().clean(clazz);
   }
 
   /**
    * 直接执行sql语句
    */
   public static void exeSql(String sql) {
-    DbUtil.getInstance().exeSql(sql);
+    DelegateWrapper.getInstance().exeSql(sql);
   }
 
   /**
@@ -76,7 +75,7 @@ public class DbEntity {
    * @return 没有数据返回null
    */
   public static <T extends DbEntity> List<T> findAllData(Class<T> clazz) {
-    DbUtil util = DbUtil.getInstance();
+    DelegateWrapper util = DelegateWrapper.getInstance();
     return util.findAllData(clazz);
   }
 
@@ -97,7 +96,7 @@ public class DbEntity {
    * @return 没有数据返回null
    */
   public static <T extends DbEntity> List<T> findDatas(Class<T> clazz, String... expression) {
-    DbUtil util = DbUtil.getInstance();
+    DelegateWrapper util = DelegateWrapper.getInstance();
     return util.findData(clazz, expression);
   }
 
@@ -110,7 +109,7 @@ public class DbEntity {
    * @return 没有数据返回null
    */
   public static <T extends DbEntity> T findFirst(Class<T> clazz, String... expression) {
-    DbUtil util = DbUtil.getInstance();
+    DelegateWrapper util = DelegateWrapper.getInstance();
     List<T> datas = util.findData(clazz, expression);
     return datas == null ? null : datas.size() > 0 ? datas.get(0) : null;
   }
@@ -119,14 +118,14 @@ public class DbEntity {
    * 获取所有行的rowid
    */
   public int[] getRowIds() {
-    return DbUtil.getInstance().getRowId(getClass());
+    return DelegateWrapper.getInstance().getRowId(getClass());
   }
 
   /**
    * 获取rowid
    */
   public int getRowId(@NonNull Object[] wheres, @NonNull Object[] values) {
-    return DbUtil.getInstance().getRowId(getClass(), wheres, values);
+    return DelegateWrapper.getInstance().getRowId(getClass(), wheres, values);
   }
 
   /**
@@ -143,7 +142,7 @@ public class DbEntity {
    * </code>
    */
   public static <T extends DbEntity> void deleteData(Class<T> clazz, String... expression) {
-    DbUtil util = DbUtil.getInstance();
+    DelegateWrapper util = DelegateWrapper.getInstance();
     util.delData(clazz, expression);
   }
 
@@ -151,7 +150,7 @@ public class DbEntity {
    * 修改数据
    */
   public void update() {
-    DbUtil.getInstance().modifyData(this);
+    DelegateWrapper.getInstance().modifyData(this);
   }
 
   /**
@@ -171,7 +170,7 @@ public class DbEntity {
    * 查找数据在表中是否存在
    */
   private boolean thisIsExist() {
-    DbUtil util = DbUtil.getInstance();
+    DelegateWrapper util = DelegateWrapper.getInstance();
     return util.isExist(getClass(), rowID);
   }
 
@@ -179,45 +178,38 @@ public class DbEntity {
    * 插入数据
    */
   public void insert() {
-    DbUtil.getInstance().insertData(this);
+    DelegateWrapper.getInstance().insertData(this);
     updateRowID();
-  }
-
-  private <T extends DbEntity> T findFirst(Class<T> clazz, @NonNull String[] wheres,
-      @NonNull String[] values) {
-    DbUtil util = DbUtil.getInstance();
-    List<T> list = util.findData(clazz, wheres, values);
-    return list == null ? null : list.get(0);
   }
 
   private void updateRowID() {
     try {
       List<Field> fields = CommonUtil.getAllFields(getClass());
-      List<String> where = new ArrayList<>();
+      StringBuilder sb = new StringBuilder();
+      List<String> params = new ArrayList<>();
       List<String> values = new ArrayList<>();
       for (Field field : fields) {
         field.setAccessible(true);
-        if (SqlUtil.ignoreField(field)) {
+        if (SqlUtil.isIgnore(field)) {
           continue;
         }
-        where.add(field.getName());
+        sb.append(field.getName()).append("=? AND ");
         Type type = field.getType();
-        if (SqlUtil.isOneToOne(field)) {
-          values.add(SqlUtil.getOneToOneParams(field));
-        } else if (type == List.class) {
-          if (SqlUtil.isOneToMany(field)) {
-            values.add(SqlUtil.getOneToManyElementParams(field));
-          } else {
-            values.add(SqlUtil.list2Str(this, field));
-          }
+        if (type == List.class) {
+          values.add(SqlUtil.list2Str(this, field));
         } else if (type == Map.class) {
           values.add(SqlUtil.map2Str((Map<String, String>) field.get(this)));
         } else {
           values.add(field.get(this) + "");
         }
       }
-      DbEntity entity = findFirst(getClass(), where.toArray(new String[where.size()]),
-          values.toArray(new String[values.size()]));
+
+      String temp = sb.toString();
+      String p = temp.substring(0, temp.length() - 5);
+
+      params.add(p);
+      params.addAll(values);
+      DbEntity entity = findFirst(getClass(), params.toArray(new String[params.size()]));
       if (entity != null) {
         rowID = entity.rowID;
       }

@@ -27,7 +27,6 @@ import com.arialyy.aria.util.CommonUtil;
  */
 public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
     implements IFtpTarget<FtpDownloadTarget> {
-  private final String TAG = "FtpDownloadTarget";
   private FtpDelegate<FtpDownloadTarget, DownloadEntity, DownloadTaskEntity> mDelegate;
 
   FtpDownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {

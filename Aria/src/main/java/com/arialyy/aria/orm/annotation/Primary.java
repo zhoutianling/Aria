@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.orm;
+
+package com.arialyy.aria.orm.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -21,12 +22,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Created by AriaL on 2017/7/4.
- * 基本类型的List，只能用于常见的数据类型，如果是一对多的复杂数据结构，需要使用{@link OneToMany}
+ * Created by lyy on 2015/11/2.
+ * 表ID字段指定
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface NormalList {
+@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Primary {
+  int value() default -1;
+
   /**
-   * 数据类型
+   * 字段需要int类型才可以自增
    */
-  Class clazz();
+  boolean autoincrement() default false;
 }

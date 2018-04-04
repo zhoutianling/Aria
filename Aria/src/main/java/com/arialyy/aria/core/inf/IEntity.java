@@ -15,7 +15,7 @@
  */
 package com.arialyy.aria.core.inf;
 
-import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.orm.annotation.Ignore;
 
 /**
  * Created by lyy on 2017/2/23.

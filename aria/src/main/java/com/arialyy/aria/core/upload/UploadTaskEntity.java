@@ -16,7 +16,9 @@
 package com.arialyy.aria.core.upload;
 
 import com.arialyy.aria.core.inf.AbsNormalTaskEntity;
-import com.arialyy.aria.orm.OneToOne;
+import com.arialyy.aria.orm.annotation.Foreign;
+import com.arialyy.aria.orm.annotation.Ignore;
+import com.arialyy.aria.orm.annotation.Primary;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,8 +30,15 @@ public class UploadTaskEntity extends AbsNormalTaskEntity<UploadEntity> {
   public String attachment;  //文件上传需要的key
   public String contentType = "multipart/form-data"; //上传的文件类型
   public String userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)";
-  @OneToOne(table = UploadEntity.class, key = "filePath") public UploadEntity entity;
+
+  //@OneToOne(table = UploadEntity.class, key = "filePath") public UploadEntity entity;
+
+  @Ignore public UploadEntity entity;
+
   public String filePath = "";
+
+  @Primary @Foreign(parent = UploadEntity.class, column = "filePath")
+  public String key;
 
   /**
    * 文件上传表单
@@ -43,11 +52,17 @@ public class UploadTaskEntity extends AbsNormalTaskEntity<UploadEntity> {
     return entity;
   }
 
+  @Override public String getKey() {
+    return key;
+  }
+
   public void save(UploadEntity entity) {
-    filePath = entity.getFilePath();
-    key = entity.getKey();
-    this.entity = entity;
-    entity.save();
+    if (entity != null) {
+      filePath = entity.getFilePath();
+      key = entity.getKey();
+      this.entity = entity;
+      entity.save();
+    }
     save();
   }
 }

@@ -29,7 +29,6 @@ import java.io.File;
 abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
     extends AbsDownloadTarget<TARGET, DownloadEntity, DownloadTaskEntity> {
 
-  private static final String TAG = "BaseNormalTarget";
   /**
    * 资源地址
    */
@@ -42,9 +41,6 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
     this.url = url;
     mTargetName = targetName;
     mTaskEntity = TEManager.getInstance().getTEntity(DownloadTaskEntity.class, url);
-    if (mTaskEntity == null) {
-      mTaskEntity = TEManager.getInstance().createTEntity(DownloadTaskEntity.class, url);
-    }
     mEntity = mTaskEntity.entity;
     mTaskEntity.refreshInfo = refreshInfo;
     if (mEntity != null) {
@@ -110,7 +106,11 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
    * @return {@code true}合法
    */
   @Override protected boolean checkEntity() {
-    return getTargetType() < GROUP_HTTP && checkUrl() && checkFilePath();
+    boolean b = getTargetType() < GROUP_HTTP && checkUrl() && checkFilePath();
+    if (b) {
+      mTaskEntity.save(mEntity);
+    }
+    return b;
   }
 
   /**
@@ -149,7 +149,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
         mEntity.setDownloadPath(filePath);
         mEntity.setFileName(newFile.getName());
         mTaskEntity.key = filePath;
-        mTaskEntity.update();
+        //mTaskEntity.update();
         CommonUtil.renameDownloadConfig(oldFile.getName(), newFile.getName());
       }
     }

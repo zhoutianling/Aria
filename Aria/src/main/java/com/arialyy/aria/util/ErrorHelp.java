@@ -35,6 +35,8 @@ public class ErrorHelp {
    * @param msg 错误提示
    * @param ex 异常
    */
+  // TODO: 2018/4/4 错误应该写在文件中
+  @Deprecated
   public static void saveError(String taskType, AbsEntity entity, String msg, String ex) {
     ErrorEntity errorEntity = new ErrorEntity();
     errorEntity.insertTime = System.currentTimeMillis();

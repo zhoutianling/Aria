@@ -16,17 +16,19 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsNormalTaskEntity;
-import com.arialyy.aria.orm.Ignore;
-import com.arialyy.aria.orm.NoNull;
-import com.arialyy.aria.orm.OneToOne;
+import com.arialyy.aria.orm.annotation.Foreign;
+import com.arialyy.aria.orm.annotation.Ignore;
+import com.arialyy.aria.orm.annotation.NoNull;
+import com.arialyy.aria.orm.annotation.Primary;
 
 /**
  * Created by lyy on 2017/1/23.
- * 下载任务实体
+ * 下载任务实体和下载实体为一对一关系，下载实体删除，任务实体自动删除
  */
 public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
 
-  @OneToOne(table = DownloadEntity.class, key = "downloadPath") public DownloadEntity entity;
+  //@OneToOne(table = DownloadEntity.class, key = "downloadPath") public DownloadEntity entity;
+  @Ignore public DownloadEntity entity;
 
   /**
    * 任务的url
@@ -48,11 +50,20 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
    */
   public boolean isGroupTask = false;
 
+  /**
+   * Task实体对应的key
+   */
+  @Primary @Foreign(parent = DownloadEntity.class, column = "downloadPath") public String key = "";
+
   public DownloadTaskEntity() {
   }
 
   @Override public DownloadEntity getEntity() {
     return entity;
+  }
+
+  @Override public String getKey() {
+    return key;
   }
 
   public void save(DownloadEntity entity) {

@@ -20,21 +20,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.support.annotation.NonNull;
-import android.support.v4.util.LruCache;
 import android.text.TextUtils;
-import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.util.ALog;
-import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -43,31 +33,34 @@ import java.util.Set;
  */
 final class SqlHelper extends SQLiteOpenHelper {
   private static final String TAG = "SqlHelper";
-  private static final int CREATE_TABLE = 0;
-  private static final int TABLE_EXISTS = 1;
-  private static final int INSERT_DATA = 2;
-  private static final int MODIFY_DATA = 3;
-  private static final int FIND_DATA = 4;
-  private static final int FIND_ALL_DATA = 5;
-  private static final int DEL_DATA = 6;
+  /**
+   * 是否将数据库保存在Sd卡，{@code true} 是
+   */
+  private static final boolean SAVE_IN_SDCARD = false;
 
-  private static volatile SqlHelper INSTANCE = null;
-  private static LruCache<String, DbEntity> mDataCache = new LruCache<>(1024);
-  //private static Map<String, DbEntity> mDataCache = new ConcurrentHashMap<>();
+  static volatile SqlHelper INSTANCE = null;
+
+  private DelegateCommon mDelegate;
 
   static SqlHelper init(Context context) {
     if (INSTANCE == null) {
-      synchronized (AriaManager.LOCK) {
-        INSTANCE = new SqlHelper(context.getApplicationContext());
+      synchronized (SqlHelper.class) {
+        DelegateCommon delegate = DelegateManager.getInstance().getDelegate(DelegateCommon.class);
+        INSTANCE = new SqlHelper(context.getApplicationContext(), delegate);
         SQLiteDatabase db = INSTANCE.getWritableDatabase();
-        db = checkDb(db);
+        db = delegate.checkDb(db);
+        // SQLite在3.6.19版本中开始支持外键约束，
+        // 而在Android中 2.1以前的版本使用的SQLite版本是3.5.9， 在2.2版本中使用的是3.6.22.
+        // 但是为了兼容以前的程序，默认并没有启用该功能，如果要启用该功能
+        // 需要使用如下语句：
+        db.execSQL("PRAGMA foreign_keys=ON;");
         Set<String> tables = DBConfig.mapping.keySet();
         for (String tableName : tables) {
           Class clazz = null;
           clazz = DBConfig.mapping.get(tableName);
 
-          if (!tableExists(db, clazz)) {
-            createTable(db, clazz, null);
+          if (!delegate.tableExists(db, clazz)) {
+            delegate.createTable(db, clazz);
           }
         }
       }
@@ -75,8 +68,10 @@ final class SqlHelper extends SQLiteOpenHelper {
     return INSTANCE;
   }
 
-  private SqlHelper(Context context) {
-    super(context, DBConfig.DB_NAME, null, DBConfig.VERSION);
+  private SqlHelper(Context context, DelegateCommon delegate) {
+    super(SAVE_IN_SDCARD ? new DatabaseContext(context) : context, DBConfig.DB_NAME, null,
+        DBConfig.VERSION);
+    mDelegate = delegate;
   }
 
   @Override public void onCreate(SQLiteDatabase db) {
@@ -85,7 +80,11 @@ final class SqlHelper extends SQLiteOpenHelper {
 
   @Override public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     if (oldVersion < newVersion) {
-      handleDbUpdate(db);
+      if (oldVersion < 31) {
+        handle314AriaUpdate(db);
+      } else {
+        handleDbUpdate(db);
+      }
     }
   }
 
@@ -110,635 +109,98 @@ final class SqlHelper extends SQLiteOpenHelper {
     Set<String> tables = DBConfig.mapping.keySet();
     for (String tableName : tables) {
       Class clazz = DBConfig.mapping.get(tableName);
-      if (tableExists(db, clazz)) {
+      if (mDelegate.tableExists(db, clazz)) {
         String countColumnSql = "SELECT rowid FROM " + tableName;
         Cursor cursor = db.rawQuery(countColumnSql, null);
         int dbColumnNum = cursor.getColumnCount();
-        int newEntityColumnNum = getEntityAttr(clazz);
+        List<Field> fields = SqlUtil.getAllNotIgnoreField(clazz);
+        int newEntityColumnNum = (fields == null || fields.isEmpty()) ? 0 : fields.size();
         if (dbColumnNum != newEntityColumnNum) {
-          back(db, clazz);
+          db = mDelegate.checkDb(db);
+          //备份数据
+          List<DbEntity> list =
+              DelegateManager.getInstance().getDelegate(DelegateFind.class).findAllData(db, clazz);
+          //修改表名为中介表名
+          String alertSql = "ALTER TABLE " + tableName + " RENAME TO " + tableName + "_temp";
+          //db.beginTransaction();
+          db.execSQL(alertSql);
+
+          //创建一个原本的表
+          mDelegate.createTable(db, clazz);
+          //传入原来的数据
+          if (list != null && list.size() > 0) {
+            DelegateUpdate update = DelegateManager.getInstance().getDelegate(DelegateUpdate.class);
+            for (DbEntity entity : list) {
+              update.insertData(db, entity);
+            }
+          }
+          //删除中介表
+          mDelegate.dropTable(db, tableName + "_temp");
         }
       }
     }
+    //db.setTransactionSuccessful();
+    //db.endTransaction();
+    mDelegate.close(db);
   }
 
   /**
-   * 备份
+   * 处理3.4版本之前数据库迁移，主要是修改子表外键字段对应的值
    */
-  private void back(SQLiteDatabase db, Class clazz) {
-    db = checkDb(db);
-    String oldTableName = CommonUtil.getClassName(clazz);
-    //备份数据
-    List<DbEntity> list = findAllData(db, clazz);
-    //修改原来表名字
-    String alertSql = "alter table " + oldTableName + " rename to " + oldTableName + "_temp";
-    db.beginTransaction();
-    db.execSQL(alertSql);
-    //创建一个原来新表
-    createTable(db, clazz, null);
-    if (list != null && list.size() > 0) {
-      for (DbEntity entity : list) {
-        insertData(db, entity);
+  private void handle314AriaUpdate(SQLiteDatabase db) {
+    Set<String> tables = DBConfig.mapping.keySet();
+    for (String tableName : tables) {
+      Class clazz = DBConfig.mapping.get(tableName);
+
+      String pColumn = SqlUtil.getPrimaryName(clazz);
+      if (!TextUtils.isEmpty(pColumn)) {
+        //删除所有主键为null的数据
+        String nullSql =
+            "DELETE FROM " + tableName + " WHERE " + pColumn + " = '' OR " + pColumn + " IS NULL";
+        ALog.d(TAG, nullSql);
+        db.execSQL(nullSql);
+
+        //删除所有主键重复的数据
+        String repeatSql = "DELETE FROM "
+            + tableName
+            + " WHERE "
+            + pColumn
+            + " in (SELECT "
+            + pColumn
+            + " FROM "
+            + tableName
+            + " GROUP BY " + pColumn + " having  count(" + pColumn + ") > 1)";
+
+        ALog.d(TAG, repeatSql);
+        db.execSQL(repeatSql);
       }
-    }
-    //删除原来的表
-    String deleteSQL = "drop table IF EXISTS " + oldTableName + "_temp";
-    db.execSQL(deleteSQL);
-    db.setTransactionSuccessful();
-    db.endTransaction();
-    close(db);
-  }
 
-  /**
-   * 获取实体的字段数
-   */
-  private int getEntityAttr(Class clazz) {
-    int count = 1;
-    List<Field> fields = CommonUtil.getAllFields(clazz);
-    if (fields != null && fields.size() > 0) {
-      for (Field field : fields) {
-        field.setAccessible(true);
-        if (SqlUtil.ignoreField(field)) {
-          continue;
-        }
-        count++;
-      }
-    }
-    return count;
-  }
+      //备份数据
+      List<DbEntity> list =
+          DelegateManager.getInstance().getDelegate(DelegateFind.class).findAllData(db, clazz);
 
-  ///**
-  // * 关键字模糊检索全文
-  // *
-  // * @param column 需要查找的列
-  // * @param mathSql 关键字语法，exsimple “white OR green”、“blue AND red”、“white NOT green”
-  // */
-  //public static <T extends DbEntity> List<T> searchData(SQLiteDatabase db, Class<T> clazz,
-  //    String column, String mathSql) {
-  //  String sql = "SELECT * FROM "
-  //      + CommonUtil.getClassName(clazz)
-  //      + " WHERE "
-  //      + column
-  //      + " MATCH '"
-  //      + mathSql
-  //      + "'";
-  //
-  //  Cursor cursor = db.rawQuery(sql, null);
-  //  List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
-  //  closeCursor(cursor);
-  //  return data;
-  //}
+      //修改表名为中介表名
+      String alertSql = "ALTER TABLE " + tableName + " RENAME TO " + tableName + "_temp";
+      db.execSQL(alertSql);
 
-  /**
-   * 检查某个字段的值是否存在
-   *
-   * @param expression 字段和值"url=xxx"
-   * @return {@code true}该字段的对应的value已存在
-   */
-  static synchronized boolean checkDataExist(SQLiteDatabase db, Class clazz, String... expression) {
-    db = checkDb(db);
-    CheckUtil.checkSqlExpression(expression);
-    String sql =
-        "SELECT rowid, * FROM " + CommonUtil.getClassName(clazz) + " WHERE " + expression[0] + " ";
-    sql = sql.replace("?", "%s");
-    Object[] params = new String[expression.length - 1];
-    for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + expression[i + 1] + "'";
-    }
-    sql = String.format(sql, params);
-    print(FIND_DATA, sql);
-    Cursor cursor = db.rawQuery(sql, null);
-    final boolean isExist = cursor.getCount() > 0;
-    closeCursor(cursor);
-    close(db);
-    return isExist;
-  }
-
-  /**
-   * 条件查寻数据
-   */
-  static synchronized <T extends DbEntity> List<T> findData(SQLiteDatabase db, Class<T> clazz,
-      String... expression) {
-    db = checkDb(db);
-    CheckUtil.checkSqlExpression(expression);
-    String sql =
-        "SELECT rowid, * FROM " + CommonUtil.getClassName(clazz) + " WHERE " + expression[0] + " ";
-    sql = sql.replace("?", "%s");
-    Object[] params = new String[expression.length - 1];
-    for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + checkValue(expression[i + 1]) + "'";
-    }
-    sql = String.format(sql, params);
-    print(FIND_DATA, sql);
-    Cursor cursor = db.rawQuery(sql, null);
-    List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
-    closeCursor(cursor);
-    close(db);
-    return data;
-  }
-
-  /**
-   * 条件查寻数据
-   */
-  static synchronized <T extends DbEntity> List<T> findData(SQLiteDatabase db, String tableName,
-      String... expression) {
-    Class<T> clazz = null;
-    try {
-      clazz = (Class<T>) Class.forName(tableName);
-    } catch (ClassNotFoundException e) {
-      e.printStackTrace();
-    }
-    return findData(db, clazz, expression);
-  }
-
-  /**
-   * 条件查寻数据
-   */
-  @Deprecated static synchronized <T extends DbEntity> List<T> findData(SQLiteDatabase db,
-      Class<T> clazz, @NonNull String[] wheres, @NonNull String[] values) {
-    db = checkDb(db);
-    if (wheres.length <= 0 || values.length <= 0) {
-      ALog.e(TAG, "请输入查询条件");
-      return null;
-    } else if (wheres.length != values.length) {
-      ALog.e(TAG, "groupName 和 vaule 长度不相等");
-      return null;
-    }
-    StringBuilder sb = new StringBuilder();
-    sb.append("SELECT rowid, * FROM ").append(CommonUtil.getClassName(clazz)).append(" where ");
-    int i = 0;
-    for (Object where : wheres) {
-      sb.append(where).append("=").append("'").append(checkValue(values[i])).append("'");
-      sb.append(i >= wheres.length - 1 ? "" : " AND ");
-      i++;
-    }
-    print(FIND_DATA, sb.toString());
-    Cursor cursor = db.rawQuery(sb.toString(), null);
-    List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
-    closeCursor(cursor);
-    close(db);
-    return data;
-  }
-
-  private static String checkValue(String value) {
-    if (value.contains("'")) {
-      return URLEncoder.encode(value);
-    }
-    return value;
-  }
-
-  /**
-   * 查找表的所有数据
-   */
-  static synchronized <T extends DbEntity> List<T> findAllData(SQLiteDatabase db, Class<T> clazz) {
-    db = checkDb(db);
-    StringBuilder sb = new StringBuilder();
-    sb.append("SELECT rowid, * FROM ").append(CommonUtil.getClassName(clazz));
-    print(FIND_ALL_DATA, sb.toString());
-    Cursor cursor = db.rawQuery(sb.toString(), null);
-    List<T> data = cursor.getCount() > 0 ? newInstanceEntity(db, clazz, cursor) : null;
-    closeCursor(cursor);
-    close(db);
-    return data;
-  }
-
-  /**
-   * 删除某条数据
-   */
-  static synchronized <T extends DbEntity> void delData(SQLiteDatabase db, Class<T> clazz,
-      String... expression) {
-    db = checkDb(db);
-    CheckUtil.checkSqlExpression(expression);
-
-    //List<Field> fields = CommonUtil.getAllFields(clazz);
-    //for (Field field : fields) {
-    //  if (SqlUtil.isOneToOne(field)) {
-    //    OneToOne oto = field.getAnnotation(OneToOne.class);
-    //    delData(db, oto.table(), oto.key() + "=?", );
-    //  } else if (SqlUtil.isOneToMany(field)) {
-    //    OneToMany otm = field.getAnnotation(OneToMany.class);
-    //    delData(db, otm.table(), otm.key() + "=?", otm.key());
-    //  }
-    //}
-
-    String sql = "DELETE FROM " + CommonUtil.getClassName(clazz) + " WHERE " + expression[0] + " ";
-    sql = sql.replace("?", "%s");
-    Object[] params = new String[expression.length - 1];
-    for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + expression[i + 1] + "'";
-    }
-    sql = String.format(sql, params);
-    SqlHelper.print(DEL_DATA, sql);
-    db.execSQL(sql);
-    close(db);
-  }
-
-  /**
-   * 修改某行数据
-   */
-  static synchronized void modifyData(SQLiteDatabase db, DbEntity dbEntity) {
-    db = checkDb(db);
-    Class<?> clazz = dbEntity.getClass();
-    List<Field> fields = CommonUtil.getAllFields(clazz);
-    DbEntity cacheEntity = mDataCache.get(getCacheKey(dbEntity));
-    if (fields != null && fields.size() > 0) {
-      StringBuilder sql = new StringBuilder();
-      StringBuilder prams = new StringBuilder();
-      sql.append("UPDATE ").append(CommonUtil.getClassName(dbEntity)).append(" SET ");
-      int i = 0;
-      for (Field field : fields) {
-        field.setAccessible(true);
-        if (SqlUtil.ignoreField(field)) {
-          continue;
-        }
+      //创建一个原本的表
+      mDelegate.createTable(db, clazz);
+      //插入数据
+      if (list != null && list.size() > 0) {
+        DelegateUpdate update = DelegateManager.getInstance().getDelegate(DelegateUpdate.class);
         try {
-          if (cacheEntity != null
-              && field.get(dbEntity) == field.get(cacheEntity)
-              && !field.getName().equals("state")) {  //在LruCache中 state字段总是不能重新赋值...
-            //if (dbEntity instanceof DownloadEntity && field.getName().equals("state")) {
-            //  Log.i(TAG, "cacheState => "
-            //      + ((DownloadEntity) cacheEntity).getState()
-            //      + ", newState => "
-            //      + ((DownloadEntity) dbEntity).getState());
-            //}
-            continue;
+          for (DbEntity entity : list) {
+            update.insertData(db, entity);
           }
-
-          //sb.append(i > 0 ? ", " : "");
-          //sb.append(field.getName()).append("='");
-          String value;
-          prams.append(i > 0 ? ", " : "");
-          prams.append(field.getName()).append("='");
-          Type type = field.getType();
-          if (type == Map.class) {
-            value = SqlUtil.map2Str((Map<String, String>) field.get(dbEntity));
-          } else if (type == List.class) {
-            if (SqlUtil.isOneToMany(field)) {
-              value = SqlUtil.getOneToManyElementParams(field);
-            } else {
-              value = SqlUtil.list2Str(dbEntity, field);
-            }
-          } else if (SqlUtil.isOneToOne(field)) {
-            value = SqlUtil.getOneToOneParams(field);
-          } else {
-            Object obj = field.get(dbEntity);
-            value = obj == null ? "" : checkValue(obj.toString());
-          }
-
-          //sb.append(value == null ? "" : value);
-          //sb.append("'");
-          prams.append(TextUtils.isEmpty(value) ? "" : value);
-          prams.append("'");
-        } catch (IllegalAccessException e) {
-          e.printStackTrace();
-        }
-        i++;
-      }
-      if (!TextUtils.isEmpty(prams.toString())) {
-        sql.append(prams.toString());
-        sql.append(" where rowid=").append(dbEntity.rowID);
-        print(MODIFY_DATA, sql.toString());
-        db.execSQL(sql.toString());
-      }
-    }
-    mDataCache.put(getCacheKey(dbEntity), dbEntity);
-    close(db);
-  }
-
-  private static String getCacheKey(DbEntity dbEntity) {
-    return dbEntity.getClass().getName() + "_" + dbEntity.rowID;
-  }
-
-  /**
-   * 插入数据
-   */
-  static synchronized void insertData(SQLiteDatabase db, DbEntity dbEntity) {
-    db = checkDb(db);
-    Class<?> clazz = dbEntity.getClass();
-    List<Field> fields = CommonUtil.getAllFields(clazz);
-    if (fields != null && fields.size() > 0) {
-      StringBuilder sb = new StringBuilder();
-      sb.append("INSERT INTO ").append(CommonUtil.getClassName(dbEntity)).append("(");
-      int i = 0;
-      for (Field field : fields) {
-        field.setAccessible(true);
-        if (SqlUtil.ignoreField(field)) {
-          continue;
-        }
-        sb.append(i > 0 ? ", " : "");
-        sb.append(field.getName());
-        i++;
-      }
-      sb.append(") VALUES (");
-      i = 0;
-      try {
-        for (Field field : fields) {
-          field.setAccessible(true);
-          if (SqlUtil.ignoreField(field)) {
-            continue;
-          }
-          sb.append(i > 0 ? ", " : "");
-          sb.append("'");
-          Type type = field.getType();
-          if (type == Map.class) {
-            sb.append(SqlUtil.map2Str((Map<String, String>) field.get(dbEntity)));
-          } else if (type == List.class) {
-            if (SqlUtil.isOneToMany(field)) {
-              sb.append(SqlUtil.getOneToManyElementParams(field));
-            } else {
-              sb.append(SqlUtil.list2Str(dbEntity, field));
-            }
-          } else if (SqlUtil.isOneToOne(field)) {
-            sb.append(SqlUtil.getOneToOneParams(field));
-          } else {
-            sb.append(checkValue(field.get(dbEntity).toString()));
-          }
-          sb.append("'");
-          i++;
-        }
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      }
-      sb.append(")");
-      print(INSERT_DATA, sb.toString());
-      db.execSQL(sb.toString());
-    }
-    close(db);
-  }
-
-  /**
-   * 查找表是否存在
-   *
-   * @param clazz 数据库实体
-   * @return true，该数据库实体对应的表存在；false，不存在
-   */
-  static synchronized boolean tableExists(SQLiteDatabase db, Class clazz) {
-    return tableExists(db, CommonUtil.getClassName(clazz));
-  }
-
-  static synchronized boolean tableExists(SQLiteDatabase db, String tableName) {
-    db = checkDb(db);
-    Cursor cursor = null;
-    try {
-      StringBuilder sb = new StringBuilder();
-      sb.append("SELECT COUNT(*) AS c FROM sqlite_master WHERE type='table' AND name='");
-      sb.append(tableName);
-      sb.append("'");
-      print(TABLE_EXISTS, sb.toString());
-      cursor = db.rawQuery(sb.toString(), null);
-      if (cursor != null && cursor.moveToNext()) {
-        int count = cursor.getInt(0);
-        if (count > 0) {
-          return true;
+        } catch (Exception e) {
+          ALog.e(TAG, CommonUtil.getPrintException(e));
         }
       }
-    } catch (Exception e) {
-      e.printStackTrace();
-    } finally {
-      closeCursor(cursor);
-      close(db);
+
+      //删除中介表
+      mDelegate.dropTable(db, tableName + "_temp");
+
+      mDelegate.close(db);
     }
-    return false;
-  }
-
-  /**
-   * 创建表
-   *
-   * @param clazz 数据库实体
-   * @param tableName 数据库实体的类名
-   */
-  static synchronized void createTable(SQLiteDatabase db, Class clazz, String tableName) {
-    db = checkDb(db);
-    createFTSTable(db);
-    List<Field> fields = CommonUtil.getAllFields(clazz);
-    if (fields != null && fields.size() > 0) {
-      //外键Map，在Sqlite3中foreign修饰的字段必须放在最后
-      final List<Field> foreignArray = new ArrayList<>();
-      StringBuilder sb = new StringBuilder();
-      //sb.append("create VIRTUAL table ")
-      sb.append("create table ")
-          .append(TextUtils.isEmpty(tableName) ? CommonUtil.getClassName(clazz) : tableName)
-          //.append(" USING fts4(");
-          .append(" (");
-      for (Field field : fields) {
-        field.setAccessible(true);
-        if (SqlUtil.ignoreField(field)) {
-          continue;
-        }
-        Class<?> type = field.getType();
-        sb.append(field.getName());
-        if (type == String.class || SqlUtil.isOneToOne(field) || type.isEnum()) {
-          sb.append(" varchar");
-        } else if (type == int.class || type == Integer.class) {
-          sb.append(" interger");
-        } else if (type == float.class || type == Float.class) {
-          sb.append(" float");
-        } else if (type == double.class || type == Double.class) {
-          sb.append(" double");
-        } else if (type == long.class || type == Long.class) {
-          sb.append(" bigint");
-        } else if (type == boolean.class || type == Boolean.class) {
-          sb.append(" boolean");
-        } else if (type == java.util.Date.class || type == java.sql.Date.class) {
-          sb.append(" data");
-        } else if (type == byte.class || type == Byte.class) {
-          sb.append(" blob");
-        } else if (type == Map.class || type == List.class) {
-          sb.append(" text");
-        } else {
-          continue;
-        }
-        if (SqlUtil.isPrimary(field)) {
-          //sb.append(" PRIMARY KEY");
-
-        }
-        if (SqlUtil.isForeign(field)) {
-          //foreignArray.add(field);
-        }
-
-        if (SqlUtil.isNoNull(field)) {
-          sb.append(" NOT NULL");
-        }
-        sb.append(",");
-      }
-
-      for (Field field : foreignArray) {
-        Foreign foreign = field.getAnnotation(Foreign.class);
-        sb.append("FOREIGN KEY (")
-            .append(field.getName())
-            .append(") REFERENCES ")
-            .append(CommonUtil.getClassName(foreign.table()))
-            .append("(")
-            .append(foreign.column())
-            .append("),");
-      }
-
-      String str = sb.toString();
-      str = str.substring(0, str.length() - 1) + ");";
-      print(CREATE_TABLE, str);
-      db.execSQL(str);
-    }
-    close(db);
-  }
-
-  /**
-   * 创建分词表
-   */
-  private static void createFTSTable(SQLiteDatabase db) {
-    String tableName = "ariaFts";
-    String sql = "CREATE VIRTUAL TABLE " + tableName + " USING fts4(tokenize= porter)";
-    if (!tableExists(db, tableName)) {
-      db.execSQL(sql);
-    }
-  }
-
-  /**
-   * 打印数据库日志
-   *
-   * @param type {@link DbUtil}
-   */
-  static void print(int type, String sql) {
-    if (true) {
-      return;
-    }
-    String str = "";
-    switch (type) {
-      case CREATE_TABLE:
-        str = "创建表 >>>> ";
-        break;
-      case TABLE_EXISTS:
-        str = "表是否存在 >>>> ";
-        break;
-      case INSERT_DATA:
-        str = "插入数据 >>>> ";
-        break;
-      case MODIFY_DATA:
-        str = "修改数据 >>>> ";
-        break;
-      case FIND_DATA:
-        str = "查询一行数据 >>>> ";
-        break;
-      case FIND_ALL_DATA:
-        str = "遍历整个数据库 >>>> ";
-        break;
-    }
-    ALog.v(TAG, str + sql);
-  }
-
-  /**
-   * 根据数据游标创建一个具体的对象
-   */
-  private static synchronized <T extends DbEntity> List<T> newInstanceEntity(SQLiteDatabase db,
-      Class<T> clazz, Cursor cursor) {
-    List<Field> fields = CommonUtil.getAllFields(clazz);
-    List<T> entitys = new ArrayList<>();
-    if (fields != null && fields.size() > 0) {
-      try {
-        while (cursor.moveToNext()) {
-          T entity = clazz.newInstance();
-          for (Field field : fields) {
-            field.setAccessible(true);
-            if (SqlUtil.ignoreField(field)) {
-              continue;
-            }
-            Class<?> type = field.getType();
-            int column = cursor.getColumnIndex(field.getName());
-            if (column == -1) continue;
-            if (type == String.class) {
-              field.set(entity, URLDecoder.decode(cursor.getString(column)));
-            } else if (type == int.class || type == Integer.class) {
-              field.setInt(entity, cursor.getInt(column));
-            } else if (type == float.class || type == Float.class) {
-              field.setFloat(entity, cursor.getFloat(column));
-            } else if (type == double.class || type == Double.class) {
-              field.setDouble(entity, cursor.getDouble(column));
-            } else if (type == long.class || type == Long.class) {
-              field.setLong(entity, cursor.getLong(column));
-            } else if (type == boolean.class || type == Boolean.class) {
-              field.setBoolean(entity, !cursor.getString(column).equalsIgnoreCase("false"));
-            } else if (type == java.util.Date.class || type == java.sql.Date.class) {
-              field.set(entity, new Date(cursor.getString(column)));
-            } else if (type == byte[].class) {
-              field.set(entity, cursor.getBlob(column));
-            } else if (type == Map.class) {
-              field.set(entity, SqlUtil.str2Map(cursor.getString(column)));
-            } else if (type == List.class) {
-              String value = cursor.getString(column);
-              if (SqlUtil.isOneToMany(field)) {
-                //主键字段
-                String primaryKey = SqlUtil.getPrimaryName(clazz);
-                if (TextUtils.isEmpty(primaryKey)) {
-                  throw new IllegalArgumentException("List中的元素对象必须需要@Primary注解的字段");
-                }
-                //list字段保存的数据
-                int kc = cursor.getColumnIndex(primaryKey);
-                String primaryData = cursor.getString(kc);
-                if (TextUtils.isEmpty(primaryData)) continue;
-                List<T> list = findForeignData(db, primaryData, value);
-                if (list == null) continue;
-                field.set(entity, findForeignData(db, primaryData, value));
-              } else {
-                field.set(entity, SqlUtil.str2List(value, field));
-              }
-            } else if (SqlUtil.isOneToOne(field)) {
-              String primaryKey = SqlUtil.getPrimaryName(clazz);
-              if (TextUtils.isEmpty(primaryKey)) {
-                throw new IllegalArgumentException("@OneToOne的注解对象必须需要@Primary注解的字段");
-              }
-              int kc = cursor.getColumnIndex(primaryKey);
-              String params = cursor.getString(column);
-              String primaryData = cursor.getString(kc);
-              if (TextUtils.isEmpty(primaryData) || primaryData.equalsIgnoreCase("null")) continue;
-              List<T> list = findForeignData(db, primaryData, params);
-              if (list != null && list.size() > 0) {
-                field.set(entity, list.get(0));
-              }
-            }
-          }
-          entity.rowID = cursor.getInt(cursor.getColumnIndex("rowid"));
-          mDataCache.put(getCacheKey(entity), entity);
-          entitys.add(entity);
-        }
-        closeCursor(cursor);
-      } catch (InstantiationException e) {
-        e.printStackTrace();
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      }
-    }
-    return entitys;
-  }
-
-  /**
-   * 查找一对多、一对一的关联数据
-   *
-   * @param primary 当前表的主键
-   * @param childParams 当前表关联数据的类名 $$ 主键名
-   */
-  private static <T extends DbEntity> List<T> findForeignData(SQLiteDatabase db, String primary,
-      String childParams) {
-    String[] params = childParams.split("\\$\\$");
-    return findData(db, params[0], params[1] + "=?", primary);
-  }
-
-  private static void closeCursor(Cursor cursor) {
-    if (cursor != null && !cursor.isClosed()) {
-      try {
-        cursor.close();
-      } catch (android.database.SQLException e) {
-        e.printStackTrace();
-      }
-    }
-  }
-
-  private static void close(SQLiteDatabase db) {
-    //if (db != null && db.isOpen()) db.close();
-  }
-
-  private static SQLiteDatabase checkDb(SQLiteDatabase db) {
-    if (db == null || !db.isOpen()) {
-      db = INSTANCE.getWritableDatabase();
-    }
-    return db;
   }
 }

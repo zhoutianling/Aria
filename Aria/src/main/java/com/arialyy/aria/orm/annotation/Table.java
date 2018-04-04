@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.common;
 
-import com.arialyy.aria.orm.DbEntity;
+package com.arialyy.aria.orm.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Created by laoyuyu on 2018/3/21.
- * 任务上传或下载的记录
+ * Created by lyy on 2015/11/2.
+ * 设置表名，如果不是使用该注解，默认为类名
  */
-class TaskRecord extends DbEntity {
-  /**
-   * 任务线程数
-   */
-  public int threadNum;
-
-  //public int re
-
+@Target(ElementType.TYPE) @Retention(RetentionPolicy.RUNTIME) public @interface Table {
+  String tableName();
 }

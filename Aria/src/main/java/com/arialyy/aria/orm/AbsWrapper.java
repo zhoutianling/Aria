@@ -15,22 +15,13 @@
  */
 package com.arialyy.aria.orm;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * Created by AriaL on 2017/7/4.
- * 主键和外键约束
+ * Created by laoyuyu on 2018/3/30.
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface PrimaryAndForeign {
+public abstract class AbsWrapper {
+
   /**
-   * 关联的表
+   * 处理转换
    */
-  Class<? extends DbEntity> table();
-  /**
-   * 关联的列
-   */
-  String column();
+  protected abstract void handleConvert();
 }

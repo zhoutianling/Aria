@@ -34,17 +34,25 @@ import java.util.List;
  */
 public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
     implements ITarget<TARGET> {
+  protected String TAG = "";
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
   protected String mTargetName;
 
+  protected AbsTarget() {
+    TAG = CommonUtil.getClassName(this);
+  }
+
   /**
-   * 重置下载状态，将任务状态设置为未开始状态
+   * 重置状态，将任务状态设置为未开始状态
    */
   public TARGET resetState() {
-    mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
-    mTaskEntity.refreshInfo = true;
-    mTaskEntity.update();
+    if (checkEntity()) {
+      mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
+      mTaskEntity.refreshInfo = true;
+    } else {
+      ALog.e(TAG, "重置状态失败");
+    }
     return (TARGET) this;
   }
 
@@ -96,10 +104,16 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    */
   public TARGET setExtendField(String str) {
     if (TextUtils.isEmpty(str)) return (TARGET) this;
-    if (TextUtils.isEmpty(mEntity.getStr()) || !mEntity.getStr().equals(str)) {
-      mEntity.setStr(str);
-      mEntity.save();
+    if (checkEntity()) {
+      if (TextUtils.isEmpty(mEntity.getStr()) || !mEntity.getStr().equals(str)) {
+        mEntity.setStr(str);
+      } else {
+        ALog.e(TAG, "设置扩展字段失败，扩展字段为null");
+      }
+    } else {
+      ALog.e(TAG, "设置扩展字段失败");
     }
+
     return (TARGET) this;
   }
 
@@ -138,7 +152,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   }
 
   /**
-   * 检查实体是否合法
+   * 检查实体是否合法，如果实体合法，将保存实体到数据库，或更新数据库中的实体对象
    *
    * @return {@code true} 合法
    */
@@ -252,6 +266,4 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
       start();
     }
   }
-
-
 }

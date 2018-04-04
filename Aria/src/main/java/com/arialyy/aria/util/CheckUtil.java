@@ -74,7 +74,8 @@ public class CheckUtil {
    * 检查下载实体
    */
   public static void checkDownloadEntity(DownloadEntity entity) {
-    entity.setUrl(checkUrl(entity.getUrl()));
+    checkUrlInvalidThrow(entity.getUrl());
+    entity.setUrl(entity.getUrl());
     checkPath(entity.getDownloadPath());
   }
 
@@ -88,9 +89,9 @@ public class CheckUtil {
   }
 
   /**
-   * 检测下载链接是否合法，如果地址中path是"//"而不是"/"将会改为"/"；
+   * 检测url是否合法，如果url不合法，将抛异常
    */
-  public static String checkUrl(String url) {
+  public static void checkUrlInvalidThrow(String url) {
     if (TextUtils.isEmpty(url)) {
       throw new IllegalArgumentException("url不能为null");
     } else if (!url.startsWith("http") && !url.startsWith("ftp")) {
@@ -100,7 +101,26 @@ public class CheckUtil {
     if (index == -1) {
       throw new IllegalArgumentException("url不合法");
     }
-    return url;
+  }
+
+  /**
+   * 检测url是否合法
+   *
+   * @return {@code true} 合法，{@code false} 非法
+   */
+  public static boolean checkUrl(String url) {
+    if (TextUtils.isEmpty(url)) {
+      ALog.e(TAG, "url不能为null");
+      return false;
+    } else if (!url.startsWith("http") && !url.startsWith("ftp")) {
+      ALog.e(TAG, "url【" + url + "】错误");
+      return false;
+    }
+    int index = url.indexOf("://");
+    if (index == -1) {
+      ALog.e(TAG, "url【" + url + "】不合法");
+    }
+    return true;
   }
 
   /**
