@@ -50,18 +50,17 @@ public class TEManager {
   }
 
   /**
-   * 通过key创建任务，只适应于单任务，不能用于HTTP任务组，可用于Ftp文件夹
-   * 如果是任务组，请使用{@link #createGTEntity(Class, List)}
+   * 通过key创建任务，只适应于单任务
    *
    * @return 如果任务实体创建失败，返回null
    */
-  public <TE extends AbsTaskEntity> TE createTEntity(Class<TE> clazz, String key) {
+  private <TE extends AbsTaskEntity> TE createNormalTE(Class<TE> clazz, String key) {
     final Lock lock = this.lock;
     lock.lock();
     try {
       AbsTaskEntity tEntity = cache.get(convertKey(key));
       if (tEntity == null || tEntity.getClass() != clazz) {
-        ITEntityFactory factory = chooseFactory(clazz);
+        INormalTEFactory factory = chooseNormalFactory(clazz);
         if (factory == null) {
           ALog.e(TAG, "任务实体创建失败");
           return null;
@@ -76,23 +75,44 @@ public class TEManager {
   }
 
   /**
-   * 创建任务组实体
+   * 通过key创建不需要缓存的任务实体，只适应于单任务
    *
    * @return 如果任务实体创建失败，返回null
    */
-  public <TE extends AbsTaskEntity> TE createGTEntity(Class<TE> clazz, List<String> urls) {
+  public <TE extends AbsTaskEntity> TE createNormalNoCacheTE(Class<TE> clazz, String key) {
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      INormalTEFactory factory = chooseNormalFactory(clazz);
+      if (factory == null) {
+        ALog.e(TAG, "任务实体创建失败");
+        return null;
+      }
+      AbsTaskEntity tEntity = factory.create(key);
+      return (TE) tEntity;
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * 创建任务组
+   *
+   * @return 如果任务实体创建失败，返回null
+   */
+  private <TE extends AbsTaskEntity> TE createGTEntity(Class<TE> clazz, List<String> urls) {
     final Lock lock = this.lock;
     lock.lock();
     try {
       String groupName = CommonUtil.getMd5Code(urls);
       AbsTaskEntity tEntity = cache.get(convertKey(groupName));
       if (tEntity == null || tEntity.getClass() != clazz) {
-        IGTEntityFactory factory = chooseGroupFactory(clazz);
+        IGTEFactory factory = chooseGroupFactory(clazz);
         if (factory == null) {
           ALog.e(TAG, "任务实体创建失败");
           return null;
         }
-        tEntity = factory.create(groupName, urls);
+        tEntity = factory.getGTE(groupName, urls);
         cache.put(convertKey(groupName), tEntity);
       }
       return (TE) tEntity;
@@ -101,26 +121,49 @@ public class TEManager {
     }
   }
 
-  private IGTEntityFactory chooseGroupFactory(Class clazz) {
+  /**
+   * 通过ftp文件夹路径，创建FTP文件夹实体
+   *
+   * @return 如果任务实体创建失败，返回null
+   */
+  private <TE extends AbsTaskEntity> TE createFDTE(Class<TE> clazz, String key) {
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      AbsTaskEntity tEntity = cache.get(convertKey(key));
+      if (tEntity == null || tEntity.getClass() != clazz) {
+        IGTEFactory factory = chooseGroupFactory(clazz);
+        if (factory == null) {
+          ALog.e(TAG, "任务实体创建失败");
+          return null;
+        }
+        tEntity = factory.getFTE(key);
+        cache.put(convertKey(key), tEntity);
+      }
+      return (TE) tEntity;
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  private IGTEFactory chooseGroupFactory(Class clazz) {
     if (clazz == DownloadGroupTaskEntity.class) {
-      return DGTEntityFactory.getInstance();
+      return DGTEFactory.getInstance();
     }
     return null;
   }
 
-  private ITEntityFactory chooseFactory(Class clazz) {
+  private INormalTEFactory chooseNormalFactory(Class clazz) {
     if (clazz == DownloadTaskEntity.class) {
-      return DTEntityFactory.getInstance();
+      return DTEFactory.getInstance();
     } else if (clazz == UploadTaskEntity.class) {
-      return UTEntityFactory.getInstance();
-    } else if (clazz == DownloadGroupTaskEntity.class) {
-      return DGTEntityFactory.getInstance();
+      return UTEFactory.getInstance();
     }
     return null;
   }
 
   /**
-   * 从缓存中获取任务实体，如果任务实体不存在，则创建任务实体
+   * 从缓存中获取单任务实体，如果任务实体不存在，则创建任务实体
    *
    * @return 创建失败，返回null
    */
@@ -130,7 +173,27 @@ public class TEManager {
     try {
       AbsTaskEntity tEntity = cache.get(convertKey(key));
       if (tEntity == null) {
-        return createTEntity(clazz, key);
+        return createNormalTE(clazz, key);
+      } else {
+        return (TE) tEntity;
+      }
+    } finally {
+      lock.unlock();
+    }
+  }
+
+  /**
+   * 从缓存中获取FTP文件夹任务实体，如果任务实体不存在，则创建任务实体
+   *
+   * @return 创建失败，返回null
+   */
+  public <TE extends AbsTaskEntity> TE getFDTEntity(Class<TE> clazz, String key) {
+    final Lock lock = this.lock;
+    lock.lock();
+    try {
+      AbsTaskEntity tEntity = cache.get(convertKey(key));
+      if (tEntity == null) {
+        return createFDTE(clazz, key);
       } else {
         return (TE) tEntity;
       }

@@ -217,9 +217,9 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
 
   private void handleSubChild(GroupHolder holder, final AbsEntity entity) {
     if (holder.childList.getSubData().size() > 0) {
-      holder.childList.updateChildProgress(((DownloadGroupEntity) entity).getSubTask());
+      holder.childList.updateChildProgress(((DownloadGroupEntity) entity).getSubEntities());
     } else {
-      holder.childList.addData(((DownloadGroupEntity) entity).getSubTask());
+      holder.childList.addData(((DownloadGroupEntity) entity).getSubEntities());
     }
   }
 

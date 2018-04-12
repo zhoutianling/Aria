@@ -22,6 +22,7 @@ import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.CancelAllCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.ProxyHelper;
+import com.arialyy.aria.core.download.wrapper.DGroupEntityWrapper;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.AbsTarget;
@@ -299,15 +300,15 @@ public class DownloadReceiver extends AbsReceiver {
   /**
    * 获取FTP文件夹下载任务实体
    *
-   * @param dirPath FTP文件夹本地保存路径
+   * @param dirUrl FTP文件夹本地下载路径
    * @return 返回对应的任务组实体；如果查找不到对应的数据或路径为null，返回null
    */
-  public DownloadGroupTaskEntity getFtpDirTask(String dirPath) {
-    if (TextUtils.isEmpty(dirPath)) {
-      ALog.e(TAG, "获取FTP文件夹实体失败：文件夹路径为null");
+  public DownloadGroupTaskEntity getFtpDirTask(String dirUrl) {
+    if (TextUtils.isEmpty(dirUrl)) {
+      ALog.e(TAG, "获取FTP文件夹实体失败：下载路径为null");
       return null;
     }
-    return TEManager.getInstance().getTEntity(DownloadGroupTaskEntity.class, dirPath);
+    return TEManager.getInstance().getFDTEntity(DownloadGroupTaskEntity.class, dirUrl);
   }
 
   /**
@@ -349,12 +350,12 @@ public class DownloadReceiver extends AbsReceiver {
    * @return 如果没有任务组列表，则返回null
    */
   public List<DownloadGroupEntity> getGroupTaskList() {
-    List<DownloadGroupWrapper> wrappers = DbEntity.findRelationData(DownloadGroupWrapper.class);
+    List<DGroupEntityWrapper> wrappers = DbEntity.findRelationData(DGroupEntityWrapper.class);
     if (wrappers == null || wrappers.isEmpty()) {
       return null;
     }
     List<DownloadGroupEntity> entities = new ArrayList<>();
-    for (DownloadGroupWrapper wrapper : wrappers) {
+    for (DGroupEntityWrapper wrapper : wrappers) {
       entities.add(wrapper.groupEntity);
     }
     return entities;

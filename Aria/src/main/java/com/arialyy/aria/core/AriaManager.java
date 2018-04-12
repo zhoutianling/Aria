@@ -323,6 +323,7 @@ import org.xml.sax.SAXException;
    * 根据功能类型和控件类型获取对应的key
    */
   private String getKey(boolean isDownload, Object obj) {
+    // TODO: 2018/4/12 不做限制了，让所有类都可以使用
     String clsName = obj.getClass().getName();
     String key = "";
     if (!(obj instanceof Activity)) {
@@ -421,8 +422,8 @@ import org.xml.sax.SAXException;
   private void regAppLifeCallback(Context context) {
     Context app = context.getApplicationContext();
     if (app instanceof Application) {
-      LifeCallback mLifeCallback = new LifeCallback();
-      ((Application) app).registerActivityLifecycleCallbacks(mLifeCallback);
+      LifeCallback lifeCallback = new LifeCallback();
+      ((Application) app).registerActivityLifecycleCallbacks(lifeCallback);
     }
   }
 
@@ -493,6 +494,7 @@ import org.xml.sax.SAXException;
 
     @Override public void onActivityDestroyed(Activity activity) {
       destroySchedulerListener(activity);
+      // TODO: 2018/4/11 维护一个activity堆栈，应用被kill，activity会回调onDestroy方法，需要考虑server后台情况
     }
   }
 }

@@ -154,7 +154,7 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
     mEntity.setState(state);
     mEntity.setComplete(state == IEntity.STATE_COMPLETE);
     if (state == IEntity.STATE_CANCEL) {
-      mTaskEntity.deleteData();
+      mEntity.deleteData();
       return;
     } else if (mEntity.isComplete()) {
       mEntity.setCompleteTime(System.currentTimeMillis());

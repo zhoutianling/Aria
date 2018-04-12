@@ -16,13 +16,7 @@
 
 package com.arialyy.aria.orm;
 
-import android.support.annotation.NonNull;
-import com.arialyy.aria.util.CommonUtil;
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by lyy on 2015/11/2.
@@ -30,7 +24,7 @@ import java.util.Map;
  */
 public abstract class DbEntity {
   private static final Object LOCK = new Object();
-  protected int rowID = -1;
+  protected long rowID = -1;
 
   protected DbEntity() {
 
@@ -41,7 +35,8 @@ public abstract class DbEntity {
    *
    * @param expression 查询条件
    */
-  public static <T extends AbsWrapper> List<T> findRelationData(Class<T> clazz, String... expression) {
+  public static <T extends AbsWrapper> List<T> findRelationData(Class<T> clazz,
+      String... expression) {
     return DelegateWrapper.getInstance().findRelationData(clazz, expression);
   }
 
@@ -115,20 +110,6 @@ public abstract class DbEntity {
   }
 
   /**
-   * 获取所有行的rowid
-   */
-  public int[] getRowIds() {
-    return DelegateWrapper.getInstance().getRowId(getClass());
-  }
-
-  /**
-   * 获取rowid
-   */
-  public int getRowId(@NonNull Object[] wheres, @NonNull Object[] values) {
-    return DelegateWrapper.getInstance().getRowId(getClass(), wheres, values);
-  }
-
-  /**
    * 删除当前数据
    */
   public void deleteData() {
@@ -155,6 +136,7 @@ public abstract class DbEntity {
 
   /**
    * 保存自身，如果表中已经有数据，则更新数据，否则插入数据
+   * 只有 target中checkEntity成功后才能保存，创建实体部分也不允许保存
    */
   public void save() {
     synchronized (LOCK) {
@@ -171,50 +153,13 @@ public abstract class DbEntity {
    */
   private boolean thisIsExist() {
     DelegateWrapper util = DelegateWrapper.getInstance();
-    return util.isExist(getClass(), rowID);
+    return rowID != -1 && util.isExist(getClass(), rowID);
   }
 
   /**
-   * 插入数据
+   * 插入数据，只有 target中checkEntity成功后才能插入，创建实体部分也不允许操作
    */
   public void insert() {
     DelegateWrapper.getInstance().insertData(this);
-    updateRowID();
-  }
-
-  private void updateRowID() {
-    try {
-      List<Field> fields = CommonUtil.getAllFields(getClass());
-      StringBuilder sb = new StringBuilder();
-      List<String> params = new ArrayList<>();
-      List<String> values = new ArrayList<>();
-      for (Field field : fields) {
-        field.setAccessible(true);
-        if (SqlUtil.isIgnore(field)) {
-          continue;
-        }
-        sb.append(field.getName()).append("=? AND ");
-        Type type = field.getType();
-        if (type == List.class) {
-          values.add(SqlUtil.list2Str(this, field));
-        } else if (type == Map.class) {
-          values.add(SqlUtil.map2Str((Map<String, String>) field.get(this)));
-        } else {
-          values.add(field.get(this) + "");
-        }
-      }
-
-      String temp = sb.toString();
-      String p = temp.substring(0, temp.length() - 5);
-
-      params.add(p);
-      params.addAll(values);
-      DbEntity entity = findFirst(getClass(), params.toArray(new String[params.size()]));
-      if (entity != null) {
-        rowID = entity.rowID;
-      }
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();
-    }
   }
 }

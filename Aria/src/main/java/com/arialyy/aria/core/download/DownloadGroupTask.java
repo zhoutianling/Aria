@@ -116,7 +116,6 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
     public DownloadGroupTask build() {
       DownloadGroupTask task = new DownloadGroupTask(taskEntity, outHandler);
       task.setTargetName(targetName);
-      taskEntity.save();
       return task;
     }
   }

@@ -86,7 +86,7 @@ class DownloadGroupListener
 
   private void saveCurrentLocation() {
     long location = 0;
-    for (DownloadEntity e : mEntity.getSubTask()) {
+    for (DownloadEntity e : mEntity.getSubEntities()) {
       location += e.getCurrentProgress();
     }
     mEntity.setCurrentProgress(location);

@@ -13,24 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.download;
+package com.arialyy.aria.core.download.wrapper;
 
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.orm.AbsWrapper;
+import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.annotation.Many;
 import com.arialyy.aria.orm.annotation.One;
 import com.arialyy.aria.orm.annotation.Wrapper;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by laoyuyu on 2018/3/30.
+ * 任务组实体和任务组任务实体的关系
  */
 @Wrapper
-public class DownloadGroupTaskWrapper extends AbsWrapper {
+public class DGroupTaskEntityWrapper extends AbsWrapper {
 
   @One
   public DownloadGroupEntity entity;
 
-  @Many(parentColumn = "key", entityColumn = "groupName")
+  @Many(parentColumn = "groupName", entityColumn = "key")
   private List<DownloadGroupTaskEntity> taskEntitys;
 
   public DownloadGroupTaskEntity taskEntity;
@@ -39,6 +45,16 @@ public class DownloadGroupTaskWrapper extends AbsWrapper {
     taskEntity = (taskEntitys == null || taskEntitys.isEmpty()) ? null : taskEntitys.get(0);
     if (taskEntity != null) {
       taskEntity.setEntity(entity);
+      List<DownloadTaskWrapper> subWrappers =
+          DbEntity.findRelationData(DownloadTaskWrapper.class, "DownloadTaskEntity.groupName=?",
+              taskEntity.getKey());
+      if (subWrappers != null && !subWrappers.isEmpty()) {
+        List<DownloadTaskEntity> temp = new ArrayList<>();
+        for (DownloadTaskWrapper dw : subWrappers) {
+          temp.add(dw.taskEntity);
+        }
+        taskEntity.setSubTaskEntities(temp);
+      }
     }
   }
 }

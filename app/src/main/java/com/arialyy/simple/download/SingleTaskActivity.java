@@ -46,7 +46,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-  //不支持断点的链接
   "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
   //"https://static.donguo.me//video/ip/course/pfys_1.mp4";
   @Bind(R.id.start) Button mStart;

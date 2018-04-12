@@ -500,7 +500,7 @@ class DelegateFind extends AbsDelegate {
    * 通过rowId判断数据是否存在
    */
   <T extends DbEntity> boolean itemExist(SQLiteDatabase db, Class<T> clazz,
-      int rowId) {
+      long rowId) {
     db = checkDb(db);
     String sql = "SELECT rowid FROM " + CommonUtil.getClassName(clazz) + " WHERE rowid=" + rowId;
     print(ROW_ID, sql);

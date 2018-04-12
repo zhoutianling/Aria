@@ -17,7 +17,6 @@ package com.arialyy.aria.core.download;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.manager.TEManager;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -46,21 +45,23 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
     if (groupEntity.getUrls() != null && !groupEntity.getUrls().isEmpty()) {
       this.mUrls.addAll(groupEntity.getUrls());
     }
-    mGroupName = CommonUtil.getMd5Code(groupEntity.getUrls());
+    init();
+  }
+
+  DownloadGroupTarget(List<String> urls, String targetName) {
+    this.mTargetName = targetName;
+    this.mUrls = urls;
+    init();
+  }
+
+  private void init() {
+    mGroupName = CommonUtil.getMd5Code(mUrls);
     mTaskEntity = TEManager.getInstance().getGTEntity(DownloadGroupTaskEntity.class, mUrls);
     mEntity = mTaskEntity.getEntity();
 
     if (mEntity != null) {
       mDirPathTemp = mEntity.getDirPath();
     }
-  }
-
-  DownloadGroupTarget(List<String> urls, String targetName) {
-    this.mTargetName = targetName;
-    this.mUrls = urls;
-    mGroupName = CommonUtil.getMd5Code(urls);
-    mTaskEntity = TEManager.getInstance().getGTEntity(DownloadGroupTaskEntity.class, mUrls);
-    mEntity = mTaskEntity.getEntity();
   }
 
   /**
@@ -105,32 +106,16 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
    */
   public DownloadGroupTarget setSubFileName(List<String> subTaskFileName) {
     if (subTaskFileName == null || subTaskFileName.isEmpty()) {
+      ALog.e(TAG, "修改子任务的文件名失败：列表为null");
+      return this;
+    }
+    if (subTaskFileName.size() != mTaskEntity.getSubTaskEntities().size()) {
+      ALog.e(TAG, "修改子任务的文件名失败：子任务文件名列表数量和子任务的数量不匹配");
       return this;
     }
     mSubNameTemp.clear();
     mSubNameTemp.addAll(subTaskFileName);
     return this;
-  }
-
-  /**
-   * 创建子任务
-   */
-  private List<DownloadEntity> createSubTask() {
-    List<DownloadEntity> list = new ArrayList<>();
-    for (int i = 0, len = mUrls.size(); i < len; i++) {
-      DownloadEntity entity = new DownloadEntity();
-      entity.setUrl(mUrls.get(i));
-      String fileName =
-          mSubNameTemp.isEmpty() ? CommonUtil.createFileName(entity.getUrl()) : mSubNameTemp.get(i);
-      entity.setDownloadPath(mEntity.getDirPath() + "/" + fileName);
-      entity.setGroupName(mGroupName);
-      entity.setGroupChild(true);
-      entity.setFileName(fileName);
-      // TODO: 2018/4/3 是否需要在这个插入？
-      //entity.insert();
-      list.add(entity);
-    }
-    return list;
   }
 
   @Override protected int getTargetType() {
@@ -151,10 +136,14 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
         return false;
       }
 
-      //文件夹路径通过后，并且该实体没有子任务，则创建子任务
-      if (mEntity.getSubTask() == null || mEntity.getSubTask().isEmpty()) {
-        mEntity.setSubTasks(createSubTask());
-      } else {
+      mEntity.save();
+      mTaskEntity.save();
+
+      if (needModifyPath) {
+        reChangeDirPath(mDirPathTemp);
+      }
+
+      if (!mSubNameTemp.isEmpty()) {
         updateSingleSubFileName();
       }
       return true;
@@ -166,7 +155,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
    * 更新所有改动的子任务文件名
    */
   private void updateSingleSubFileName() {
-    List<DownloadEntity> entities = mEntity.getSubTask();
+    List<DownloadEntity> entities = mEntity.getSubEntities();
     int i = 0;
     for (DownloadEntity entity : entities) {
       if (i < mSubNameTemp.size()) {
@@ -235,12 +224,10 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
         oldFile.renameTo(new File(newPath));
       }
       CommonUtil.renameDownloadConfig(oldFile.getName(), newName);
-      DbEntity.exeSql(
-          "UPDATE DownloadTaskEntity SET key='" + newPath + "' WHERE key='" + oldPath + "'");
+      // TODO: 2018/4/11 需要校验数据库级联操作是否生效
       entity.setDownloadPath(newPath);
       entity.setFileName(newName);
-      // TODO: 2018/4/3 是否需要在这个更新？
-      //entity.update();
+      entity.update();
     }
   }
 

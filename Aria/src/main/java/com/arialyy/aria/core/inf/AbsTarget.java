@@ -64,7 +64,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
       ALog.d("AbsTarget", "任务正在下载，即将删除任务");
       cancel();
     } else {
-      mTaskEntity.deleteData();
+      mEntity.deleteData();
       TEManager.getInstance().removeTEntity(mEntity.getKey());
     }
   }

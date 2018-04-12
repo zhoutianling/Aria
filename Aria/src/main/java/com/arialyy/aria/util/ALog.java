@@ -19,6 +19,12 @@ package com.arialyy.aria.util;
 
 import android.text.TextUtils;
 import android.util.Log;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Set;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Created by Aria.Lao on 2017/10/25.
@@ -59,6 +65,50 @@ public class ALog {
 
   public static int e(String tag, Throwable e) {
     return println(Log.ERROR, tag, getExceptionString(e));
+  }
+
+  /**
+   * 打印MAp，debug级别日志
+   */
+  public static void m(String tag, Map map) {
+    if (LOG_LEVEL <= Log.DEBUG) {
+      Set set = map.entrySet();
+      if (set.size() < 1) {
+        d(tag, "[]");
+        return;
+      }
+      int i = 0;
+      String[] s = new String[set.size()];
+      for (Object aSet : set) {
+        Map.Entry entry = (Map.Entry) aSet;
+        s[i] = entry.getKey() + " = " + entry.getValue() + ",\n";
+        i++;
+      }
+      println(Log.DEBUG, tag, Arrays.toString(s));
+    }
+  }
+
+  /**
+   * 打印JSON，debug级别日志
+   */
+  public static void j(String tag, String jsonStr) {
+    if (LOG_LEVEL <= Log.DEBUG) {
+      String message;
+      try {
+        if (jsonStr.startsWith("{")) {
+          JSONObject jsonObject = new JSONObject(jsonStr);
+          message = jsonObject.toString(4); //这个是核心方法
+        } else if (jsonStr.startsWith("[")) {
+          JSONArray jsonArray = new JSONArray(jsonStr);
+          message = jsonArray.toString(4);
+        } else {
+          message = jsonStr;
+        }
+      } catch (JSONException e) {
+        message = jsonStr;
+      }
+      println(Log.DEBUG, tag, message);
+    }
   }
 
   /**

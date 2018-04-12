@@ -46,7 +46,7 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
     DownloadGroupTaskEntity entity = Aria.download(this).getFtpDirTask(dir);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
-      mChildList.addData(groupEntity.getSubTask());
+      mChildList.addData(groupEntity.getSubEntities());
       getBinding().setFileSize(groupEntity.getConvertFileSize());
       if (groupEntity.getFileSize() == 0) {
         getBinding().setProgress(0);
@@ -88,7 +88,7 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
 
   @DownloadGroup.onTaskPre() protected void onTaskPre(DownloadGroupTask task) {
     if (mChildList.getSubData().size() <= 0) {
-      mChildList.addData(task.getEntity().getSubTask());
+      mChildList.addData(task.getEntity().getSubEntities());
     }
     L.d(TAG, "group task pre");
     getBinding().setFileSize(task.getConvertFileSize());
@@ -101,7 +101,7 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
-    mChildList.updateChildProgress(task.getEntity().getSubTask());
+    mChildList.updateChildProgress(task.getEntity().getSubEntities());
   }
 
   @DownloadGroup.onTaskResume() void taskResume(DownloadGroupTask task) {
@@ -124,7 +124,7 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
 
   @DownloadGroup.onTaskComplete() void taskComplete(DownloadGroupTask task) {
     getBinding().setProgress(100);
-    mChildList.updateChildProgress(task.getEntity().getSubTask());
+    mChildList.updateChildProgress(task.getEntity().getSubEntities());
     T.showShort(this, "任务组下载完成");
     L.d(TAG, "任务组下载完成");
   }

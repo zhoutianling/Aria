@@ -37,7 +37,7 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
 
   private void init(String key) {
     mGroupName = key;
-    mTaskEntity = TEManager.getInstance().getTEntity(DownloadGroupTaskEntity.class, key);
+    mTaskEntity = TEManager.getInstance().getFDTEntity(DownloadGroupTaskEntity.class, key);
     mTaskEntity.requestType = AbsTaskEntity.D_FTP_DIR;
     mEntity = mTaskEntity.getEntity();
     if (mEntity != null) {
@@ -53,7 +53,8 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
   @Override protected boolean checkEntity() {
     boolean b = getTargetType() == GROUP_FTP_DIR && checkDirPath() && checkUrl();
     if (b) {
-      mTaskEntity.save(mEntity);
+      mEntity.save();
+      mTaskEntity.save();
     }
     return b;
   }

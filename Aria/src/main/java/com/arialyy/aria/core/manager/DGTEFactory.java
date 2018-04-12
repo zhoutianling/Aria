@@ -1,0 +1,162 @@
+/*
+ * Copyright (C) 2016 AriaLyy(https://github.com/AriaLyy/Aria)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.arialyy.aria.core.manager;
+
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.wrapper.DGroupEntityWrapper;
+import com.arialyy.aria.core.download.wrapper.DGroupTaskEntityWrapper;
+import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.CommonUtil;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Aria.Lao on 2017/11/1.
+ * 任务实体工厂
+ */
+class DGTEFactory implements IGTEFactory<DownloadGroupEntity, DownloadGroupTaskEntity> {
+  private static final String TAG = "DTEFactory";
+  private static volatile DGTEFactory INSTANCE = null;
+
+  private DGTEFactory() {
+  }
+
+  public static DGTEFactory getInstance() {
+    if (INSTANCE == null) {
+      synchronized (DGTEFactory.class) {
+        INSTANCE = new DGTEFactory();
+      }
+    }
+    return INSTANCE;
+  }
+
+  @Override public DownloadGroupTaskEntity getGTE(String groupName, List<String> urls) {
+    DownloadGroupEntity entity = createDGroupEntity(groupName, urls);
+    List<DGroupTaskEntityWrapper> wrapper =
+        DbEntity.findRelationData(DGroupTaskEntityWrapper.class, "DownloadGroupTaskEntity.key=?",
+            entity.getGroupName());
+    DownloadGroupTaskEntity gte;
+
+    if (wrapper != null && !wrapper.isEmpty()) {
+      gte = wrapper.get(0).taskEntity;
+      if (gte == null) {
+        // 创建新的任务组任务实体
+        gte = new DownloadGroupTaskEntity();
+        //创建子任务的任务实体
+        gte.setSubTaskEntities(createDGSubTaskEntity(entity));
+      } else if (gte.getSubTaskEntities() == null || gte.getSubTaskEntities().isEmpty()) {
+        gte.setSubTaskEntities(createDGSubTaskEntity(entity));
+      }
+    } else {
+      gte = new DownloadGroupTaskEntity();
+      gte.setSubTaskEntities(createDGSubTaskEntity(entity));
+    }
+    gte.setKey(entity.getGroupName());
+    gte.setEntity(entity);
+
+    return gte;
+  }
+
+  @Override public DownloadGroupTaskEntity getFTE(String ftpUrl) {
+    List<DGroupTaskEntityWrapper> wrapper =
+        DbEntity.findRelationData(DGroupTaskEntityWrapper.class, "DownloadGroupTaskEntity.key=?",
+            ftpUrl);
+    DownloadGroupTaskEntity fte;
+
+    if (wrapper != null && !wrapper.isEmpty()) {
+      fte = wrapper.get(0).taskEntity;
+      if (fte == null) {
+        fte = new DownloadGroupTaskEntity();
+        DownloadGroupEntity dge = new DownloadGroupEntity();
+        dge.setGroupName(ftpUrl);
+        fte.setEntity(dge);
+      } else if (fte.getEntity() == null) {
+        DownloadGroupEntity dge = new DownloadGroupEntity();
+        dge.setGroupName(ftpUrl);
+        fte.setEntity(dge);
+      }
+    } else {
+      fte = new DownloadGroupTaskEntity();
+      DownloadGroupEntity dge = new DownloadGroupEntity();
+      dge.setGroupName(ftpUrl);
+      fte.setEntity(dge);
+    }
+    fte.setKey(ftpUrl);
+    fte.urlEntity = CommonUtil.getFtpUrlInfo(ftpUrl);
+    return fte;
+  }
+
+  /**
+   * 创建任务组子任务的任务实体
+   */
+  private List<DownloadTaskEntity> createDGSubTaskEntity(DownloadGroupEntity dge) {
+    List<DownloadTaskEntity> list = new ArrayList<>();
+    for (DownloadEntity entity : dge.getSubEntities()) {
+      DownloadTaskEntity taskEntity = new DownloadTaskEntity();
+      taskEntity.entity = entity;
+      taskEntity.key = entity.getDownloadPath();
+      taskEntity.groupName = dge.getKey();
+      taskEntity.isGroupTask = true;
+      taskEntity.url = entity.getUrl();
+      list.add(taskEntity);
+    }
+    return list;
+  }
+
+  /**
+   * 查询任务组实体，如果数据库不存在该实体，则新创建一个新的任务组实体
+   */
+  private DownloadGroupEntity createDGroupEntity(String groupName, List<String> urls) {
+    List<DGroupEntityWrapper> wrapper =
+        DbEntity.findRelationData(DGroupEntityWrapper.class, "DownloadGroupEntity.groupName=?",
+            groupName);
+
+    DownloadGroupEntity groupEntity;
+    if (wrapper != null && !wrapper.isEmpty()) {
+      groupEntity = wrapper.get(0).groupEntity;
+      if (groupEntity == null) {
+        groupEntity = new DownloadGroupEntity();
+        groupEntity.setSubEntities(createSubTask(groupName, urls));
+      }
+    } else {
+      groupEntity = new DownloadGroupEntity();
+      groupEntity.setSubEntities(createSubTask(groupName, urls));
+    }
+    groupEntity.setGroupName(groupName);
+    groupEntity.setUrls(urls);
+    return groupEntity;
+  }
+
+  /**
+   * 创建子任务
+   */
+  private List<DownloadEntity> createSubTask(String groupName, List<String> urls) {
+    List<DownloadEntity> list = new ArrayList<>();
+    for (int i = 0, len = urls.size(); i < len; i++) {
+      DownloadEntity entity = new DownloadEntity();
+      entity.setUrl(urls.get(i));
+      entity.setDownloadPath(groupName + "_" + i);
+      entity.setFileName(groupName + "_" + i);
+      entity.setGroupName(groupName);
+      entity.setGroupChild(true);
+      list.add(entity);
+    }
+    return list;
+  }
+}

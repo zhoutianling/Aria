@@ -28,17 +28,17 @@ import java.util.regex.Pattern;
  * Created by Aria.Lao on 2017/11/1.
  * 任务实体工厂
  */
-class UTEntityFactory implements ITEntityFactory<UploadEntity, UploadTaskEntity> {
-  private static final String TAG = "DTEntityFactory";
-  private static volatile UTEntityFactory INSTANCE = null;
+class UTEFactory implements INormalTEFactory<UploadEntity, UploadTaskEntity> {
+  private static final String TAG = "DTEFactory";
+  private static volatile UTEFactory INSTANCE = null;
 
-  private UTEntityFactory() {
+  private UTEFactory() {
   }
 
-  public static UTEntityFactory getInstance() {
+  public static UTEFactory getInstance() {
     if (INSTANCE == null) {
-      synchronized (UTEntityFactory.class) {
-        INSTANCE = new UTEntityFactory();
+      synchronized (UTEFactory.class) {
+        INSTANCE = new UTEFactory();
       }
     }
     return INSTANCE;

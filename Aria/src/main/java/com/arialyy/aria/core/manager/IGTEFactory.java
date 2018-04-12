@@ -17,14 +17,30 @@ package com.arialyy.aria.core.manager;
 
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import java.util.List;
 
 /**
+ * 任务组通过组创建任务
  * Created by Aria.Lao on 2017/11/1.
  */
-interface ITEntityFactory<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>> {
+interface IGTEFactory<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>> {
 
   /**
-   * 通过key创建任务，只适应于单任务
+   * 获取任务组的任务实体，
+   * 1、创建实体和任务实体之间的关联
+   * 2、如果在数据库中查找不到对应的数据，则新创建任务实体
+   *
+   * @param groupName 任务组名
+   * @param urls 子任务的下载地址
    */
-  TASK_ENTITY create(String key);
+  TASK_ENTITY getGTE(String groupName, List<String> urls);
+
+  /**
+   * 获取FTP文件夹的任务实体，该方法需要以下操作：
+   * 1、创建实体和任务实体之间的关联
+   * 2、如果在数据库中查找不到对应的数据，则新创建任务实体
+   *
+   * @param ftpUrl ftp文件夹下载路径
+   */
+  TASK_ENTITY getFTE(String ftpUrl);
 }

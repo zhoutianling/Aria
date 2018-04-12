@@ -22,6 +22,7 @@ import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -52,10 +53,14 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
     mCallback.onComplete(mEntity.getKey(), new CompleteInfo(code));
   }
 
+  /**
+   * FTP文件夹的子任务实体 在这生成
+   */
   private void addEntity(String remotePath, FTPFile ftpFile) {
     final FtpUrlEntity urlEntity = mTaskEntity.urlEntity;
     DownloadEntity entity = new DownloadEntity();
-    entity.setUrl(urlEntity.protocol + "://" + urlEntity.hostName + ":" + urlEntity.port + remotePath);
+    entity.setUrl(
+        urlEntity.protocol + "://" + urlEntity.hostName + ":" + urlEntity.port + remotePath);
     entity.setDownloadPath(mEntity.getDirPath() + "/" + remotePath);
     int lastIndex = remotePath.lastIndexOf("/");
     String fileName = lastIndex < 0 ? CommonUtil.keyToHashKey(remotePath)
@@ -65,12 +70,21 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
     entity.setGroupChild(true);
     entity.setFileSize(ftpFile.getSize());
     entity.insert();
+
+    DownloadTaskEntity taskEntity = new DownloadTaskEntity();
+    taskEntity.key = entity.getDownloadPath();
+    taskEntity.url = entity.getUrl();
+    taskEntity.isGroupTask = false;
+    taskEntity.entity = entity;
+    taskEntity.insert();
+
     if (mEntity.getUrls() == null) {
       mEntity.setUrls(new ArrayList<String>());
     }
-    if (mEntity.getSubTask() == null) {
-      mEntity.setSubTasks(new ArrayList<DownloadEntity>());
+    if (mEntity.getSubEntities() == null) {
+      mEntity.setSubEntities(new ArrayList<DownloadEntity>());
     }
-    mEntity.getSubTask().add(entity);
+    mEntity.getSubEntities().add(entity);
+    mTaskEntity.getSubTaskEntities().add(taskEntity);
   }
 }

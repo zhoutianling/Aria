@@ -27,25 +27,21 @@ import java.util.List;
  */
 public class DownloadGroupEntity extends AbsGroupEntity {
 
-  //@OneToMany(table = DownloadEntity.class, key = "groupName") private List<DownloadEntity> subtask =
-  //    new ArrayList<>();
-
-  @Ignore
-  private List<DownloadEntity> subtask;
+  @Ignore private List<DownloadEntity> subEntities;
 
   /**
    * 任务组下载文件的文件夹地址
    *
    * @see DownloadGroupTarget#setDirPath(String)
    */
-  private String dirPath = "";
+  private String dirPath;
 
-  public List<DownloadEntity> getSubTask() {
-    return subtask;
+  public List<DownloadEntity> getSubEntities() {
+    return subEntities;
   }
 
-  public void setSubTasks(List<DownloadEntity> subTasks) {
-    this.subtask = subTasks;
+  public void setSubEntities(List<DownloadEntity> subTasks) {
+    this.subEntities = subTasks;
   }
 
   public String getDirPath() {
@@ -73,13 +69,13 @@ public class DownloadGroupEntity extends AbsGroupEntity {
 
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
-    dest.writeTypedList(this.subtask);
+    dest.writeTypedList(this.subEntities);
     dest.writeString(this.dirPath);
   }
 
   protected DownloadGroupEntity(Parcel in) {
     super(in);
-    this.subtask = in.createTypedArrayList(DownloadEntity.CREATOR);
+    this.subEntities = in.createTypedArrayList(DownloadEntity.CREATOR);
     this.dirPath = in.readString();
   }
 

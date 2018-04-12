@@ -20,6 +20,7 @@ import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.util.ErrorHelp;
 import java.util.Set;
 
@@ -44,10 +45,7 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
       new FtpDirInfoThread(mGTEntity, new OnFileInfoCallback() {
         @Override public void onComplete(String url, CompleteInfo info) {
           if (info.code >= 200 && info.code < 300) {
-            for (DownloadEntity entity : mGTEntity.getEntity().getSubTask()) {
-              mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
-            }
-            mActualTaskNum = mGTEntity.getEntity().getSubTask().size();
+            mActualTaskNum = mGTEntity.getEntity().getSubEntities().size();
             mGroupSize = mActualTaskNum;
             mTotalLen = mGTEntity.getEntity().getFileSize();
             startDownload();

@@ -121,7 +121,7 @@ public class DelegateWrapper {
   /**
    * 通过rowId判断数据是否存在
    */
-  <T extends DbEntity> boolean isExist(Class<T> clazz, int rowId) {
+  <T extends DbEntity> boolean isExist(Class<T> clazz, long rowId) {
     return mDManager.getDelegate(DelegateFind.class).itemExist(mDb, clazz, rowId);
   }
 

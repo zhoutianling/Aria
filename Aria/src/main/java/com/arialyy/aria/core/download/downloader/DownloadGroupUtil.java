@@ -109,7 +109,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
             createChildDownload(te);
           }
           mInitNum++;
-          if (mInitNum + mInitFailNum >= mGTEntity.getEntity().getSubTask().size()
+          if (mInitNum + mInitFailNum >= mGTEntity.getEntity().getSubEntities().size()
               || !isNeedLoadFileSize) {
             startRunningFlow();
             updateFileSize();
@@ -132,7 +132,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
             if (mActualTaskNum < 0) mActualTaskNum = 0;
           }
           failNum++;
-          if (mInitNum + mInitFailNum >= mGTEntity.getEntity().getSubTask().size()
+          if (mInitNum + mInitFailNum >= mGTEntity.getEntity().getSubEntities().size()
               || !isNeedLoadFileSize) {
             startRunningFlow();
             updateFileSize();

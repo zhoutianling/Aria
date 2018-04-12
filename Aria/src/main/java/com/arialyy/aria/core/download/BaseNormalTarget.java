@@ -108,7 +108,8 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
   @Override protected boolean checkEntity() {
     boolean b = getTargetType() < GROUP_HTTP && checkUrl() && checkFilePath();
     if (b) {
-      mTaskEntity.save(mEntity);
+      mEntity.save();
+      mTaskEntity.save();
     }
     return b;
   }

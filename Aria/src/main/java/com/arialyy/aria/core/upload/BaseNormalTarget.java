@@ -69,7 +69,8 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
   @Override protected boolean checkEntity() {
     boolean b = checkUrl() && checkFilePath();
     if (b) {
-      mTaskEntity.save(mEntity);
+      mEntity.save();
+      mTaskEntity.save();
     }
     return b;
   }

@@ -18,7 +18,7 @@ package com.arialyy.aria.core.manager;
 import android.text.TextUtils;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.DownloadTaskWrapper;
+import com.arialyy.aria.core.download.wrapper.DownloadTaskWrapper;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
@@ -28,17 +28,17 @@ import java.util.List;
  * Created by Aria.Lao on 2017/11/1.
  * 任务实体工厂
  */
-class DTEntityFactory implements ITEntityFactory<DownloadEntity, DownloadTaskEntity> {
-  private static final String TAG = "DTEntityFactory";
-  private static volatile DTEntityFactory INSTANCE = null;
+class DTEFactory implements INormalTEFactory<DownloadEntity, DownloadTaskEntity> {
+  private static final String TAG = "DTEFactory";
+  private static volatile DTEFactory INSTANCE = null;
 
-  private DTEntityFactory() {
+  private DTEFactory() {
   }
 
-  public static DTEntityFactory getInstance() {
+  public static DTEFactory getInstance() {
     if (INSTANCE == null) {
-      synchronized (DTEntityFactory.class) {
-        INSTANCE = new DTEntityFactory();
+      synchronized (DTEFactory.class) {
+        INSTANCE = new DTEFactory();
       }
     }
     return INSTANCE;
@@ -51,22 +51,21 @@ class DTEntityFactory implements ITEntityFactory<DownloadEntity, DownloadTaskEnt
     List<DownloadTaskWrapper> wrapper = DbEntity.findRelationData(DownloadTaskWrapper.class,
         "DownloadTaskEntity.key=? and DownloadTaskEntity.isGroupTask='false' and DownloadTaskEntity.url=?",
         entity.getDownloadPath(), entity.getUrl());
-
+    DownloadTaskEntity taskEntity;
     if (wrapper != null && !wrapper.isEmpty()) {
-      DownloadTaskEntity taskEntity = wrapper.get(0).taskEntity;
+      taskEntity = wrapper.get(0).taskEntity;
       if (taskEntity == null) {
         taskEntity = new DownloadTaskEntity();
-        taskEntity.entity = entity;
       } else if (taskEntity.entity == null || TextUtils.isEmpty(taskEntity.entity.getUrl())) {
         taskEntity.entity = entity;
       }
-
-      return taskEntity;
     } else {
-      DownloadTaskEntity taskEntity = new DownloadTaskEntity();
-      taskEntity.entity = entity;
-      return taskEntity;
+      taskEntity = new DownloadTaskEntity();
     }
+    taskEntity.key = entity.getDownloadPath();
+    taskEntity.url = entity.getUrl();
+    taskEntity.entity = entity;
+    return taskEntity;
   }
 
   /**
@@ -89,6 +88,7 @@ class DTEntityFactory implements ITEntityFactory<DownloadEntity, DownloadTaskEnt
       entity = new DownloadEntity();
       entity.setUrl(downloadUrl);
       entity.setGroupChild(false);
+      entity.setGroupName(null);
     }
     File file = new File(entity.getDownloadPath());
     if (!file.exists()) {

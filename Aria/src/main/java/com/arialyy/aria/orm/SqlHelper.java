@@ -36,7 +36,7 @@ final class SqlHelper extends SQLiteOpenHelper {
   /**
    * 是否将数据库保存在Sd卡，{@code true} 是
    */
-  private static final boolean SAVE_IN_SDCARD = false;
+  private static final boolean SAVE_IN_SDCARD = true;
 
   static volatile SqlHelper INSTANCE = null;
 

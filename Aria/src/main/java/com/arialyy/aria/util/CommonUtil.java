@@ -318,7 +318,7 @@ public class CommonUtil {
       return;
     }
 
-    for (DownloadEntity taskEntity : groupEntity.getSubTask()) {
+    for (DownloadEntity taskEntity : groupEntity.getSubEntities()) {
       delDownloadTaskConfig(removeFile, taskEntity);
     }
 
@@ -767,7 +767,7 @@ public class CommonUtil {
       return;
     }
     File file = new File(path);
-    if (!file.getParentFile().exists()) {
+    if (file.getParentFile() == null || !file.getParentFile().exists()) {
       ALog.d(TAG, "目标文件所在路径不存在，准备创建……");
       if (!createDir(file.getParent())) {
         ALog.d(TAG, "创建目录文件所在的目录失败！文件路径【" + path + "】");

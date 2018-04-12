@@ -16,20 +16,17 @@
 package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.NetUtils;
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -73,14 +70,15 @@ public abstract class AbsGroupUtil implements IUtil {
   Map<String, DownloadTaskEntity> mFailMap = new HashMap<>();
 
   /**
+   * 该任务组对应的所有任务
+   */
+  private Map<String, DownloadTaskEntity> mTasksMap = new HashMap<>();
+
+  /**
    * 下载器映射表，key为下载地址
    */
   private Map<String, Downloader> mDownloaderMap = new HashMap<>();
 
-  /**
-   * 该任务组对应的所有任务
-   */
-  private Map<String, DownloadTaskEntity> mTasksMap = new HashMap<>();
   /**
    * 是否需要读取文件长度，{@code true}需要
    */
@@ -99,37 +97,31 @@ public abstract class AbsGroupUtil implements IUtil {
   int mInitFailNum = 0;
   //任务组大小
   int mGroupSize = 0;
-  long mUpdateInterval = 1000;
+  private long mUpdateInterval = 1000;
 
   AbsGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity groupEntity) {
     mListener = listener;
     mGTEntity = groupEntity;
     mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    List<DownloadTaskEntity> tasks =
-        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mGTEntity.getKey());
-    if (tasks != null && !tasks.isEmpty()) {
-      for (DownloadTaskEntity te : tasks) {
-        te.removeFile = mGTEntity.removeFile;
-        if (te.getEntity() == null) continue;
-        mTasksMap.put(te.getEntity().getUrl(), te);
-      }
-    }
-    mGroupSize = mGTEntity.getEntity().getSubTask().size();
+
+    mGroupSize = mGTEntity.getSubTaskEntities().size();
     mTotalLen = groupEntity.getEntity().getFileSize();
     isNeedLoadFileSize = mTotalLen <= 1;
-    for (DownloadEntity entity : mGTEntity.getEntity().getSubTask()) {
-      File file = new File(entity.getDownloadPath());
-      if (entity.getState() == IEntity.STATE_COMPLETE && file.exists()) {
+
+    for (DownloadTaskEntity te : mGTEntity.getSubTaskEntities()) {
+      File file = new File(te.getKey());
+      if (te.getState() == IEntity.STATE_COMPLETE && file.exists()) {
         mCompleteNum++;
-        mCurrentLocation += entity.getFileSize();
+        mCurrentLocation += te.getEntity().getFileSize();
       } else {
-        mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
-        mCurrentLocation += file.exists() ? entity.getCurrentProgress() : 0;
+        mExeMap.put(te.url, te);
+        mCurrentLocation += file.exists() ? te.getEntity().getCurrentProgress() : 0;
         mActualTaskNum++;
       }
       if (isNeedLoadFileSize) {
-        mTotalLen += entity.getFileSize();
+        mTotalLen += te.getEntity().getFileSize();
       }
+      mTasksMap.put(te.url, te);
     }
     updateFileSize();
     mUpdateInterval =
@@ -190,12 +182,9 @@ public abstract class AbsGroupUtil implements IUtil {
    * @param url 子任务下载地址
    */
   public void cancelSubTask(String url) {
-    List<String> urls = mGTEntity.getEntity().getUrls();
-    if (urls != null && !urls.isEmpty() && urls.contains(url)) {
-      urls.remove(url);
-      // TODO: 2018/4/4 有问题
-      DownloadTaskEntity det =
-          DbEntity.findFirst(DownloadTaskEntity.class, "url=? and isGroupTask='true'", url);
+    Set<String> urls = mTasksMap.keySet();
+    if (!urls.isEmpty() && urls.contains(url)) {
+      DownloadTaskEntity det = mTasksMap.get(url);
       if (det != null) {
         mTotalLen -= det.getEntity().getFileSize();
         mGroupSize--;
@@ -275,7 +264,6 @@ public abstract class AbsGroupUtil implements IUtil {
       }
     }
     CommonUtil.delDownloadGroupTaskConfig(mGTEntity.removeFile, mGTEntity.getEntity());
-    mGTEntity.deleteData();
   }
 
   public void onCancel() {
@@ -306,7 +294,11 @@ public abstract class AbsGroupUtil implements IUtil {
     isRunning = true;
     mFailNum = 0;
     mListener.onPre();
-    onStart();
+    if (mCompleteNum == mGroupSize) {
+      mListener.onComplete();
+    } else {
+      onStart();
+    }
   }
 
   protected void onStart() {
@@ -375,43 +367,6 @@ public abstract class AbsGroupUtil implements IUtil {
       mExePool.execute(dt);
     }
     return dt;
-  }
-
-  /**
-   * 创建子任务下载信息
-   */
-  DownloadTaskEntity createChildDownloadTask(DownloadEntity entity) {
-    DownloadTaskEntity taskEntity = mTasksMap.get(entity.getUrl());
-    if (taskEntity != null) {
-      taskEntity.entity = entity;
-      if (getTaskType() == FTP_DIR) {
-        taskEntity.urlEntity = createFtpUrlEntity(entity);
-      }
-      mTasksMap.put(entity.getUrl(), taskEntity);
-      return taskEntity;
-    }
-    taskEntity = new DownloadTaskEntity();
-    taskEntity.entity = entity;
-    taskEntity.headers = mGTEntity.headers;
-    taskEntity.requestEnum = mGTEntity.requestEnum;
-    taskEntity.removeFile = mGTEntity.removeFile;
-    taskEntity.groupName = mGTEntity.getKey();
-    taskEntity.isGroupTask = true;
-    taskEntity.requestType = mGTEntity.requestType;
-    taskEntity.key = entity.getDownloadPath();
-    if (getTaskType() == FTP_DIR) {
-      taskEntity.urlEntity = createFtpUrlEntity(entity);
-    }
-    taskEntity.save();
-    mTasksMap.put(entity.getUrl(), taskEntity);
-    return taskEntity;
-  }
-
-  private FtpUrlEntity createFtpUrlEntity(DownloadEntity entity) {
-    FtpUrlEntity urlEntity = mGTEntity.urlEntity.clone();
-    urlEntity.url = entity.getUrl();
-    urlEntity.remotePath = CommonUtil.getRemotePath(entity.getUrl());
-    return urlEntity;
   }
 
   /**
@@ -554,7 +509,7 @@ public abstract class AbsGroupUtil implements IUtil {
       subEntity.setState(state);
       subEntity.setComplete(state == IEntity.STATE_COMPLETE);
       if (state == IEntity.STATE_CANCEL) {
-        subTaskEntity.deleteData();
+        subEntity.deleteData();
         return;
       } else if (subEntity.isComplete()) {
         subEntity.setCompleteTime(System.currentTimeMillis());

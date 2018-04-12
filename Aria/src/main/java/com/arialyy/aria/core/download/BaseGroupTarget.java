@@ -18,7 +18,6 @@ package com.arialyy.aria.core.download;
 import android.text.TextUtils;
 import com.arialyy.aria.core.manager.SubTaskManager;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import java.io.File;
 import java.util.List;
@@ -36,7 +35,11 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
   /**
    * 文件夹临时路径
    */
-  protected String mDirPathTemp;
+  String mDirPathTemp;
+  /**
+   * 是否需要修改路径
+   */
+  boolean needModifyPath = false;
 
   private SubTaskManager mSubTaskManager;
 
@@ -110,21 +113,21 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
    *
    * @param newDirPath 新的文件夹路径
    */
-  private void reChangeDirPath(String newDirPath) {
-    List<DownloadEntity> subTask = mEntity.getSubTask();
-    if (subTask != null && !subTask.isEmpty()) {
-      for (DownloadEntity entity : subTask) {
-        String oldPath = entity.getDownloadPath();
-        String newPath = newDirPath + "/" + entity.getFileName();
+  void reChangeDirPath(String newDirPath) {
+    List<DownloadTaskEntity> subTasks = mTaskEntity.getSubTaskEntities();
+    if (subTasks != null && !subTasks.isEmpty()) {
+      for (DownloadTaskEntity dte : subTasks) {
+        DownloadEntity de = dte.getEntity();
+        String oldPath = de.getDownloadPath();
+        String newPath = newDirPath + "/" + de.getFileName();
         File file = new File(oldPath);
-        file.renameTo(new File(newPath));
-        DbEntity.exeSql("UPDATE DownloadEntity SET downloadPath='"
-            + newPath
-            + "' WHERE downloadPath='"
-            + oldPath
-            + "'");
-        DbEntity.exeSql(
-            "UPDATE DownloadTaskEntity SET key='" + newPath + "' WHERE key='" + oldPath + "'");
+        if (file.exists()) {
+          file.renameTo(new File(newPath));
+        }
+        de.setDownloadPath(newPath);
+        dte.key = newPath;
+        de.save();
+        dte.save();
       }
     }
   }
@@ -135,26 +138,25 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
    * @return {@code true} 合法
    */
   boolean checkDirPath() {
-    final String dirPath = mDirPathTemp;
-    if (TextUtils.isEmpty(dirPath)) {
+    if (TextUtils.isEmpty(mDirPathTemp)) {
       ALog.e(TAG, "文件夹路径不能为null");
       return false;
-    } else if (!dirPath.startsWith("/")) {
-      ALog.e(TAG, "文件夹路径【" + dirPath + "】错误");
+    } else if (!mDirPathTemp.startsWith("/")) {
+      ALog.e(TAG, "文件夹路径【" + mDirPathTemp + "】错误");
       return false;
     }
-    File file = new File(dirPath);
+    File file = new File(mDirPathTemp);
     if (file.isFile()) {
-      ALog.e(TAG, "路径【" + dirPath + "】是文件，请设置文件夹路径");
+      ALog.e(TAG, "路径【" + mDirPathTemp + "】是文件，请设置文件夹路径");
       return false;
     }
 
-    if (!mEntity.getDirPath().equals(dirPath)) {
+    if (TextUtils.isEmpty(mEntity.getDirPath()) || !mEntity.getDirPath().equals(mDirPathTemp)) {
       if (!file.exists()) {
         file.mkdirs();
       }
-      mEntity.setDirPath(dirPath);
-      reChangeDirPath(dirPath);
+      needModifyPath = true;
+      mEntity.setDirPath(mDirPathTemp);
     }
 
     return true;

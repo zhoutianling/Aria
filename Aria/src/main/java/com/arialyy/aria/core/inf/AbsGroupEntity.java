@@ -28,12 +28,12 @@ public abstract class AbsGroupEntity extends AbsEntity implements Parcelable {
   /**
    * 组名，组名为任务地址相加的url的Md5
    */
-  @Primary protected String groupName = "";
+  @Primary protected String groupName;
 
   /**
    * 任务组别名
    */
-  private String alias = "";
+  private String alias;
 
   private List<String> urls = new ArrayList<>();
 

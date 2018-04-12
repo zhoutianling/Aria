@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsNormalTaskEntity;
+import com.arialyy.aria.orm.ActionPolicy;
 import com.arialyy.aria.orm.annotation.Foreign;
 import com.arialyy.aria.orm.annotation.Ignore;
 import com.arialyy.aria.orm.annotation.NoNull;
@@ -27,7 +28,6 @@ import com.arialyy.aria.orm.annotation.Primary;
  */
 public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
 
-  //@OneToOne(table = DownloadEntity.class, key = "downloadPath") public DownloadEntity entity;
   @Ignore public DownloadEntity entity;
 
   /**
@@ -38,7 +38,9 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
   /**
    * 所属的任务组组名，如果不属于任务组，则为null
    */
-  public String groupName = "";
+  @Foreign(parent = DownloadGroupTaskEntity.class, column = "key",
+      onUpdate = ActionPolicy.CASCADE, onDelete = ActionPolicy.CASCADE)
+  public String groupName;
 
   /**
    * 是否是chunk模式
@@ -53,7 +55,10 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
   /**
    * Task实体对应的key
    */
-  @Primary @Foreign(parent = DownloadEntity.class, column = "downloadPath") public String key = "";
+  @Primary
+  @Foreign(parent = DownloadEntity.class, column = "downloadPath",
+      onUpdate = ActionPolicy.CASCADE, onDelete = ActionPolicy.CASCADE)
+  public String key;
 
   public DownloadTaskEntity() {
   }
@@ -64,15 +69,5 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
 
   @Override public String getKey() {
     return key;
-  }
-
-  public void save(DownloadEntity entity) {
-    this.entity = entity;
-    if (entity != null) {
-      url = entity.getUrl();
-      key = entity.getDownloadPath();
-      entity.save();
-    }
-    save();
   }
 }
