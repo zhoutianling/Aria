@@ -139,11 +139,4 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   }
 
   public abstract String getKey();
-
-  @Override public void update() {
-    if (getEntity() != null) {
-      getEntity().update();
-    }
-    super.update();
-  }
 }

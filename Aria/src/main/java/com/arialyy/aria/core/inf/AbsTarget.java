@@ -45,14 +45,12 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
 
   /**
    * 重置状态，将任务状态设置为未开始状态
+   * 注意：如果在后续方法调用链中没有调用 {@link #start()}、{@link #stop()}、{@link #cancel()}、{@link #resume()}
+   * 等操作任务的方法，那么你需要调用{@link #save()}才能将修改保存到数据库
    */
   public TARGET resetState() {
-    if (checkEntity()) {
-      mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
-      mTaskEntity.refreshInfo = true;
-    } else {
-      ALog.e(TAG, "重置状态失败");
-    }
+    mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
+    mTaskEntity.refreshInfo = true;
     return (TARGET) this;
   }
 
@@ -99,19 +97,17 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
 
   /**
    * 设置扩展字段，用来保存你的其它数据，如果你的数据比较多，你可以把你的数据转换为JSON字符串，然后再存到Aria中
+   * 注意：如果在后续方法调用链中没有调用 {@link #start()}、{@link #stop()}、{@link #cancel()}、{@link #resume()}
+   * 等操作任务的方法，那么你需要调用{@link #save()}才能将修改保存到数据库
    *
    * @param str 扩展数据
    */
   public TARGET setExtendField(String str) {
     if (TextUtils.isEmpty(str)) return (TARGET) this;
-    if (checkEntity()) {
-      if (TextUtils.isEmpty(mEntity.getStr()) || !mEntity.getStr().equals(str)) {
-        mEntity.setStr(str);
-      } else {
-        ALog.e(TAG, "设置扩展字段失败，扩展字段为null");
-      }
+    if (TextUtils.isEmpty(mEntity.getStr()) || !mEntity.getStr().equals(str)) {
+      mEntity.setStr(str);
     } else {
-      ALog.e(TAG, "设置扩展字段失败");
+      ALog.e(TAG, "设置扩展字段失败，扩展字段为null");
     }
 
     return (TARGET) this;
@@ -168,6 +164,15 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
       taskType = ICmd.TASK_TYPE_UPLOAD;
     }
     return taskType;
+  }
+
+  /**
+   * 保存修改
+   */
+  public void save() {
+    if (!checkEntity()) {
+      ALog.e(TAG, "保存修改失败");
+    }
   }
 
   /**

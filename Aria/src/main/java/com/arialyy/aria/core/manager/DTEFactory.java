@@ -23,6 +23,7 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Aria.Lao on 2017/11/1.
@@ -89,6 +90,7 @@ class DTEFactory implements INormalTEFactory<DownloadEntity, DownloadTaskEntity>
       entity.setUrl(downloadUrl);
       entity.setGroupChild(false);
       entity.setGroupName(null);
+      entity.setDownloadPath(UUID.randomUUID().toString().replace("-", ""));  //设置临时路径
     }
     File file = new File(entity.getDownloadPath());
     if (!file.exists()) {

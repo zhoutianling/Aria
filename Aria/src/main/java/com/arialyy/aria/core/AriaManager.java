@@ -20,13 +20,11 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
-import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.common.QueueMod;
@@ -258,6 +256,7 @@ import org.xml.sax.SAXException;
     final String key = getKey(isDownload, obj);
     IReceiver receiver = mReceivers.get(key);
     boolean needRmReceiver = false;
+    // 监控Dialog、fragment、popupWindow的生命周期
     final WidgetLiftManager widgetLiftManager = new WidgetLiftManager();
     if (obj instanceof Dialog) {
       needRmReceiver = widgetLiftManager.handleDialogLift((Dialog) obj);
@@ -323,45 +322,32 @@ import org.xml.sax.SAXException;
    * 根据功能类型和控件类型获取对应的key
    */
   private String getKey(boolean isDownload, Object obj) {
-    // TODO: 2018/4/12 不做限制了，让所有类都可以使用
     String clsName = obj.getClass().getName();
-    String key = "";
-    if (!(obj instanceof Activity)) {
-      if (obj instanceof DialogFragment) {
-        key = clsName + "_" + ((DialogFragment) obj).getActivity().getClass().getName();
-      } else if (obj instanceof android.app.DialogFragment) {
-        key = clsName + "_" + ((android.app.DialogFragment) obj).getActivity().getClass().getName();
-      } else if (obj instanceof android.support.v4.app.Fragment) {
-        key = clsName + "_" + ((Fragment) obj).getActivity().getClass().getName();
-      } else if (obj instanceof android.app.Fragment) {
-        key = clsName + "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
-      } else if (obj instanceof Dialog) {
-        Activity activity = ((Dialog) obj).getOwnerActivity();
-        if (activity != null) {
-          key = clsName + "_" + activity.getClass().getName();
-        } else {
-          key = clsName;
-        }
-      } else if (obj instanceof PopupWindow) {
-        Context context = ((PopupWindow) obj).getContentView().getContext();
-        if (context instanceof Activity) {
-          key = clsName + "_" + context.getClass().getName();
-        } else {
-          key = clsName;
-        }
-      } else if (obj instanceof Service) {
-        key = clsName;
-      } else if (obj instanceof Application) {
+    String key;
+    if (obj instanceof DialogFragment) {
+      key = clsName + "_" + ((DialogFragment) obj).getActivity().getClass().getName();
+    } else if (obj instanceof android.app.DialogFragment) {
+      key = clsName + "_" + ((android.app.DialogFragment) obj).getActivity().getClass().getName();
+    } else if (obj instanceof android.support.v4.app.Fragment) {
+      key = clsName + "_" + ((Fragment) obj).getActivity().getClass().getName();
+    } else if (obj instanceof android.app.Fragment) {
+      key = clsName + "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
+    } else if (obj instanceof Dialog) {
+      Activity activity = ((Dialog) obj).getOwnerActivity();
+      if (activity != null) {
+        key = clsName + "_" + activity.getClass().getName();
+      } else {
         key = clsName;
       }
-    }
-    if (obj instanceof Activity || obj instanceof Service) {
+    } else if (obj instanceof PopupWindow) {
+      Context context = ((PopupWindow) obj).getContentView().getContext();
+      if (context instanceof Activity) {
+        key = clsName + "_" + context.getClass().getName();
+      } else {
+        key = clsName;
+      }
+    } else {
       key = clsName;
-    } else if (obj instanceof Application) {
-      key = clsName;
-    }
-    if (TextUtils.isEmpty(key)) {
-      throw new IllegalArgumentException("未知类型");
     }
     key += (isDownload ? DOWNLOAD : UPLOAD) + obj.hashCode();
     return key;

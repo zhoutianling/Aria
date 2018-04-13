@@ -18,6 +18,7 @@ package com.arialyy.aria.orm;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.util.LruCache;
+import android.text.TextUtils;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
@@ -128,7 +129,7 @@ abstract class AbsDelegate {
    * @return 转换后的内容
    */
   String convertValue(String value) {
-    if (value.contains("'")) {
+    if (!TextUtils.isEmpty(value) && value.contains("'")) {
       return URLEncoder.encode(value);
     }
     return value;

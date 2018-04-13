@@ -137,6 +137,8 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
         filePath += mEntity.getFileName();
       }
     }
+    mEntity.setFileName(file.getName());
+
     //设置文件保存路径，如果新文件路径和就文件路径不同，则修改路径
     if (!filePath.equals(mEntity.getDownloadPath())) {
       if (!mTaskEntity.refreshInfo && DbEntity.checkDataExist(DownloadEntity.class,
@@ -146,11 +148,12 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
       }
       File oldFile = new File(mEntity.getDownloadPath());
       File newFile = new File(filePath);
-      if (TextUtils.isEmpty(mEntity.getDownloadPath()) || oldFile.renameTo(newFile)) {
-        mEntity.setDownloadPath(filePath);
-        mEntity.setFileName(newFile.getName());
-        mTaskEntity.key = filePath;
-        //mTaskEntity.update();
+      mEntity.setDownloadPath(filePath);
+      mEntity.setFileName(newFile.getName());
+      mTaskEntity.key = filePath;
+      //mTaskEntity.update();
+      if (oldFile.exists()) {
+        oldFile.renameTo(newFile);
         CommonUtil.renameDownloadConfig(oldFile.getName(), newFile.getName());
       }
     }
