@@ -99,6 +99,13 @@ class DGTEFactory implements IGTEFactory<DownloadGroupEntity, DownloadGroupTaskE
     }
     fte.setKey(ftpUrl);
     fte.urlEntity = CommonUtil.getFtpUrlInfo(ftpUrl);
+
+    if (fte.getEntity().getSubEntities() == null) {
+      fte.getEntity().setSubEntities(new ArrayList<DownloadEntity>());
+    }
+    if (fte.getSubTaskEntities() == null) {
+      fte.setSubTaskEntities(new ArrayList<DownloadTaskEntity>());
+    }
     return fte;
   }
 

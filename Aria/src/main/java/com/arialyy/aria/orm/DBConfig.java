@@ -31,6 +31,7 @@ import java.util.Map;
  * 数据库配置信息
  */
 class DBConfig {
+  /*adb pull /mnt/sdcard/Android/data/com.arialyy.simple/files/DB/AriaLyyDb d:/db*/
   static Map<String, Class> mapping = new HashMap<>();
   static String DB_NAME;
   static int VERSION = 31;

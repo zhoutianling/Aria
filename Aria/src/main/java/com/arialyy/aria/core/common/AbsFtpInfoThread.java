@@ -171,6 +171,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       if (m.find() && m.groupCount() > 0) {
         client = new FTPClient();
         InetAddress ip = InetAddress.getByName(urlEntity.hostName);
+        client.setConnectTimeout(10000);  // 连接10s超时
         client.connect(ip, Integer.parseInt(urlEntity.port));
         mTaskEntity.urlEntity.validAddr = ip;
       } else {

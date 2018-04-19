@@ -28,12 +28,15 @@ import java.io.File;
 abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
     extends AbsUploadTarget<TARGET, UploadEntity, UploadTaskEntity> {
 
-  protected void initTarget(String filePath) {
+  protected String mTempUrl;
+
+  void initTarget(String filePath) {
     mTaskEntity = TEManager.getInstance().getTEntity(UploadTaskEntity.class, filePath);
     mEntity = mTaskEntity.entity;
     File file = new File(filePath);
     mEntity.setFileName(file.getName());
     mEntity.setFileSize(file.length());
+    mTempUrl = mEntity.getUrl();
   }
 
   /**
@@ -41,7 +44,10 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
    *
    * @param uploadUrl 上传路径
    */
-  public abstract TARGET setUploadUrl(@NonNull String uploadUrl);
+  public TARGET setUploadUrl(@NonNull String uploadUrl) {
+    mTempUrl = uploadUrl;
+    return (TARGET) this;
+  }
 
   /**
    * 上传任务是否存在
@@ -107,8 +113,8 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
    *
    * @return {@code true}地址合法
    */
-  private boolean checkUrl() {
-    final String url = mEntity.getUrl();
+  protected boolean checkUrl() {
+    final String url = mTempUrl;
     if (TextUtils.isEmpty(url)) {
       ALog.e(TAG, "上传失败，url为null");
       return false;
@@ -121,6 +127,7 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
       ALog.e(TAG, "上传失败，url【" + url + "】不合法");
       return false;
     }
+    mEntity.setUrl(url);
     return true;
   }
 }

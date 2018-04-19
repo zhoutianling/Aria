@@ -55,6 +55,15 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
     if (b) {
       mEntity.save();
       mTaskEntity.save();
+      if (mTaskEntity.getSubTaskEntities() != null) {
+        //初始化子项的登录信息
+        for (DownloadTaskEntity entity : mTaskEntity.getSubTaskEntities()) {
+          entity.urlEntity.needLogin = mTaskEntity.urlEntity.needLogin;
+          entity.urlEntity.account = mTaskEntity.urlEntity.account;
+          entity.urlEntity.user = mTaskEntity.urlEntity.user;
+          entity.urlEntity.password = mTaskEntity.urlEntity.password;
+        }
+      }
     }
     return b;
   }

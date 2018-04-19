@@ -71,15 +71,17 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
   @Override public void stop() {
     if (!mUtil.isRunning()) {
       mListener.onStop(getCurrentProgress());
+    } else {
+      mUtil.stop();
     }
-    mUtil.stop();
   }
 
   @Override public void cancel() {
     if (!mUtil.isRunning()) {
       mListener.onCancel();
+    } else {
+      mUtil.cancel();
     }
-    mUtil.cancel();
   }
 
   @Override public String getTaskName() {

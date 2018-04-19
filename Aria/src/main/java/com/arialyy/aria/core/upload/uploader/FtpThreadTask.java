@@ -32,7 +32,7 @@ import org.apache.commons.net.ftp.OnFtpInputStreamListener;
 
 /**
  * Created by Aria.Lao on 2017/7/28.
- * FTP 单线程上传任务，需要FTP 服务器给用户打开删除和读入IO的权限
+ * FTP 单线程上传任务，需要FTP 服务器给用户打开append和write的权限
  */
 class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
   private final String TAG = "FtpUploadThreadTask";
@@ -114,7 +114,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
   private void initPath() throws UnsupportedEncodingException {
     dir = new String(mTaskEntity.urlEntity.remotePath.getBytes(charSet), SERVER_CHARSET);
     remotePath = new String(
-        ("/" + mTaskEntity.urlEntity.remotePath + mEntity.getFileName()).getBytes(charSet),
+        ("/" + mTaskEntity.urlEntity.remotePath + "/" + mEntity.getFileName()).getBytes(charSet),
         SERVER_CHARSET);
   }
 

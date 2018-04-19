@@ -335,8 +335,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       recordL[i] = -1;
     }
     int rl = 0;
-    if (isNewTask) {
-      handleNewTask();
+    if (isNewTask && !handleNewTask()) {
+      return;
     }
     for (int i = 0; i < mTotalThreadNum; i++) {
       long startL = i * blockSize, endL = (i + 1) * blockSize;
@@ -395,8 +395,10 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
 
   /**
    * 处理新任务
+   *
+   * @return {@code true}创建新任务失败
    */
-  protected abstract void handleNewTask();
+  protected abstract boolean handleNewTask();
 
   /**
    * 处理不支持断点的下载

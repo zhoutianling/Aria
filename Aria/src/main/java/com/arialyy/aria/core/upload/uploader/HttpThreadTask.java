@@ -73,6 +73,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       mHttpConn.setRequestProperty("Content-Type",
           mTaskEntity.contentType + "; boundary=" + BOUNDARY);
       mHttpConn.setRequestProperty("User-Agent", mTaskEntity.userAgent);
+      mHttpConn.setConnectTimeout(5000);
       //mHttpConn.setRequestProperty("Range", "bytes=" + 0 + "-" + "100");
       //内部缓冲区---分段上传防止oom
       mHttpConn.setChunkedStreamingMode(1024);

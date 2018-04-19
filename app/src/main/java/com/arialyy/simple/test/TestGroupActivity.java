@@ -19,6 +19,7 @@ import java.util.List;
 
 public class TestGroupActivity extends BaseActivity<ActivityTestBinding> {
   List<String> mUrls;
+  private static final String dir = "ftp://192.168.1.8:21/upload/测试";
 
   @Override protected int setLayoutId() {
     return R.layout.activity_test;
@@ -74,17 +75,25 @@ public class TestGroupActivity extends BaseActivity<ActivityTestBinding> {
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
+        //Aria.download(this)
+        //    .loadGroup(mUrls)
+        //    .setDirPath(Environment.getExternalStorageDirectory().getPath() + "/download/test/")
+        //    .resetState()
+        //    .start();
         Aria.download(this)
-            .loadGroup(mUrls)
-            .setDirPath(Environment.getExternalStorageDirectory().getPath() + "/download/test/")
-            .resetState()
+            .loadFtpDir(dir)
+            .setDirPath(
+                Environment.getExternalStorageDirectory().getPath() + "/Download/ftp_dir")
+            .setGroupAlias("ftp文件夹下载")
+            //.setSubTaskFileName(getModule(GroupModule.class).getSubName())
+            .login("lao", "123456")
             .start();
         break;
       case R.id.stop:
-        Aria.download(this).loadGroup(mUrls).stop();
+        Aria.download(this).loadFtpDir(dir).stop();
         break;
       case R.id.cancel:
-        Aria.download(this).loadGroup(mUrls).cancel();
+        Aria.download(this).loadFtpDir(dir).cancel();
         break;
     }
   }

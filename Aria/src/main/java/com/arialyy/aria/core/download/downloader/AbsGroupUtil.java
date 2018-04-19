@@ -84,17 +84,9 @@ public abstract class AbsGroupUtil implements IUtil {
    */
   boolean isNeedLoadFileSize = true;
   //已经完成的任务数
-  private int mCompleteNum = 0;
-  //失败的任务数
-  private int mFailNum = 0;
+  int mCompleteNum = 0;
   //停止的任务数
   private int mStopNum = 0;
-  //实际的下载任务数
-  int mActualTaskNum = 0;
-  //初始化完成的任务数
-  int mInitNum = 0;
-  // 初始化失败的任务数
-  int mInitFailNum = 0;
   //任务组大小
   int mGroupSize = 0;
   private long mUpdateInterval = 1000;
@@ -103,27 +95,6 @@ public abstract class AbsGroupUtil implements IUtil {
     mListener = listener;
     mGTEntity = groupEntity;
     mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
-    mGroupSize = mGTEntity.getSubTaskEntities().size();
-    mTotalLen = groupEntity.getEntity().getFileSize();
-    isNeedLoadFileSize = mTotalLen <= 1;
-
-    for (DownloadTaskEntity te : mGTEntity.getSubTaskEntities()) {
-      File file = new File(te.getKey());
-      if (te.getState() == IEntity.STATE_COMPLETE && file.exists()) {
-        mCompleteNum++;
-        mCurrentLocation += te.getEntity().getFileSize();
-      } else {
-        mExeMap.put(te.url, te);
-        mCurrentLocation += file.exists() ? te.getEntity().getCurrentProgress() : 0;
-        mActualTaskNum++;
-      }
-      if (isNeedLoadFileSize) {
-        mTotalLen += te.getEntity().getFileSize();
-      }
-      mTasksMap.put(te.url, te);
-    }
-    updateFileSize();
     mUpdateInterval =
         AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getUpdateInterval();
   }
@@ -250,7 +221,6 @@ public abstract class AbsGroupUtil implements IUtil {
 
   @Override public void cancel() {
     closeTimer(false);
-    mListener.onCancel();
     onCancel();
     if (!mExePool.isShutdown()) {
       mExePool.shutdown();
@@ -263,7 +233,9 @@ public abstract class AbsGroupUtil implements IUtil {
         dt.cancel();
       }
     }
+    clearState();
     CommonUtil.delDownloadGroupTaskConfig(mGTEntity.removeFile, mGTEntity.getEntity());
+    mListener.onCancel();
   }
 
   public void onCancel() {
@@ -290,15 +262,36 @@ public abstract class AbsGroupUtil implements IUtil {
 
   }
 
+  /**
+   * 预处理操作，由于属性的不同，http任务组在构造函数中就可以完成了
+   * 而FTP文件夹的，需要获取完成所有子任务信息才算预处理完成
+   */
+  protected void onPre() {
+    mListener.onPre();
+    mGroupSize = mGTEntity.getSubTaskEntities().size();
+    mTotalLen = mGTEntity.getEntity().getFileSize();
+    isNeedLoadFileSize = mTotalLen <= 1;
+    for (DownloadTaskEntity te : mGTEntity.getSubTaskEntities()) {
+      File file = new File(te.getKey());
+      if (te.getState() == IEntity.STATE_COMPLETE && file.exists()) {
+        mCompleteNum++;
+        mCurrentLocation += te.getEntity().getFileSize();
+      } else {
+        mExeMap.put(te.url, te);
+        mCurrentLocation += file.exists() ? te.getEntity().getCurrentProgress() : 0;
+      }
+      if (isNeedLoadFileSize) {
+        mTotalLen += te.getEntity().getFileSize();
+      }
+      mTasksMap.put(te.url, te);
+    }
+    updateFileSize();
+  }
+
   @Override public void start() {
     isRunning = true;
-    mFailNum = 0;
-    mListener.onPre();
-    if (mCompleteNum == mGroupSize) {
-      mListener.onComplete();
-    } else {
-      onStart();
-    }
+    clearState();
+    onStart();
   }
 
   protected void onStart() {
@@ -312,6 +305,13 @@ public abstract class AbsGroupUtil implements IUtil {
 
   @Override public void setMaxSpeed(double maxSpeed) {
 
+  }
+
+  private void clearState(){
+    mExeMap.clear();
+    mDownloaderMap.clear();
+    mFailMap.clear();
+    mTasksMap.clear();
   }
 
   private void closeTimer(boolean isRunning) {
@@ -429,7 +429,7 @@ public abstract class AbsGroupUtil implements IUtil {
       mListener.onSubStop(subEntity);
       synchronized (AbsGroupUtil.class) {
         mStopNum++;
-        if (mStopNum + mCompleteNum + mInitFailNum + mFailNum >= mGroupSize) {
+        if (mStopNum + mCompleteNum + mFailMap.size() == mGroupSize) {
           closeTimer(false);
           mListener.onStop(mCurrentLocation);
         }
@@ -446,13 +446,13 @@ public abstract class AbsGroupUtil implements IUtil {
       saveData(IEntity.STATE_COMPLETE, subEntity.getFileSize());
       handleSpeed(0);
       mListener.onSubComplete(subEntity);
-      synchronized (AbsGroupUtil.class) {
+      synchronized (ChildDownloadListener.class) {
         mCompleteNum++;
         //如果子任务完成的数量和总任务数一致，表示任务组任务已经完成
         if (mCompleteNum >= mGroupSize) {
           closeTimer(false);
           mListener.onComplete();
-        } else if (mStopNum + mCompleteNum + mInitFailNum + mFailNum >= mGroupSize) {
+        } else if (mFailMap.size() > 0 && mStopNum + mCompleteNum + mFailMap.size() >= mGroupSize) {
           //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
           closeTimer(false);
           mListener.onStop(mCurrentLocation);
@@ -468,20 +468,23 @@ public abstract class AbsGroupUtil implements IUtil {
     }
 
     /**
-     * 失败后重试下载，如果失败次数超过5次，不再重试
+     * 重试下载
      */
     private void reTry(boolean needRetry) {
-      synchronized (AriaManager.LOCK) {
-        if (subEntity.getFailNum() < 5 && isRunning && needRetry && NetUtils.isConnected(
-            AriaManager.APP)) {
+      synchronized (ChildDownloadListener.class) {
+        if (subEntity.getFailNum() < 5 && needRetry && NetUtils.isConnected(AriaManager.APP)) {
           reStartTask();
         } else {
-          mFailNum++;
+          mFailMap.put(subTaskEntity.url, subTaskEntity);
           mListener.onSubFail(subEntity);
           //如果失败的任务数大于实际的下载任务数，任务组停止下载
-          if (mFailNum >= mActualTaskNum) {
+          if (mFailMap.size() >= mExeMap.size()) {
             closeTimer(false);
-            mListener.onStop(mCurrentLocation);
+            if (mFailMap.size() == mGroupSize) {  //所有任务都失败了，则认为该任务组已经失败
+              mListener.onFail(true);
+            } else {
+              mListener.onStop(mCurrentLocation);
+            }
           }
         }
       }

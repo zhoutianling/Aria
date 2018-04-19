@@ -15,13 +15,11 @@
  */
 package com.arialyy.aria.core.upload;
 
-import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.delegate.FtpDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IFtpTarget;
-import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
@@ -32,6 +30,9 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
     implements IFtpTarget<FtpUploadTarget> {
   private FtpDelegate<FtpUploadTarget, UploadEntity, UploadTaskEntity> mDelegate;
 
+  private String mAccount, mUser, mPw;
+  private boolean needLogin = false;
+
   FtpUploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
     initTask(filePath);
@@ -41,25 +42,6 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
     initTarget(filePath);
     mTaskEntity.requestType = AbsTaskEntity.U_FTP;
     mDelegate = new FtpDelegate<>(this, mTaskEntity);
-  }
-
-  /**
-   * 设置上传路径，FTP上传路径必须是从"/"开始的完整路径
-   *
-   * @param uploadUrl 上传路径
-   */
-  @Override
-  public FtpUploadTarget setUploadUrl(@NonNull String uploadUrl) {
-    if (!CheckUtil.checkUrl(uploadUrl)) {
-      return this;
-    }
-    if (!uploadUrl.endsWith("/")) {
-      uploadUrl += "/";
-    }
-    mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(uploadUrl);
-    if (mEntity.getUrl().equals(uploadUrl)) return this;
-    mEntity.setUrl(uploadUrl);
-    return this;
   }
 
   /**
@@ -74,15 +56,35 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
     }
   }
 
+  @Override protected boolean checkUrl() {
+    boolean b = super.checkUrl();
+    if (!b) {
+      return false;
+    }
+    mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(mTempUrl);
+    mTaskEntity.urlEntity.account = mAccount;
+    mTaskEntity.urlEntity.user = mUser;
+    mTaskEntity.urlEntity.password = mPw;
+    mTaskEntity.urlEntity.needLogin = needLogin;
+    return true;
+  }
+
   @Override public FtpUploadTarget charSet(String charSet) {
     return mDelegate.charSet(charSet);
   }
 
   @Override public FtpUploadTarget login(String userName, String password) {
-    return mDelegate.login(userName, password);
+    needLogin = true;
+    mUser = userName;
+    mPw = password;
+    return this;
   }
 
   @Override public FtpUploadTarget login(String userName, String password, String account) {
-    return mDelegate.login(userName, password, account);
+    needLogin = true;
+    mUser = userName;
+    mPw = password;
+    mAccount = account;
+    return this;
   }
 }

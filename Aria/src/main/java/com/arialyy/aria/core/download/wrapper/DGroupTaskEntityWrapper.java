@@ -18,11 +18,13 @@ package com.arialyy.aria.core.download.wrapper;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.orm.AbsWrapper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.annotation.Many;
 import com.arialyy.aria.orm.annotation.One;
 import com.arialyy.aria.orm.annotation.Wrapper;
+import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,6 +53,9 @@ public class DGroupTaskEntityWrapper extends AbsWrapper {
       if (subWrappers != null && !subWrappers.isEmpty()) {
         List<DownloadTaskEntity> temp = new ArrayList<>();
         for (DownloadTaskWrapper dw : subWrappers) {
+          if (dw.taskEntity.requestType == AbsTaskEntity.D_FTP) {
+            dw.taskEntity.urlEntity = CommonUtil.getFtpUrlInfo(dw.taskEntity.url);
+          }
           temp.add(dw.taskEntity);
         }
         taskEntity.setSubTaskEntities(temp);

@@ -34,6 +34,7 @@ import java.util.concurrent.Executors;
 public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   private final String TAG = "DownloadGroupUtil";
   private ExecutorService mInfoPool;
+  private int mInitCompleteNum, mInitFailNum;
 
   /**
    * 文件信息回调组
@@ -43,6 +44,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   public DownloadGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity taskEntity) {
     super(listener, taskEntity);
     mInfoPool = Executors.newCachedThreadPool();
+    onPre();
   }
 
   @Override int getTaskType() {
@@ -65,7 +67,12 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
 
   @Override protected void onStart() {
     super.onStart();
-    if (mExeMap.size() == 0){
+    if (mCompleteNum == mGroupSize) {
+      mListener.onComplete();
+      return;
+    }
+
+    if (mExeMap.size() == 0) {
       ALog.e(TAG, "任务组无可执行任务");
       mListener.onFail(false);
       return;
@@ -108,32 +115,31 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
             }
             createChildDownload(te);
           }
-          mInitNum++;
-          if (mInitNum + mInitFailNum >= mGTEntity.getEntity().getSubEntities().size()
-              || !isNeedLoadFileSize) {
+
+          if (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize) {
             startRunningFlow();
             updateFileSize();
           }
         }
 
         @Override public void onFail(String url, String errorMsg, boolean needRetry) {
+          ALog.e(TAG, "任务【" + url + "】初始化失败。");
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
             mFailMap.put(url, te);
             mFileInfoCallbacks.put(te.hashCode(), this);
+            mExeMap.remove(url);
           }
           //404链接不重试下载
-          if (failNum < 10 && !errorMsg.contains("错误码：404") && !errorMsg.contains(
-              "UnknownHostException")) {
-            mInfoPool.execute(createFileInfoThread(te));
-          } else {
-            mInitFailNum++;
-            mActualTaskNum--;
-            if (mActualTaskNum < 0) mActualTaskNum = 0;
-          }
-          failNum++;
-          if (mInitNum + mInitFailNum >= mGTEntity.getEntity().getSubEntities().size()
-              || !isNeedLoadFileSize) {
+          //if (failNum < 3 && !errorMsg.contains("错误码：404") && !errorMsg.contains(
+          //    "UnknownHostException")) {
+          //  mInfoPool.execute(createFileInfoThread(te));
+          //} else {
+          //  mInitFailNum++;
+          //}
+          //failNum++;
+          mInitFailNum ++;
+          if (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize) {
             startRunningFlow();
             updateFileSize();
           }

@@ -73,13 +73,14 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
     }
   }
 
-  @Override protected void handleNewTask() {
+  @Override protected boolean handleNewTask() {
     CommonUtil.createFile(mTempFile.getPath());
     BufferedRandomAccessFile file = null;
     try {
       file = new BufferedRandomAccessFile(new File(mTempFile.getPath()), "rwd", 8192);
       //设置文件长度
       file.setLength(mEntity.getFileSize());
+      return true;
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"
           + mEntity.getUrl()
@@ -96,6 +97,7 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
         }
       }
     }
+    return false;
   }
 
   @Override protected AbsThreadTask selectThreadTask(SubThreadConfig<DownloadTaskEntity> config) {

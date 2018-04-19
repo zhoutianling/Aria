@@ -20,7 +20,6 @@ import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IHttpHeaderTarget;
-import com.arialyy.aria.util.CheckUtil;
 import java.util.Map;
 
 /**
@@ -43,17 +42,6 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
     mTaskEntity.isSupportBP = false;
     mTaskEntity.requestType = AbsTaskEntity.U_HTTP;
     mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
-  }
-
-  @Override public UploadTarget setUploadUrl(@NonNull String uploadUrl) {
-    if (!CheckUtil.checkUrl(uploadUrl)){
-      return this;
-    }
-    if (mEntity.getUrl().equals(uploadUrl)) {
-      return this;
-    }
-    mEntity.setUrl(uploadUrl);
-    return this;
   }
 
   /**

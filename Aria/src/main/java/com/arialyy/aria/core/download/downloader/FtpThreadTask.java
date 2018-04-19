@@ -34,7 +34,7 @@ import org.apache.commons.net.ftp.FTPReply;
  * Ftp下载任务
  */
 class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity> {
-  private final String TAG = "FtpDownloadThreadTask";
+  private final String TAG = "FtpThreadTask";
 
   FtpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {

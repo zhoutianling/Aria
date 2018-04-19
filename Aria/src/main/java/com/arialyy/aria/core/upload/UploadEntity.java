@@ -19,7 +19,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.orm.annotation.Foreign;
 import com.arialyy.aria.orm.annotation.Primary;
 
 /**
@@ -30,7 +29,7 @@ public class UploadEntity extends AbsNormalEntity implements Parcelable {
   /**
    * 文件上传路径
    */
-  @Primary @Foreign(parent = UploadTaskEntity.class, column = "key") private String filePath;
+  @Primary private String filePath;
 
   /**
    * 上传完成后服务器返回的数据

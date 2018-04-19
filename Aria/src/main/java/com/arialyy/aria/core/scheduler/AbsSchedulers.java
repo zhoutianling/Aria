@@ -18,6 +18,7 @@ package com.arialyy.aria.core.scheduler;
 import android.os.CountDownTimer;
 import android.os.Message;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
@@ -182,7 +183,9 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
     } else {
       TEManager.getInstance().putTEntity(task.getKey(), task.getTaskEntity());
     }
-    callback(what, task);
+    if (what != FAIL) {
+      callback(what, task);
+    }
   }
 
   /**
@@ -257,7 +260,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
     }
     long interval = 2000;
     int num = 10;
-    if (task instanceof DownloadTask) {
+    if (task instanceof DownloadTask || task instanceof DownloadGroupTask) {
       interval = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getReTryInterval();
       num = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getReTryNum();
     } else if (task instanceof UploadTask) {
@@ -266,6 +269,13 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
     }
 
     final int reTryNum = num;
+    if (task.getTaskEntity().getEntity().getFailNum() > reTryNum) {
+      callback(FAIL, task);
+      mQueue.removeTaskFormQueue(task.getKey());
+      startNextTask();
+      TEManager.getInstance().removeTEntity(task.getKey());
+      return;
+    }
     CountDownTimer timer = new CountDownTimer(interval, 1000) {
       @Override public void onTick(long millisUntilFinished) {
 
@@ -273,7 +283,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
 
       @Override public void onFinish() {
         AbsEntity entity = task.getTaskEntity().getEntity();
-        if (entity.getFailNum() < reTryNum) {
+        if (entity.getFailNum() <= reTryNum) {
           TASK task = mQueue.getTask(entity.getKey());
           mQueue.reTryStart(task);
         } else {

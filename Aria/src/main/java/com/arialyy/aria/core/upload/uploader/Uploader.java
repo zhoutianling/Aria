@@ -65,8 +65,8 @@ class Uploader extends AbsFileer<UploadEntity, UploadTaskEntity> {
     }
   }
 
-  @Override protected void handleNewTask() {
-
+  @Override protected boolean handleNewTask() {
+    return true;
   }
 
   @Override protected int setNewTaskThreadNum() {
