@@ -64,7 +64,7 @@ class HttpFileInfoThread implements Runnable {
           + "】\n【filePath:"
           + mEntity.getDownloadPath()
           + "】\n"
-          + CommonUtil.getPrintException(e), true);
+          + ALog.getExceptionString(e), true);
     } finally {
       if (conn != null) {
         conn.disconnect();

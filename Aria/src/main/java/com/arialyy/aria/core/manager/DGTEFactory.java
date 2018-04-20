@@ -19,8 +19,8 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.wrapper.DGroupEntityWrapper;
-import com.arialyy.aria.core.download.wrapper.DGroupTaskEntityWrapper;
+import com.arialyy.aria.core.download.wrapper.DGEWrapper;
+import com.arialyy.aria.core.download.wrapper.DGTEWrapper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
@@ -48,8 +48,8 @@ class DGTEFactory implements IGTEFactory<DownloadGroupEntity, DownloadGroupTaskE
 
   @Override public DownloadGroupTaskEntity getGTE(String groupName, List<String> urls) {
     DownloadGroupEntity entity = createDGroupEntity(groupName, urls);
-    List<DGroupTaskEntityWrapper> wrapper =
-        DbEntity.findRelationData(DGroupTaskEntityWrapper.class, "DownloadGroupTaskEntity.key=?",
+    List<DGTEWrapper> wrapper =
+        DbEntity.findRelationData(DGTEWrapper.class, "DownloadGroupTaskEntity.key=?",
             entity.getGroupName());
     DownloadGroupTaskEntity gte;
 
@@ -74,8 +74,8 @@ class DGTEFactory implements IGTEFactory<DownloadGroupEntity, DownloadGroupTaskE
   }
 
   @Override public DownloadGroupTaskEntity getFTE(String ftpUrl) {
-    List<DGroupTaskEntityWrapper> wrapper =
-        DbEntity.findRelationData(DGroupTaskEntityWrapper.class, "DownloadGroupTaskEntity.key=?",
+    List<DGTEWrapper> wrapper =
+        DbEntity.findRelationData(DGTEWrapper.class, "DownloadGroupTaskEntity.key=?",
             ftpUrl);
     DownloadGroupTaskEntity fte;
 
@@ -130,8 +130,8 @@ class DGTEFactory implements IGTEFactory<DownloadGroupEntity, DownloadGroupTaskE
    * 查询任务组实体，如果数据库不存在该实体，则新创建一个新的任务组实体
    */
   private DownloadGroupEntity createDGroupEntity(String groupName, List<String> urls) {
-    List<DGroupEntityWrapper> wrapper =
-        DbEntity.findRelationData(DGroupEntityWrapper.class, "DownloadGroupEntity.groupName=?",
+    List<DGEWrapper> wrapper =
+        DbEntity.findRelationData(DGEWrapper.class, "DownloadGroupEntity.groupName=?",
             groupName);
 
     DownloadGroupEntity groupEntity;

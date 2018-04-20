@@ -15,8 +15,8 @@
  */
 package com.arialyy.aria.core.download.wrapper;
 
-import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.orm.AbsWrapper;
 import com.arialyy.aria.orm.annotation.Many;
 import com.arialyy.aria.orm.annotation.One;
@@ -24,21 +24,21 @@ import com.arialyy.aria.orm.annotation.Wrapper;
 import java.util.List;
 
 /**
- * Created by laoyuyu on 2018/4/11.
- * 任务组任务实体和任务组任务实体的子任务实体对应关系
+ * Created by laoyuyu on 2018/3/30.
+ * 任务组实体和子任务实体的关系
  */
 @Wrapper
-public class DGroupSubTaskEntityWrapper extends AbsWrapper {
+public class DGEWrapper extends AbsWrapper {
 
   @One
-  public DownloadGroupTaskEntity dgTaskEntity;
+  public DownloadGroupEntity groupEntity;
 
-  @Many(parentColumn = "key", entityColumn = "groupName")
-  public List<DownloadTaskEntity> subTaskEntity;
+  @Many(parentColumn = "groupName", entityColumn = "groupName")
+  public List<DownloadEntity> subEntity;
 
   @Override protected void handleConvert() {
-    if (subTaskEntity != null && !subTaskEntity.isEmpty()) {
-      dgTaskEntity.setSubTaskEntities(subTaskEntity);
+    if (subEntity != null && !subEntity.isEmpty()) {
+      groupEntity.setSubEntities(subEntity);
     }
   }
 }

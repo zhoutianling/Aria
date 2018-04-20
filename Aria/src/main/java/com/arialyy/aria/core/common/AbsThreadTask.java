@@ -200,7 +200,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     synchronized (AriaManager.LOCK) {
       try {
         if (ex != null) {
-          ALog.e(TAG, msg + "\n" + CommonUtil.getPrintException(ex));
+          ALog.e(TAG, msg + "\n" + ALog.getExceptionString(ex));
         } else {
           ALog.e(TAG, msg);
         }
@@ -210,7 +210,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
         } else {
           ALog.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
           mListener.onFail(true);
-          ErrorHelp.saveError(mTaskType, mEntity, "", CommonUtil.getPrintException(ex));
+          ErrorHelp.saveError(TAG, "", ALog.getExceptionString(ex));
         }
       } catch (IOException e) {
         e.printStackTrace();

@@ -41,6 +41,7 @@ import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.DelegateWrapper;
 import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.util.AriaCrashHandler;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
@@ -73,12 +74,14 @@ import org.xml.sax.SAXException;
   private List<ICmd> mCommands = new ArrayList<>();
   private Configuration.DownloadConfig mDConfig;
   private Configuration.UploadConfig mUConfig;
+  private Configuration.AppConfig mAConfig;
 
   private AriaManager(Context context) {
     DelegateWrapper.init(context.getApplicationContext());
     APP = context.getApplicationContext();
     regAppLifeCallback(context);
     initConfig();
+    initAria();
   }
 
   public static AriaManager getInstance(Context context) {
@@ -90,17 +93,22 @@ import org.xml.sax.SAXException;
     return INSTANCE;
   }
 
-  public Map<String, AbsReceiver> getReceiver() {
-    return mReceivers;
+  static AriaManager getInstance() {
+    if (INSTANCE == null) {
+      throw new NullPointerException("请在Application或Activity初始化时调用一次Aria.init(context)方法进行初始化操作");
+    }
+    return INSTANCE;
   }
 
-  /**
-   * 设置Aria的日志级别
-   *
-   * @param level {@link ALog#LOG_LEVEL_VERBOSE}
-   */
-  public void setLogLevel(int level) {
-    ALog.LOG_LEVEL = level;
+  private void initAria() {
+    if (mAConfig.getUseAriaCrashHandler()) {
+      Thread.setDefaultUncaughtExceptionHandler(new AriaCrashHandler());
+    }
+    mAConfig.setLogLevel(mAConfig.getLogLevel());
+  }
+
+  public Map<String, AbsReceiver> getReceiver() {
+    return mReceivers;
   }
 
   /**
@@ -164,6 +172,13 @@ import org.xml.sax.SAXException;
   }
 
   /**
+   * 获取APP配置
+   */
+  public Configuration.AppConfig getAppConfig() {
+    return mAConfig;
+  }
+
+  /**
    * 设置命令
    */
   public AriaManager setCmd(ICmd command) {
@@ -211,22 +226,6 @@ import org.xml.sax.SAXException;
       receiver = putReceiver(false, obj);
     }
     return (receiver instanceof UploadReceiver) ? (UploadReceiver) receiver : null;
-  }
-
-  /**
-   * 获取Aria下载错误日志
-   *
-   * @return 如果错误日志不存在则返回空，否则返回错误日志列表
-   */
-  public List<ErrorEntity> getErrorLog() {
-    return DbEntity.findAllData(ErrorEntity.class);
-  }
-
-  /**
-   * 清楚错误日志
-   */
-  public void cleanLog() {
-    DbEntity.clean(ErrorEntity.class);
   }
 
   /**
@@ -379,6 +378,7 @@ import org.xml.sax.SAXException;
     }
     mDConfig = Configuration.DownloadConfig.getInstance();
     mUConfig = Configuration.UploadConfig.getInstance();
+    mAConfig = Configuration.AppConfig.getInstance();
     if (tempDir.exists()) {
       File newDir = new File(APP.getFilesDir().getPath() + DOWNLOAD_TEMP_DIR);
       newDir.mkdirs();

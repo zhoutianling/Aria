@@ -16,7 +16,6 @@
 package com.arialyy.aria.orm;
 
 import android.text.TextUtils;
-import com.arialyy.aria.core.ErrorEntity;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -52,6 +51,5 @@ class DBConfig {
     mapping.put("UploadTaskEntity", UploadTaskEntity.class);
     mapping.put("DownloadEntity", DownloadEntity.class);
     mapping.put("UploadEntity", UploadEntity.class);
-    mapping.put("ErrorEntity", ErrorEntity.class);
   }
 }

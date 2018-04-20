@@ -116,11 +116,12 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
 
   /**
    * 读取chunk模式的文件流
+   *
    * @deprecated 暂时先这样处理，无chun
    */
   private void readChunk(InputStream is, RandomAccessFile file)
       throws IOException, InterruptedException {
-   readNormal(is, file);
+    readNormal(is, file);
   }
 
   /**

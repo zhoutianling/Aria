@@ -18,7 +18,7 @@ package com.arialyy.aria.core.manager;
 import android.text.TextUtils;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
-import com.arialyy.aria.core.upload.UploadTaskWrapper;
+import com.arialyy.aria.core.upload.wrapper.UTEWrapper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.Regular;
 import java.util.List;
@@ -45,8 +45,8 @@ class UTEFactory implements INormalTEFactory<UploadEntity, UploadTaskEntity> {
   }
 
   private UploadTaskEntity create(UploadEntity entity) {
-    List<UploadTaskWrapper> wrapper =
-        DbEntity.findRelationData(UploadTaskWrapper.class, "UploadTaskEntity.key=?",
+    List<UTEWrapper> wrapper =
+        DbEntity.findRelationData(UTEWrapper.class, "UploadTaskEntity.key=?",
             entity.getFilePath());
 
     if (wrapper != null && !wrapper.isEmpty()) {

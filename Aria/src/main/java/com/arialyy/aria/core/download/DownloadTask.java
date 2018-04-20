@@ -78,6 +78,7 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
 
   /**
    * 是否真正下载
+   *
    * @return {@code true} 真正下载
    */
   @Override public boolean isRunning() {

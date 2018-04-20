@@ -29,7 +29,7 @@ import com.arialyy.aria.util.ErrorHelp;
  * D_HTTP\FTP单任务下载工具
  */
 public class SimpleDownloadUtil implements IUtil, Runnable {
-  private static final String TAG = "SimpleDownloadUtil";
+  private String TAG = "SimpleDownloadUtil";
   private IDownloadListener mListener;
   private Downloader mDownloader;
   private DownloadTaskEntity mTaskEntity;
@@ -86,7 +86,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
 
   private void failDownload(String msg, boolean needRetry) {
     mListener.onFail(needRetry);
-    ErrorHelp.saveError("HTTP_DOWNLOAD", mTaskEntity.getEntity(), msg, "");
+    ErrorHelp.saveError(TAG, msg, "");
   }
 
   @Override public void run() {

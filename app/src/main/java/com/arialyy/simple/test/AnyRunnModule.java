@@ -21,7 +21,7 @@ public class AnyRunnModule {
   private Context mContext;
 
   public AnyRunnModule(Context context) {
-    Aria.download(context, this).register();
+    Aria.download(this).register();
     mContext = context;
   }
 
@@ -63,7 +63,7 @@ public class AnyRunnModule {
   }
 
   void start() {
-    Aria.download(mContext, this)
+    Aria.download(this)
         .load(URL)
         .addHeader("Accept-Encoding", "gzip, deflate")
         .setRequestMode(RequestEnum.GET)
@@ -72,15 +72,25 @@ public class AnyRunnModule {
         .start();
   }
 
+  void start(String url) {
+    Aria.download(this)
+        .load(url)
+        .addHeader("Accept-Encoding", "gzip, deflate")
+        .setRequestMode(RequestEnum.GET)
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
+        .resetState()
+        .start();
+  }
+
   void stop() {
-    Aria.download(mContext, this).load(URL).stop();
+    Aria.download(this).load(URL).stop();
   }
 
   void cancel() {
-    Aria.download(mContext, this).load(URL).cancel();
+    Aria.download(this).load(URL).cancel();
   }
 
   void unRegist() {
-    Aria.download(mContext, this).unRegister();
+    Aria.download(this).unRegister();
   }
 }

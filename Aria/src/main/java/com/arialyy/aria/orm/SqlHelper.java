@@ -22,7 +22,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 import com.arialyy.aria.util.ALog;
-import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Set;
@@ -193,7 +192,7 @@ final class SqlHelper extends SQLiteOpenHelper {
             update.insertData(db, entity);
           }
         } catch (Exception e) {
-          ALog.e(TAG, CommonUtil.getPrintException(e));
+          ALog.e(TAG, ALog.getExceptionString(e));
         }
       }
 

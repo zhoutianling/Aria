@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.upload;
+package com.arialyy.aria.core.upload.wrapper;
 
+import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.AbsWrapper;
 import com.arialyy.aria.orm.annotation.Many;
 import com.arialyy.aria.orm.annotation.One;
@@ -25,7 +27,7 @@ import java.util.List;
  * Created by laoyuyu on 2018/3/30.
  */
 @Wrapper
-public class UploadTaskWrapper extends AbsWrapper {
+public class UTEWrapper extends AbsWrapper {
 
   @One
   public UploadEntity entity;

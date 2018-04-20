@@ -18,7 +18,7 @@ package com.arialyy.aria.core.manager;
 import android.text.TextUtils;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.wrapper.DownloadTaskWrapper;
+import com.arialyy.aria.core.download.wrapper.DTEWrapper;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
@@ -49,7 +49,7 @@ class DTEFactory implements INormalTEFactory<DownloadEntity, DownloadTaskEntity>
    * 通过下载实体创建任务实体
    */
   private DownloadTaskEntity create(DownloadEntity entity) {
-    List<DownloadTaskWrapper> wrapper = DbEntity.findRelationData(DownloadTaskWrapper.class,
+    List<DTEWrapper> wrapper = DbEntity.findRelationData(DTEWrapper.class,
         "DownloadTaskEntity.key=? and DownloadTaskEntity.isGroupTask='false' and DownloadTaskEntity.url=?",
         entity.getDownloadPath(), entity.getUrl());
     DownloadTaskEntity taskEntity;

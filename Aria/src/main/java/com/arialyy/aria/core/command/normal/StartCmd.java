@@ -21,6 +21,8 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.wrapper.DGTEWrapper;
+import com.arialyy.aria.core.download.wrapper.DTEWrapper;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
@@ -28,6 +30,7 @@ import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.core.upload.wrapper.UTEWrapper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
@@ -112,29 +115,32 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     }
 
     private List<AbsTaskEntity> findWaitData(int type) {
+      // TODO: 2018/4/20 需要测试
       List<AbsTaskEntity> waitList = new ArrayList<>();
-      switch (type) {
-        case 1:
-          List<DownloadTaskEntity> dEntity =
-              DbEntity.findDatas(DownloadTaskEntity.class, "groupName=? and state=?", "", "3");
-          if (dEntity != null && !dEntity.isEmpty()) {
-            waitList.addAll(dEntity);
+      if (type == 1) {
+        List<DTEWrapper> wrappers = DbEntity.findRelationData(DTEWrapper.class,
+            "DownloadTaskEntity.isGroupTask=false and DownloadTaskEntity.state=?", "3");
+        if (wrappers != null && !wrappers.isEmpty()) {
+          for (DTEWrapper w : wrappers) {
+            waitList.add(w.taskEntity);
           }
-          break;
-        case 2:
-          List<DownloadGroupTaskEntity> dgEntity =
-              DbEntity.findDatas(DownloadGroupTaskEntity.class, "state=?", "3");
-          if (dgEntity != null && !dgEntity.isEmpty()) {
-            waitList.addAll(dgEntity);
+        }
+      } else if (type == 2) {
+        List<DGTEWrapper> wrappers =
+            DbEntity.findRelationData(DGTEWrapper.class, "DownloadGroupTaskEntity.state=?", "3");
+        if (wrappers != null && !wrappers.isEmpty()) {
+          for (DGTEWrapper w : wrappers) {
+            waitList.add(w.taskEntity);
           }
-          break;
-        case 3:
-          List<UploadTaskEntity> uEntity =
-              DbEntity.findDatas(UploadTaskEntity.class, "state=?", "3");
-          if (uEntity != null && !uEntity.isEmpty()) {
-            waitList.addAll(uEntity);
+        }
+      } else if (type == 3) {
+        List<UTEWrapper> wrappers = DbEntity.findRelationData(UTEWrapper.class,
+            "UploadTaskEntity.state=?", "3");
+        if (wrappers != null && !wrappers.isEmpty()) {
+          for (UTEWrapper w : wrappers) {
+            waitList.add(w.taskEntity);
           }
-          break;
+        }
       }
       return waitList;
     }

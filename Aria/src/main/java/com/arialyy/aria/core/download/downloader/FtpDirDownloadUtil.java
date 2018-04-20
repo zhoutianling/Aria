@@ -27,6 +27,8 @@ import java.util.Set;
  * ftp文件夹下载工具
  */
 public class FtpDirDownloadUtil extends AbsGroupUtil {
+  private String TAG = "FtpDirDownloadUtil";
+
   public FtpDirDownloadUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity taskEntity) {
     super(listener, taskEntity);
   }
@@ -56,7 +58,7 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
             mExeMap.remove(url);
           }
           mListener.onFail(needRetry);
-          ErrorHelp.saveError("D_FTP_DIR", mGTEntity.getEntity(), "", errorMsg);
+          ErrorHelp.saveError(TAG, "", errorMsg);
         }
       }).start();
     }

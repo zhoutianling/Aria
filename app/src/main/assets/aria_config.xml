@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <aria>
 
+  <app>
+    <!--是否使用AriaCrashHandler来捕获异常，异常日志保存在：/mnt/sdcard/Android/data/{package_name}/files/log/-->
+    <useAriaCrashHandler value="true"/>
+    <!--设置Aria的日志级别，{@link ALog#LOG_LEVEL_VERBOSE}-->
+    <logLevel value="2"/>
+  </app>
+
+
   <!--注意，修改该配置文件中的属性会覆盖代码中所设置的属性-->
   <download>
 

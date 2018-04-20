@@ -87,7 +87,7 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
           + "】\n【filePath:"
           + mEntity.getDownloadPath()
           + "】\n"
-          + CommonUtil.getPrintException(e));
+          + ALog.getExceptionString(e));
     } finally {
       if (file != null) {
         try {
@@ -116,6 +116,6 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
     ALog.e(TAG, errorMsg);
     mConstance.isRunning = false;
     mListener.onFail(false);
-    ErrorHelp.saveError("", mEntity, "", errorMsg);
+    ErrorHelp.saveError(TAG, "", errorMsg);
   }
 }

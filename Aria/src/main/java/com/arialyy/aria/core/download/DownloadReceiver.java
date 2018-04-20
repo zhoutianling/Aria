@@ -22,7 +22,7 @@ import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.CancelAllCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.ProxyHelper;
-import com.arialyy.aria.core.download.wrapper.DGroupEntityWrapper;
+import com.arialyy.aria.core.download.wrapper.DGEWrapper;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.AbsTarget;
@@ -50,7 +50,7 @@ public class DownloadReceiver extends AbsReceiver {
    *
    * @param maxSpeed 为0表示不限速
    */
-  @Deprecated public void setMaxSpeed(double maxSpeed) {
+  @Deprecated public void setMaxSpeed(int maxSpeed) {
     AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setMsxSpeed(maxSpeed);
   }
 
@@ -350,12 +350,12 @@ public class DownloadReceiver extends AbsReceiver {
    * @return 如果没有任务组列表，则返回null
    */
   public List<DownloadGroupEntity> getGroupTaskList() {
-    List<DGroupEntityWrapper> wrappers = DbEntity.findRelationData(DGroupEntityWrapper.class);
+    List<DGEWrapper> wrappers = DbEntity.findRelationData(DGEWrapper.class);
     if (wrappers == null || wrappers.isEmpty()) {
       return null;
     }
     List<DownloadGroupEntity> entities = new ArrayList<>();
-    for (DGroupEntityWrapper wrapper : wrappers) {
+    for (DGEWrapper wrapper : wrappers) {
       entities.add(wrapper.groupEntity);
     }
     return entities;

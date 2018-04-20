@@ -5,6 +5,7 @@ import android.util.Log;
 import android.view.View;
 import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.simple.R;
@@ -20,7 +21,7 @@ public class TestActivity extends BaseActivity<ActivityTestBinding> {
   String TAG = "TestActivity";
   //String URL = "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
   //private final String URL = "ftp://192.168.1.3:21/download//AriaPrj.rar";
-  private final String FILE_PATH = "/mnt/sdcard/AriaPrj.rar";
+  private final String FILE_PATH = "/mnt/sdcard/SDK_Demo-release.apk";
   //private final String URL = "ftp://192.168.29.140:21/aa//你好";
   private final String URL = "http://192.168.29.140:5000/upload/";
 
@@ -73,7 +74,13 @@ public class TestActivity extends BaseActivity<ActivityTestBinding> {
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.upload(this).load(FILE_PATH).setUploadUrl(URL).setExtendField("韩寒哈大双").setAttachment("file").start();
+        Aria.upload(this)
+            .load(FILE_PATH)
+            .setUploadUrl(URL)
+            .setRequestMode(RequestEnum.POST)
+            .setExtendField("韩寒哈大双")
+            .setAttachment("file")
+            .start();
         break;
       case R.id.stop:
         Aria.upload(this).load(FILE_PATH).stop();

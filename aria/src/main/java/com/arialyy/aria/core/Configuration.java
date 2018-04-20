@@ -20,7 +20,9 @@ import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.util.AriaCrashHandler;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.ErrorHelp;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -32,14 +34,147 @@ import java.util.Properties;
  * 信息配置
  */
 class Configuration {
+  static final String TAG = "Configuration";
   static final String DOWNLOAD_CONFIG_FILE = "/Aria/DownloadConfig.properties";
   static final String UPLOAD_CONFIG_FILE = "/Aria/UploadConfig.properties";
+  static final String APP_CONFIG_FILE = "/Aria/AppConfig.properties";
   static final String XML_FILE = "/Aria/aria_config.xml";
+  static final int TYPE_DOWNLOAD = 1;
+  static final int TYPE_UPLOAD = 2;
+  static final int TYPE_APP = 3;
+
+  abstract static class BaseConfig {
+
+    /**
+     * 类型
+     *
+     * @return {@link #TYPE_DOWNLOAD}、{@link #TYPE_UPLOAD}、{@link #TYPE_APP}
+     */
+    abstract int getType();
+
+    /**
+     * 加载配置
+     */
+    void loadConfig() {
+      String path = null;
+      Class clazz = null;
+      switch (getType()) {
+        case TYPE_DOWNLOAD:
+          path = DOWNLOAD_CONFIG_FILE;
+          clazz = DownloadConfig.class;
+          break;
+        case TYPE_UPLOAD:
+          path = UPLOAD_CONFIG_FILE;
+          clazz = UploadConfig.class;
+          break;
+        case TYPE_APP:
+          path = APP_CONFIG_FILE;
+          clazz = AppConfig.class;
+          break;
+      }
+      if (TextUtils.isEmpty(path)) {
+        ALog.e(TAG, "读取配置失败：未知文件类型");
+        ErrorHelp.saveError(TAG, "读取配置失败：未知文件类型", "");
+        return;
+      }
+
+      File file = new File(AriaManager.APP.getFilesDir().getPath() + path);
+      if (file.exists()) {
+        Properties properties = CommonUtil.loadConfig(file);
+        List<Field> fields = CommonUtil.getAllFields(clazz);
+        try {
+          for (Field field : fields) {
+            int m = field.getModifiers();
+            String fileName = field.getName();
+            if (fileName.equals("oldMaxTaskNum")
+                || field.isSynthetic()
+                || Modifier.isFinal(m)
+                || Modifier.isStatic(m)
+                || fileName.equals("shadow$_klass_")
+                || fileName.equals("shadow$_monitor_")) {
+              continue;
+            }
+            field.setAccessible(true);
+            String value = properties.getProperty(field.getName());
+            if (TextUtils.isEmpty(value) || value.equalsIgnoreCase("null")) continue;
+            Class<?> type = field.getType();
+            if (type == String.class) {
+              field.set(this, value);
+            } else if (type == int.class || type == Integer.class) {
+              if (fileName.equalsIgnoreCase("maxSpeed")) { //兼容以前版本，以前maxSpeed是double类型的
+                Double d = Double.parseDouble(value);
+                field.setInt(this, (int) d.doubleValue());
+              } else {
+                field.setInt(this, Integer.parseInt(value));
+              }
+            } else if (type == float.class || type == Float.class) {
+              field.setFloat(this, Float.parseFloat(value));
+            } else if (type == double.class || type == Double.class) {
+              if (TextUtils.isEmpty(value)) {
+                value = "0.0";
+              }
+              field.setDouble(this, Double.parseDouble(value));
+            } else if (type == long.class || type == Long.class) {
+              field.setLong(this, Long.parseLong(value));
+            } else if (type == boolean.class || type == Boolean.class) {
+              field.setBoolean(this, Boolean.parseBoolean(value));
+            }
+          }
+        } catch (IllegalAccessException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+
+    /**
+     * 保存key
+     */
+    void saveKey(String key, String value) {
+      boolean isDownload = this instanceof DownloadConfig;
+      File file = new File(
+          AriaManager.APP.getFilesDir().getPath() + (isDownload ? DOWNLOAD_CONFIG_FILE
+              : UPLOAD_CONFIG_FILE));
+      if (file.exists()) {
+        Properties properties = CommonUtil.loadConfig(file);
+        properties.setProperty(key, value);
+        CommonUtil.saveConfig(file, properties);
+      }
+    }
+
+    /**
+     * 保存配置
+     */
+    void saveAll() {
+      List<Field> fields = CommonUtil.getAllFields(getClass());
+      boolean isDownload = this instanceof DownloadConfig;
+      try {
+        File file = new File(
+            AriaManager.APP.getFilesDir().getPath() + (isDownload ? DOWNLOAD_CONFIG_FILE
+                : UPLOAD_CONFIG_FILE));
+        Properties properties = CommonUtil.loadConfig(file);
+        for (Field field : fields) {
+          int m = field.getModifiers();
+          if (field.isSynthetic()
+              || Modifier.isFinal(m)
+              || Modifier.isStatic(m)
+              || field.getName().equals("shadow$_klass_")
+              || field.getName().equals("shadow$_monitor_")) {
+            continue;
+          }
+          field.setAccessible(true);
+          properties.setProperty(field.getName(), field.get(this) + "");
+        }
+        CommonUtil.saveConfig(file, properties);
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      }
+    }
+  }
 
   /**
-   * 通用配置
+   * 通用任务配置
    */
-  public static class BaseConfig {
+  abstract static class BaseTaskConfig extends BaseConfig {
     /**
      * 进度刷新间隔，默认1秒
      */
@@ -88,7 +223,7 @@ class Configuration {
      *
      * @param updateInterval 不能小于0
      */
-    public BaseConfig setUpdateInterval(long updateInterval) {
+    public BaseTaskConfig setUpdateInterval(long updateInterval) {
       if (updateInterval <= 0) {
         ALog.w("Configuration", "进度更新间隔不能小于0");
         return this;
@@ -102,7 +237,7 @@ class Configuration {
       return queueMod;
     }
 
-    public BaseConfig setQueueMod(String queueMod) {
+    public BaseTaskConfig setQueueMod(String queueMod) {
       this.queueMod = queueMod;
       saveKey("queueMod", queueMod);
       return this;
@@ -116,9 +251,9 @@ class Configuration {
       return reTryNum;
     }
 
-    public BaseConfig setReTryNum(int reTryNum) {
+    public BaseTaskConfig setReTryNum(int reTryNum) {
       this.reTryNum = reTryNum;
-      saveKey("reTryNum", reTryNum + "");
+      saveKey("reTryNum", String.valueOf(reTryNum));
       return this;
     }
 
@@ -126,9 +261,9 @@ class Configuration {
       return reTryInterval;
     }
 
-    public BaseConfig setReTryInterval(int reTryInterval) {
+    public BaseTaskConfig setReTryInterval(int reTryInterval) {
       this.reTryInterval = reTryInterval;
-      saveKey("reTryInterval", reTryInterval + "");
+      saveKey("reTryInterval", String.valueOf(reTryInterval));
       return this;
     }
 
@@ -136,9 +271,9 @@ class Configuration {
       return isConvertSpeed;
     }
 
-    public BaseConfig setConvertSpeed(boolean convertSpeed) {
+    public BaseTaskConfig setConvertSpeed(boolean convertSpeed) {
       isConvertSpeed = convertSpeed;
-      saveKey("isConvertSpeed", isConvertSpeed + "");
+      saveKey("isConvertSpeed", String.valueOf(isConvertSpeed));
       return this;
     }
 
@@ -146,108 +281,17 @@ class Configuration {
       return connectTimeOut;
     }
 
-    public BaseConfig setConnectTimeOut(int connectTimeOut) {
+    public BaseTaskConfig setConnectTimeOut(int connectTimeOut) {
       this.connectTimeOut = connectTimeOut;
-      saveKey("connectTimeOut", connectTimeOut + "");
+      saveKey("connectTimeOut", String.valueOf(connectTimeOut));
       return this;
-    }
-
-    /**
-     * 保存key
-     */
-    void saveKey(String key, String value) {
-      boolean isDownload = this instanceof DownloadConfig;
-      File file = new File(
-          AriaManager.APP.getFilesDir().getPath() + (isDownload ? DOWNLOAD_CONFIG_FILE
-              : UPLOAD_CONFIG_FILE));
-      if (file.exists()) {
-        Properties properties = CommonUtil.loadConfig(file);
-        properties.setProperty(key, value);
-        CommonUtil.saveConfig(file, properties);
-      }
-    }
-
-    /**
-     * 加载配置
-     */
-    void loadConfig() {
-      boolean isDownload = this instanceof DownloadConfig;
-      File file = new File(
-          AriaManager.APP.getFilesDir().getPath() + (isDownload ? DOWNLOAD_CONFIG_FILE
-              : UPLOAD_CONFIG_FILE));
-      if (file.exists()) {
-        Properties properties = CommonUtil.loadConfig(file);
-        List<Field> fields =
-            CommonUtil.getAllFields(isDownload ? DownloadConfig.class : UploadConfig.class);
-        try {
-          for (Field field : fields) {
-            int m = field.getModifiers();
-            String fileName = field.getName();
-            if (fileName.equals("oldMaxTaskNum")
-                || field.isSynthetic()
-                || Modifier.isFinal(m)
-                || Modifier.isStatic(m)
-                || fileName.equals("shadow$_klass_")
-                || fileName.equals("shadow$_monitor_")) {
-              continue;
-            }
-            field.setAccessible(true);
-            String value = properties.getProperty(field.getName());
-            if (TextUtils.isEmpty(value) || value.equalsIgnoreCase("null")) continue;
-            Class<?> type = field.getType();
-            if (type == String.class) {
-              field.set(this, value);
-            } else if (type == int.class || type == Integer.class) {
-              field.setInt(this, Integer.parseInt(value));
-            } else if (type == float.class || type == Float.class) {
-              field.setFloat(this, Float.parseFloat(value));
-            } else if (type == double.class || type == Double.class) {
-              if (TextUtils.isEmpty(value)) {
-                value = "0.0";
-              }
-              field.setDouble(this, Double.parseDouble(value));
-            } else if (type == long.class || type == Long.class) {
-              field.setLong(this, Long.parseLong(value));
-            } else if (type == boolean.class || type == Boolean.class) {
-              field.setBoolean(this, Boolean.parseBoolean(value));
-            }
-          }
-        } catch (IllegalAccessException e) {
-          e.printStackTrace();
-        }
-      }
-    }
-
-    /**
-     * 保存配置
-     */
-    void saveAll() {
-      List<Field> fields = CommonUtil.getAllFields(getClass());
-      boolean isDownload = this instanceof DownloadConfig;
-      try {
-        File file = new File(
-            AriaManager.APP.getFilesDir().getPath() + (isDownload ? DOWNLOAD_CONFIG_FILE
-                : UPLOAD_CONFIG_FILE));
-        Properties properties = CommonUtil.loadConfig(file);
-        for (Field field : fields) {
-          int m = field.getModifiers();
-          if (Modifier.isFinal(m) || Modifier.isStatic(m)) {
-            continue;
-          }
-          field.setAccessible(true);
-          properties.setProperty(field.getName(), field.get(this) + "");
-        }
-        CommonUtil.saveConfig(file, properties);
-      } catch (IllegalAccessException e) {
-        e.printStackTrace();
-      }
     }
   }
 
   /**
    * 下载配置
    */
-  public static class DownloadConfig extends BaseConfig {
+  public static class DownloadConfig extends BaseTaskConfig {
     /**
      * 设置IO流读取时间，单位为毫秒，默认20000毫秒，该时间不能少于10000毫秒
      */
@@ -272,12 +316,12 @@ class Configuration {
     /**
      * 设置最大下载速度，单位：kb, 为0表示不限速
      */
-    double msxSpeed = 0.0;
+    int msxSpeed = 0;
 
     public DownloadConfig setMaxTaskNum(int maxTaskNum) {
       oldMaxTaskNum = this.maxTaskNum;
       this.maxTaskNum = maxTaskNum;
-      saveKey("maxTaskNum", maxTaskNum + "");
+      saveKey("maxTaskNum", String.valueOf(maxTaskNum));
       DownloadTaskQueue.getInstance().setMaxTaskNum(maxTaskNum);
       return this;
     }
@@ -286,11 +330,11 @@ class Configuration {
       return iOTimeOut;
     }
 
-    public double getMsxSpeed() {
+    public int getMsxSpeed() {
       return msxSpeed;
     }
 
-    public DownloadConfig setMsxSpeed(double msxSpeed) {
+    public DownloadConfig setMsxSpeed(int msxSpeed) {
       this.msxSpeed = msxSpeed;
       saveKey("msxSpeed", String.valueOf(msxSpeed));
       DownloadTaskQueue.getInstance().setMaxSpeed(msxSpeed);
@@ -304,7 +348,7 @@ class Configuration {
 
     public DownloadConfig setIOTimeOut(int iOTimeOut) {
       this.iOTimeOut = iOTimeOut;
-      saveKey("iOTimeOut", iOTimeOut + "");
+      saveKey("iOTimeOut", String.valueOf(iOTimeOut));
       return this;
     }
 
@@ -314,7 +358,7 @@ class Configuration {
 
     public DownloadConfig setBuffSize(int buffSize) {
       this.buffSize = buffSize;
-      saveKey("buffSize", buffSize + "");
+      saveKey("buffSize", String.valueOf(buffSize));
       return this;
     }
 
@@ -356,23 +400,26 @@ class Configuration {
       }
       return INSTANCE;
     }
+
+    @Override int getType() {
+      return TYPE_DOWNLOAD;
+    }
   }
 
   /**
    * 上传配置
    */
-  public static class UploadConfig extends BaseConfig {
+  public static class UploadConfig extends BaseTaskConfig {
+    private static UploadConfig INSTANCE = null;
 
     private UploadConfig() {
       loadConfig();
     }
 
-    private static UploadConfig INSTANCE = null;
-
     public UploadConfig setMaxTaskNum(int maxTaskNum) {
       oldMaxTaskNum = this.maxTaskNum;
       this.maxTaskNum = maxTaskNum;
-      saveKey("maxTaskNum", maxTaskNum + "");
+      saveKey("maxTaskNum", String.valueOf(maxTaskNum));
       UploadTaskQueue.getInstance().setMaxTaskNum(maxTaskNum);
       return this;
     }
@@ -384,6 +431,72 @@ class Configuration {
         }
       }
       return INSTANCE;
+    }
+
+    @Override int getType() {
+      return TYPE_UPLOAD;
+    }
+  }
+
+  /**
+   * 应用配置
+   */
+  public static class AppConfig extends BaseConfig {
+    private static AppConfig INSTANCE = null;
+    /**
+     * 是否使用{@link AriaCrashHandler}来捕获异常
+     * {@code true} 使用；{@code false} 不使用
+     */
+    Boolean useAriaCrashHandler;
+
+    /**
+     * 设置Aria的日志级别
+     *
+     * {@link ALog#LOG_LEVEL_VERBOSE}
+     */
+    int logLevel;
+
+    AppConfig() {
+      loadConfig();
+    }
+
+    static AppConfig getInstance() {
+      if (INSTANCE == null) {
+        synchronized (AppConfig.class) {
+          INSTANCE = new AppConfig();
+        }
+      }
+      return INSTANCE;
+    }
+
+    public AppConfig setLogLevel(int level) {
+      this.logLevel = level;
+      ALog.LOG_LEVEL = level;
+      saveKey("logLevel", String.valueOf(logLevel));
+      return this;
+    }
+
+    public int getLogLevel() {
+      return logLevel;
+    }
+
+    public Boolean getUseAriaCrashHandler() {
+      return useAriaCrashHandler;
+    }
+
+    public AppConfig setUseAriaCrashHandler(Boolean useAriaCrashHandler) {
+      this.useAriaCrashHandler = useAriaCrashHandler;
+      saveKey("useAriaCrashHandler", String.valueOf(useAriaCrashHandler));
+      if (useAriaCrashHandler) {
+        Thread.setDefaultUncaughtExceptionHandler(new AriaCrashHandler());
+      } else {
+        Thread.setDefaultUncaughtExceptionHandler(null);
+      }
+      return this;
+    }
+
+    @Override int getType() {
+      return TYPE_APP;
     }
   }
 }

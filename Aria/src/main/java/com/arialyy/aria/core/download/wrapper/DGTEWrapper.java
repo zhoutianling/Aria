@@ -33,7 +33,7 @@ import java.util.List;
  * 任务组实体和任务组任务实体的关系
  */
 @Wrapper
-public class DGroupTaskEntityWrapper extends AbsWrapper {
+public class DGTEWrapper extends AbsWrapper {
 
   @One
   public DownloadGroupEntity entity;
@@ -47,12 +47,12 @@ public class DGroupTaskEntityWrapper extends AbsWrapper {
     taskEntity = (taskEntitys == null || taskEntitys.isEmpty()) ? null : taskEntitys.get(0);
     if (taskEntity != null) {
       taskEntity.setEntity(entity);
-      List<DownloadTaskWrapper> subWrappers =
-          DbEntity.findRelationData(DownloadTaskWrapper.class, "DownloadTaskEntity.groupName=?",
+      List<DTEWrapper> subWrappers =
+          DbEntity.findRelationData(DTEWrapper.class, "DownloadTaskEntity.groupName=?",
               taskEntity.getKey());
       if (subWrappers != null && !subWrappers.isEmpty()) {
         List<DownloadTaskEntity> temp = new ArrayList<>();
-        for (DownloadTaskWrapper dw : subWrappers) {
+        for (DTEWrapper dw : subWrappers) {
           if (dw.taskEntity.requestType == AbsTaskEntity.D_FTP) {
             dw.taskEntity.urlEntity = CommonUtil.getFtpUrlInfo(dw.taskEntity.url);
           }

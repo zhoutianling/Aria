@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Base64;
 import com.arialyy.aria.core.AriaManager;
@@ -69,6 +70,33 @@ public class CommonUtil {
   private static final String TAG = "CommonUtil";
 
   /**
+   * 获取sdcard app的缓存目录
+   *
+   * @return "/mnt/sdcard/Android/data/{package_name}/files/"
+   */
+  public static String getAppPath(Context context) {
+    //判断是否存在sd卡
+    boolean sdExist = android.os.Environment.MEDIA_MOUNTED.equals(
+        android.os.Environment.getExternalStorageState());
+    if (!sdExist) {
+      return null;
+    } else {
+      //获取sd卡路径
+      File file = context.getExternalFilesDir(null);
+      String dir;
+      if (file != null) {
+        dir = file.getPath() + "/";
+      } else {
+        dir = Environment.getExternalStorageDirectory().getPath()
+            + "/Android/data/"
+            + context.getPackageName()
+            + "/files/";
+      }
+      return dir;
+    }
+  }
+
+  /**
    * 获取map泛型类型
    *
    * @param map list类型字段
@@ -105,6 +133,7 @@ public class CommonUtil {
    * @param list list类型字段
    * @return 泛型类型
    */
+
   public static Class getListParamType(Field list) {
     Class type = list.getType();
     if (!type.isAssignableFrom(List.class)) {
@@ -786,34 +815,6 @@ public class CommonUtil {
     } catch (IOException e) {
       e.printStackTrace();
     }
-  }
-
-  /**
-   * 设置打印的异常格式
-   */
-  public static String getPrintException(Throwable ex) {
-    if (ex == null) return "";
-    StringBuilder err = new StringBuilder();
-    err.append("ExceptionDetailed:\n");
-    err.append("====================Exception Info====================\n");
-    err.append(ex.toString());
-    err.append("\n");
-    StackTraceElement[] stack = ex.getStackTrace();
-    for (StackTraceElement stackTraceElement : stack) {
-      err.append(stackTraceElement.toString()).append("\n");
-    }
-    Throwable cause = ex.getCause();
-    if (cause != null) {
-      err.append("【Caused by】: ");
-      err.append(cause.toString());
-      err.append("\n");
-      StackTraceElement[] stackTrace = cause.getStackTrace();
-      for (StackTraceElement stackTraceElement : stackTrace) {
-        err.append(stackTraceElement.toString()).append("\n");
-      }
-    }
-    err.append("===================================================");
-    return err.toString();
   }
 
   /**

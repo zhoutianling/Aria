@@ -72,7 +72,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   @Override public boolean onMenuItemClick(MenuItem item) {
-    double speed = -1;
+    int speed = -1;
     String msg = "";
     switch (item.getItemId()) {
       case R.id.help:
@@ -83,19 +83,19 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         showMsgDialog("tip", msg);
         break;
       case R.id.speed_0:
-        speed = 0.0;
+        speed = 0;
         break;
       case R.id.speed_128:
-        speed = 128.0;
+        speed = 128;
         break;
       case R.id.speed_256:
-        speed = 256.0;
+        speed = 256;
         break;
       case R.id.speed_512:
-        speed = 512.0;
+        speed = 512;
         break;
       case R.id.speed_1m:
-        speed = 1024.0;
+        speed = 1024;
         break;
     }
     if (speed > -1) {
