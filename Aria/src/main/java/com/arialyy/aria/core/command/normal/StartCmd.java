@@ -119,7 +119,7 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       List<AbsTaskEntity> waitList = new ArrayList<>();
       if (type == 1) {
         List<DTEWrapper> wrappers = DbEntity.findRelationData(DTEWrapper.class,
-            "DownloadTaskEntity.isGroupTask=false and DownloadTaskEntity.state=?", "3");
+            "DownloadTaskEntity.isGroupTask=? and DownloadTaskEntity.state=?", "false", "3");
         if (wrappers != null && !wrappers.isEmpty()) {
           for (DTEWrapper w : wrappers) {
             waitList.add(w.taskEntity);

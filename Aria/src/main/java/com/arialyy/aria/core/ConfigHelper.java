@@ -100,7 +100,7 @@ class ConfigHelper extends DefaultHandler {
       }
     } else if (isAppConfig) {
       String value = attributes.getValue("value");
-      switch (value) {
+      switch (qName) {
         case "useAriaCrashHandler":
           loadUseAriaCrashHandler(value);
           break;

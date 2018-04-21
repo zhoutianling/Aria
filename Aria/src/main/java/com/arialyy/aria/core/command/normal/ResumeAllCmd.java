@@ -60,7 +60,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     List<AbsTaskEntity> tempList = new ArrayList<>();
     if (type == 1) {
       List<DTEWrapper> wrappers = DbEntity.findRelationData(DTEWrapper.class,
-          "DownloadTaskEntity.isGroupTask=false and DownloadTaskEntity.state!=?", "1");
+          "DownloadTaskEntity.isGroupTask=? and DownloadTaskEntity.state!=?", "false", "1");
       if (wrappers != null && !wrappers.isEmpty()) {
         for (DTEWrapper w : wrappers) {
           tempList.add(w.taskEntity);
@@ -75,8 +75,8 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
         }
       }
     } else if (type == 3) {
-      List<UTEWrapper> wrappers = DbEntity.findRelationData(UTEWrapper.class,
-          "UploadTaskEntity.state!=?", "1");
+      List<UTEWrapper> wrappers =
+          DbEntity.findRelationData(UTEWrapper.class, "UploadTaskEntity.state!=?", "1");
       if (wrappers != null && !wrappers.isEmpty()) {
         for (UTEWrapper w : wrappers) {
           tempList.add(w.taskEntity);

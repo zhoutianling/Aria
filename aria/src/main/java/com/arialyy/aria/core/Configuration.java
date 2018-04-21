@@ -154,11 +154,8 @@ class Configuration {
         Properties properties = CommonUtil.loadConfig(file);
         for (Field field : fields) {
           int m = field.getModifiers();
-          if (field.isSynthetic()
-              || Modifier.isFinal(m)
-              || Modifier.isStatic(m)
-              || field.getName().equals("shadow$_klass_")
-              || field.getName().equals("shadow$_monitor_")) {
+          if (field.isSynthetic() || Modifier.isFinal(m) || Modifier.isStatic(m) || field.getName()
+              .equals("shadow$_klass_") || field.getName().equals("shadow$_monitor_")) {
             continue;
           }
           field.setAccessible(true);
@@ -447,7 +444,7 @@ class Configuration {
      * 是否使用{@link AriaCrashHandler}来捕获异常
      * {@code true} 使用；{@code false} 不使用
      */
-    Boolean useAriaCrashHandler;
+    boolean useAriaCrashHandler;
 
     /**
      * 设置Aria的日志级别
@@ -480,11 +477,11 @@ class Configuration {
       return logLevel;
     }
 
-    public Boolean getUseAriaCrashHandler() {
+    public boolean getUseAriaCrashHandler() {
       return useAriaCrashHandler;
     }
 
-    public AppConfig setUseAriaCrashHandler(Boolean useAriaCrashHandler) {
+    public AppConfig setUseAriaCrashHandler(boolean useAriaCrashHandler) {
       this.useAriaCrashHandler = useAriaCrashHandler;
       saveKey("useAriaCrashHandler", String.valueOf(useAriaCrashHandler));
       if (useAriaCrashHandler) {

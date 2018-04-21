@@ -155,9 +155,9 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
    * 更新所有改动的子任务文件名
    */
   private void updateSingleSubFileName() {
-    List<DownloadEntity> entities = mEntity.getSubEntities();
+    List<DownloadTaskEntity> entities = mTaskEntity.getSubTaskEntities();
     int i = 0;
-    for (DownloadEntity entity : entities) {
+    for (DownloadTaskEntity entity : entities) {
       if (i < mSubNameTemp.size()) {
         String newName = mSubNameTemp.get(i);
         updateSingleSubFileName(entity, newName);
@@ -215,7 +215,8 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
   /**
    * 更新单个子任务文件名
    */
-  private void updateSingleSubFileName(DownloadEntity entity, String newName) {
+  private void updateSingleSubFileName(DownloadTaskEntity taskEntity, String newName) {
+    DownloadEntity entity = taskEntity.getEntity();
     if (!newName.equals(entity.getFileName())) {
       String oldPath = mEntity.getDirPath() + "/" + entity.getFileName();
       String newPath = mEntity.getDirPath() + "/" + newName;
@@ -224,8 +225,8 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
         oldFile.renameTo(new File(newPath));
       }
       CommonUtil.renameDownloadConfig(oldFile.getName(), newName);
-      // TODO: 2018/4/11 需要校验数据库级联操作是否生效
       entity.setDownloadPath(newPath);
+      taskEntity.key = newPath;
       entity.setFileName(newName);
       entity.update();
     }

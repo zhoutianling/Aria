@@ -35,7 +35,8 @@ public class AriaCrashHandler implements Thread.UncaughtExceptionHandler {
 
   @Override
   public void uncaughtException(Thread thread, Throwable ex) {
-    ALog.d(thread.getName(), ex.getLocalizedMessage());
+    ex.printStackTrace();
+    //ALog.d(thread.getName(), ex.getLocalizedMessage());
     handleException(thread.getName(), ex);
     try {
       Thread.sleep(1000);

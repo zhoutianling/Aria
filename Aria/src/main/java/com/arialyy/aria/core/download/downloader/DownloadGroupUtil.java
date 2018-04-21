@@ -78,20 +78,17 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
       return;
     }
     Set<String> keys = mExeMap.keySet();
-    int i = 0;
     for (String key : keys) {
       DownloadTaskEntity taskEntity = mExeMap.get(key);
       if (taskEntity != null) {
         if (taskEntity.getState() != IEntity.STATE_FAIL
             && taskEntity.getState() != IEntity.STATE_WAIT) {
           createChildDownload(taskEntity);
-          i++;
         } else {
           mInfoPool.execute(createFileInfoThread(taskEntity));
         }
       }
     }
-    if (i != 0 && i == mExeMap.size()) startRunningFlow();
     if (mCurrentLocation == mTotalLen) {
       mListener.onComplete();
     }
@@ -115,6 +112,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
             }
             createChildDownload(te);
           }
+          mInitCompleteNum ++;
 
           if (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize) {
             startRunningFlow();

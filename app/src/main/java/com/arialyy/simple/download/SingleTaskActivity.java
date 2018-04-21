@@ -46,7 +46,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-  "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
+      "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
   //"https://static.donguo.me//video/ip/course/pfys_1.mp4";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
@@ -107,67 +107,87 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   @Download.onWait void onWait(DownloadTask task) {
-    Log.d(TAG, "wait ==> " + task.getDownloadEntity().getFileName());
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      Log.d(TAG, "wait ==> " + task.getDownloadEntity().getFileName());
+    }
   }
 
   @Download.onPre protected void onPre(DownloadTask task) {
-    setBtState(false);
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      setBtState(false);
+    }
   }
 
   @Download.onTaskStart void taskStart(DownloadTask task) {
-    getBinding().setFileSize(task.getConvertFileSize());
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      getBinding().setFileSize(task.getConvertFileSize());
+    }
   }
 
   @Download.onTaskRunning protected void running(DownloadTask task) {
-
-    long len = task.getFileSize();
-    if (len == 0) {
-      getBinding().setProgress(0);
-    } else {
-      getBinding().setProgress(task.getPercent());
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      Log.d(TAG, task.getKey());
+      long len = task.getFileSize();
+      if (len == 0) {
+        getBinding().setProgress(0);
+      } else {
+        getBinding().setProgress(task.getPercent());
+      }
+      getBinding().setSpeed(task.getConvertSpeed());
     }
-    getBinding().setSpeed(task.getConvertSpeed());
   }
 
   @Download.onTaskResume void taskResume(DownloadTask task) {
-    mStart.setText("暂停");
-    setBtState(false);
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mStart.setText("暂停");
+      setBtState(false);
+    }
   }
 
   @Download.onTaskStop void taskStop(DownloadTask task) {
-    mStart.setText("恢复");
-    setBtState(true);
-    getBinding().setSpeed("");
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mStart.setText("恢复");
+      setBtState(true);
+      getBinding().setSpeed("");
+    }
   }
 
   @Download.onTaskCancel void taskCancel(DownloadTask task) {
-    getBinding().setProgress(0);
-    Toast.makeText(SingleTaskActivity.this, "取消下载", Toast.LENGTH_SHORT).show();
-    mStart.setText("开始");
-    setBtState(true);
-    getBinding().setSpeed("");
-    Log.d(TAG, "cancel");
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      getBinding().setProgress(0);
+      Toast.makeText(SingleTaskActivity.this, "取消下载", Toast.LENGTH_SHORT).show();
+      mStart.setText("开始");
+      setBtState(true);
+      getBinding().setSpeed("");
+      Log.d(TAG, "cancel");
+    }
   }
 
   @Download.onTaskFail void taskFail(DownloadTask task) {
-    Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
-    setBtState(true);
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
+      setBtState(true);
+    }
   }
 
   @Download.onTaskComplete void taskComplete(DownloadTask task) {
-    getBinding().setProgress(100);
-    Toast.makeText(SingleTaskActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
-    mStart.setText("重新开始？");
-    mCancel.setEnabled(false);
-    setBtState(true);
-    getBinding().setSpeed("");
-    L.d(TAG, "path ==> " + task.getDownloadEntity().getDownloadPath());
-    L.d(TAG, "md5Code ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
-    L.d(TAG, "data ==> " + Aria.download(this).getDownloadEntity(DOWNLOAD_URL));
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      getBinding().setProgress(100);
+      Toast.makeText(SingleTaskActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
+      mStart.setText("重新开始？");
+      mCancel.setEnabled(false);
+      setBtState(true);
+      getBinding().setSpeed("");
+      L.d(TAG, "path ==> " + task.getDownloadEntity().getDownloadPath());
+      L.d(TAG, "md5Code ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
+      L.d(TAG, "data ==> " + Aria.download(this).getDownloadEntity(DOWNLOAD_URL));
+    }
   }
 
   @Download.onNoSupportBreakPoint public void onNoSupportBreakPoint(DownloadTask task) {
-    T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
+    }
   }
 
   @Override protected int setLayoutId() {

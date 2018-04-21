@@ -308,10 +308,8 @@ public abstract class AbsGroupUtil implements IUtil {
   }
 
   private void clearState(){
-    mExeMap.clear();
     mDownloaderMap.clear();
     mFailMap.clear();
-    mTasksMap.clear();
   }
 
   private void closeTimer(boolean isRunning) {

@@ -17,6 +17,7 @@ package com.arialyy.simple.download.group;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
@@ -84,7 +85,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
                 Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_3")
             .setGroupAlias("任务组测试")
             .setSubFileName(getModule(GroupModule.class).getSubName())
-            .setFileSize(32895492)
+            //.setFileSize(32895492)
             .start();
         break;
       case R.id.stop:
@@ -126,10 +127,12 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskStart() void taskStart(DownloadGroupTask task) {
+    getBinding().setFileSize(task.getConvertFileSize());
     L.d(TAG, "group task start");
   }
 
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
+    Log.d(TAG, "group running");
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
     mChildList.updateChildProgress(task.getEntity().getSubEntities());

@@ -18,6 +18,7 @@ package com.arialyy.aria.orm;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.orm.annotation.Primary;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
@@ -90,7 +91,6 @@ class DelegateUpdate extends AbsDelegate {
       } catch (IllegalAccessException e) {
         e.printStackTrace();
       }
-      //print(MODIFY_DATA, sql.toString());
       if (values.size() > 0) {
         db.update(CommonUtil.getClassName(dbEntity), values, "rowid=?",
             new String[] { String.valueOf(dbEntity.rowID) });
