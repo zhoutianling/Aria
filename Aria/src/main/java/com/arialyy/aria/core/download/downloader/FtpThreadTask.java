@@ -71,7 +71,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         return;
       }
       String remotePath =
-          new String(mTaskEntity.urlEntity.remotePath.getBytes(charSet), SERVER_CHARSET);
+          new String(mTaskEntity.getUrlEntity().remotePath.getBytes(charSet), SERVER_CHARSET);
       ALog.i(TAG, "remotePath【" + remotePath + "】");
       is = client.retrieveFileStream(remotePath);
       reply = client.getReplyCode();

@@ -28,29 +28,29 @@ import com.arialyy.aria.orm.annotation.Primary;
  */
 public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
 
-  @Ignore public DownloadEntity entity;
+  @Ignore private DownloadEntity entity;
 
   /**
    * 任务的url
    */
-  @NoNull public String url = "";
+  @NoNull private String url;
 
   /**
    * 所属的任务组组名，如果不属于任务组，则为null
    */
   @Foreign(parent = DownloadGroupTaskEntity.class, column = "key",
       onUpdate = ActionPolicy.CASCADE, onDelete = ActionPolicy.CASCADE)
-  public String groupName;
+  private String groupName;
 
   /**
    * 是否是chunk模式
    */
-  public boolean isChunked = false;
+  private boolean isChunked = false;
 
   /**
    * 该任务是否属于任务组
    */
-  public boolean isGroupTask = false;
+  private boolean isGroupTask = false;
 
   /**
    * Task实体对应的key
@@ -58,7 +58,9 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
   @Primary
   @Foreign(parent = DownloadEntity.class, column = "downloadPath",
       onUpdate = ActionPolicy.CASCADE, onDelete = ActionPolicy.CASCADE)
-  public String key;
+  private String key;
+
+
 
   public DownloadTaskEntity() {
   }
@@ -69,5 +71,45 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
 
   @Override public String getKey() {
     return key;
+  }
+
+  public String getUrl() {
+    return url;
+  }
+
+  public String getGroupName() {
+    return groupName;
+  }
+
+  public boolean isChunked() {
+    return isChunked;
+  }
+
+  public boolean isGroupTask() {
+    return isGroupTask;
+  }
+
+  public void setEntity(DownloadEntity entity) {
+    this.entity = entity;
+  }
+
+  public void setUrl(String url) {
+    this.url = url;
+  }
+
+  public void setGroupName(String groupName) {
+    this.groupName = groupName;
+  }
+
+  public void setChunked(boolean chunked) {
+    isChunked = chunked;
+  }
+
+  public void setGroupTask(boolean groupTask) {
+    isGroupTask = groupTask;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
   }
 }

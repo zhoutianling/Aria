@@ -53,8 +53,8 @@ public class DGTEWrapper extends AbsWrapper {
       if (subWrappers != null && !subWrappers.isEmpty()) {
         List<DownloadTaskEntity> temp = new ArrayList<>();
         for (DTEWrapper dw : subWrappers) {
-          if (dw.taskEntity.requestType == AbsTaskEntity.D_FTP) {
-            dw.taskEntity.urlEntity = CommonUtil.getFtpUrlInfo(dw.taskEntity.url);
+          if (dw.taskEntity.getRequestType() == AbsTaskEntity.D_FTP) {
+            dw.taskEntity.setUrlEntity(CommonUtil.getFtpUrlInfo(dw.taskEntity.getUrl()));
           }
           temp.add(dw.taskEntity);
         }

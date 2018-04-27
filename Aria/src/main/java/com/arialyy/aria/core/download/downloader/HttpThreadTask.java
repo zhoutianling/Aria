@@ -81,7 +81,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       //设置每条线程写入文件的位置
       file.seek(mConfig.START_LOCATION);
 
-      if (mTaskEntity.isChunked) {
+      if (mTaskEntity.isChunked()) {
         readChunk(is, file);
       } else {
         readNormal(is, file);

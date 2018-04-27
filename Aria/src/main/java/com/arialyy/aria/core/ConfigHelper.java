@@ -129,9 +129,9 @@ class ConfigHelper extends DefaultHandler {
 
   private void loadUseAriaCrashHandler(String value) {
     if (checkBoolean(value)) {
-      ALog.w(TAG, "useAriaCrashHandler【" + value + "】错误");
       mAppConfig.useAriaCrashHandler = Boolean.parseBoolean(value);
     } else {
+      ALog.w(TAG, "useAriaCrashHandler【" + value + "】错误");
       mAppConfig.useAriaCrashHandler = true;
     }
   }

@@ -61,10 +61,10 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
       ALog.w(TAG, "设置header失败，header对应的value不能为null");
       return mTarget;
     }
-    if (mTaskEntity.headers.get(key) == null) {
-      mTaskEntity.headers.put(key, value);
-    } else if (!mTaskEntity.headers.get(key).equals(value)) {
-      mTaskEntity.headers.put(key, value);
+    if (mTaskEntity.getHeaders().get(key) == null) {
+      mTaskEntity.getHeaders().put(key, value);
+    } else if (!mTaskEntity.getHeaders().get(key).equals(value)) {
+      mTaskEntity.getHeaders().put(key, value);
     }
     return mTarget;
   }
@@ -88,9 +88,9 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
       3、只有当上面两个步骤中key 和 value都相同时才能任务两个map数据一致
      */
     boolean mapEquals = false;
-    if (mTaskEntity.headers.size() == headers.size()) {
+    if (mTaskEntity.getHeaders().size() == headers.size()) {
       int i = 0;
-      Set<String> keys = mTaskEntity.headers.keySet();
+      Set<String> keys = mTaskEntity.getHeaders().keySet();
       for (String key : keys) {
         if (headers.containsKey(key)) {
           i++;
@@ -98,9 +98,9 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
           break;
         }
       }
-      if (i == mTaskEntity.headers.size()) {
+      if (i == mTaskEntity.getHeaders().size()) {
         int j = 0;
-        Collection<String> values = mTaskEntity.headers.values();
+        Collection<String> values = mTaskEntity.getHeaders().values();
         for (String value : values) {
           if (headers.containsValue(value)) {
             j++;
@@ -108,17 +108,17 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
             break;
           }
         }
-        if (j == mTaskEntity.headers.size()) {
+        if (j == mTaskEntity.getHeaders().size()) {
           mapEquals = true;
         }
       }
     }
 
     if (!mapEquals) {
-      mTaskEntity.headers.clear();
+      mTaskEntity.getHeaders().clear();
       Set<String> keys = headers.keySet();
       for (String key : keys) {
-        mTaskEntity.headers.put(key, headers.get(key));
+        mTaskEntity.getHeaders().put(key, headers.get(key));
       }
     }
 
@@ -133,7 +133,7 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
    */
   @Override
   public TARGET setRequestMode(RequestEnum requestEnum) {
-    mTaskEntity.requestEnum = requestEnum;
+    mTaskEntity.setRequestEnum(requestEnum);
     return mTarget;
   }
 }

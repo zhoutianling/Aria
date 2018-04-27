@@ -39,8 +39,8 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
     initTarget(filePath);
 
     //http暂时不支持断点上传
-    mTaskEntity.isSupportBP = false;
-    mTaskEntity.requestType = AbsTaskEntity.U_HTTP;
+    mTaskEntity.setSupportBP(false);
+    mTaskEntity.setRequestType(AbsTaskEntity.U_HTTP);
     mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
   }
 
@@ -48,7 +48,7 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
    * 设置userAgent
    */
   public UploadTarget setUserAngent(@NonNull String userAgent) {
-    mTaskEntity.userAgent = userAgent;
+    mTaskEntity.setUserAgent(userAgent);
     return this;
   }
 
@@ -58,7 +58,7 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
    * @param attachment 附件key
    */
   public UploadTarget setAttachment(@NonNull String attachment) {
-    mTaskEntity.attachment = attachment;
+    mTaskEntity.setAttachment(attachment);
     return this;
   }
 
@@ -68,7 +68,7 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
    * @param contentType tip：multipart/form-data
    */
   public UploadTarget setContentType(String contentType) {
-    mTaskEntity.contentType = contentType;
+    mTaskEntity.setContentType(contentType);
     return this;
   }
 

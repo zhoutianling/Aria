@@ -28,23 +28,23 @@ import java.util.Map;
  * 上传任务实体
  */
 public class UploadTaskEntity extends AbsNormalTaskEntity<UploadEntity> {
-  public String attachment;  //文件上传需要的key
-  public String contentType = "multipart/form-data"; //上传的文件类型
-  public String userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)";
+  private String attachment;  //文件上传需要的key
+  private String contentType = "multipart/form-data"; //上传的文件类型
+  private String userAgent = "Mozilla/5.0 (Windows; U; Windows NT 6.1; zh-CN; rv:1.9.2.6)";
 
-  @Ignore public UploadEntity entity;
+  @Ignore private UploadEntity entity;
 
-  public String filePath = "";
+  private String filePath;
 
   @Primary
   @Foreign(parent = UploadEntity.class, column = "filePath",
       onUpdate = ActionPolicy.CASCADE, onDelete = ActionPolicy.CASCADE)
-  public String key;
+  private String key;
 
   /**
    * 文件上传表单
    */
-  public Map<String, String> formFields = new HashMap<>();
+  private Map<String, String> formFields = new HashMap<>();
 
   public UploadTaskEntity() {
   }
@@ -55,5 +55,53 @@ public class UploadTaskEntity extends AbsNormalTaskEntity<UploadEntity> {
 
   @Override public String getKey() {
     return key;
+  }
+
+  public void setEntity(UploadEntity entity) {
+    this.entity = entity;
+  }
+
+  public String getFilePath() {
+    return filePath;
+  }
+
+  public void setFilePath(String filePath) {
+    this.filePath = filePath;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
+  }
+
+  public Map<String, String> getFormFields() {
+    return formFields;
+  }
+
+  public void setFormFields(Map<String, String> formFields) {
+    this.formFields = formFields;
+  }
+
+  public String getAttachment() {
+    return attachment;
+  }
+
+  public void setAttachment(String attachment) {
+    this.attachment = attachment;
+  }
+
+  public String getContentType() {
+    return contentType;
+  }
+
+  public void setContentType(String contentType) {
+    this.contentType = contentType;
+  }
+
+  public String getUserAgent() {
+    return userAgent;
+  }
+
+  public void setUserAgent(String userAgent) {
+    this.userAgent = userAgent;
   }
 }

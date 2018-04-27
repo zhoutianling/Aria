@@ -79,7 +79,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   public void setNewTask(boolean newTask) {
-    mTaskEntity.isNewTask = newTask;
+    mTaskEntity.setNewTask(newTask);
   }
 
   @Override public void setMaxSpeed(double maxSpeed) {
@@ -107,7 +107,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     if (mListener instanceof IDownloadListener) {
       ((IDownloadListener) mListener).onPostPre(mEntity.getFileSize());
     }
-    if (!mTaskEntity.isSupportBP) {
+    if (!mTaskEntity.isSupportBP()) {
       mTotalThreadNum = 1;
       mStartThreadNum = 1;
       mConstance.THREAD_NUM = mTotalThreadNum;
@@ -194,10 +194,10 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       }
     }
     if (mTaskEntity instanceof DownloadTaskEntity) {
-      CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile,
+      CommonUtil.delDownloadTaskConfig(mTaskEntity.isRemoveFile(),
           (DownloadEntity) mTaskEntity.getEntity());
     } else if (mTaskEntity instanceof UploadTaskEntity) {
-      CommonUtil.delUploadTaskConfig(mTaskEntity.removeFile,
+      CommonUtil.delUploadTaskConfig(mTaskEntity.isRemoveFile(),
           (UploadEntity) mTaskEntity.getEntity());
     }
   }
@@ -318,7 +318,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     config.START_LOCATION = startL;
     config.END_LOCATION = endL;
     config.CONFIG_FILE_PATH = mConfigFile.getPath();
-    config.SUPPORT_BP = mTaskEntity.isSupportBP;
+    config.SUPPORT_BP = mTaskEntity.isSupportBP();
     config.TASK_ENTITY = mTaskEntity;
     return selectThreadTask(config);
   }
@@ -390,7 +390,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         mFixedThreadPool.execute(task);
       }
     }
-    mTaskEntity.isNewTask = false;
+    mTaskEntity.setNewTask(false);
   }
 
   /**
@@ -412,7 +412,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     config.START_LOCATION = 0;
     config.END_LOCATION = config.FILE_SIZE;
     config.CONFIG_FILE_PATH = mConfigFile.getPath();
-    config.SUPPORT_BP = mTaskEntity.isSupportBP;
+    config.SUPPORT_BP = mTaskEntity.isSupportBP();
     config.TASK_ENTITY = mTaskEntity;
     AbsThreadTask task = selectThreadTask(config);
     if (task == null) return;

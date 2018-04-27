@@ -57,15 +57,15 @@ class DTEFactory implements INormalTEFactory<DownloadEntity, DownloadTaskEntity>
       taskEntity = wrapper.get(0).taskEntity;
       if (taskEntity == null) {
         taskEntity = new DownloadTaskEntity();
-      } else if (taskEntity.entity == null || TextUtils.isEmpty(taskEntity.entity.getUrl())) {
-        taskEntity.entity = entity;
+      } else if (taskEntity.getEntity() == null || TextUtils.isEmpty(taskEntity.getEntity().getUrl())) {
+        taskEntity.setEntity(entity);
       }
     } else {
       taskEntity = new DownloadTaskEntity();
     }
-    taskEntity.key = entity.getDownloadPath();
-    taskEntity.url = entity.getUrl();
-    taskEntity.entity = entity;
+    taskEntity.setKey(entity.getDownloadPath());
+    taskEntity.setUrl(entity.getUrl());
+    taskEntity.setEntity(entity);
     return taskEntity;
   }
 

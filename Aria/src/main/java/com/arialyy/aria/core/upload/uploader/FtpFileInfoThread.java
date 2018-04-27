@@ -40,8 +40,7 @@ class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity>
   }
 
   @Override protected String setRemotePath() {
-    String url = mEntity.getUrl();
-    return mTaskEntity.urlEntity.remotePath + "/" + mEntity.getFileName();
+    return mTaskEntity.getUrlEntity().remotePath + "/" + mEntity.getFileName();
   }
 
   /**
@@ -71,7 +70,7 @@ class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity>
         File configFile = new File(CommonUtil.getFileConfigPath(false, mEntity.getFileName()));
         Properties pro = CommonUtil.loadConfig(configFile);
         String key = mEntity.getFileName() + "_record_" + 0;
-        mTaskEntity.isNewTask = false;
+        mTaskEntity.setNewTask(false);
         long oldRecord = Long.parseLong(pro.getProperty(key, "0"));
         if (oldRecord == 0 || oldRecord != ftpFile.getSize()) {
           //修改本地保存的停止地址为服务器上对应文件的大小

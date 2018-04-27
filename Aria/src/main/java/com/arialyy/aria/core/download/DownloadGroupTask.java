@@ -41,7 +41,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
     mListener = new DownloadGroupListener(this, mOutHandler);
-    switch (taskEntity.requestType) {
+    switch (taskEntity.getRequestType()) {
       case AbsTaskEntity.D_HTTP:
         mUtil = new DownloadGroupUtil(mListener, mTaskEntity);
         break;

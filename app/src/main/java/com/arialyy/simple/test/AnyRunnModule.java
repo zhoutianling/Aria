@@ -16,9 +16,9 @@ import java.io.File;
  */
 
 public class AnyRunnModule {
-  String TAG = "TestActivity";
-  String URL = "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
+  String TAG = "AnyRunnModule";
   private Context mContext;
+  private String mUrl;
 
   public AnyRunnModule(Context context) {
     Aria.download(this).register();
@@ -62,17 +62,9 @@ public class AnyRunnModule {
     L.d(TAG, "md5Code ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
   }
 
-  void start() {
-    Aria.download(this)
-        .load(URL)
-        .addHeader("Accept-Encoding", "gzip, deflate")
-        .setRequestMode(RequestEnum.GET)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
-        .resetState()
-        .start();
-  }
 
   void start(String url) {
+    mUrl = url;
     Aria.download(this)
         .load(url)
         .addHeader("Accept-Encoding", "gzip, deflate")
@@ -83,14 +75,14 @@ public class AnyRunnModule {
   }
 
   void stop() {
-    Aria.download(this).load(URL).stop();
+    Aria.download(this).load(mUrl).stop();
   }
 
   void cancel() {
-    Aria.download(this).load(URL).cancel();
+    Aria.download(this).load(mUrl).cancel();
   }
 
-  void unRegist() {
+  void unRegister() {
     Aria.download(this).unRegister();
   }
 }

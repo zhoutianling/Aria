@@ -33,6 +33,7 @@ public class TestActivity extends BaseActivity<ActivityTestBinding> {
     super.init(savedInstanceState);
     mBar.setVisibility(View.GONE);
     Aria.upload(this).register();
+
   }
 
   @Upload.onWait void onWait(UploadTask task) {

@@ -41,7 +41,7 @@ public class FtpDelegate<TARGET extends ITarget, ENTITY extends AbsEntity, TASK_
 
   @Override public TARGET charSet(String charSet) {
     if (TextUtils.isEmpty(charSet)) return mTarget;
-    mTaskEntity.charSet = charSet;
+    mTaskEntity.setCharSet(charSet);
     return mTarget;
   }
 
@@ -57,10 +57,10 @@ public class FtpDelegate<TARGET extends ITarget, ENTITY extends AbsEntity, TASK_
       ALog.e(TAG, "密码不能为null");
       return mTarget;
     }
-    mTaskEntity.urlEntity.needLogin = true;
-    mTaskEntity.urlEntity.user = userName;
-    mTaskEntity.urlEntity.password = password;
-    mTaskEntity.urlEntity.account = account;
+    mTaskEntity.getUrlEntity().needLogin = true;
+    mTaskEntity.getUrlEntity().user = userName;
+    mTaskEntity.getUrlEntity().password = password;
+    mTaskEntity.getUrlEntity().account = account;
     return mTarget;
   }
 }

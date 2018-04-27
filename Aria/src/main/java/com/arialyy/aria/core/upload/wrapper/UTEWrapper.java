@@ -41,7 +41,7 @@ public class UTEWrapper extends AbsWrapper {
     //taskEntity.entity = (tEntity == null || tEntity.isEmpty()) ? null : tEntity.get(0);
     taskEntity = (taskEntitys == null || taskEntitys.isEmpty()) ? null : taskEntitys.get(0);
     if (taskEntity != null) {
-      taskEntity.entity = entity;
+      taskEntity.setEntity(entity);
     }
   }
 }

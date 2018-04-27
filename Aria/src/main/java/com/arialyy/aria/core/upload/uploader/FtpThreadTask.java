@@ -112,9 +112,9 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
   }
 
   private void initPath() throws UnsupportedEncodingException {
-    dir = new String(mTaskEntity.urlEntity.remotePath.getBytes(charSet), SERVER_CHARSET);
+    dir = new String(mTaskEntity.getUrlEntity().remotePath.getBytes(charSet), SERVER_CHARSET);
     remotePath = new String(
-        ("/" + mTaskEntity.urlEntity.remotePath + "/" + mEntity.getFileName()).getBytes(charSet),
+        ("/" + mTaskEntity.getUrlEntity().remotePath + "/" + mEntity.getFileName()).getBytes(charSet),
         SERVER_CHARSET);
   }
 

@@ -35,6 +35,11 @@ class DBConfig {
   static String DB_NAME;
   static int VERSION = 31;
 
+  /**
+   * 是否将数据库保存在Sd卡，{@code true} 是
+   */
+  static final boolean SAVE_IN_SDCARD = false;
+
   static {
     if (TextUtils.isEmpty(DB_NAME)) {
       DB_NAME = "AriaLyyDb";

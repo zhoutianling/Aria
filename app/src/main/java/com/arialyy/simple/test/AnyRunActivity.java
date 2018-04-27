@@ -48,6 +48,6 @@ public class AnyRunActivity extends BaseActivity<ActivityTestBinding> {
 
   @Override protected void onDestroy() {
     super.onDestroy();
-    module.unRegist();
+    module.unRegister();
   }
 }

@@ -36,6 +36,9 @@ public class DownloadGroupEntity extends AbsGroupEntity {
    */
   private String dirPath;
 
+  /**
+   * 子任务实体列表
+   */
   public List<DownloadEntity> getSubEntities() {
     return subEntities;
   }

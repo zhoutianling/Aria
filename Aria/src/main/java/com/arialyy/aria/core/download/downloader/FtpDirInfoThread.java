@@ -40,7 +40,7 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
   }
 
   @Override protected String setRemotePath() {
-    return mTaskEntity.urlEntity.remotePath;
+    return mTaskEntity.getUrlEntity().remotePath;
   }
 
   @Override protected void handleFile(String remotePath, FTPFile ftpFile) {
@@ -58,7 +58,7 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
    * FTP文件夹的子任务实体 在这生成
    */
   private void addEntity(String remotePath, FTPFile ftpFile) {
-    final FtpUrlEntity urlEntity = mTaskEntity.urlEntity.clone();
+    final FtpUrlEntity urlEntity = mTaskEntity.getUrlEntity().clone();
     DownloadEntity entity = new DownloadEntity();
     entity.setUrl(
         urlEntity.protocol + "://" + urlEntity.hostName + ":" + urlEntity.port + "/" + remotePath);
@@ -66,22 +66,22 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
     int lastIndex = remotePath.lastIndexOf("/");
     String fileName = lastIndex < 0 ? CommonUtil.keyToHashKey(remotePath)
         : remotePath.substring(lastIndex + 1, remotePath.length());
-    entity.setFileName(new String(fileName.getBytes(), Charset.forName(mTaskEntity.charSet)));
+    entity.setFileName(new String(fileName.getBytes(), Charset.forName(mTaskEntity.getCharSet())));
     entity.setGroupName(mEntity.getGroupName());
     entity.setGroupChild(true);
     entity.setFileSize(ftpFile.getSize());
     entity.insert();
 
     DownloadTaskEntity taskEntity = new DownloadTaskEntity();
-    taskEntity.key = entity.getDownloadPath();
-    taskEntity.url = entity.getUrl();
-    taskEntity.entity = entity;
-    taskEntity.isGroupTask = true;
-    taskEntity.groupName = mEntity.getGroupName();
-    taskEntity.requestType = AbsTaskEntity.D_FTP;
+    taskEntity.setKey(entity.getDownloadPath());
+    taskEntity.setUrl(entity.getUrl());
+    taskEntity.setEntity(entity);
+    taskEntity.setGroupTask(true);
+    taskEntity.setGroupName(mEntity.getGroupName());
+    taskEntity.setRequestType(AbsTaskEntity.D_FTP);
     urlEntity.url = entity.getUrl();
     urlEntity.remotePath = remotePath;
-    taskEntity.urlEntity = urlEntity;
+    taskEntity.setUrlEntity(urlEntity);
     taskEntity.insert();
 
     if (mEntity.getUrls() == null) {

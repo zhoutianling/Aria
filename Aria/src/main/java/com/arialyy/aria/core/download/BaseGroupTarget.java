@@ -126,7 +126,7 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
           file.renameTo(new File(newPath));
         }
         de.setDownloadPath(newPath);
-        dte.key = newPath;
+        dte.setKey(newPath);
         de.save();
         dte.save();
       }

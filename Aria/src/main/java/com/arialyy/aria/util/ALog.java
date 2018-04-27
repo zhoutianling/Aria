@@ -64,7 +64,9 @@ public class ALog {
   }
 
   public static int e(String tag, Throwable e) {
-    return println(Log.ERROR, tag, getExceptionString(e));
+    String msg = getExceptionString(e);
+    ErrorHelp.saveError(tag, "", msg);
+    return println(Log.ERROR, tag, msg);
   }
 
   /**

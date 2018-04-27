@@ -117,6 +117,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 加载下载地址，如果任务组的中的下载地址改变了，则任务从新的一个任务组
    *
    * @param urls 任务组子任务下载地址列表
+   * @deprecated {@link #loadGroup(DownloadGroupEntity)}
    */
   @Deprecated
   public DownloadGroupTarget load(List<String> urls) {

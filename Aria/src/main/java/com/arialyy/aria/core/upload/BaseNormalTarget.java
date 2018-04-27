@@ -32,7 +32,7 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
 
   void initTarget(String filePath) {
     mTaskEntity = TEManager.getInstance().getTEntity(UploadTaskEntity.class, filePath);
-    mEntity = mTaskEntity.entity;
+    mEntity = mTaskEntity.getEntity();
     File file = new File(filePath);
     mEntity.setFileName(file.getName());
     mEntity.setFileSize(file.length());

@@ -49,7 +49,7 @@ public class SimpleUploadUtil implements IUtil, Runnable {
 
   @Override public void run() {
     mListener.onPre();
-    switch (mTaskEntity.requestType) {
+    switch (mTaskEntity.getRequestType()) {
       case AbsTaskEntity.U_FTP:
         new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
           @Override public void onComplete(String url, CompleteInfo info) {

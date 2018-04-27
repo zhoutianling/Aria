@@ -41,8 +41,8 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
     this.url = url;
     mTargetName = targetName;
     mTaskEntity = TEManager.getInstance().getTEntity(DownloadTaskEntity.class, url);
-    mEntity = mTaskEntity.entity;
-    mTaskEntity.refreshInfo = refreshInfo;
+    mEntity = mTaskEntity.getEntity();
+    mTaskEntity.setRefreshInfo(refreshInfo);
     if (mEntity != null) {
       mTempFilePath = mEntity.getDownloadPath();
     }
@@ -141,7 +141,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
 
     //设置文件保存路径，如果新文件路径和就文件路径不同，则修改路径
     if (!filePath.equals(mEntity.getDownloadPath())) {
-      if (!mTaskEntity.refreshInfo && DbEntity.checkDataExist(DownloadEntity.class,
+      if (!mTaskEntity.isRefreshInfo() && DbEntity.checkDataExist(DownloadEntity.class,
           "downloadPath=?", filePath)) {
         ALog.e(TAG, "下载失败，保存路径【" + filePath + "】已经被其它任务占用，请设置其它保存路径");
         return false;
@@ -150,7 +150,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
       File newFile = new File(filePath);
       mEntity.setDownloadPath(filePath);
       mEntity.setFileName(newFile.getName());
-      mTaskEntity.key = filePath;
+      mTaskEntity.setKey(filePath);
       //mTaskEntity.update();
       if (oldFile.exists()) {
         oldFile.renameTo(newFile);

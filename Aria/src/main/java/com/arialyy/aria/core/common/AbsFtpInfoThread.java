@@ -82,7 +82,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       ALog.i(TAG, s);
       boolean isExist = files.length != 0;
       if (!isExist && !isUpload) {
-        failDownload("文件不存在，任务链接【" + mTaskEntity.urlEntity.url + "】，remotePath：" + remotePath,
+        failDownload("文件不存在，任务链接【" + mTaskEntity.getUrlEntity().url + "】，remotePath：" + remotePath,
             false);
         int i = remotePath.lastIndexOf(File.separator);
         FTPFile[] files1;
@@ -111,14 +111,14 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       if (!FTPReply.isPositiveCompletion(reply)) {
         if (isUpload) {
           //服务器上没有该文件路径，表示该任务为新的上传任务
-          mTaskEntity.isNewTask = true;
+          mTaskEntity.setNewTask(true);
         } else {
           client.disconnect();
           failDownload("获取文件信息错误，错误码为：" + reply + "，msg:" + client.getReplyString(), true);
           return;
         }
       }
-      mTaskEntity.code = reply;
+      mTaskEntity.setCode(reply);
       if (mSize != 0 && !isUpload) {
         mEntity.setFileSize(mSize);
       }
@@ -164,7 +164,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
    */
   private FTPClient createFtpClient() {
     FTPClient client = null;
-    final FtpUrlEntity urlEntity = mTaskEntity.urlEntity;
+    final FtpUrlEntity urlEntity = mTaskEntity.getUrlEntity();
     try {
       Pattern p = Pattern.compile(Regular.REG_IP_V4);
       Matcher m = p.matcher(urlEntity.hostName);
@@ -173,7 +173,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
         InetAddress ip = InetAddress.getByName(urlEntity.hostName);
         client.setConnectTimeout(10000);  // 连接10s超时
         client.connect(ip, Integer.parseInt(urlEntity.port));
-        mTaskEntity.urlEntity.validAddr = ip;
+        mTaskEntity.getUrlEntity().validAddr = ip;
       } else {
         InetAddress[] ips = InetAddress.getAllByName(urlEntity.hostName);
         client = connect(new FTPClient(), ips, 0, Integer.parseInt(urlEntity.port));
@@ -212,10 +212,10 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
       charSet = "UTF-8";
       reply = client.sendCommand("OPTS UTF8", "ON");
-      if (!TextUtils.isEmpty(mTaskEntity.charSet) || (!FTPReply.isPositiveCompletion(reply)
+      if (!TextUtils.isEmpty(mTaskEntity.getCharSet()) || (!FTPReply.isPositiveCompletion(reply)
           && reply != FTPReply.COMMAND_OK)) {
         ALog.i(TAG, "FTP 服务器不支持开启UTF8编码，尝试使用Aria手动设置的编码");
-        charSet = mTaskEntity.charSet;
+        charSet = mTaskEntity.getCharSet();
       }
       client.setControlEncoding(charSet);
       client.setDataTimeout(10 * 1000);
@@ -234,7 +234,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
   private FTPClient connect(FTPClient client, InetAddress[] ips, int index, int port) {
     try {
       client.connect(ips[index], port);
-      mTaskEntity.urlEntity.validAddr = ips[index];
+      mTaskEntity.getUrlEntity().validAddr = ips[index];
       return client;
     } catch (IOException e) {
       //e.printStackTrace();

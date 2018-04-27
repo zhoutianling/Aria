@@ -66,12 +66,12 @@ class ConnectionHelp {
    */
   static HttpURLConnection setConnectParam(DownloadTaskEntity entity, HttpURLConnection conn)
       throws ProtocolException {
-    conn.setRequestMethod(entity.requestEnum.name);
+    conn.setRequestMethod(entity.getRequestEnum().name);
     Set<String> keys = null;
-    if (entity.headers != null && entity.headers.size() > 0) {
-      keys = entity.headers.keySet();
+    if (entity.getHeaders() != null && entity.getHeaders().size() > 0) {
+      keys = entity.getHeaders().keySet();
       for (String key : keys) {
-        conn.setRequestProperty(key, entity.headers.get(key));
+        conn.setRequestProperty(key, entity.getHeaders().get(key));
       }
     }
     if (keys == null || !keys.contains("Charset")) {

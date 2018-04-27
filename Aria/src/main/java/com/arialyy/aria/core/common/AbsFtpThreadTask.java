@@ -51,7 +51,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
    */
   protected FTPClient createClient() {
     FTPClient client = null;
-    final FtpUrlEntity urlEntity = mTaskEntity.urlEntity;
+    final FtpUrlEntity urlEntity = mTaskEntity.getUrlEntity();
     if (urlEntity.validAddr == null) {
       try {
         InetAddress[] ips = InetAddress.getAllByName(urlEntity.hostName);
@@ -93,9 +93,9 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       }
       // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
       charSet = "UTF-8";
-      if (!TextUtils.isEmpty(mTaskEntity.charSet) || !FTPReply.isPositiveCompletion(
+      if (!TextUtils.isEmpty(mTaskEntity.getCharSet()) || !FTPReply.isPositiveCompletion(
           client.sendCommand("OPTS UTF8", "ON"))) {
-        charSet = mTaskEntity.charSet;
+        charSet = mTaskEntity.getCharSet();
       }
       client.setControlEncoding(charSet);
       client.setDataTimeout(10 * 1000);
@@ -114,7 +114,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
   private FTPClient connect(FTPClient client, InetAddress[] ips, int index, int port) {
     try {
       client.connect(ips[index], port);
-      mTaskEntity.urlEntity.validAddr = ips[index];
+      mTaskEntity.getUrlEntity().validAddr = ips[index];
       return client;
     } catch (IOException e) {
       try {

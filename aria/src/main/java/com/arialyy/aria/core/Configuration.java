@@ -130,10 +130,20 @@ class Configuration {
      * 保存key
      */
     void saveKey(String key, String value) {
-      boolean isDownload = this instanceof DownloadConfig;
+      String path = null;
+      switch (getType()) {
+        case TYPE_DOWNLOAD:
+          path = DOWNLOAD_CONFIG_FILE;
+          break;
+        case TYPE_UPLOAD:
+          path = UPLOAD_CONFIG_FILE;
+          break;
+        case TYPE_APP:
+          path = APP_CONFIG_FILE;
+          break;
+      }
       File file = new File(
-          AriaManager.APP.getFilesDir().getPath() + (isDownload ? DOWNLOAD_CONFIG_FILE
-              : UPLOAD_CONFIG_FILE));
+          AriaManager.APP.getFilesDir().getPath() + path);
       if (file.exists()) {
         Properties properties = CommonUtil.loadConfig(file);
         properties.setProperty(key, value);
@@ -146,11 +156,21 @@ class Configuration {
      */
     void saveAll() {
       List<Field> fields = CommonUtil.getAllFields(getClass());
-      boolean isDownload = this instanceof DownloadConfig;
       try {
+        String path = null;
+        switch (getType()) {
+          case TYPE_DOWNLOAD:
+            path = DOWNLOAD_CONFIG_FILE;
+            break;
+          case TYPE_UPLOAD:
+            path = UPLOAD_CONFIG_FILE;
+            break;
+          case TYPE_APP:
+            path = APP_CONFIG_FILE;
+            break;
+        }
         File file = new File(
-            AriaManager.APP.getFilesDir().getPath() + (isDownload ? DOWNLOAD_CONFIG_FILE
-                : UPLOAD_CONFIG_FILE));
+            AriaManager.APP.getFilesDir().getPath() + path);
         Properties properties = CommonUtil.loadConfig(file);
         for (Field field : fields) {
           int m = field.getModifiers();

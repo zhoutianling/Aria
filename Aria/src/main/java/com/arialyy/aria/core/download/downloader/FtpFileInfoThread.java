@@ -32,13 +32,13 @@ class FtpFileInfoThread extends AbsFtpInfoThread<DownloadEntity, DownloadTaskEnt
   }
 
   @Override protected String setRemotePath() {
-    return mTaskEntity.urlEntity.remotePath;
+    return mTaskEntity.getUrlEntity().remotePath;
   }
 
   @Override protected void onPreComplete(int code) {
     super.onPreComplete(code);
     if (mSize != mTaskEntity.getEntity().getFileSize()) {
-      mTaskEntity.isNewTask = true;
+      mTaskEntity.setNewTask(true);
     }
     mEntity.setFileSize(mSize);
     mCallback.onComplete(mEntity.getUrl(), new CompleteInfo(code));

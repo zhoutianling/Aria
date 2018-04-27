@@ -40,7 +40,7 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
 
   private void initTask(String filePath) {
     initTarget(filePath);
-    mTaskEntity.requestType = AbsTaskEntity.U_FTP;
+    mTaskEntity.setRequestType(AbsTaskEntity.U_FTP);
     mDelegate = new FtpDelegate<>(this, mTaskEntity);
   }
 
@@ -61,11 +61,11 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
     if (!b) {
       return false;
     }
-    mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(mTempUrl);
-    mTaskEntity.urlEntity.account = mAccount;
-    mTaskEntity.urlEntity.user = mUser;
-    mTaskEntity.urlEntity.password = mPw;
-    mTaskEntity.urlEntity.needLogin = needLogin;
+    mTaskEntity.setUrlEntity(CommonUtil.getFtpUrlInfo(mTempUrl));
+    mTaskEntity.getUrlEntity().account = mAccount;
+    mTaskEntity.getUrlEntity().user = mUser;
+    mTaskEntity.getUrlEntity().password = mPw;
+    mTaskEntity.getUrlEntity().needLogin = needLogin;
     return true;
   }
 

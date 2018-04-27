@@ -20,6 +20,7 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.ProxyHelper;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
@@ -69,9 +70,31 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
     return DbEntity.findFirst(UploadEntity.class, "filePath=?", filePath) != null;
   }
 
+  /**
+   * 获取所有普通上传任务
+   * 获取未完成的普通任务列表{@link #getAllNotCompletTask()}
+   * 获取已经完成的普通任务列表{@link #getAllCompleteTask()}
+   */
   @Override public List<UploadEntity> getTaskList() {
     return DbEntity.findAllData(UploadEntity.class);
   }
+
+  /**
+   * 获取所有未完成的普通上传任务
+   */
+  public List<UploadEntity> getAllNotCompletTask() {
+    return UploadEntity.findDatas(UploadEntity.class,
+        "isGroupChild=? and isComplete=?", "false", "false");
+  }
+
+  /**
+   * 获取所有已经完成的普通任务
+   */
+  public List<UploadEntity> getAllCompleteTask() {
+    return UploadEntity.findDatas(UploadEntity.class,
+        "isGroupChild=? and isComplete=?", "false", "true");
+  }
+
 
   @Override public void stopAllTask() {
     AriaManager.getInstance(AriaManager.APP)

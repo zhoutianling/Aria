@@ -40,7 +40,7 @@ public class DTEWrapper extends AbsWrapper {
   @Override public void handleConvert() {
     taskEntity = (taskEntitys == null || taskEntitys.isEmpty()) ? null : taskEntitys.get(0);
     if (taskEntity != null) {
-      taskEntity.entity = entity;
+      taskEntity.setEntity(entity);
     }
   }
 }

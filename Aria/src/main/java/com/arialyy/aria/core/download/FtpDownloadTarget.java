@@ -45,9 +45,9 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
   private void init(boolean refreshInfo) {
     int lastIndex = url.lastIndexOf("/");
     mEntity.setFileName(url.substring(lastIndex + 1, url.length()));
-    mTaskEntity.urlEntity = CommonUtil.getFtpUrlInfo(url);
-    mTaskEntity.refreshInfo = refreshInfo;
-    mTaskEntity.requestType = AbsTaskEntity.D_FTP;
+    mTaskEntity.setUrlEntity(CommonUtil.getFtpUrlInfo(url));
+    mTaskEntity.setRefreshInfo(refreshInfo);
+    mTaskEntity.setRequestType(AbsTaskEntity.D_FTP);
 
     mDelegate = new FtpDelegate<>(this, mTaskEntity);
   }

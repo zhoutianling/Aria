@@ -234,7 +234,7 @@ public abstract class AbsGroupUtil implements IUtil {
       }
     }
     clearState();
-    CommonUtil.delDownloadGroupTaskConfig(mGTEntity.removeFile, mGTEntity.getEntity());
+    CommonUtil.delDownloadGroupTaskConfig(mGTEntity.isRemoveFile(), mGTEntity.getEntity());
     mListener.onCancel();
   }
 
@@ -277,13 +277,13 @@ public abstract class AbsGroupUtil implements IUtil {
         mCompleteNum++;
         mCurrentLocation += te.getEntity().getFileSize();
       } else {
-        mExeMap.put(te.url, te);
+        mExeMap.put(te.getUrl(), te);
         mCurrentLocation += file.exists() ? te.getEntity().getCurrentProgress() : 0;
       }
       if (isNeedLoadFileSize) {
         mTotalLen += te.getEntity().getFileSize();
       }
-      mTasksMap.put(te.url, te);
+      mTasksMap.put(te.getUrl(), te);
     }
     updateFileSize();
   }
@@ -473,7 +473,7 @@ public abstract class AbsGroupUtil implements IUtil {
         if (subEntity.getFailNum() < 5 && needRetry && NetUtils.isConnected(AriaManager.APP)) {
           reStartTask();
         } else {
-          mFailMap.put(subTaskEntity.url, subTaskEntity);
+          mFailMap.put(subTaskEntity.getUrl(), subTaskEntity);
           mListener.onSubFail(subEntity);
           //如果失败的任务数大于实际的下载任务数，任务组停止下载
           if (mFailMap.size() >= mExeMap.size()) {
@@ -506,7 +506,7 @@ public abstract class AbsGroupUtil implements IUtil {
     }
 
     private void saveData(int state, long location) {
-      subTaskEntity.state = state;
+      subTaskEntity.setState(state);
       subEntity.setState(state);
       subEntity.setComplete(state == IEntity.STATE_COMPLETE);
       if (state == IEntity.STATE_CANCEL) {

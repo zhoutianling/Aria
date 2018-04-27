@@ -45,7 +45,7 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
   }
 
   @Override protected int setNewTaskThreadNum() {
-    return mEntity.getFileSize() <= SUB_LEN || mTaskEntity.requestType == AbsTaskEntity.D_FTP_DIR
+    return mEntity.getFileSize() <= SUB_LEN || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP_DIR
         ? 1
         : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
   }
@@ -53,11 +53,11 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
   @Override protected void checkTask() {
     mConfigFile = new File(CommonUtil.getFileConfigPath(true, mEntity.getFileName()));
     mTempFile = new File(mEntity.getDownloadPath());
-    if (!mTaskEntity.isSupportBP) {
+    if (!mTaskEntity.isSupportBP()) {
       isNewTask = true;
       return;
     }
-    if (mTaskEntity.isNewTask) {
+    if (mTaskEntity.isNewTask()) {
       isNewTask = true;
       return;
     }
@@ -101,7 +101,7 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
   }
 
   @Override protected AbsThreadTask selectThreadTask(SubThreadConfig<DownloadTaskEntity> config) {
-    switch (mTaskEntity.requestType) {
+    switch (mTaskEntity.getRequestType()) {
       case AbsTaskEntity.D_FTP:
       case AbsTaskEntity.D_FTP_DIR:
         return new FtpThreadTask(mConstance, (IDownloadListener) mListener, config);

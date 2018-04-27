@@ -80,7 +80,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     switch (view.getId()) {
       case R.id.start:
         Aria.download(this)
-            .load(mUrls)
+            .loadGroup(mUrls)
             .setDirPath(
                 Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_3")
             .setGroupAlias("任务组测试")

@@ -42,7 +42,7 @@ public interface IEntity {
    */
   @Ignore int STATE_WAIT = 3;
   /**
-   * 下载中
+   * 正在执行
    */
   @Ignore int STATE_RUNNING = 4;
   /**
@@ -54,7 +54,7 @@ public interface IEntity {
    */
   @Ignore int STATE_POST_PRE = 6;
   /**
-   * 取消下载
+   * 删除任务
    */
   @Ignore int STATE_CANCEL = 7;
 }

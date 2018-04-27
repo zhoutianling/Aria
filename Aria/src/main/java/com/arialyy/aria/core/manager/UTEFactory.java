@@ -53,15 +53,15 @@ class UTEFactory implements INormalTEFactory<UploadEntity, UploadTaskEntity> {
       UploadTaskEntity uTaskEntity = wrapper.get(0).taskEntity;
       if (uTaskEntity == null) {
         uTaskEntity = new UploadTaskEntity();
-        uTaskEntity.entity = entity;
-      } else if (uTaskEntity.entity == null || TextUtils.isEmpty(
-          uTaskEntity.entity.getFilePath())) {
-        uTaskEntity.entity = entity;
+        uTaskEntity.setEntity(entity);
+      } else if (uTaskEntity.getEntity() == null || TextUtils.isEmpty(
+          uTaskEntity.getEntity().getFilePath())) {
+        uTaskEntity.setEntity(entity);
       }
       return uTaskEntity;
     } else {
       UploadTaskEntity uTaskEntity = new UploadTaskEntity();
-      uTaskEntity.entity = entity;
+      uTaskEntity.setEntity(entity);
       return uTaskEntity;
     }
   }

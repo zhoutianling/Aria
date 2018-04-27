@@ -129,8 +129,8 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    */
   private void resumeEntity(AbsTaskEntity te) {
     if (te instanceof DownloadTaskEntity) {
-      if (te.requestType == AbsTaskEntity.D_FTP || te.requestType == AbsTaskEntity.U_FTP) {
-        te.urlEntity = CommonUtil.getFtpUrlInfo(te.getEntity().getKey());
+      if (te.getRequestType() == AbsTaskEntity.D_FTP || te.getRequestType() == AbsTaskEntity.U_FTP) {
+        te.setUrlEntity(CommonUtil.getFtpUrlInfo(te.getEntity().getKey()));
       }
       mQueue = DownloadTaskQueue.getInstance();
     } else if (te instanceof UploadTaskEntity) {

@@ -57,75 +57,72 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   /**
    * 账号和密码
    */
-  @Ignore public FtpUrlEntity urlEntity;
+  @Ignore private FtpUrlEntity urlEntity;
 
   /**
    * 刷新信息 {@code true} 重新刷新下载信息
    */
-  @Ignore public boolean refreshInfo = false;
+  @Ignore private boolean refreshInfo = false;
 
   /**
    * 是否是新任务，{@code true} 新任务
    */
-  @Ignore public boolean isNewTask = false;
+  @Ignore private boolean isNewTask = false;
 
   /**
    * 任务状态，和Entity的state同步
    */
-  public int state = IEntity.STATE_WAIT;
+  private int state = IEntity.STATE_WAIT;
 
   /**
    * 请求类型
    * {@link AbsTaskEntity#D_HTTP}、{@link AbsTaskEntity#D_FTP}、{@link AbsTaskEntity#D_FTP_DIR}。。。
    */
-  public int requestType = D_HTTP;
+  private int requestType = D_HTTP;
 
   /**
    * http 请求头
    */
-  public Map<String, String> headers = new HashMap<>();
+  private Map<String, String> headers = new HashMap<>();
 
   /**
    * 字符编码，默认为"utf-8"
    */
-  public String charSet = "utf-8";
+  private String charSet = "utf-8";
 
   /**
    * 网络请求类型
    */
-  public RequestEnum requestEnum = RequestEnum.GET;
+  private RequestEnum requestEnum = RequestEnum.GET;
 
   /**
-   * 是否使用服务器通过content-disposition传递的文件名，内容格式{@code attachment;filename=***}
+   * 是否使用服务器通过content-disposition传递的文件名，内容格式{@code attachment; filename="filename.jpg"}
    * {@code true} 使用
    */
-  public boolean useServerFileName = false;
-
-  /**
-   * 从Disposition获取的文件名说需要的key
-   */
-  public String dispositionFileKey = "attachment;filename";
+  private boolean useServerFileName = false;
 
   /**
    * 重定向链接
    */
-  public String redirectUrl = "";
+  private String redirectUrl = "";
 
   /**
+   * 删除任务时，是否删除已下载完成的文件
+   * 未完成的任务，不管true还是false，都会删除文件
    * {@code true}  删除任务数据库记录，并且删除已经下载完成的文件
    * {@code false} 如果任务已经完成，只删除任务数据库记录
    */
-  @Ignore public boolean removeFile = false;
+  @Ignore private boolean removeFile = false;
 
   /**
    * 是否支持断点, {@code true} 为支持断点
    */
-  public boolean isSupportBP = true;
+  private boolean isSupportBP = true;
 
   /**
    * 状态码
    */
-  public int code;
+  private int code;
 
   public abstract ENTITY getEntity();
 
@@ -145,5 +142,105 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
       getEntity().update();
     }
     super.update();
+  }
+
+  public FtpUrlEntity getUrlEntity() {
+    return urlEntity;
+  }
+
+  public void setUrlEntity(FtpUrlEntity urlEntity) {
+    this.urlEntity = urlEntity;
+  }
+
+  public boolean isRefreshInfo() {
+    return refreshInfo;
+  }
+
+  public void setRefreshInfo(boolean refreshInfo) {
+    this.refreshInfo = refreshInfo;
+  }
+
+  public boolean isNewTask() {
+    return isNewTask;
+  }
+
+  public void setNewTask(boolean newTask) {
+    isNewTask = newTask;
+  }
+
+  public void setState(int state) {
+    this.state = state;
+  }
+
+  public int getRequestType() {
+    return requestType;
+  }
+
+  public void setRequestType(int requestType) {
+    this.requestType = requestType;
+  }
+
+  public Map<String, String> getHeaders() {
+    return headers;
+  }
+
+  public void setHeaders(Map<String, String> headers) {
+    this.headers = headers;
+  }
+
+  public String getCharSet() {
+    return charSet;
+  }
+
+  public void setCharSet(String charSet) {
+    this.charSet = charSet;
+  }
+
+  public RequestEnum getRequestEnum() {
+    return requestEnum;
+  }
+
+  public void setRequestEnum(RequestEnum requestEnum) {
+    this.requestEnum = requestEnum;
+  }
+
+  public boolean isUseServerFileName() {
+    return useServerFileName;
+  }
+
+  public void setUseServerFileName(boolean useServerFileName) {
+    this.useServerFileName = useServerFileName;
+  }
+
+  public String getRedirectUrl() {
+    return redirectUrl;
+  }
+
+  public void setRedirectUrl(String redirectUrl) {
+    this.redirectUrl = redirectUrl;
+  }
+
+  public boolean isRemoveFile() {
+    return removeFile;
+  }
+
+  public void setRemoveFile(boolean removeFile) {
+    this.removeFile = removeFile;
+  }
+
+  public boolean isSupportBP() {
+    return isSupportBP;
+  }
+
+  public void setSupportBP(boolean supportBP) {
+    isSupportBP = supportBP;
+  }
+
+  public int getCode() {
+    return code;
+  }
+
+  public void setCode(int code) {
+    this.code = code;
   }
 }

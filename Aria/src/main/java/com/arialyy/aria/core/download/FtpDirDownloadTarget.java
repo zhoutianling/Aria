@@ -38,7 +38,7 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
   private void init(String key) {
     mGroupName = key;
     mTaskEntity = TEManager.getInstance().getFDTEntity(DownloadGroupTaskEntity.class, key);
-    mTaskEntity.requestType = AbsTaskEntity.D_FTP_DIR;
+    mTaskEntity.setRequestType(AbsTaskEntity.D_FTP_DIR);
     mEntity = mTaskEntity.getEntity();
     if (mEntity != null) {
       mDirPathTemp = mEntity.getDirPath();
@@ -58,10 +58,10 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
       if (mTaskEntity.getSubTaskEntities() != null) {
         //初始化子项的登录信息
         for (DownloadTaskEntity entity : mTaskEntity.getSubTaskEntities()) {
-          entity.urlEntity.needLogin = mTaskEntity.urlEntity.needLogin;
-          entity.urlEntity.account = mTaskEntity.urlEntity.account;
-          entity.urlEntity.user = mTaskEntity.urlEntity.user;
-          entity.urlEntity.password = mTaskEntity.urlEntity.password;
+          entity.getUrlEntity().needLogin = mTaskEntity.getUrlEntity().needLogin;
+          entity.getUrlEntity().account = mTaskEntity.getUrlEntity().account;
+          entity.getUrlEntity().user = mTaskEntity.getUrlEntity().user;
+          entity.getUrlEntity().password = mTaskEntity.getUrlEntity().password;
         }
       }
     }

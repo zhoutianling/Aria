@@ -54,7 +54,7 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
    * @param use {@code true} 使用
    */
   @Deprecated public DownloadTarget useServerFileName(boolean use) {
-    mTaskEntity.useServerFileName = use;
+    mTaskEntity.setUseServerFileName(use);
     return this;
   }
 

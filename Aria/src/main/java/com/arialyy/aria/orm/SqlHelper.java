@@ -21,9 +21,18 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.ALog;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,11 +41,6 @@ import java.util.Set;
  */
 final class SqlHelper extends SQLiteOpenHelper {
   private static final String TAG = "SqlHelper";
-  /**
-   * 是否将数据库保存在Sd卡，{@code true} 是
-   */
-  private static final boolean SAVE_IN_SDCARD = true;
-
   static volatile SqlHelper INSTANCE = null;
 
   private DelegateCommon mDelegate;
@@ -68,7 +72,7 @@ final class SqlHelper extends SQLiteOpenHelper {
   }
 
   private SqlHelper(Context context, DelegateCommon delegate) {
-    super(SAVE_IN_SDCARD ? new DatabaseContext(context) : context, DBConfig.DB_NAME, null,
+    super(DBConfig.SAVE_IN_SDCARD ? new DatabaseContext(context) : context, DBConfig.DB_NAME, null,
         DBConfig.VERSION);
     mDelegate = delegate;
   }
@@ -148,6 +152,7 @@ final class SqlHelper extends SQLiteOpenHelper {
    */
   private void handle314AriaUpdate(SQLiteDatabase db) {
     Set<String> tables = DBConfig.mapping.keySet();
+    Map<String, List<DbEntity>> map = new HashMap<>();
     for (String tableName : tables) {
       Class clazz = DBConfig.mapping.get(tableName);
 
@@ -178,6 +183,8 @@ final class SqlHelper extends SQLiteOpenHelper {
       List<DbEntity> list =
           DelegateManager.getInstance().getDelegate(DelegateFind.class).findAllData(db, clazz);
 
+      map.put(tableName, list);
+
       //修改表名为中介表名
       String alertSql = "ALTER TABLE " + tableName + " RENAME TO " + tableName + "_temp";
       db.execSQL(alertSql);
@@ -189,7 +196,29 @@ final class SqlHelper extends SQLiteOpenHelper {
         DelegateUpdate update = DelegateManager.getInstance().getDelegate(DelegateUpdate.class);
         try {
           for (DbEntity entity : list) {
-            update.insertData(db, entity);
+            if (entity instanceof DownloadTaskEntity && ((DownloadTaskEntity) entity).isGroupTask()) {
+              if (TextUtils.isEmpty(((DownloadTaskEntity) entity).getKey())) {
+                ALog.w(TAG, "DownloadTaskEntity的key为空，将忽略该条数据");
+                continue;
+              }
+              if (TextUtils.isEmpty(((DownloadTaskEntity) entity).getUrl())) {
+                List<DbEntity> temp = map.get("DownloadEntity");
+                boolean isRefresh = false;
+                for (DbEntity dbEntity : temp) {
+                  if (((DownloadEntity) dbEntity).getDownloadPath()
+                      .equals(((DownloadTaskEntity) entity).getKey())) {
+                    ((DownloadTaskEntity) entity).setUrl(((DownloadEntity) dbEntity).getUrl());
+                    isRefresh = true;
+                    break;
+                  }
+                }
+                if (isRefresh) {
+                  update.insertData(db, entity);
+                }
+              }
+            } else {
+              update.insertData(db, entity);
+            }
           }
         } catch (Exception e) {
           ALog.e(TAG, ALog.getExceptionString(e));
@@ -201,5 +230,7 @@ final class SqlHelper extends SQLiteOpenHelper {
 
       mDelegate.close(db);
     }
+
+    map.clear();
   }
 }

@@ -50,7 +50,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    */
   public TARGET resetState() {
     mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
-    mTaskEntity.refreshInfo = true;
+    mTaskEntity.setRefreshInfo(true);
     return (TARGET) this;
   }
 

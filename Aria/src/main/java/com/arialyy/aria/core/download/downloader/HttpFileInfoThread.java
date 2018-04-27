@@ -105,41 +105,46 @@ class HttpFileInfoThread implements Runnable {
     String disposition = conn.getHeaderField("Content-Disposition");
     if (!TextUtils.isEmpty(disposition)) {
       mEntity.setDisposition(CommonUtil.encryptBASE64(disposition));
-      if (disposition.contains(mTaskEntity.dispositionFileKey)) {
-        String[] infos = disposition.split("=");
-        mEntity.setServerFileName(URLDecoder.decode(infos[1], "utf-8"));
+      if (disposition.contains(";")) {
+        String[] infos = disposition.split(";");
+        for (String info : infos) {
+          if (info.startsWith("filename") && info.contains("=")) {
+            String[] temp = info.split("=");
+            mEntity.setServerFileName(URLDecoder.decode(temp[1], "utf-8"));
+          }
+        }
       }
     }
 
-    mTaskEntity.code = code;
+    mTaskEntity.setCode(code);
     if (code == HttpURLConnection.HTTP_PARTIAL) {
       if (!checkLen(len) && !isChunked) {
         return;
       }
       mEntity.setFileSize(len);
-      mTaskEntity.isSupportBP = true;
+      mTaskEntity.setSupportBP(true);
       isComplete = true;
     } else if (code == HttpURLConnection.HTTP_OK) {
       if (!checkLen(len) && !isChunked) {
         return;
       }
       mEntity.setFileSize(len);
-      mTaskEntity.isSupportBP = false;
+      mTaskEntity.setSupportBP(false);
       isComplete = true;
     } else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：404", true);
     } else if (code == HttpURLConnection.HTTP_MOVED_TEMP
         || code == HttpURLConnection.HTTP_MOVED_PERM
         || code == HttpURLConnection.HTTP_SEE_OTHER) {
-      mTaskEntity.redirectUrl = conn.getHeaderField("Location");
+      mTaskEntity.setRedirectUrl(conn.getHeaderField("Location"));
       mEntity.setRedirect(true);
-      mEntity.setRedirectUrl(mTaskEntity.redirectUrl);
-      handle302Turn(conn, mTaskEntity.redirectUrl);
+      mEntity.setRedirectUrl(mTaskEntity.getRedirectUrl());
+      handle302Turn(conn, mTaskEntity.getRedirectUrl());
     } else {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：" + code, true);
     }
     if (isComplete) {
-      mTaskEntity.isChunked = isChunked;
+      mTaskEntity.setChunked(isChunked);
       mTaskEntity.update();
       if (onFileInfoListener != null) {
         CompleteInfo info = new CompleteInfo(code);
@@ -183,7 +188,7 @@ class HttpFileInfoThread implements Runnable {
    */
   private boolean checkLen(long len) {
     if (len != mEntity.getFileSize()) {
-      mTaskEntity.isNewTask = true;
+      mTaskEntity.setNewTask(true);
     }
     if (len < 0) {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，文件长度小于0", true);

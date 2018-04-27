@@ -16,6 +16,7 @@
 package com.arialyy.aria.util;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import java.io.File;
 import java.io.FileWriter;
@@ -37,7 +38,7 @@ public class ErrorHelp {
    * @param ex 异常
    */
   public static void saveError(String tag, String msg, String ex) {
-    String message = "msg【" + msg + "】\nException：" + ex;
+    String message = "\nmsg【" + msg + "】\nException：" + ex;
     writeLogToFile(tag, message);
   }
 
@@ -47,11 +48,9 @@ public class ErrorHelp {
    * @return "/mnt/sdcard/Android/data/{package_name}/files/log/*"
    */
   private static String getLogPath() {
-    String path = android.os.Environment.getExternalStorageDirectory().getPath()
-        + "/"
-        + CommonUtil.getAppPath(AriaManager.APP)
-        + "/log/AriaCrash_"
-        + getData("yyyy-MM-dd")
+    String path = CommonUtil.getAppPath(AriaManager.APP)
+        + "log/AriaCrash_"
+        + getData("yyyy-MM-dd_HH:mm:ss")
         + ".log";
 
     File log = new File(path);

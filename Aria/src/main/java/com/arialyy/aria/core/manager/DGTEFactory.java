@@ -98,7 +98,7 @@ class DGTEFactory implements IGTEFactory<DownloadGroupEntity, DownloadGroupTaskE
       fte.setEntity(dge);
     }
     fte.setKey(ftpUrl);
-    fte.urlEntity = CommonUtil.getFtpUrlInfo(ftpUrl);
+    fte.setUrlEntity(CommonUtil.getFtpUrlInfo(ftpUrl));
 
     if (fte.getEntity().getSubEntities() == null) {
       fte.getEntity().setSubEntities(new ArrayList<DownloadEntity>());
@@ -116,11 +116,11 @@ class DGTEFactory implements IGTEFactory<DownloadGroupEntity, DownloadGroupTaskE
     List<DownloadTaskEntity> list = new ArrayList<>();
     for (DownloadEntity entity : dge.getSubEntities()) {
       DownloadTaskEntity taskEntity = new DownloadTaskEntity();
-      taskEntity.entity = entity;
-      taskEntity.key = entity.getDownloadPath();
-      taskEntity.groupName = dge.getKey();
-      taskEntity.isGroupTask = true;
-      taskEntity.url = entity.getUrl();
+      taskEntity.setEntity(entity);
+      taskEntity.setKey(entity.getDownloadPath());
+      taskEntity.setGroupName(dge.getKey());
+      taskEntity.setGroupTask(true);
+      taskEntity.setUrl(entity.getUrl());
       list.add(taskEntity);
     }
     return list;
