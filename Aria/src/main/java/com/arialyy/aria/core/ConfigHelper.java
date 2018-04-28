@@ -163,7 +163,7 @@ class ConfigHelper extends DefaultHandler {
   private void loadMaxSpeed(String value) {
     int maxSpeed = checkInt(value) ? Integer.parseInt(value) : 0;
     if (isDownloadConfig) {
-      mDownloadConfig.msxSpeed = maxSpeed;
+      mDownloadConfig.maxSpeed = maxSpeed;
     }
   }
 

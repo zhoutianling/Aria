@@ -51,7 +51,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @param maxSpeed 为0表示不限速
    */
   @Deprecated public void setMaxSpeed(int maxSpeed) {
-    AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setMsxSpeed(maxSpeed);
+    AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setMaxSpeed(maxSpeed);
   }
 
   /**

@@ -202,6 +202,7 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     if (!task.isRunning()) {
       task.start();
     } else {
+      task.stop();
       ALog.e(TAG, "任务【" + task.getTaskName() + "】重试失败，原因：任务没有完全停止，");
     }
   }

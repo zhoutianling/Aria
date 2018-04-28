@@ -1,4 +1,9 @@
 ## 开发日志
+  + v_3.4
+    - 优化大量代码
+    - 重构Aria的ORM模型
+    - 可在任意类中使用Aria了，[使用方法](http://aria.laoyuyu.me/aria_doc/start/any_java.html)
+    - window.location.replace("http://xxxx")类型的重定向支持
   + v_3.3.16
     - 修复一个activity启动多次，无法进行回掉的bug https://github.com/AriaLyy/Aria/issues/200
     - 优化target代码结构，移除路径被占用的提示

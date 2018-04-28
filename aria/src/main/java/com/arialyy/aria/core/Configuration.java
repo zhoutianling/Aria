@@ -111,7 +111,7 @@ class Configuration {
               field.setFloat(this, Float.parseFloat(value));
             } else if (type == double.class || type == Double.class) {
               if (TextUtils.isEmpty(value)) {
-                value = "0.0";
+                value = "0";
               }
               field.setDouble(this, Double.parseDouble(value));
             } else if (type == long.class || type == Long.class) {
@@ -333,7 +333,7 @@ class Configuration {
     /**
      * 设置最大下载速度，单位：kb, 为0表示不限速
      */
-    int msxSpeed = 0;
+    int maxSpeed = 0;
 
     public DownloadConfig setMaxTaskNum(int maxTaskNum) {
       oldMaxTaskNum = this.maxTaskNum;
@@ -347,14 +347,14 @@ class Configuration {
       return iOTimeOut;
     }
 
-    public int getMsxSpeed() {
-      return msxSpeed;
+    public int getMaxSpeed() {
+      return maxSpeed;
     }
 
-    public DownloadConfig setMsxSpeed(int msxSpeed) {
-      this.msxSpeed = msxSpeed;
-      saveKey("msxSpeed", String.valueOf(msxSpeed));
-      DownloadTaskQueue.getInstance().setMaxSpeed(msxSpeed);
+    public DownloadConfig setMaxSpeed(int maxSpeed) {
+      this.maxSpeed = maxSpeed;
+      saveKey("maxSpeed", String.valueOf(maxSpeed));
+      DownloadTaskQueue.getInstance().setMaxSpeed(maxSpeed);
       return this;
     }
 

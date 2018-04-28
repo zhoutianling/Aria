@@ -29,4 +29,9 @@ public interface Regular {
    * 匹配双字节字符、空格、制表符、换行符
    */
   String REG_DOUBLE_CHAR_AND_SPACE = "[^\\x00-\\xff]|[\\s\\p{Zs}]";
+
+  /**
+   * 匹配window.location.replace
+   */
+  String REG_WINLOD_REPLACE = "\\.*replace(\\.*)\\.*";
 }

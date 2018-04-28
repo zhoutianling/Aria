@@ -69,17 +69,17 @@ public class AnyRunnModule {
         .load(url)
         .addHeader("Accept-Encoding", "gzip, deflate")
         .setRequestMode(RequestEnum.GET)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg123.apk")
         .resetState()
         .start();
   }
 
-  void stop() {
-    Aria.download(this).load(mUrl).stop();
+  void stop(String url) {
+    Aria.download(this).load(url).stop();
   }
 
-  void cancel() {
-    Aria.download(this).load(mUrl).cancel();
+  void cancel(String url) {
+    Aria.download(this).load(url).cancel();
   }
 
   void unRegister() {
