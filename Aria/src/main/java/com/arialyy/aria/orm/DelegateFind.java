@@ -394,7 +394,7 @@ class DelegateFind extends AbsDelegate {
           //当设置了主键，而且主键的类型为integer时，查询RowID等于主键
           entity.rowID = cursor.getInt(
               cursor.getColumnIndex(TextUtils.isEmpty(primaryName) ? "rowid" : primaryName));
-          mDataCache.put(getCacheKey(entity), entity);
+          //mDataCache.put(getCacheKey(entity), entity);
           entitys.add(entity);
         }
         closeCursor(cursor);

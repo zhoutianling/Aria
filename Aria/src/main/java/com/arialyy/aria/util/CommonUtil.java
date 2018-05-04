@@ -70,6 +70,27 @@ public class CommonUtil {
   private static final String TAG = "CommonUtil";
 
   /**
+   * 拦截window.location.replace数据
+   *
+   * @return 重定向url
+   */
+  public static String getWindowReplaceUrl(String text) {
+    if (TextUtils.isEmpty(text)) {
+      ALog.e(TAG, "拦截数据为null");
+      return null;
+    }
+    String reg = Regular.REG_WINLOD_REPLACE;
+    Pattern p = Pattern.compile(reg);
+    Matcher m = p.matcher(text);
+    if (m.find()){
+      String s = m.group();
+      s = s.substring(9, s.length() - 2);
+      return s;
+    }
+    return null;
+  }
+
+  /**
    * 获取sdcard app的缓存目录
    *
    * @return "/mnt/sdcard/Android/data/{package_name}/files/"

@@ -15,25 +15,47 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import android.util.Log;
+import android.text.TextUtils;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.util.SSLContextUtil;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-import org.apache.commons.net.ftp.FTPClient;
 
 /**
  * Created by lyy on 2017/1/18.
  * 链接帮助类
  */
 class ConnectionHelp {
+
+  /**
+   * 转换HttpUrlConnect的inputStream流
+   *
+   * @return {@link GZIPInputStream}、{@link InflaterInputStream}
+   * @throws IOException
+   */
+  static InputStream convertInputStream(HttpURLConnection connection) throws IOException {
+    String encoding = connection.getContentEncoding();
+    if (TextUtils.isEmpty(encoding)) {
+      return connection.getInputStream();
+    }
+    if (encoding.contains("gzip")) {
+      return new GZIPInputStream(connection.getInputStream());
+    } else if (encoding.contains("deflate")) {
+      return new InflaterInputStream(connection.getInputStream());
+    } else {
+      return connection.getInputStream();
+    }
+  }
 
   /**
    * 处理链接

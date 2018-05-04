@@ -24,7 +24,9 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -90,7 +92,7 @@ class HttpFileInfoThread implements Runnable {
       }
     }
     int code = conn.getResponseCode();
-    boolean isComplete = false;
+    boolean end = false;
     if (TextUtils.isEmpty(mEntity.getMd5Code())) {
       String md5Code = conn.getHeaderField("Content-MD5");
       mEntity.setMd5Code(md5Code);
@@ -123,14 +125,25 @@ class HttpFileInfoThread implements Runnable {
       }
       mEntity.setFileSize(len);
       mTaskEntity.setSupportBP(true);
-      isComplete = true;
+      end = true;
     } else if (code == HttpURLConnection.HTTP_OK) {
-      if (!checkLen(len) && !isChunked) {
+      if (conn.getHeaderField("Content-Type").equals("text/html")) {
+        BufferedReader reader =
+            new BufferedReader(new InputStreamReader(ConnectionHelp.convertInputStream(conn)));
+        StringBuilder sb = new StringBuilder();
+        String line;
+        while ((line = reader.readLine()) != null) {
+          sb.append(line);
+        }
+        reader.close();
+        handle302Turn(conn, CommonUtil.getWindowReplaceUrl(sb.toString()));
+        return;
+      } else if (!checkLen(len) && !isChunked) {
         return;
       }
       mEntity.setFileSize(len);
       mTaskEntity.setSupportBP(false);
-      isComplete = true;
+      end = true;
     } else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：404", true);
     } else if (code == HttpURLConnection.HTTP_MOVED_TEMP
@@ -143,7 +156,7 @@ class HttpFileInfoThread implements Runnable {
     } else {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：" + code, true);
     }
-    if (isComplete) {
+    if (end) {
       mTaskEntity.setChunked(isChunked);
       mTaskEntity.update();
       if (onFileInfoListener != null) {

@@ -33,5 +33,5 @@ public interface Regular {
   /**
    * 匹配window.location.replace
    */
-  String REG_WINLOD_REPLACE = "\\.*replace(\\.*)\\.*";
+  String REG_WINLOD_REPLACE = "replace\\(\".*\"\\)";
 }

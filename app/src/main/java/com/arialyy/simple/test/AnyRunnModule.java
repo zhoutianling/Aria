@@ -67,9 +67,9 @@ public class AnyRunnModule {
     mUrl = url;
     Aria.download(this)
         .load(url)
-        .addHeader("Accept-Encoding", "gzip, deflate")
+        .addHeader("Accept-Encoding", "gzip")
         .setRequestMode(RequestEnum.GET)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg123.apk")
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1234.apk")
         .resetState()
         .start();
   }

@@ -62,7 +62,7 @@ class DelegateUpdate extends AbsDelegate {
     db = checkDb(db);
     Class<?> clazz = dbEntity.getClass();
     List<Field> fields = CommonUtil.getAllFields(clazz);
-    DbEntity cacheEntity = mDataCache.get(getCacheKey(dbEntity));
+    //DbEntity cacheEntity = mDataCache.get(getCacheKey(dbEntity));
     if (fields != null && fields.size() > 0) {
       ContentValues values = new ContentValues();
       try {
@@ -71,11 +71,14 @@ class DelegateUpdate extends AbsDelegate {
           if (isIgnore(dbEntity, field)) {
             continue;
           }
-          if (cacheEntity != null
-              && field.get(dbEntity) == field.get(cacheEntity)
-              && !field.getName().equals("state")) {  //在LruCache中 state字段总是不能重新赋值...
-            continue;
-          }
+          //if (cacheEntity != null
+          //    && field.get(dbEntity).equals(field.get(cacheEntity))
+          //    && !field.getName().equals("state")) {  //在LruCache中 state字段总是不能重新赋值...
+          //  Log.d(TAG, field.get(dbEntity) + "");
+          //  Log.d(TAG, field.get(cacheEntity) + "");
+          //
+          //  continue;
+          //}
           String value;
           Type type = field.getType();
           if (type == Map.class && checkMap(field)) {
@@ -98,7 +101,7 @@ class DelegateUpdate extends AbsDelegate {
         ALog.d(TAG, "没有数据更新");
       }
     }
-    mDataCache.put(getCacheKey(dbEntity), dbEntity);
+    //mDataCache.put(getCacheKey(dbEntity), dbEntity);
     close(db);
   }
 
