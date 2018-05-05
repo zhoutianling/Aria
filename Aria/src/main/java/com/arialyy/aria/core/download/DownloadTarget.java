@@ -53,7 +53,7 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
    *
    * @param use {@code true} 使用
    */
-  @Deprecated public DownloadTarget useServerFileName(boolean use) {
+  public DownloadTarget useServerFileName(boolean use) {
     mTaskEntity.setUseServerFileName(use);
     return this;
   }
@@ -65,8 +65,7 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
    * @param downloadPath 文件保存路径
    * @deprecated {@link #setFilePath(String)} 请使用这个api
    */
-  @Deprecated
-  public DownloadTarget setDownloadPath(@NonNull String downloadPath) {
+  @Deprecated public DownloadTarget setDownloadPath(@NonNull String downloadPath) {
     return setFilePath(downloadPath);
   }
 

@@ -46,8 +46,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-      "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
-  //"https://static.donguo.me//video/ip/course/pfys_1.mp4";
+      //"http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
+      //"https://static.donguo.me//video/ip/course/pfys_1.mp4";
+      //"https://www.baidu.com/link?url=_LFCuTPtnzFxVJByJ504QymRywIA1Z_T5xUxe9ZLuxcGM0C_RcdpWyB1eGjbJC-e5wv5wAKM4WmLMAS5KeF6EZJHB8Va3YqZUiaErqK_pxm&wd=&eqid=e8583fe70002d126000000065a99f864";
+      "https://d.pcs.baidu.com/file/a02c89a2d479d4fd2756f3313d42491d?fid=4232431903-250528-1114369760340736&dstime=1525491372&rt=sh&sign=FDtAERVY-DCb740ccc5511e5e8fedcff06b081203-3C13vkOkuk4TqXvVYW05zj1K0ao%3D&expires=8h&chkv=1&chkbd=0&chkpc=et&dp-logid=8651730921842106225&dp-callid=0&r=165533013";
+
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -126,7 +129,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Download.onTaskRunning protected void running(DownloadTask task) {
     if (task.getKey().equals(DOWNLOAD_URL)) {
-      Log.d(TAG, task.getKey());
+      //Log.d(TAG, task.getKey());
       long len = task.getFileSize();
       if (len == 0) {
         getBinding().setProgress(0);
@@ -232,12 +235,13 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     Aria.download(SingleTaskActivity.this)
         .load(DOWNLOAD_URL)
         //.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
-        .addHeader("Accept-Encoding", "gzip, deflate")
-        .addHeader("DNT", "1")
+        //.addHeader("Accept-Encoding", "gzip, deflate")
+        //.addHeader("DNT", "1")
         //.addHeader("Cookie", "BAIDUID=648E5FF020CC69E8DD6F492D1068AAA9:FG=1; BIDUPSID=648E5FF020CC69E8DD6F492D1068AAA9; PSTM=1519099573; BD_UPN=12314753; locale=zh; BDSVRTM=0")
+        .useServerFileName(true)
         .setRequestMode(RequestEnum.GET)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
-        .resetState()
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg3.apk")
+        //.resetState()
         .start();
     //.add();
   }

@@ -275,6 +275,7 @@ public class TEManager {
   }
 
   private String convertKey(String key) {
+    key = key.trim();
     final Lock lock = this.lock;
     lock.lock();
     try {

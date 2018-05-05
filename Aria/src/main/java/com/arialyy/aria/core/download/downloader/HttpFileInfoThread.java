@@ -25,6 +25,7 @@ import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -98,21 +99,26 @@ class HttpFileInfoThread implements Runnable {
       mEntity.setMd5Code(md5Code);
     }
 
-    //Map<String, List<String>> headers = conn.getHeaderFields();
     boolean isChunked = false;
     final String str = conn.getHeaderField("Transfer-Encoding");
     if (!TextUtils.isEmpty(str) && str.equals("chunked")) {
       isChunked = true;
     }
+    //Map<String, List<String>> headers = conn.getHeaderFields();
     String disposition = conn.getHeaderField("Content-Disposition");
-    if (!TextUtils.isEmpty(disposition)) {
+    if (mTaskEntity.isUseServerFileName() && !TextUtils.isEmpty(disposition)) {
       mEntity.setDisposition(CommonUtil.encryptBASE64(disposition));
       if (disposition.contains(";")) {
         String[] infos = disposition.split(";");
         for (String info : infos) {
           if (info.startsWith("filename") && info.contains("=")) {
             String[] temp = info.split("=");
-            mEntity.setServerFileName(URLDecoder.decode(temp[1], "utf-8"));
+            if (temp.length > 1) {
+              String newName = URLDecoder.decode(temp[1], "utf-8");
+              mEntity.setServerFileName(newName);
+              fileRename(newName);
+              break;
+            }
           }
         }
       }
@@ -136,7 +142,7 @@ class HttpFileInfoThread implements Runnable {
           sb.append(line);
         }
         reader.close();
-        handle302Turn(conn, CommonUtil.getWindowReplaceUrl(sb.toString()));
+        handleUrlReTurn(conn, CommonUtil.getWindowReplaceUrl(sb.toString()));
         return;
       } else if (!checkLen(len) && !isChunked) {
         return;
@@ -149,10 +155,7 @@ class HttpFileInfoThread implements Runnable {
     } else if (code == HttpURLConnection.HTTP_MOVED_TEMP
         || code == HttpURLConnection.HTTP_MOVED_PERM
         || code == HttpURLConnection.HTTP_SEE_OTHER) {
-      mTaskEntity.setRedirectUrl(conn.getHeaderField("Location"));
-      mEntity.setRedirect(true);
-      mEntity.setRedirectUrl(mTaskEntity.getRedirectUrl());
-      handle302Turn(conn, mTaskEntity.getRedirectUrl());
+      handleUrlReTurn(conn, conn.getHeaderField("Location"));
     } else {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：" + code, true);
     }
@@ -167,9 +170,29 @@ class HttpFileInfoThread implements Runnable {
   }
 
   /**
+   * 重命名文件
+   */
+  private void fileRename(String newName) {
+    if (TextUtils.isEmpty(newName)) {
+      ALog.w(TAG, "重命名失败【服务器返回的文件名为空】");
+      return;
+    }
+    File oldFile = new File(mEntity.getDownloadPath());
+    String oldName = oldFile.getName();
+    String newPath = oldFile.getParent() + "/" + newName;
+    if (oldFile.exists()){
+      oldFile.renameTo(new File(newPath));
+    }
+    mEntity.setFileName(newName);
+    mEntity.setDownloadPath(newPath);
+    mTaskEntity.setKey(newPath);
+    CommonUtil.renameDownloadConfig(oldName, newName);
+  }
+
+  /**
    * 处理30x跳转
    */
-  private void handle302Turn(HttpURLConnection conn, String newUrl) throws IOException {
+  private void handleUrlReTurn(HttpURLConnection conn, String newUrl) throws IOException {
     ALog.d(TAG, "30x跳转，新url为【" + newUrl + "】");
     if (TextUtils.isEmpty(newUrl) || newUrl.equalsIgnoreCase("null") || !newUrl.startsWith(
         "http")) {
@@ -182,6 +205,9 @@ class HttpFileInfoThread implements Runnable {
       failDownload("下载失败，重定向url错误", false);
       return;
     }
+    mTaskEntity.setRedirectUrl(newUrl);
+    mEntity.setRedirect(true);
+    mEntity.setRedirectUrl(newUrl);
     String cookies = conn.getHeaderField("Set-Cookie");
     conn = (HttpURLConnection) new URL(newUrl).openConnection();
     conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
