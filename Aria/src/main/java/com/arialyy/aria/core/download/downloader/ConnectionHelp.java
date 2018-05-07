@@ -15,24 +15,47 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import android.text.TextUtils;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.util.SSLContextUtil;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Set;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
-import org.apache.commons.net.ftp.FTPClient;
 
 /**
  * Created by lyy on 2017/1/18.
  * 链接帮助类
  */
 class ConnectionHelp {
+
+  /**
+   * 转换HttpUrlConnect的inputStream流
+   *
+   * @return {@link GZIPInputStream}、{@link InflaterInputStream}
+   * @throws IOException
+   */
+  static InputStream convertInputStream(HttpURLConnection connection) throws IOException {
+    String encoding = connection.getContentEncoding();
+    if (TextUtils.isEmpty(encoding)) {
+      return connection.getInputStream();
+    }
+    if (encoding.contains("gzip")) {
+      return new GZIPInputStream(connection.getInputStream());
+    } else if (encoding.contains("deflate")) {
+      return new InflaterInputStream(connection.getInputStream());
+    } else {
+      return connection.getInputStream();
+    }
+  }
 
   /**
    * 处理链接
@@ -65,12 +88,12 @@ class ConnectionHelp {
    */
   static HttpURLConnection setConnectParam(DownloadTaskEntity entity, HttpURLConnection conn)
       throws ProtocolException {
-    conn.setRequestMethod(entity.requestEnum.name);
+    conn.setRequestMethod(entity.getRequestEnum().name);
     Set<String> keys = null;
-    if (entity.headers != null && entity.headers.size() > 0) {
-      keys = entity.headers.keySet();
+    if (entity.getHeaders() != null && entity.getHeaders().size() > 0) {
+      keys = entity.getHeaders().keySet();
       for (String key : keys) {
-        conn.setRequestProperty(key, entity.headers.get(key));
+        conn.setRequestProperty(key, entity.getHeaders().get(key));
       }
     }
     if (keys == null || !keys.contains("Charset")) {
@@ -86,6 +109,7 @@ class ConnectionHelp {
           .append("image/jpeg, ")
           .append("image/pjpeg, ")
           .append("image/webp, ")
+          .append("image/apng, ")
           .append("application/xml, ")
           .append("application/xaml+xml, ")
           .append("application/xhtml+xml, ")

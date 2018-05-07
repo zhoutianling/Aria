@@ -41,7 +41,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
     mListener = new DownloadGroupListener(this, mOutHandler);
-    switch (taskEntity.requestType) {
+    switch (taskEntity.getRequestType()) {
       case AbsTaskEntity.D_HTTP:
         mUtil = new DownloadGroupUtil(mListener, mTaskEntity);
         break;
@@ -71,15 +71,17 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
   @Override public void stop() {
     if (!mUtil.isRunning()) {
       mListener.onStop(getCurrentProgress());
+    } else {
+      mUtil.stop();
     }
-    mUtil.stop();
   }
 
   @Override public void cancel() {
     if (!mUtil.isRunning()) {
       mListener.onCancel();
+    } else {
+      mUtil.cancel();
     }
-    mUtil.cancel();
   }
 
   @Override public String getTaskName() {
@@ -116,7 +118,6 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
     public DownloadGroupTask build() {
       DownloadGroupTask task = new DownloadGroupTask(taskEntity, outHandler);
       task.setTargetName(targetName);
-      taskEntity.save();
       return task;
     }
   }

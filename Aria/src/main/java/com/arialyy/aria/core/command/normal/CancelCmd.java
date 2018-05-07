@@ -42,7 +42,7 @@ public class CancelCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       task = createTask();
     }
     if (task != null) {
-      mTaskEntity.removeFile = removeFile;
+      mTaskEntity.setRemoveFile(removeFile);
       if (!TextUtils.isEmpty(mTargetName)) {
         task.setTargetName(mTargetName);
       }

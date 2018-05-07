@@ -20,9 +20,8 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.ProxyHelper;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
-import com.arialyy.aria.core.scheduler.ISchedulerListener;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CheckUtil;
@@ -36,7 +35,6 @@ import java.util.Set;
  */
 public class UploadReceiver extends AbsReceiver<UploadEntity> {
   private static final String TAG = "UploadReceiver";
-  public ISchedulerListener<UploadTask> listener;
 
   /**
    * 加载HTTP单文件上传任务
@@ -72,9 +70,31 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
     return DbEntity.findFirst(UploadEntity.class, "filePath=?", filePath) != null;
   }
 
+  /**
+   * 获取所有普通上传任务
+   * 获取未完成的普通任务列表{@link #getAllNotCompletTask()}
+   * 获取已经完成的普通任务列表{@link #getAllCompleteTask()}
+   */
   @Override public List<UploadEntity> getTaskList() {
     return DbEntity.findAllData(UploadEntity.class);
   }
+
+  /**
+   * 获取所有未完成的普通上传任务
+   */
+  public List<UploadEntity> getAllNotCompletTask() {
+    return UploadEntity.findDatas(UploadEntity.class,
+        "isGroupChild=? and isComplete=?", "false", "false");
+  }
+
+  /**
+   * 获取所有已经完成的普通任务
+   */
+  public List<UploadEntity> getAllCompleteTask() {
+    return UploadEntity.findDatas(UploadEntity.class,
+        "isGroupChild=? and isComplete=?", "false", "true");
+  }
+
 
   @Override public void stopAllTask() {
     AriaManager.getInstance(AriaManager.APP)
@@ -93,7 +113,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   @Override public void removeAllTask(boolean removeFile) {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
 
-    am.setCmd(CommonUtil.createNormalCmd(targetName, new DownloadTaskEntity(),
+    am.setCmd(CommonUtil.createNormalCmd(targetName, new UploadTaskEntity(),
         NormalCmdFactory.TASK_CANCEL_ALL, ICmd.TASK_TYPE_UPLOAD)).exe();
 
     Set<String> keys = am.getReceiver().keySet();
@@ -104,7 +124,6 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
 
   @Override public void destroy() {
     targetName = null;
-    listener = null;
   }
 
   /**

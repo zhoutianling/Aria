@@ -13,18 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package com.arialyy.aria.orm;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package com.arialyy.aria.core.inf;
 
 /**
- * Created by lyy on 2015/11/2.
- * 表ID字段指定
+ * Created by laoyuyu on 2018/3/9.
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Primary {
-  int value() default -1;
+public interface IFtpTarget<TARGET extends ITarget> {
+  /**
+   * 设置字符编码
+   */
+  TARGET charSet(String charSet);
+
+  /**
+   * ftp 用户登录信。
+   *
+   * @param userName ftp用户名
+   * @param password ftp用户密码
+   */
+  TARGET login(String userName, String password);
+
+  /**
+   * ftp 用户登录信息
+   *
+   * @param userName ftp用户名
+   * @param password ftp用户密码
+   * @param account ftp账号
+   */
+  TARGET login(String userName, String password, String account);
 }

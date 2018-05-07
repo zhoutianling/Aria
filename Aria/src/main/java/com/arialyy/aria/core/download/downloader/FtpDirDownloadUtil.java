@@ -15,8 +15,8 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
-import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.util.ErrorHelp;
@@ -27,6 +27,8 @@ import java.util.Set;
  * ftp文件夹下载工具
  */
 public class FtpDirDownloadUtil extends AbsGroupUtil {
+  private String TAG = "FtpDirDownloadUtil";
+
   public FtpDirDownloadUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity taskEntity) {
     super(listener, taskEntity);
   }
@@ -38,30 +40,35 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
   @Override protected void onStart() {
     super.onStart();
     if (mGTEntity.getEntity().getFileSize() > 1) {
+      onPre();
       startDownload();
     } else {
       new FtpDirInfoThread(mGTEntity, new OnFileInfoCallback() {
-        @Override public void onComplete(String url, int code) {
-          if (code >= 200 && code < 300) {
-            for (DownloadEntity entity : mGTEntity.entity.getSubTask()) {
-              mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
-            }
-            mActualTaskNum = mGTEntity.entity.getSubTask().size();
-            mGroupSize = mActualTaskNum;
-            mTotalLen = mGTEntity.entity.getFileSize();
+        @Override public void onComplete(String url, CompleteInfo info) {
+          if (info.code >= 200 && info.code < 300) {
+            onPre();
             startDownload();
           }
         }
 
         @Override public void onFail(String url, String errorMsg, boolean needRetry) {
+          DownloadTaskEntity te = mExeMap.get(url);
+          if (te != null) {
+            mFailMap.put(url, te);
+            mExeMap.remove(url);
+          }
           mListener.onFail(needRetry);
-          ErrorHelp.saveError("D_FTP_DIR", mGTEntity.getEntity(), "", errorMsg);
+          ErrorHelp.saveError(TAG, "", errorMsg);
         }
       }).start();
     }
   }
 
   private void startDownload() {
+    if (mCompleteNum == mGroupSize) {
+      mListener.onComplete();
+      return;
+    }
     int i = 0;
     Set<String> keys = mExeMap.keySet();
     for (String key : keys) {
@@ -71,6 +78,10 @@ public class FtpDirDownloadUtil extends AbsGroupUtil {
         i++;
       }
     }
-    if (i == mExeMap.size()) startRunningFlow();
+    if (mExeMap.size() == 0) {
+      mListener.onComplete();
+    } else if (i == mExeMap.size()) {
+      startRunningFlow();
+    }
   }
 }

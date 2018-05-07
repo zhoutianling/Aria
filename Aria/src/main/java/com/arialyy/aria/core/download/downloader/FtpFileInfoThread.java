@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.common.AbsFtpInfoThread;
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -31,15 +32,15 @@ class FtpFileInfoThread extends AbsFtpInfoThread<DownloadEntity, DownloadTaskEnt
   }
 
   @Override protected String setRemotePath() {
-    return mTaskEntity.urlEntity.remotePath;
+    return mTaskEntity.getUrlEntity().remotePath;
   }
 
   @Override protected void onPreComplete(int code) {
     super.onPreComplete(code);
     if (mSize != mTaskEntity.getEntity().getFileSize()) {
-      mTaskEntity.isNewTask = true;
+      mTaskEntity.setNewTask(true);
     }
     mEntity.setFileSize(mSize);
-    mCallback.onComplete(mEntity.getUrl(), code);
+    mCallback.onComplete(mEntity.getUrl(), new CompleteInfo(code));
   }
 }

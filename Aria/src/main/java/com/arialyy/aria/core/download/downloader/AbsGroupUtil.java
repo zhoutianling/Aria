@@ -16,20 +16,17 @@
 package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.NetUtils;
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -73,65 +70,31 @@ public abstract class AbsGroupUtil implements IUtil {
   Map<String, DownloadTaskEntity> mFailMap = new HashMap<>();
 
   /**
+   * 该任务组对应的所有任务
+   */
+  private Map<String, DownloadTaskEntity> mTasksMap = new HashMap<>();
+
+  /**
    * 下载器映射表，key为下载地址
    */
   private Map<String, Downloader> mDownloaderMap = new HashMap<>();
 
   /**
-   * 该任务组对应的所有任务
-   */
-  private Map<String, DownloadTaskEntity> mTasksMap = new HashMap<>();
-  /**
    * 是否需要读取文件长度，{@code true}需要
    */
   boolean isNeedLoadFileSize = true;
   //已经完成的任务数
-  private int mCompleteNum = 0;
-  //失败的任务数
-  private int mFailNum = 0;
+  int mCompleteNum = 0;
   //停止的任务数
   private int mStopNum = 0;
-  //实际的下载任务数
-  int mActualTaskNum = 0;
-  //初始化完成的任务数
-  int mInitNum = 0;
-  // 初始化失败的任务数
-  int mInitFailNum = 0;
   //任务组大小
   int mGroupSize = 0;
-  long mUpdateInterval = 1000;
+  private long mUpdateInterval = 1000;
 
   AbsGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity groupEntity) {
     mListener = listener;
     mGTEntity = groupEntity;
     mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    List<DownloadTaskEntity> tasks =
-        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mGTEntity.key);
-    if (tasks != null && !tasks.isEmpty()) {
-      for (DownloadTaskEntity te : tasks) {
-        te.removeFile = mGTEntity.removeFile;
-        if (te.getEntity() == null) continue;
-        mTasksMap.put(te.getEntity().getUrl(), te);
-      }
-    }
-    mGroupSize = mGTEntity.entity.getSubTask().size();
-    mTotalLen = groupEntity.getEntity().getFileSize();
-    isNeedLoadFileSize = mTotalLen <= 1;
-    for (DownloadEntity entity : mGTEntity.entity.getSubTask()) {
-      File file = new File(entity.getDownloadPath());
-      if (entity.getState() == IEntity.STATE_COMPLETE && file.exists()) {
-        mCompleteNum++;
-        mCurrentLocation += entity.getFileSize();
-      } else {
-        mExeMap.put(entity.getUrl(), createChildDownloadTask(entity));
-        mCurrentLocation += file.exists() ? entity.getCurrentProgress() : 0;
-        mActualTaskNum++;
-      }
-      if (isNeedLoadFileSize) {
-        mTotalLen += entity.getFileSize();
-      }
-    }
-    updateFileSize();
     mUpdateInterval =
         AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getUpdateInterval();
   }
@@ -190,11 +153,9 @@ public abstract class AbsGroupUtil implements IUtil {
    * @param url 子任务下载地址
    */
   public void cancelSubTask(String url) {
-    List<String> urls = mGTEntity.entity.getUrls();
-    if (urls != null && !urls.isEmpty() && urls.contains(url)) {
-      urls.remove(url);
-      DownloadTaskEntity det =
-          DbEntity.findFirst(DownloadTaskEntity.class, "url=? and isGroupTask='true'", url);
+    Set<String> urls = mTasksMap.keySet();
+    if (!urls.isEmpty() && urls.contains(url)) {
+      DownloadTaskEntity det = mTasksMap.get(url);
       if (det != null) {
         mTotalLen -= det.getEntity().getFileSize();
         mGroupSize--;
@@ -260,7 +221,6 @@ public abstract class AbsGroupUtil implements IUtil {
 
   @Override public void cancel() {
     closeTimer(false);
-    mListener.onCancel();
     onCancel();
     if (!mExePool.isShutdown()) {
       mExePool.shutdown();
@@ -273,36 +233,13 @@ public abstract class AbsGroupUtil implements IUtil {
         dt.cancel();
       }
     }
-    delDownloadInfo();
-    mGTEntity.deleteData();
+    clearState();
+    CommonUtil.delDownloadGroupTaskConfig(mGTEntity.isRemoveFile(), mGTEntity.getEntity());
+    mListener.onCancel();
   }
 
   public void onCancel() {
 
-  }
-
-  /**
-   * 删除所有子任务的下载信息
-   */
-  private void delDownloadInfo() {
-    List<DownloadTaskEntity> tasks =
-        DbEntity.findDatas(DownloadTaskEntity.class, "groupName=?", mGTEntity.key);
-    if (tasks != null && !tasks.isEmpty()) {
-      for (DownloadTaskEntity taskEntity : tasks) {
-        CommonUtil.delDownloadTaskConfig(mGTEntity.removeFile, taskEntity);
-      }
-    }
-
-    File dir = new File(mGTEntity.getEntity().getDirPath());
-    if (mGTEntity.removeFile) {
-      if (dir.exists()) {
-        dir.delete();
-      }
-    } else {
-      if (!mGTEntity.getEntity().isComplete()) {
-        dir.delete();
-      }
-    }
   }
 
   @Override public void stop() {
@@ -325,10 +262,35 @@ public abstract class AbsGroupUtil implements IUtil {
 
   }
 
+  /**
+   * 预处理操作，由于属性的不同，http任务组在构造函数中就可以完成了
+   * 而FTP文件夹的，需要获取完成所有子任务信息才算预处理完成
+   */
+  protected void onPre() {
+    mListener.onPre();
+    mGroupSize = mGTEntity.getSubTaskEntities().size();
+    mTotalLen = mGTEntity.getEntity().getFileSize();
+    isNeedLoadFileSize = mTotalLen <= 1;
+    for (DownloadTaskEntity te : mGTEntity.getSubTaskEntities()) {
+      File file = new File(te.getKey());
+      if (te.getState() == IEntity.STATE_COMPLETE && file.exists()) {
+        mCompleteNum++;
+        mCurrentLocation += te.getEntity().getFileSize();
+      } else {
+        mExeMap.put(te.getUrl(), te);
+        mCurrentLocation += file.exists() ? te.getEntity().getCurrentProgress() : 0;
+      }
+      if (isNeedLoadFileSize) {
+        mTotalLen += te.getEntity().getFileSize();
+      }
+      mTasksMap.put(te.getUrl(), te);
+    }
+    updateFileSize();
+  }
+
   @Override public void start() {
     isRunning = true;
-    mFailNum = 0;
-    mListener.onPre();
+    clearState();
     onStart();
   }
 
@@ -343,6 +305,11 @@ public abstract class AbsGroupUtil implements IUtil {
 
   @Override public void setMaxSpeed(double maxSpeed) {
 
+  }
+
+  private void clearState(){
+    mDownloaderMap.clear();
+    mFailMap.clear();
   }
 
   private void closeTimer(boolean isRunning) {
@@ -389,7 +356,7 @@ public abstract class AbsGroupUtil implements IUtil {
    *
    * @param start 是否启动下载
    */
-  Downloader createChildDownload(DownloadTaskEntity taskEntity, boolean start) {
+  private Downloader createChildDownload(DownloadTaskEntity taskEntity, boolean start) {
     ChildDownloadListener listener = new ChildDownloadListener(taskEntity);
     Downloader dt = new Downloader(listener, taskEntity);
     mDownloaderMap.put(taskEntity.getEntity().getUrl(), dt);
@@ -398,44 +365,6 @@ public abstract class AbsGroupUtil implements IUtil {
       mExePool.execute(dt);
     }
     return dt;
-  }
-
-  /**
-   * 创建子任务下载信息
-   */
-  DownloadTaskEntity createChildDownloadTask(DownloadEntity entity) {
-    DownloadTaskEntity taskEntity = mTasksMap.get(entity.getUrl());
-    if (taskEntity != null) {
-      taskEntity.entity = entity;
-      if (getTaskType() == FTP_DIR) {
-        taskEntity.urlEntity = createFtpUrlEntity(entity);
-      }
-      mTasksMap.put(entity.getUrl(), taskEntity);
-      return taskEntity;
-    }
-    taskEntity = new DownloadTaskEntity();
-    taskEntity.entity = entity;
-    taskEntity.headers = mGTEntity.headers;
-    taskEntity.requestEnum = mGTEntity.requestEnum;
-    taskEntity.redirectUrlKey = mGTEntity.redirectUrlKey;
-    taskEntity.removeFile = mGTEntity.removeFile;
-    taskEntity.groupName = mGTEntity.key;
-    taskEntity.isGroupTask = true;
-    taskEntity.requestType = mGTEntity.requestType;
-    taskEntity.key = entity.getDownloadPath();
-    if (getTaskType() == FTP_DIR) {
-      taskEntity.urlEntity = createFtpUrlEntity(entity);
-    }
-    taskEntity.save();
-    mTasksMap.put(entity.getUrl(), taskEntity);
-    return taskEntity;
-  }
-
-  private FtpUrlEntity createFtpUrlEntity(DownloadEntity entity) {
-    FtpUrlEntity urlEntity = mGTEntity.urlEntity.clone();
-    urlEntity.url = entity.getUrl();
-    urlEntity.remotePath = CommonUtil.getRemotePath(entity.getUrl());
-    return urlEntity;
   }
 
   /**
@@ -498,7 +427,7 @@ public abstract class AbsGroupUtil implements IUtil {
       mListener.onSubStop(subEntity);
       synchronized (AbsGroupUtil.class) {
         mStopNum++;
-        if (mStopNum + mCompleteNum + mInitFailNum + mFailNum >= mGroupSize) {
+        if (mStopNum + mCompleteNum + mFailMap.size() == mGroupSize) {
           closeTimer(false);
           mListener.onStop(mCurrentLocation);
         }
@@ -515,13 +444,13 @@ public abstract class AbsGroupUtil implements IUtil {
       saveData(IEntity.STATE_COMPLETE, subEntity.getFileSize());
       handleSpeed(0);
       mListener.onSubComplete(subEntity);
-      synchronized (AbsGroupUtil.class) {
+      synchronized (ChildDownloadListener.class) {
         mCompleteNum++;
         //如果子任务完成的数量和总任务数一致，表示任务组任务已经完成
         if (mCompleteNum >= mGroupSize) {
           closeTimer(false);
           mListener.onComplete();
-        } else if (mStopNum + mCompleteNum + mInitFailNum + mFailNum >= mGroupSize) {
+        } else if (mFailMap.size() > 0 && mStopNum + mCompleteNum + mFailMap.size() >= mGroupSize) {
           //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
           closeTimer(false);
           mListener.onStop(mCurrentLocation);
@@ -537,20 +466,23 @@ public abstract class AbsGroupUtil implements IUtil {
     }
 
     /**
-     * 失败后重试下载，如果失败次数超过5次，不再重试
+     * 重试下载
      */
     private void reTry(boolean needRetry) {
-      synchronized (AriaManager.LOCK) {
-        if (subEntity.getFailNum() < 5 && isRunning && needRetry && NetUtils.isConnected(
-            AriaManager.APP)) {
+      synchronized (ChildDownloadListener.class) {
+        if (subEntity.getFailNum() < 5 && needRetry && NetUtils.isConnected(AriaManager.APP)) {
           reStartTask();
         } else {
-          mFailNum++;
+          mFailMap.put(subTaskEntity.getUrl(), subTaskEntity);
           mListener.onSubFail(subEntity);
           //如果失败的任务数大于实际的下载任务数，任务组停止下载
-          if (mFailNum >= mActualTaskNum) {
+          if (mFailMap.size() >= mExeMap.size()) {
             closeTimer(false);
-            mListener.onStop(mCurrentLocation);
+            if (mFailMap.size() == mGroupSize) {  //所有任务都失败了，则认为该任务组已经失败
+              mListener.onFail(true);
+            } else {
+              mListener.onStop(mCurrentLocation);
+            }
           }
         }
       }
@@ -574,11 +506,11 @@ public abstract class AbsGroupUtil implements IUtil {
     }
 
     private void saveData(int state, long location) {
-      subTaskEntity.state = state;
+      subTaskEntity.setState(state);
       subEntity.setState(state);
       subEntity.setComplete(state == IEntity.STATE_COMPLETE);
       if (state == IEntity.STATE_CANCEL) {
-        subTaskEntity.deleteData();
+        subEntity.deleteData();
         return;
       } else if (subEntity.isComplete()) {
         subEntity.setCompleteTime(System.currentTimeMillis());

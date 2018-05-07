@@ -43,10 +43,10 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
     super.init(savedInstanceState);
     Aria.download(this).register();
     setTitle("FTP文件夹下载");
-    DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(dir);
+    DownloadGroupTaskEntity entity = Aria.download(this).getFtpDirTask(dir);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
-      mChildList.addData(groupEntity.getSubTask());
+      mChildList.addData(groupEntity.getSubEntities());
       getBinding().setFileSize(groupEntity.getConvertFileSize());
       if (groupEntity.getFileSize() == 0) {
         getBinding().setProgress(0);
@@ -66,7 +66,7 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
       case R.id.start:
         Aria.download(this)
             .loadFtpDir(dir)
-            .setDownloadDirPath(
+            .setDirPath(
                 Environment.getExternalStorageDirectory().getPath() + "/Download/ftp_dir")
             .setGroupAlias("ftp文件夹下载")
             //.setSubTaskFileName(getModule(GroupModule.class).getSubName())
@@ -88,7 +88,7 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
 
   @DownloadGroup.onTaskPre() protected void onTaskPre(DownloadGroupTask task) {
     if (mChildList.getSubData().size() <= 0) {
-      mChildList.addData(task.getEntity().getSubTask());
+      mChildList.addData(task.getEntity().getSubEntities());
     }
     L.d(TAG, "group task pre");
     getBinding().setFileSize(task.getConvertFileSize());
@@ -101,7 +101,7 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
-    mChildList.updateChildProgress(task.getEntity().getSubTask());
+    mChildList.updateChildProgress(task.getEntity().getSubEntities());
   }
 
   @DownloadGroup.onTaskResume() void taskResume(DownloadGroupTask task) {
@@ -124,7 +124,7 @@ public class FTPDirDownloadActivity extends BaseActivity<ActivityDownloadGroupBi
 
   @DownloadGroup.onTaskComplete() void taskComplete(DownloadGroupTask task) {
     getBinding().setProgress(100);
-    mChildList.updateChildProgress(task.getEntity().getSubTask());
+    mChildList.updateChildProgress(task.getEntity().getSubEntities());
     T.showShort(this, "任务组下载完成");
     L.d(TAG, "任务组下载完成");
   }

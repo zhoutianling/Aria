@@ -28,9 +28,10 @@ import org.xml.sax.helpers.DefaultHandler;
 class ConfigHelper extends DefaultHandler {
   private final String TAG = "ConfigHelper";
 
-  private boolean isDownloadConfig = false, isUploadConfig;
+  private boolean isDownloadConfig = false, isUploadConfig = false, isAppConfig = false;
   private Configuration.DownloadConfig mDownloadConfig = Configuration.DownloadConfig.getInstance();
   private Configuration.UploadConfig mUploadConfig = Configuration.UploadConfig.getInstance();
+  private Configuration.AppConfig mAppConfig = Configuration.AppConfig.getInstance();
 
   @Override public void startDocument() throws SAXException {
     super.startDocument();
@@ -43,10 +44,17 @@ class ConfigHelper extends DefaultHandler {
     if (qName.equals("download")) {
       isDownloadConfig = true;
       isUploadConfig = false;
+      isAppConfig = false;
     } else if (qName.equals("upload")) {
       isUploadConfig = true;
       isDownloadConfig = false;
+      isAppConfig = false;
+    } else if (qName.equals("app")) {
+      isUploadConfig = false;
+      isDownloadConfig = false;
+      isAppConfig = true;
     }
+
     if (isDownloadConfig || isUploadConfig) {
 
       String value = attributes.getValue("value");
@@ -90,17 +98,46 @@ class ConfigHelper extends DefaultHandler {
           loadUpdateInterval(value);
           break;
       }
+    } else if (isAppConfig) {
+      String value = attributes.getValue("value");
+      switch (qName) {
+        case "useAriaCrashHandler":
+          loadUseAriaCrashHandler(value);
+          break;
+        case "logLevel":
+          loadLogLevel(value);
+          break;
+      }
+    }
+  }
+
+  private void loadLogLevel(String value) {
+    int level;
+    try {
+      level = Integer.parseInt(value);
+    } catch (NumberFormatException e) {
+      e.printStackTrace();
+      level = ALog.LOG_LEVEL_VERBOSE;
+    }
+    if (level < ALog.LOG_LEVEL_VERBOSE || level > ALog.LOG_CLOSE) {
+      ALog.w(TAG, "level【" + level + "】错误");
+      mAppConfig.logLevel = ALog.LOG_LEVEL_VERBOSE;
+    } else {
+      mAppConfig.logLevel = level;
+    }
+  }
+
+  private void loadUseAriaCrashHandler(String value) {
+    if (checkBoolean(value)) {
+      mAppConfig.useAriaCrashHandler = Boolean.parseBoolean(value);
+    } else {
+      ALog.w(TAG, "useAriaCrashHandler【" + value + "】错误");
+      mAppConfig.useAriaCrashHandler = true;
     }
   }
 
   private void loadUpdateInterval(String value) {
-    long temp = 1000;
-    if (!TextUtils.isEmpty(value)) {
-      temp = Long.parseLong(value);
-      if (temp <= 0) {
-        temp = 1000;
-      }
-    }
+    long temp = checkLong(value) ? Long.parseLong(value) : 1000;
     if (isDownloadConfig) {
       mDownloadConfig.updateInterval = temp;
     }
@@ -124,17 +161,18 @@ class ConfigHelper extends DefaultHandler {
   }
 
   private void loadMaxSpeed(String value) {
-    double maxSpeed = 0.0;
-    if (!TextUtils.isEmpty(value)) {
-      maxSpeed = Double.parseDouble(value);
-    }
+    int maxSpeed = checkInt(value) ? Integer.parseInt(value) : 0;
     if (isDownloadConfig) {
-      mDownloadConfig.msxSpeed = maxSpeed;
+      mDownloadConfig.maxSpeed = maxSpeed;
     }
   }
 
   private void loadConvertSpeed(String value) {
-    boolean open = Boolean.parseBoolean(value);
+    boolean open = true;
+    if (checkBoolean(value)) {
+      open = Boolean.parseBoolean(value);
+    }
+
     if (isDownloadConfig) {
       mDownloadConfig.isConvertSpeed = open;
     }
@@ -144,10 +182,7 @@ class ConfigHelper extends DefaultHandler {
   }
 
   private void loadReTryInterval(String value) {
-    int time = 2 * 1000;
-    if (!TextUtils.isEmpty(value)) {
-      time = Integer.parseInt(value);
-    }
+    int time = checkInt(value) ? Integer.parseInt(value) : 2 * 1000;
 
     if (time < 2 * 1000) {
       time = 2 * 1000;
@@ -166,10 +201,7 @@ class ConfigHelper extends DefaultHandler {
   }
 
   private void loadBuffSize(String value) {
-    int buffSize = 8192;
-    if (!TextUtils.isEmpty(value)) {
-      buffSize = Integer.parseInt(value);
-    }
+    int buffSize = checkInt(value) ? Integer.parseInt(value) : 8192;
 
     if (buffSize < 2048) {
       buffSize = 2048;
@@ -181,10 +213,7 @@ class ConfigHelper extends DefaultHandler {
   }
 
   private void loadIOTimeout(String value) {
-    int time = 10 * 1000;
-    if (!TextUtils.isEmpty(value)) {
-      time = Integer.parseInt(value);
-    }
+    int time = checkInt(value) ? Integer.parseInt(value) : 10 * 1000;
 
     if (time < 10 * 1000) {
       time = 10 * 1000;
@@ -196,10 +225,7 @@ class ConfigHelper extends DefaultHandler {
   }
 
   private void loadConnectTime(String value) {
-    int time = 5 * 1000;
-    if (!TextUtils.isEmpty(value)) {
-      time = Integer.parseInt(value);
-    }
+    int time = checkInt(value) ? Integer.parseInt(value) : 5 * 1000;
 
     if (isDownloadConfig) {
       mDownloadConfig.connectTimeOut = time;
@@ -210,10 +236,7 @@ class ConfigHelper extends DefaultHandler {
   }
 
   private void loadReTry(String value) {
-    int num = 0;
-    if (!TextUtils.isEmpty(value)) {
-      num = Integer.parseInt(value);
-    }
+    int num = checkInt(value) ? Integer.parseInt(value) : 0;
 
     if (isDownloadConfig) {
       mDownloadConfig.reTryNum = num;
@@ -224,10 +247,7 @@ class ConfigHelper extends DefaultHandler {
   }
 
   private void loadMaxQueue(String value) {
-    int num = 2;
-    if (!TextUtils.isEmpty(value)) {
-      num = Integer.parseInt(value);
-    }
+    int num = checkInt(value) ? Integer.parseInt(value) : 2;
     if (num < 1) {
       ALog.w(TAG, "任务队列数不能小于 1");
       num = 2;
@@ -241,10 +261,7 @@ class ConfigHelper extends DefaultHandler {
   }
 
   private void loadThreadNum(String value) {
-    int num = 3;
-    if (!TextUtils.isEmpty(value)) {
-      num = Integer.parseInt(value);
-    }
+    int num = checkInt(value) ? Integer.parseInt(value) : 3;
     if (num < 1) {
       ALog.e(TAG, "下载线程数不能小于 1");
       num = 1;
@@ -252,6 +269,52 @@ class ConfigHelper extends DefaultHandler {
     if (isDownloadConfig) {
       mDownloadConfig.threadNum = num;
     }
+  }
+
+  /**
+   * 检查是否int值是否合法
+   *
+   * @return {@code true} 合法
+   */
+  private boolean checkInt(String value) {
+    if (TextUtils.isEmpty(value)) {
+      return false;
+    }
+    try {
+      Integer l = Integer.parseInt(value);
+      return true;
+    } catch (NumberFormatException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  /**
+   * 检查是否long值是否合法
+   *
+   * @return {@code true} 合法
+   */
+  private boolean checkLong(String value) {
+    if (TextUtils.isEmpty(value)) {
+      return false;
+    }
+    try {
+      Long l = Long.parseLong(value);
+      return true;
+    } catch (NumberFormatException e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  /**
+   * 检查boolean值是否合法
+   *
+   * @return {@code true} 合法
+   */
+  private boolean checkBoolean(String value) {
+    return !TextUtils.isEmpty(value) && (value.equalsIgnoreCase("true") || value.equalsIgnoreCase(
+        "false"));
   }
 
   @Override public void characters(char[] ch, int start, int length) throws SAXException {
@@ -266,5 +329,6 @@ class ConfigHelper extends DefaultHandler {
     super.endDocument();
     mDownloadConfig.saveAll();
     mUploadConfig.saveAll();
+    mAppConfig.saveAll();
   }
 }

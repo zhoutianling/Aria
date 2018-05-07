@@ -59,13 +59,13 @@ public class DownloadPopupWindow extends AbsPopupWindow {
   }
 
   private void initWidget() {
-    if (Aria.download(this).taskExists(DOWNLOAD_URL)) {
-      DownloadTarget target = Aria.download(this).load(DOWNLOAD_URL);
+    if (Aria.download(getContext()).taskExists(DOWNLOAD_URL)) {
+      DownloadTarget target = Aria.download(getContext()).load(DOWNLOAD_URL);
       int p = (int) (target.getCurrentProgress() * 100 / target.getFileSize());
       mPb.setProgress(p);
     }
-    Aria.download(this).register();
-    DownloadEntity entity = Aria.download(this).getDownloadEntity(DOWNLOAD_URL);
+    Aria.download(getContext()).register();
+    DownloadEntity entity = Aria.download(getContext()).getDownloadEntity(DOWNLOAD_URL);
     if (entity != null) {
       mSize.setText(CommonUtil.formatFileSize(entity.getFileSize()));
       int state = entity.getState();
@@ -78,16 +78,16 @@ public class DownloadPopupWindow extends AbsPopupWindow {
   @OnClick({ R.id.start, R.id.stop, R.id.cancel }) public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.download(this)
+        Aria.download(getContext())
             .load(DOWNLOAD_URL)
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/消消乐.apk")
             .start();
         break;
       case R.id.stop:
-        Aria.download(this).load(DOWNLOAD_URL).pause();
+        Aria.download(getContext()).load(DOWNLOAD_URL).pause();
         break;
       case R.id.cancel:
-        Aria.download(this).load(DOWNLOAD_URL).cancel();
+        Aria.download(getContext()).load(DOWNLOAD_URL).cancel();
         break;
     }
   }

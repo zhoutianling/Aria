@@ -18,11 +18,13 @@ package com.arialyy.aria.core.common;
 import android.content.Context;
 import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEventListener;
+import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
@@ -36,12 +38,13 @@ import java.util.concurrent.Executors;
 
 /**
  * Created by AriaL on 2017/7/1.
- * 文件下载器
+ * 任务处理器
  */
 public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     implements Runnable, IUtil {
   public static final String STATE = "_state_";
   public static final String RECORD = "_record_";
+  protected static final long SUB_LEN = 1024 * 1024;
 
   private final String TAG = "AbsFileer";
   protected IEventListener mListener;
@@ -49,7 +52,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   protected ENTITY mEntity;
   protected File mConfigFile;//信息配置文件
   protected Context mContext;
-  protected File mTempFile; //下载的文件
+  protected File mTempFile; //文件
   protected boolean isNewTask = true;
   protected StateConstance mConstance;
   private ExecutorService mFixedThreadPool;
@@ -64,7 +67,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   /**
    * 小于1m的文件不启用多线程
    */
-  private static final long SUB_LEN = 1024 * 1024;
   private Timer mTimer;
   private long mUpdateInterval = 1000;
 
@@ -77,7 +79,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   public void setNewTask(boolean newTask) {
-    mTaskEntity.isNewTask = newTask;
+    mTaskEntity.setNewTask(newTask);
   }
 
   @Override public void setMaxSpeed(double maxSpeed) {
@@ -89,10 +91,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }
   }
 
-  public StateConstance getConstance() {
-    return mConstance;
-  }
-
   @Override public void run() {
     if (mConstance.isRunning) {
       return;
@@ -101,7 +99,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
-   * 开始下载流程
+   * 开始流程
    */
   private void startFlow() {
     mConstance.resetState();
@@ -109,13 +107,13 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     if (mListener instanceof IDownloadListener) {
       ((IDownloadListener) mListener).onPostPre(mEntity.getFileSize());
     }
-    if (!mTaskEntity.isSupportBP) {
+    if (!mTaskEntity.isSupportBP()) {
       mTotalThreadNum = 1;
       mStartThreadNum = 1;
       mConstance.THREAD_NUM = mTotalThreadNum;
       handleNoSupportBP();
     } else {
-      mTotalThreadNum = isNewTask ? (getNewTaskThreadNum()) : mStartThreadNum;
+      mTotalThreadNum = isNewTask ? (mStartThreadNum = setNewTaskThreadNum()) : mStartThreadNum;
       mConstance.THREAD_NUM = mTotalThreadNum;
       handleBreakpoint();
     }
@@ -125,13 +123,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   /**
    * 设置新任务的最大线程数
    */
-  protected int getNewTaskThreadNum() {
-    final int num =
-        mEntity.getFileSize() <= SUB_LEN || mTaskEntity.requestType == AbsTaskEntity.D_FTP_DIR ? 1
-            : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
-    mStartThreadNum = num;
-    return num;
-  }
+  protected abstract int setNewTaskThreadNum();
 
   /**
    * 启动进度获取定时器
@@ -165,13 +157,12 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    *
    * @param interval 单位毫秒，不能小于0
    */
-  protected long setUpdateInterval(long interval) {
+  protected void setUpdateInterval(long interval) {
     if (interval < 0) {
       ALog.w(TAG, "更新间隔不能小于0，默认为1000毫秒");
-      return 1000;
+      return;
     }
     mUpdateInterval = interval;
-    return interval;
   }
 
   @Override public long getFileSize() {
@@ -203,9 +194,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       }
     }
     if (mTaskEntity instanceof DownloadTaskEntity) {
-      CommonUtil.delDownloadTaskConfig(mTaskEntity.removeFile, (DownloadTaskEntity) mTaskEntity);
+      CommonUtil.delDownloadTaskConfig(mTaskEntity.isRemoveFile(),
+          (DownloadEntity) mTaskEntity.getEntity());
     } else if (mTaskEntity instanceof UploadTaskEntity) {
-      CommonUtil.delUploadTaskConfig(mTaskEntity.removeFile, (UploadTaskEntity) mTaskEntity);
+      CommonUtil.delUploadTaskConfig(mTaskEntity.isRemoveFile(),
+          (UploadEntity) mTaskEntity.getEntity());
     }
   }
 
@@ -234,13 +227,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
 
   @Override public void resume() {
     start();
-  }
-
-  /**
-   * 返回该下载器的
-   */
-  public IEventListener getListener() {
-    return mListener;
   }
 
   /**
@@ -296,7 +282,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   /**
    * 恢复记录地址
    *
-   * @return true 表示下载完成
+   * @return {@code true}任务已完成
    */
   private boolean resumeRecordLocation(int i, long startL, long endL) {
     mConstance.CURRENT_LOCATION += endL - startL;
@@ -332,7 +318,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     config.START_LOCATION = startL;
     config.END_LOCATION = endL;
     config.CONFIG_FILE_PATH = mConfigFile.getPath();
-    config.SUPPORT_BP = mTaskEntity.isSupportBP;
+    config.SUPPORT_BP = mTaskEntity.isSupportBP();
     config.TASK_ENTITY = mTaskEntity;
     return selectThreadTask(config);
   }
@@ -349,8 +335,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       recordL[i] = -1;
     }
     int rl = 0;
-    if (isNewTask) {
-      handleNewTask();
+    if (isNewTask && !handleNewTask()) {
+      return;
     }
     for (int i = 0; i < mTotalThreadNum; i++) {
       long startL = i * blockSize, endL = (i + 1) * blockSize;
@@ -404,13 +390,15 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         mFixedThreadPool.execute(task);
       }
     }
-    mTaskEntity.isNewTask = false;
+    mTaskEntity.setNewTask(false);
   }
 
   /**
    * 处理新任务
+   *
+   * @return {@code true}创建新任务失败
    */
-  protected abstract void handleNewTask();
+  protected abstract boolean handleNewTask();
 
   /**
    * 处理不支持断点的下载
@@ -424,7 +412,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     config.START_LOCATION = 0;
     config.END_LOCATION = config.FILE_SIZE;
     config.CONFIG_FILE_PATH = mConfigFile.getPath();
-    config.SUPPORT_BP = mTaskEntity.isSupportBP;
+    config.SUPPORT_BP = mTaskEntity.isSupportBP();
     config.TASK_ENTITY = mTaskEntity;
     AbsThreadTask task = selectThreadTask(config);
     if (task == null) return;

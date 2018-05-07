@@ -15,18 +15,13 @@
  */
 package com.arialyy.aria.orm;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 /**
- * Created by AriaL on 2017/7/4.
- * 基本类型的List，只能用于常见的数据类型，如果是一对多的复杂数据结构，需要使用{@link OneToMany}
+ * Created by laoyuyu on 2018/3/30.
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface NormalList {
+public abstract class AbsWrapper {
+
   /**
-   * 数据类型
+   * 处理转换
    */
-  Class clazz();
+  protected abstract void handleConvert();
 }

@@ -31,8 +31,8 @@ import com.arialyy.simple.databinding.DialogFragmentDownloadBinding;
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
-    Aria.download(this).register();
-    DownloadEntity entity = Aria.download(this).getDownloadEntity(DOWNLOAD_URL);
+    Aria.download(getContext()).register();
+    DownloadEntity entity = Aria.download(getContext()).getDownloadEntity(DOWNLOAD_URL);
     if (entity != null) {
       getBinding().setFileSize(CommonUtil.formatFileSize(entity.getFileSize()));
       getBinding().setProgress((int) (entity.getCurrentProgress() * 100 / entity.getFileSize()));
@@ -45,7 +45,7 @@ import com.arialyy.simple.databinding.DialogFragmentDownloadBinding;
 
   @Override public void onDestroy() {
     super.onDestroy();
-    Aria.download(this).unRegister();
+    Aria.download(getContext()).unRegister();
   }
 
   @Download.onPre(DOWNLOAD_URL) protected void onPre(DownloadTask task) {
@@ -96,16 +96,16 @@ import com.arialyy.simple.databinding.DialogFragmentDownloadBinding;
   @OnClick({ R.id.start, R.id.stop, R.id.cancel }) public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.download(this)
+        Aria.download(getContext())
             .load(DOWNLOAD_URL)
             .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/放置江湖.apk")
             .start();
         break;
       case R.id.stop:
-        Aria.download(this).load(DOWNLOAD_URL).stop();
+        Aria.download(getContext()).load(DOWNLOAD_URL).stop();
         break;
       case R.id.cancel:
-        Aria.download(this).load(DOWNLOAD_URL).cancel();
+        Aria.download(getContext()).load(DOWNLOAD_URL).cancel();
         break;
     }
   }

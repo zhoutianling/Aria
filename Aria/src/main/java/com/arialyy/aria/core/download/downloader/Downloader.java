@@ -44,14 +44,20 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
         AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getUpdateInterval());
   }
 
+  @Override protected int setNewTaskThreadNum() {
+    return mEntity.getFileSize() <= SUB_LEN || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP_DIR
+        ? 1
+        : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
+  }
+
   @Override protected void checkTask() {
     mConfigFile = new File(CommonUtil.getFileConfigPath(true, mEntity.getFileName()));
     mTempFile = new File(mEntity.getDownloadPath());
-    if (!mTaskEntity.isSupportBP) {
+    if (!mTaskEntity.isSupportBP()) {
       isNewTask = true;
       return;
     }
-    if (mTaskEntity.isNewTask) {
+    if (mTaskEntity.isNewTask()) {
       isNewTask = true;
       return;
     }
@@ -67,20 +73,21 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
     }
   }
 
-  @Override protected void handleNewTask() {
+  @Override protected boolean handleNewTask() {
     CommonUtil.createFile(mTempFile.getPath());
     BufferedRandomAccessFile file = null;
     try {
       file = new BufferedRandomAccessFile(new File(mTempFile.getPath()), "rwd", 8192);
       //设置文件长度
       file.setLength(mEntity.getFileSize());
+      return true;
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"
           + mEntity.getUrl()
           + "】\n【filePath:"
           + mEntity.getDownloadPath()
           + "】\n"
-          + CommonUtil.getPrintException(e));
+          + ALog.getExceptionString(e));
     } finally {
       if (file != null) {
         try {
@@ -90,10 +97,11 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
         }
       }
     }
+    return false;
   }
 
   @Override protected AbsThreadTask selectThreadTask(SubThreadConfig<DownloadTaskEntity> config) {
-    switch (mTaskEntity.requestType) {
+    switch (mTaskEntity.getRequestType()) {
       case AbsTaskEntity.D_FTP:
       case AbsTaskEntity.D_FTP_DIR:
         return new FtpThreadTask(mConstance, (IDownloadListener) mListener, config);
@@ -108,6 +116,6 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
     ALog.e(TAG, errorMsg);
     mConstance.isRunning = false;
     mListener.onFail(false);
-    ErrorHelp.saveError("", mEntity, "", errorMsg);
+    ErrorHelp.saveError(TAG, "", errorMsg);
   }
 }

@@ -15,43 +15,55 @@
  */
 package com.arialyy.aria.core.manager;
 
+import android.text.TextUtils;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.core.upload.wrapper.UTEWrapper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.Regular;
+import java.util.List;
 import java.util.regex.Pattern;
 
 /**
  * Created by Aria.Lao on 2017/11/1.
  * 任务实体工厂
  */
-class UTEntityFactory implements ITEntityFactory<UploadEntity, UploadTaskEntity> {
-  private static final String TAG = "DTEntityFactory";
-  private static volatile UTEntityFactory INSTANCE = null;
+class UTEFactory implements INormalTEFactory<UploadEntity, UploadTaskEntity> {
+  private static final String TAG = "DTEFactory";
+  private static volatile UTEFactory INSTANCE = null;
 
-  private UTEntityFactory() {
+  private UTEFactory() {
   }
 
-  public static UTEntityFactory getInstance() {
+  public static UTEFactory getInstance() {
     if (INSTANCE == null) {
-      synchronized (UTEntityFactory.class) {
-        INSTANCE = new UTEntityFactory();
+      synchronized (UTEFactory.class) {
+        INSTANCE = new UTEFactory();
       }
     }
     return INSTANCE;
   }
 
-  @Override public UploadTaskEntity create(UploadEntity entity) {
-    UploadTaskEntity uTaskEntity =
-        DbEntity.findFirst(UploadTaskEntity.class, "key=?", entity.getFilePath());
-    if (uTaskEntity == null) {
-      uTaskEntity = new UploadTaskEntity();
-      uTaskEntity.entity = entity;
+  private UploadTaskEntity create(UploadEntity entity) {
+    List<UTEWrapper> wrapper =
+        DbEntity.findRelationData(UTEWrapper.class, "UploadTaskEntity.key=?",
+            entity.getFilePath());
+
+    if (wrapper != null && !wrapper.isEmpty()) {
+      UploadTaskEntity uTaskEntity = wrapper.get(0).taskEntity;
+      if (uTaskEntity == null) {
+        uTaskEntity = new UploadTaskEntity();
+        uTaskEntity.setEntity(entity);
+      } else if (uTaskEntity.getEntity() == null || TextUtils.isEmpty(
+          uTaskEntity.getEntity().getFilePath())) {
+        uTaskEntity.setEntity(entity);
+      }
+      return uTaskEntity;
+    } else {
+      UploadTaskEntity uTaskEntity = new UploadTaskEntity();
+      uTaskEntity.setEntity(entity);
+      return uTaskEntity;
     }
-    if (uTaskEntity.entity == null) {
-      uTaskEntity.entity = entity;
-    }
-    return uTaskEntity;
   }
 
   @Override public UploadTaskEntity create(String key) {
@@ -67,14 +79,12 @@ class UTEntityFactory implements ITEntityFactory<UploadEntity, UploadTaskEntity>
     UploadEntity entity = UploadEntity.findFirst(UploadEntity.class, "filePath=?", filePath);
     if (entity == null) {
       entity = new UploadEntity();
-      //String regex = "[/|\\\\|//]";
       String regex = Regular.REG_FILE_NAME;
       Pattern p = Pattern.compile(regex);
       String[] strs = p.split(filePath);
       String fileName = strs[strs.length - 1];
       entity.setFileName(fileName);
       entity.setFilePath(filePath);
-      entity.insert();
     }
     return entity;
   }

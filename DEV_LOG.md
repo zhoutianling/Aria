@@ -1,4 +1,16 @@
 ## 开发日志
+  + v_3.4
+    - 优化大量代码
+    - 重构Aria的ORM模型，提高了数据读取的可靠性和读写速度
+    - 现在可在任意类中使用Aria了，[使用方法](http://aria.laoyuyu.me/aria_doc/start/any_java.html)
+    - 添加`window.location.replace("http://xxxx")`类型的网页重定向支持
+    - 支持gzip、deflate 压缩类型的输入流
+    - 添加`useServerFileName`，可使用服务端响应header的`Content-Disposition`携带的文件名
+  + v_3.3.16
+    - 修复一个activity启动多次，无法进行回掉的bug https://github.com/AriaLyy/Aria/issues/200
+    - 优化target代码结构，移除路径被占用的提示
+    - 添加支持chunked模式的下载
+    - 去掉上一个版本"//"的限制
   + v_3.3.14
     - 修复ftp上传和下载的兼容性问题
     - 如果url中的path有"//"将替换为"/"

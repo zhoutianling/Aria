@@ -62,13 +62,13 @@ import java.util.List;
 
   @Override protected void init(Bundle savedInstanceState) {
     super.init(savedInstanceState);
-    Aria.download(this).register();
+    Aria.download(getContext()).register();
     initWidget();
   }
 
   @Override public void onDestroy() {
     super.onDestroy();
-    Aria.download(this).unRegister();
+    Aria.download(getContext()).unRegister();
   }
 
   private void initWidget() {
@@ -134,10 +134,10 @@ import java.util.List;
   @OnClick({ R.id.start, R.id.stop, R.id.cancel }) void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.download(this).load(mUrls).getSubTaskManager().startSubTask(mChildEntity.getUrl());
+        Aria.download(getContext()).loadGroup(mUrls).getSubTaskManager().startSubTask(mChildEntity.getUrl());
         break;
       case R.id.stop:
-        Aria.download(this).load(mUrls).getSubTaskManager().stopSubTask(mChildEntity.getUrl());
+        Aria.download(getContext()).loadGroup(mUrls).getSubTaskManager().stopSubTask(mChildEntity.getUrl());
         break;
       //case R.id.cancel:
       //  Aria.download(this).load(mUrls).getSubTaskManager().cancelSubTask(mChildEntity.getUrl());

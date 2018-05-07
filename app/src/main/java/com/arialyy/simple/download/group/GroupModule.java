@@ -30,7 +30,7 @@ public class GroupModule extends BaseModule {
     super(context);
   }
 
-  List<String> getUrls() {
+  public List<String> getUrls() {
     List<String> urls = new ArrayList<>();
     String[] str = getContext().getResources().getStringArray(R.array.group_urls_1);
     Collections.addAll(urls, str);
@@ -44,7 +44,7 @@ public class GroupModule extends BaseModule {
     return urls;
   }
 
-  List<String> getSubName(){
+  List<String> getSubName() {
     List<String> names = new ArrayList<>();
     String[] str = getContext().getResources().getStringArray(R.array.group_names);
     Collections.addAll(names, str);

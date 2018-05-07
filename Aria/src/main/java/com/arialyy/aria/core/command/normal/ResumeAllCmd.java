@@ -3,12 +3,15 @@ package com.arialyy.aria.core.command.normal;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.wrapper.DGTEWrapper;
+import com.arialyy.aria.core.download.wrapper.DTEWrapper;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.core.upload.wrapper.UTEWrapper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
@@ -53,29 +56,32 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    * @param type {@code 1}单任务下载任务；{@code 2}任务组下载任务；{@code 3} 单任务上传任务
    */
   private List<AbsTaskEntity> findTaskData(int type) {
+    // TODO: 2018/4/20 需要测试
     List<AbsTaskEntity> tempList = new ArrayList<>();
-    switch (type) {
-      case 1:
-        List<DownloadTaskEntity> dTaskEntity =
-            DbEntity.findDatas(DownloadTaskEntity.class, "isGroupTask=?", "false");
-        if (dTaskEntity != null && !dTaskEntity.isEmpty()) {
-          tempList.addAll(dTaskEntity);
+    if (type == 1) {
+      List<DTEWrapper> wrappers = DbEntity.findRelationData(DTEWrapper.class,
+          "DownloadTaskEntity.isGroupTask=? and DownloadTaskEntity.state!=?", "false", "1");
+      if (wrappers != null && !wrappers.isEmpty()) {
+        for (DTEWrapper w : wrappers) {
+          tempList.add(w.taskEntity);
         }
-        break;
-      case 2:
-        List<DownloadGroupTaskEntity> groupTask =
-            DbEntity.findAllData(DownloadGroupTaskEntity.class);
-        if (groupTask != null && !groupTask.isEmpty()) {
-          tempList.addAll(groupTask);
+      }
+    } else if (type == 2) {
+      List<DGTEWrapper> wrappers =
+          DbEntity.findRelationData(DGTEWrapper.class, "DownloadGroupTaskEntity.state!=?", "1");
+      if (wrappers != null && !wrappers.isEmpty()) {
+        for (DGTEWrapper w : wrappers) {
+          tempList.add(w.taskEntity);
         }
-        break;
-      case 3:
-        List<UploadTaskEntity> uTaskEntity =
-            DbEntity.findDatas(UploadTaskEntity.class, "isGroupTask=?", "false");
-        if (uTaskEntity != null && !uTaskEntity.isEmpty()) {
-          tempList.addAll(uTaskEntity);
+      }
+    } else if (type == 3) {
+      List<UTEWrapper> wrappers =
+          DbEntity.findRelationData(UTEWrapper.class, "UploadTaskEntity.state!=?", "1");
+      if (wrappers != null && !wrappers.isEmpty()) {
+        for (UTEWrapper w : wrappers) {
+          tempList.add(w.taskEntity);
         }
-        break;
+      }
     }
     return tempList;
   }
@@ -123,8 +129,8 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    */
   private void resumeEntity(AbsTaskEntity te) {
     if (te instanceof DownloadTaskEntity) {
-      if (te.requestType == AbsTaskEntity.D_FTP || te.requestType == AbsTaskEntity.U_FTP) {
-        te.urlEntity = CommonUtil.getFtpUrlInfo(te.getEntity().getKey());
+      if (te.getRequestType() == AbsTaskEntity.D_FTP || te.getRequestType() == AbsTaskEntity.U_FTP) {
+        te.setUrlEntity(CommonUtil.getFtpUrlInfo(te.getEntity().getKey()));
       }
       mQueue = DownloadTaskQueue.getInstance();
     } else if (te instanceof UploadTaskEntity) {

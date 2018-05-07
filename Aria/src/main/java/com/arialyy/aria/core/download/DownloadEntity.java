@@ -21,8 +21,9 @@ import android.os.Parcelable;
 import android.text.TextUtils;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.orm.Foreign;
-import com.arialyy.aria.orm.Primary;
+import com.arialyy.aria.orm.ActionPolicy;
+import com.arialyy.aria.orm.annotation.Foreign;
+import com.arialyy.aria.orm.annotation.Primary;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
@@ -30,33 +31,30 @@ import com.arialyy.aria.util.CommonUtil;
  * 下载实体
  */
 public class DownloadEntity extends AbsNormalEntity implements Parcelable {
-  @Primary private String downloadPath = ""; //保存路径
+  @Primary private String downloadPath; //保存路径
 
   /**
    * 所属任务组
    */
-  @Foreign(table = DownloadGroupEntity.class, column = "groupName") private String groupName = "";
+  @Foreign(parent = DownloadGroupEntity.class, column = "groupName",
+      onUpdate = ActionPolicy.CASCADE, onDelete = ActionPolicy.CASCADE)
+  private String groupName;
 
   /**
-   * 下载任务实体的key
-   */
-  @Foreign(table = DownloadTaskEntity.class, column = "key") private String taskKey = "";
-
-  /**
-   * 通过{@link AbsTaskEntity#md5Key}从服务器的返回信息中获取的文件md5信息，如果服务器没有返回，则不会设置该信息
+   * 从服务器的返回信息中获取的文件md5信息，如果服务器没有返回，则不会设置该信息
    * 如果你已经设置了该任务的MD5信息，Aria也不会从服务器返回的信息中获取该信息
    */
-  private String md5Code = "";
+  private String md5Code;
 
   /**
-   * 通过{@link AbsTaskEntity#dispositionKey}从服务器的返回信息中获取的文件描述信息
+   * 从服务器的返回信息中获取的文件描述信息
    */
-  private String disposition = "";
+  private String disposition;
 
   /**
    * 从disposition获取到的文件名，如果可以获取到，则会赋值到这个字段
    */
-  private String serverFileName = "";
+  private String serverFileName;
 
   @Override public String getKey() {
     return getUrl();
@@ -101,13 +99,6 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     this.groupName = groupName;
   }
 
-  /**
-   * {@link #getUrl()}
-   */
-  @Deprecated public String getDownloadUrl() {
-    return getUrl();
-  }
-
   public String getDownloadPath() {
     return downloadPath;
   }
@@ -116,8 +107,6 @@ public class DownloadEntity extends AbsNormalEntity implements Parcelable {
     this.downloadPath = downloadPath;
     return this;
   }
-
-
 
   @Override public DownloadEntity clone() throws CloneNotSupportedException {
     return (DownloadEntity) super.clone();

@@ -27,6 +27,8 @@ import com.arialyy.aria.util.CommonUtil;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -71,49 +73,23 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       conn = ConnectionHelp.setConnectParam(mConfig.TASK_ENTITY, conn);
       conn.setConnectTimeout(STATE.CONNECT_TIME_OUT);
       conn.setReadTimeout(STATE.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
-      //is = conn.getInputStream();
-      is = new BufferedInputStream(conn.getInputStream());
+
+      is = new BufferedInputStream(ConnectionHelp.convertInputStream(conn));
       //创建可设置位置的文件
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
       //设置每条线程写入文件的位置
       file.seek(mConfig.START_LOCATION);
-      byte[] buffer = new byte[mBufSize];
-      int len;
-      while ((len = is.read(buffer)) != -1) {
-        if (STATE.isCancel || STATE.isStop){
-          break;
-        }
-        if (mSleepTime > 0) {
-          Thread.sleep(mSleepTime);
-        }
-        file.write(buffer, 0, len);
-        progress(len);
+
+      if (mTaskEntity.isChunked()) {
+        readChunk(is, file);
+      } else {
+        readNormal(is, file);
       }
-      if (STATE.isCancel || STATE.isStop){
+
+      if (STATE.isCancel || STATE.isStop) {
         return;
       }
-      //支持断点的处理
-      if (mConfig.SUPPORT_BP) {
-        ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
-        writeConfig(true, 1);
-        STATE.COMPLETE_THREAD_NUM++;
-        if (STATE.isComplete()) {
-          File configFile = new File(mConfigFPath);
-          if (configFile.exists()) {
-            configFile.delete();
-          }
-          STATE.isRunning = false;
-          mListener.onComplete();
-        }
-        if (STATE.isFail()){
-          STATE.isRunning = false;
-          mListener.onFail(false);
-        }
-      } else {
-        ALog.i(TAG, "任务下载完成");
-        STATE.isRunning = false;
-        mListener.onComplete();
-      }
+      handleComplete();
     } catch (MalformedURLException e) {
       fail(mChildCurrentLocation, "下载链接异常", e);
     } catch (IOException e) {
@@ -134,6 +110,69 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       } catch (IOException e) {
         e.printStackTrace();
       }
+    }
+  }
+
+  /**
+   * 读取chunk模式的文件流
+   *
+   * @deprecated 暂时先这样处理，无chun
+   */
+  private void readChunk(InputStream is, RandomAccessFile file)
+      throws IOException, InterruptedException {
+    readNormal(is, file);
+  }
+
+  /**
+   * 读取普通的文件流
+   */
+  private void readNormal(InputStream is, RandomAccessFile file)
+      throws IOException, InterruptedException {
+    byte[] buffer = new byte[mBufSize];
+    int len;
+    while ((len = is.read(buffer)) != -1) {
+      if (STATE.isCancel || STATE.isStop) {
+        break;
+      }
+      if (mSleepTime > 0) {
+        Thread.sleep(mSleepTime);
+      }
+      file.write(buffer, 0, len);
+      progress(len);
+    }
+  }
+
+  /**
+   * 处理完成配置文件的更新或事件回调
+   *
+   * @throws IOException
+   */
+  private void handleComplete() throws IOException {
+    //支持断点的处理
+    if (mConfig.SUPPORT_BP) {
+      if (mChildCurrentLocation == mConfig.END_LOCATION) {
+        ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
+        writeConfig(true, 1);
+        STATE.COMPLETE_THREAD_NUM++;
+        if (STATE.isComplete()) {
+          File configFile = new File(mConfigFPath);
+          if (configFile.exists()) {
+            configFile.delete();
+          }
+          STATE.isRunning = false;
+          mListener.onComplete();
+        }
+      } else {
+        STATE.FAIL_NUM++;
+      }
+      if (STATE.isFail()) {
+        STATE.isRunning = false;
+        mListener.onFail(false);
+      }
+    } else {
+      ALog.i(TAG, "任务下载完成");
+      STATE.isRunning = false;
+      mListener.onComplete();
     }
   }
 

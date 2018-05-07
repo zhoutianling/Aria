@@ -16,35 +16,25 @@
 package com.arialyy.aria.core.download;
 
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
-import com.arialyy.aria.core.inf.AbsDownloadTarget;
-import com.arialyy.aria.core.manager.TEManager;
-import com.arialyy.aria.core.queue.DownloadTaskQueue;
-import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.util.CommonUtil;
-import java.io.File;
+import com.arialyy.aria.core.common.RequestEnum;
+import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
+import com.arialyy.aria.core.inf.IHttpHeaderTarget;
+import java.util.Map;
 
 /**
  * Created by lyy on 2016/12/5.
  * https://github.com/AriaLyy/Aria
  */
-public class DownloadTarget
-    extends AbsDownloadTarget<DownloadTarget, DownloadEntity, DownloadTaskEntity> {
-  protected String url;
+public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
+    implements IHttpHeaderTarget<DownloadTarget> {
+  private HttpHeaderDelegate<DownloadTarget, DownloadEntity, DownloadTaskEntity> mDelegate;
 
   DownloadTarget(DownloadEntity entity, String targetName) {
     this(entity, targetName, false);
   }
 
   DownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
-    this.url = entity.getUrl();
-    mTargetName = targetName;
-    mTaskEntity = TEManager.getInstance().getTEntity(DownloadTaskEntity.class, url);
-    if (mTaskEntity == null) {
-      mTaskEntity = TEManager.getInstance().createTEntity(DownloadTaskEntity.class, entity);
-    }
-    mEntity = mTaskEntity.entity;
-    mTaskEntity.refreshInfo = refreshInfo;
+    this(entity.getUrl(), targetName, refreshInfo);
   }
 
   DownloadTarget(String url, String targetName) {
@@ -52,14 +42,8 @@ public class DownloadTarget
   }
 
   DownloadTarget(String url, String targetName, boolean refreshInfo) {
-    this.url = url;
-    mTargetName = targetName;
-    mTaskEntity = TEManager.getInstance().getTEntity(DownloadTaskEntity.class, url);
-    if (mTaskEntity == null) {
-      mTaskEntity = TEManager.getInstance().createTEntity(DownloadTaskEntity.class, url);
-    }
-    mEntity = mTaskEntity.entity;
-    mTaskEntity.refreshInfo = refreshInfo;
+    initTarget(url, targetName, refreshInfo);
+    mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
   }
 
   /**
@@ -69,31 +53,20 @@ public class DownloadTarget
    *
    * @param use {@code true} 使用
    */
-  @Deprecated public DownloadTarget useServerFileName(boolean use) {
-    mTaskEntity.useServerFileName = use;
+  public DownloadTarget useServerFileName(boolean use) {
+    mTaskEntity.setUseServerFileName(use);
     return this;
   }
 
   /**
-   * 将任务设置为最高优先级任务，最高优先级任务有以下特点：
-   * 1、在下载队列中，有且只有一个最高优先级任务
-   * 2、最高优先级任务会一直存在，直到用户手动暂停或任务完成
-   * 3、任务调度器不会暂停最高优先级任务
-   * 4、用户手动暂停或任务完成后，第二次重新执行该任务，该命令将失效
-   * 5、如果下载队列中已经满了，则会停止队尾的任务，当高优先级任务完成后，该队尾任务将自动执行
-   * 6、把任务设置为最高优先级任务后，将自动执行任务，不需要重新调用start()启动任务
-   */
-  @Override public void setHighestPriority() {
-    super.setHighestPriority();
-  }
-
-  /**
-   * 下载任务是否存在
+   * 设置文件存储路径
+   * 该api后续版本会删除
    *
-   * @return {@code true}任务存在
+   * @param downloadPath 文件保存路径
+   * @deprecated {@link #setFilePath(String)} 请使用这个api
    */
-  @Override public boolean taskExists() {
-    return DownloadTaskQueue.getInstance().getTask(mEntity.getUrl()) != null;
+  @Deprecated public DownloadTarget setDownloadPath(@NonNull String downloadPath) {
+    return setFilePath(downloadPath);
   }
 
   /**
@@ -101,36 +74,11 @@ public class DownloadTarget
    * 如：原文件路径 /mnt/sdcard/test.zip
    * 如果需要将test.zip改为game.zip，只需要重新设置文件路径为：/mnt/sdcard/game.zip
    *
-   * @param downloadPath 路径必须为文件路径，不能为文件夹路径
+   * @param filePath 路径必须为文件路径，不能为文件夹路径
    */
-  public DownloadTarget setDownloadPath(@NonNull String downloadPath) {
-    if (TextUtils.isEmpty(downloadPath)) {
-      throw new IllegalArgumentException("文件保持路径不能为null");
-    }
-    File file = new File(downloadPath);
-    if (file.isDirectory()) {
-      throw new IllegalArgumentException("保存路径不能为文件夹，路径需要是完整的文件路径，如：/mnt/sdcard/game.zip");
-    }
-    if (!downloadPath.equals(mEntity.getDownloadPath())) {
-      if (!mTaskEntity.refreshInfo && DbEntity.checkDataExist(DownloadEntity.class,
-          "downloadPath=?", downloadPath)) {
-        throw new IllegalArgumentException("保存路径【" + downloadPath + "】已经被其它任务占用，请设置其它保存路径");
-      }
-      File oldFile = new File(mEntity.getDownloadPath());
-      File newFile = new File(downloadPath);
-      if (TextUtils.isEmpty(mEntity.getDownloadPath()) || oldFile.renameTo(newFile)) {
-        mEntity.setDownloadPath(downloadPath);
-        mEntity.setFileName(newFile.getName());
-        mTaskEntity.key = downloadPath;
-        mTaskEntity.update();
-        CommonUtil.renameDownloadConfig(oldFile.getName(), newFile.getName());
-      }
-    }
+  public DownloadTarget setFilePath(@NonNull String filePath) {
+    mTempFilePath = filePath;
     return this;
-  }
-
-  public DownloadEntity getDownloadEntity() {
-    return mEntity;
   }
 
   /**
@@ -140,17 +88,19 @@ public class DownloadTarget
     return mEntity.getDisposition();
   }
 
-  /**
-   * 是否在下载
-   *
-   * @deprecated {@link #isRunning()}
-   */
-  public boolean isDownloading() {
-    return isRunning();
+  @Override protected int getTargetType() {
+    return HTTP;
   }
 
-  @Override public boolean isRunning() {
-    DownloadTask task = DownloadTaskQueue.getInstance().getTask(mEntity.getKey());
-    return task != null && task.isRunning();
+  @Override public DownloadTarget addHeader(@NonNull String key, @NonNull String value) {
+    return mDelegate.addHeader(key, value);
+  }
+
+  @Override public DownloadTarget addHeaders(Map<String, String> headers) {
+    return mDelegate.addHeaders(headers);
+  }
+
+  @Override public DownloadTarget setRequestMode(RequestEnum requestEnum) {
+    return mDelegate.setRequestMode(requestEnum);
   }
 }

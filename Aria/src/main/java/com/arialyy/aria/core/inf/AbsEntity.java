@@ -18,7 +18,7 @@ package com.arialyy.aria.core.inf;
 import android.os.Parcel;
 import android.os.Parcelable;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.orm.Ignore;
+import com.arialyy.aria.orm.annotation.Ignore;
 
 /**
  * Created by AriaL on 2017/6/29.
@@ -31,7 +31,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
   /**
    * 单位转换后的速度
    */
-  @Ignore private String convertSpeed = "";
+  @Ignore private String convertSpeed;
   /**
    * 下载失败计数，每次开始都重置为0
    */
@@ -40,7 +40,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
   /**
    * 扩展字段
    */
-  private String str = "";
+  private String str;
   /**
    * 文件大小
    */
@@ -48,7 +48,7 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
   /**
    * 转换后的文件大小
    */
-  private String convertFileSize = "";
+  private String convertFileSize;
 
   private int state = STATE_WAIT;
   /**

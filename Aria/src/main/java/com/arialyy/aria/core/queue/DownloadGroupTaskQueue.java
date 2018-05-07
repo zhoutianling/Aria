@@ -67,7 +67,7 @@ public class DownloadGroupTaskQueue
           && mExecutePool.getTask(entity.getEntity().getKey()) == null) {
         task = (DownloadGroupTask) TaskFactory.getInstance()
             .createTask(targetName, entity, DownloadGroupSchedulers.getInstance());
-        entity.key = entity.getEntity().getGroupName();
+        entity.setKey(entity.getEntity().getGroupName());
         mCachePool.putTask(task);
       } else {
         ALog.w(TAG, "任务已存在");

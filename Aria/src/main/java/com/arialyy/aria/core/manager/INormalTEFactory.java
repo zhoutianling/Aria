@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.orm;
+package com.arialyy.aria.core.manager;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 
 /**
- * Created by AriaL on 2017/7/4.
- * 外键约束
+ * Created by Aria.Lao on 2017/11/1.
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Foreign {
+interface INormalTEFactory<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>> {
+
   /**
-   * 关联的表
+   * 通过key创建任务，只适应于单任务
    */
-  Class<? extends DbEntity> table();
-  /**
-   * 关联的列
-   */
-  String column();
+  TASK_ENTITY create(String key);
 }

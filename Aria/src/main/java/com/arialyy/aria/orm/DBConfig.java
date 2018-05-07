@@ -16,8 +16,6 @@
 package com.arialyy.aria.orm;
 
 import android.text.TextUtils;
-import com.arialyy.aria.core.ErrorEntity;
-import com.arialyy.aria.core.UrlMapping;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -32,9 +30,15 @@ import java.util.Map;
  * 数据库配置信息
  */
 class DBConfig {
+  /*adb pull /mnt/sdcard/Android/data/com.arialyy.simple/files/DB/AriaLyyDb d:/db*/
   static Map<String, Class> mapping = new HashMap<>();
   static String DB_NAME;
-  static int VERSION = 23;
+  static int VERSION = 31;
+
+  /**
+   * 是否将数据库保存在Sd卡，{@code true} 是
+   */
+  static final boolean SAVE_IN_SDCARD = false;
 
   static {
     if (TextUtils.isEmpty(DB_NAME)) {
@@ -46,13 +50,11 @@ class DBConfig {
   }
 
   static {
-    mapping.put("DownloadEntity", DownloadEntity.class);
+    mapping.put("DownloadGroupTaskEntity", DownloadGroupTaskEntity.class);
     mapping.put("DownloadGroupEntity", DownloadGroupEntity.class);
     mapping.put("DownloadTaskEntity", DownloadTaskEntity.class);
-    mapping.put("DownloadGroupTaskEntity", DownloadGroupTaskEntity.class);
-    mapping.put("UploadEntity", UploadEntity.class);
     mapping.put("UploadTaskEntity", UploadTaskEntity.class);
-    mapping.put("ErrorEntity", ErrorEntity.class);
-    //mapping.put("UrlMapping", UrlMapping.class);
+    mapping.put("DownloadEntity", DownloadEntity.class);
+    mapping.put("UploadEntity", UploadEntity.class);
   }
 }

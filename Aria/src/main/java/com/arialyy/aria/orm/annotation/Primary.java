@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.arialyy.aria.orm;
+package com.arialyy.aria.orm.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -23,8 +23,13 @@ import java.lang.annotation.Target;
 
 /**
  * Created by lyy on 2015/11/2.
- * 忽略某个字段
+ * 表ID字段指定
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Ignore {
-  boolean value() default true;
+@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface Primary {
+  int value() default -1;
+
+  /**
+   * 字段需要int类型才可以自增
+   */
+  boolean autoincrement() default false;
 }

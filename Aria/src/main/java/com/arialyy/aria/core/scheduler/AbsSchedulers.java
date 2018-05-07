@@ -18,6 +18,7 @@ package com.arialyy.aria.core.scheduler;
 import android.os.CountDownTimer;
 import android.os.Message;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
@@ -38,8 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by lyy on 2017/6/4.
  * 事件调度器，用于处理任务状态的调度
  */
-abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends AbsTask<TASK_ENTITY>, QUEUE extends ITaskQueue<TASK, TASK_ENTITY>>
-    implements ISchedulers<TASK> {
+abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends AbsTask<TASK_ENTITY>,
+    QUEUE extends ITaskQueue<TASK, TASK_ENTITY>> implements ISchedulers<TASK> {
   private final String TAG = "AbsSchedulers";
 
   protected QUEUE mQueue;
@@ -54,12 +55,12 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
 
   @Override public void register(Object obj) {
     String targetName = obj.getClass().getName();
-    AbsSchedulerListener<TASK, AbsNormalEntity> listener = mObservers.get(targetName);
+    AbsSchedulerListener<TASK, AbsNormalEntity> listener = mObservers.get(getKey(obj));
     if (listener == null) {
       listener = createListener(targetName);
       if (listener != null) {
         listener.setListener(obj);
-        mObservers.put(targetName, listener);
+        mObservers.put(getKey(obj), listener);
       } else {
         ALog.e(TAG, "注册错误，没有【" + targetName + "】观察者");
       }
@@ -67,16 +68,20 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
   }
 
   @Override public void unRegister(Object obj) {
-    if (!mObservers.containsKey(obj.getClass().getName())) {
+    if (!mObservers.containsKey(getKey(obj))) {
       return;
     }
     for (Iterator<Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalEntity>>> iter =
         mObservers.entrySet().iterator(); iter.hasNext(); ) {
       Map.Entry<String, AbsSchedulerListener<TASK, AbsNormalEntity>> entry = iter.next();
-      if (entry.getKey().equals(obj.getClass().getName())) {
+      if (entry.getKey().equals(getKey(obj))) {
         iter.remove();
       }
     }
+  }
+
+  private String getKey(Object obj) {
+    return obj.getClass().getName() + obj.hashCode();
   }
 
   /**
@@ -178,7 +183,9 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
     } else {
       TEManager.getInstance().putTEntity(task.getKey(), task.getTaskEntity());
     }
-    callback(what, task);
+    if (what != FAIL) {
+      callback(what, task);
+    }
   }
 
   /**
@@ -253,7 +260,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
     }
     long interval = 2000;
     int num = 10;
-    if (task instanceof DownloadTask) {
+    if (task instanceof DownloadTask || task instanceof DownloadGroupTask) {
       interval = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getReTryInterval();
       num = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getReTryNum();
     } else if (task instanceof UploadTask) {
@@ -262,6 +269,13 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
     }
 
     final int reTryNum = num;
+    if (task.getTaskEntity().getEntity().getFailNum() > reTryNum) {
+      callback(FAIL, task);
+      mQueue.removeTaskFormQueue(task.getKey());
+      startNextTask();
+      TEManager.getInstance().removeTEntity(task.getKey());
+      return;
+    }
     CountDownTimer timer = new CountDownTimer(interval, 1000) {
       @Override public void onTick(long millisUntilFinished) {
 
@@ -269,7 +283,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
 
       @Override public void onFinish() {
         AbsEntity entity = task.getTaskEntity().getEntity();
-        if (entity.getFailNum() < reTryNum) {
+        if (entity.getFailNum() <= reTryNum) {
           TASK task = mQueue.getTask(entity.getKey());
           mQueue.reTryStart(task);
         } else {

@@ -24,7 +24,10 @@ import java.net.InetAddress;
  * ftp url 信息链接实体
  */
 public class FtpUrlEntity implements Cloneable {
-
+  /**
+   * 如：ftp://127.0.0.1:21/download/AriaPrj.zip
+   * remotePath便是：download/AriaPrj.zip
+   */
   public String remotePath;
 
   public String account;
@@ -35,12 +38,12 @@ public class FtpUrlEntity implements Cloneable {
   public String url;
 
   /**
-   * ftp协议
+   * ftp协议：ftp
    */
   public String protocol;
 
   /**
-   * 用户
+   * 登录的用户名
    */
   public String user;
   /**

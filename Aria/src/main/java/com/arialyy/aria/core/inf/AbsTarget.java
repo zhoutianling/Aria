@@ -15,13 +15,11 @@
  */
 package com.arialyy.aria.core.inf;
 
-import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.CancelCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
-import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.manager.TEManager;
@@ -30,25 +28,29 @@ import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by AriaL on 2017/7/3.
  */
 public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
     implements ITarget<TARGET> {
+  protected String TAG = "";
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
   protected String mTargetName;
 
+  protected AbsTarget() {
+    TAG = CommonUtil.getClassName(this);
+  }
+
   /**
-   * 重置下载状态，将任务状态设置为未开始状态
+   * 重置状态，将任务状态设置为未开始状态
+   * 注意：如果在后续方法调用链中没有调用 {@link #start()}、{@link #stop()}、{@link #cancel()}、{@link #resume()}
+   * 等操作任务的方法，那么你需要调用{@link #save()}才能将修改保存到数据库
    */
   public TARGET resetState() {
     mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
-    mTaskEntity.refreshInfo = true;
-    mTaskEntity.update();
+    mTaskEntity.setRefreshInfo(true);
     return (TARGET) this;
   }
 
@@ -60,25 +62,9 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
       ALog.d("AbsTarget", "任务正在下载，即将删除任务");
       cancel();
     } else {
-      mTaskEntity.deleteData();
+      mEntity.deleteData();
       TEManager.getInstance().removeTEntity(mEntity.getKey());
     }
-  }
-
-  /**
-   * 任务是否在执行
-   *
-   * @return {@code true} 任务正在执行
-   */
-  public boolean isRunning() {
-    return false;
-  }
-
-  /**
-   * 任务是否存在
-   */
-  public boolean taskExists() {
-    return false;
   }
 
   /**
@@ -86,6 +72,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    *
    * @return 该任务进度
    */
+  @Override
   public long getCurrentProgress() {
     return mEntity == null ? -1 : mEntity.getCurrentProgress();
   }
@@ -110,6 +97,8 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
 
   /**
    * 设置扩展字段，用来保存你的其它数据，如果你的数据比较多，你可以把你的数据转换为JSON字符串，然后再存到Aria中
+   * 注意：如果在后续方法调用链中没有调用 {@link #start()}、{@link #stop()}、{@link #cancel()}、{@link #resume()}
+   * 等操作任务的方法，那么你需要调用{@link #save()}才能将修改保存到数据库
    *
    * @param str 扩展数据
    */
@@ -117,8 +106,10 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
     if (TextUtils.isEmpty(str)) return (TARGET) this;
     if (TextUtils.isEmpty(mEntity.getStr()) || !mEntity.getStr().equals(str)) {
       mEntity.setStr(str);
-      mEntity.save();
+    } else {
+      ALog.e(TAG, "设置扩展字段失败，扩展字段为null");
     }
+
     return (TARGET) this;
   }
 
@@ -135,6 +126,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    *
    * @return {@link IEntity}
    */
+  @Override
   public int getTaskState() {
     return mEntity.getState();
   }
@@ -156,75 +148,11 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   }
 
   /**
-   * 给url请求添加头部
+   * 检查实体是否合法，如果实体合法，将保存实体到数据库，或更新数据库中的实体对象
    *
-   * @param key 头部key
-   * @param header 头部value
+   * @return {@code true} 合法
    */
-  public TARGET addHeader(@NonNull String key, @NonNull String header) {
-    return addHeader(key, header, false);
-  }
-
-  /**
-   * 给url请求添加头部
-   *
-   * @param key 头部key
-   * @param header 头部value
-   * @param refreshHeader 更新数据库中保存的头部信息
-   */
-  public TARGET addHeader(@NonNull String key, @NonNull String header, boolean refreshHeader) {
-    mTaskEntity.headers.put(key, header);
-    if (refreshHeader) {
-      mTaskEntity.update();
-    }
-    return (TARGET) this;
-  }
-
-  /**
-   * 给url请求添加头部
-   */
-  public TARGET addHeaders(Map<String, String> headers) {
-    return addHeaders(headers, false);
-  }
-
-  /**
-   * 给url请求添加头部
-   *
-   * @param refreshHeader 更新数据库中保存的头部信息
-   */
-  public TARGET addHeaders(Map<String, String> headers, boolean refreshHeader) {
-    if (headers != null && headers.size() > 0) {
-      Set<String> keys = headers.keySet();
-      for (String key : keys) {
-        mTaskEntity.headers.put(key, headers.get(key));
-      }
-    }
-    if (refreshHeader) {
-      mTaskEntity.update();
-    }
-    return (TARGET) this;
-  }
-
-  /**
-   * 设置请求类型，POST或GET，默认为在GET
-   * 只试用于HTTP请求
-   *
-   * @param requestEnum {@link RequestEnum}
-   */
-  public TARGET setRequestMode(RequestEnum requestEnum) {
-    mTaskEntity.requestEnum = requestEnum;
-    return (TARGET) this;
-  }
-
-  /**
-   * 开始任务
-   */
-  @Override public void start() {
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START,
-            checkTaskType()))
-        .exe();
-  }
+  protected abstract boolean checkEntity();
 
   protected int checkTaskType() {
     int taskType = 0;
@@ -239,52 +167,84 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   }
 
   /**
+   * 保存修改
+   */
+  public void save() {
+    if (!checkEntity()) {
+      ALog.e(TAG, "保存修改失败");
+    }
+  }
+
+  /**
+   * 开始任务
+   */
+  @Override public void start() {
+    if (checkEntity()) {
+      AriaManager.getInstance(AriaManager.APP)
+          .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START,
+              checkTaskType()))
+          .exe();
+    }
+  }
+
+  /**
    * 停止任务
    *
    * @see #stop()
    */
   @Deprecated public void pause() {
-    stop();
+    if (checkEntity()) {
+      stop();
+    }
   }
 
   @Override public void stop() {
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_STOP,
-            checkTaskType()))
-        .exe();
+    if (checkEntity()) {
+      AriaManager.getInstance(AriaManager.APP)
+          .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_STOP,
+              checkTaskType()))
+          .exe();
+    }
   }
 
   /**
    * 恢复任务
    */
   @Override public void resume() {
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START,
-            checkTaskType()))
-        .exe();
+    if (checkEntity()) {
+      AriaManager.getInstance(AriaManager.APP)
+          .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START,
+              checkTaskType()))
+          .exe();
+    }
   }
 
   /**
    * 删除任务
    */
   @Override public void cancel() {
-    AriaManager.getInstance(AriaManager.APP)
-        .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL,
-            checkTaskType()))
-        .exe();
+    if (checkEntity()) {
+      AriaManager.getInstance(AriaManager.APP)
+          .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CANCEL,
+              checkTaskType()))
+          .exe();
+    }
   }
 
   /**
-   * 重试下载
+   * 任务重试
    */
   public void reTry() {
-    List<ICmd> cmds = new ArrayList<>();
-    int taskType = checkTaskType();
-    cmds.add(
-        CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_STOP, taskType));
-    cmds.add(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START,
-        taskType));
-    AriaManager.getInstance(AriaManager.APP).setCmds(cmds).exe();
+    if (checkEntity()) {
+      List<ICmd> cmds = new ArrayList<>();
+      int taskType = checkTaskType();
+      cmds.add(
+          CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_STOP,
+              taskType));
+      cmds.add(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_START,
+          taskType));
+      AriaManager.getInstance(AriaManager.APP).setCmds(cmds).exe();
+    }
   }
 
   /**
@@ -294,35 +254,21 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    * {@code false}如果任务已经完成，只删除任务数据库记录，
    */
   public void cancel(boolean removeFile) {
-    CancelCmd cancelCmd = (CancelCmd) CommonUtil.createNormalCmd(mTargetName, mTaskEntity,
-        NormalCmdFactory.TASK_CANCEL, checkTaskType());
-    cancelCmd.removeFile = removeFile;
-    AriaManager.getInstance(AriaManager.APP).setCmd(cancelCmd).exe();
+    if (checkEntity()) {
+      CancelCmd cancelCmd = (CancelCmd) CommonUtil.createNormalCmd(mTargetName, mTaskEntity,
+          NormalCmdFactory.TASK_CANCEL, checkTaskType());
+      cancelCmd.removeFile = removeFile;
+      AriaManager.getInstance(AriaManager.APP).setCmd(cancelCmd).exe();
+    }
   }
 
   /**
-   * 创建文件名，如果url链接有后缀名，则使用url中的后缀名
-   *
-   * @return url 的 hashKey
+   * 重新下载
    */
-  protected String createFileName(String url) {
-    int end = url.indexOf("?");
-    String tempUrl, fileName = "";
-    if (end > 0) {
-      tempUrl = url.substring(0, end);
-      int tempEnd = tempUrl.lastIndexOf("/");
-      if (tempEnd > 0) {
-        fileName = tempUrl.substring(tempEnd + 1, tempUrl.length());
-      }
-    } else {
-      int tempEnd = url.lastIndexOf("/");
-      if (tempEnd > 0) {
-        fileName = url.substring(tempEnd + 1, url.length());
-      }
+  public void reStart() {
+    if (checkEntity()) {
+      cancel();
+      start();
     }
-    if (TextUtils.isEmpty(fileName)) {
-      fileName = CommonUtil.keyToHashKey(url);
-    }
-    return fileName;
   }
 }

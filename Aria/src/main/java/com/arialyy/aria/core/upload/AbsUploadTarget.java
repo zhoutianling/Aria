@@ -13,20 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.manager;
+package com.arialyy.aria.core.upload;
 
 import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import java.util.List;
 
 /**
- * 任务组通过组创建任务
- * Created by Aria.Lao on 2017/11/1.
+ * Created by AriaL on 2017/6/29.
  */
-interface IGTEntityFactory<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>> {
+abstract class AbsUploadTarget<TARGET extends AbsUploadTarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
+    extends AbsTarget<TARGET, ENTITY, TASK_ENTITY> {
 
-  /**
-   * 通过key创建任务
-   */
-  TASK_ENTITY create(String groupName, List<String> urls);
 }

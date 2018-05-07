@@ -16,6 +16,7 @@
 
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -28,7 +29,7 @@ import com.arialyy.aria.util.ErrorHelp;
  * D_HTTP\FTP单任务下载工具
  */
 public class SimpleDownloadUtil implements IUtil, Runnable {
-  private static final String TAG = "SimpleDownloadUtil";
+  private String TAG = "SimpleDownloadUtil";
   private IDownloadListener mListener;
   private Downloader mDownloader;
   private DownloadTaskEntity mTaskEntity;
@@ -85,14 +86,14 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
 
   private void failDownload(String msg, boolean needRetry) {
     mListener.onFail(needRetry);
-    ErrorHelp.saveError("HTTP_DOWNLOAD", mTaskEntity.getEntity(), msg, "");
+    ErrorHelp.saveError(TAG, msg, "");
   }
 
   @Override public void run() {
     mListener.onPre();
     if (mTaskEntity.getEntity().getFileSize() <= 1
-        || mTaskEntity.refreshInfo
-        || mTaskEntity.requestType == AbsTaskEntity.D_FTP) {
+        || mTaskEntity.isRefreshInfo()
+        || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP) {
       new Thread(createInfoThread()).start();
     } else {
       mDownloader.start();
@@ -103,10 +104,10 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
    * 通过链接类型创建不同的获取文件信息的线程
    */
   private Runnable createInfoThread() {
-    switch (mTaskEntity.requestType) {
+    switch (mTaskEntity.getRequestType()) {
       case AbsTaskEntity.D_FTP:
         return new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
-          @Override public void onComplete(String url, int code) {
+          @Override public void onComplete(String url, CompleteInfo info) {
             mDownloader.start();
           }
 
@@ -116,7 +117,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
         });
       case AbsTaskEntity.D_HTTP:
         return new HttpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
-          @Override public void onComplete(String url, int code) {
+          @Override public void onComplete(String url, CompleteInfo info) {
             mDownloader.start();
           }
 

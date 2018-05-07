@@ -28,10 +28,10 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.3.14'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.14'
+compile 'com.arialyy.aria:aria-core:3.4'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.4'
 ```
-如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:3.3.13'`替换为
+如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:<last-version>'`替换为
 ```
 compile('com.arialyy.aria:aria-core:<last-version>'){
    exclude group: 'com.android.support'
@@ -94,20 +94,17 @@ protected void onCreate(Bundle savedInstanceState) {
 	//在这里处理任务完成的状态
 }
 ```
-[更多注解使用方法](https://github.com/AriaLyy/Aria/wiki/%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8)
 
-### [HTTP任务组下载\FTP下载；HTTP\FTP文件上传](https://github.com/AriaLyy/Aria/wiki/Aria%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8)
-
-### [参数配置](https://github.com/AriaLyy/Aria/wiki/Aria%E5%8F%82%E6%95%B0%E9%85%8D%E7%BD%AE)
-
-### [更多说明，见WIKI](https://github.com/AriaLyy/Aria/wiki)
+### [更多说明，见WIKI](http://aria.laoyuyu.me/aria_doc/)
 
 ### 版本日志
- + v_3.3.14
-    - 修复ftp上传和下载的兼容性问题
-    - 如果url中的path有"//"将替换为"/"
-    - 修复http上传成功后，如果服务器没有设置返回码导致上传失败的问题
-    - 上传实体UploadEntity增加responseStr字段，http上传完成后，在被`@Upload.onComplete`注解的方法中，可通过`task.getEntity().getResponseStr())`获取服务器返回的数据
+   + v_3.4
+       - 优化大量代码
+       - 重构Aria的ORM模型，提高了数据读取的可靠性和读写速度
+       - 现在可在任意类中使用Aria了，[使用方法](http://aria.laoyuyu.me/aria_doc/start/any_java.html)
+       - 添加`window.location.replace("http://xxxx")`类型的网页重定向支持
+       - 支持gzip、deflate 压缩类型的输入流
+       - 添加`useServerFileName`，可使用服务端响应header的`Content-Disposition`携带的文件名
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 

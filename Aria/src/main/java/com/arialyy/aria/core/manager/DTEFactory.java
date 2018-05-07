@@ -18,25 +18,28 @@ package com.arialyy.aria.core.manager;
 import android.text.TextUtils;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.download.wrapper.DTEWrapper;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Aria.Lao on 2017/11/1.
  * 任务实体工厂
  */
-class DTEntityFactory implements ITEntityFactory<DownloadEntity, DownloadTaskEntity> {
-  private static final String TAG = "DTEntityFactory";
-  private static volatile DTEntityFactory INSTANCE = null;
+class DTEFactory implements INormalTEFactory<DownloadEntity, DownloadTaskEntity> {
+  private static final String TAG = "DTEFactory";
+  private static volatile DTEFactory INSTANCE = null;
 
-  private DTEntityFactory() {
+  private DTEFactory() {
   }
 
-  public static DTEntityFactory getInstance() {
+  public static DTEFactory getInstance() {
     if (INSTANCE == null) {
-      synchronized (DTEntityFactory.class) {
-        INSTANCE = new DTEntityFactory();
+      synchronized (DTEFactory.class) {
+        INSTANCE = new DTEFactory();
       }
     }
     return INSTANCE;
@@ -45,18 +48,24 @@ class DTEntityFactory implements ITEntityFactory<DownloadEntity, DownloadTaskEnt
   /**
    * 通过下载实体创建任务实体
    */
-  @Override public DownloadTaskEntity create(DownloadEntity entity) {
-    DownloadTaskEntity taskEntity =
-        DbEntity.findFirst(DownloadTaskEntity.class, "key=? and isGroupTask='false' and url=?",
-            entity.getDownloadPath(), entity.getUrl());
-    if (taskEntity == null) {
+  private DownloadTaskEntity create(DownloadEntity entity) {
+    List<DTEWrapper> wrapper = DbEntity.findRelationData(DTEWrapper.class,
+        "DownloadTaskEntity.key=? and DownloadTaskEntity.isGroupTask='false' and DownloadTaskEntity.url=?",
+        entity.getDownloadPath(), entity.getUrl());
+    DownloadTaskEntity taskEntity;
+    if (wrapper != null && !wrapper.isEmpty()) {
+      taskEntity = wrapper.get(0).taskEntity;
+      if (taskEntity == null) {
+        taskEntity = new DownloadTaskEntity();
+      } else if (taskEntity.getEntity() == null || TextUtils.isEmpty(taskEntity.getEntity().getUrl())) {
+        taskEntity.setEntity(entity);
+      }
+    } else {
       taskEntity = new DownloadTaskEntity();
-      taskEntity.save(entity);
-    } else if (taskEntity.entity == null || TextUtils.isEmpty(taskEntity.entity.getUrl())) {
-      taskEntity.save(entity);
-    } else if (!taskEntity.entity.getUrl().equals(entity.getUrl())) {  //处理地址切换而保存路径不变
-      taskEntity.save(entity);
     }
+    taskEntity.setKey(entity.getDownloadPath());
+    taskEntity.setUrl(entity.getUrl());
+    taskEntity.setEntity(entity);
     return taskEntity;
   }
 
@@ -80,6 +89,8 @@ class DTEntityFactory implements ITEntityFactory<DownloadEntity, DownloadTaskEnt
       entity = new DownloadEntity();
       entity.setUrl(downloadUrl);
       entity.setGroupChild(false);
+      entity.setGroupName(null);
+      entity.setDownloadPath(UUID.randomUUID().toString().replace("-", ""));  //设置临时路径
     }
     File file = new File(entity.getDownloadPath());
     if (!file.exists()) {

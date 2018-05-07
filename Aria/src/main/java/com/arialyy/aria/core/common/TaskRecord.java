@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core;
+package com.arialyy.aria.core.common;
 
 import com.arialyy.aria.orm.DbEntity;
 
 /**
- * Created by lyy on 2017/10/17.
- * Url 映射表
+ * Created by laoyuyu on 2018/3/21.
+ * 任务上传或下载的记录
  */
-public class UrlMapping extends DbEntity {
+class TaskRecord extends DbEntity {
   /**
-   * 各实体对应的key
+   * 任务线程数
    */
-  public String key;
+  public int threadNum;
 
-  /**
-   * 链接
-   */
-  public String url;
+  //public int re
+
 }

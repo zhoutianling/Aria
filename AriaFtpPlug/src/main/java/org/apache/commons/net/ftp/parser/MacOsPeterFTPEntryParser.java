@@ -29,7 +29,8 @@ import org.apache.commons.net.ftp.FTPFile;
  * @see org.apache.commons.net.ftp.FTPFileEntryParser FTPFileEntryParser (for usage instructions)
  * @since 3.1
  */
-public class MacOsPeterFTPEntryParser extends ConfigurableFTPFileEntryParserImpl {
+public class
+MacOsPeterFTPEntryParser extends ConfigurableFTPFileEntryParserImpl {
 
   static final String DEFAULT_DATE_FORMAT = "MMM d yyyy"; //Nov 9 2001
 

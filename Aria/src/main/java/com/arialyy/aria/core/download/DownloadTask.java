@@ -18,7 +18,6 @@ package com.arialyy.aria.core.download;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.downloader.SimpleDownloadUtil;
@@ -78,16 +77,12 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
   }
 
   /**
-   * 任务下载状态
+   * 是否真正下载
    *
-   * @see DownloadTask#isRunning()
+   * @return {@code true} 真正下载
    */
-  @Deprecated public boolean isDownloading() {
-    return mUtil.isRunning();
-  }
-
   @Override public boolean isRunning() {
-    return isDownloading();
+    return mUtil.isRunning();
   }
 
   public DownloadEntity getDownloadEntity() {

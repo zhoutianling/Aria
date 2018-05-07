@@ -16,16 +16,19 @@
 package com.arialyy.aria.core.upload;
 
 import android.support.annotation.NonNull;
-import com.arialyy.aria.core.inf.AbsUploadTarget;
-import com.arialyy.aria.core.manager.TEManager;
+import com.arialyy.aria.core.common.RequestEnum;
+import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import java.io.File;
+import com.arialyy.aria.core.inf.IHttpHeaderTarget;
+import java.util.Map;
 
 /**
  * Created by lyy on 2017/2/28.
- * http 当文件上传
+ * http 单文件上传
  */
-public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, UploadTaskEntity> {
+public class UploadTarget extends BaseNormalTarget<UploadTarget>
+    implements IHttpHeaderTarget<UploadTarget> {
+  private HttpHeaderDelegate<UploadTarget, UploadEntity, UploadTaskEntity> mDelegate;
 
   UploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
@@ -33,24 +36,19 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
   }
 
   private void initTask(String filePath) {
-    mTaskEntity = TEManager.getInstance().getTEntity(UploadTaskEntity.class, filePath);
-    if (mTaskEntity == null) {
-      mTaskEntity = TEManager.getInstance().createTEntity(UploadTaskEntity.class, filePath);
-    }
-    mEntity = mTaskEntity.entity;
-    File file = new File(filePath);
-    mEntity.setFileName(file.getName());
-    mEntity.setFileSize(file.length());
+    initTarget(filePath);
+
     //http暂时不支持断点上传
-    mTaskEntity.isSupportBP = false;
-    mTaskEntity.requestType = AbsTaskEntity.U_HTTP;
+    mTaskEntity.setSupportBP(false);
+    mTaskEntity.setRequestType(AbsTaskEntity.U_HTTP);
+    mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
   }
 
   /**
    * 设置userAgent
    */
   public UploadTarget setUserAngent(@NonNull String userAgent) {
-    mTaskEntity.userAgent = userAgent;
+    mTaskEntity.setUserAgent(userAgent);
     return this;
   }
 
@@ -60,7 +58,7 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
    * @param attachment 附件key
    */
   public UploadTarget setAttachment(@NonNull String attachment) {
-    mTaskEntity.attachment = attachment;
+    mTaskEntity.setAttachment(attachment);
     return this;
   }
 
@@ -70,7 +68,19 @@ public class UploadTarget extends AbsUploadTarget<UploadTarget, UploadEntity, Up
    * @param contentType tip：multipart/form-data
    */
   public UploadTarget setContentType(String contentType) {
-    mTaskEntity.contentType = contentType;
+    mTaskEntity.setContentType(contentType);
     return this;
+  }
+
+  @Override public UploadTarget addHeader(@NonNull String key, @NonNull String value) {
+    return mDelegate.addHeader(key, value);
+  }
+
+  @Override public UploadTarget addHeaders(Map<String, String> headers) {
+    return mDelegate.addHeaders(headers);
+  }
+
+  @Override public UploadTarget setRequestMode(RequestEnum requestEnum) {
+    return mDelegate.setRequestMode(requestEnum);
   }
 }

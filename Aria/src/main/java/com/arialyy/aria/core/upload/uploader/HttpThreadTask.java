@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
+import android.util.Log;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -65,30 +66,33 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     try {
       url = new URL(mEntity.getUrl());
       mHttpConn = (HttpURLConnection) url.openConnection();
+      mHttpConn.setRequestMethod(mTaskEntity.getRequestEnum().name);
       mHttpConn.setUseCaches(false);
       mHttpConn.setDoOutput(true);
       mHttpConn.setDoInput(true);
+      mHttpConn.setRequestProperty("Connection", "Keep-Alive");
       mHttpConn.setRequestProperty("Content-Type",
-          mTaskEntity.contentType + "; boundary=" + BOUNDARY);
-      mHttpConn.setRequestProperty("User-Agent", mTaskEntity.userAgent);
+          mTaskEntity.getContentType() + "; boundary=" + BOUNDARY);
+      mHttpConn.setRequestProperty("User-Agent", mTaskEntity.getUserAgent());
+      mHttpConn.setConnectTimeout(5000);
       //mHttpConn.setRequestProperty("Range", "bytes=" + 0 + "-" + "100");
       //内部缓冲区---分段上传防止oom
       mHttpConn.setChunkedStreamingMode(1024);
 
       //添加Http请求头部
-      Set<String> keys = mTaskEntity.headers.keySet();
+      Set<String> keys = mTaskEntity.getHeaders().keySet();
       for (String key : keys) {
-        mHttpConn.setRequestProperty(key, mTaskEntity.headers.get(key));
+        mHttpConn.setRequestProperty(key, mTaskEntity.getHeaders().get(key));
       }
       mOutputStream = mHttpConn.getOutputStream();
       PrintWriter writer =
-          new PrintWriter(new OutputStreamWriter(mOutputStream, mTaskEntity.charSet), true);
+          new PrintWriter(new OutputStreamWriter(mOutputStream, mTaskEntity.getCharSet()), true);
       //添加文件上传表单字段
-      keys = mTaskEntity.formFields.keySet();
+      keys = mTaskEntity.getFormFields().keySet();
       for (String key : keys) {
-        addFormField(writer, key, mTaskEntity.formFields.get(key));
+        addFormField(writer, key, mTaskEntity.getFormFields().get(key));
       }
-      uploadFile(writer, mTaskEntity.attachment, uploadFile);
+      uploadFile(writer, mTaskEntity.getAttachment(), uploadFile);
       mTaskEntity.getEntity().setResponseStr(finish(writer));
       mListener.onComplete();
     } catch (Exception e) {
@@ -119,7 +123,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
         .append("\"")
         .append(LINE_END);
     writer.append("Content-Type: text/plain; charset=")
-        .append(mTaskEntity.charSet)
+        .append(mTaskEntity.getCharSet())
         .append(LINE_END);
     writer.append(LINE_END);
     writer.append(value).append(LINE_END);

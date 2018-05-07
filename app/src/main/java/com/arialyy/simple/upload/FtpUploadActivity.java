@@ -35,8 +35,8 @@ import java.io.File;
  * Ftp 文件上传demo
  */
 public class FtpUploadActivity extends BaseActivity<ActivityFtpUploadBinding> {
-  private final String FILE_PATH = "/mnt/sdcard/AriaPrj.zip";
-  private final String URL = "ftp://192.168.1.6:21/aa/你好";
+  private final String FILE_PATH = "/mnt/sdcard/sql.rar";
+  private final String URL = "ftp://192.168.1.7:21/aa//你好";
 
   @Override protected void init(Bundle savedInstanceState) {
     setTile("D_FTP 文件上传");

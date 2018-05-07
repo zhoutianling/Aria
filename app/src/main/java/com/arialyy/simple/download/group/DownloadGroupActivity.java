@@ -17,6 +17,7 @@ package com.arialyy.simple.download.group;
 
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
@@ -45,10 +46,10 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     Aria.download(this).register();
     setTitle("任务组");
     mUrls = getModule(GroupModule.class).getUrls();
-    DownloadGroupTaskEntity entity = Aria.download(this).getDownloadGroupTask(mUrls);
+    DownloadGroupTaskEntity entity = Aria.download(this).getGroupTask(mUrls);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
-      mChildList.addData(groupEntity.getSubTask());
+      mChildList.addData(groupEntity.getSubEntities());
       getBinding().setFileSize(groupEntity.getConvertFileSize());
       if (groupEntity.getFileSize() == 0) {
         getBinding().setProgress(0);
@@ -79,8 +80,8 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     switch (view.getId()) {
       case R.id.start:
         Aria.download(this)
-            .load(mUrls)
-            .setDownloadDirPath(
+            .loadGroup(mUrls)
+            .setDirPath(
                 Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_3")
             .setGroupAlias("任务组测试")
             .setSubFileName(getModule(GroupModule.class).getSubName())
@@ -116,23 +117,25 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
 
   @DownloadGroup.onTaskPre() protected void onTaskPre(DownloadGroupTask task) {
     if (mChildList.getSubData().size() <= 0) {
-      mChildList.addData(task.getEntity().getSubTask());
+      mChildList.addData(task.getEntity().getSubEntities());
     }
     L.d(TAG, "group task pre");
     getBinding().setFileSize(task.getConvertFileSize());
     if (mChildList.getSubData().size() <= 0) {
-      mChildList.addData(task.getEntity().getSubTask());
+      mChildList.addData(task.getEntity().getSubEntities());
     }
   }
 
   @DownloadGroup.onTaskStart() void taskStart(DownloadGroupTask task) {
+    getBinding().setFileSize(task.getConvertFileSize());
     L.d(TAG, "group task start");
   }
 
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
+    Log.d(TAG, "group running");
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
-    mChildList.updateChildProgress(task.getEntity().getSubTask());
+    mChildList.updateChildProgress(task.getEntity().getSubEntities());
   }
 
   @DownloadGroup.onTaskResume() void taskResume(DownloadGroupTask task) {
@@ -157,7 +160,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   @DownloadGroup.onTaskComplete() void taskComplete(DownloadGroupTask task) {
     getBinding().setProgress(100);
     getBinding().setSpeed("");
-    mChildList.updateChildProgress(task.getEntity().getSubTask());
+    mChildList.updateChildProgress(task.getEntity().getSubEntities());
     T.showShort(this, "任务组下载完成");
     L.d(TAG, "任务组下载完成");
   }

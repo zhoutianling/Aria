@@ -28,6 +28,7 @@ import android.widget.Toast;
 import butterknife.Bind;
 import com.arialyy.annotations.Download;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
@@ -38,8 +39,6 @@ import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivitySingleBinding;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
@@ -47,19 +46,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
       //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-      //"http://sitcac.daxincf.cn/wp-content/uploads/swift_vido/01/element.mp4_1";
-      //"http://120.25.196.56:8000/filereq?id=15692406294&ipncid=105635&client=android&filename=20170819185541.avi";
-      //"http://down2.xiaoshuofuwuqi.com/d/file/filetxt/20170608/14/%BA%DA%CE%D7%CA%A6%E1%C8%C6%F0.txt";
-      //"http://tinghuaapp.oss-cn-shanghai.aliyuncs.com/20170612201739607815";
-      //"http://static.gaoshouyou.com/d/36/69/2d3699acfa69e9632262442c46516ad8.apk";
-      //"http://oqcpqqvuf.bkt.clouddn.com/ceshi.txt";
-      //"http://down8.androidgame-store.com/201706122321/97967927DD4E53D9905ECAA7874C8128/new/game1/19/45319/com.neuralprisma-2.5.2.174-2000174_1494784835.apk?f=web_1";
-      //不支持断点的链接
-      //"http://ox.konsung.net:5555/ksdc-web/download/downloadFile/?fileName=ksdc_1.0.2.apk&rRange=0-";
-      //"http://gdown.baidu.com/data/wisegame/0904344dee4a2d92/QQ_718.apk";
-      //"http://qudao.5535.cn/one/game.html?game=531&cpsuser=xiaoeryu2";
-      "https://bogoe-res.mytbz.com/tbzengsong/If You're Happy.mp3";
-      //"http://ozr0ucjs5.bkt.clouddn.com/51_box-104_20180131202610.apk";
+      //"http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
+      //"https://static.donguo.me//video/ip/course/pfys_1.mp4";
+      //"https://www.baidu.com/link?url=_LFCuTPtnzFxVJByJ504QymRywIA1Z_T5xUxe9ZLuxcGM0C_RcdpWyB1eGjbJC-e5wv5wAKM4WmLMAS5KeF6EZJHB8Va3YqZUiaErqK_pxm&wd=&eqid=e8583fe70002d126000000065a99f864";
+      "https://d.pcs.baidu.com/file/a02c89a2d479d4fd2756f3313d42491d?fid=4232431903-250528-1114369760340736&dstime=1525491372&rt=sh&sign=FDtAERVY-DCb740ccc5511e5e8fedcff06b081203-3C13vkOkuk4TqXvVYW05zj1K0ao%3D&expires=8h&chkv=1&chkbd=0&chkpc=et&dp-logid=8651730921842106225&dp-callid=0&r=165533013";
+
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -84,7 +75,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   @Override public boolean onMenuItemClick(MenuItem item) {
-    double speed = -1;
+    int speed = -1;
     String msg = "";
     switch (item.getItemId()) {
       case R.id.help:
@@ -95,19 +86,19 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         showMsgDialog("tip", msg);
         break;
       case R.id.speed_0:
-        speed = 0.0;
+        speed = 0;
         break;
       case R.id.speed_128:
-        speed = 128.0;
+        speed = 128;
         break;
       case R.id.speed_256:
-        speed = 256.0;
+        speed = 256;
         break;
       case R.id.speed_512:
-        speed = 512.0;
+        speed = 512;
         break;
       case R.id.speed_1m:
-        speed = 1024.0;
+        speed = 1024;
         break;
     }
     if (speed > -1) {
@@ -119,67 +110,87 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   @Download.onWait void onWait(DownloadTask task) {
-    Log.d(TAG, "wait ==> " + task.getDownloadEntity().getFileName());
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      Log.d(TAG, "wait ==> " + task.getDownloadEntity().getFileName());
+    }
   }
 
   @Download.onPre protected void onPre(DownloadTask task) {
-    setBtState(false);
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      setBtState(false);
+    }
   }
 
   @Download.onTaskStart void taskStart(DownloadTask task) {
-    getBinding().setFileSize(task.getConvertFileSize());
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      getBinding().setFileSize(task.getConvertFileSize());
+    }
   }
 
   @Download.onTaskRunning protected void running(DownloadTask task) {
-
-    long len = task.getFileSize();
-    if (len == 0) {
-      getBinding().setProgress(0);
-    } else {
-      getBinding().setProgress(task.getPercent());
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      //Log.d(TAG, task.getKey());
+      long len = task.getFileSize();
+      if (len == 0) {
+        getBinding().setProgress(0);
+      } else {
+        getBinding().setProgress(task.getPercent());
+      }
+      getBinding().setSpeed(task.getConvertSpeed());
     }
-    getBinding().setSpeed(task.getConvertSpeed());
   }
 
   @Download.onTaskResume void taskResume(DownloadTask task) {
-    mStart.setText("暂停");
-    setBtState(false);
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mStart.setText("暂停");
+      setBtState(false);
+    }
   }
 
   @Download.onTaskStop void taskStop(DownloadTask task) {
-    mStart.setText("恢复");
-    setBtState(true);
-    getBinding().setSpeed("");
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      mStart.setText("恢复");
+      setBtState(true);
+      getBinding().setSpeed("");
+    }
   }
 
   @Download.onTaskCancel void taskCancel(DownloadTask task) {
-    getBinding().setProgress(0);
-    Toast.makeText(SingleTaskActivity.this, "取消下载", Toast.LENGTH_SHORT).show();
-    mStart.setText("开始");
-    setBtState(true);
-    getBinding().setSpeed("");
-    Log.d(TAG, "cancel");
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      getBinding().setProgress(0);
+      Toast.makeText(SingleTaskActivity.this, "取消下载", Toast.LENGTH_SHORT).show();
+      mStart.setText("开始");
+      setBtState(true);
+      getBinding().setSpeed("");
+      Log.d(TAG, "cancel");
+    }
   }
 
   @Download.onTaskFail void taskFail(DownloadTask task) {
-    Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
-    setBtState(true);
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      Toast.makeText(SingleTaskActivity.this, "下载失败", Toast.LENGTH_SHORT).show();
+      setBtState(true);
+    }
   }
 
   @Download.onTaskComplete void taskComplete(DownloadTask task) {
-    getBinding().setProgress(100);
-    Toast.makeText(SingleTaskActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
-    mStart.setText("重新开始？");
-    mCancel.setEnabled(false);
-    setBtState(true);
-    getBinding().setSpeed("");
-    L.d(TAG, "path ==> " + task.getDownloadEntity().getDownloadPath());
-    L.d(TAG, "md5Code ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
-    L.d(TAG, "data ==> " + Aria.download(this).getDownloadEntity(DOWNLOAD_URL));
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      getBinding().setProgress(100);
+      Toast.makeText(SingleTaskActivity.this, "下载完成", Toast.LENGTH_SHORT).show();
+      mStart.setText("重新开始？");
+      mCancel.setEnabled(false);
+      setBtState(true);
+      getBinding().setSpeed("");
+      L.d(TAG, "path ==> " + task.getDownloadEntity().getDownloadPath());
+      L.d(TAG, "md5Code ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
+      L.d(TAG, "data ==> " + Aria.download(this).getDownloadEntity(DOWNLOAD_URL));
+    }
   }
 
   @Download.onNoSupportBreakPoint public void onNoSupportBreakPoint(DownloadTask task) {
-    T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
+    if (task.getKey().equals(DOWNLOAD_URL)) {
+      T.showShort(SingleTaskActivity.this, "该下载链接不支持断点");
+    }
   }
 
   @Override protected int setLayoutId() {
@@ -195,7 +206,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       mStart.setText("恢复");
       mStart.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
       setBtState(true);
-    } else if (target.isDownloading()) {
+    } else if (target.isRunning()) {
       setBtState(false);
     }
     getBinding().setFileSize(target.getConvertFileSize());
@@ -208,10 +219,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         break;
       case R.id.stop:
         Aria.download(this).load(DOWNLOAD_URL).stop();
+        //startActivity(new Intent(this, SingleTaskActivity.class));
         //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
       case R.id.cancel:
-        //Aria.download(this).load(DOWNLOAD_URL).cancel();
+        Aria.download(this).load(DOWNLOAD_URL).cancel();
         Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
     }
@@ -220,24 +232,27 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private void startD() {
     //Aria.get(this).setLogLevel(ALog.LOG_CLOSE);
     //Aria.download(this).load("aaaa.apk");
-    Map<String, String> map = new HashMap<>();
-    map.put("User-Agent",
-        "Mozilla/5.0 (Linux; Android 4.4.4; Nexus 5 Build/KTU84P; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 Mobile MQQBrowser/6.2 TBS/043722 Safari/537.36");
-    map.put("Cookie",
-        "BAIDUID=DFC7EF42C60AD1ACF0BA94389AA67F13:FG=1; H_WISE_SIDS=121192_104493_114745_121434_119046_100098_120212_121140_118882_118858_118850_118820_118792_121254_121534_121214_117588_117242_117431_119974_120597_121043_121422_120943_121175_121272_117552_120482_121013_119962_119145_120851_120841_120034_121325_116407_121109_120654_110085_120708; PSINO=7; BDORZ=AE84CDB3A529C0F8A2B9DCDD1D18B695");
     Aria.download(SingleTaskActivity.this)
         .load(DOWNLOAD_URL)
-        //.addHeader("groupName", "value")
-        .addHeaders(map)
-        //.setRequestMode(RequestEnum.POST)
-        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1.apk")
-        .resetState()
+        //.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+        //.addHeader("Accept-Encoding", "gzip, deflate")
+        //.addHeader("DNT", "1")
+        //.addHeader("Cookie", "BAIDUID=648E5FF020CC69E8DD6F492D1068AAA9:FG=1; BIDUPSID=648E5FF020CC69E8DD6F492D1068AAA9; PSTM=1519099573; BD_UPN=12314753; locale=zh; BDSVRTM=0")
+        .useServerFileName(true)
+        .setRequestMode(RequestEnum.GET)
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg3.apk")
+        //.resetState()
         .start();
     //.add();
   }
 
   @Override protected void onDestroy() {
     super.onDestroy();
+    //Aria.download(this).unRegister();
+  }
+
+  @Override protected void onStop() {
+    super.onStop();
     //Aria.download(this).unRegister();
   }
 }

@@ -15,11 +15,15 @@
  */
 package com.arialyy.aria.util;
 
-import com.arialyy.aria.core.ErrorEntity;
-import com.arialyy.aria.core.download.DownloadEntity;
-import com.arialyy.aria.core.download.DownloadGroupEntity;
-import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.aria.core.upload.UploadEntity;
+import android.annotation.SuppressLint;
+import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by Aria.Lao on 2017/8/29.
@@ -30,29 +34,69 @@ public class ErrorHelp {
   /**
    * 保存错误信息
    *
-   * @param taskType 任务类型
-   * @param entity 任务实体
    * @param msg 错误提示
    * @param ex 异常
    */
-  public static void saveError(String taskType, AbsEntity entity, String msg, String ex) {
-    ErrorEntity errorEntity = new ErrorEntity();
-    errorEntity.insertTime = System.currentTimeMillis();
-    errorEntity.err = ex;
-    errorEntity.msg = msg;
-    errorEntity.taskType = taskType;
-    String name = "";
-    String key = entity.getKey();
-    if (entity instanceof DownloadEntity) {
-      name = ((DownloadEntity) entity).getFileName();
-    } else if (entity instanceof DownloadGroupEntity) {
-      name = ((DownloadGroupEntity) entity).getGroupName();
-    } else if (entity instanceof UploadEntity) {
-      name = ((UploadEntity) entity).getFileName();
-    }
+  public static void saveError(String tag, String msg, String ex) {
+    String message = "\nmsg【" + msg + "】\nException：" + ex;
+    writeLogToFile(tag, message);
+  }
 
-    errorEntity.taskName = name;
-    errorEntity.key = key;
-    errorEntity.insert();
+  /**
+   * 返回日志路径
+   *
+   * @return "/mnt/sdcard/Android/data/{package_name}/files/log/*"
+   */
+  private static String getLogPath() {
+    String path = CommonUtil.getAppPath(AriaManager.APP)
+        + "log/AriaCrash_"
+        + getData("yyyy-MM-dd_HH:mm:ss")
+        + ".log";
+
+    File log = new File(path);
+    if (!log.getParentFile().exists()) {
+      log.getParentFile().mkdirs();
+    }
+    if (!log.exists()) {
+      try {
+        log.createNewFile();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return path;
+  }
+
+  /**
+   * 把日志记录到文件
+   */
+  private static int writeLogToFile(String tag, String message) {
+    StringBuffer stringBuffer = new StringBuffer();
+    stringBuffer.append(getData("yyyy-MM-dd HH:mm:ss"));
+    stringBuffer.append("    ");
+    stringBuffer.append(tag);
+    stringBuffer.append("    ");
+    stringBuffer.append(message);
+    stringBuffer.append("\n\n");
+    PrintWriter writer = null;
+    try {
+      writer = new PrintWriter(new FileWriter(getLogPath(), true));
+      writer.append(stringBuffer);
+      writer.flush();
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (writer != null) {
+        writer.close();
+      }
+    }
+    return 0;
+  }
+
+  @SuppressLint("SimpleDateFormat")
+  private static String getData(String format) {
+    Date date = new Date(System.currentTimeMillis());
+    SimpleDateFormat sdf = new SimpleDateFormat(format);
+    return sdf.format(date);
   }
 }

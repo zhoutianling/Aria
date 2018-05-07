@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.orm;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package com.arialyy.aria.core.common;
 
 /**
- * Created by AriaL on 2017/7/4.
- * 一对多
+ * Created by AriaL on 2018/3/3.
+ * 获取文件信息完成后 回调给下载线程的信息
  */
-@Target(ElementType.FIELD) @Retention(RetentionPolicy.RUNTIME) public @interface OneToMany {
+public class CompleteInfo {
   /**
-   * 关联的表
+   * 自定义的状态码
    */
-  Class<? extends DbEntity> table();
-  /**
-   * 关联的主键
-   */
-  String key();
+  public int code;
+
+  public CompleteInfo(int code) {
+    this.code = code;
+  }
 }

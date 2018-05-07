@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
@@ -48,11 +49,11 @@ public class SimpleUploadUtil implements IUtil, Runnable {
 
   @Override public void run() {
     mListener.onPre();
-    switch (mTaskEntity.requestType) {
+    switch (mTaskEntity.getRequestType()) {
       case AbsTaskEntity.U_FTP:
         new FtpFileInfoThread(mTaskEntity, new OnFileInfoCallback() {
-          @Override public void onComplete(String url, int code) {
-            if (code == FtpFileInfoThread.CODE_COMPLETE) {
+          @Override public void onComplete(String url, CompleteInfo info) {
+            if (info.code == FtpFileInfoThread.CODE_COMPLETE) {
               mListener.onComplete();
             } else {
               mUploader.start();

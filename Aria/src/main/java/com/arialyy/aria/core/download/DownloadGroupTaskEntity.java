@@ -16,24 +16,48 @@
 package com.arialyy.aria.core.download;
 
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
-import com.arialyy.aria.orm.OneToOne;
+import com.arialyy.aria.orm.ActionPolicy;
+import com.arialyy.aria.orm.annotation.Foreign;
+import com.arialyy.aria.orm.annotation.Ignore;
+import com.arialyy.aria.orm.annotation.Primary;
+import java.util.List;
 
 /**
  * Created by AriaL on 2017/7/1.
+ * 任务组的任务实体
  */
 public class DownloadGroupTaskEntity extends AbsGroupTaskEntity<DownloadGroupEntity> {
 
-  @OneToOne(table = DownloadGroupEntity.class, key = "groupName") public DownloadGroupEntity entity;
+  @Ignore private DownloadGroupEntity entity;
+
+  @Ignore private List<DownloadTaskEntity> subTaskEntities;
+
+  @Primary
+  @Foreign(parent = DownloadGroupEntity.class, column = "groupName",
+      onUpdate = ActionPolicy.CASCADE, onDelete = ActionPolicy.CASCADE)
+  private String key;
 
   @Override public DownloadGroupEntity getEntity() {
     return entity;
   }
 
+  public void setEntity(DownloadGroupEntity entity) {
+    this.entity = entity;
+  }
 
-  public void save(DownloadGroupEntity groupEntity){
-    key = groupEntity.getKey();
-    entity = groupEntity;
-    groupEntity.save();
-    save();
+  public List<DownloadTaskEntity> getSubTaskEntities() {
+    return subTaskEntities;
+  }
+
+  public void setSubTaskEntities(List<DownloadTaskEntity> subTaskEntities) {
+    this.subTaskEntities = subTaskEntities;
+  }
+
+  @Override public String getKey() {
+    return key;
+  }
+
+  public void setKey(String key) {
+    this.key = key;
   }
 }

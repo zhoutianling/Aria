@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.upload.uploader;
 
 import com.arialyy.aria.core.common.AbsFtpInfoThread;
+import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
@@ -39,8 +40,7 @@ class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity>
   }
 
   @Override protected String setRemotePath() {
-    String url = mEntity.getUrl();
-    return mTaskEntity.urlEntity.remotePath + "/" + mEntity.getFileName();
+    return mTaskEntity.getUrlEntity().remotePath + "/" + mEntity.getFileName();
   }
 
   /**
@@ -57,6 +57,7 @@ class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity>
       //远程文件已完成
       if (ftpFile.getSize() == mEntity.getFileSize()) {
         isComplete = true;
+        ALog.d(TAG, "FTP服务器上已存在该文件【" + ftpFile.getName() + "】");
       } else {
         ALog.w(TAG, "FTP服务器已存在未完成的文件【"
             + ftpFile.getName()
@@ -64,16 +65,16 @@ class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity>
             + ftpFile.getSize()
             + "】"
             + "尝试从位置："
-            + ftpFile.getSize()
+            + (ftpFile.getSize() - 1)
             + "开始上传");
         File configFile = new File(CommonUtil.getFileConfigPath(false, mEntity.getFileName()));
         Properties pro = CommonUtil.loadConfig(configFile);
         String key = mEntity.getFileName() + "_record_" + 0;
-        mTaskEntity.isNewTask = false;
+        mTaskEntity.setNewTask(false);
         long oldRecord = Long.parseLong(pro.getProperty(key, "0"));
-        if (oldRecord == 0) {
+        if (oldRecord == 0 || oldRecord != ftpFile.getSize()) {
           //修改本地保存的停止地址为服务器上对应文件的大小
-          pro.setProperty(key, ftpFile.getSize() + "");
+          pro.setProperty(key, (ftpFile.getSize() - 1) + "");
           CommonUtil.saveConfig(configFile, pro);
         }
       }
@@ -82,6 +83,6 @@ class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity>
 
   @Override protected void onPreComplete(int code) {
     super.onPreComplete(code);
-    mCallback.onComplete(mEntity.getKey(), isComplete ? CODE_COMPLETE : code);
+    mCallback.onComplete(mEntity.getKey(), new CompleteInfo(isComplete ? CODE_COMPLETE : code));
   }
 }

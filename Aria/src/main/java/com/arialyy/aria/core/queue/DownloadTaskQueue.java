@@ -123,7 +123,7 @@ public class DownloadTaskQueue extends AbsTaskQueue<DownloadTask, DownloadTaskEn
           && mExecutePool.getTask(entity.getEntity().getKey()) == null) {
         task = (DownloadTask) TaskFactory.getInstance()
             .createTask(target, entity, DownloadSchedulers.getInstance());
-        entity.key = entity.getEntity().getDownloadPath();
+        entity.setKey(entity.getEntity().getDownloadPath());
         mCachePool.putTask(task);
       } else {
         ALog.w(TAG, "任务已存在");

@@ -50,7 +50,7 @@ class Uploader extends AbsFileer<UploadEntity, UploadTaskEntity> {
    */
   protected void checkTask() {
     mConfigFile = new File(CommonUtil.getFileConfigPath(false, mEntity.getFileName()));
-    if (!mTaskEntity.isSupportBP) {
+    if (!mTaskEntity.isSupportBP()) {
       isNewTask = true;
       return;
     }
@@ -65,16 +65,16 @@ class Uploader extends AbsFileer<UploadEntity, UploadTaskEntity> {
     }
   }
 
-  @Override protected void handleNewTask() {
-
+  @Override protected boolean handleNewTask() {
+    return true;
   }
 
-  @Override protected int getNewTaskThreadNum() {
+  @Override protected int setNewTaskThreadNum() {
     return 1;
   }
 
   @Override protected AbsThreadTask selectThreadTask(SubThreadConfig<UploadTaskEntity> config) {
-    switch (mTaskEntity.requestType) {
+    switch (mTaskEntity.getRequestType()) {
       case AbsTaskEntity.U_FTP:
         return new FtpThreadTask(mConstance, mListener, config);
       case AbsTaskEntity.U_HTTP:

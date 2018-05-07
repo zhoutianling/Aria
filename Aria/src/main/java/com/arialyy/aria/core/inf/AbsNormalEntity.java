@@ -17,8 +17,6 @@ package com.arialyy.aria.core.inf;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.orm.Ignore;
 
 /**
  * Created by AriaL on 2017/6/3.
@@ -28,12 +26,12 @@ public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
   /**
    * 服务器地址
    */
-  private String url = "";
+  private String url;
 
   /**
    * 文件名
    */
-  private String fileName = "";
+  private String fileName;
 
   /**
    * 是否是任务组里面的下载实体
@@ -41,7 +39,7 @@ public abstract class AbsNormalEntity extends AbsEntity implements Parcelable {
   private boolean isGroupChild = false;
 
   private boolean isRedirect = false; //是否重定向
-  private String redirectUrl = ""; //重定向链接
+  private String redirectUrl; //重定向链接
 
   public String getUrl() {
     return url;

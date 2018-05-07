@@ -20,13 +20,11 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.app.Dialog;
-import android.app.Service;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.common.QueueMod;
@@ -41,8 +39,9 @@ import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadReceiver;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.orm.DbUtil;
+import com.arialyy.aria.orm.DelegateWrapper;
 import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.util.AriaCrashHandler;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 import java.io.IOException;
@@ -75,12 +74,14 @@ import org.xml.sax.SAXException;
   private List<ICmd> mCommands = new ArrayList<>();
   private Configuration.DownloadConfig mDConfig;
   private Configuration.UploadConfig mUConfig;
+  private Configuration.AppConfig mAConfig;
 
   private AriaManager(Context context) {
-    DbUtil.init(context.getApplicationContext());
+    DelegateWrapper.init(context.getApplicationContext());
     APP = context.getApplicationContext();
     regAppLifeCallback(context);
     initConfig();
+    initAria();
   }
 
   public static AriaManager getInstance(Context context) {
@@ -92,34 +93,53 @@ import org.xml.sax.SAXException;
     return INSTANCE;
   }
 
+  static AriaManager getInstance() {
+    if (INSTANCE == null) {
+      throw new NullPointerException("请在Application或Activity初始化时调用一次Aria.init(context)方法进行初始化操作");
+    }
+    return INSTANCE;
+  }
+
+  private void initAria() {
+    if (mAConfig.getUseAriaCrashHandler()) {
+      Thread.setDefaultUncaughtExceptionHandler(new AriaCrashHandler());
+    }
+    mAConfig.setLogLevel(mAConfig.getLogLevel());
+  }
+
   public Map<String, AbsReceiver> getReceiver() {
     return mReceivers;
   }
 
   /**
-   * 设置Aria 日志级别
-   *
-   * @param level {@link ALog#LOG_LEVEL_VERBOSE}
-   */
-  public void setLogLevel(int level) {
-    ALog.LOG_LEVEL = level;
-  }
-
-  /**
-   * 设置上传任务的执行队列类型
+   * 设置上传任务的执行队列类型，后续版本会删除该api，请使用：
+   * <pre>
+   *   <code>
+   *     Aria.get(this).getUploadConfig().setQueueMod(mod.tag)
+   *   </code>
+   * </pre>
    *
    * @param mod {@link QueueMod}
+   * @deprecated 后续版本会删除该api
    */
+  @Deprecated
   public AriaManager setUploadQueueMod(QueueMod mod) {
     mUConfig.setQueueMod(mod.tag);
     return this;
   }
 
   /**
-   * 设置下载任务的执行队列类型
+   * 设置下载任务的执行队列类型，后续版本会删除该api，请使用：
+   * <pre>
+   *   <code>
+   *     Aria.get(this).getDownloadConfig().setQueueMod(mod.tag)
+   *   </code>
+   * </pre>
    *
    * @param mod {@link QueueMod}
+   * @deprecated 后续版本会删除该api
    */
+  @Deprecated
   public AriaManager setDownloadQueueMod(QueueMod mod) {
     mDConfig.setQueueMod(mod.tag);
     return this;
@@ -149,6 +169,13 @@ import org.xml.sax.SAXException;
    */
   public Configuration.UploadConfig getUploadConfig() {
     return mUConfig;
+  }
+
+  /**
+   * 获取APP配置
+   */
+  public Configuration.AppConfig getAppConfig() {
+    return mAConfig;
   }
 
   /**
@@ -202,22 +229,6 @@ import org.xml.sax.SAXException;
   }
 
   /**
-   * 获取Aria下载错误日志
-   *
-   * @return 如果错误日志不存在则返回空，否则返回错误日志列表
-   */
-  public List<ErrorEntity> getErrorLog() {
-    return DbEntity.findAllData(ErrorEntity.class);
-  }
-
-  /**
-   * 清楚错误日志
-   */
-  public void cleanLog() {
-    DbEntity.clean(ErrorEntity.class);
-  }
-
-  /**
    * 删除任务记录
    *
    * @param type 需要删除的任务类型，1、表示单任务下载。2、表示任务组下载。3、单任务上传
@@ -244,6 +255,7 @@ import org.xml.sax.SAXException;
     final String key = getKey(isDownload, obj);
     IReceiver receiver = mReceivers.get(key);
     boolean needRmReceiver = false;
+    // 监控Dialog、fragment、popupWindow的生命周期
     final WidgetLiftManager widgetLiftManager = new WidgetLiftManager();
     if (obj instanceof Dialog) {
       needRmReceiver = widgetLiftManager.handleDialogLift((Dialog) obj);
@@ -270,7 +282,8 @@ import org.xml.sax.SAXException;
   /**
    * 不允许在"onDestroy"、"finish"、"onStop"这三个方法中添加注册器
    */
-  private AbsReceiver checkTarget(String key, AbsReceiver receiver, Object obj, boolean needRmReceiver) {
+  private AbsReceiver checkTarget(String key, AbsReceiver receiver, Object obj,
+      boolean needRmReceiver) {
     StackTraceElement[] stack = Thread.currentThread().getStackTrace();
     int i = 0;
     for (StackTraceElement e : stack) {
@@ -288,8 +301,8 @@ import org.xml.sax.SAXException;
             "onStop");
 
     if (isDestroyed) {
-      ALog.w(TAG,
-          "请不要在Activity或Fragment的onDestroy、finish、onStop等方法中调用Aria，Aria的unRegister会在Activity页面销毁时自动执行");
+      ALog.e(TAG,
+          "请不要在Activity或Fragment的onDestroy、finish、onStop等方法中注册Aria，Aria的unRegister会在Activity页面销毁时自动执行");
     }
 
     if (obj instanceof Activity && isDestroyed) {
@@ -309,45 +322,33 @@ import org.xml.sax.SAXException;
    */
   private String getKey(boolean isDownload, Object obj) {
     String clsName = obj.getClass().getName();
-    String key = "";
-    if (!(obj instanceof Activity)) {
-      if (obj instanceof DialogFragment) {
-        key = clsName + "_" + ((DialogFragment) obj).getActivity().getClass().getName();
-      } else if (obj instanceof android.app.DialogFragment) {
-        key = clsName + "_" + ((android.app.DialogFragment) obj).getActivity().getClass().getName();
-      } else if (obj instanceof android.support.v4.app.Fragment) {
-        key = clsName + "_" + ((Fragment) obj).getActivity().getClass().getName();
-      } else if (obj instanceof android.app.Fragment) {
-        key = clsName + "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
-      } else if (obj instanceof Dialog) {
-        Activity activity = ((Dialog) obj).getOwnerActivity();
-        if (activity != null) {
-          key = clsName + "_" + activity.getClass().getName();
-        } else {
-          key = clsName;
-        }
-      } else if (obj instanceof PopupWindow) {
-        Context context = ((PopupWindow) obj).getContentView().getContext();
-        if (context instanceof Activity) {
-          key = clsName + "_" + context.getClass().getName();
-        } else {
-          key = clsName;
-        }
-      } else if (obj instanceof Service) {
-        key = clsName;
-      } else if (obj instanceof Application) {
+    String key;
+    if (obj instanceof DialogFragment) {
+      key = clsName + "_" + ((DialogFragment) obj).getActivity().getClass().getName();
+    } else if (obj instanceof android.app.DialogFragment) {
+      key = clsName + "_" + ((android.app.DialogFragment) obj).getActivity().getClass().getName();
+    } else if (obj instanceof android.support.v4.app.Fragment) {
+      key = clsName + "_" + ((Fragment) obj).getActivity().getClass().getName();
+    } else if (obj instanceof android.app.Fragment) {
+      key = clsName + "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
+    } else if (obj instanceof Dialog) {
+      Activity activity = ((Dialog) obj).getOwnerActivity();
+      if (activity != null) {
+        key = clsName + "_" + activity.getClass().getName();
+      } else {
         key = clsName;
       }
-    }
-    if (obj instanceof Activity || obj instanceof Service) {
+    } else if (obj instanceof PopupWindow) {
+      Context context = ((PopupWindow) obj).getContentView().getContext();
+      if (context instanceof Activity) {
+        key = clsName + "_" + context.getClass().getName();
+      } else {
+        key = clsName;
+      }
+    } else {
       key = clsName;
-    } else if (obj instanceof Application) {
-      key = clsName;
     }
-    if (TextUtils.isEmpty(key)) {
-      throw new IllegalArgumentException("未知类型");
-    }
-    key += isDownload ? DOWNLOAD : UPLOAD;
+    key += (isDownload ? DOWNLOAD : UPLOAD) + obj.hashCode();
     return key;
   }
 
@@ -377,6 +378,7 @@ import org.xml.sax.SAXException;
     }
     mDConfig = Configuration.DownloadConfig.getInstance();
     mUConfig = Configuration.UploadConfig.getInstance();
+    mAConfig = Configuration.AppConfig.getInstance();
     if (tempDir.exists()) {
       File newDir = new File(APP.getFilesDir().getPath() + DOWNLOAD_TEMP_DIR);
       newDir.mkdirs();
@@ -406,8 +408,8 @@ import org.xml.sax.SAXException;
   private void regAppLifeCallback(Context context) {
     Context app = context.getApplicationContext();
     if (app instanceof Application) {
-      LifeCallback mLifeCallback = new LifeCallback();
-      ((Application) app).registerActivityLifecycleCallbacks(mLifeCallback);
+      LifeCallback lifeCallback = new LifeCallback();
+      ((Application) app).registerActivityLifecycleCallbacks(lifeCallback);
     }
   }
 
@@ -478,6 +480,7 @@ import org.xml.sax.SAXException;
 
     @Override public void onActivityDestroyed(Activity activity) {
       destroySchedulerListener(activity);
+      // TODO: 2018/4/11 维护一个activity堆栈，应用被kill，activity会回调onDestroy方法，需要考虑server后台情况
     }
   }
 }
