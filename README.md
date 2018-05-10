@@ -95,7 +95,7 @@ protected void onCreate(Bundle savedInstanceState) {
 }
 ```
 
-### [更多说明，见WIKI](http://aria.laoyuyu.me/aria_doc/)
+### [更多说明，见WIKI](https://aria.laoyuyu.me/aria_doc/)
 
 ### 版本日志
    + v_3.4
