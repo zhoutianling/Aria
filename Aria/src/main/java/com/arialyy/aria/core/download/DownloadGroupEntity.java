@@ -29,12 +29,7 @@ public class DownloadGroupEntity extends AbsGroupEntity {
 
   @Ignore private List<DownloadEntity> subEntities;
 
-  /**
-   * 任务组下载文件的文件夹地址
-   *
-   * @see DownloadGroupTarget#setDirPath(String)
-   */
-  private String dirPath;
+
 
   /**
    * 子任务实体列表
@@ -45,14 +40,6 @@ public class DownloadGroupEntity extends AbsGroupEntity {
 
   public void setSubEntities(List<DownloadEntity> subTasks) {
     this.subEntities = subTasks;
-  }
-
-  public String getDirPath() {
-    return dirPath;
-  }
-
-  public void setDirPath(String dirPath) {
-    this.dirPath = dirPath;
   }
 
   public void setGroupName(String key) {
@@ -73,13 +60,11 @@ public class DownloadGroupEntity extends AbsGroupEntity {
   @Override public void writeToParcel(Parcel dest, int flags) {
     super.writeToParcel(dest, flags);
     dest.writeTypedList(this.subEntities);
-    dest.writeString(this.dirPath);
   }
 
   protected DownloadGroupEntity(Parcel in) {
     super(in);
     this.subEntities = in.createTypedArrayList(DownloadEntity.CREATOR);
-    this.dirPath = in.readString();
   }
 
   public static final Creator<DownloadGroupEntity> CREATOR = new Creator<DownloadGroupEntity>() {

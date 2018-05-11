@@ -23,7 +23,6 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.net.ftp.FTPClient;
@@ -107,10 +106,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       writeConfig(true, 1);
       STATE.COMPLETE_THREAD_NUM++;
       if (STATE.isComplete()) {
-        File configFile = new File(mConfigFPath);
-        if (configFile.exists()) {
-          configFile.delete();
-        }
+        STATE.TASK_RECORD.deleteData();
         STATE.isRunning = false;
         mListener.onComplete();
       }

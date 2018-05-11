@@ -30,11 +30,15 @@ import com.arialyy.aria.core.command.group.AbsGroupCmd;
 import com.arialyy.aria.core.command.group.GroupCmdFactory;
 import com.arialyy.aria.core.command.normal.AbsNormalCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.common.TaskRecord;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.inf.AbsGroupEntity;
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.orm.DbEntity;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -65,6 +69,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by lyy on 2016/1/22.
+ * 通用工具
  */
 public class CommonUtil {
   private static final String TAG = "CommonUtil";
@@ -82,7 +87,7 @@ public class CommonUtil {
     String reg = Regular.REG_WINLOD_REPLACE;
     Pattern p = Pattern.compile(reg);
     Matcher m = p.matcher(text);
-    if (m.find()){
+    if (m.find()) {
       String s = m.group();
       s = s.substring(9, s.length() - 2);
       return s;
@@ -356,20 +361,27 @@ public class CommonUtil {
   }
 
   /**
-   * 删除下载任务组的配置
+   * 删除任务组记录
    *
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
-  public static void delDownloadGroupTaskConfig(boolean removeFile,
-      DownloadGroupEntity groupEntity) {
+  public static void delGroupTaskRecord(boolean removeFile, AbsGroupEntity groupEntity) {
     if (groupEntity == null) {
       ALog.e(TAG, "删除下载任务组记录失败，任务组实体为null");
       return;
     }
+    List<TaskRecord> records = DbEntity.findDatas(TaskRecord.class,
+        groupEntity instanceof DownloadGroupEntity ? "dGroupName=?" : "uGroupName=?",
+        groupEntity.getGroupName());
 
-    for (DownloadEntity taskEntity : groupEntity.getSubEntities()) {
-      delDownloadTaskConfig(removeFile, taskEntity);
+    if (records == null || records.isEmpty()) {
+      ALog.w(TAG, "组任务记录删除失败，记录为null");
+      return;
+    }
+
+    for (TaskRecord tr : records) {
+      tr.deleteData();
     }
 
     File dir = new File(groupEntity.getDirPath());
@@ -386,38 +398,23 @@ public class CommonUtil {
   }
 
   /**
-   * 删除上传任务的配置
-   *
-   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
-   * {@code false}如果任务已经完成，只删除任务数据库记录
-   */
-  public static void delUploadTaskConfig(boolean removeFile, UploadEntity uEntity) {
-    if (uEntity == null) {
-      return;
-    }
-    File file = new File(uEntity.getFilePath());
-    if (removeFile) {
-      if (file.exists()) {
-        file.delete();
-      }
-    }
-    File config = new File(getFileConfigPath(false, uEntity.getFileName()));
-    if (config.exists()) {
-      config.delete();
-    }
-    //下载任务实体和下载实体为一对一关系，下载实体删除，任务实体自动删除
-    uEntity.deleteData();
-  }
-
-  /**
-   * 删除下载任务的配置
+   * 删除任务记录
    *
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经下载完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
-  public static void delDownloadTaskConfig(boolean removeFile, DownloadEntity dEntity) {
+  public static void delTaskRecord(TaskRecord record, boolean removeFile,
+      AbsNormalEntity dEntity) {
     if (dEntity == null) return;
-    File file = new File(dEntity.getDownloadPath());
+    File file;
+    if (dEntity instanceof DownloadEntity) {
+      file = new File(((DownloadEntity) dEntity).getDownloadPath());
+    } else if (dEntity instanceof UploadEntity) {
+      file = new File(((UploadEntity) dEntity).getFilePath());
+    } else {
+      ALog.w(TAG, "删除记录失败，未知类型");
+      return;
+    }
     if (removeFile) {
       if (file.exists()) {
         file.delete();
@@ -430,9 +427,8 @@ public class CommonUtil {
       }
     }
 
-    File config = new File(getFileConfigPath(true, dEntity.getFileName()));
-    if (config.exists()) {
-      config.delete();
+    if (record != null) {
+      record.deleteData();
     }
     //下载任务实体和下载实体为一对一关系，下载实体删除，任务实体自动删除
     dEntity.deleteData();

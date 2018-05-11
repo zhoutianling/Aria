@@ -16,20 +16,17 @@
 package com.arialyy.aria.core.common;
 
 import android.os.Build;
-import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.util.ALog;
-import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.ErrorHelp;
 import com.arialyy.aria.util.NetUtils;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -52,7 +49,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   private final String TAG = "AbsThreadTask";
   protected long mChildCurrentLocation = 0, mSleepTime = 0;
   protected int mBufSize;
-  protected String mConfigFPath;
   protected IEventListener mListener;
   protected StateConstance STATE;
   protected SubThreadConfig<TASK_ENTITY> mConfig;
@@ -84,7 +80,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     mConfig = info;
     mTaskEntity = mConfig.TASK_ENTITY;
     mEntity = mTaskEntity.getEntity();
-    mConfigFPath = info.CONFIG_FILE_PATH;
     mBufSize = manager.getDownloadConfig().getBuffSize();
     setMaxSpeed(AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxSpeed());
     mTaskType = getTaskType();
@@ -99,7 +94,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
       mSleepTime = 0;
     } else {
       BigDecimal db = new BigDecimal(
-          ((mBufSize / 1024) * (filterVersion() ? 1 : STATE.THREAD_NUM) / maxSpeed) * 1000);
+          ((mBufSize / 1024) * (filterVersion() ? 1 : STATE.START_THREAD_NUM) / maxSpeed) * 1000);
       mSleepTime = db.setScale(0, BigDecimal.ROUND_HALF_UP).longValue();
     }
   }
@@ -174,10 +169,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
         STATE.CANCEL_NUM++;
         ALog.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__取消");
         if (STATE.isCancel()) {
-          File configFile = new File(mConfigFPath);
-          if (configFile.exists()) {
-            configFile.delete();
-          }
           if (mConfig.TEMP_FILE.exists() && !(mEntity instanceof UploadEntity)) {
             mConfig.TEMP_FILE.delete();
           }
@@ -206,7 +197,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
         }
         if (mConfig.SUPPORT_BP) {
           writeConfig(false, currentLocation);
-          retryThis(STATE.THREAD_NUM != 1);
+          retryThis(STATE.START_THREAD_NUM != 1);
         } else {
           ALog.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
           mListener.onFail(true);
@@ -264,21 +255,12 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    * 将记录写入到配置文件
    */
   protected void writeConfig(boolean isComplete, final long record) throws IOException {
-    synchronized (AriaManager.LOCK) {
-      String key = null, value = null;
-      if (record >= mConfig.END_LOCATION || isComplete) {
-        key = mConfig.TEMP_FILE.getName() + AbsFileer.STATE + mConfig.THREAD_ID;
-        value = "1";
-      } else if (0 < record && record < mConfig.END_LOCATION) {
-        key = mConfig.TEMP_FILE.getName() + AbsFileer.RECORD + mConfig.THREAD_ID;
-        value = String.valueOf(record);
+    if (mConfig.THREAD_RECORD != null) {
+      mConfig.THREAD_RECORD.isComplete = isComplete;
+      if (0 < record && record < mConfig.END_LOCATION) {
+        mConfig.START_LOCATION = record;
       }
-      if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)) {
-        File configFile = new File(mConfigFPath);
-        Properties pro = CommonUtil.loadConfig(configFile);
-        pro.setProperty(key, value);
-        CommonUtil.saveConfig(configFile, pro);
-      }
+      mConfig.THREAD_RECORD.update();
     }
   }
 }

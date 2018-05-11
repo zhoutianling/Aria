@@ -26,11 +26,12 @@ public class StateConstance {
   public int CONNECT_TIME_OUT; //连接超时时间
   public int READ_TIME_OUT; //流读取的超时时间
   public int COMPLETE_THREAD_NUM = 0;
-  public int THREAD_NUM;
+  public int START_THREAD_NUM;  //启动的线程数
   public long CURRENT_LOCATION = 0;
   public boolean isRunning = false;
   public boolean isCancel = false;
   public boolean isStop = false;
+  public TaskRecord TASK_RECORD;
 
   public StateConstance() {
   }
@@ -49,27 +50,28 @@ public class StateConstance {
    * 所有子线程是否都已经停止下载
    */
   public boolean isStop() {
-    return STOP_NUM == THREAD_NUM;
+    return STOP_NUM == START_THREAD_NUM;
   }
 
   /**
    * 所有子线程是否都已经下载失败
    */
   public boolean isFail() {
-    return COMPLETE_THREAD_NUM != THREAD_NUM && FAIL_NUM + COMPLETE_THREAD_NUM >= THREAD_NUM;
+    return COMPLETE_THREAD_NUM != START_THREAD_NUM
+        && FAIL_NUM + COMPLETE_THREAD_NUM >= START_THREAD_NUM;
   }
 
   /**
    * 所有子线程是否都已经完成下载
    */
   public boolean isComplete() {
-    return COMPLETE_THREAD_NUM >= THREAD_NUM;
+    return COMPLETE_THREAD_NUM >= START_THREAD_NUM;
   }
 
   /**
    * 所有子线程是否都已经取消下载
    */
   public boolean isCancel() {
-    return CANCEL_NUM == THREAD_NUM;
+    return CANCEL_NUM == START_THREAD_NUM;
   }
 }

@@ -25,7 +25,6 @@ import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
@@ -155,10 +154,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         writeConfig(true, 1);
         STATE.COMPLETE_THREAD_NUM++;
         if (STATE.isComplete()) {
-          File configFile = new File(mConfigFPath);
-          if (configFile.exists()) {
-            configFile.delete();
-          }
+          STATE.TASK_RECORD.deleteData();
           STATE.isRunning = false;
           mListener.onComplete();
         }

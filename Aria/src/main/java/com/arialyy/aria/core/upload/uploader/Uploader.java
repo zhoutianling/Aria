@@ -24,7 +24,6 @@ import com.arialyy.aria.core.inf.IUploadListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
-import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
 
 /**
@@ -40,29 +39,11 @@ class Uploader extends AbsFileer<UploadEntity, UploadTaskEntity> {
         AriaManager.getInstance(AriaManager.APP).getUploadConfig().getUpdateInterval());
   }
 
-  /**
-   * 检查任务是否是新任务，新任务条件：
-   * 1、文件不存在
-   * 2、记录文件不存在
-   * 3、记录文件缺失或不匹配
-   * 4、数据库记录不存在
-   * 5、不支持断点，则是新任务
-   */
   protected void checkTask() {
-    mConfigFile = new File(CommonUtil.getFileConfigPath(false, mEntity.getFileName()));
-    if (!mTaskEntity.isSupportBP()) {
-      isNewTask = true;
-      return;
-    }
-    if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
-      isNewTask = true;
-      CommonUtil.createFile(mConfigFile.getPath());
-    } else if (DbEntity.findFirst(UploadEntity.class, "filePath=?", mEntity.getFilePath())
-        == null) {
-      isNewTask = true;
-    } else {
-      isNewTask = checkConfigFile();
-    }
+    super.checkTask();
+    mTaskEntity.setNewTask(
+        DbEntity.findFirst(UploadEntity.class, "filePath=?", mEntity.getFilePath())
+            == null);
   }
 
   @Override protected boolean handleNewTask() {

@@ -35,7 +35,23 @@ public abstract class AbsGroupEntity extends AbsEntity implements Parcelable {
    */
   private String alias;
 
+  /**
+   * 任务组下载文件的文件夹地址
+   */
+  private String dirPath;
+
+  /**
+   * 子任务url地址
+   */
   private List<String> urls = new ArrayList<>();
+
+  public String getDirPath() {
+    return dirPath;
+  }
+
+  public void setDirPath(String dirPath) {
+    this.dirPath = dirPath;
+  }
 
   public List<String> getUrls() {
     return urls;

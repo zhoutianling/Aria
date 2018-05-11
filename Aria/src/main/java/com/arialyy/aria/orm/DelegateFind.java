@@ -51,6 +51,7 @@ class DelegateFind extends AbsDelegate {
    * 如果查找不到数据或实体没有被{@link Wrapper}注解，将返回null
    * 如果实体中没有{@link One}或{@link Many}注解，将返回null
    * 如果实体中有多个{@link One}或{@link Many}注解，将返回nul
+   * {@link One} 的注解对象必须是{@link DbEntity}，{@link Many}的注解对象必须是List，并且List中的类型必须是{@link DbEntity}
    */
   <T extends AbsWrapper> List<T> findRelationData(SQLiteDatabase db, Class<T> clazz,
       String... expression) {
@@ -73,6 +74,10 @@ class DelegateFind extends AbsDelegate {
         if (SqlUtil.isMany(field)) {
           if (hasMany) {
             ALog.w(TAG, "查询数据失败，实体中有多个@Many 注解");
+            return null;
+          }
+          if (!field.getType().isAssignableFrom(List.class)) {
+            ALog.w(TAG, "查询数据失败，@Many 注解的类型不是List");
             return null;
           }
           hasMany = true;
@@ -499,10 +504,16 @@ class DelegateFind extends AbsDelegate {
   /**
    * 通过rowId判断数据是否存在
    */
-  <T extends DbEntity> boolean itemExist(SQLiteDatabase db, Class<T> clazz,
-      long rowId) {
+  <T extends DbEntity> boolean itemExist(SQLiteDatabase db, Class<T> clazz, long rowId) {
+    return itemExist(db, CommonUtil.getClassName(clazz), rowId);
+  }
+
+  /**
+   * 通过rowId判断数据是否存在
+   */
+  boolean itemExist(SQLiteDatabase db, String tableName, long rowId) {
     db = checkDb(db);
-    String sql = "SELECT rowid FROM " + CommonUtil.getClassName(clazz) + " WHERE rowid=" + rowId;
+    String sql = "SELECT rowid FROM " + tableName + " WHERE rowid=" + rowId;
     print(ROW_ID, sql);
     Cursor cursor = db.rawQuery(sql, null);
     boolean isExist = cursor.getCount() > 0;

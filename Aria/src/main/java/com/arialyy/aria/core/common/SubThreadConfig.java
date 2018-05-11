@@ -19,7 +19,7 @@ public class SubThreadConfig<TASK_ENTITY extends AbsTaskEntity> {
   public File TEMP_FILE;
   //服务器地址
   public String URL;
-  public String CONFIG_FILE_PATH;
   public TASK_ENTITY TASK_ENTITY;
   public boolean SUPPORT_BP = true;
+  public ThreadRecord THREAD_RECORD;
 }

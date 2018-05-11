@@ -15,18 +15,62 @@
  */
 package com.arialyy.aria.core.common;
 
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.orm.ActionPolicy;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.orm.annotation.Foreign;
+import com.arialyy.aria.orm.annotation.Ignore;
+import com.arialyy.aria.orm.annotation.NoNull;
+import com.arialyy.aria.orm.annotation.Primary;
+import java.util.List;
 
 /**
  * Created by laoyuyu on 2018/3/21.
- * 任务上传或下载的记录
+ * 任务上传或下载的任务记录
  */
-class TaskRecord extends DbEntity {
+public class TaskRecord extends DbEntity {
+
+  @Ignore
+  public List<ThreadRecord> threadRecords;
+
   /**
    * 任务线程数
    */
   public int threadNum;
 
-  //public int re
+  /**
+   * 任务文件路径
+   */
+  @Primary
+  public String filePath;
 
+  /**
+   * 文件长度
+   */
+  public long fileLength;
+
+  /**
+   * 任务文件名
+   */
+  @NoNull
+  public String fileName;
+
+  /**
+   * 是否是任务组的子任务记录
+   * {@code true}是
+   */
+  public boolean isGroupRecord = false;
+
+  /**
+   * 下载任务组名
+   */
+  @Foreign(parent = DownloadGroupEntity.class, column = "groupName", onUpdate = ActionPolicy.CASCADE, onDelete = ActionPolicy.CASCADE)
+  public String dGroupName;
+
+  /**
+   * 上传组任务名，暂时没有用
+   */
+  @Ignore
+  @Deprecated
+  public String uGroupName;
 }

@@ -45,32 +45,17 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
   }
 
   @Override protected int setNewTaskThreadNum() {
-    return mEntity.getFileSize() <= SUB_LEN || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP_DIR
-        ? 1
-        : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
+    return
+        mEntity.getFileSize() <= SUB_LEN || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP_DIR
+            ? 1
+            : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
   }
 
   @Override protected void checkTask() {
-    mConfigFile = new File(CommonUtil.getFileConfigPath(true, mEntity.getFileName()));
+    super.checkTask();
     mTempFile = new File(mEntity.getDownloadPath());
-    if (!mTaskEntity.isSupportBP()) {
-      isNewTask = true;
-      return;
-    }
-    if (mTaskEntity.isNewTask()) {
-      isNewTask = true;
-      return;
-    }
-    if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
-      isNewTask = true;
-      CommonUtil.createFile(mConfigFile.getPath());
-    } else if (!mTempFile.exists()) {
-      isNewTask = true;
-    } else if (DbEntity.findFirst(DownloadEntity.class, "url=?", mEntity.getUrl()) == null) {
-      isNewTask = true;
-    } else {
-      isNewTask = checkConfigFile();
-    }
+    mTaskEntity.setNewTask(!mTempFile.exists()
+        || DbEntity.findFirst(DownloadEntity.class, "url=?", mEntity.getUrl()) == null);
   }
 
   @Override protected boolean handleNewTask() {

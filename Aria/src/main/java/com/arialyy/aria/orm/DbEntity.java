@@ -30,6 +30,13 @@ public abstract class DbEntity {
 
   }
 
+  ///**
+  // * 保存关联数据
+  // */
+  //public static void saveRelationData(AbsWrapper wrapper) {
+  //  DelegateWrapper.getInstance().saveRelationData(wrapper);
+  //}
+
   /**
    * 查询关联数据
    *

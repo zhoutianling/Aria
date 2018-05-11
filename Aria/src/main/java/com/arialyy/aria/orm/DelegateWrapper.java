@@ -56,6 +56,13 @@ public class DelegateWrapper {
     return INSTANCE;
   }
 
+  ///**
+  // * 保存关联数据
+  // */
+  //void saveRelationData(AbsWrapper wrapper){
+  //
+  //}
+
   /**
    * 查询关联表数据
    *
@@ -123,6 +130,13 @@ public class DelegateWrapper {
    */
   <T extends DbEntity> boolean isExist(Class<T> clazz, long rowId) {
     return mDManager.getDelegate(DelegateFind.class).itemExist(mDb, clazz, rowId);
+  }
+
+  /**
+   * 通过rowId判断数据是否存在
+   */
+  boolean isExist(String tableName, long rowId) {
+    return mDManager.getDelegate(DelegateFind.class).itemExist(mDb, tableName, rowId);
   }
 
   /**
