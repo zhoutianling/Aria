@@ -44,7 +44,7 @@ class DBConfig {
 
   static {
     if (TextUtils.isEmpty(DB_NAME)) {
-      DB_NAME = "AriaLyyDb";
+      DB_NAME = "AndroidAria.db";
     }
     if (VERSION == -1) {
       VERSION = 1;

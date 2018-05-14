@@ -39,13 +39,6 @@ class Uploader extends AbsFileer<UploadEntity, UploadTaskEntity> {
         AriaManager.getInstance(AriaManager.APP).getUploadConfig().getUpdateInterval());
   }
 
-  protected void checkTask() {
-    super.checkTask();
-    mTaskEntity.setNewTask(
-        DbEntity.findFirst(UploadEntity.class, "filePath=?", mEntity.getFilePath())
-            == null);
-  }
-
   @Override protected boolean handleNewTask() {
     return true;
   }

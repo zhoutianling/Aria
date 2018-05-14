@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsFtpThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -40,6 +41,11 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
   FtpThreadTask(StateConstance constance, IEventListener listener,
       SubThreadConfig<UploadTaskEntity> info) {
     super(constance, listener, info);
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+    mConnectTimeOut = manager.getUploadConfig().getConnectTimeOut();
+    mReadTimeOut = manager.getUploadConfig().getIOTimeOut();
+    mBufSize = manager.getUploadConfig().getBuffSize();
+    isNotNetRetry = manager.getUploadConfig().isNotNetRetry();
   }
 
   @Override public void run() {

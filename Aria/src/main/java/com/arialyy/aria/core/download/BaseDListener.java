@@ -17,12 +17,16 @@ package com.arialyy.aria.core.download;
 
 import android.os.Handler;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.common.TaskRecord;
 import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsGroupEntity;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
+import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.ref.WeakReference;
 
@@ -154,7 +158,16 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
     mEntity.setState(state);
     mEntity.setComplete(state == IEntity.STATE_COMPLETE);
     if (state == IEntity.STATE_CANCEL) {
-      mEntity.deleteData();
+      if (mEntity instanceof AbsNormalEntity) {
+        TaskRecord record =
+            DbEntity.findFirst(TaskRecord.class, "TaskRecord.filePath=?", mTaskEntity.getKey());
+        if (record != null) {
+          CommonUtil.delTaskRecord(record, mTaskEntity.isRemoveFile(), (AbsNormalEntity) mEntity);
+        }
+      } else if (mEntity instanceof AbsGroupEntity) {
+        CommonUtil.delGroupTaskRecord(mTaskEntity.isRemoveFile(), ((AbsGroupEntity) mEntity));
+      }
+      //mEntity.deleteData();
       return;
     } else if (mEntity.isComplete()) {
       mEntity.setCompleteTime(System.currentTimeMillis());

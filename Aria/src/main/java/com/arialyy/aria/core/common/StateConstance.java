@@ -23,8 +23,6 @@ public class StateConstance {
   public int CANCEL_NUM = 0;
   public int STOP_NUM = 0;
   public int FAIL_NUM = 0;
-  public int CONNECT_TIME_OUT; //连接超时时间
-  public int READ_TIME_OUT; //流读取的超时时间
   public int COMPLETE_THREAD_NUM = 0;
   public int START_THREAD_NUM;  //启动的线程数
   public long CURRENT_LOCATION = 0;

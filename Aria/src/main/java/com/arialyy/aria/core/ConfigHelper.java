@@ -97,6 +97,9 @@ class ConfigHelper extends DefaultHandler {
         case "updateInterval":
           loadUpdateInterval(value);
           break;
+        case "notNetRetry":
+          loadNotNetRetry(value);
+          break;
       }
     } else if (isAppConfig) {
       String value = attributes.getValue("value");
@@ -108,6 +111,15 @@ class ConfigHelper extends DefaultHandler {
           loadLogLevel(value);
           break;
       }
+    }
+  }
+
+  private void loadNotNetRetry(String value) {
+    if (isDownloadConfig) {
+      mDownloadConfig.notNetRetry = checkBoolean(value) ? Boolean.valueOf(value) : false;
+    }
+    if (isUploadConfig) {
+      mUploadConfig.notNetRetry = checkBoolean(value) ? Boolean.valueOf(value) : false;
     }
   }
 
@@ -210,6 +222,10 @@ class ConfigHelper extends DefaultHandler {
     if (isDownloadConfig) {
       mDownloadConfig.buffSize = buffSize;
     }
+
+    if (isUploadConfig){
+      mUploadConfig.buffSize = buffSize;
+    }
   }
 
   private void loadIOTimeout(String value) {
@@ -221,6 +237,10 @@ class ConfigHelper extends DefaultHandler {
 
     if (isDownloadConfig) {
       mDownloadConfig.iOTimeOut = time;
+    }
+
+    if (isUploadConfig) {
+      mUploadConfig.iOTimeOut = time;
     }
   }
 

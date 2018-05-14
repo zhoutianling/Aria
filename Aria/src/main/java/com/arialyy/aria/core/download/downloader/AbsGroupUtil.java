@@ -234,7 +234,6 @@ public abstract class AbsGroupUtil implements IUtil {
       }
     }
     clearState();
-    CommonUtil.delGroupTaskRecord(mGTEntity.isRemoveFile(), mGTEntity.getEntity());
     mListener.onCancel();
   }
 

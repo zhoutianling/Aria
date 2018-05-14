@@ -400,7 +400,7 @@ public class CommonUtil {
   /**
    * 删除任务记录
    *
-   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经下载完成的文件
+   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
   public static void delTaskRecord(TaskRecord record, boolean removeFile,

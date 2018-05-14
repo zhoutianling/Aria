@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsFtpThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -38,6 +39,12 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
   FtpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
     super(constance, listener, downloadInfo);
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+    mConnectTimeOut = manager.getDownloadConfig().getConnectTimeOut();
+    mReadTimeOut = manager.getDownloadConfig().getIOTimeOut();
+    mBufSize = manager.getDownloadConfig().getBuffSize();
+    isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
+    setMaxSpeed(manager.getDownloadConfig().getMaxSpeed());
   }
 
   @Override public void run() {

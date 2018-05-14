@@ -23,7 +23,6 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
@@ -40,6 +39,7 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
 
   Downloader(IDownloadListener listener, DownloadTaskEntity taskEntity) {
     super(listener, taskEntity);
+    mTempFile = new File(mEntity.getDownloadPath());
     setUpdateInterval(
         AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getUpdateInterval());
   }
@@ -49,13 +49,6 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
         mEntity.getFileSize() <= SUB_LEN || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP_DIR
             ? 1
             : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
-  }
-
-  @Override protected void checkTask() {
-    super.checkTask();
-    mTempFile = new File(mEntity.getDownloadPath());
-    mTaskEntity.setNewTask(!mTempFile.exists()
-        || DbEntity.findFirst(DownloadEntity.class, "url=?", mEntity.getUrl()) == null);
   }
 
   @Override protected boolean handleNewTask() {

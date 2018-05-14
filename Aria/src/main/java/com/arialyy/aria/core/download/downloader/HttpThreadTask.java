@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -42,6 +43,12 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
   HttpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
     super(constance, listener, downloadInfo);
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+    mConnectTimeOut = manager.getDownloadConfig().getConnectTimeOut();
+    mReadTimeOut = manager.getDownloadConfig().getIOTimeOut();
+    mBufSize = manager.getDownloadConfig().getBuffSize();
+    isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
+    setMaxSpeed(manager.getDownloadConfig().getMaxSpeed());
   }
 
   @Override public void run() {
@@ -70,8 +77,8 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         ALog.w(TAG, "该下载不支持断点");
       }
       conn = ConnectionHelp.setConnectParam(mConfig.TASK_ENTITY, conn);
-      conn.setConnectTimeout(STATE.CONNECT_TIME_OUT);
-      conn.setReadTimeout(STATE.READ_TIME_OUT);  //设置读取流的等待时间,必须设置该参数
+      conn.setConnectTimeout(mConnectTimeOut);
+      conn.setReadTimeout(mReadTimeOut);  //设置读取流的等待时间,必须设置该参数
 
       is = new BufferedInputStream(ConnectionHelp.convertInputStream(conn));
       //创建可设置位置的文件
@@ -117,7 +124,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
    *
    * @deprecated 暂时先这样处理，无chun
    */
-  private void readChunk(InputStream is, RandomAccessFile file)
+  private void readChunk(InputStream is, BufferedRandomAccessFile file)
       throws IOException, InterruptedException {
     readNormal(is, file);
   }
@@ -125,7 +132,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
   /**
    * 读取普通的文件流
    */
-  private void readNormal(InputStream is, RandomAccessFile file)
+  private void readNormal(InputStream is, BufferedRandomAccessFile file)
       throws IOException, InterruptedException {
     byte[] buffer = new byte[mBufSize];
     int len;

@@ -24,7 +24,6 @@ import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.ErrorHelp;
 import com.arialyy.aria.util.NetUtils;
-import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Timer;
@@ -59,6 +58,10 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   private Timer mFailTimer;
   private long mLastSaveTime;
   private ExecutorService mConfigThreadPool;
+  protected int mConnectTimeOut; //连接超时时间
+  protected int mReadTimeOut; //流读取的超时时间
+  protected boolean isNotNetRetry = false;  //断网情况是否重试
+
   private Thread mConfigThread = new Thread(new Runnable() {
     @Override public void run() {
       final long currentTemp = mChildCurrentLocation;
@@ -72,16 +75,11 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
 
   protected AbsThreadTask(StateConstance constance, IEventListener listener,
       SubThreadConfig<TASK_ENTITY> info) {
-    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     STATE = constance;
-    STATE.CONNECT_TIME_OUT = manager.getDownloadConfig().getConnectTimeOut();
-    STATE.READ_TIME_OUT = manager.getDownloadConfig().getIOTimeOut();
     mListener = listener;
     mConfig = info;
     mTaskEntity = mConfig.TASK_ENTITY;
     mEntity = mTaskEntity.getEntity();
-    mBufSize = manager.getDownloadConfig().getBuffSize();
-    setMaxSpeed(AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getMaxSpeed());
     mTaskType = getTaskType();
     mLastSaveTime = System.currentTimeMillis();
     mConfigThreadPool = Executors.newCachedThreadPool();
@@ -219,13 +217,14 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
       mFailTimer.purge();
       mFailTimer.cancel();
     }
-    if (!NetUtils.isConnected(AriaManager.APP)) {
+    if (!NetUtils.isConnected(AriaManager.APP) && !isNotNetRetry) {
       ALog.w(TAG,
           "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__重试失败，网络未连接");
     }
     if (mFailNum < RETRY_NUM
         && needRetry
         && NetUtils.isConnected(AriaManager.APP)
+        && !isNotNetRetry
         && !STATE.isCancel
         && !STATE.isStop) {
       mFailTimer = new Timer(true);
@@ -258,7 +257,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     if (mConfig.THREAD_RECORD != null) {
       mConfig.THREAD_RECORD.isComplete = isComplete;
       if (0 < record && record < mConfig.END_LOCATION) {
-        mConfig.START_LOCATION = record;
+        mConfig.THREAD_RECORD.startLocation = record;
       }
       mConfig.THREAD_RECORD.update();
     }

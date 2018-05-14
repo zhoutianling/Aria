@@ -192,6 +192,12 @@ class Configuration {
    * 通用任务配置
    */
   abstract static class BaseTaskConfig extends BaseConfig {
+
+    /**
+     * 设置写文件buff大小，该数值大小不能小于2048，数值变小，下载速度会变慢
+     */
+    int buffSize = 8192;
+
     /**
      * 进度刷新间隔，默认1秒
      */
@@ -230,6 +236,16 @@ class Configuration {
      * @see QueueMod
      */
     String queueMod = "wait";
+
+    /**
+     * 断网的时候是否重试，{@code true}断网也重试；{@code false}断网不重试，直接走失败的回调
+     */
+    boolean notNetRetry = false;
+
+    /**
+     * 设置IO流读取时间，单位为毫秒，默认20000毫秒，该时间不能少于10000毫秒
+     */
+    int iOTimeOut = 20 * 1000;
 
     public long getUpdateInterval() {
       return updateInterval;
@@ -303,20 +319,43 @@ class Configuration {
       saveKey("connectTimeOut", String.valueOf(connectTimeOut));
       return this;
     }
+
+    public boolean isNotNetRetry() {
+      return notNetRetry;
+    }
+
+    public BaseTaskConfig setNotNetRetry(boolean notNetRetry) {
+      this.notNetRetry = notNetRetry;
+      saveKey("notNetRetry", String.valueOf(notNetRetry));
+      return this;
+    }
+
+    public int getIOTimeOut() {
+      return iOTimeOut;
+    }
+
+    public BaseTaskConfig setIOTimeOut(int iOTimeOut) {
+      this.iOTimeOut = iOTimeOut;
+      saveKey("iOTimeOut", String.valueOf(iOTimeOut));
+      return this;
+    }
+
+    public int getBuffSize() {
+      return buffSize;
+    }
+
+    public BaseTaskConfig setBuffSize(int buffSize) {
+      this.buffSize = buffSize;
+      saveKey("buffSize", String.valueOf(buffSize));
+      return this;
+    }
   }
 
   /**
    * 下载配置
    */
   public static class DownloadConfig extends BaseTaskConfig {
-    /**
-     * 设置IO流读取时间，单位为毫秒，默认20000毫秒，该时间不能少于10000毫秒
-     */
-    int iOTimeOut = 20 * 1000;
-    /**
-     * 设置写文件buff大小，该数值大小不能小于2048，数值变小，下载速度会变慢
-     */
-    int buffSize = 8192;
+
     /**
      * 设置https ca 证书信息；path 为assets目录下的CA证书完整路径
      */
@@ -343,10 +382,6 @@ class Configuration {
       return this;
     }
 
-    public int getIOTimeOut() {
-      return iOTimeOut;
-    }
-
     public int getMaxSpeed() {
       return maxSpeed;
     }
@@ -361,22 +396,6 @@ class Configuration {
     public void setThreadNum(int threadNum) {
       this.threadNum = threadNum;
       saveKey("threadNum", String.valueOf(threadNum));
-    }
-
-    public DownloadConfig setIOTimeOut(int iOTimeOut) {
-      this.iOTimeOut = iOTimeOut;
-      saveKey("iOTimeOut", String.valueOf(iOTimeOut));
-      return this;
-    }
-
-    public int getBuffSize() {
-      return buffSize;
-    }
-
-    public DownloadConfig setBuffSize(int buffSize) {
-      this.buffSize = buffSize;
-      saveKey("buffSize", String.valueOf(buffSize));
-      return this;
     }
 
     public String getCaPath() {

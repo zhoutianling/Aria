@@ -118,7 +118,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       mStartThreadNum = 1;
       handleNoSupportBP();
     } else {
-      // TODO: 2018/5/11 如果不是新任务，就有问题
       mTotalThreadNum =
           mTaskEntity.isNewTask() ? (mStartThreadNum = setNewTaskThreadNum()) : mTotalThreadNum;
       handleBreakpoint();
@@ -200,7 +199,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         task.cancel();
       }
     }
-    CommonUtil.delTaskRecord(mRecord, mTaskEntity.isRemoveFile(), mTaskEntity.getEntity());
   }
 
   @Override public void stop() {
@@ -254,6 +252,10 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         if (mRecord.threadRecords == null || mRecord.threadRecords.isEmpty()) {
           initRecord();
           mTaskEntity.setNewTask(true);
+        } else if (mTempFile.length() == 0) {
+          mRecord.deleteData();
+          initRecord();
+          mTaskEntity.setNewTask(true);
         } else {
           for (ThreadRecord tr : mRecord.threadRecords) {
             if (tr.isComplete) {
@@ -263,6 +265,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
             }
           }
           mTotalThreadNum = mRecord.threadRecords.size();
+          mTaskEntity.setNewTask(false);
         }
       }
     }
