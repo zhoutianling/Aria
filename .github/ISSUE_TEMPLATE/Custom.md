@@ -1,5 +1,5 @@
 ---
-name: Custom issue template
+name: 问题描述
 about: Describe this issue template's purpose here.
 
 ---
