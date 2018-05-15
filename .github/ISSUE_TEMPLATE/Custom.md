@@ -1,0 +1,21 @@
+---
+name: Custom issue template
+about: Describe this issue template's purpose here.
+
+---
+
+## 版本号
+~ 
+
+## 什么问题
+~
+
+## 如何复现此问题
+~ 
+
+## 手机型号
+~ 
+
+## 控制台日志
+（github的issues支持图片直接粘贴复制）
+~
