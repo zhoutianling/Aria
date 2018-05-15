@@ -374,6 +374,26 @@ class Configuration {
      */
     int maxSpeed = 0;
 
+    /**
+     * 是否使用虚拟文件，使用虚拟文件初始化时将不占用磁盘空间，下载多少byte，占多少空间，效果见chrome的下载。
+     * 注意：
+     * 1、使用该功能，将自动关闭多线程下载；
+     * 2、对于已经采用了多线程的任务，依然采用原来的下载方式；
+     * 3、原本参数是true，任务没下载完成，就参数改为false，那么没下载完成的任务还是会按照参数修改前的方式下载，只有新任务才会根据参数调用不同的下载方式
+     * {@code true}使用
+     */
+    boolean useVirtualFile = true;
+
+    public DownloadConfig setuseVirtualFile(boolean useVirtualFile) {
+      this.useVirtualFile = useVirtualFile;
+      saveKey("useVirtualFile", String.valueOf(useVirtualFile));
+      return this;
+    }
+
+    public boolean isUseVirtualFile() {
+      return useVirtualFile;
+    }
+
     public DownloadConfig setMaxTaskNum(int maxTaskNum) {
       oldMaxTaskNum = this.maxTaskNum;
       this.maxTaskNum = maxTaskNum;

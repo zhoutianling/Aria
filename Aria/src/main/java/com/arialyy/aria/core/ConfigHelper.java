@@ -59,6 +59,9 @@ class ConfigHelper extends DefaultHandler {
 
       String value = attributes.getValue("value");
       switch (qName) {
+        case "useVirtualFile":
+          loadUseVirtualFile(value);
+          break;
         case "threadNum":
           loadThreadNum(value);
           break;
@@ -111,6 +114,12 @@ class ConfigHelper extends DefaultHandler {
           loadLogLevel(value);
           break;
       }
+    }
+  }
+
+  private void loadUseVirtualFile(String value) {
+    if (isDownloadConfig) {
+      mDownloadConfig.useVirtualFile = checkBoolean(value) ? Boolean.valueOf(value) : false;
     }
   }
 
@@ -223,7 +232,7 @@ class ConfigHelper extends DefaultHandler {
       mDownloadConfig.buffSize = buffSize;
     }
 
-    if (isUploadConfig){
+    if (isUploadConfig) {
       mUploadConfig.buffSize = buffSize;
     }
   }

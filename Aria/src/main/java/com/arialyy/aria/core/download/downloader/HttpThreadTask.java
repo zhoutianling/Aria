@@ -28,7 +28,6 @@ import com.arialyy.aria.util.CommonUtil;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,6 +38,11 @@ import java.net.URL;
  */
 final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEntity> {
   private final String TAG = "HttpThreadTask";
+  /**
+   * 2M的动态长度
+   */
+  private final int LEN_INTERVAL = 1024 * 1024 * 2;
+  private boolean useVirtualFile = false;
 
   HttpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
@@ -48,6 +52,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     mReadTimeOut = manager.getDownloadConfig().getIOTimeOut();
     mBufSize = manager.getDownloadConfig().getBuffSize();
     isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
+    useVirtualFile = STATE.TASK_RECORD.isUseVirtualFile;
     setMaxSpeed(manager.getDownloadConfig().getMaxSpeed());
   }
 
@@ -142,6 +147,11 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       }
       if (mSleepTime > 0) {
         Thread.sleep(mSleepTime);
+      }
+      if (useVirtualFile) {
+        file.setLength(
+            STATE.CURRENT_LOCATION + LEN_INTERVAL < mEntity.getFileSize() ? STATE.CURRENT_LOCATION
+                + LEN_INTERVAL : mEntity.getFileSize());
       }
       file.write(buffer, 0, len);
       progress(len);

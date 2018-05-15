@@ -73,7 +73,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 进度刷新间隔
    */
   private long mUpdateInterval = 1000;
-  private TaskRecord mRecord;
+  protected TaskRecord mRecord;
 
   protected AbsFileer(IEventListener listener, TASK_ENTITY taskEntity) {
     mListener = listener;
@@ -336,6 +336,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     mRecord.filePath = mTaskEntity.getKey();
     mRecord.threadRecords = new ArrayList<>();
     mRecord.isGroupRecord = mTaskEntity.getEntity().isGroupChild();
+    mRecord.isUseVirtualFile =
+        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().isUseVirtualFile();
     if (mRecord.isGroupRecord) {
       if (mTaskEntity.getEntity() instanceof DownloadEntity) {
         mRecord.dGroupName = ((DownloadEntity) mTaskEntity.getEntity()).getGroupName();

@@ -40,13 +40,17 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
   Downloader(IDownloadListener listener, DownloadTaskEntity taskEntity) {
     super(listener, taskEntity);
     mTempFile = new File(mEntity.getDownloadPath());
-    setUpdateInterval(
-        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getUpdateInterval());
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+    setUpdateInterval(manager.getDownloadConfig().getUpdateInterval());
   }
 
   @Override protected int setNewTaskThreadNum() {
     return
-        mEntity.getFileSize() <= SUB_LEN || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP_DIR
+        // 小于1m的文件或是任务组的子任务、使用虚拟文件，线程数都是1
+        mEntity.getFileSize() <= SUB_LEN
+            || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP_DIR
+            || mTaskEntity.getRequestType() == AbsTaskEntity.DG_HTTP
+            || mRecord.isUseVirtualFile
             ? 1
             : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
   }
@@ -57,7 +61,7 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
     try {
       file = new BufferedRandomAccessFile(new File(mTempFile.getPath()), "rwd", 8192);
       //设置文件长度
-      file.setLength(mEntity.getFileSize());
+      file.setLength(mRecord.isUseVirtualFile ? 1 : mEntity.getFileSize());
       return true;
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"
