@@ -1,6 +1,6 @@
 ---
 name: 问题描述
-about: Describe this issue template's purpose here.
+about: 描述你遇到的问题或bug
 
 ---
 
