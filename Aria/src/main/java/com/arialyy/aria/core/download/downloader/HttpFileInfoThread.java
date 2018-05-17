@@ -179,7 +179,6 @@ class HttpFileInfoThread implements Runnable {
       return;
     }
     File oldFile = new File(mEntity.getDownloadPath());
-    String oldName = oldFile.getName();
     String newPath = oldFile.getParent() + "/" + newName;
     if (oldFile.exists()) {
       oldFile.renameTo(new File(newPath));
@@ -187,7 +186,6 @@ class HttpFileInfoThread implements Runnable {
     mEntity.setFileName(newName);
     mEntity.setDownloadPath(newPath);
     mTaskEntity.setKey(newPath);
-    CommonUtil.renameDownloadConfig(oldName, newName);
   }
 
   /**

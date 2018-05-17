@@ -35,6 +35,11 @@ import org.apache.commons.net.ftp.FTPReply;
  */
 class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity> {
   private final String TAG = "FtpThreadTask";
+  private boolean isOpenDynamicFile;
+  /**
+   * 2M的动态长度
+   */
+  private final int LEN_INTERVAL = 1024 * 1024 * 2;
 
   FtpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
@@ -44,6 +49,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
     mReadTimeOut = manager.getDownloadConfig().getIOTimeOut();
     mBufSize = manager.getDownloadConfig().getBuffSize();
     isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
+    isOpenDynamicFile = STATE.TASK_RECORD.isOpenDynamicFile;
     setMaxSpeed(manager.getDownloadConfig().getMaxSpeed());
   }
 
@@ -98,6 +104,11 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
           break;
         }
         if (mSleepTime > 0) Thread.sleep(mSleepTime);
+        if (isOpenDynamicFile) {
+          file.setLength(
+              STATE.CURRENT_LOCATION + LEN_INTERVAL < mEntity.getFileSize() ? STATE.CURRENT_LOCATION
+                  + LEN_INTERVAL : mEntity.getFileSize());
+        }
         if (mChildCurrentLocation + len >= mConfig.END_LOCATION) {
           len = (int) (mConfig.END_LOCATION - mChildCurrentLocation);
           file.write(buffer, 0, len);

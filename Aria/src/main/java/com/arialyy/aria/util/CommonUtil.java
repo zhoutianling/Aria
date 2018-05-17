@@ -39,6 +39,7 @@ import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.orm.DbEntity;
+import dalvik.system.DexFile;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -57,9 +58,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -73,6 +73,39 @@ import java.util.regex.Pattern;
  */
 public class CommonUtil {
   private static final String TAG = "CommonUtil";
+
+  /**
+   * 获取某包下所有类
+   *
+   * @param packageName 包名
+   * @return 类的完整名称
+   */
+  public static List<String> getClassName(Context context, String packageName) {
+    List<String> classNameList = new ArrayList<>();
+    try {
+      String pPath = context.getPackageCodePath();
+      File dir = new File(pPath).getParentFile();
+      String dPath = dir.getPath();
+      for (String path : dir.list()) {
+        String fPath = dPath + "/" + path;
+        if (!fPath.endsWith(".apk")) {
+          continue;
+        }
+        ALog.d(TAG, fPath);
+        DexFile df = new DexFile(fPath);//通过DexFile查找当前的APK中可执行文件
+        Enumeration<String> enumeration = df.entries();//获取df中的元素  这里包含了所有可执行的类名 该类名包含了包名+类名的方式
+        while (enumeration.hasMoreElements()) {//遍历
+          String className = enumeration.nextElement();
+          if (className.contains(packageName)) {//在当前所有可执行的类里面查找包含有该包名的所有类
+            classNameList.add(className);
+          }
+        }
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return classNameList;
+  }
 
   /**
    * 拦截window.location.replace数据
@@ -469,9 +502,10 @@ public class CommonUtil {
   public static void createFileFormInputStream(InputStream is, String path) {
     try {
       FileOutputStream fos = new FileOutputStream(path);
-      byte[] buf = new byte[1376];
-      while (is.read(buf) > 0) {
-        fos.write(buf, 0, buf.length);
+      byte[] buf = new byte[1024];
+      int len;
+      while ((len = is.read(buf)) > 0) {
+        fos.write(buf, 0, len);
       }
       is.close();
       fos.flush();
@@ -845,60 +879,28 @@ public class CommonUtil {
   }
 
   /**
-   * 重命名下载配置文件
-   * 如果旧的配置文件名不存在，则使用新的配置文件名新创建一个文件，否则将旧的配置文件重命名为新的位置文件名。
-   * 除了重命名配置文件名外，还会将文件中的记录重命名为新的记录，如果没有记录，则不做处理
+   * 更新任务记录
    *
-   * @param oldName 旧的下载文件名
-   * @param newName 新的下载文件名
+   * @param oldPath 旧的文件路径
+   * @param newPath 新的文件路径
    */
-  public static void renameDownloadConfig(String oldName, String newName) {
-    renameConfig(true, oldName, newName);
-  }
-
-  /**
-   * 重命名上传配置文件
-   * 如果旧的配置文件名不存在，则使用新的配置文件名新创建一个文件，否则将旧的配置文件重命名为新的位置文件名。
-   * 除了重命名配置文件名外，还会将文件中的记录重命名为新的记录，如果没有记录，则不做处理
-   *
-   * @param oldName 旧的上传文件名
-   * @param newName 新的上传文件名
-   */
-  public static void renameUploadConfig(String oldName, String newName) {
-    renameConfig(false, oldName, newName);
-  }
-
-  private static void renameConfig(boolean isDownload, String oldName, String newName) {
-    if (oldName.equals(newName)) return;
-    File oldFile = new File(getFileConfigPath(isDownload, oldName));
-    File newFile = new File(getFileConfigPath(isDownload, oldName));
-    if (!oldFile.exists()) {
-      createFile(newFile.getPath());
-    } else {
-      Properties pro = CommonUtil.loadConfig(oldFile);
-      if (!pro.isEmpty()) {
-        Set<Object> keys = pro.keySet();
-        Set<String> newKeys = new LinkedHashSet<>();
-        Set<String> values = new LinkedHashSet<>();
-        for (Object key : keys) {
-          String oldKey = String.valueOf(key);
-          if (oldKey.contains(oldName)) {
-            values.add(pro.getProperty(oldKey));
-            newKeys.add(oldKey.replace(oldName, newName));
-          }
-        }
-
-        pro.clear();
-        Iterator<String> next = values.iterator();
-        for (String key : newKeys) {
-          pro.setProperty(key, next.next());
-        }
-
-        CommonUtil.saveConfig(oldFile, pro);
-      }
-
-      oldFile.renameTo(newFile);
+  public static void modifyTaskRecord(String oldPath, String newPath) {
+    if (oldPath.equals(newPath)) {
+      ALog.w(TAG, "修改任务记录失败，新文件路径和旧文件路径一致");
+      return;
     }
+    File oldFile = new File(oldPath);
+    if (!oldFile.exists()) {
+      ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】不存在");
+      return;
+    }
+    TaskRecord record = DbHelper.getTaskRecord(oldPath);
+    if (record == null) {
+      ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】对应的任务记录不存在");
+      return;
+    }
+    record.filePath = newPath;
+    record.update();
   }
 
   /**

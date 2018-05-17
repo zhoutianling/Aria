@@ -26,6 +26,7 @@ import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.DbHelper;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -241,14 +242,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     if (mConfigFile.exists()) {
       convertDb();
     } else {
-      List<RecordWrapper> records =
-          DbEntity.findRelationData(RecordWrapper.class, "TaskRecord.filePath=?",
-              mTaskEntity.getKey());
-      if (records == null || records.size() == 0) {
+      mRecord = DbHelper.getTaskRecord(mTaskEntity.getKey());
+      if (mRecord == null) {
         initRecord();
         mTaskEntity.setNewTask(true);
       } else {
-        mRecord = records.get(0).taskRecord;
         if (mRecord.threadRecords == null || mRecord.threadRecords.isEmpty()) {
           initRecord();
           mTaskEntity.setNewTask(true);
@@ -336,8 +334,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     mRecord.filePath = mTaskEntity.getKey();
     mRecord.threadRecords = new ArrayList<>();
     mRecord.isGroupRecord = mTaskEntity.getEntity().isGroupChild();
-    mRecord.isUseVirtualFile =
-        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().isUseVirtualFile();
+    mRecord.isOpenDynamicFile =
+        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().isOpenDynamicFile();
     if (mRecord.isGroupRecord) {
       if (mTaskEntity.getEntity() instanceof DownloadEntity) {
         mRecord.dGroupName = ((DownloadEntity) mTaskEntity.getEntity()).getGroupName();

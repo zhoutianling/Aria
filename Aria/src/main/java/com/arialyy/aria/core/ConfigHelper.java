@@ -59,8 +59,8 @@ class ConfigHelper extends DefaultHandler {
 
       String value = attributes.getValue("value");
       switch (qName) {
-        case "useVirtualFile":
-          loadUseVirtualFile(value);
+        case "openDynamicFile":
+          loadOpenDynamicFile(value);
           break;
         case "threadNum":
           loadThreadNum(value);
@@ -117,9 +117,9 @@ class ConfigHelper extends DefaultHandler {
     }
   }
 
-  private void loadUseVirtualFile(String value) {
+  private void loadOpenDynamicFile(String value) {
     if (isDownloadConfig) {
-      mDownloadConfig.useVirtualFile = checkBoolean(value) ? Boolean.valueOf(value) : false;
+      mDownloadConfig.openDynamicFile = checkBoolean(value) ? Boolean.valueOf(value) : false;
     }
   }
 

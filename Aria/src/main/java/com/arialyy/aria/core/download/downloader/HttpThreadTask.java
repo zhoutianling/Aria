@@ -42,7 +42,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
    * 2M的动态长度
    */
   private final int LEN_INTERVAL = 1024 * 1024 * 2;
-  private boolean useVirtualFile = false;
+  private boolean isOpenDynamicFile;
 
   HttpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
@@ -52,7 +52,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     mReadTimeOut = manager.getDownloadConfig().getIOTimeOut();
     mBufSize = manager.getDownloadConfig().getBuffSize();
     isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
-    useVirtualFile = STATE.TASK_RECORD.isUseVirtualFile;
+    isOpenDynamicFile = STATE.TASK_RECORD.isOpenDynamicFile;
     setMaxSpeed(manager.getDownloadConfig().getMaxSpeed());
   }
 
@@ -148,7 +148,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       if (mSleepTime > 0) {
         Thread.sleep(mSleepTime);
       }
-      if (useVirtualFile) {
+      if (isOpenDynamicFile) {
         file.setLength(
             STATE.CURRENT_LOCATION + LEN_INTERVAL < mEntity.getFileSize() ? STATE.CURRENT_LOCATION
                 + LEN_INTERVAL : mEntity.getFileSize());

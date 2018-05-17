@@ -377,7 +377,7 @@ import org.xml.sax.SAXException;
     } else {
       try {
         String md5Code = CommonUtil.getFileMD5(xmlFile);
-        File file = new File(APP.getFilesDir().getPath() + "temp.xml");
+        File file = new File(APP.getFilesDir().getPath() + "/temp.xml");
         if (file.exists()) {
           file.delete();
         }

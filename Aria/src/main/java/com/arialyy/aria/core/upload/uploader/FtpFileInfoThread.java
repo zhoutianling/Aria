@@ -18,17 +18,18 @@ package com.arialyy.aria.core.upload.uploader;
 import com.arialyy.aria.core.common.AbsFtpInfoThread;
 import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
+import com.arialyy.aria.core.common.TaskRecord;
+import com.arialyy.aria.core.common.ThreadRecord;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.ALog;
-import com.arialyy.aria.util.CommonUtil;
-import java.io.File;
-import java.util.Properties;
+import com.arialyy.aria.util.DbHelper;
+import java.util.ArrayList;
 import org.apache.commons.net.ftp.FTPFile;
 
 /**
  * Created by Aria.Lao on 2017/9/26.
- * 单任务远程服务器文件信息
+ * 单任务上传远程服务器文件信息
  */
 class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity> {
   private static final String TAG = "FtpUploadFtpFileInfoThread";
@@ -67,16 +68,27 @@ class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity>
             + "尝试从位置："
             + (ftpFile.getSize() - 1)
             + "开始上传");
-        File configFile = new File(CommonUtil.getFileConfigPath(false, mEntity.getFileName()));
-        Properties pro = CommonUtil.loadConfig(configFile);
-        String key = mEntity.getFileName() + "_record_" + 0;
         mTaskEntity.setNewTask(false);
-        long oldRecord = Long.parseLong(pro.getProperty(key, "0"));
-        if (oldRecord == 0 || oldRecord != ftpFile.getSize()) {
-          //修改本地保存的停止地址为服务器上对应文件的大小
-          pro.setProperty(key, (ftpFile.getSize() - 1) + "");
-          CommonUtil.saveConfig(configFile, pro);
+
+        // 修改记录
+        TaskRecord record = DbHelper.getTaskRecord(mTaskEntity.getKey());
+        if (record == null) {
+          record = new TaskRecord();
+          record.fileName = mEntity.getFileName();
+          record.filePath = mTaskEntity.getKey();
+          record.threadRecords = new ArrayList<>();
         }
+        ThreadRecord threadRecord;
+        if (record.threadRecords == null || record.threadRecords.isEmpty()) {
+          threadRecord = new ThreadRecord();
+          threadRecord.key = record.filePath;
+        } else {
+          threadRecord = record.threadRecords.get(0);
+        }
+        //修改本地保存的停止地址为服务器上对应文件的大小
+        threadRecord.startLocation = ftpFile.getSize() - 1;
+        record.save();
+        threadRecord.save();
       }
     }
   }

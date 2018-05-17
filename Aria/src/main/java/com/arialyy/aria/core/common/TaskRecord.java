@@ -78,5 +78,5 @@ public class TaskRecord extends DbEntity {
    * 是否是使用虚拟文件下载的
    * {@code true}是，{@code false}不是
    */
-  public boolean isUseVirtualFile = false;
+  public boolean isOpenDynamicFile = false;
 }

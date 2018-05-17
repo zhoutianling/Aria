@@ -56,7 +56,6 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       return;
     }
     String mod;
-    // TODO: 2018/4/12 配置文件不存在，是否会出现wait获取不到 ？
     int maxTaskNum = mQueue.getMaxTaskNum();
     AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     if (isDownloadCmd) {
