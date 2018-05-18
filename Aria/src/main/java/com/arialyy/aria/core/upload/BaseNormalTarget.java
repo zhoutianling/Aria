@@ -105,6 +105,7 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
       ALog.e(TAG, "上传失败，文件【" + filePath + "】不能是文件夹");
       return false;
     }
+    mTaskEntity.setKey(mEntity.getFilePath());
     return true;
   }
 

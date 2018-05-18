@@ -17,7 +17,7 @@ public class AnyRunActivity extends BaseActivity<ActivityTestBinding> {
   int index = 0;
   //String URL = "http://static.gaoshouyou.com/d/12/0d/7f120f50c80d2e7b8c4ba24ece4f9cdd.apk";
   //String URL = "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
-  private final String URL = "ftp://192.168.29.140:21/download//AriaPrj.rar";
+  private final String URL = "ftp://192.168.29.140:21/download/AriaPrj.rar";
   //String URL = "https://dl.genymotion.com/releases/genymotion-2.12.1/genymotion-2.12.1-vbox.exe";
 
   @Override protected int setLayoutId() {

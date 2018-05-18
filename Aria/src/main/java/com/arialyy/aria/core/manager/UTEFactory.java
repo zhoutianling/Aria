@@ -48,9 +48,9 @@ class UTEFactory implements INormalTEFactory<UploadEntity, UploadTaskEntity> {
     List<UTEWrapper> wrapper =
         DbEntity.findRelationData(UTEWrapper.class, "UploadTaskEntity.key=?",
             entity.getFilePath());
-
+    UploadTaskEntity uTaskEntity = null;
     if (wrapper != null && !wrapper.isEmpty()) {
-      UploadTaskEntity uTaskEntity = wrapper.get(0).taskEntity;
+      uTaskEntity = wrapper.get(0).taskEntity;
       if (uTaskEntity == null) {
         uTaskEntity = new UploadTaskEntity();
         uTaskEntity.setEntity(entity);
@@ -58,12 +58,12 @@ class UTEFactory implements INormalTEFactory<UploadEntity, UploadTaskEntity> {
           uTaskEntity.getEntity().getFilePath())) {
         uTaskEntity.setEntity(entity);
       }
-      return uTaskEntity;
     } else {
-      UploadTaskEntity uTaskEntity = new UploadTaskEntity();
+      uTaskEntity = new UploadTaskEntity();
       uTaskEntity.setEntity(entity);
-      return uTaskEntity;
     }
+    uTaskEntity.setKey(entity.getFilePath());
+    return uTaskEntity;
   }
 
   @Override public UploadTaskEntity create(String key) {

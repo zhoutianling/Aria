@@ -95,7 +95,7 @@ public class AnyRunnModule {
         .loadFtp(url)
         .login("lao", "123456")
         //.addHeader("Accept-Encoding", "gzip")
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ftp_ggsg16.apk")
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/")
         //.resetState()
         .start();
     //String[] urls = new String[] {

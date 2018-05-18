@@ -91,7 +91,6 @@ public class CommonUtil {
         if (!fPath.endsWith(".apk")) {
           continue;
         }
-        ALog.d(TAG, fPath);
         DexFile df = new DexFile(fPath);//通过DexFile查找当前的APK中可执行文件
         Enumeration<String> enumeration = df.entries();//获取df中的元素  这里包含了所有可执行的类名 该类名包含了包名+类名的方式
         while (enumeration.hasMoreElements()) {//遍历
@@ -100,6 +99,7 @@ public class CommonUtil {
             classNameList.add(className);
           }
         }
+        df.close();
       }
     } catch (IOException e) {
       e.printStackTrace();

@@ -32,7 +32,7 @@ import org.apache.commons.net.ftp.FTPFile;
  * 单任务上传远程服务器文件信息
  */
 class FtpFileInfoThread extends AbsFtpInfoThread<UploadEntity, UploadTaskEntity> {
-  private static final String TAG = "FtpUploadFtpFileInfoThread";
+  private static final String TAG = "FtpUploadFileInfoThread";
   static final int CODE_COMPLETE = 0xab1;
   private boolean isComplete = false;
 

@@ -52,7 +52,6 @@ public class ProxyHelper {
       if (!className.startsWith("com.arialyy.aria.ProxyClassCounter")){
         continue;
       }
-      ALog.d("TAG", className);
       count(className);
     }
   }

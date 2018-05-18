@@ -4,6 +4,8 @@
     - 上传配置添加io超时时间、缓存大小配置
     - 添加没有网络也会重试的开关
     - 修复多次删除记录的bug
+    - 文件长度现在可动态增加，详情见 https://aria.laoyuyu.me/aria_doc/start/config.html
+    - 修复多module同时引用Aria导致打正式包出错的问题 https://github.com/AriaLyy/Aria/issues/240
   + v_3.4
     - 优化大量代码
     - 重构Aria的ORM模型，提高了数据读取的可靠性和读写速度
