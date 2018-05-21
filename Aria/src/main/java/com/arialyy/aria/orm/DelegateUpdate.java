@@ -18,7 +18,6 @@ package com.arialyy.aria.orm;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.orm.annotation.Primary;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
@@ -35,6 +34,50 @@ import java.util.Map;
 class DelegateUpdate extends AbsDelegate {
   private DelegateUpdate() {
   }
+
+  ///**
+  // * 添加或更新关联数据
+  // */
+  //void saveRelationData(SQLiteDatabase db, AbsWrapper wrapper) {
+  //  Class clazz = wrapper.getClass();
+  //  List<Field> fields = CommonUtil.getAllFields(clazz);
+  //  DbEntity one = null;
+  //  Object many = null;
+  //  try {
+  //    for (Field field : fields) {
+  //      if (SqlUtil.isOne(field)) {
+  //        one = (DbEntity) field.get(wrapper);
+  //      } else if (SqlUtil.isMany(field)) {
+  //        many = field.get(wrapper);
+  //      }
+  //    }
+  //    if (one == null) {
+  //      ALog.w(TAG, "保存关联数据失败，@One注解的字段为null");
+  //      return;
+  //    }
+  //    if (many == null) {
+  //      ALog.w(TAG, "保存关联数据失败，@Many注解的字段为null");
+  //      return;
+  //    }
+  //    List<Field> oneFields = CommonUtil.getAllFields(one.getClass());
+  //    one.save();
+  //    if (many.getClass() == List.class) {
+  //      for (DbEntity sub : (List<DbEntity>) many) {
+  //        sub.getClass().getA
+  //        sub.save();
+  //      }
+  //    } else {
+  //      if (DbEntity.class.isInstance(many)) {
+  //        ((DbEntity) many).save();
+  //      } else {
+  //        ALog.w(TAG, "保存关联数据失败，@Many注解的字段不是DbEntity子类");
+  //        return;
+  //      }
+  //    }
+  //  } catch (IllegalAccessException e) {
+  //    e.printStackTrace();
+  //  }
+  //}
 
   /**
    * 删除某条数据
@@ -62,7 +105,6 @@ class DelegateUpdate extends AbsDelegate {
     db = checkDb(db);
     Class<?> clazz = dbEntity.getClass();
     List<Field> fields = CommonUtil.getAllFields(clazz);
-    //DbEntity cacheEntity = mDataCache.get(getCacheKey(dbEntity));
     if (fields != null && fields.size() > 0) {
       ContentValues values = new ContentValues();
       try {
@@ -71,14 +113,6 @@ class DelegateUpdate extends AbsDelegate {
           if (isIgnore(dbEntity, field)) {
             continue;
           }
-          //if (cacheEntity != null
-          //    && field.get(dbEntity).equals(field.get(cacheEntity))
-          //    && !field.getName().equals("state")) {  //在LruCache中 state字段总是不能重新赋值...
-          //  Log.d(TAG, field.get(dbEntity) + "");
-          //  Log.d(TAG, field.get(cacheEntity) + "");
-          //
-          //  continue;
-          //}
           String value;
           Type type = field.getType();
           if (type == Map.class && checkMap(field)) {
@@ -101,7 +135,6 @@ class DelegateUpdate extends AbsDelegate {
         ALog.d(TAG, "没有数据更新");
       }
     }
-    //mDataCache.put(getCacheKey(dbEntity), dbEntity);
     close(db);
   }
 
@@ -137,7 +170,6 @@ class DelegateUpdate extends AbsDelegate {
       } catch (IllegalAccessException e) {
         e.printStackTrace();
       }
-      //print(INSERT_DATA, );
       dbEntity.rowID = db.insert(CommonUtil.getClassName(dbEntity), null, values);
     }
     close(db);

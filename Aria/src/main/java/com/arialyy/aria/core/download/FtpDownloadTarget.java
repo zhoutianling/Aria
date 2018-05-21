@@ -68,8 +68,6 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
    * 关于文件名：
    * 1、如果保存路径是该文件的保存路径，如：/mnt/sdcard/file.zip，则使用路径中的文件名file.zip
    * 2、如果保存路径是文件夹路径，如：/mnt/sdcard/，则使用FTP服务器该文件的文件名
-   *
-   * @param filePath 路径必须为文件路径，不能为文件夹路径
    */
   public FtpDownloadTarget setFilePath(@NonNull String filePath) {
     mTempFilePath = filePath;

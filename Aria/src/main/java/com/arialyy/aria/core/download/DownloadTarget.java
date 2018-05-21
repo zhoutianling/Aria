@@ -49,7 +49,6 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
   /**
    * 是否使用服务器通过content-disposition传递的文件名，内容格式{@code attachment;filename=***}
    * 如果获取不到服务器文件名，则使用用户设置的文件名
-   * 只适用于HTTP请求
    *
    * @param use {@code true} 使用
    */

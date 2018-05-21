@@ -21,9 +21,9 @@ public class TestActivity extends BaseActivity<ActivityTestBinding> {
   String TAG = "TestActivity";
   //String URL = "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
   //private final String URL = "ftp://192.168.1.3:21/download//AriaPrj.rar";
-  private final String FILE_PATH = "/mnt/sdcard/SDK_Demo-release.apk";
+  private final String FILE_PATH = "/mnt/sdcard/AriaPrj.rar";
   //private final String URL = "ftp://192.168.29.140:21/aa//你好";
-  private final String URL = "http://192.168.29.140:5000/upload/";
+  private final String URL = "ftp://192.168.29.140:21/upload/";
 
   @Override protected int setLayoutId() {
     return R.layout.activity_test;
@@ -76,18 +76,17 @@ public class TestActivity extends BaseActivity<ActivityTestBinding> {
     switch (view.getId()) {
       case R.id.start:
         Aria.upload(this)
-            .load(FILE_PATH)
+            .loadFtp(FILE_PATH)
+            .login("lao", "123456")
             .setUploadUrl(URL)
-            .setRequestMode(RequestEnum.POST)
             .setExtendField("韩寒哈大双")
-            .setAttachment("file")
             .start();
         break;
       case R.id.stop:
-        Aria.upload(this).load(FILE_PATH).stop();
+        Aria.upload(this).loadFtp(FILE_PATH).stop();
         break;
       case R.id.cancel:
-        Aria.upload(this).load(FILE_PATH).cancel();
+        Aria.upload(this).loadFtp(FILE_PATH).cancel();
         break;
     }
   }

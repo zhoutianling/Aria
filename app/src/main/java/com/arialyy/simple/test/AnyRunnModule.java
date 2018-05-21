@@ -62,16 +62,58 @@ public class AnyRunnModule {
     L.d(TAG, "md5Code ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
   }
 
-
   void start(String url) {
     mUrl = url;
     Aria.download(this)
         .load(url)
-        .addHeader("Accept-Encoding", "gzip")
+        //.addHeader("Accept-Encoding", "gzip")
         .setRequestMode(RequestEnum.GET)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1234.apk")
-        .resetState()
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg123456.apk")
+        //.resetState()
         .start();
+    //String[] urls = new String[] {
+    //    "http://cdn-s1.touchfound.net/1526449199142_3617.png",
+    //    "http://cdn-s1.touchfound.net/mtVmResources/1526287158571.zip",
+    //    "http://cdn-s1.touchfound.net/1526450206960_2186.png",
+    //    "http://cdn-s1.touchfound.net/1526449199025_1476.png"
+    //};
+    //for (int i = 0, len = urls.length; i < len; i++){
+    //
+    //  Aria.download(this)
+    //      .load(urls[i])
+    //      //.addHeader("Accept-Encoding", "gzip")
+    //      .setRequestMode(RequestEnum.GET)
+    //      .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg123456.apk" + i)
+    //      //.resetState()
+    //      .start();
+    //}
+  }
+
+  void startFtp(String url) {
+    mUrl = url;
+    Aria.download(this)
+        .loadFtp(url)
+        .login("lao", "123456")
+        //.addHeader("Accept-Encoding", "gzip")
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/")
+        //.resetState()
+        .start();
+    //String[] urls = new String[] {
+    //    "http://cdn-s1.touchfound.net/1526449199142_3617.png",
+    //    "http://cdn-s1.touchfound.net/mtVmResources/1526287158571.zip",
+    //    "http://cdn-s1.touchfound.net/1526450206960_2186.png",
+    //    "http://cdn-s1.touchfound.net/1526449199025_1476.png"
+    //};
+    //for (int i = 0, len = urls.length; i < len; i++){
+    //
+    //  Aria.download(this)
+    //      .load(urls[i])
+    //      //.addHeader("Accept-Encoding", "gzip")
+    //      .setRequestMode(RequestEnum.GET)
+    //      .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg123456.apk" + i)
+    //      //.resetState()
+    //      .start();
+    //}
   }
 
   void stop(String url) {

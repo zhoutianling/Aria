@@ -15,7 +15,7 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
-import android.util.Log;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -52,6 +52,11 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
   HttpThreadTask(StateConstance constance, IUploadListener listener,
       SubThreadConfig<UploadTaskEntity> uploadInfo) {
     super(constance, listener, uploadInfo);
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+    mConnectTimeOut = manager.getUploadConfig().getConnectTimeOut();
+    mReadTimeOut = manager.getUploadConfig().getIOTimeOut();
+    mBufSize = manager.getUploadConfig().getBuffSize();
+    isNotNetRetry = manager.getUploadConfig().isNotNetRetry();
   }
 
   @Override public void run() {
@@ -74,10 +79,11 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       mHttpConn.setRequestProperty("Content-Type",
           mTaskEntity.getContentType() + "; boundary=" + BOUNDARY);
       mHttpConn.setRequestProperty("User-Agent", mTaskEntity.getUserAgent());
-      mHttpConn.setConnectTimeout(5000);
+      mHttpConn.setConnectTimeout(mConnectTimeOut);
+      mHttpConn.setReadTimeout(mReadTimeOut);
       //mHttpConn.setRequestProperty("Range", "bytes=" + 0 + "-" + "100");
       //内部缓冲区---分段上传防止oom
-      mHttpConn.setChunkedStreamingMode(1024);
+      mHttpConn.setChunkedStreamingMode(mBufSize);
 
       //添加Http请求头部
       Set<String> keys = mTaskEntity.getHeaders().keySet();

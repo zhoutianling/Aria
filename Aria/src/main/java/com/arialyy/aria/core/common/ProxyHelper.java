@@ -16,11 +16,13 @@
 package com.arialyy.aria.core.common;
 
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-
-import static java.util.Collections.unmodifiableSet;
 
 /**
  * Created by Aria.Lao on 2017/7/10.
@@ -45,8 +47,18 @@ public class ProxyHelper {
   }
 
   private void init() {
+    List<String> classes = CommonUtil.getClassName(AriaManager.APP, "com.arialyy.aria");
+    for (String className : classes) {
+      if (!className.startsWith("com.arialyy.aria.ProxyClassCounter")){
+        continue;
+      }
+      count(className);
+    }
+  }
+
+  private void count(String className) {
     try {
-      Class clazz = Class.forName("com.arialyy.aria.ProxyClassCounter");
+      Class clazz = Class.forName(className);
       Method download = clazz.getMethod("getDownloadCounter");
       Method downloadGroup = clazz.getMethod("getDownloadGroupCounter");
       Method downloadGroupSub = clazz.getMethod("getDownloadGroupSubCounter");
@@ -54,19 +66,31 @@ public class ProxyHelper {
       Object object = clazz.newInstance();
       Object dc = download.invoke(object);
       if (dc != null) {
-        downloadCounter = unmodifiableSet((Set<String>) dc);
+        if (downloadCounter == null) {
+          downloadCounter = new HashSet<>();
+        }
+        downloadCounter.addAll((Set<String>) dc);
       }
       Object dgc = downloadGroup.invoke(object);
       if (dgc != null) {
-        downloadGroupCounter = unmodifiableSet((Set<String>) dgc);
+        if (downloadGroupCounter == null) {
+          downloadGroupCounter = new HashSet<>();
+        }
+        downloadGroupCounter.addAll((Set<String>) dgc);
       }
       Object dgsc = downloadGroupSub.invoke(object);
-      if (dgsc != null){
-        downloadGroupSubCounter = unmodifiableSet((Set<? extends String>) dgsc);
+      if (dgsc != null) {
+        if (downloadGroupSubCounter == null) {
+          downloadGroupSubCounter = new HashSet<>();
+        }
+        downloadGroupSubCounter.addAll((Set<String>) dgsc);
       }
       Object uc = upload.invoke(object);
       if (uc != null) {
-        uploadCounter = unmodifiableSet((Set<String>) uc);
+        if (uploadCounter == null) {
+          uploadCounter = new HashSet<>();
+        }
+        uploadCounter.addAll((Set<String>) uc);
       }
     } catch (ClassNotFoundException e) {
       e.printStackTrace();

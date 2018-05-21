@@ -23,7 +23,6 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
-import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
@@ -40,37 +39,20 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
 
   Downloader(IDownloadListener listener, DownloadTaskEntity taskEntity) {
     super(listener, taskEntity);
-    setUpdateInterval(
-        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getUpdateInterval());
+    mTempFile = new File(mEntity.getDownloadPath());
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+    setUpdateInterval(manager.getDownloadConfig().getUpdateInterval());
   }
 
   @Override protected int setNewTaskThreadNum() {
-    return mEntity.getFileSize() <= SUB_LEN || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP_DIR
-        ? 1
-        : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
-  }
-
-  @Override protected void checkTask() {
-    mConfigFile = new File(CommonUtil.getFileConfigPath(true, mEntity.getFileName()));
-    mTempFile = new File(mEntity.getDownloadPath());
-    if (!mTaskEntity.isSupportBP()) {
-      isNewTask = true;
-      return;
-    }
-    if (mTaskEntity.isNewTask()) {
-      isNewTask = true;
-      return;
-    }
-    if (!mConfigFile.exists()) { //记录文件被删除，则重新下载
-      isNewTask = true;
-      CommonUtil.createFile(mConfigFile.getPath());
-    } else if (!mTempFile.exists()) {
-      isNewTask = true;
-    } else if (DbEntity.findFirst(DownloadEntity.class, "url=?", mEntity.getUrl()) == null) {
-      isNewTask = true;
-    } else {
-      isNewTask = checkConfigFile();
-    }
+    return
+        // 小于1m的文件或是任务组的子任务、使用虚拟文件，线程数都是1
+        mEntity.getFileSize() <= SUB_LEN
+            || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP_DIR
+            || mTaskEntity.getRequestType() == AbsTaskEntity.DG_HTTP
+            || mRecord.isOpenDynamicFile
+            ? 1
+            : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
   }
 
   @Override protected boolean handleNewTask() {
@@ -79,7 +61,7 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
     try {
       file = new BufferedRandomAccessFile(new File(mTempFile.getPath()), "rwd", 8192);
       //设置文件长度
-      file.setLength(mEntity.getFileSize());
+      file.setLength(mRecord.isOpenDynamicFile ? 1 : mEntity.getFileSize());
       return true;
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"

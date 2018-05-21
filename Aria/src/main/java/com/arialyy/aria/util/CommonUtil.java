@@ -30,11 +30,16 @@ import com.arialyy.aria.core.command.group.AbsGroupCmd;
 import com.arialyy.aria.core.command.group.GroupCmdFactory;
 import com.arialyy.aria.core.command.normal.AbsNormalCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.common.TaskRecord;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.inf.AbsGroupEntity;
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
+import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.orm.DbEntity;
+import dalvik.system.DexFile;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -53,9 +58,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -65,9 +69,43 @@ import java.util.regex.Pattern;
 
 /**
  * Created by lyy on 2016/1/22.
+ * 通用工具
  */
 public class CommonUtil {
   private static final String TAG = "CommonUtil";
+
+  /**
+   * 获取某包下所有类
+   *
+   * @param packageName 包名
+   * @return 类的完整名称
+   */
+  public static List<String> getClassName(Context context, String packageName) {
+    List<String> classNameList = new ArrayList<>();
+    try {
+      String pPath = context.getPackageCodePath();
+      File dir = new File(pPath).getParentFile();
+      String dPath = dir.getPath();
+      for (String path : dir.list()) {
+        String fPath = dPath + "/" + path;
+        if (!fPath.endsWith(".apk")) {
+          continue;
+        }
+        DexFile df = new DexFile(fPath);//通过DexFile查找当前的APK中可执行文件
+        Enumeration<String> enumeration = df.entries();//获取df中的元素  这里包含了所有可执行的类名 该类名包含了包名+类名的方式
+        while (enumeration.hasMoreElements()) {//遍历
+          String className = enumeration.nextElement();
+          if (className.contains(packageName)) {//在当前所有可执行的类里面查找包含有该包名的所有类
+            classNameList.add(className);
+          }
+        }
+        df.close();
+      }
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return classNameList;
+  }
 
   /**
    * 拦截window.location.replace数据
@@ -82,7 +120,7 @@ public class CommonUtil {
     String reg = Regular.REG_WINLOD_REPLACE;
     Pattern p = Pattern.compile(reg);
     Matcher m = p.matcher(text);
-    if (m.find()){
+    if (m.find()) {
       String s = m.group();
       s = s.substring(9, s.length() - 2);
       return s;
@@ -356,20 +394,27 @@ public class CommonUtil {
   }
 
   /**
-   * 删除下载任务组的配置
+   * 删除任务组记录
    *
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
-  public static void delDownloadGroupTaskConfig(boolean removeFile,
-      DownloadGroupEntity groupEntity) {
+  public static void delGroupTaskRecord(boolean removeFile, AbsGroupEntity groupEntity) {
     if (groupEntity == null) {
       ALog.e(TAG, "删除下载任务组记录失败，任务组实体为null");
       return;
     }
+    List<TaskRecord> records = DbEntity.findDatas(TaskRecord.class,
+        groupEntity instanceof DownloadGroupEntity ? "dGroupName=?" : "uGroupName=?",
+        groupEntity.getGroupName());
 
-    for (DownloadEntity taskEntity : groupEntity.getSubEntities()) {
-      delDownloadTaskConfig(removeFile, taskEntity);
+    if (records == null || records.isEmpty()) {
+      ALog.w(TAG, "组任务记录删除失败，记录为null");
+      return;
+    }
+
+    for (TaskRecord tr : records) {
+      tr.deleteData();
     }
 
     File dir = new File(groupEntity.getDirPath());
@@ -386,38 +431,23 @@ public class CommonUtil {
   }
 
   /**
-   * 删除上传任务的配置
+   * 删除任务记录
    *
-   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
+   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
-  public static void delUploadTaskConfig(boolean removeFile, UploadEntity uEntity) {
-    if (uEntity == null) {
+  public static void delTaskRecord(TaskRecord record, boolean removeFile,
+      AbsNormalEntity dEntity) {
+    if (dEntity == null) return;
+    File file;
+    if (dEntity instanceof DownloadEntity) {
+      file = new File(((DownloadEntity) dEntity).getDownloadPath());
+    } else if (dEntity instanceof UploadEntity) {
+      file = new File(((UploadEntity) dEntity).getFilePath());
+    } else {
+      ALog.w(TAG, "删除记录失败，未知类型");
       return;
     }
-    File file = new File(uEntity.getFilePath());
-    if (removeFile) {
-      if (file.exists()) {
-        file.delete();
-      }
-    }
-    File config = new File(getFileConfigPath(false, uEntity.getFileName()));
-    if (config.exists()) {
-      config.delete();
-    }
-    //下载任务实体和下载实体为一对一关系，下载实体删除，任务实体自动删除
-    uEntity.deleteData();
-  }
-
-  /**
-   * 删除下载任务的配置
-   *
-   * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经下载完成的文件
-   * {@code false}如果任务已经完成，只删除任务数据库记录
-   */
-  public static void delDownloadTaskConfig(boolean removeFile, DownloadEntity dEntity) {
-    if (dEntity == null) return;
-    File file = new File(dEntity.getDownloadPath());
     if (removeFile) {
       if (file.exists()) {
         file.delete();
@@ -430,9 +460,8 @@ public class CommonUtil {
       }
     }
 
-    File config = new File(getFileConfigPath(true, dEntity.getFileName()));
-    if (config.exists()) {
-      config.delete();
+    if (record != null) {
+      record.deleteData();
     }
     //下载任务实体和下载实体为一对一关系，下载实体删除，任务实体自动删除
     dEntity.deleteData();
@@ -473,9 +502,10 @@ public class CommonUtil {
   public static void createFileFormInputStream(InputStream is, String path) {
     try {
       FileOutputStream fos = new FileOutputStream(path);
-      byte[] buf = new byte[1376];
-      while (is.read(buf) > 0) {
-        fos.write(buf, 0, buf.length);
+      byte[] buf = new byte[1024];
+      int len;
+      while ((len = is.read(buf)) > 0) {
+        fos.write(buf, 0, len);
       }
       is.close();
       fos.flush();
@@ -849,60 +879,28 @@ public class CommonUtil {
   }
 
   /**
-   * 重命名下载配置文件
-   * 如果旧的配置文件名不存在，则使用新的配置文件名新创建一个文件，否则将旧的配置文件重命名为新的位置文件名。
-   * 除了重命名配置文件名外，还会将文件中的记录重命名为新的记录，如果没有记录，则不做处理
+   * 更新任务记录
    *
-   * @param oldName 旧的下载文件名
-   * @param newName 新的下载文件名
+   * @param oldPath 旧的文件路径
+   * @param newPath 新的文件路径
    */
-  public static void renameDownloadConfig(String oldName, String newName) {
-    renameConfig(true, oldName, newName);
-  }
-
-  /**
-   * 重命名上传配置文件
-   * 如果旧的配置文件名不存在，则使用新的配置文件名新创建一个文件，否则将旧的配置文件重命名为新的位置文件名。
-   * 除了重命名配置文件名外，还会将文件中的记录重命名为新的记录，如果没有记录，则不做处理
-   *
-   * @param oldName 旧的上传文件名
-   * @param newName 新的上传文件名
-   */
-  public static void renameUploadConfig(String oldName, String newName) {
-    renameConfig(false, oldName, newName);
-  }
-
-  private static void renameConfig(boolean isDownload, String oldName, String newName) {
-    if (oldName.equals(newName)) return;
-    File oldFile = new File(getFileConfigPath(isDownload, oldName));
-    File newFile = new File(getFileConfigPath(isDownload, oldName));
-    if (!oldFile.exists()) {
-      createFile(newFile.getPath());
-    } else {
-      Properties pro = CommonUtil.loadConfig(oldFile);
-      if (!pro.isEmpty()) {
-        Set<Object> keys = pro.keySet();
-        Set<String> newKeys = new LinkedHashSet<>();
-        Set<String> values = new LinkedHashSet<>();
-        for (Object key : keys) {
-          String oldKey = String.valueOf(key);
-          if (oldKey.contains(oldName)) {
-            values.add(pro.getProperty(oldKey));
-            newKeys.add(oldKey.replace(oldName, newName));
-          }
-        }
-
-        pro.clear();
-        Iterator<String> next = values.iterator();
-        for (String key : newKeys) {
-          pro.setProperty(key, next.next());
-        }
-
-        CommonUtil.saveConfig(oldFile, pro);
-      }
-
-      oldFile.renameTo(newFile);
+  public static void modifyTaskRecord(String oldPath, String newPath) {
+    if (oldPath.equals(newPath)) {
+      ALog.w(TAG, "修改任务记录失败，新文件路径和旧文件路径一致");
+      return;
     }
+    File oldFile = new File(oldPath);
+    if (!oldFile.exists()) {
+      ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】不存在");
+      return;
+    }
+    TaskRecord record = DbHelper.getTaskRecord(oldPath);
+    if (record == null) {
+      ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】对应的任务记录不存在");
+      return;
+    }
+    record.filePath = newPath;
+    record.update();
   }
 
   /**

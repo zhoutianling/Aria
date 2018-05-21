@@ -137,10 +137,11 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
    * 取消下载
    */
   @Override public void cancel() {
-    if (!mUtil.isRunning()) {
+    if (mUtil.isRunning()) {
+      mUtil.cancel();
+    } else {
       mListener.onCancel();
     }
-    mUtil.cancel();
   }
 
   @Override public String getTaskName() {

@@ -68,10 +68,11 @@ public class UploadTask extends AbsNormalTask<UploadTaskEntity> {
   }
 
   @Override public void cancel() {
-    if (!mUtil.isRunning()) {
+    if (mUtil.isRunning()) {
+      mUtil.cancel();
+    } else {
       mListener.onCancel();
     }
-    mUtil.cancel();
   }
 
   @Override public String getTaskName() {

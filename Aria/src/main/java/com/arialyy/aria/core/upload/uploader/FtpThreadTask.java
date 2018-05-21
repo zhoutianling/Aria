@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsFtpThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -23,7 +24,6 @@ import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
-import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import org.apache.commons.net.ftp.FTPClient;
@@ -41,6 +41,11 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
   FtpThreadTask(StateConstance constance, IEventListener listener,
       SubThreadConfig<UploadTaskEntity> info) {
     super(constance, listener, info);
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+    mConnectTimeOut = manager.getUploadConfig().getConnectTimeOut();
+    mReadTimeOut = manager.getUploadConfig().getIOTimeOut();
+    mBufSize = manager.getUploadConfig().getBuffSize();
+    isNotNetRetry = manager.getUploadConfig().isNotNetRetry();
   }
 
   @Override public void run() {
@@ -82,10 +87,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       writeConfig(true, 1);
       STATE.COMPLETE_THREAD_NUM++;
       if (STATE.isComplete()) {
-        File configFile = new File(mConfigFPath);
-        if (configFile.exists()) {
-          configFile.delete();
-        }
+        STATE.TASK_RECORD.deleteData();
         STATE.isRunning = false;
         mListener.onComplete();
       }
@@ -114,7 +116,8 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
   private void initPath() throws UnsupportedEncodingException {
     dir = new String(mTaskEntity.getUrlEntity().remotePath.getBytes(charSet), SERVER_CHARSET);
     remotePath = new String(
-        ("/" + mTaskEntity.getUrlEntity().remotePath + "/" + mEntity.getFileName()).getBytes(charSet),
+        ("/" + mTaskEntity.getUrlEntity().remotePath + "/" + mEntity.getFileName()).getBytes(
+            charSet),
         SERVER_CHARSET);
   }
 

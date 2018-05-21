@@ -150,10 +150,9 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
       mEntity.setDownloadPath(filePath);
       mEntity.setFileName(newFile.getName());
       mTaskEntity.setKey(filePath);
-      //mTaskEntity.update();
       if (oldFile.exists()) {
         oldFile.renameTo(newFile);
-        CommonUtil.renameDownloadConfig(oldFile.getName(), newFile.getName());
+        CommonUtil.modifyTaskRecord(oldFile.getPath(), newFile.getPath());
       }
     }
     return true;

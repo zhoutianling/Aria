@@ -224,7 +224,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
       if (oldFile.exists()) {
         oldFile.renameTo(new File(newPath));
       }
-      CommonUtil.renameDownloadConfig(oldFile.getName(), newName);
+      CommonUtil.modifyTaskRecord(oldFile.getPath(), newPath);
       entity.setDownloadPath(newPath);
       taskEntity.setKey(newPath);
       entity.setFileName(newName);

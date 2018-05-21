@@ -16,6 +16,8 @@
 package com.arialyy.aria.orm;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.common.TaskRecord;
+import com.arialyy.aria.core.common.ThreadRecord;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -33,7 +35,7 @@ class DBConfig {
   /*adb pull /mnt/sdcard/Android/data/com.arialyy.simple/files/DB/AriaLyyDb d:/db*/
   static Map<String, Class> mapping = new HashMap<>();
   static String DB_NAME;
-  static int VERSION = 31;
+  static int VERSION = 33;
 
   /**
    * 是否将数据库保存在Sd卡，{@code true} 是
@@ -42,7 +44,7 @@ class DBConfig {
 
   static {
     if (TextUtils.isEmpty(DB_NAME)) {
-      DB_NAME = "AriaLyyDb";
+      DB_NAME = "AndroidAria.db";
     }
     if (VERSION == -1) {
       VERSION = 1;
@@ -56,5 +58,7 @@ class DBConfig {
     mapping.put("UploadTaskEntity", UploadTaskEntity.class);
     mapping.put("DownloadEntity", DownloadEntity.class);
     mapping.put("UploadEntity", UploadEntity.class);
+    mapping.put("TaskRecord", TaskRecord.class);
+    mapping.put("ThreadRecord", ThreadRecord.class);
   }
 }

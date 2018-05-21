@@ -34,11 +34,10 @@ android {
     abortOnError false
   }
 
-//  sourceSets {
-//    main.kotlin.srcDirs += 'src/main/kotlin'
-//    main.java.srcDirs += 'src/main/java'
-//  }
-
+  //  sourceSets {
+  //    main.kotlin.srcDirs += 'src/main/kotlin'
+  //    main.java.srcDirs += 'src/main/java'
+  //  }
 }
 
 dependencies {
@@ -52,9 +51,10 @@ dependencies {
   compile 'com.arialyy.frame:MVVM2:2.2.0'
   compile project(':Aria')
   compile project(':AriaCompiler')
-//  compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-//    compile 'com.arialyy.aria:aria-core:3.3.16'
-//  annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.16'
+  //  compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+  //    compile 'com.arialyy.aria:aria-core:3.3.16'
+  //  annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.16'
+  debugCompile 'com.amitshekhar.android:debug-db:1.0.0'
 }
 repositories {
   mavenCentral()

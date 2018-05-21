@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
 
@@ -49,7 +50,8 @@ final class CountFiler {
   void createCountFile() throws IOException {
     Set<String> keys = mPbUtil.getListenerClass().keySet();
     if (keys.size() == 0) return;
-    TypeSpec.Builder builder = TypeSpec.classBuilder(ProxyConstance.PROXY_COUNTER_NAME)
+    TypeSpec.Builder builder = TypeSpec.classBuilder(
+        ProxyConstance.PROXY_COUNTER_NAME + UUID.randomUUID().toString().replace("-", ""))
         .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
     FieldSpec mappingField = FieldSpec.builder(
