@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsFtpThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -23,7 +24,6 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.net.ftp.FTPClient;
@@ -35,10 +35,22 @@ import org.apache.commons.net.ftp.FTPReply;
  */
 class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity> {
   private final String TAG = "FtpThreadTask";
+  private boolean isOpenDynamicFile;
+  /**
+   * 2M的动态长度
+   */
+  private final int LEN_INTERVAL = 1024 * 1024 * 2;
 
   FtpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
     super(constance, listener, downloadInfo);
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+    mConnectTimeOut = manager.getDownloadConfig().getConnectTimeOut();
+    mReadTimeOut = manager.getDownloadConfig().getIOTimeOut();
+    mBufSize = manager.getDownloadConfig().getBuffSize();
+    isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
+    isOpenDynamicFile = STATE.TASK_RECORD.isOpenDynamicFile;
+    setMaxSpeed(manager.getDownloadConfig().getMaxSpeed());
   }
 
   @Override public void run() {
@@ -92,6 +104,11 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
           break;
         }
         if (mSleepTime > 0) Thread.sleep(mSleepTime);
+        if (isOpenDynamicFile) {
+          file.setLength(
+              STATE.CURRENT_LOCATION + LEN_INTERVAL < mEntity.getFileSize() ? STATE.CURRENT_LOCATION
+                  + LEN_INTERVAL : mEntity.getFileSize());
+        }
         if (mChildCurrentLocation + len >= mConfig.END_LOCATION) {
           len = (int) (mConfig.END_LOCATION - mChildCurrentLocation);
           file.write(buffer, 0, len);
@@ -107,10 +124,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       writeConfig(true, 1);
       STATE.COMPLETE_THREAD_NUM++;
       if (STATE.isComplete()) {
-        File configFile = new File(mConfigFPath);
-        if (configFile.exists()) {
-          configFile.delete();
-        }
+        STATE.TASK_RECORD.deleteData();
         STATE.isRunning = false;
         mListener.onComplete();
       }

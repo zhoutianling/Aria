@@ -73,6 +73,10 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
     return key;
   }
 
+  @Override public void setKey(String key) {
+    this.key = key;
+  }
+
   public String getUrl() {
     return url;
   }
@@ -109,7 +113,5 @@ public class DownloadTaskEntity extends AbsNormalTaskEntity<DownloadEntity> {
     isGroupTask = groupTask;
   }
 
-  public void setKey(String key) {
-    this.key = key;
-  }
+
 }

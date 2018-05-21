@@ -23,6 +23,7 @@ import com.arialyy.aria.orm.annotation.Many;
 import com.arialyy.aria.orm.annotation.NoNull;
 import com.arialyy.aria.orm.annotation.One;
 import com.arialyy.aria.orm.annotation.Primary;
+import com.arialyy.aria.orm.annotation.Unique;
 import com.arialyy.aria.orm.annotation.Wrapper;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
@@ -244,6 +245,16 @@ final class SqlUtil {
    */
   static boolean isDefault(Field field) {
     Default nn = field.getAnnotation(Default.class);
+    return nn != null;
+  }
+
+  /**
+   * 判断是否是Unique
+   *
+   * @return {@code true}为Unique
+   */
+  static boolean isUnique(Field field) {
+    Unique nn = field.getAnnotation(Unique.class);
     return nn != null;
   }
 

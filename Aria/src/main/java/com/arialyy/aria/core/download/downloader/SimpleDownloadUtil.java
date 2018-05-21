@@ -22,6 +22,7 @@ import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.util.ErrorHelp;
 
 /**
@@ -93,7 +94,8 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
     mListener.onPre();
     if (mTaskEntity.getEntity().getFileSize() <= 1
         || mTaskEntity.isRefreshInfo()
-        || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP) {
+        || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP
+        || mTaskEntity.getState() == IEntity.STATE_FAIL) {
       new Thread(createInfoThread()).start();
     } else {
       mDownloader.start();

@@ -16,14 +16,12 @@
 
 package com.arialyy.aria.core.queue;
 
-import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.util.ALog;
-import com.arialyy.aria.util.NetUtils;
 
 /**
  * Created by lyy on 2017/2/23.
@@ -195,10 +193,10 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
       ALog.e(TAG, "任务重试失败，原因：task 为null");
       return;
     }
-    if (!NetUtils.isConnected(AriaManager.APP)) {
-      ALog.e(TAG, "任务【" + task.getTaskName() + "】重试失败，原因：网络未连接");
-      return;
-    }
+    //if (!NetUtils.isConnected(AriaManager.APP)) {
+    //  ALog.e(TAG, "任务【" + task.getTaskName() + "】重试失败，原因：网络未连接");
+    //  return;
+    //}
     if (!task.isRunning()) {
       task.start();
     } else {

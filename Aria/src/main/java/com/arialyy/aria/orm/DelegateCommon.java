@@ -187,6 +187,10 @@ class DelegateCommon extends AbsDelegate {
           }
         }
 
+        if (SqlUtil.isUnique(field)){
+          sb.append(" UNIQUE");
+        }
+
         sb.append(",");
       }
 

@@ -148,6 +148,7 @@ class HttpFileInfoThread implements Runnable {
         return;
       }
       mEntity.setFileSize(len);
+      mTaskEntity.setNewTask(true);
       mTaskEntity.setSupportBP(false);
       end = true;
     } else if (code == HttpURLConnection.HTTP_NOT_FOUND) {
@@ -178,15 +179,13 @@ class HttpFileInfoThread implements Runnable {
       return;
     }
     File oldFile = new File(mEntity.getDownloadPath());
-    String oldName = oldFile.getName();
     String newPath = oldFile.getParent() + "/" + newName;
-    if (oldFile.exists()){
+    if (oldFile.exists()) {
       oldFile.renameTo(new File(newPath));
     }
     mEntity.setFileName(newName);
     mEntity.setDownloadPath(newPath);
     mTaskEntity.setKey(newPath);
-    CommonUtil.renameDownloadConfig(oldName, newName);
   }
 
   /**

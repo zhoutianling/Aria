@@ -30,6 +30,7 @@ import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.util.NetUtils;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -181,7 +182,9 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
     if (what == CANCEL || what == COMPLETE) {
       TEManager.getInstance().removeTEntity(task.getKey());
     } else {
-      TEManager.getInstance().putTEntity(task.getKey(), task.getTaskEntity());
+      if (what != RUNNING) {
+        TEManager.getInstance().putTEntity(task.getKey(), task.getTaskEntity());
+      }
     }
     if (what != FAIL) {
       callback(what, task);
@@ -260,16 +263,21 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
     }
     long interval = 2000;
     int num = 10;
+    boolean isNotNetRetry = false;
+    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
     if (task instanceof DownloadTask || task instanceof DownloadGroupTask) {
-      interval = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getReTryInterval();
-      num = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getReTryNum();
+      interval = manager.getDownloadConfig().getReTryInterval();
+      num = manager.getDownloadConfig().getReTryNum();
+      isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
     } else if (task instanceof UploadTask) {
-      interval = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getReTryInterval();
-      num = AriaManager.getInstance(AriaManager.APP).getUploadConfig().getReTryNum();
+      interval = manager.getUploadConfig().getReTryInterval();
+      num = manager.getUploadConfig().getReTryNum();
+      isNotNetRetry = manager.getUploadConfig().isNotNetRetry();
     }
 
     final int reTryNum = num;
-    if (task.getTaskEntity().getEntity().getFailNum() > reTryNum) {
+    if ((!NetUtils.isConnected(AriaManager.APP) && !isNotNetRetry)
+        || task.getTaskEntity().getEntity().getFailNum() > reTryNum) {
       callback(FAIL, task);
       mQueue.removeTaskFormQueue(task.getKey());
       startNextTask();
@@ -284,6 +292,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
       @Override public void onFinish() {
         AbsEntity entity = task.getTaskEntity().getEntity();
         if (entity.getFailNum() <= reTryNum) {
+          ALog.d(TAG, "任务【" + task.getTaskName() + "】开始重试");
           TASK task = mQueue.getTask(entity.getKey());
           mQueue.reTryStart(task);
         } else {

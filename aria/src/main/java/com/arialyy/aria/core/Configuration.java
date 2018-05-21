@@ -192,6 +192,12 @@ class Configuration {
    * 通用任务配置
    */
   abstract static class BaseTaskConfig extends BaseConfig {
+
+    /**
+     * 设置写文件buff大小，该数值大小不能小于2048，数值变小，下载速度会变慢
+     */
+    int buffSize = 8192;
+
     /**
      * 进度刷新间隔，默认1秒
      */
@@ -230,6 +236,16 @@ class Configuration {
      * @see QueueMod
      */
     String queueMod = "wait";
+
+    /**
+     * 断网的时候是否重试，{@code true}断网也重试；{@code false}断网不重试，直接走失败的回调
+     */
+    boolean notNetRetry = false;
+
+    /**
+     * 设置IO流读取时间，单位为毫秒，默认20000毫秒，该时间不能少于10000毫秒
+     */
+    int iOTimeOut = 20 * 1000;
 
     public long getUpdateInterval() {
       return updateInterval;
@@ -303,20 +319,43 @@ class Configuration {
       saveKey("connectTimeOut", String.valueOf(connectTimeOut));
       return this;
     }
+
+    public boolean isNotNetRetry() {
+      return notNetRetry;
+    }
+
+    public BaseTaskConfig setNotNetRetry(boolean notNetRetry) {
+      this.notNetRetry = notNetRetry;
+      saveKey("notNetRetry", String.valueOf(notNetRetry));
+      return this;
+    }
+
+    public int getIOTimeOut() {
+      return iOTimeOut;
+    }
+
+    public BaseTaskConfig setIOTimeOut(int iOTimeOut) {
+      this.iOTimeOut = iOTimeOut;
+      saveKey("iOTimeOut", String.valueOf(iOTimeOut));
+      return this;
+    }
+
+    public int getBuffSize() {
+      return buffSize;
+    }
+
+    public BaseTaskConfig setBuffSize(int buffSize) {
+      this.buffSize = buffSize;
+      saveKey("buffSize", String.valueOf(buffSize));
+      return this;
+    }
   }
 
   /**
    * 下载配置
    */
   public static class DownloadConfig extends BaseTaskConfig {
-    /**
-     * 设置IO流读取时间，单位为毫秒，默认20000毫秒，该时间不能少于10000毫秒
-     */
-    int iOTimeOut = 20 * 1000;
-    /**
-     * 设置写文件buff大小，该数值大小不能小于2048，数值变小，下载速度会变慢
-     */
-    int buffSize = 8192;
+
     /**
      * 设置https ca 证书信息；path 为assets目录下的CA证书完整路径
      */
@@ -335,16 +374,32 @@ class Configuration {
      */
     int maxSpeed = 0;
 
+    /**
+     * 是否开启动态文件，开启动态文件后初始化时将不占用磁盘空间，下载多少byte，占多少空间，效果见chrome的下载
+     * 注意：
+     * 1、使用该功能，将自动关闭多线程下载；
+     * 2、对于已经采用了多线程的任务，依然采用原来的下载方式；
+     * 3、原本参数是true，任务没下载完成，就参数改为false，那么没下载完成的任务还是会按照参数修改前的方式下载，只有新任务才会根据参数调用不同的下载方式
+     * {@code true}使用
+     */
+    boolean openDynamicFile = true;
+
+    public DownloadConfig setOpenDynamicFile(boolean openDynamicFile) {
+      this.openDynamicFile = openDynamicFile;
+      saveKey("openDynamicFile", String.valueOf(openDynamicFile));
+      return this;
+    }
+
+    public boolean isOpenDynamicFile() {
+      return openDynamicFile;
+    }
+
     public DownloadConfig setMaxTaskNum(int maxTaskNum) {
       oldMaxTaskNum = this.maxTaskNum;
       this.maxTaskNum = maxTaskNum;
       saveKey("maxTaskNum", String.valueOf(maxTaskNum));
       DownloadTaskQueue.getInstance().setMaxTaskNum(maxTaskNum);
       return this;
-    }
-
-    public int getIOTimeOut() {
-      return iOTimeOut;
     }
 
     public int getMaxSpeed() {
@@ -361,22 +416,6 @@ class Configuration {
     public void setThreadNum(int threadNum) {
       this.threadNum = threadNum;
       saveKey("threadNum", String.valueOf(threadNum));
-    }
-
-    public DownloadConfig setIOTimeOut(int iOTimeOut) {
-      this.iOTimeOut = iOTimeOut;
-      saveKey("iOTimeOut", String.valueOf(iOTimeOut));
-      return this;
-    }
-
-    public int getBuffSize() {
-      return buffSize;
-    }
-
-    public DownloadConfig setBuffSize(int buffSize) {
-      this.buffSize = buffSize;
-      saveKey("buffSize", String.valueOf(buffSize));
-      return this;
     }
 
     public String getCaPath() {

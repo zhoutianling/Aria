@@ -69,7 +69,6 @@ public class UploadTaskQueue extends AbsTaskQueue<UploadTask, UploadTaskEntity> 
           && mExecutePool.getTask(entity.getEntity().getKey()) == null) {
         task = (UploadTask) TaskFactory.getInstance()
             .createTask(targetName, entity, UploadSchedulers.getInstance());
-        entity.setKey(entity.getEntity().getFilePath());
         mCachePool.putTask(task);
       } else {
         ALog.w(TAG, "任务已存在");

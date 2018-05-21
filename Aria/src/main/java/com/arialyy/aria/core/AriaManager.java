@@ -77,8 +77,8 @@ import org.xml.sax.SAXException;
   private Configuration.AppConfig mAConfig;
 
   private AriaManager(Context context) {
-    DelegateWrapper.init(context.getApplicationContext());
     APP = context.getApplicationContext();
+    initDb(APP);
     regAppLifeCallback(context);
     initConfig();
     initAria();
@@ -98,6 +98,20 @@ import org.xml.sax.SAXException;
       throw new NullPointerException("请在Application或Activity初始化时调用一次Aria.init(context)方法进行初始化操作");
     }
     return INSTANCE;
+  }
+
+  private void initDb(Context context) {
+    String dbBase = context.getFilesDir().getPath() + context.getPackageName() + "/databases/";
+    File db = new File(dbBase + "AriaLyyDb");
+    File dbConfig = new File(dbBase + "AriaLyyDb-journal");
+    if (db.exists()) {
+      db.renameTo(new File(dbBase + "AndroidAria.db"));
+      // 如果数据库是在/data/data/{packagename}/databases/下面，journal文件因权限问题将无法删除和重命名
+      if (dbConfig.exists()) {
+        dbConfig.delete();
+      }
+    }
+    DelegateWrapper.init(context.getApplicationContext());
   }
 
   private void initAria() {
@@ -363,7 +377,7 @@ import org.xml.sax.SAXException;
     } else {
       try {
         String md5Code = CommonUtil.getFileMD5(xmlFile);
-        File file = new File(APP.getFilesDir().getPath() + "temp.xml");
+        File file = new File(APP.getFilesDir().getPath() + "/temp.xml");
         if (file.exists()) {
           file.delete();
         }
