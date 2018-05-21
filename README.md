@@ -13,6 +13,7 @@ Aria有以下特点：
  + 支持https地址下载
    - 在配置文件中很容易就可以设置CA证书的信息
  + 支持300、301、302重定向下载链接下载
+ + 下载支持文件长度动态增加，文件下载初始化时将不再占用过多的内存空间，见[动态长度配置](https://aria.laoyuyu.me/aria_doc/start/config.html#%E4%B8%8B%E8%BD%BD%E5%8A%A8%E6%80%81%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E)
  
 [怎样使用Aria?](#使用)
 
@@ -28,8 +29,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.4'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.4'
+compile 'com.arialyy.aria:aria-core:3.4.1'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.1'
 ```
 如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:<last-version>'`替换为
 ```
@@ -98,13 +99,13 @@ protected void onCreate(Bundle savedInstanceState) {
 ### [更多说明，见WIKI](http://aria.laoyuyu.me/aria_doc/)
 
 ### 版本日志
-   + v_3.4
-       - 优化大量代码
-       - 重构Aria的ORM模型，提高了数据读取的可靠性和读写速度
-       - 现在可在任意类中使用Aria了，[使用方法](http://aria.laoyuyu.me/aria_doc/start/any_java.html)
-       - 添加`window.location.replace("http://xxxx")`类型的网页重定向支持
-       - 支持gzip、deflate 压缩类型的输入流
-       - 添加`useServerFileName`，可使用服务端响应header的`Content-Disposition`携带的文件名
+   + v_3.4.1
+       - 移除记录配置文件，改用数据库记录任务记录
+       - 上传配置添加io超时时间、缓存大小配置
+       - 添加没有网络也会重试的开关
+       - 修复多次删除记录的bug
+       - 文件长度现在可动态增加，详情见 https://aria.laoyuyu.me/aria_doc/start/config.html
+       - 修复多module同时引用Aria导致打正式包出错的问题 https://github.com/AriaLyy/Aria/issues/240
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 
