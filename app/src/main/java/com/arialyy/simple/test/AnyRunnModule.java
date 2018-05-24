@@ -68,7 +68,7 @@ public class AnyRunnModule {
         .load(url)
         //.addHeader("Accept-Encoding", "gzip")
         .setRequestMode(RequestEnum.GET)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg123456.apk")
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg1234567.apk")
         //.resetState()
         .start();
     //String[] urls = new String[] {

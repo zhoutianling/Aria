@@ -44,8 +44,11 @@ import java.util.concurrent.Executors;
  */
 public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     implements Runnable, IUtil {
-  public static final String STATE = "_state_";
-  public static final String RECORD = "_record_";
+  private static final String STATE = "_state_";
+  private static final String RECORD = "_record_";
+  /**
+   * 小于1m的文件不启用多线程
+   */
   protected static final long SUB_LEN = 1024 * 1024;
 
   private final String TAG = "AbsFileer";
@@ -57,16 +60,14 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   protected StateConstance mConstance;
   private ExecutorService mFixedThreadPool;
   //总线程数
-  private int mTotalThreadNum;
+  protected int mTotalThreadNum;
   //启动线程数
   private int mStartThreadNum;
   //已完成的线程数
   private int mCompleteThreadNum;
   private SparseArray<AbsThreadTask> mTask = new SparseArray<>();
 
-  /**
-   * 小于1m的文件不启用多线程
-   */
+
   private Timer mTimer;
   @Deprecated
   private File mConfigFile;
@@ -74,7 +75,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 进度刷新间隔
    */
   private long mUpdateInterval = 1000;
-  protected TaskRecord mRecord;
+  private TaskRecord mRecord;
 
   protected AbsFileer(IEventListener listener, TASK_ENTITY taskEntity) {
     mListener = listener;
@@ -124,6 +125,16 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       handleBreakpoint();
     }
     mConstance.START_THREAD_NUM = mTotalThreadNum;
+    /*
+     * mTaskEntity.getEntity().getFileSize() != mTempFile.length()为兼容以前老版本代码
+     * 动态长度条件：
+     * 1、总线程数为1，并且是新任务
+     * 2、总线程数为1，不是新任务，但是长度不是文件全长度
+     */
+    if (mTotalThreadNum == 1 && (mTaskEntity.isNewTask()
+        || mTaskEntity.getEntity().getFileSize() != mTempFile.length())) {
+      mConstance.isOpenDynamicFile = true;
+    }
     startTimer();
   }
 
@@ -237,7 +248,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 3、数据库记录不存在
    * 4、不支持断点，则是新任务
    */
-  protected void checkTask() {
+  private void checkTask() {
     mConfigFile = new File(CommonUtil.getFileConfigPath(false, mEntity.getFileName()));
     if (mConfigFile.exists()) {
       convertDb();
@@ -334,8 +345,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     mRecord.filePath = mTaskEntity.getKey();
     mRecord.threadRecords = new ArrayList<>();
     mRecord.isGroupRecord = mTaskEntity.getEntity().isGroupChild();
-    mRecord.isOpenDynamicFile =
-        AriaManager.getInstance(AriaManager.APP).getDownloadConfig().isOpenDynamicFile();
     if (mRecord.isGroupRecord) {
       if (mTaskEntity.getEntity() instanceof DownloadEntity) {
         mRecord.dGroupName = ((DownloadEntity) mTaskEntity.getEntity()).getGroupName();

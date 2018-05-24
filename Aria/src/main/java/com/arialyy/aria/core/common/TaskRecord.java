@@ -73,10 +73,4 @@ public class TaskRecord extends DbEntity {
   @Ignore
   @Deprecated
   public String uGroupName;
-
-  /**
-   * 是否是使用虚拟文件下载的
-   * {@code true}是，{@code false}不是
-   */
-  public boolean isOpenDynamicFile = false;
 }

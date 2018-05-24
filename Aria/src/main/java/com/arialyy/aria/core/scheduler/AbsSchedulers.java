@@ -311,7 +311,9 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
   private void startNextTask() {
     TASK newTask = mQueue.getNextTask();
     if (newTask == null) {
-      ALog.i(TAG, "没有下一任务");
+      if (mQueue.getCurrentExePoolNum() == 0) {
+        ALog.i(TAG, "没有下一任务");
+      }
       return;
     }
     if (newTask.getState() == IEntity.STATE_WAIT) {

@@ -26,11 +26,16 @@ import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 
 /**
  * Created by lyy on 2017/1/18.
@@ -38,10 +43,6 @@ import java.net.URL;
  */
 final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEntity> {
   private final String TAG = "HttpThreadTask";
-  /**
-   * 2M的动态长度
-   */
-  private final int LEN_INTERVAL = 1024 * 1024 * 2;
   private boolean isOpenDynamicFile;
 
   HttpThreadTask(StateConstance constance, IDownloadListener listener,
@@ -52,7 +53,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     mReadTimeOut = manager.getDownloadConfig().getIOTimeOut();
     mBufSize = manager.getDownloadConfig().getBuffSize();
     isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
-    isOpenDynamicFile = STATE.TASK_RECORD.isOpenDynamicFile;
+    isOpenDynamicFile = STATE.isOpenDynamicFile;
     setMaxSpeed(manager.getDownloadConfig().getMaxSpeed());
   }
 
@@ -86,15 +87,18 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       conn.setReadTimeout(mReadTimeOut);  //设置读取流的等待时间,必须设置该参数
 
       is = new BufferedInputStream(ConnectionHelp.convertInputStream(conn));
-      //创建可设置位置的文件
-      file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
-      //设置每条线程写入文件的位置
-      file.seek(mConfig.START_LOCATION);
-
-      if (mTaskEntity.isChunked()) {
-        readChunk(is, file);
+      if (isOpenDynamicFile) {
+        readDynamicFile(is);
       } else {
-        readNormal(is, file);
+        //创建可设置位置的文件
+        file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
+        //设置每条线程写入文件的位置
+        file.seek(mConfig.START_LOCATION);
+        if (mTaskEntity.isChunked()) {
+          readChunk(is, file);
+        } else {
+          readNormal(is, file);
+        }
       }
 
       if (STATE.isCancel || STATE.isStop) {
@@ -125,6 +129,52 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
   }
 
   /**
+   * 动态长度文件读取方式
+   */
+  private void readDynamicFile(InputStream is) {
+    FileOutputStream fos = null;
+    FileChannel foc = null;
+    ReadableByteChannel fic = null;
+    try {
+      int len;
+      fos = new FileOutputStream(mConfig.TEMP_FILE, true);
+      foc = fos.getChannel();
+      fic = Channels.newChannel(is);
+      ByteBuffer bf = ByteBuffer.allocate(mBufSize);
+      while ((len = fic.read(bf)) != -1) {
+        if (STATE.isCancel || STATE.isStop) {
+          break;
+        }
+        if (mSleepTime > 0) {
+          Thread.sleep(mSleepTime);
+        }
+        bf.flip();
+        foc.write(bf);
+        bf.compact();
+        progress(len);
+      }
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      fail(mChildCurrentLocation, "下载失败【" + mConfig.URL + "】", e);
+    } finally {
+      try {
+        if (fos != null) {
+          fos.close();
+        }
+        if (foc != null) {
+          foc.close();
+        }
+        if (fic != null) {
+          fic.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  /**
    * 读取chunk模式的文件流
    *
    * @deprecated 暂时先这样处理，无chun
@@ -147,11 +197,6 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       }
       if (mSleepTime > 0) {
         Thread.sleep(mSleepTime);
-      }
-      if (isOpenDynamicFile) {
-        file.setLength(
-            STATE.CURRENT_LOCATION + LEN_INTERVAL < mEntity.getFileSize() ? STATE.CURRENT_LOCATION
-                + LEN_INTERVAL : mEntity.getFileSize());
       }
       file.write(buffer, 0, len);
       progress(len);

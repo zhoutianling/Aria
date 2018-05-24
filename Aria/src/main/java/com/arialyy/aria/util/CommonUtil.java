@@ -410,11 +410,10 @@ public class CommonUtil {
 
     if (records == null || records.isEmpty()) {
       ALog.w(TAG, "组任务记录删除失败，记录为null");
-      return;
-    }
-
-    for (TaskRecord tr : records) {
-      tr.deleteData();
+    } else {
+      for (TaskRecord tr : records) {
+        tr.deleteData();
+      }
     }
 
     File dir = new File(groupEntity.getDirPath());
