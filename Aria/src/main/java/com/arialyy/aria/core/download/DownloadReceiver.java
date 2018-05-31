@@ -265,7 +265,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @return 如果url错误或查找不到数据，则返回null
    */
   public DownloadEntity getDownloadEntity(String downloadUrl) {
-    if (CheckUtil.checkUrl(downloadUrl)) {
+    if (!CheckUtil.checkUrl(downloadUrl)) {
       return null;
     }
     return DbEntity.findFirst(DownloadEntity.class, "url=? and isGroupChild='false'", downloadUrl);
@@ -278,7 +278,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @return 如果url错误或查找不到数据，则返回null
    */
   public DownloadTaskEntity getDownloadTask(String downloadUrl) {
-    if (CheckUtil.checkUrl(downloadUrl)) {
+    if (!CheckUtil.checkUrl(downloadUrl)) {
       return null;
     }
     return TEManager.getInstance().getTEntity(DownloadTaskEntity.class, downloadUrl);
