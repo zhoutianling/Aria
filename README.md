@@ -30,8 +30,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.4'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.4'
+compile 'com.arialyy.aria:aria-core:3.4.1'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.1'
 ```
 如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:<last-version>'`替换为
 ```
