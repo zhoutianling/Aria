@@ -101,7 +101,9 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         readNormal(is);
       }
 
-      if (STATE.isCancel || STATE.isStop) return;
+      if (isBreak()){
+        return;
+      }
       ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
       writeConfig(true, 1);
       STATE.COMPLETE_THREAD_NUM++;
@@ -146,7 +148,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       fic = Channels.newChannel(is);
       ByteBuffer bf = ByteBuffer.allocate(mBufSize);
       while ((len = fic.read(bf)) != -1) {
-        if (STATE.isCancel || STATE.isStop) {
+        if (isBreak()) {
           break;
         }
         if (mSleepTime > 0) {
@@ -189,7 +191,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       byte[] buffer = new byte[mBufSize];
       int len;
       while ((len = is.read(buffer)) != -1) {
-        if (STATE.isCancel || STATE.isStop) {
+        if (isBreak()) {
           break;
         }
         if (mSleepTime > 0) Thread.sleep(mSleepTime);

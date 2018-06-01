@@ -87,7 +87,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       int reply = client.getReplyCode();
       if (!FTPReply.isPositiveCompletion(reply)) {
         client.disconnect();
-        fail(STATE.CURRENT_LOCATION,
+        fail(mChildCurrentLocation,
             "无法连接到ftp服务器，错误码为：" + reply + "，msg:" + client.getReplyString(), null);
         return null;
       }

@@ -24,7 +24,6 @@ import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.ErrorHelp;
 import com.arialyy.aria.util.NetUtils;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -61,15 +60,12 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected int mConnectTimeOut; //连接超时时间
   protected int mReadTimeOut; //流读取的超时时间
   protected boolean isNotNetRetry = false;  //断网情况是否重试
+  protected boolean taskBreak = false;  //任务中断
 
   private Thread mConfigThread = new Thread(new Runnable() {
     @Override public void run() {
       final long currentTemp = mChildCurrentLocation;
-      try {
-        writeConfig(false, currentTemp);
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      writeConfig(false, currentTemp);
     }
   });
 
@@ -109,34 +105,42 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   }
 
   /**
+   * 任务是否中断，中断条件：
+   * 1、任务取消
+   * 2、任务停止
+   * 3、手动中断 {@link #taskBreak}
+   *
+   * @return {@code true} 中断，{@code false} 不是中断
+   */
+  protected boolean isBreak() {
+    return STATE.isCancel || STATE.isStop || taskBreak;
+  }
+
+  /**
    * 停止任务
    */
   public void stop() {
     synchronized (AriaManager.LOCK) {
-      try {
-        if (mConfig.SUPPORT_BP) {
-          final long currentTemp = mChildCurrentLocation;
-          STATE.STOP_NUM++;
-          ALog.d(TAG, "任务【"
-              + mConfig.TEMP_FILE.getName()
-              + "】thread__"
-              + mConfig.THREAD_ID
-              + "__停止【停止位置： "
-              + currentTemp
-              + "】");
-          writeConfig(false, currentTemp);
-          if (STATE.isStop()) {
-            ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已停止");
-            STATE.isRunning = false;
-            mListener.onStop(STATE.CURRENT_LOCATION);
-          }
-        } else {
+      if (mConfig.SUPPORT_BP) {
+        final long currentTemp = mChildCurrentLocation;
+        STATE.STOP_NUM++;
+        ALog.d(TAG, "任务【"
+            + mConfig.TEMP_FILE.getName()
+            + "】thread__"
+            + mConfig.THREAD_ID
+            + "__停止【停止位置： "
+            + currentTemp
+            + "】");
+        writeConfig(false, currentTemp);
+        if (STATE.isStop()) {
           ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已停止");
           STATE.isRunning = false;
           mListener.onStop(STATE.CURRENT_LOCATION);
         }
-      } catch (IOException e) {
-        e.printStackTrace();
+      } else {
+        ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已停止");
+        STATE.isRunning = false;
+        mListener.onStop(STATE.CURRENT_LOCATION);
       }
     }
   }
@@ -146,6 +150,11 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    */
   protected void progress(long len) {
     synchronized (AriaManager.LOCK) {
+      if (STATE.CURRENT_LOCATION > mEntity.getFileSize()) {
+        taskBreak = true;
+        fail(mChildCurrentLocation, "下载失败，下载长度超出文件大小", null, false);
+        return;
+      }
       mChildCurrentLocation += len;
       STATE.CURRENT_LOCATION += len;
       if (System.currentTimeMillis() - mLastSaveTime > 5000
@@ -183,26 +192,35 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   }
 
   /**
-   * 任务失败
+   * 线程任务失败
+   *
+   * @param subCurrentLocation 当前线程下载进度
+   * @param msg 自定义信息
+   * @param ex 异常信息
    */
-  protected void fail(final long currentLocation, String msg, Exception ex) {
+  protected void fail(final long subCurrentLocation, String msg, Exception ex) {
+    fail(subCurrentLocation, msg, ex, true);
+  }
+
+  /**
+   * 任务失败
+   *
+   * @param subCurrentLocation 当前子线程进度
+   */
+  protected void fail(final long subCurrentLocation, String msg, Exception ex, boolean needRetry) {
     synchronized (AriaManager.LOCK) {
-      try {
-        if (ex != null) {
-          ALog.e(TAG, msg + "\n" + ALog.getExceptionString(ex));
-        } else {
-          ALog.e(TAG, msg);
-        }
-        if (mConfig.SUPPORT_BP) {
-          writeConfig(false, currentLocation);
-          retryThis(STATE.START_THREAD_NUM != 1);
-        } else {
-          ALog.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
-          mListener.onFail(true);
-          ErrorHelp.saveError(TAG, "", ALog.getExceptionString(ex));
-        }
-      } catch (IOException e) {
-        e.printStackTrace();
+      if (ex != null) {
+        ALog.e(TAG, msg + "\n" + ALog.getExceptionString(ex));
+      } else {
+        ALog.e(TAG, msg);
+      }
+      if (mConfig.SUPPORT_BP) {
+        writeConfig(false, subCurrentLocation);
+        retryThis(STATE.START_THREAD_NUM != 1);
+      } else {
+        ALog.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
+        mListener.onFail(true);
+        ErrorHelp.saveError(TAG, "", ALog.getExceptionString(ex));
       }
     }
   }
@@ -233,9 +251,8 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
           mFailNum++;
           ALog.w(TAG,
               "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__正在重试");
-          final long retryLocation =
+          mConfig.START_LOCATION =
               mChildCurrentLocation == 0 ? mConfig.START_LOCATION : mChildCurrentLocation;
-          mConfig.START_LOCATION = retryLocation;
           AbsThreadTask.this.run();
         }
       }, RETRY_INTERVAL);
@@ -253,7 +270,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   /**
    * 将记录写入到配置文件
    */
-  protected void writeConfig(boolean isComplete, final long record) throws IOException {
+  protected void writeConfig(boolean isComplete, final long record) {
     if (mConfig.THREAD_RECORD != null) {
       mConfig.THREAD_RECORD.isComplete = isComplete;
       if (0 < record && record < mConfig.END_LOCATION) {

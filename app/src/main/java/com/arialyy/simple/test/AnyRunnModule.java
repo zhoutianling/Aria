@@ -68,7 +68,7 @@ public class AnyRunnModule {
         .load(url)
         //.addHeader("Accept-Encoding", "gzip")
         .setRequestMode(RequestEnum.GET)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/abcd.mp4")
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/abcds.exe")
         //.resetState()
         .start();
     //String[] urls = new String[] {

@@ -101,7 +101,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         }
       }
 
-      if (STATE.isCancel || STATE.isStop) {
+      if (isBreak()) {
         return;
       }
       handleComplete();
@@ -142,7 +142,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       fic = Channels.newChannel(is);
       ByteBuffer bf = ByteBuffer.allocate(mBufSize);
       while ((len = fic.read(bf)) != -1) {
-        if (STATE.isCancel || STATE.isStop) {
+        if (isBreak()) {
           break;
         }
         if (mSleepTime > 0) {
@@ -192,7 +192,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     byte[] buffer = new byte[mBufSize];
     int len;
     while ((len = is.read(buffer)) != -1) {
-      if (STATE.isCancel || STATE.isStop) {
+      if (isBreak()) {
         break;
       }
       if (mSleepTime > 0) {
@@ -205,10 +205,8 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
 
   /**
    * 处理完成配置文件的更新或事件回调
-   *
-   * @throws IOException
    */
-  private void handleComplete() throws IOException {
+  private void handleComplete() {
     //支持断点的处理
     if (mConfig.SUPPORT_BP) {
       if (mChildCurrentLocation == mConfig.END_LOCATION) {

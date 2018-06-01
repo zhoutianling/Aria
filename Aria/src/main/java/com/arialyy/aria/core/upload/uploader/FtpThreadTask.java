@@ -82,7 +82,9 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
         file.seek(mConfig.START_LOCATION);
       }
       upload(client, file);
-      if (STATE.isCancel || STATE.isStop) return;
+      if (isBreak()) {
+        return;
+      }
       ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__上传完毕");
       writeConfig(true, 1);
       STATE.COMPLETE_THREAD_NUM++;
@@ -131,7 +133,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
 
         @Override public void onFtpInputStream(FTPClient client, long totalBytesTransferred,
             int bytesTransferred, long streamSize) {
-          if ((STATE.isCancel || STATE.isStop) && !isStoped) {
+          if (isBreak() && !isStoped) {
             try {
               isStoped = true;
               client.abor();
