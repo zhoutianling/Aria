@@ -2,6 +2,7 @@
   + v_3.4.2
     - fix bug https://github.com/AriaLyy/Aria/issues/248
     - fix bug https://github.com/AriaLyy/Aria/issues/247
+    - fix bug https://github.com/AriaLyy/Aria/issues/250
   + v_3.4.1
     - 移除记录配置文件，改用数据库记录任务记录
     - 上传配置添加io超时时间、缓存大小配置

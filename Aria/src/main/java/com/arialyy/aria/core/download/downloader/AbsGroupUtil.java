@@ -284,7 +284,6 @@ public abstract class AbsGroupUtil implements IUtil {
       }
       mTasksMap.put(te.getUrl(), te);
     }
-    updateFileSize();
   }
 
   @Override public void start() {

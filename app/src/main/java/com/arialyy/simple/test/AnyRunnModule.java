@@ -38,7 +38,7 @@ public class AnyRunnModule {
   }
 
   @Download.onTaskRunning protected void running(DownloadTask task) {
-    Log.d(TAG, "running");
+    Log.d(TAG, "running；Percent = " + task.getPercent());
   }
 
   @Download.onTaskResume void taskResume(DownloadTask task) {
@@ -68,7 +68,7 @@ public class AnyRunnModule {
         .load(url)
         //.addHeader("Accept-Encoding", "gzip")
         .setRequestMode(RequestEnum.GET)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg12345678.apk")
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/abcd.mp4")
         //.resetState()
         .start();
     //String[] urls = new String[] {

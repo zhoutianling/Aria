@@ -30,6 +30,7 @@ import java.lang.reflect.Field;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -217,8 +218,8 @@ class DelegateFind extends AbsDelegate {
       }
 
       List<T> wrappers = new ArrayList<>();
-      Map<Object, P> tempParent = new WeakHashMap<>();  // 所有父表元素，key为父表主键的值
-      Map<Object, List<C>> tempChild = new WeakHashMap<>(); // 所有的字表元素，key为父表主键的值
+      Map<Object, P> tempParent = new LinkedHashMap<>();  // 所有父表元素，key为父表主键的值
+      Map<Object, List<C>> tempChild = new LinkedHashMap<>(); // 所有的字表元素，key为父表主键的值
 
       Object old = null;
       while (cursor.moveToNext()) {

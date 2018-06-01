@@ -888,11 +888,6 @@ public class CommonUtil {
       ALog.w(TAG, "修改任务记录失败，新文件路径和旧文件路径一致");
       return;
     }
-    File oldFile = new File(oldPath);
-    if (!oldFile.exists()) {
-      ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】不存在");
-      return;
-    }
     TaskRecord record = DbHelper.getTaskRecord(oldPath);
     if (record == null) {
       ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】对应的任务记录不存在");

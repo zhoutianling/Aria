@@ -35,6 +35,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   private final String TAG = "DownloadGroupUtil";
   private ExecutorService mInfoPool;
   private int mInitCompleteNum, mInitFailNum;
+  private boolean isStop = false;
 
   /**
    * 文件信息回调组
@@ -53,6 +54,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
 
   @Override public void onCancel() {
     super.onCancel();
+    isStop = true;
     if (!mInfoPool.isShutdown()) {
       mInfoPool.shutdown();
     }
@@ -60,6 +62,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
 
   @Override protected void onStop() {
     super.onStop();
+    isStop = true;
     if (!mInfoPool.isShutdown()) {
       mInfoPool.shutdown();
     }
@@ -67,6 +70,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
 
   @Override protected void onStart() {
     super.onStart();
+    isStop = false;
     if (mCompleteNum == mGroupSize) {
       mListener.onComplete();
       return;
@@ -83,7 +87,9 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
       if (taskEntity != null) {
         if (taskEntity.getState() != IEntity.STATE_FAIL
             && taskEntity.getState() != IEntity.STATE_WAIT) {
+          mInitCompleteNum++;
           createChildDownload(taskEntity);
+          checkStartFlow();
         } else {
           mInfoPool.execute(createFileInfoThread(taskEntity));
         }
@@ -105,6 +111,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
         int failNum = 0;
 
         @Override public void onComplete(String url, CompleteInfo info) {
+          if (isStop) return;
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
             if (isNeedLoadFileSize) {
@@ -112,15 +119,13 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
             }
             createChildDownload(te);
           }
-          mInitCompleteNum ++;
+          mInitCompleteNum++;
 
-          if (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize) {
-            startRunningFlow();
-            updateFileSize();
-          }
+          checkStartFlow();
         }
 
         @Override public void onFail(String url, String errorMsg, boolean needRetry) {
+          if (isStop) return;
           ALog.e(TAG, "任务【" + url + "】初始化失败。");
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
@@ -136,14 +141,23 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
           //  mInitFailNum++;
           //}
           //failNum++;
-          mInitFailNum ++;
-          if (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize) {
-            startRunningFlow();
-            updateFileSize();
-          }
+          mInitFailNum++;
+          checkStartFlow();
         }
       };
     }
     return new HttpFileInfoThread(taskEntity, callback);
+  }
+
+  /**
+   * 检查能否启动下载流程
+   */
+  private void checkStartFlow() {
+    synchronized (DownloadGroupUtil.class) {
+      if (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize) {
+        startRunningFlow();
+        updateFileSize();
+      }
+    }
   }
 }
