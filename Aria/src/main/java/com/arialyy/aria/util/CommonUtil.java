@@ -435,8 +435,7 @@ public class CommonUtil {
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
-  public static void delTaskRecord(TaskRecord record, boolean removeFile,
-      AbsNormalEntity dEntity) {
+  public static void delTaskRecord(TaskRecord record, boolean removeFile, AbsNormalEntity dEntity) {
     if (dEntity == null) return;
     File file;
     if (dEntity instanceof DownloadEntity) {
@@ -890,7 +889,9 @@ public class CommonUtil {
     }
     TaskRecord record = DbHelper.getTaskRecord(oldPath);
     if (record == null) {
-      ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】对应的任务记录不存在");
+      if (new File(oldPath).exists()) {
+        ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】对应的任务记录不存在");
+      }
       return;
     }
     record.filePath = newPath;

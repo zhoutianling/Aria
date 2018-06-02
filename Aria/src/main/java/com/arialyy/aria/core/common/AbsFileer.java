@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.common;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -67,10 +68,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   private int mCompleteThreadNum;
   private SparseArray<AbsThreadTask> mTask = new SparseArray<>();
 
-
   private Timer mTimer;
-  @Deprecated
-  private File mConfigFile;
+  @Deprecated private File mConfigFile;
   /**
    * 进度刷新间隔
    */
@@ -464,6 +463,10 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       mTask.put(i, task);
       threadId[rl] = i;
       rl++;
+    }
+    if (mConstance.CURRENT_LOCATION != 0 && mConstance.CURRENT_LOCATION != mEntity.getCurrentProgress()) {
+      ALog.d(TAG, "进度修正");
+      mEntity.setCurrentProgress(mConstance.CURRENT_LOCATION);
     }
     saveRecord();
     startThreadTask(threadId);

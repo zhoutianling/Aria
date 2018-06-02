@@ -19,6 +19,7 @@ import android.os.Handler;
 import com.arialyy.aria.core.download.downloader.IDownloadGroupListener;
 import com.arialyy.aria.core.inf.GroupSendParams;
 import com.arialyy.aria.core.scheduler.ISchedulers;
+import com.arialyy.aria.util.ALog;
 
 /**
  * Created by Aria.Lao on 2017/7/20.
@@ -85,9 +86,16 @@ class DownloadGroupListener
   }
 
   private void saveCurrentLocation() {
+    if (mEntity.getSubEntities() == null || mEntity.getSubEntities().isEmpty()) {
+      ALog.w(TAG, "保存进度失败，子任务为null");
+      return;
+    }
     long location = 0;
     for (DownloadEntity e : mEntity.getSubEntities()) {
       location += e.getCurrentProgress();
+    }
+    if (location > mEntity.getFileSize()) {
+      location = mEntity.getFileSize();
     }
     mEntity.setCurrentProgress(location);
     mEntity.update();

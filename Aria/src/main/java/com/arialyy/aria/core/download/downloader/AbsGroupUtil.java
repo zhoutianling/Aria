@@ -43,11 +43,11 @@ public abstract class AbsGroupUtil implements IUtil {
   /**
    * FTP文件夹
    */
-  protected int FTP_DIR = 0xa1;
+  int FTP_DIR = 0xa1;
   /**
    * HTTP 任务组
    */
-  protected int HTTP_GROUP = 0xa2;
+  int HTTP_GROUP = 0xa2;
 
   /**
    * 任务组所有任务总长度
@@ -56,7 +56,7 @@ public abstract class AbsGroupUtil implements IUtil {
   long mCurrentLocation = 0;
   private ExecutorService mExePool;
   protected IDownloadGroupListener mListener;
-  protected DownloadGroupTaskEntity mGTEntity;
+  DownloadGroupTaskEntity mGTEntity;
   private boolean isRunning = false;
   private Timer mTimer;
   /**
@@ -262,7 +262,7 @@ public abstract class AbsGroupUtil implements IUtil {
   }
 
   /**
-   * 预处理操作，由于属性的不同，http任务组在构造函数中就可以完成了
+   * 预处理操作
    * 而FTP文件夹的，需要获取完成所有子任务信息才算预处理完成
    */
   protected void onPre() {
@@ -298,14 +298,13 @@ public abstract class AbsGroupUtil implements IUtil {
 
   @Override public void resume() {
     start();
-    mListener.onResume(mCurrentLocation);
   }
 
   @Override public void setMaxSpeed(double maxSpeed) {
 
   }
 
-  private void clearState(){
+  private void clearState() {
     mDownloaderMap.clear();
     mFailMap.clear();
   }
@@ -325,7 +324,11 @@ public abstract class AbsGroupUtil implements IUtil {
   void startRunningFlow() {
     closeTimer(true);
     mListener.onPostPre(mTotalLen);
-    mListener.onStart(mCurrentLocation);
+    if (mCurrentLocation > 0) {
+      mListener.onResume(mCurrentLocation);
+    } else {
+      mListener.onStart(mCurrentLocation);
+    }
     startTimer();
   }
 
@@ -336,7 +339,16 @@ public abstract class AbsGroupUtil implements IUtil {
         if (!isRunning) {
           closeTimer(false);
         } else if (mCurrentLocation >= 0) {
-          mListener.onProgress(mCurrentLocation);
+          long t = 0;
+          for (DownloadTaskEntity te : mGTEntity.getSubTaskEntities()) {
+            if (te.getState() == IEntity.STATE_COMPLETE) {
+              t += te.getEntity().getFileSize();
+            } else {
+              t += te.getEntity().getCurrentProgress();
+            }
+          }
+          mCurrentLocation = t;
+          mListener.onProgress(t);
         }
       }
     }, 0, mUpdateInterval);
@@ -345,8 +357,8 @@ public abstract class AbsGroupUtil implements IUtil {
   /**
    * 创建子任务下载器，默认创建完成自动启动
    */
-  Downloader createChildDownload(DownloadTaskEntity taskEntity) {
-    return createChildDownload(taskEntity, true);
+  void createChildDownload(DownloadTaskEntity taskEntity) {
+    createChildDownload(taskEntity, true);
   }
 
   /**
@@ -408,7 +420,7 @@ public abstract class AbsGroupUtil implements IUtil {
 
     @Override public void onProgress(long currentLocation) {
       long speed = currentLocation - lastLen;
-      mCurrentLocation += speed;
+      //mCurrentLocation += speed;
       subEntity.setCurrentProgress(currentLocation);
       handleSpeed(speed);
       mListener.onSubRunning(subEntity);

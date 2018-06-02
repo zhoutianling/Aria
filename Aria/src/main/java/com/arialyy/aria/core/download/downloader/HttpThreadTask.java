@@ -85,7 +85,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       conn = ConnectionHelp.setConnectParam(mConfig.TASK_ENTITY, conn);
       conn.setConnectTimeout(mConnectTimeOut);
       conn.setReadTimeout(mReadTimeOut);  //设置读取流的等待时间,必须设置该参数
-
+      conn.connect();
       is = new BufferedInputStream(ConnectionHelp.convertInputStream(conn));
       if (isOpenDynamicFile) {
         readDynamicFile(is);

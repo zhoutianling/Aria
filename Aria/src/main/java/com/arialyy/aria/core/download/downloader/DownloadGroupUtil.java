@@ -35,7 +35,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   private final String TAG = "DownloadGroupUtil";
   private ExecutorService mInfoPool;
   private int mInitCompleteNum, mInitFailNum;
-  private boolean isStop = false;
+  private boolean isStop = false, isStart = false;
 
   /**
    * 文件信息回调组
@@ -45,7 +45,6 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   public DownloadGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity taskEntity) {
     super(listener, taskEntity);
     mInfoPool = Executors.newCachedThreadPool();
-    onPre();
   }
 
   @Override int getTaskType() {
@@ -69,7 +68,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   }
 
   @Override protected void onStart() {
-    super.onStart();
+    onPre();
     isStop = false;
     if (mCompleteNum == mGroupSize) {
       mListener.onComplete();
@@ -154,9 +153,10 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
    */
   private void checkStartFlow() {
     synchronized (DownloadGroupUtil.class) {
-      if (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize) {
+      if (!isStart && (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize)) {
         startRunningFlow();
         updateFileSize();
+        isStart = true;
       }
     }
   }

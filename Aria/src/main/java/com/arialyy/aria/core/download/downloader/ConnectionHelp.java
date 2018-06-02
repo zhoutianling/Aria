@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download.downloader;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.util.SSLContextUtil;
 import java.io.IOException;
@@ -44,7 +45,7 @@ class ConnectionHelp {
    * @throws IOException
    */
   static InputStream convertInputStream(HttpURLConnection connection) throws IOException {
-    String encoding = connection.getContentEncoding();
+    String encoding = connection.getHeaderField("Content-Encoding");
     if (TextUtils.isEmpty(encoding)) {
       return connection.getInputStream();
     }
@@ -88,7 +89,9 @@ class ConnectionHelp {
    */
   static HttpURLConnection setConnectParam(DownloadTaskEntity entity, HttpURLConnection conn)
       throws ProtocolException {
-    conn.setRequestMethod(entity.getRequestEnum().name);
+    if (entity.getRequestEnum() == RequestEnum.POST){
+      conn.setDoInput(true);
+    }
     Set<String> keys = null;
     if (entity.getHeaders() != null && entity.getHeaders().size() > 0) {
       keys = entity.getHeaders().keySet();
