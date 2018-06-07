@@ -56,7 +56,6 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    * @param type {@code 1}单任务下载任务；{@code 2}任务组下载任务；{@code 3} 单任务上传任务
    */
   private List<AbsTaskEntity> findTaskData(int type) {
-    // TODO: 2018/4/20 需要测试
     List<AbsTaskEntity> tempList = new ArrayList<>();
     if (type == 1) {
       List<DTEWrapper> wrappers = DbEntity.findRelationData(DTEWrapper.class,
@@ -144,6 +143,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     } else {
       te.getEntity().setState(IEntity.STATE_WAIT);
       createTask(te);
+      sendWaitState();
     }
   }
 }

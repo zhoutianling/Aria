@@ -504,7 +504,7 @@ public abstract class AbsGroupUtil implements IUtil {
         @Override public void run() {
           Downloader dt = mDownloaderMap.get(subEntity.getUrl());
           if (dt != null) {
-            dt.retryThradTask();
+            dt.retryThreadTask();
           }
         }
       }, 3000);
