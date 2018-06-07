@@ -34,7 +34,14 @@ import java.util.concurrent.Executors;
 public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   private final String TAG = "DownloadGroupUtil";
   private ExecutorService mInfoPool;
-  private int mInitCompleteNum, mInitFailNum;
+  /**
+   * 初始化完成的任务数
+   */
+  private int mInitCompleteNum;
+  /**
+   * 初始化失败的任务数
+   */
+  private int mInitFailNum;
   private boolean isStop = false;
 
   /**
@@ -126,7 +133,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
 
         @Override public void onFail(String url, String errorMsg, boolean needRetry) {
           if (isStop) return;
-          ALog.e(TAG, "任务【" + url + "】初始化失败。");
+          ALog.e(TAG, String.format("任务【%s】初始化失败", url));
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
             mFailMap.put(url, te);
@@ -154,7 +161,11 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
    */
   private void checkStartFlow() {
     synchronized (DownloadGroupUtil.class) {
-      if (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize) {
+      if (mInitFailNum == mGroupSize){
+        closeTimer(false);
+        mListener.onFail(true);
+      }
+      if (mInitCompleteNum + mInitFailNum == mGroupSize || !isNeedLoadFileSize) {
         startRunningFlow();
         updateFileSize();
       }

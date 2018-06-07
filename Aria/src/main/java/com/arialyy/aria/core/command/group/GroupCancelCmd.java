@@ -19,7 +19,7 @@ import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
 
 /**
  * Created by AriaL on 2017/6/29.
- * 删除任务组
+ * 删除任务组子任务
  */
 class GroupCancelCmd<T extends AbsGroupTaskEntity> extends AbsGroupCmd<T> {
   /**

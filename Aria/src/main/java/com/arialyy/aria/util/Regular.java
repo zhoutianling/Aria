@@ -5,15 +5,6 @@ package com.arialyy.aria.util;
  * 正则表达式
  */
 public interface Regular {
-  /**
-   * ftp地址
-   */
-  String REG_FTP_URL = "(\\w+)://(.*):(\\d*)/(.*)";
-
-  /**
-   * ftp主机、用户、密码分割
-   */
-  String REG_FTP_HOST_NAME = "(\\w+):?(\\w+)?@(.*)";
 
   /**
    * 获取文件名

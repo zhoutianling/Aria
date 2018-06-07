@@ -17,6 +17,7 @@ package com.arialyy.aria.core.scheduler;
 
 import android.os.CountDownTimer;
 import android.os.Message;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTask;
@@ -292,7 +293,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
       @Override public void onFinish() {
         AbsEntity entity = task.getTaskEntity().getEntity();
         if (entity.getFailNum() <= reTryNum) {
-          ALog.d(TAG, "任务【" + task.getTaskName() + "】开始重试");
+          ALog.d(TAG, String.format("任务【%s】开始重试", task.getTaskName()));
           TASK task = mQueue.getTask(entity.getKey());
           mQueue.reTryStart(task);
         } else {

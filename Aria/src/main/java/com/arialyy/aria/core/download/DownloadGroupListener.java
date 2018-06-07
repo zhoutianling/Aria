@@ -89,6 +89,7 @@ class DownloadGroupListener
     for (DownloadEntity e : mEntity.getSubEntities()) {
       location += e.getCurrentProgress();
     }
+
     mEntity.setCurrentProgress(location);
     mEntity.update();
   }

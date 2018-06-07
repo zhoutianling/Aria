@@ -39,6 +39,7 @@ import java.util.concurrent.Executors;
  * 任务组核心逻辑
  */
 public abstract class AbsGroupUtil implements IUtil {
+  private static final Object LOCK = new Object();
   private final String TAG = "AbsGroupUtil";
   /**
    * FTP文件夹
@@ -158,6 +159,9 @@ public abstract class AbsGroupUtil implements IUtil {
       DownloadTaskEntity det = mTasksMap.get(url);
       if (det != null) {
         mTotalLen -= det.getEntity().getFileSize();
+        mCurrentLocation -= det.getEntity().getCurrentProgress();
+        mExeMap.remove(det.getKey());
+        mFailMap.remove(det.getKey());
         mGroupSize--;
         if (mGroupSize == 0) {
           closeTimer(false);
@@ -305,12 +309,12 @@ public abstract class AbsGroupUtil implements IUtil {
 
   }
 
-  private void clearState(){
+  private void clearState() {
     mDownloaderMap.clear();
     mFailMap.clear();
   }
 
-  private void closeTimer(boolean isRunning) {
+  void closeTimer(boolean isRunning) {
     this.isRunning = isRunning;
     if (mTimer != null) {
       mTimer.purge();
@@ -374,6 +378,8 @@ public abstract class AbsGroupUtil implements IUtil {
     private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
     private long lastSaveTime;
     private long lastLen = 0;
+    private Timer timer;
+    private boolean isNotNetRetry = false;
 
     ChildDownloadListener(DownloadTaskEntity entity) {
       subTaskEntity = entity;
@@ -381,6 +387,7 @@ public abstract class AbsGroupUtil implements IUtil {
       subEntity.setFailNum(0);
       lastLen = subEntity.getCurrentProgress();
       lastSaveTime = System.currentTimeMillis();
+      isNotNetRetry = AriaManager.getInstance(AriaManager.APP).getDownloadConfig().isNotNetRetry();
     }
 
     @Override public void onPre() {
@@ -423,7 +430,7 @@ public abstract class AbsGroupUtil implements IUtil {
       saveData(IEntity.STATE_STOP, stopLocation);
       handleSpeed(0);
       mListener.onSubStop(subEntity);
-      synchronized (AbsGroupUtil.class) {
+      synchronized (AbsGroupUtil.LOCK) {
         mStopNum++;
         if (mStopNum + mCompleteNum + mFailMap.size() == mGroupSize) {
           closeTimer(false);
@@ -439,16 +446,17 @@ public abstract class AbsGroupUtil implements IUtil {
     }
 
     @Override public void onComplete() {
+      subEntity.setComplete(true);
       saveData(IEntity.STATE_COMPLETE, subEntity.getFileSize());
       handleSpeed(0);
       mListener.onSubComplete(subEntity);
-      synchronized (ChildDownloadListener.class) {
+      synchronized (AbsGroupUtil.LOCK) {
         mCompleteNum++;
         //如果子任务完成的数量和总任务数一致，表示任务组任务已经完成
-        if (mCompleteNum >= mGroupSize) {
+        if (mCompleteNum == mGroupSize) {
           closeTimer(false);
           mListener.onComplete();
-        } else if (mFailMap.size() > 0 && mStopNum + mCompleteNum + mFailMap.size() >= mGroupSize) {
+        } else if (mFailMap.size() > 0 && mStopNum + mCompleteNum + mFailMap.size() == mGroupSize) {
           //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
           closeTimer(false);
           mListener.onStop(mCurrentLocation);
@@ -464,41 +472,48 @@ public abstract class AbsGroupUtil implements IUtil {
     }
 
     /**
-     * 重试下载
+     * 重试下载，只有全部都下载失败才会执行任务组的整体重试，否则只会执行单个子任务的重试
      */
     private void reTry(boolean needRetry) {
-      synchronized (ChildDownloadListener.class) {
-        if (subEntity.getFailNum() < 5 && needRetry && NetUtils.isConnected(AriaManager.APP)) {
+      synchronized (AbsGroupUtil.LOCK) {
+        if (subEntity.getFailNum() < 5
+            && needRetry && (NetUtils.isConnected(AriaManager.APP) || isNotNetRetry)) {
           reStartTask();
         } else {
           mFailMap.put(subTaskEntity.getUrl(), subTaskEntity);
           mListener.onSubFail(subEntity);
-          //如果失败的任务数大于实际的下载任务数，任务组停止下载
-          if (mFailMap.size() >= mExeMap.size()) {
+          if (mFailMap.size() == mExeMap.size() || mFailMap.size() + mCompleteNum == mGroupSize) {
             closeTimer(false);
-            if (mFailMap.size() == mGroupSize) {  //所有任务都失败了，则认为该任务组已经失败
-              mListener.onFail(true);
-            } else {
-              mListener.onStop(mCurrentLocation);
-            }
+          }
+          if (mFailMap.size() == mGroupSize) {
+            mListener.onFail(true);
+          } else if (mFailMap.size() + mCompleteNum >= mExeMap.size()) {
+            mListener.onStop(mCurrentLocation);
           }
         }
       }
     }
 
     private void reStartTask() {
-      Timer timer = new Timer();
+      if (timer != null) {
+        timer.purge();
+        timer.cancel();
+      }
+      timer = new Timer();
       timer.schedule(new TimerTask() {
         @Override public void run() {
           Downloader dt = mDownloaderMap.get(subEntity.getUrl());
-          dt.start();
+          if (dt != null) {
+            dt.retryThradTask();
+          }
         }
       }, 3000);
     }
 
     private void handleSpeed(long speed) {
       subEntity.setSpeed(speed);
-      subEntity.setConvertSpeed(speed <= 0 ? "" : CommonUtil.formatFileSize(speed) + "/s");
+      subEntity.setConvertSpeed(
+          speed <= 0 ? "" : String.format("%s/s", CommonUtil.formatFileSize(speed)));
       subEntity.setPercent((int) (subEntity.getFileSize() <= 0 ? 0
           : subEntity.getCurrentProgress() * 100 / subEntity.getFileSize()));
     }

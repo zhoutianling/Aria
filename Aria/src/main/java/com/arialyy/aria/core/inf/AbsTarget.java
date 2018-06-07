@@ -107,7 +107,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
     if (TextUtils.isEmpty(mEntity.getStr()) || !mEntity.getStr().equals(str)) {
       mEntity.setStr(str);
     } else {
-      ALog.e(TAG, "设置扩展字段失败，扩展字段为null");
+      ALog.e(TAG, "设置扩展字段失败，扩展字段为一致");
     }
 
     return (TARGET) this;

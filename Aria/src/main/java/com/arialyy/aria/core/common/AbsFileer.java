@@ -16,7 +16,6 @@
 package com.arialyy.aria.core.common;
 
 import android.content.Context;
-import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
@@ -29,8 +28,10 @@ import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.DbHelper;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
@@ -65,8 +66,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   private int mStartThreadNum;
   //已完成的线程数
   private int mCompleteThreadNum;
-  private SparseArray<AbsThreadTask> mTask = new SparseArray<>();
-
+  private Map<Integer, AbsThreadTask> mTask = new HashMap<>();
 
   private Timer mTimer;
   @Deprecated
@@ -188,7 +188,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
-   * 获取当前下载位置
+   * 获取当前任务位置
    */
   @Override public long getCurrentLocation() {
     return mConstance.CURRENT_LOCATION;
@@ -244,7 +244,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 检查任务、检查线程数
    * 新任务条件：
    * 1、文件不存在
-   * 2、下载记录文件缺失或不匹配
+   * 2、任务记录文件缺失或不匹配
    * 3、数据库记录不存在
    * 4、不支持断点，则是新任务
    */
@@ -318,14 +318,14 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         tRecord.key = mRecord.filePath;
         Object state = pro.getProperty(mTempFile.getName() + STATE + i);
         Object record = pro.getProperty(mTempFile.getName() + RECORD + i);
-        if (state != null && Integer.parseInt(state + "") == 1) {
+        if (state != null && Integer.parseInt(String.valueOf(state)) == 1) {
           mCompleteThreadNum++;
           tRecord.isComplete = true;
           continue;
         }
         mStartThreadNum++;
         if (record != null) {
-          Long temp = Long.parseLong(record + "");
+          Long temp = Long.parseLong(String.valueOf(record));
           tRecord.startLocation = temp > 0 ? temp : 0;
         } else {
           tRecord.startLocation = 0;
@@ -373,7 +373,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    */
   private boolean resumeRecordLocation(int i, long startL, long endL) {
     mConstance.CURRENT_LOCATION += endL - startL;
-    ALog.d(TAG, "任务【" + mTaskEntity.getEntity().getFileName() + "】线程__" + i + "__已完成");
+    ALog.d(TAG, String.format("任务【%s】线程__%s__已完成", mTaskEntity.getEntity().getFileName(), i));
     mConstance.COMPLETE_THREAD_NUM = mCompleteThreadNum;
     mConstance.STOP_NUM++;
     mConstance.CANCEL_NUM++;
@@ -439,7 +439,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         continue;
       }
 
-      //如果有记录，则恢复下载
+      //如果有记录，则恢复任务
       if (tr.startLocation >= 0) {
         Long r = tr.startLocation;
         //记录的位置需要在线程区间中
@@ -447,7 +447,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
           mConstance.CURRENT_LOCATION += r - startL;
           startL = r;
         }
-        ALog.d(TAG, "任务【" + mEntity.getFileName() + "】线程__" + i + "__恢复下载");
+        ALog.d(TAG, String.format("任务【%s】线程__%s__恢复任务", mEntity.getFileName(), i));
       }
       //最后一个线程的结束位置即为文件的总长度
       if (i == (mTotalThreadNum - 1)) {
@@ -470,7 +470,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
-   * 启动单线程下载任务
+   * 启动单线程任务
    */
   private void startThreadTask(int[] recordL) {
     if (mConstance.CURRENT_LOCATION > 0) {
@@ -489,6 +489,26 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
+   * 重试线程任务，只有线程创建成功才能重试
+   */
+  public void retryThradTask() {
+    if (mTask == null || mTask.size() == 0) {
+      ALog.w(TAG, "没有线程任务");
+      return;
+    }
+    Set<Integer> keys = mTask.keySet();
+    for (Integer key : keys) {
+      AbsThreadTask task = mTask.get(key);
+      if (task != null && !task.isThreadComplete()) {
+        task.getConfig().START_LOCATION = task.getCurrentLocation();
+        ALog.d(TAG, String.format("任务【%s】开始重试，线程__%s__【开始位置：%s，结束位置：%s】", mEntity.getFileName(),
+            key, task.getConfig().START_LOCATION, task.getConfig().END_LOCATION));
+        mFixedThreadPool.execute(task);
+      }
+    }
+  }
+
+  /**
    * 处理新任务
    *
    * @return {@code true}创建新任务失败
@@ -496,7 +516,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   protected abstract boolean handleNewTask();
 
   /**
-   * 处理不支持断点的下载
+   * 处理不支持断点的任务
    */
   private void handleNoSupportBP() {
     SubThreadConfig<TASK_ENTITY> config = new SubThreadConfig<>();

@@ -54,15 +54,9 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
     FTPClient client = null;
     BufferedRandomAccessFile file = null;
     try {
-      ALog.d(TAG, "任务【"
-          + mConfig.TEMP_FILE.getName()
-          + "】线程__"
-          + mConfig.THREAD_ID
-          + "__开始上传【开始位置 : "
-          + mConfig.START_LOCATION
-          + "，结束位置："
-          + mConfig.END_LOCATION
-          + "】");
+      ALog.d(TAG,
+          String.format("任务【%s】线程__%s__开始上传【开始位置 : %s，结束位置：%s】", mConfig.TEMP_FILE.getName(),
+              mConfig.THREAD_ID, mConfig.START_LOCATION, mConfig.END_LOCATION));
       client = createClient();
       if (client == null) return;
       initPath();
@@ -85,8 +79,9 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       if (isBreak()) {
         return;
       }
-      ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__上传完毕");
-      writeConfig(true, 1);
+      ALog.i(TAG,
+          String.format("任务【%s】线程__%s__上传完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
+      writeConfig(true, mConfig.END_LOCATION);
       STATE.COMPLETE_THREAD_NUM++;
       if (STATE.isComplete()) {
         STATE.TASK_RECORD.deleteData();
@@ -98,7 +93,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
         mListener.onFail(false);
       }
     } catch (IOException e) {
-      fail(mChildCurrentLocation, "上传失败【" + mConfig.URL + "】", e);
+      fail(mChildCurrentLocation, String.format("上传失败【%s】", mConfig.URL), e);
     } catch (Exception e) {
       fail(mChildCurrentLocation, "获取流失败", e);
     } finally {
@@ -127,7 +122,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       throws IOException {
 
     try {
-      ALog.d(TAG, "remotePath【" + remotePath + "】");
+      ALog.d(TAG, String.format("remotePath【%s】", remotePath));
       client.storeFile(remotePath, new FtpFISAdapter(bis), new OnFtpInputStreamListener() {
         boolean isStoped = false;
 
@@ -155,16 +150,13 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
     int reply = client.getReplyCode();
     if (!FTPReply.isPositiveCompletion(reply)) {
       if (reply != FTPReply.TRANSFER_ABORTED) {
-        fail(mChildCurrentLocation, "上传文件错误，错误码为：" + reply + "，msg:" + client.getReplyString(),
+        fail(mChildCurrentLocation,
+            String.format("上传文件错误，错误码为：%s，msg：%s", reply, client.getReplyString()),
             null);
       }
       if (client.isConnected()) {
         client.disconnect();
       }
     }
-  }
-
-  @Override protected String getTaskType() {
-    return "FTP_UPLOAD";
   }
 }

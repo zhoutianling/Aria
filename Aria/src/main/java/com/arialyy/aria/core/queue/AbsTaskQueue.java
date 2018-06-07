@@ -165,12 +165,14 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   }
 
   @Override public void stopTask(TASK task) {
-    if (!task.isRunning()) ALog.w(TAG, "停止任务【" + task.getTaskName() + "】失败，原因：已停止");
+    if (!task.isRunning()) {
+      ALog.w(TAG, String.format("停止任务【%s】失败，原因：已停止", task.getTaskName()));
+    }
     if (mExecutePool.removeTask(task)) {
       task.stop();
     } else {
       task.stop();
-      ALog.w(TAG, "删除任务【" + task.getTaskName() + "】失败，原因：执行队列中没有该任务");
+      ALog.w(TAG, String.format("删除任务【%s】失败，原因：执行队列中没有该任务", task.getTaskName()));
     }
   }
 
@@ -178,13 +180,13 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     //TEManager.getInstance().removeTEntity(key);
     TASK task = mExecutePool.getTask(key);
     if (task != null) {
-      ALog.d(TAG,
-          "从执行池删除任务【" + task.getTaskName() + "】" + (mExecutePool.removeTask(task) ? "成功" : "失败"));
+      ALog.d(TAG, String.format("从执行池删除任务【%s】%s", task.getTaskName(),
+          (mExecutePool.removeTask(task) ? "成功" : "失败")));
     }
     task = mCachePool.getTask(key);
     if (task != null) {
-      ALog.d(TAG,
-          "从缓存池删除任务【" + task.getTaskName() + "】" + (mCachePool.removeTask(task) ? "成功" : "失败"));
+      ALog.d(TAG, String.format("从缓存池删除任务【%s】%s", task.getTaskName(),
+          (mCachePool.removeTask(task) ? "成功" : "失败")));
     }
   }
 
@@ -201,7 +203,7 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
       task.start();
     } else {
       task.stop();
-      ALog.e(TAG, "任务【" + task.getTaskName() + "】重试失败，原因：任务没有完全停止，");
+      ALog.e(TAG, String.format("任务【%s】重试失败，原因：任务没有完全停止", task.getTaskName()));
     }
   }
 

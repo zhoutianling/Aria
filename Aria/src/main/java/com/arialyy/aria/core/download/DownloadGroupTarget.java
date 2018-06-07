@@ -143,9 +143,13 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
         reChangeDirPath(mDirPathTemp);
       }
 
-      if (!mSubNameTemp.isEmpty()) {
-        updateSingleSubFileName();
+      if (mSubNameTemp.isEmpty()) {
+        for (String url : mUrls) {
+          int lastIndex = url.lastIndexOf(File.separator);
+          mSubNameTemp.add(url.substring(lastIndex + 1, url.length()));
+        }
       }
+      updateSingleSubFileName();
       return true;
     }
     return false;
