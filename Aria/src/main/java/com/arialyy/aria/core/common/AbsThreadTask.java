@@ -52,15 +52,14 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected SubThreadConfig<TASK_ENTITY> mConfig;
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
-  private int mFailNum = 0;
-  private String mTaskType;
+  private int mFailTimes = 0;
   private Timer mFailTimer;
   private long mLastSaveTime;
   private ExecutorService mConfigThreadPool;
   protected int mConnectTimeOut; //连接超时时间
   protected int mReadTimeOut; //流读取的超时时间
   protected boolean isNotNetRetry = false;  //断网情况是否重试
-  protected boolean taskBreak = false;  //任务中断
+  private boolean taskBreak = false;  //任务中断
 
   private Thread mConfigThread = new Thread(new Runnable() {
     @Override public void run() {
@@ -76,12 +75,9 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     mConfig = info;
     mTaskEntity = mConfig.TASK_ENTITY;
     mEntity = mTaskEntity.getEntity();
-    mTaskType = getTaskType();
     mLastSaveTime = System.currentTimeMillis();
     mConfigThreadPool = Executors.newCachedThreadPool();
   }
-
-  protected abstract String getTaskType();
 
   public void setMaxSpeed(double maxSpeed) {
     if (-0.9999 < maxSpeed && maxSpeed < 0.00001) {
@@ -91,6 +87,28 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
           ((mBufSize / 1024) * (filterVersion() ? 1 : STATE.START_THREAD_NUM) / maxSpeed) * 1000);
       mSleepTime = db.setScale(0, BigDecimal.ROUND_HALF_UP).longValue();
     }
+  }
+
+  /**
+   * 当前线程是否完成，对于不支持断点的任务，一律未完成
+   * {@code true} 完成；{@code false} 未完成
+   */
+  public boolean isThreadComplete() {
+    return mConfig.THREAD_RECORD.isComplete;
+  }
+
+  /**
+   * 获取线程配置信息
+   */
+  public SubThreadConfig getConfig() {
+    return mConfig;
+  }
+
+  /**
+   * 当前线程下载进度
+   */
+  public long getCurrentLocation() {
+    return mChildCurrentLocation;
   }
 
   private boolean filterVersion() {
@@ -124,21 +142,16 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
       if (mConfig.SUPPORT_BP) {
         final long currentTemp = mChildCurrentLocation;
         STATE.STOP_NUM++;
-        ALog.d(TAG, "任务【"
-            + mConfig.TEMP_FILE.getName()
-            + "】thread__"
-            + mConfig.THREAD_ID
-            + "__停止【停止位置： "
-            + currentTemp
-            + "】");
+        ALog.d(TAG, String.format("任务【%s】thread__%s__停止【停止位置：%s】", mConfig.TEMP_FILE.getName(),
+            mConfig.THREAD_ID, currentTemp));
         writeConfig(false, currentTemp);
         if (STATE.isStop()) {
-          ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已停止");
+          ALog.i(TAG, String.format("任务【%s】已停止", mConfig.TEMP_FILE.getName()));
           STATE.isRunning = false;
           mListener.onStop(STATE.CURRENT_LOCATION);
         }
       } else {
-        ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已停止");
+        ALog.i(TAG, String.format("任务【%s】已停止", mConfig.TEMP_FILE.getName()));
         STATE.isRunning = false;
         mListener.onStop(STATE.CURRENT_LOCATION);
       }
@@ -174,17 +187,18 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     synchronized (AriaManager.LOCK) {
       if (mConfig.SUPPORT_BP) {
         STATE.CANCEL_NUM++;
-        ALog.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__取消");
+        ALog.d(TAG,
+            String.format("任务【%s】thread__%s__取消", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
         if (STATE.isCancel()) {
           if (mConfig.TEMP_FILE.exists() && !(mEntity instanceof UploadEntity)) {
             mConfig.TEMP_FILE.delete();
           }
-          ALog.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已取消");
+          ALog.d(TAG, String.format("任务【%s】已取消", mConfig.TEMP_FILE.getName()));
           STATE.isRunning = false;
           mListener.onCancel();
         }
       } else {
-        ALog.d(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】已取消");
+        ALog.d(TAG, String.format("任务【%s】已取消", mConfig.TEMP_FILE.getName()));
         STATE.isRunning = false;
         mListener.onCancel();
       }
@@ -216,9 +230,9 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
       }
       if (mConfig.SUPPORT_BP) {
         writeConfig(false, subCurrentLocation);
-        retryThis(STATE.START_THREAD_NUM != 1);
+        retryThis(needRetry && STATE.START_THREAD_NUM != 1);
       } else {
-        ALog.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
+        ALog.e(TAG, String.format("任务【%s】执行失败", mConfig.TEMP_FILE.getName()));
         mListener.onFail(true);
         ErrorHelp.saveError(TAG, "", ALog.getExceptionString(ex));
       }
@@ -236,23 +250,21 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
       mFailTimer.cancel();
     }
     if (!NetUtils.isConnected(AriaManager.APP) && !isNotNetRetry) {
-      ALog.w(TAG,
-          "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__重试失败，网络未连接");
+      ALog.w(TAG, String.format("任务【%s】thread__%s__重试失败，网络未连接", mConfig.TEMP_FILE.getName(),
+          mConfig.THREAD_ID));
     }
-    if (mFailNum < RETRY_NUM
+    if (mFailTimes < RETRY_NUM
         && needRetry
-        && NetUtils.isConnected(AriaManager.APP)
-        && !isNotNetRetry
-        && !STATE.isCancel
-        && !STATE.isStop) {
+        && (NetUtils.isConnected(AriaManager.APP) || isNotNetRetry)
+        && isBreak()) {
       mFailTimer = new Timer(true);
       mFailTimer.schedule(new TimerTask() {
         @Override public void run() {
-          mFailNum++;
-          ALog.w(TAG,
-              "任务【" + mConfig.TEMP_FILE.getName() + "】thread__" + mConfig.THREAD_ID + "__正在重试");
-          mConfig.START_LOCATION =
-              mChildCurrentLocation == 0 ? mConfig.START_LOCATION : mChildCurrentLocation;
+          mFailTimes++;
+          ALog.w(TAG, String.format("任务【%s】thread__%s__正在重试", mConfig.TEMP_FILE.getName(),
+              mConfig.THREAD_ID));
+          final long temp = mChildCurrentLocation;
+          mConfig.START_LOCATION = mChildCurrentLocation == 0 ? mConfig.START_LOCATION : temp;
           AbsThreadTask.this.run();
         }
       }, RETRY_INTERVAL);
@@ -261,7 +273,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
       if (STATE.isFail()) {
         STATE.isRunning = false;
         STATE.isStop = true;
-        ALog.e(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】执行失败");
+        ALog.e(TAG, String.format("任务【%s】执行失败", mConfig.TEMP_FILE.getName()));
         mListener.onFail(true);
       }
     }
@@ -269,6 +281,9 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
 
   /**
    * 将记录写入到配置文件
+   *
+   * @param isComplete 当前线程是否完成 {@code true}完成
+   * @param record 当前下载进度
    */
   protected void writeConfig(boolean isComplete, final long record) {
     if (mConfig.THREAD_RECORD != null) {

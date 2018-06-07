@@ -246,51 +246,28 @@ public class CommonUtil {
    * @param url 输入的url{@code String url = "ftp://z:z@dygod18.com:21211/[电影天堂www.dy2018.com]猩球崛起3：终极之战BD国英双语中英双字.mkv";}
    */
   public static FtpUrlEntity getFtpUrlInfo(String url) {
+    Uri uri = Uri.parse(url);
+
+    String userInfo = uri.getUserInfo(), remotePath = uri.getPath();
+    ALog.d(TAG,
+        String.format("scheme = %s, user = %s, host = %s, port = %s, path = %s", uri.getScheme(),
+            userInfo, uri.getHost(), uri.getPort(), remotePath));
+
     FtpUrlEntity entity = new FtpUrlEntity();
     entity.url = url;
-    //String regex = "(\\w+)://(.*):(\\d*)/(.*)";
-    String regex = Regular.REG_FTP_URL;
-    Pattern p = Pattern.compile(regex);
-    Matcher m = p.matcher(url);
-    if (m.find() && m.groupCount() > 0) {
-      entity.protocol = m.group(1);
-      String str = m.group(2);
-      if (str.contains("@")) {
-        entity.needLogin = true;
-        //String hostReg = "(\\w+):?(\\w+)?@(.*)";
-        String hostReg = Regular.REG_FTP_HOST_NAME;
-        Pattern hp = Pattern.compile(hostReg);
-        Matcher hm = hp.matcher(str);
-        if (hm.find() && hm.groupCount() > 0) {
-          entity.user = hm.group(1);
-          entity.password = TextUtils.isEmpty(hm.group(2)) ? "" : hm.group(2);
-          entity.hostName = hm.group(3);
-        }
+    entity.hostName = uri.getHost();
+    entity.port = uri.getPort() == -1 ? "21" : String.valueOf(uri.getPort());
+    if (!TextUtils.isEmpty(userInfo)) {
+      String[] temp = userInfo.split(":");
+      if (temp.length == 2) {
+        entity.user = temp[0];
+        entity.password = temp[1];
       } else {
-        entity.hostName = str;
+        entity.user = userInfo;
       }
-      entity.port = m.group(3);
-      //entity.remotePath = TextUtils.isEmpty(m.group(4)) ? "/" : "/" + m.group(4);
-      entity.remotePath = TextUtils.isEmpty(m.group(4)) ? "/" : m.group(4);
     }
+    entity.remotePath = TextUtils.isEmpty(remotePath) ? "/" : remotePath;
     return entity;
-  }
-
-  /**
-   * 通过url获取FTP文件的remotePath
-   *
-   * @return remotePath。如果没有找到，返回""
-   */
-  public static String getRemotePath(String url) {
-    String remotePath = null;
-    String regex = Regular.REG_FTP_URL;
-    Pattern p = Pattern.compile(regex);
-    Matcher m = p.matcher(url);
-    if (m.find() && m.groupCount() > 0) {
-      return TextUtils.isEmpty(m.group(4)) ? "" : "/" + m.group(4);
-    }
-    ALog.w(TAG, "链接【" + url + "】没有找到remotePath");
-    return "";
   }
 
   /**
@@ -300,25 +277,27 @@ public class CommonUtil {
    * @return 转换后的地址
    */
   public static String convertUrl(String url) {
-    if (hasDoubleCharacter(url)) {
-      //预先处理空格，URLEncoder只会把空格转换为+
-      url = url.replaceAll(" ", "%20");
-      //匹配双字节字符(包括汉字在内)
-      String regex = Regular.REG_DOUBLE_CHAR_AND_SPACE;
-      Pattern p = Pattern.compile(regex);
-      Matcher m = p.matcher(url);
-      Set<String> strs = new HashSet<>();
-      while (m.find()) {
-        strs.add(m.group());
-      }
-      try {
-        for (String str : strs) {
-          url = url.replaceAll(str, URLEncoder.encode(str, "UTF-8"));
-        }
-      } catch (UnsupportedEncodingException e) {
-        e.printStackTrace();
-      }
-    }
+    Uri uri = Uri.parse(url);
+    url = uri.toString();
+    //if (hasDoubleCharacter(url)) {
+    //  //预先处理空格，URLEncoder只会把空格转换为+
+    //  url = url.replaceAll(" ", "%20");
+    //  //匹配双字节字符(包括汉字在内)
+    //  String regex = Regular.REG_DOUBLE_CHAR_AND_SPACE;
+    //  Pattern p = Pattern.compile(regex);
+    //  Matcher m = p.matcher(url);
+    //  Set<String> strs = new HashSet<>();
+    //  while (m.find()) {
+    //    strs.add(m.group());
+    //  }
+    //  try {
+    //    for (String str : strs) {
+    //      url = url.replaceAll(str, URLEncoder.encode(str, "UTF-8"));
+    //    }
+    //  } catch (UnsupportedEncodingException e) {
+    //    e.printStackTrace();
+    //  }
+    //}
     return url;
   }
 

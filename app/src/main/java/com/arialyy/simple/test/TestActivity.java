@@ -1,5 +1,6 @@
 package com.arialyy.simple.test;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -7,6 +8,7 @@ import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.Aria;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.upload.UploadTask;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.simple.R;
 import com.arialyy.simple.base.BaseActivity;
@@ -22,8 +24,8 @@ public class TestActivity extends BaseActivity<ActivityTestBinding> {
   //String URL = "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
   //private final String URL = "ftp://192.168.1.3:21/download//AriaPrj.rar";
   private final String FILE_PATH = "/mnt/sdcard/AriaPrj.rar";
-  //private final String URL = "ftp://192.168.29.140:21/aa//你好";
-  private final String URL = "ftp://192.168.29.140:21/upload/";
+  private final String URL = "ftp://192.168.1.2:21/aa//你好";
+
 
   @Override protected int setLayoutId() {
     return R.layout.activity_test;
@@ -81,6 +83,8 @@ public class TestActivity extends BaseActivity<ActivityTestBinding> {
             .setUploadUrl(URL)
             .setExtendField("韩寒哈大双")
             .start();
+        //Uri uri = Uri.parse("ftp://z:z@dygod18.com:21211/[电影天堂www.dy2018.com]猩球崛起3：终极之战BD国英双语中英双字.mkv");
+        //ALog.d(TAG, "sh = " + uri.getScheme() + ", user = " + uri.getUserInfo() + ", host = " + uri.getHost() + ", port = " + uri.getPort() + " remotePath = " + uri.getPath());
         break;
       case R.id.stop:
         Aria.upload(this).loadFtp(FILE_PATH).stop();

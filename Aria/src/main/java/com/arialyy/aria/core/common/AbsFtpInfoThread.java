@@ -26,6 +26,7 @@ import com.arialyy.aria.util.Regular;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.net.ftp.FTP;
@@ -72,7 +73,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
     try {
       client = createFtpClient();
       if (client == null) {
-        failDownload("创建FTP客户端失败", true);
+        ALog.e(TAG, String.format("任务【%s】失败", mTaskEntity.getUrlEntity().url));
         return;
       }
       String remotePath =
@@ -82,8 +83,8 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       ALog.i(TAG, s);
       boolean isExist = files.length != 0;
       if (!isExist && !isUpload) {
-        failDownload("文件不存在，任务链接【" + mTaskEntity.getUrlEntity().url + "】，remotePath：" + remotePath,
-            false);
+        failDownload(String.format("文件不存在，任务链接【%s】，remotePath：%s", mTaskEntity.getUrlEntity().url,
+            remotePath), false);
         int i = remotePath.lastIndexOf(File.separator);
         FTPFile[] files1;
         if (i == -1) {
@@ -92,7 +93,8 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
           files1 = client.listFiles(remotePath.substring(0, i + 1));
         }
         if (files1.length > 0) {
-          ALog.i(TAG, "路径【" + setRemotePath() + "】下的文件列表 ===================================");
+          ALog.i(TAG,
+              String.format("路径【%s】下的文件列表 ===================================", setRemotePath()));
           for (FTPFile file : files1) {
             ALog.d(TAG, file.toString());
           }
@@ -114,7 +116,8 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
           mTaskEntity.setNewTask(true);
         } else {
           client.disconnect();
-          failDownload("获取文件信息错误，错误码为：" + reply + "，msg:" + client.getReplyString(), true);
+          failDownload(String.format("获取文件信息错误，错误码为：%s，msg：%s", reply, client.getReplyString()),
+              true);
           return;
         }
       }
@@ -171,11 +174,14 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       if (m.find() && m.groupCount() > 0) {
         client = new FTPClient();
         InetAddress ip = InetAddress.getByName(urlEntity.hostName);
-        client.setConnectTimeout(10000);  // 连接10s超时
+        client.setConnectTimeout(mConnectTimeOut);  // 连接10s超时
         client.connect(ip, Integer.parseInt(urlEntity.port));
         mTaskEntity.getUrlEntity().validAddr = ip;
       } else {
-        InetAddress[] ips = InetAddress.getAllByName(urlEntity.hostName);
+        DNSQueryThread dnsThread = new DNSQueryThread(urlEntity.hostName);
+        dnsThread.start();
+        dnsThread.join(mConnectTimeOut);
+        InetAddress[] ips = dnsThread.getIps();
         client = connect(new FTPClient(), ips, 0, Integer.parseInt(urlEntity.port));
       }
 
@@ -206,7 +212,8 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       int reply = client.getReplyCode();
       if (!FTPReply.isPositiveCompletion(reply)) {
         client.disconnect();
-        failDownload("无法连接到ftp服务器，错误码为：" + reply + "，msg:" + client.getReplyString(), true);
+        failDownload(String.format("无法连接到ftp服务器，错误码为：%s，msg：%s", reply, client.getReplyString()),
+            true);
         return null;
       }
       // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
@@ -221,8 +228,9 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
       client.setDataTimeout(10 * 1000);
       client.enterLocalPassiveMode();
       client.setFileType(FTP.BINARY_FILE_TYPE);
-      client.setConnectTimeout(mConnectTimeOut);
     } catch (IOException e) {
+      e.printStackTrace();
+    } catch (InterruptedException e) {
       e.printStackTrace();
     }
     return client;
@@ -232,7 +240,12 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
    * 连接到ftp服务器
    */
   private FTPClient connect(FTPClient client, InetAddress[] ips, int index, int port) {
+    if (ips == null || ips.length == 0) {
+      ALog.w(TAG, "无可用ip");
+      return null;
+    }
     try {
+      client.setConnectTimeout(mConnectTimeOut);  //需要先设置超时，这样才不会出现阻塞
       client.connect(ips[index], port);
       mTaskEntity.getUrlEntity().validAddr = ips[index];
       return client;
@@ -293,6 +306,31 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
     ALog.e(TAG, errorMsg);
     if (mCallback != null) {
       mCallback.onFail(mEntity.getKey(), errorMsg, needRetry);
+    }
+  }
+
+  /**
+   * 获取可用IP的超时线程，InetAddress.getByName没有超时功能，需要自己处理超时
+   */
+  private static class DNSQueryThread extends Thread {
+
+    private String hostName;
+    private InetAddress[] ips;
+
+    DNSQueryThread(String hostName) {
+      this.hostName = hostName;
+    }
+
+    @Override public void run() {
+      try {
+        ips = InetAddress.getAllByName(hostName);
+      } catch (UnknownHostException e) {
+        e.printStackTrace();
+      }
+    }
+
+    synchronized InetAddress[] getIps() {
+      return ips;
     }
   }
 }

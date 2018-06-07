@@ -67,18 +67,12 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       URL url = new URL(CommonUtil.convertUrl(mConfig.URL));
       conn = ConnectionHelp.handleConnection(url);
       if (mConfig.SUPPORT_BP) {
-        ALog.d(TAG, "任务【"
-            + mConfig.TEMP_FILE.getName()
-            + "】线程__"
-            + mConfig.THREAD_ID
-            + "__开始下载【开始位置 : "
-            + mConfig.START_LOCATION
-            + "，结束位置："
-            + mConfig.END_LOCATION
-            + "】");
+        ALog.d(TAG,
+            String.format("任务【%s】线程__%s__开始下载【开始位置 : %s，结束位置：%s】", mConfig.TEMP_FILE.getName(),
+                mConfig.THREAD_ID, mConfig.START_LOCATION, mConfig.END_LOCATION));
         //在头里面请求下载开始位置和结束位置
         conn.setRequestProperty("Range",
-            "bytes=" + mConfig.START_LOCATION + "-" + (mConfig.END_LOCATION - 1));
+            String.format("bytes=%s-%s", mConfig.START_LOCATION, (mConfig.END_LOCATION - 1)));
       } else {
         ALog.w(TAG, "该下载不支持断点");
       }
@@ -108,7 +102,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     } catch (MalformedURLException e) {
       fail(mChildCurrentLocation, "下载链接异常", e);
     } catch (IOException e) {
-      fail(mChildCurrentLocation, "下载失败【" + mConfig.URL + "】", e);
+      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
     } catch (Exception e) {
       fail(mChildCurrentLocation, "获取流失败", e);
     } finally {
@@ -156,7 +150,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     } catch (InterruptedException e) {
       e.printStackTrace();
     } catch (IOException e) {
-      fail(mChildCurrentLocation, "下载失败【" + mConfig.URL + "】", e);
+      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
     } finally {
       try {
         if (fos != null) {
@@ -210,8 +204,9 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     //支持断点的处理
     if (mConfig.SUPPORT_BP) {
       if (mChildCurrentLocation == mConfig.END_LOCATION) {
-        ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
-        writeConfig(true, 1);
+        ALog.i(TAG,
+            String.format("任务【%s】线程__%s__下载完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
+        writeConfig(true, mConfig.END_LOCATION);
         STATE.COMPLETE_THREAD_NUM++;
         if (STATE.isComplete()) {
           STATE.TASK_RECORD.deleteData();
@@ -230,9 +225,5 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       STATE.isRunning = false;
       mListener.onComplete();
     }
-  }
-
-  @Override protected String getTaskType() {
-    return "HTTP_DOWNLOAD";
   }
 }

@@ -61,15 +61,9 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
     InputStream is = null;
 
     try {
-      ALog.d(TAG, "任务【"
-          + mConfig.TEMP_FILE.getName()
-          + "】线程__"
-          + mConfig.THREAD_ID
-          + "__开始下载【开始位置 : "
-          + mConfig.START_LOCATION
-          + "，结束位置："
-          + mConfig.END_LOCATION
-          + "】");
+      ALog.d(TAG,
+          String.format("任务【%s】线程__%s__开始下载【开始位置 : %s，结束位置：%s】", mConfig.TEMP_FILE.getName(),
+              mConfig.THREAD_ID, mConfig.START_LOCATION, mConfig.END_LOCATION));
       client = createClient();
       if (client == null) return;
       if (mConfig.START_LOCATION > 0) {
@@ -78,18 +72,20 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       //发送第二次指令时，还需要再做一次判断
       int reply = client.getReplyCode();
       if (!FTPReply.isPositivePreliminary(reply) && reply != FTPReply.COMMAND_OK) {
-        fail(mChildCurrentLocation, "获取文件信息错误，错误码为：" + reply + "，msg：" + client.getReplyString(),
+        fail(mChildCurrentLocation,
+            String.format("获取文件信息错误，错误码为：%s，msg：%s", reply, client.getReplyString()),
             null);
         client.disconnect();
         return;
       }
       String remotePath =
           new String(mTaskEntity.getUrlEntity().remotePath.getBytes(charSet), SERVER_CHARSET);
-      ALog.i(TAG, "remotePath【" + remotePath + "】");
+      ALog.i(TAG, String.format("remotePath【%s】", remotePath));
       is = client.retrieveFileStream(remotePath);
       reply = client.getReplyCode();
       if (!FTPReply.isPositivePreliminary(reply)) {
-        fail(mChildCurrentLocation, "获取流失败，错误码为：" + reply + "，msg：" + client.getReplyString(),
+        fail(mChildCurrentLocation,
+            String.format("获取流失败，错误码为：%s，msg：%s", reply, client.getReplyString()),
             null);
         client.disconnect();
         return;
@@ -101,11 +97,12 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         readNormal(is);
       }
 
-      if (isBreak()){
+      if (isBreak()) {
         return;
       }
-      ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
-      writeConfig(true, 1);
+      ALog.i(TAG,
+          String.format("任务【%s】线程__%s__下载完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
+      writeConfig(true, mConfig.END_LOCATION);
       STATE.COMPLETE_THREAD_NUM++;
       if (STATE.isComplete()) {
         STATE.TASK_RECORD.deleteData();
@@ -117,7 +114,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         mListener.onFail(false);
       }
     } catch (IOException e) {
-      fail(mChildCurrentLocation, "下载失败【" + mConfig.URL + "】", e);
+      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
     } catch (Exception e) {
       fail(mChildCurrentLocation, "获取流失败", e);
     } finally {
@@ -162,7 +159,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
     } catch (InterruptedException e) {
       e.printStackTrace();
     } catch (IOException e) {
-      fail(mChildCurrentLocation, "下载失败【" + mConfig.URL + "】", e);
+      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
     } finally {
       try {
         if (fos != null) {
@@ -206,7 +203,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         }
       }
     } catch (IOException e) {
-      fail(mChildCurrentLocation, "下载失败【" + mConfig.URL + "】", e);
+      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
     } catch (InterruptedException e) {
       e.printStackTrace();
     } finally {
@@ -218,9 +215,5 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         e.printStackTrace();
       }
     }
-  }
-
-  @Override protected String getTaskType() {
-    return "FTP_DOWNLOAD";
   }
 }

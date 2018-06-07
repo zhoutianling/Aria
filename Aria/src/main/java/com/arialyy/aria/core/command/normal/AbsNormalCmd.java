@@ -90,6 +90,15 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
   }
 
   /**
+   * 发送等待状态
+   */
+  void sendWaitState(AbsTask task) {
+    if (task != null) {
+      task.getOutHandler().obtainMessage(ISchedulers.WAIT, task).sendToTarget();
+    }
+  }
+
+  /**
    * 删除所有任务
    */
   void removeAll() {

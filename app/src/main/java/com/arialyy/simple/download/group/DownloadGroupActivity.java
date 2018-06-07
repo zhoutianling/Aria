@@ -84,7 +84,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
             .setDirPath(
                 Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_3")
             .setGroupAlias("任务组测试")
-            .setSubFileName(getModule(GroupModule.class).getSubName())
+            //.setSubFileName(getModule(GroupModule.class).getSubName())
             //.setFileSize(32895492)
             .start();
         break;
@@ -92,7 +92,8 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         Aria.download(this).load(mUrls).stop();
         break;
       case R.id.cancel:
-        Aria.download(this).load(mUrls).cancel(true);
+        //Aria.download(this).load(mUrls).cancel(true);
+        Aria.download(this).removeAllTask(true);
         //mUrls = getModule(GroupModule.class).getUrls1();
         //Aria.download(this)
         //    .load(mUrls)
