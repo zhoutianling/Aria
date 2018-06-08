@@ -16,7 +16,9 @@
 package com.arialyy.aria.core.download.downloader;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.util.SSLContextUtil;
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,7 +46,7 @@ class ConnectionHelp {
    * @throws IOException
    */
   static InputStream convertInputStream(HttpURLConnection connection) throws IOException {
-    String encoding = connection.getContentEncoding();
+    String encoding = connection.getHeaderField("Content-Encoding");
     if (TextUtils.isEmpty(encoding)) {
       return connection.getInputStream();
     }
@@ -62,9 +64,14 @@ class ConnectionHelp {
    *
    * @throws IOException
    */
-  static HttpURLConnection handleConnection(URL url) throws IOException {
+  static HttpURLConnection handleConnection(URL url, AbsTaskEntity taskEntity) throws IOException {
     HttpURLConnection conn;
-    URLConnection urlConn = url.openConnection();
+    URLConnection urlConn;
+    if (taskEntity.getProxy() != null) {
+      urlConn = url.openConnection(taskEntity.getProxy());
+    } else {
+      urlConn = url.openConnection();
+    }
     if (urlConn instanceof HttpsURLConnection) {
       conn = (HttpsURLConnection) urlConn;
       SSLContext sslContext =
@@ -86,9 +93,10 @@ class ConnectionHelp {
    *
    * @throws ProtocolException
    */
-  static HttpURLConnection setConnectParam(DownloadTaskEntity entity, HttpURLConnection conn)
-      throws ProtocolException {
-    conn.setRequestMethod(entity.getRequestEnum().name);
+  static HttpURLConnection setConnectParam(DownloadTaskEntity entity, HttpURLConnection conn) {
+    if (entity.getRequestEnum() == RequestEnum.POST) {
+      conn.setDoInput(true);
+    }
     Set<String> keys = null;
     if (entity.getHeaders() != null && entity.getHeaders().size() > 0) {
       keys = entity.getHeaders().keySet();

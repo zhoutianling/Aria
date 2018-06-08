@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.support.annotation.CheckResult;
 import android.text.TextUtils;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.util.ALog;
@@ -40,7 +41,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
    */
   private List<String> mSubNameTemp = new ArrayList<>();
 
-  DownloadGroupTarget(DownloadGroupEntity groupEntity, String targetName) {
+  public DownloadGroupTarget(DownloadGroupEntity groupEntity, String targetName) {
     this.mTargetName = targetName;
     if (groupEntity.getUrls() != null && !groupEntity.getUrls().isEmpty()) {
       this.mUrls.addAll(groupEntity.getUrls());
@@ -72,6 +73,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
    *
    * @param fileSize 任务组总大小
    */
+  @CheckResult
   public DownloadGroupTarget setFileSize(long fileSize) {
     if (fileSize <= 0) {
       ALog.e(TAG, "文件大小不能小于 0");
@@ -86,6 +88,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
   /**
    * 如果你是使用{@link DownloadReceiver#load(DownloadGroupEntity)}进行下载操作，那么你需要设置任务组的下载地址
    */
+  @CheckResult
   public DownloadGroupTarget setGroupUrl(List<String> urls) {
     mUrls.clear();
     mUrls.addAll(urls);
@@ -97,6 +100,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
    *
    * @deprecated {@link #setSubFileName(List)} 请使用该api
    */
+  @CheckResult
   @Deprecated public DownloadGroupTarget setSubTaskFileName(List<String> subTaskFileName) {
     return setSubFileName(subTaskFileName);
   }
@@ -104,6 +108,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
   /**
    * 设置子任务文件名，该方法必须在{@link #setDirPath(String)}之后调用，否则不生效
    */
+  @CheckResult
   public DownloadGroupTarget setSubFileName(List<String> subTaskFileName) {
     if (subTaskFileName == null || subTaskFileName.isEmpty()) {
       ALog.e(TAG, "修改子任务的文件名失败：列表为null");
@@ -143,13 +148,9 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
         reChangeDirPath(mDirPathTemp);
       }
 
-      if (mSubNameTemp.isEmpty()) {
-        for (String url : mUrls) {
-          int lastIndex = url.lastIndexOf(File.separator);
-          mSubNameTemp.add(url.substring(lastIndex + 1, url.length()));
-        }
+      if (!mSubNameTemp.isEmpty()) {
+        updateSingleSubFileName();
       }
-      updateSingleSubFileName();
       return true;
     }
     return false;

@@ -15,6 +15,8 @@
  */
 package com.arialyy.aria.core.inf;
 
+import android.support.annotation.CheckResult;
+
 /**
  * Created by laoyuyu on 2018/3/9.
  */
@@ -22,6 +24,7 @@ public interface IFtpTarget<TARGET extends ITarget> {
   /**
    * 设置字符编码
    */
+  @CheckResult
   TARGET charSet(String charSet);
 
   /**
@@ -30,6 +33,7 @@ public interface IFtpTarget<TARGET extends ITarget> {
    * @param userName ftp用户名
    * @param password ftp用户密码
    */
+  @CheckResult
   TARGET login(String userName, String password);
 
   /**
@@ -39,5 +43,6 @@ public interface IFtpTarget<TARGET extends ITarget> {
    * @param password ftp用户密码
    * @param account ftp账号
    */
+  @CheckResult
   TARGET login(String userName, String password, String account);
 }

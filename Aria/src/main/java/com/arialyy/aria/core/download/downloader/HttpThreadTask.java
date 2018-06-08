@@ -65,7 +65,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     mChildCurrentLocation = mConfig.START_LOCATION;
     try {
       URL url = new URL(CommonUtil.convertUrl(mConfig.URL));
-      conn = ConnectionHelp.handleConnection(url);
+      conn = ConnectionHelp.handleConnection(url, mTaskEntity);
       if (mConfig.SUPPORT_BP) {
         ALog.d(TAG,
             String.format("任务【%s】线程__%s__开始下载【开始位置 : %s，结束位置：%s】", mConfig.TEMP_FILE.getName(),
@@ -79,7 +79,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       conn = ConnectionHelp.setConnectParam(mConfig.TASK_ENTITY, conn);
       conn.setConnectTimeout(mConnectTimeOut);
       conn.setReadTimeout(mReadTimeOut);  //设置读取流的等待时间,必须设置该参数
-
+      conn.connect();
       is = new BufferedInputStream(ConnectionHelp.convertInputStream(conn));
       if (isOpenDynamicFile) {
         readDynamicFile(is);

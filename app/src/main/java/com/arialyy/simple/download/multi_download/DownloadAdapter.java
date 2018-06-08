@@ -297,7 +297,7 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
         Aria.download(getContext()).load((DownloadEntity) entity).start();
         break;
       case AbsTaskEntity.DG_HTTP:
-        Aria.download(getContext()).load((DownloadGroupEntity) entity).start();
+        Aria.download(getContext()).loadGroup((DownloadGroupEntity) entity).start();
         break;
     }
   }
@@ -314,7 +314,7 @@ public class DownloadAdapter extends AbsRVAdapter<AbsEntity, DownloadAdapter.Sim
         Aria.download(getContext()).load((DownloadEntity) entity).stop();
         break;
       case AbsTaskEntity.DG_HTTP:
-        Aria.download(getContext()).load((DownloadGroupEntity) entity).stop();
+        Aria.download(getContext()).loadGroup((DownloadGroupEntity) entity).stop();
         break;
     }
   }

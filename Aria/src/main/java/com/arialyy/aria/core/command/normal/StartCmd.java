@@ -117,7 +117,6 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     }
 
     private List<AbsTaskEntity> findWaitData(int type) {
-      // TODO: 2018/4/20 需要测试
       List<AbsTaskEntity> waitList = new ArrayList<>();
       if (type == 1) {
         List<DTEWrapper> wrappers = DbEntity.findRelationData(DTEWrapper.class,

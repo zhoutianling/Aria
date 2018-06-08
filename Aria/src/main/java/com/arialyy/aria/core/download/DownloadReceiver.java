@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
@@ -59,6 +60,7 @@ public class DownloadReceiver extends AbsReceiver {
    *
    * @param entity 下载实体
    */
+  @CheckResult
   public DownloadTarget load(DownloadEntity entity) {
     return load(entity, false);
   }
@@ -78,6 +80,7 @@ public class DownloadReceiver extends AbsReceiver {
    *   </code>
    * </pre>
    */
+  @CheckResult
   @Deprecated public DownloadTarget load(DownloadEntity entity, boolean refreshInfo) {
     CheckUtil.checkDownloadEntity(entity);
     return new DownloadTarget(entity, targetName, refreshInfo);
@@ -88,6 +91,7 @@ public class DownloadReceiver extends AbsReceiver {
    *
    * @param url 下载地址
    */
+  @CheckResult
   public DownloadTarget load(@NonNull String url) {
     return load(url, false);
   }
@@ -108,6 +112,7 @@ public class DownloadReceiver extends AbsReceiver {
    *   </code>
    * </pre>
    */
+  @CheckResult
   @Deprecated public DownloadTarget load(@NonNull String url, boolean refreshInfo) {
     CheckUtil.checkUrlInvalidThrow(url);
     return new DownloadTarget(url, targetName, refreshInfo);
@@ -120,6 +125,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @deprecated {@link #loadGroup(DownloadGroupEntity)}
    */
   @Deprecated
+  @CheckResult
   public DownloadGroupTarget load(List<String> urls) {
     return loadGroup(urls);
   }
@@ -127,6 +133,7 @@ public class DownloadReceiver extends AbsReceiver {
   /**
    * 加载下载地址，如果任务组的中的下载地址改变了，则任务从新的一个任务组
    */
+  @CheckResult
   public DownloadGroupTarget loadGroup(List<String> urls) {
     CheckUtil.checkDownloadUrls(urls);
     return new DownloadGroupTarget(urls, targetName);
@@ -137,6 +144,7 @@ public class DownloadReceiver extends AbsReceiver {
    *
    * @param entity 下载实体
    */
+  @CheckResult
   public FtpDownloadTarget loadFtp(DownloadEntity entity) {
     return loadFtp(entity, false);
   }
@@ -156,6 +164,7 @@ public class DownloadReceiver extends AbsReceiver {
    *   </code>
    * </pre>
    */
+  @CheckResult
   @Deprecated public FtpDownloadTarget loadFtp(DownloadEntity entity, boolean refreshInfo) {
     CheckUtil.checkDownloadEntity(entity);
     if (!entity.getUrl().startsWith("ftp")) {
@@ -167,6 +176,7 @@ public class DownloadReceiver extends AbsReceiver {
   /**
    * 加载ftp单任务下载地址
    */
+  @CheckResult
   public FtpDownloadTarget loadFtp(@NonNull String url) {
     return loadFtp(url, false);
   }
@@ -176,6 +186,7 @@ public class DownloadReceiver extends AbsReceiver {
    *
    * @param refreshInfo 是否刷新下载信息
    */
+  @CheckResult
   public FtpDownloadTarget loadFtp(@NonNull String url, boolean refreshInfo) {
     CheckUtil.checkUrlInvalidThrow(url);
     return new FtpDownloadTarget(url, targetName, refreshInfo);
@@ -189,6 +200,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @deprecated 请使用 {@link #loadGroup(DownloadGroupEntity)}
    */
   @Deprecated
+  @CheckResult
   public DownloadGroupTarget load(DownloadGroupEntity groupEntity) {
     return loadGroup(groupEntity);
   }
@@ -199,6 +211,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @param groupEntity 如果加载的任务实体没有子项的下载地址，
    * 那么你需要使用{@link DownloadGroupTarget#setGroupUrl(List)}设置子项的下载地址
    */
+  @CheckResult
   public DownloadGroupTarget loadGroup(DownloadGroupEntity groupEntity) {
     return new DownloadGroupTarget(groupEntity, targetName);
   }
@@ -206,6 +219,7 @@ public class DownloadReceiver extends AbsReceiver {
   /**
    * 加载ftp文件夹下载地址
    */
+  @CheckResult
   public FtpDirDownloadTarget loadFtpDir(@NonNull String dirUrl) {
     CheckUtil.checkUrlInvalidThrow(dirUrl);
     return new FtpDirDownloadTarget(dirUrl, targetName);
@@ -214,7 +228,7 @@ public class DownloadReceiver extends AbsReceiver {
   /**
    * 将当前类注册到Aria
    */
-  public DownloadReceiver register() {
+  public void register() {
     String className = obj.getClass().getName();
     Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
     Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
@@ -226,7 +240,6 @@ public class DownloadReceiver extends AbsReceiver {
         && dgsCounter.contains(className))) {
       DownloadGroupSchedulers.getInstance().register(obj);
     }
-    return this;
   }
 
   /**

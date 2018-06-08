@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload;
 
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.manager.TEManager;
@@ -44,6 +45,7 @@ abstract class BaseNormalTarget<TARGET extends AbsUploadTarget>
    *
    * @param uploadUrl 上传路径
    */
+  @CheckResult
   public TARGET setUploadUrl(@NonNull String uploadUrl) {
     mTempUrl = uploadUrl;
     return (TARGET) this;

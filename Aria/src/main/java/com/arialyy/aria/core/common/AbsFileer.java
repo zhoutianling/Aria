@@ -69,8 +69,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   private Map<Integer, AbsThreadTask> mTask = new HashMap<>();
 
   private Timer mTimer;
-  @Deprecated
-  private File mConfigFile;
+  @Deprecated private File mConfigFile;
   /**
    * 进度刷新间隔
    */
@@ -356,6 +355,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 保存任务记录
    */
   private void saveRecord() {
+    mRecord.threadNum = mRecord.threadRecords.size();
     mRecord.save();
     for (ThreadRecord tr : mRecord.threadRecords) {
       tr.save();
@@ -464,6 +464,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       mTask.put(i, task);
       threadId[rl] = i;
       rl++;
+    }
+    if (mConstance.CURRENT_LOCATION != 0
+        && mConstance.CURRENT_LOCATION != mEntity.getCurrentProgress()) {
+      ALog.d(TAG, "进度修正");
+      mEntity.setCurrentProgress(mConstance.CURRENT_LOCATION);
     }
     saveRecord();
     startThreadTask(threadId);

@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.command.ICmd;
@@ -33,7 +34,6 @@ import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.TaskRecord;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
-import com.arialyy.aria.core.inf.AbsGroupEntity;
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
@@ -53,17 +53,14 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -378,14 +375,13 @@ public class CommonUtil {
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
-  public static void delGroupTaskRecord(boolean removeFile, AbsGroupEntity groupEntity) {
+  public static void delGroupTaskRecord(boolean removeFile, DownloadGroupEntity groupEntity) {
     if (groupEntity == null) {
       ALog.e(TAG, "删除下载任务组记录失败，任务组实体为null");
       return;
     }
-    List<TaskRecord> records = DbEntity.findDatas(TaskRecord.class,
-        groupEntity instanceof DownloadGroupEntity ? "dGroupName=?" : "uGroupName=?",
-        groupEntity.getGroupName());
+    List<TaskRecord> records =
+        DbEntity.findDatas(TaskRecord.class, "dGroupName=?", groupEntity.getGroupName());
 
     if (records == null || records.isEmpty()) {
       ALog.w(TAG, "组任务记录删除失败，记录为null");
@@ -395,15 +391,19 @@ public class CommonUtil {
       }
     }
 
+    List<DownloadEntity> subs = groupEntity.getSubEntities();
+    if (subs != null) {
+      for (DownloadEntity sub : subs) {
+        File file = new File(sub.getDownloadPath());
+        Log.d(TAG, "exist == " + file.exists() + ", rf == " + removeFile + ", complete = " + sub.isComplete());
+        if (file.exists() && (removeFile || !sub.isComplete())) {
+          file.delete();
+        }
+      }
+    }
     File dir = new File(groupEntity.getDirPath());
-    if (removeFile) {
-      if (dir.exists()) {
-        dir.delete();
-      }
-    } else {
-      if (!groupEntity.isComplete()) {
-        dir.delete();
-      }
+    if (dir.exists() && (removeFile || !groupEntity.isComplete())) {
+      dir.delete();
     }
     groupEntity.deleteData();
   }
@@ -414,8 +414,7 @@ public class CommonUtil {
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
-  public static void delTaskRecord(TaskRecord record, boolean removeFile,
-      AbsNormalEntity dEntity) {
+  public static void delTaskRecord(TaskRecord record, boolean removeFile, AbsNormalEntity dEntity) {
     if (dEntity == null) return;
     File file;
     if (dEntity instanceof DownloadEntity) {
@@ -426,16 +425,8 @@ public class CommonUtil {
       ALog.w(TAG, "删除记录失败，未知类型");
       return;
     }
-    if (removeFile) {
-      if (file.exists()) {
-        file.delete();
-      }
-    } else {
-      if (!dEntity.isComplete()) {
-        if (file.exists()) {
-          file.delete();
-        }
-      }
+    if (file.exists() && (removeFile || !dEntity.isComplete())) {
+      file.delete();
     }
 
     if (record != null) {
@@ -869,7 +860,9 @@ public class CommonUtil {
     }
     TaskRecord record = DbHelper.getTaskRecord(oldPath);
     if (record == null) {
-      ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】对应的任务记录不存在");
+      if (new File(oldPath).exists()) {
+        ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】对应的任务记录不存在");
+      }
       return;
     }
     record.filePath = newPath;

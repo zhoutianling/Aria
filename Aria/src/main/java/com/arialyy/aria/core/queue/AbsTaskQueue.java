@@ -46,16 +46,6 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     return mExecutePool.getTask(key) != null;
   }
 
-  @Override public void removeAllTask() {
-    for (String key : mExecutePool.getAllTask().keySet()) {
-      TASK task = mExecutePool.getAllTask().get(key);
-      if (task != null) task.cancel();
-    }
-    for (String key : mCachePool.getAllTask().keySet()) {
-      mCachePool.removeTask(key);
-    }
-  }
-
   /**
    * 恢复任务
    * 如果执行队列任务未满，则直接启动任务。

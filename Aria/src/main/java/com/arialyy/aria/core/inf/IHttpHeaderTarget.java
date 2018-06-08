@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.inf;
 
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -33,6 +34,7 @@ public interface IHttpHeaderTarget<TARGET extends ITarget> {
    * @param key header对应的key
    * @param value header对应的value
    */
+  @CheckResult
   TARGET addHeader(@NonNull String key, @NonNull String value);
 
   /**
@@ -41,6 +43,7 @@ public interface IHttpHeaderTarget<TARGET extends ITarget> {
    *
    * @param headers 一组http header数据
    */
+  @CheckResult
   TARGET addHeaders(Map<String, String> headers);
 
   /**
@@ -48,5 +51,6 @@ public interface IHttpHeaderTarget<TARGET extends ITarget> {
    *
    * @param requestEnum {@link RequestEnum}
    */
+  @CheckResult
   TARGET setRequestMode(RequestEnum requestEnum);
 }

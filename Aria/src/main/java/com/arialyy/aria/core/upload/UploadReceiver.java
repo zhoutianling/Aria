@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload;
 
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
@@ -41,6 +42,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
    *
    * @param filePath 文件路径
    */
+  @CheckResult
   public UploadTarget load(@NonNull String filePath) {
     CheckUtil.checkUploadPath(filePath);
     return new UploadTarget(filePath, targetName);
@@ -51,6 +53,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
    *
    * @param filePath 文件路径
    */
+  @CheckResult
   public FtpUploadTarget loadFtp(@NonNull String filePath) {
     CheckUtil.checkUploadPath(filePath);
     return new FtpUploadTarget(filePath, targetName);
@@ -129,13 +132,12 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   /**
    * 将当前类注册到Aria
    */
-  public UploadReceiver register() {
+  public void register() {
     String className = obj.getClass().getName();
     Set<String> cCounter = ProxyHelper.getInstance().uploadCounter;
     if (cCounter != null && cCounter.contains(className)) {
       UploadSchedulers.getInstance().register(obj);
     }
-    return this;
   }
 
   /**

@@ -131,7 +131,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    * @return {@code true} 中断，{@code false} 不是中断
    */
   protected boolean isBreak() {
-    ALog.d(TAG, "任务中断");
     return STATE.isCancel || STATE.isStop || taskBreak;
   }
 

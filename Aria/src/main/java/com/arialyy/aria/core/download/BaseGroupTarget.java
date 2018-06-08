@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.support.annotation.CheckResult;
 import android.text.TextUtils;
 import android.util.Log;
 import com.arialyy.aria.core.manager.SubTaskManager;
@@ -49,6 +50,7 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
    *
    * @return 子任务管理器
    */
+  @CheckResult
   public SubTaskManager getSubTaskManager() {
     if (mSubTaskManager == null) {
       mSubTaskManager = new SubTaskManager(mTargetName, mTaskEntity);
@@ -59,6 +61,7 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
   /**
    * 设置任务组别名
    */
+  @CheckResult
   public TARGET setGroupAlias(String alias) {
     if (TextUtils.isEmpty(alias)) return (TARGET) this;
     mEntity.setAlias(alias);
@@ -76,6 +79,7 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
    * @deprecated {@link #setDirPath(String)} 请使用这个api
    */
   @Deprecated
+  @CheckResult
   public TARGET setDownloadDirPath(String groupDirPath) {
     return setDirPath(groupDirPath);
   }
@@ -99,6 +103,7 @@ abstract class BaseGroupTarget<TARGET extends BaseGroupTarget>
    *
    * @param dirPath 任务组保存文件夹路径
    */
+  @CheckResult
   public TARGET setDirPath(String dirPath) {
     mDirPathTemp = dirPath;
     return (TARGET) this;

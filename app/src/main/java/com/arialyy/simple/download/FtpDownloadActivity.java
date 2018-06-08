@@ -62,10 +62,11 @@ public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding
         Aria.download(this).loadFtp(URL, true)
             //.login("sxf", "B34VdGsJ")
             .login("lao", "123456")
-            .setFilePath("/mnt/sdcard/").start();
+            .setFilePath("");
+            //.setFilePath("/mnt/sdcard/").start();
         break;
       case R.id.stop:
-        Aria.download(this).loadFtp(URL).stop();
+        Aria.download(this).loadFtp(URL);
         break;
       case R.id.cancel:
         Aria.download(this).loadFtp(URL).cancel();

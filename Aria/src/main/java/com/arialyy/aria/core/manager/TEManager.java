@@ -165,7 +165,7 @@ public class TEManager {
   /**
    * 从缓存中获取单任务实体，如果任务实体不存在，则创建任务实体
    *
-   * @return 创建失败，返回null
+   * @return 创建失败，返回null；成功返回{@link DownloadTaskEntity}或者{@link UploadTaskEntity}
    */
   public <TE extends AbsTaskEntity> TE getTEntity(Class<TE> clazz, String key) {
     final Lock lock = this.lock;
@@ -185,7 +185,7 @@ public class TEManager {
   /**
    * 从缓存中获取FTP文件夹任务实体，如果任务实体不存在，则创建任务实体
    *
-   * @return 创建失败，返回null
+   * @return 创建失败，返回null；成功返回{@link DownloadTaskEntity}，
    */
   public <TE extends AbsTaskEntity> TE getFDTEntity(Class<TE> clazz, String key) {
     final Lock lock = this.lock;
@@ -204,9 +204,10 @@ public class TEManager {
 
   /**
    * 从缓存中获取HTTP任务组的任务实体，如果任务实体不存在，则创建任务实体
+   * 获取{}
    *
    * @param urls HTTP任务组的子任务下载地址列表
-   * @return 地址列表为null或创建实体失败，返回null
+   * @return 地址列表为null或创建实体失败，返回null；成功返回{@link DownloadGroupTaskEntity}
    */
   public <TE extends AbsTaskEntity> TE getGTEntity(Class<TE> clazz, List<String> urls) {
     if (urls == null || urls.isEmpty()) {

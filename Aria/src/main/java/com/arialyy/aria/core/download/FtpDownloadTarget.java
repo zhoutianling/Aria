@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.delegate.FtpDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
@@ -29,7 +30,7 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
     implements IFtpTarget<FtpDownloadTarget> {
   private FtpDelegate<FtpDownloadTarget, DownloadEntity, DownloadTaskEntity> mDelegate;
 
-  FtpDownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
+  public FtpDownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
     this(entity.getUrl(), targetName, refreshInfo);
   }
 
@@ -59,6 +60,7 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
    * @deprecated {@link #setFilePath(String)} 请使用这个api
    */
   @Deprecated
+  @CheckResult
   public FtpDownloadTarget setDownloadPath(@NonNull String filePath) {
     return setFilePath(filePath);
   }
@@ -69,6 +71,7 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
    * 1、如果保存路径是该文件的保存路径，如：/mnt/sdcard/file.zip，则使用路径中的文件名file.zip
    * 2、如果保存路径是文件夹路径，如：/mnt/sdcard/，则使用FTP服务器该文件的文件名
    */
+  @CheckResult
   public FtpDownloadTarget setFilePath(@NonNull String filePath) {
     mTempFilePath = filePath;
     return this;
@@ -78,14 +81,17 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
     return FTP;
   }
 
+  @CheckResult
   @Override public FtpDownloadTarget charSet(String charSet) {
     return mDelegate.charSet(charSet);
   }
 
+  @CheckResult
   @Override public FtpDownloadTarget login(String userName, String password) {
     return mDelegate.login(userName, password);
   }
 
+  @CheckResult
   @Override public FtpDownloadTarget login(String userName, String password, String account) {
     return mDelegate.login(userName, password, account);
   }

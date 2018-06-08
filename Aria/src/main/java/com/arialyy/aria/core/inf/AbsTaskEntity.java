@@ -19,6 +19,7 @@ import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.annotation.Ignore;
+import java.net.Proxy;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -124,6 +125,8 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
    */
   private int code;
 
+  @Ignore private Proxy proxy;
+
   public abstract ENTITY getEntity();
 
   /**
@@ -133,6 +136,14 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
    */
   public int getState() {
     return getEntity().getState();
+  }
+
+  public Proxy getProxy() {
+    return proxy;
+  }
+
+  public void setProxy(Proxy proxy) {
+    this.proxy = proxy;
   }
 
   public abstract String getKey();

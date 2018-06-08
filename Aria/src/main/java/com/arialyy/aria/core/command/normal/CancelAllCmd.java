@@ -16,7 +16,19 @@
 
 package com.arialyy.aria.core.command.normal;
 
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
+import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.manager.TEManager;
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.core.queue.UploadTaskQueue;
+import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.orm.DbEntity;
+import java.util.List;
 
 /**
  * Created by AriaL on 2017/6/27.
@@ -37,6 +49,64 @@ public class CancelAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   }
 
   @Override public void executeCmd() {
-    removeAll();
+    if (!canExeCmd) return;
+    if (isDownloadCmd) {
+      removeAllDTask();
+      removeAllDGTask();
+    } else {
+      removeUTask();
+    }
+  }
+
+  /**
+   * 删除所有普通下载任务
+   */
+  private void removeAllDTask() {
+    List<DownloadEntity> entities =
+        DbEntity.findDatas(DownloadEntity.class, "isGroupChild=?", "false");
+    if (entities != null && !entities.isEmpty()) {
+      for (DownloadEntity entity : entities) {
+        remove(TEManager.getInstance().getTEntity(DownloadTaskEntity.class, entity.getKey()));
+      }
+    }
+  }
+
+  /**
+   * 删除所有下载任务组任务
+   */
+  private void removeAllDGTask() {
+    List<DownloadGroupEntity> entities =
+        DbEntity.findDatas(DownloadGroupEntity.class, "state!=?", "-1");
+    if (entities != null && !entities.isEmpty()) {
+      for (DownloadGroupEntity entity : entities) {
+        remove(
+            TEManager.getInstance().getGTEntity(DownloadGroupTaskEntity.class, entity.getUrls()));
+      }
+    }
+  }
+
+  /**
+   * 删除所有普通上传任务
+   */
+  private void removeUTask() {
+    List<UploadEntity> entities =
+        DbEntity.findDatas(UploadEntity.class, "isGroupChild=?", "false");
+    if (entities != null && !entities.isEmpty()) {
+      for (UploadEntity entity : entities) {
+        remove(TEManager.getInstance().getTEntity(UploadTaskEntity.class, entity.getKey()));
+      }
+    }
+  }
+
+  private void remove(AbsTaskEntity te) {
+    if (te instanceof DownloadTaskEntity) {
+      mQueue = DownloadTaskQueue.getInstance();
+    } else if (te instanceof UploadTaskEntity) {
+      mQueue = UploadTaskQueue.getInstance();
+    } else if (te instanceof DownloadGroupTaskEntity) {
+      mQueue = DownloadGroupTaskQueue.getInstance();
+    }
+    te.setRemoveFile(removeFile);
+    removeTask(te);
   }
 }

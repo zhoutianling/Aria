@@ -5,6 +5,7 @@ import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.download.wrapper.DGTEWrapper;
 import com.arialyy.aria.core.download.wrapper.DTEWrapper;
+import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
@@ -142,8 +143,8 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       startTask(createTask(te));
     } else {
       te.getEntity().setState(IEntity.STATE_WAIT);
-      createTask(te);
-      sendWaitState();
+      AbsTask task = createTask(te);
+      sendWaitState(task);
     }
   }
 }

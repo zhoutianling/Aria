@@ -10,6 +10,7 @@ import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
 import java.io.File;
+import java.net.Proxy;
 
 /**
  * Created by laoyuyu on 2018/4/13.
@@ -68,6 +69,7 @@ public class AnyRunnModule {
         .load(url)
         //.addHeader("Accept-Encoding", "gzip")
         .setRequestMode(RequestEnum.GET)
+        .setUrlProxy(Proxy.NO_PROXY)
         .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/abcds.exe")
         //.resetState()
         .start();

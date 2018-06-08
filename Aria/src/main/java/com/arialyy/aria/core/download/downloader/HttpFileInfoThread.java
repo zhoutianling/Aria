@@ -54,7 +54,7 @@ class HttpFileInfoThread implements Runnable {
     HttpURLConnection conn = null;
     try {
       URL url = new URL(CommonUtil.convertUrl(mEntity.getUrl()));
-      conn = ConnectionHelp.handleConnection(url);
+      conn = ConnectionHelp.handleConnection(url, mTaskEntity);
       conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       conn.setConnectTimeout(mConnectTimeOut);
