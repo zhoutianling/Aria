@@ -294,6 +294,9 @@ public class DownloadReceiver extends AbsReceiver {
     if (!CheckUtil.checkUrl(downloadUrl)) {
       return null;
     }
+    if (!taskExists(downloadUrl)) {
+      return null;
+    }
     return TEManager.getInstance().getTEntity(DownloadTaskEntity.class, downloadUrl);
   }
 
@@ -306,6 +309,9 @@ public class DownloadReceiver extends AbsReceiver {
   public DownloadGroupTaskEntity getGroupTask(List<String> urls) {
     if (urls == null || urls.isEmpty()) {
       ALog.e(TAG, "获取任务组实体失败：任务组子任务下载地址列表为null");
+      return null;
+    }
+    if (!taskExists(urls)) {
       return null;
     }
     return TEManager.getInstance().getGTEntity(DownloadGroupTaskEntity.class, urls);
@@ -322,6 +328,11 @@ public class DownloadReceiver extends AbsReceiver {
       ALog.e(TAG, "获取FTP文件夹实体失败：下载路径为null");
       return null;
     }
+    boolean b =
+        DownloadGroupEntity.findFirst(DownloadGroupEntity.class, "groupName=?", dirUrl) != null;
+    if (!b) {
+      return null;
+    }
     return TEManager.getInstance().getFDTEntity(DownloadGroupTaskEntity.class, dirUrl);
   }
 
@@ -330,6 +341,20 @@ public class DownloadReceiver extends AbsReceiver {
    */
   @Override public boolean taskExists(String downloadUrl) {
     return DownloadEntity.findFirst(DownloadEntity.class, "url=?", downloadUrl) != null;
+  }
+
+  /**
+   * 判断任务组是否存在
+   *
+   * @return {@code true} 存在；{@code false} 不存在
+   */
+  public boolean taskExists(List<String> urls) {
+    if (urls == null || urls.isEmpty()) {
+      return false;
+    }
+    String groupName = CommonUtil.getMd5Code(urls);
+    return DownloadGroupEntity.findFirst(DownloadGroupEntity.class, "groupName=?", groupName)
+        != null;
   }
 
   /**

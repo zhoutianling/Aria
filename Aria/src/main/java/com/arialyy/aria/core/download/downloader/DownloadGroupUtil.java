@@ -44,6 +44,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   private int mInitFailNum;
   private boolean isStop = false;
   private boolean isStart = false;
+  private int mExeNum;
 
   /**
    * 文件信息回调组
@@ -89,6 +90,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
       return;
     }
     Set<String> keys = mExeMap.keySet();
+    mExeNum = mExeMap.size();
     for (String key : keys) {
       DownloadTaskEntity taskEntity = mExeMap.get(key);
       if (taskEntity != null) {
@@ -161,11 +163,11 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
    */
   private void checkStartFlow() {
     synchronized (DownloadGroupUtil.class) {
-      if (mInitFailNum == mExeMap.size()) {
+      if (mInitFailNum == mExeNum) {
         closeTimer(false);
         mListener.onFail(true);
       }
-      if (!isStart && mInitCompleteNum + mInitFailNum == mExeMap.size() || !isNeedLoadFileSize) {
+      if (!isStart && mInitCompleteNum + mInitFailNum == mExeNum || !isNeedLoadFileSize) {
         startRunningFlow();
         updateFileSize();
         isStart = true;

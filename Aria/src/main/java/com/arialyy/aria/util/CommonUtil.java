@@ -40,6 +40,7 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.orm.DbEntity;
 import dalvik.system.DexFile;
+import dalvik.system.PathClassLoader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -74,26 +75,36 @@ public class CommonUtil {
   /**
    * 获取某包下所有类
    *
-   * @param packageName 包名
+   * @param className 过滤的类名
    * @return 类的完整名称
    */
-  public static List<String> getClassName(Context context, String packageName) {
+  public static List<String> getClassName(Context context, String className) {
     List<String> classNameList = new ArrayList<>();
     try {
       String pPath = context.getPackageCodePath();
       File dir = new File(pPath).getParentFile();
+      //PathClassLoader classLoader = (PathClassLoader) context.getClassLoader();
       String dPath = dir.getPath();
       for (String path : dir.list()) {
         String fPath = dPath + "/" + path;
+        Log.d(TAG, fPath);
         if (!fPath.endsWith(".apk")) {
           continue;
         }
         DexFile df = new DexFile(fPath);//通过DexFile查找当前的APK中可执行文件
         Enumeration<String> enumeration = df.entries();//获取df中的元素  这里包含了所有可执行的类名 该类名包含了包名+类名的方式
-        while (enumeration.hasMoreElements()) {//遍历
-          String className = enumeration.nextElement();
-          if (className.contains(packageName)) {//在当前所有可执行的类里面查找包含有该包名的所有类
-            classNameList.add(className);
+        while (enumeration.hasMoreElements()) {
+          String _className = enumeration.nextElement();
+          if (!_className.contains(className)) {
+            continue;
+          }
+          //Class clazz = classLoader.loadClass(_className);  // 处理4.4手机无法获取到类的问题
+          //String cn = clazz.getName();
+          //if (clazz.getName().contains(className)) {//在当前所有可执行的类里面查找包含有该包名的所有类
+          //  classNameList.add(_className);
+          //}
+          if (_className.contains(className)){
+            classNameList.add(_className);
           }
         }
         df.close();
@@ -101,6 +112,9 @@ public class CommonUtil {
     } catch (IOException e) {
       e.printStackTrace();
     }
+    //catch (ClassNotFoundException e) {
+    //  e.printStackTrace();
+    //}
     return classNameList;
   }
 
@@ -395,7 +409,6 @@ public class CommonUtil {
     if (subs != null) {
       for (DownloadEntity sub : subs) {
         File file = new File(sub.getDownloadPath());
-        Log.d(TAG, "exist == " + file.exists() + ", rf == " + removeFile + ", complete = " + sub.isComplete());
         if (file.exists() && (removeFile || !sub.isComplete())) {
           file.delete();
         }

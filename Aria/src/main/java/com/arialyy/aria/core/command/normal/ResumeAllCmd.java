@@ -1,18 +1,19 @@
 package com.arialyy.aria.core.command.normal;
 
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
-import com.arialyy.aria.core.download.wrapper.DGTEWrapper;
-import com.arialyy.aria.core.download.wrapper.DTEWrapper;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
 import com.arialyy.aria.core.queue.DownloadTaskQueue;
 import com.arialyy.aria.core.queue.UploadTaskQueue;
+import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
-import com.arialyy.aria.core.upload.wrapper.UTEWrapper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
@@ -43,10 +44,10 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       return;
     }
     if (isDownloadCmd) {
-      resumeTask(findTaskData(1));
-      resumeTask(findTaskData(2));
+      findTaskData(1);
+      findTaskData(2);
     } else {
-      resumeTask(findTaskData(3));
+      findTaskData(3);
     }
     resumeWaitTask();
   }
@@ -56,53 +57,49 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    *
    * @param type {@code 1}单任务下载任务；{@code 2}任务组下载任务；{@code 3} 单任务上传任务
    */
-  private List<AbsTaskEntity> findTaskData(int type) {
-    List<AbsTaskEntity> tempList = new ArrayList<>();
+  private void findTaskData(int type) {
     if (type == 1) {
-      List<DTEWrapper> wrappers = DbEntity.findRelationData(DTEWrapper.class,
-          "DownloadTaskEntity.isGroupTask=? and DownloadTaskEntity.state!=?", "false", "1");
-      if (wrappers != null && !wrappers.isEmpty()) {
-        for (DTEWrapper w : wrappers) {
-          tempList.add(w.taskEntity);
+      List<DownloadEntity> entities =
+          DbEntity.findDatas(DownloadEntity.class,
+              "isGroupChild=? and state!=?", "false", "1");
+      if (entities != null && !entities.isEmpty()) {
+        for (DownloadEntity entity : entities) {
+          resumeTask(TEManager.getInstance().getTEntity(DownloadTaskEntity.class, entity.getKey()));
         }
       }
     } else if (type == 2) {
-      List<DGTEWrapper> wrappers =
-          DbEntity.findRelationData(DGTEWrapper.class, "DownloadGroupTaskEntity.state!=?", "1");
-      if (wrappers != null && !wrappers.isEmpty()) {
-        for (DGTEWrapper w : wrappers) {
-          tempList.add(w.taskEntity);
+      List<DownloadGroupEntity> entities =
+          DbEntity.findDatas(DownloadGroupEntity.class, "state!=?", "1");
+      if (entities != null && !entities.isEmpty()) {
+        for (DownloadGroupEntity entity : entities) {
+          resumeTask(
+              TEManager.getInstance().getGTEntity(DownloadGroupTaskEntity.class, entity.getUrls()));
         }
       }
     } else if (type == 3) {
-      List<UTEWrapper> wrappers =
-          DbEntity.findRelationData(UTEWrapper.class, "UploadTaskEntity.state!=?", "1");
-      if (wrappers != null && !wrappers.isEmpty()) {
-        for (UTEWrapper w : wrappers) {
-          tempList.add(w.taskEntity);
+      List<UploadEntity> entities =
+          DbEntity.findDatas(UploadEntity.class, "state!=?", "1");
+      if (entities != null && !entities.isEmpty()) {
+        for (UploadEntity entity : entities) {
+          resumeTask(TEManager.getInstance().getTEntity(UploadTaskEntity.class, entity.getKey()));
         }
       }
     }
-    return tempList;
   }
 
   /**
    * 恢复任务
    */
-  private void resumeTask(List<AbsTaskEntity> taskList) {
-    if (taskList != null && !taskList.isEmpty()) {
-      for (AbsTaskEntity te : taskList) {
-        if (te == null || te.getEntity() == null) continue;
-        int state = te.getState();
-        if (state == IEntity.STATE_STOP || state == IEntity.STATE_OTHER) {
-          resumeEntity(te);
-        } else if (state == IEntity.STATE_WAIT) {
-          mWaitList.add(te);
-        } else if (state == IEntity.STATE_RUNNING) {
-          if (!mQueue.taskIsRunning(te.getEntity().getKey())) {
-            resumeEntity(te);
-          }
-        }
+  private void resumeTask(AbsTaskEntity te) {
+    if (te == null || te.getEntity() == null) return;
+    int state = te.getState();
+    if (state == IEntity.STATE_STOP || state == IEntity.STATE_OTHER) {
+      resumeEntity(te);
+    } else if (state == IEntity.STATE_WAIT) {
+      mWaitList.add(te);
+    } else if (state == IEntity.STATE_RUNNING) {
+      if (!mQueue.taskIsRunning(te.getEntity().getKey())) {
+        resumeEntity(te);
       }
     }
   }
@@ -117,6 +114,13 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       if (mQueue.getCurrentExePoolNum() < maxTaskNum) {
         startTask(createTask(te));
       } else {
+        if (te instanceof DownloadTaskEntity) {
+          mQueue = DownloadTaskQueue.getInstance();
+        } else if (te instanceof UploadTaskEntity) {
+          mQueue = UploadTaskQueue.getInstance();
+        } else if (te instanceof DownloadGroupTaskEntity) {
+          mQueue = DownloadGroupTaskQueue.getInstance();
+        }
         createTask(te);
       }
     }
@@ -129,7 +133,8 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
    */
   private void resumeEntity(AbsTaskEntity te) {
     if (te instanceof DownloadTaskEntity) {
-      if (te.getRequestType() == AbsTaskEntity.D_FTP || te.getRequestType() == AbsTaskEntity.U_FTP) {
+      if (te.getRequestType() == AbsTaskEntity.D_FTP
+          || te.getRequestType() == AbsTaskEntity.U_FTP) {
         te.setUrlEntity(CommonUtil.getFtpUrlInfo(te.getEntity().getKey()));
       }
       mQueue = DownloadTaskQueue.getInstance();

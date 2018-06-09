@@ -259,6 +259,9 @@ public abstract class AbsGroupUtil implements IUtil {
         dt.stop();
       }
     }
+    if (mDownloaderMap.size() == 0){
+      mListener.onStop(mCurrentLocation);
+    }
   }
 
   protected void onStop() {

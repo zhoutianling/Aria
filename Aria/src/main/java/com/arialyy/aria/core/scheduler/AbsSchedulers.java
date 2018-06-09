@@ -158,7 +158,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
   }
 
   /**
-   * 处理普通任务事件
+   * 处理普通任务和任务组的事件
    */
   private void handleNormalEvent(TASK task, int what) {
     switch (what) {

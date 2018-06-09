@@ -511,7 +511,12 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         mConstance.isRunning = true;
         ALog.d(TAG, String.format("任务【%s】开始重试，线程__%s__【开始位置：%s，结束位置：%s】", mEntity.getFileName(),
             key, task.getConfig().START_LOCATION, task.getConfig().END_LOCATION));
-        mFixedThreadPool.execute(task);
+        if (!mFixedThreadPool.isShutdown()) {
+          mFixedThreadPool.execute(task);
+        } else {
+          ALog.w(TAG, "线程池已关闭");
+          mListener.onFail(true);
+        }
       }
     }
   }
