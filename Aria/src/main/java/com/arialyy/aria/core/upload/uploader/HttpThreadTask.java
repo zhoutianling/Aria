@@ -62,7 +62,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
   @Override public void run() {
     File uploadFile = new File(mEntity.getFilePath());
     if (!uploadFile.exists()) {
-      ALog.e(TAG, "【" + mEntity.getFilePath() + "】，文件不存在。");
+      ALog.e(TAG, String.format("【%s】，文件不存在。", mEntity.getFilePath()));
       fail();
       return;
     }
@@ -211,9 +211,5 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     writer.close();
     mOutputStream.close();
     return response.toString();
-  }
-
-  @Override protected String getTaskType() {
-    return "HTTP_UPLOAD";
   }
 }

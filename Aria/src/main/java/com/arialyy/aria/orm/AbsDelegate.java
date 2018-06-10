@@ -48,7 +48,7 @@ abstract class AbsDelegate {
    * @param type {@link DelegateWrapper}
    */
   static void print(int type, String sql) {
-    if (!ALog.DEBUG) {
+    if (ALog.DEBUG) {
       return;
     }
     String str = "";

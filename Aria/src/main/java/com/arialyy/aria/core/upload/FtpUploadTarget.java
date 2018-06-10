@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload;
 
+import android.support.annotation.CheckResult;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.delegate.FtpDelegate;
@@ -69,6 +70,7 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
     return true;
   }
 
+  @CheckResult
   @Override public FtpUploadTarget charSet(String charSet) {
     return mDelegate.charSet(charSet);
   }

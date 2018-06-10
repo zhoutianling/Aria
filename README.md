@@ -30,8 +30,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.4.1'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.1'
+compile 'com.arialyy.aria:aria-core:3.4.2'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.2'
 ```
 如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:<last-version>'`替换为
 ```
@@ -99,13 +99,15 @@ protected void onCreate(Bundle savedInstanceState) {
 
 
 ### 版本日志
-   + v_3.4.1
-       - 移除记录配置文件，改用数据库记录任务记录
-       - 上传配置添加io超时时间、缓存大小配置
-       - 添加没有网络也会重试的开关
-       - 修复多次删除记录的bug
-       - 文件长度现在可动态增加，详情见 https://aria.laoyuyu.me/aria_doc/start/config.html
-       - 修复多module同时引用Aria导致打正式包出错的问题 https://github.com/AriaLyy/Aria/issues/240
+  + v_3.4.2
+    - fix bug https://github.com/AriaLyy/Aria/issues/248
+    - fix bug https://github.com/AriaLyy/Aria/issues/247
+    - fix bug https://github.com/AriaLyy/Aria/issues/250
+    - 添加任务判断是否存在的api
+    - 添加代理api
+    - 修复删除所有没有进出等待的问题
+    - 进度有时出错的问题
+    - FTP添加超时处理
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 
@@ -126,7 +128,7 @@ protected void onCreate(Bundle savedInstanceState) {
 
 ## 其他
  有任何问题，可以在[issues](https://github.com/AriaLyy/Aria/issues)给我留言反馈。</br>
- 在提交问题前，希望你已经查看过[wiki](https://github.com/AriaLyy/Aria/wiki)或搜索过[issues](https://github.com/AriaLyy/Aria/issues)。</br>
+ 在提交问题前，希望你已经查看过[wiki](https://aria.laoyuyu.me/aria_doc/)或搜索过[issues](https://github.com/AriaLyy/Aria/issues)。</br>
 ***
 
 License

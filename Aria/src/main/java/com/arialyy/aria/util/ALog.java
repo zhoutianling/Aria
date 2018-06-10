@@ -117,6 +117,9 @@ public class ALog {
    * 将异常信息转换为字符串
    */
   public static String getExceptionString(Throwable ex) {
+    if (ex == null) {
+      return "";
+    }
     StringBuilder err = new StringBuilder();
     err.append("ExceptionDetailed:\n");
     err.append("====================Exception Info====================\n");

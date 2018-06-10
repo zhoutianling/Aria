@@ -34,7 +34,17 @@ import java.util.concurrent.Executors;
 public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   private final String TAG = "DownloadGroupUtil";
   private ExecutorService mInfoPool;
-  private int mInitCompleteNum, mInitFailNum;
+  /**
+   * 初始化完成的任务数
+   */
+  private int mInitCompleteNum;
+  /**
+   * 初始化失败的任务数
+   */
+  private int mInitFailNum;
+  private boolean isStop = false;
+  private boolean isStart = false;
+  private int mExeNum;
 
   /**
    * 文件信息回调组
@@ -44,7 +54,6 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
   public DownloadGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity taskEntity) {
     super(listener, taskEntity);
     mInfoPool = Executors.newCachedThreadPool();
-    onPre();
   }
 
   @Override int getTaskType() {
@@ -53,6 +62,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
 
   @Override public void onCancel() {
     super.onCancel();
+    isStop = true;
     if (!mInfoPool.isShutdown()) {
       mInfoPool.shutdown();
     }
@@ -60,13 +70,15 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
 
   @Override protected void onStop() {
     super.onStop();
+    isStop = true;
     if (!mInfoPool.isShutdown()) {
       mInfoPool.shutdown();
     }
   }
 
   @Override protected void onStart() {
-    super.onStart();
+    onPre();
+    isStop = false;
     if (mCompleteNum == mGroupSize) {
       mListener.onComplete();
       return;
@@ -78,12 +90,15 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
       return;
     }
     Set<String> keys = mExeMap.keySet();
+    mExeNum = mExeMap.size();
     for (String key : keys) {
       DownloadTaskEntity taskEntity = mExeMap.get(key);
       if (taskEntity != null) {
         if (taskEntity.getState() != IEntity.STATE_FAIL
             && taskEntity.getState() != IEntity.STATE_WAIT) {
+          mInitCompleteNum++;
           createChildDownload(taskEntity);
+          checkStartFlow();
         } else {
           mInfoPool.execute(createFileInfoThread(taskEntity));
         }
@@ -105,6 +120,7 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
         int failNum = 0;
 
         @Override public void onComplete(String url, CompleteInfo info) {
+          if (isStop) return;
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
             if (isNeedLoadFileSize) {
@@ -112,16 +128,14 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
             }
             createChildDownload(te);
           }
-          mInitCompleteNum ++;
+          mInitCompleteNum++;
 
-          if (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize) {
-            startRunningFlow();
-            updateFileSize();
-          }
+          checkStartFlow();
         }
 
         @Override public void onFail(String url, String errorMsg, boolean needRetry) {
-          ALog.e(TAG, "任务【" + url + "】初始化失败。");
+          if (isStop) return;
+          ALog.e(TAG, String.format("任务【%s】初始化失败", url));
           DownloadTaskEntity te = mExeMap.get(url);
           if (te != null) {
             mFailMap.put(url, te);
@@ -136,14 +150,28 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
           //  mInitFailNum++;
           //}
           //failNum++;
-          mInitFailNum ++;
-          if (mInitCompleteNum + mInitFailNum >= mGroupSize || !isNeedLoadFileSize) {
-            startRunningFlow();
-            updateFileSize();
-          }
+          mInitFailNum++;
+          checkStartFlow();
         }
       };
     }
     return new HttpFileInfoThread(taskEntity, callback);
+  }
+
+  /**
+   * 检查能否启动下载流程
+   */
+  private void checkStartFlow() {
+    synchronized (DownloadGroupUtil.class) {
+      if (mInitFailNum == mExeNum) {
+        closeTimer(false);
+        mListener.onFail(true);
+      }
+      if (!isStart && mInitCompleteNum + mInitFailNum == mExeNum || !isNeedLoadFileSize) {
+        startRunningFlow();
+        updateFileSize();
+        isStart = true;
+      }
+    }
   }
 }

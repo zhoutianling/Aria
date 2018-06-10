@@ -86,8 +86,11 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
         }
       }
     } else {
-      if (!task.isRunning()) {
+      //任务没执行并且执行队列中没有该任务，才认为任务没有运行中
+      if (!task.isRunning() && !mQueue.taskIsRunning(task.getKey())) {
         resumeTask();
+      }else {
+        ALog.w(TAG, String.format("任务【%s】已经在运行", task.getTaskName()));
       }
     }
     if (mQueue.getCurrentCachePoolNum() == 0) {
@@ -114,7 +117,6 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     }
 
     private List<AbsTaskEntity> findWaitData(int type) {
-      // TODO: 2018/4/20 需要测试
       List<AbsTaskEntity> waitList = new ArrayList<>();
       if (type == 1) {
         List<DTEWrapper> wrappers = DbEntity.findRelationData(DTEWrapper.class,

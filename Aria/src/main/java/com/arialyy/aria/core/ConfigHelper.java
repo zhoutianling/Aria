@@ -59,9 +59,6 @@ class ConfigHelper extends DefaultHandler {
 
       String value = attributes.getValue("value");
       switch (qName) {
-        case "openDynamicFile":
-          loadOpenDynamicFile(value);
-          break;
         case "threadNum":
           loadThreadNum(value);
           break;
@@ -114,12 +111,6 @@ class ConfigHelper extends DefaultHandler {
           loadLogLevel(value);
           break;
       }
-    }
-  }
-
-  private void loadOpenDynamicFile(String value) {
-    if (isDownloadConfig) {
-      mDownloadConfig.openDynamicFile = checkBoolean(value) ? Boolean.valueOf(value) : false;
     }
   }
 

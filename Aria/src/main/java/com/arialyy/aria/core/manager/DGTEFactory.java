@@ -23,6 +23,7 @@ import com.arialyy.aria.core.download.wrapper.DGEWrapper;
 import com.arialyy.aria.core.download.wrapper.DGTEWrapper;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -156,10 +157,12 @@ class DGTEFactory implements IGTEFactory<DownloadGroupEntity, DownloadGroupTaskE
   private List<DownloadEntity> createSubTask(String groupName, List<String> urls) {
     List<DownloadEntity> list = new ArrayList<>();
     for (int i = 0, len = urls.size(); i < len; i++) {
+      String url = urls.get(i);
       DownloadEntity entity = new DownloadEntity();
-      entity.setUrl(urls.get(i));
+      entity.setUrl(url);
       entity.setDownloadPath(groupName + "_" + i);
-      entity.setFileName(groupName + "_" + i);
+      int lastIndex = url.lastIndexOf(File.separator);
+      entity.setFileName(url.substring(lastIndex + 1, url.length()));
       entity.setGroupName(groupName);
       entity.setGroupChild(true);
       list.add(entity);

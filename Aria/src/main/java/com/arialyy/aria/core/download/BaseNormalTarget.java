@@ -136,8 +136,12 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
       } else if (getTargetType() == FTP) {
         filePath += mEntity.getFileName();
       }
+    } else {
+      // http文件名设置
+      if (TextUtils.isEmpty(mEntity.getFileName())) {
+        mEntity.setFileName(file.getName());
+      }
     }
-    mEntity.setFileName(file.getName());
 
     //设置文件保存路径，如果新文件路径和就文件路径不同，则修改路径
     if (!filePath.equals(mEntity.getDownloadPath())) {

@@ -19,8 +19,6 @@ import android.os.Handler;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.TaskRecord;
 import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.aria.core.inf.AbsGroupEntity;
-import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
@@ -36,13 +34,13 @@ import java.lang.ref.WeakReference;
 class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>, TASK extends AbsTask<TASK_ENTITY>>
     implements IDownloadListener {
   private static final String TAG = "BaseDListener";
-  protected WeakReference<Handler> outHandler;
+  WeakReference<Handler> outHandler;
   private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
   private long mLastLen = 0;   //上一次发送长度
   private boolean isFirst = true;
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
-  protected TASK mTask;
+  private TASK mTask;
   private boolean isConvertSpeed = false;
   boolean isWait = false;
   private long mLastSaveTime;
@@ -158,14 +156,16 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
     mEntity.setState(state);
     mEntity.setComplete(state == IEntity.STATE_COMPLETE);
     if (state == IEntity.STATE_CANCEL) {
-      if (mEntity instanceof AbsNormalEntity) {
+      if (mEntity instanceof DownloadEntity) {
         TaskRecord record =
             DbEntity.findFirst(TaskRecord.class, "TaskRecord.filePath=?", mTaskEntity.getKey());
         if (record != null) {
-          CommonUtil.delTaskRecord(record, mTaskEntity.isRemoveFile(), (AbsNormalEntity) mEntity);
+          CommonUtil.delTaskRecord(record, mTaskEntity.isRemoveFile(), (DownloadEntity) mEntity);
+        } else {
+          mEntity.deleteData();
         }
-      } else if (mEntity instanceof AbsGroupEntity) {
-        CommonUtil.delGroupTaskRecord(mTaskEntity.isRemoveFile(), ((AbsGroupEntity) mEntity));
+      } else if (mEntity instanceof DownloadGroupEntity) {
+        CommonUtil.delGroupTaskRecord(mTaskEntity.isRemoveFile(), ((DownloadGroupEntity) mEntity));
       }
       //mEntity.deleteData();
       return;

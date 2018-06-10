@@ -54,7 +54,7 @@ class HttpFileInfoThread implements Runnable {
     HttpURLConnection conn = null;
     try {
       URL url = new URL(CommonUtil.convertUrl(mEntity.getUrl()));
-      conn = ConnectionHelp.handleConnection(url);
+      conn = ConnectionHelp.handleConnection(url, mTaskEntity);
       conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
       conn.setRequestProperty("Range", "bytes=" + 0 + "-");
       conn.setConnectTimeout(mConnectTimeOut);
@@ -133,7 +133,11 @@ class HttpFileInfoThread implements Runnable {
       mTaskEntity.setSupportBP(true);
       end = true;
     } else if (code == HttpURLConnection.HTTP_OK) {
-      if (conn.getHeaderField("Content-Type").equals("text/html")) {
+      String contentType = conn.getHeaderField("Content-Type");
+      if (TextUtils.isEmpty(contentType)) {
+        return;
+      }
+      if (contentType.equals("text/html")) {
         BufferedReader reader =
             new BufferedReader(new InputStreamReader(ConnectionHelp.convertInputStream(conn)));
         StringBuilder sb = new StringBuilder();
@@ -155,7 +159,8 @@ class HttpFileInfoThread implements Runnable {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：404", true);
     } else if (code == HttpURLConnection.HTTP_MOVED_TEMP
         || code == HttpURLConnection.HTTP_MOVED_PERM
-        || code == HttpURLConnection.HTTP_SEE_OTHER) {
+        || code == HttpURLConnection.HTTP_SEE_OTHER
+        || code == 307) {
       handleUrlReTurn(conn, conn.getHeaderField("Location"));
     } else {
       failDownload("任务【" + mEntity.getUrl() + "】下载失败，错误码：" + code, true);

@@ -121,6 +121,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
 
   @DownloadGroup.onTaskStop void groupTaskStop(DownloadGroupTask task) {
     mAdapter.updateBtState(task.getKey(), true);
+    Log.d(TAG, String.format("group【%s】stop", task.getTaskName()));
   }
 
   @DownloadGroup.onTaskCancel void groupTaskCancel(DownloadGroupTask task) {
@@ -129,6 +130,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
 
   @DownloadGroup.onTaskFail void groupTaskFail(DownloadGroupTask task) {
     mAdapter.updateBtState(task.getKey(), true);
+    Log.d(TAG, String.format("group【%s】fail", task.getTaskName()));
   }
 
   @DownloadGroup.onTaskComplete void taskComplete(DownloadGroupTask task) {

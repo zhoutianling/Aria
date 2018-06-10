@@ -366,6 +366,11 @@ class Configuration {
     String caName;
     /**
      * 下载线程数，下载线程数不能小于1
+     * 注意：
+     * 1、线程下载数改变后，新的下载任务才会生效；
+     * 2、如果任务大小小于1m，该设置不会生效；
+     * 3、从3.4.1开始，如果线程数为1，文件初始化时将不再预占用对应长度的空间，下载多少byte，则占多大的空间；
+     * 对于采用多线程的任务或旧任务，依然采用原来的文件空间占用方式；
      */
     int threadNum = 3;
 
@@ -373,26 +378,6 @@ class Configuration {
      * 设置最大下载速度，单位：kb, 为0表示不限速
      */
     int maxSpeed = 0;
-
-    /**
-     * 是否开启动态文件，开启动态文件后初始化时将不占用磁盘空间，下载多少byte，占多少空间，效果见chrome的下载
-     * 注意：
-     * 1、使用该功能，将自动关闭多线程下载；
-     * 2、对于已经采用了多线程的任务，依然采用原来的下载方式；
-     * 3、原本参数是true，任务没下载完成，就参数改为false，那么没下载完成的任务还是会按照参数修改前的方式下载，只有新任务才会根据参数调用不同的下载方式
-     * {@code true}使用
-     */
-    boolean openDynamicFile = true;
-
-    public DownloadConfig setOpenDynamicFile(boolean openDynamicFile) {
-      this.openDynamicFile = openDynamicFile;
-      saveKey("openDynamicFile", String.valueOf(openDynamicFile));
-      return this;
-    }
-
-    public boolean isOpenDynamicFile() {
-      return openDynamicFile;
-    }
 
     public DownloadConfig setMaxTaskNum(int maxTaskNum) {
       oldMaxTaskNum = this.maxTaskNum;

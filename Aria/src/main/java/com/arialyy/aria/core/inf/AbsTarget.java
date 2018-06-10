@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.inf;
 
+import android.support.annotation.CheckResult;
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
@@ -34,7 +35,7 @@ import java.util.List;
  */
 public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
     implements ITarget<TARGET> {
-  protected String TAG = "";
+  protected String TAG ;
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
   protected String mTargetName;
@@ -48,6 +49,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    * 注意：如果在后续方法调用链中没有调用 {@link #start()}、{@link #stop()}、{@link #cancel()}、{@link #resume()}
    * 等操作任务的方法，那么你需要调用{@link #save()}才能将修改保存到数据库
    */
+  @CheckResult(suggest = "after use #start()、#stop()、#cancel()、#resume()、#save()?")
   public TARGET resetState() {
     mTaskEntity.getEntity().setState(IEntity.STATE_WAIT);
     mTaskEntity.setRefreshInfo(true);
@@ -102,12 +104,13 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    *
    * @param str 扩展数据
    */
+  @CheckResult(suggest = "after use #start()、#stop()、#cancel()、#resume()、#save()?")
   public TARGET setExtendField(String str) {
     if (TextUtils.isEmpty(str)) return (TARGET) this;
     if (TextUtils.isEmpty(mEntity.getStr()) || !mEntity.getStr().equals(str)) {
       mEntity.setStr(str);
     } else {
-      ALog.e(TAG, "设置扩展字段失败，扩展字段为null");
+      ALog.e(TAG, "设置扩展字段失败，扩展字段为一致");
     }
 
     return (TARGET) this;

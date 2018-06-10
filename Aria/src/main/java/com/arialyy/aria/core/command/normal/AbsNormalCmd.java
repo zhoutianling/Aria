@@ -90,10 +90,12 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
   }
 
   /**
-   * 删除所有任务
+   * 发送等待状态
    */
-  void removeAll() {
-    mQueue.removeAllTask();
+  void sendWaitState(AbsTask task) {
+    if (task != null) {
+      task.getOutHandler().obtainMessage(ISchedulers.WAIT, task).sendToTarget();
+    }
   }
 
   /**
@@ -116,6 +118,17 @@ public abstract class AbsNormalCmd<T extends AbsTaskEntity> extends AbsCmd<T> {
    */
   void removeTask() {
     if (tempTask == null) createTask();
+    mQueue.cancelTask(tempTask);
+  }
+
+  /**
+   * 删除任务
+   */
+  void removeTask(AbsTaskEntity taskEntity) {
+    AbsTask tempTask = getTask(taskEntity.getEntity());
+    if (tempTask == null){
+      tempTask = createTask(taskEntity);
+    }
     mQueue.cancelTask(tempTask);
   }
 

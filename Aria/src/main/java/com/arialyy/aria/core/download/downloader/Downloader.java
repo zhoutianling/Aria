@@ -45,23 +45,26 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
   }
 
   @Override protected int setNewTaskThreadNum() {
+    int threadNum = AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
     return
         // 小于1m的文件或是任务组的子任务、使用虚拟文件，线程数都是1
         mEntity.getFileSize() <= SUB_LEN
             || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP_DIR
             || mTaskEntity.getRequestType() == AbsTaskEntity.DG_HTTP
-            || mRecord.isOpenDynamicFile
+            || threadNum == 1
             ? 1
-            : AriaManager.getInstance(mContext).getDownloadConfig().getThreadNum();
+            : threadNum;
   }
 
   @Override protected boolean handleNewTask() {
     CommonUtil.createFile(mTempFile.getPath());
     BufferedRandomAccessFile file = null;
     try {
-      file = new BufferedRandomAccessFile(new File(mTempFile.getPath()), "rwd", 8192);
-      //设置文件长度
-      file.setLength(mRecord.isOpenDynamicFile ? 1 : mEntity.getFileSize());
+      if (mTotalThreadNum > 1) {
+        file = new BufferedRandomAccessFile(new File(mTempFile.getPath()), "rwd", 8192);
+        //设置文件长度
+        file.setLength(mEntity.getFileSize());
+      }
       return true;
     } catch (IOException e) {
       failDownload("下载失败【downloadUrl:"

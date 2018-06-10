@@ -15,10 +15,12 @@
  */
 package com.arialyy.aria.core.download;
 
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
 import com.arialyy.aria.core.inf.IHttpHeaderTarget;
+import java.net.Proxy;
 import java.util.Map;
 
 /**
@@ -29,7 +31,7 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
     implements IHttpHeaderTarget<DownloadTarget> {
   private HttpHeaderDelegate<DownloadTarget, DownloadEntity, DownloadTaskEntity> mDelegate;
 
-  DownloadTarget(DownloadEntity entity, String targetName) {
+  public DownloadTarget(DownloadEntity entity, String targetName) {
     this(entity, targetName, false);
   }
 
@@ -52,8 +54,20 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
    *
    * @param use {@code true} 使用
    */
+  @CheckResult
   public DownloadTarget useServerFileName(boolean use) {
     mTaskEntity.setUseServerFileName(use);
+    return this;
+  }
+
+  /**
+   * 设置URL的代理
+   *
+   * @param proxy {@link Proxy}
+   */
+  @CheckResult
+  public DownloadTarget setUrlProxy(Proxy proxy) {
+    mTaskEntity.setProxy(proxy);
     return this;
   }
 
@@ -64,6 +78,7 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
    * @param downloadPath 文件保存路径
    * @deprecated {@link #setFilePath(String)} 请使用这个api
    */
+  @CheckResult
   @Deprecated public DownloadTarget setDownloadPath(@NonNull String downloadPath) {
     return setFilePath(downloadPath);
   }
@@ -75,6 +90,7 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
    *
    * @param filePath 路径必须为文件路径，不能为文件夹路径
    */
+  @CheckResult
   public DownloadTarget setFilePath(@NonNull String filePath) {
     mTempFilePath = filePath;
     return this;
@@ -91,14 +107,17 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
     return HTTP;
   }
 
+  @CheckResult
   @Override public DownloadTarget addHeader(@NonNull String key, @NonNull String value) {
     return mDelegate.addHeader(key, value);
   }
 
+  @CheckResult
   @Override public DownloadTarget addHeaders(Map<String, String> headers) {
     return mDelegate.addHeaders(headers);
   }
 
+  @CheckResult
   @Override public DownloadTarget setRequestMode(RequestEnum requestEnum) {
     return mDelegate.setRequestMode(requestEnum);
   }

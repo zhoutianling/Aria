@@ -16,7 +16,6 @@
 package com.arialyy.aria.core.common;
 
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,7 +28,8 @@ import java.util.Set;
  * 代理参数获取
  */
 public class ProxyHelper {
-  public Set<String> downloadCounter, uploadCounter, downloadGroupCounter, downloadGroupSubCounter;
+  public Set<String> downloadCounter = new HashSet<>(), uploadCounter = new HashSet<>(),
+      downloadGroupCounter = new HashSet<>(), downloadGroupSubCounter = new HashSet<>();
 
   public static volatile ProxyHelper INSTANCE = null;
 
@@ -47,11 +47,9 @@ public class ProxyHelper {
   }
 
   private void init() {
-    List<String> classes = CommonUtil.getClassName(AriaManager.APP, "com.arialyy.aria");
+    List<String> classes = CommonUtil.getClassName(AriaManager.APP,
+        "com.arialyy.aria.ProxyClassCounter");
     for (String className : classes) {
-      if (!className.startsWith("com.arialyy.aria.ProxyClassCounter")){
-        continue;
-      }
       count(className);
     }
   }
@@ -66,30 +64,18 @@ public class ProxyHelper {
       Object object = clazz.newInstance();
       Object dc = download.invoke(object);
       if (dc != null) {
-        if (downloadCounter == null) {
-          downloadCounter = new HashSet<>();
-        }
         downloadCounter.addAll((Set<String>) dc);
       }
       Object dgc = downloadGroup.invoke(object);
       if (dgc != null) {
-        if (downloadGroupCounter == null) {
-          downloadGroupCounter = new HashSet<>();
-        }
         downloadGroupCounter.addAll((Set<String>) dgc);
       }
       Object dgsc = downloadGroupSub.invoke(object);
       if (dgsc != null) {
-        if (downloadGroupSubCounter == null) {
-          downloadGroupSubCounter = new HashSet<>();
-        }
         downloadGroupSubCounter.addAll((Set<String>) dgsc);
       }
       Object uc = upload.invoke(object);
       if (uc != null) {
-        if (uploadCounter == null) {
-          uploadCounter = new HashSet<>();
-        }
         uploadCounter.addAll((Set<String>) uc);
       }
     } catch (ClassNotFoundException e) {

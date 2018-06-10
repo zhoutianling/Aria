@@ -10,6 +10,7 @@ import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
 import java.io.File;
+import java.net.Proxy;
 
 /**
  * Created by laoyuyu on 2018/4/13.
@@ -38,7 +39,7 @@ public class AnyRunnModule {
   }
 
   @Download.onTaskRunning protected void running(DownloadTask task) {
-    Log.d(TAG, "running");
+    Log.d(TAG, "running；Percent = " + task.getPercent());
   }
 
   @Download.onTaskResume void taskResume(DownloadTask task) {
@@ -68,7 +69,8 @@ public class AnyRunnModule {
         .load(url)
         //.addHeader("Accept-Encoding", "gzip")
         .setRequestMode(RequestEnum.GET)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg123456.apk")
+        .setUrlProxy(Proxy.NO_PROXY)
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/abcds.exe")
         //.resetState()
         .start();
     //String[] urls = new String[] {

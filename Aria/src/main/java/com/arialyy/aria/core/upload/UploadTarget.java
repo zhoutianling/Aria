@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.upload;
 
+import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
@@ -47,6 +48,7 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
   /**
    * 设置userAgent
    */
+  @CheckResult
   public UploadTarget setUserAngent(@NonNull String userAgent) {
     mTaskEntity.setUserAgent(userAgent);
     return this;
@@ -57,6 +59,7 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
    *
    * @param attachment 附件key
    */
+  @CheckResult
   public UploadTarget setAttachment(@NonNull String attachment) {
     mTaskEntity.setAttachment(attachment);
     return this;
@@ -67,19 +70,23 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
    *
    * @param contentType tip：multipart/form-data
    */
+  @CheckResult
   public UploadTarget setContentType(String contentType) {
     mTaskEntity.setContentType(contentType);
     return this;
   }
 
+  @CheckResult
   @Override public UploadTarget addHeader(@NonNull String key, @NonNull String value) {
     return mDelegate.addHeader(key, value);
   }
 
+  @CheckResult
   @Override public UploadTarget addHeaders(Map<String, String> headers) {
     return mDelegate.addHeaders(headers);
   }
 
+  @CheckResult
   @Override public UploadTarget setRequestMode(RequestEnum requestEnum) {
     return mDelegate.setRequestMode(requestEnum);
   }

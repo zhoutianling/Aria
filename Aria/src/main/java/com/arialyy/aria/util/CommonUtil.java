@@ -23,6 +23,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.command.ICmd;
@@ -33,7 +34,6 @@ import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.TaskRecord;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
-import com.arialyy.aria.core.inf.AbsGroupEntity;
 import com.arialyy.aria.core.inf.AbsGroupTaskEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
@@ -53,17 +53,14 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,34 +74,55 @@ public class CommonUtil {
   /**
    * 获取某包下所有类
    *
-   * @param packageName 包名
+   * @param className 过滤的类名
    * @return 类的完整名称
    */
-  public static List<String> getClassName(Context context, String packageName) {
+  public static List<String> getClassName(Context context, String className) {
     List<String> classNameList = new ArrayList<>();
-    try {
-      String pPath = context.getPackageCodePath();
-      File dir = new File(pPath).getParentFile();
+    String pPath = context.getPackageCodePath();
+    File dir = new File(pPath).getParentFile();
+    String[] paths = dir.list();
+    if (paths == null) {
+      classNameList.addAll(getPkgClassName(pPath, className));
+    } else {
       String dPath = dir.getPath();
       for (String path : dir.list()) {
         String fPath = dPath + "/" + path;
         if (!fPath.endsWith(".apk")) {
           continue;
         }
-        DexFile df = new DexFile(fPath);//通过DexFile查找当前的APK中可执行文件
-        Enumeration<String> enumeration = df.entries();//获取df中的元素  这里包含了所有可执行的类名 该类名包含了包名+类名的方式
-        while (enumeration.hasMoreElements()) {//遍历
-          String className = enumeration.nextElement();
-          if (className.contains(packageName)) {//在当前所有可执行的类里面查找包含有该包名的所有类
-            classNameList.add(className);
-          }
-        }
-        df.close();
+        classNameList.addAll(getPkgClassName(fPath, className));
       }
+    }
+    return classNameList;
+  }
+
+  /**
+   * 获取指定包名下的所有类
+   *
+   * @param path dex路径
+   * @param filterClass 需要过滤的类
+   */
+  public static List<String> getPkgClassName(String path, String filterClass) {
+    List<String> list = new ArrayList<>();
+    try {
+
+      DexFile df = new DexFile(path);//通过DexFile查找当前的APK中可执行文件
+      Enumeration<String> enumeration = df.entries();//获取df中的元素  这里包含了所有可执行的类名 该类名包含了包名+类名的方式
+      while (enumeration.hasMoreElements()) {
+        String _className = enumeration.nextElement();
+        if (!_className.contains(filterClass)) {
+          continue;
+        }
+        if (_className.contains(filterClass)) {
+          list.add(_className);
+        }
+      }
+      df.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
-    return classNameList;
+    return list;
   }
 
   /**
@@ -246,51 +264,28 @@ public class CommonUtil {
    * @param url 输入的url{@code String url = "ftp://z:z@dygod18.com:21211/[电影天堂www.dy2018.com]猩球崛起3：终极之战BD国英双语中英双字.mkv";}
    */
   public static FtpUrlEntity getFtpUrlInfo(String url) {
+    Uri uri = Uri.parse(url);
+
+    String userInfo = uri.getUserInfo(), remotePath = uri.getPath();
+    ALog.d(TAG,
+        String.format("scheme = %s, user = %s, host = %s, port = %s, path = %s", uri.getScheme(),
+            userInfo, uri.getHost(), uri.getPort(), remotePath));
+
     FtpUrlEntity entity = new FtpUrlEntity();
     entity.url = url;
-    //String regex = "(\\w+)://(.*):(\\d*)/(.*)";
-    String regex = Regular.REG_FTP_URL;
-    Pattern p = Pattern.compile(regex);
-    Matcher m = p.matcher(url);
-    if (m.find() && m.groupCount() > 0) {
-      entity.protocol = m.group(1);
-      String str = m.group(2);
-      if (str.contains("@")) {
-        entity.needLogin = true;
-        //String hostReg = "(\\w+):?(\\w+)?@(.*)";
-        String hostReg = Regular.REG_FTP_HOST_NAME;
-        Pattern hp = Pattern.compile(hostReg);
-        Matcher hm = hp.matcher(str);
-        if (hm.find() && hm.groupCount() > 0) {
-          entity.user = hm.group(1);
-          entity.password = TextUtils.isEmpty(hm.group(2)) ? "" : hm.group(2);
-          entity.hostName = hm.group(3);
-        }
+    entity.hostName = uri.getHost();
+    entity.port = uri.getPort() == -1 ? "21" : String.valueOf(uri.getPort());
+    if (!TextUtils.isEmpty(userInfo)) {
+      String[] temp = userInfo.split(":");
+      if (temp.length == 2) {
+        entity.user = temp[0];
+        entity.password = temp[1];
       } else {
-        entity.hostName = str;
+        entity.user = userInfo;
       }
-      entity.port = m.group(3);
-      //entity.remotePath = TextUtils.isEmpty(m.group(4)) ? "/" : "/" + m.group(4);
-      entity.remotePath = TextUtils.isEmpty(m.group(4)) ? "/" : m.group(4);
     }
+    entity.remotePath = TextUtils.isEmpty(remotePath) ? "/" : remotePath;
     return entity;
-  }
-
-  /**
-   * 通过url获取FTP文件的remotePath
-   *
-   * @return remotePath。如果没有找到，返回""
-   */
-  public static String getRemotePath(String url) {
-    String remotePath = null;
-    String regex = Regular.REG_FTP_URL;
-    Pattern p = Pattern.compile(regex);
-    Matcher m = p.matcher(url);
-    if (m.find() && m.groupCount() > 0) {
-      return TextUtils.isEmpty(m.group(4)) ? "" : "/" + m.group(4);
-    }
-    ALog.w(TAG, "链接【" + url + "】没有找到remotePath");
-    return "";
   }
 
   /**
@@ -300,25 +295,27 @@ public class CommonUtil {
    * @return 转换后的地址
    */
   public static String convertUrl(String url) {
-    if (hasDoubleCharacter(url)) {
-      //预先处理空格，URLEncoder只会把空格转换为+
-      url = url.replaceAll(" ", "%20");
-      //匹配双字节字符(包括汉字在内)
-      String regex = Regular.REG_DOUBLE_CHAR_AND_SPACE;
-      Pattern p = Pattern.compile(regex);
-      Matcher m = p.matcher(url);
-      Set<String> strs = new HashSet<>();
-      while (m.find()) {
-        strs.add(m.group());
-      }
-      try {
-        for (String str : strs) {
-          url = url.replaceAll(str, URLEncoder.encode(str, "UTF-8"));
-        }
-      } catch (UnsupportedEncodingException e) {
-        e.printStackTrace();
-      }
-    }
+    Uri uri = Uri.parse(url);
+    url = uri.toString();
+    //if (hasDoubleCharacter(url)) {
+    //  //预先处理空格，URLEncoder只会把空格转换为+
+    //  url = url.replaceAll(" ", "%20");
+    //  //匹配双字节字符(包括汉字在内)
+    //  String regex = Regular.REG_DOUBLE_CHAR_AND_SPACE;
+    //  Pattern p = Pattern.compile(regex);
+    //  Matcher m = p.matcher(url);
+    //  Set<String> strs = new HashSet<>();
+    //  while (m.find()) {
+    //    strs.add(m.group());
+    //  }
+    //  try {
+    //    for (String str : strs) {
+    //      url = url.replaceAll(str, URLEncoder.encode(str, "UTF-8"));
+    //    }
+    //  } catch (UnsupportedEncodingException e) {
+    //    e.printStackTrace();
+    //  }
+    //}
     return url;
   }
 
@@ -399,33 +396,34 @@ public class CommonUtil {
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经删除完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
-  public static void delGroupTaskRecord(boolean removeFile, AbsGroupEntity groupEntity) {
+  public static void delGroupTaskRecord(boolean removeFile, DownloadGroupEntity groupEntity) {
     if (groupEntity == null) {
       ALog.e(TAG, "删除下载任务组记录失败，任务组实体为null");
       return;
     }
-    List<TaskRecord> records = DbEntity.findDatas(TaskRecord.class,
-        groupEntity instanceof DownloadGroupEntity ? "dGroupName=?" : "uGroupName=?",
-        groupEntity.getGroupName());
+    List<TaskRecord> records =
+        DbEntity.findDatas(TaskRecord.class, "dGroupName=?", groupEntity.getGroupName());
 
     if (records == null || records.isEmpty()) {
       ALog.w(TAG, "组任务记录删除失败，记录为null");
-      return;
-    }
-
-    for (TaskRecord tr : records) {
-      tr.deleteData();
-    }
-
-    File dir = new File(groupEntity.getDirPath());
-    if (removeFile) {
-      if (dir.exists()) {
-        dir.delete();
-      }
     } else {
-      if (!groupEntity.isComplete()) {
-        dir.delete();
+      for (TaskRecord tr : records) {
+        tr.deleteData();
       }
+    }
+
+    List<DownloadEntity> subs = groupEntity.getSubEntities();
+    if (subs != null) {
+      for (DownloadEntity sub : subs) {
+        File file = new File(sub.getDownloadPath());
+        if (file.exists() && (removeFile || !sub.isComplete())) {
+          file.delete();
+        }
+      }
+    }
+    File dir = new File(groupEntity.getDirPath());
+    if (dir.exists() && (removeFile || !groupEntity.isComplete())) {
+      dir.delete();
     }
     groupEntity.deleteData();
   }
@@ -436,8 +434,7 @@ public class CommonUtil {
    * @param removeFile {@code true} 不仅删除任务数据库记录，还会删除已经完成的文件
    * {@code false}如果任务已经完成，只删除任务数据库记录
    */
-  public static void delTaskRecord(TaskRecord record, boolean removeFile,
-      AbsNormalEntity dEntity) {
+  public static void delTaskRecord(TaskRecord record, boolean removeFile, AbsNormalEntity dEntity) {
     if (dEntity == null) return;
     File file;
     if (dEntity instanceof DownloadEntity) {
@@ -448,16 +445,8 @@ public class CommonUtil {
       ALog.w(TAG, "删除记录失败，未知类型");
       return;
     }
-    if (removeFile) {
-      if (file.exists()) {
-        file.delete();
-      }
-    } else {
-      if (!dEntity.isComplete()) {
-        if (file.exists()) {
-          file.delete();
-        }
-      }
+    if (file.exists() && (removeFile || !dEntity.isComplete())) {
+      file.delete();
     }
 
     if (record != null) {
@@ -889,14 +878,11 @@ public class CommonUtil {
       ALog.w(TAG, "修改任务记录失败，新文件路径和旧文件路径一致");
       return;
     }
-    File oldFile = new File(oldPath);
-    if (!oldFile.exists()) {
-      ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】不存在");
-      return;
-    }
     TaskRecord record = DbHelper.getTaskRecord(oldPath);
     if (record == null) {
-      ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】对应的任务记录不存在");
+      if (new File(oldPath).exists()) {
+        ALog.w(TAG, "修改任务记录失败，文件【" + oldPath + "】对应的任务记录不存在");
+      }
       return;
     }
     record.filePath = newPath;

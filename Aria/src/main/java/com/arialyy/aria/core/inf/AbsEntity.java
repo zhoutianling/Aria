@@ -50,6 +50,9 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
    */
   private String convertFileSize;
 
+  /**
+   * 任务状态{@link IEntity}
+   */
   private int state = STATE_WAIT;
   /**
    * 当前下载进度

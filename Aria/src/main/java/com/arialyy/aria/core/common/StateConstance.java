@@ -30,6 +30,11 @@ public class StateConstance {
   public boolean isCancel = false;
   public boolean isStop = false;
   public TaskRecord TASK_RECORD;
+  /**
+   * 是否是使用虚拟文件下载的
+   * {@code true}是，{@code false}不是
+   */
+  public boolean isOpenDynamicFile = false;
 
   public StateConstance() {
   }

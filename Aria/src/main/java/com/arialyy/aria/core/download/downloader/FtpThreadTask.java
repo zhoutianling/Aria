@@ -24,8 +24,13 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
@@ -36,10 +41,6 @@ import org.apache.commons.net.ftp.FTPReply;
 class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity> {
   private final String TAG = "FtpThreadTask";
   private boolean isOpenDynamicFile;
-  /**
-   * 2M的动态长度
-   */
-  private final int LEN_INTERVAL = 1024 * 1024 * 2;
 
   FtpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
@@ -49,7 +50,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
     mReadTimeOut = manager.getDownloadConfig().getIOTimeOut();
     mBufSize = manager.getDownloadConfig().getBuffSize();
     isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
-    isOpenDynamicFile = STATE.TASK_RECORD.isOpenDynamicFile;
+    isOpenDynamicFile = STATE.isOpenDynamicFile;
     setMaxSpeed(manager.getDownloadConfig().getMaxSpeed());
   }
 
@@ -58,17 +59,11 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
     mChildCurrentLocation = mConfig.START_LOCATION;
     FTPClient client = null;
     InputStream is = null;
-    BufferedRandomAccessFile file = null;
+
     try {
-      ALog.d(TAG, "任务【"
-          + mConfig.TEMP_FILE.getName()
-          + "】线程__"
-          + mConfig.THREAD_ID
-          + "__开始下载【开始位置 : "
-          + mConfig.START_LOCATION
-          + "，结束位置："
-          + mConfig.END_LOCATION
-          + "】");
+      ALog.d(TAG,
+          String.format("任务【%s】线程__%s__开始下载【开始位置 : %s，结束位置：%s】", mConfig.TEMP_FILE.getName(),
+              mConfig.THREAD_ID, mConfig.START_LOCATION, mConfig.END_LOCATION));
       client = createClient();
       if (client == null) return;
       if (mConfig.START_LOCATION > 0) {
@@ -77,51 +72,37 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       //发送第二次指令时，还需要再做一次判断
       int reply = client.getReplyCode();
       if (!FTPReply.isPositivePreliminary(reply) && reply != FTPReply.COMMAND_OK) {
-        fail(mChildCurrentLocation, "获取文件信息错误，错误码为：" + reply + "，msg：" + client.getReplyString(),
+        fail(mChildCurrentLocation,
+            String.format("获取文件信息错误，错误码为：%s，msg：%s", reply, client.getReplyString()),
             null);
         client.disconnect();
         return;
       }
       String remotePath =
           new String(mTaskEntity.getUrlEntity().remotePath.getBytes(charSet), SERVER_CHARSET);
-      ALog.i(TAG, "remotePath【" + remotePath + "】");
+      ALog.i(TAG, String.format("remotePath【%s】", remotePath));
       is = client.retrieveFileStream(remotePath);
       reply = client.getReplyCode();
       if (!FTPReply.isPositivePreliminary(reply)) {
-        fail(mChildCurrentLocation, "获取流失败，错误码为：" + reply + "，msg：" + client.getReplyString(),
+        fail(mChildCurrentLocation,
+            String.format("获取流失败，错误码为：%s，msg：%s", reply, client.getReplyString()),
             null);
         client.disconnect();
         return;
       }
 
-      file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
-      file.seek(mConfig.START_LOCATION);
-      byte[] buffer = new byte[mBufSize];
-      int len;
-
-      while ((len = is.read(buffer)) != -1) {
-        if (STATE.isCancel || STATE.isStop) {
-          break;
-        }
-        if (mSleepTime > 0) Thread.sleep(mSleepTime);
-        if (isOpenDynamicFile) {
-          file.setLength(
-              STATE.CURRENT_LOCATION + LEN_INTERVAL < mEntity.getFileSize() ? STATE.CURRENT_LOCATION
-                  + LEN_INTERVAL : mEntity.getFileSize());
-        }
-        if (mChildCurrentLocation + len >= mConfig.END_LOCATION) {
-          len = (int) (mConfig.END_LOCATION - mChildCurrentLocation);
-          file.write(buffer, 0, len);
-          progress(len);
-          break;
-        } else {
-          file.write(buffer, 0, len);
-          progress(len);
-        }
+      if (isOpenDynamicFile) {
+        readDynamicFile(is);
+      } else {
+        readNormal(is);
       }
-      if (STATE.isCancel || STATE.isStop) return;
-      ALog.i(TAG, "任务【" + mConfig.TEMP_FILE.getName() + "】线程__" + mConfig.THREAD_ID + "__下载完毕");
-      writeConfig(true, 1);
+
+      if (isBreak()) {
+        return;
+      }
+      ALog.i(TAG,
+          String.format("任务【%s】线程__%s__下载完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
+      writeConfig(true, mConfig.END_LOCATION);
       STATE.COMPLETE_THREAD_NUM++;
       if (STATE.isComplete()) {
         STATE.TASK_RECORD.deleteData();
@@ -133,14 +114,11 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         mListener.onFail(false);
       }
     } catch (IOException e) {
-      fail(mChildCurrentLocation, "下载失败【" + mConfig.URL + "】", e);
+      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
     } catch (Exception e) {
       fail(mChildCurrentLocation, "获取流失败", e);
     } finally {
       try {
-        if (file != null) {
-          file.close();
-        }
         if (is != null) {
           is.close();
         }
@@ -153,7 +131,89 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
     }
   }
 
-  @Override protected String getTaskType() {
-    return "FTP_DOWNLOAD";
+  /**
+   * 动态长度文件读取方式
+   */
+  private void readDynamicFile(InputStream is) {
+    FileOutputStream fos = null;
+    FileChannel foc = null;
+    ReadableByteChannel fic = null;
+    try {
+      int len;
+      fos = new FileOutputStream(mConfig.TEMP_FILE, true);
+      foc = fos.getChannel();
+      fic = Channels.newChannel(is);
+      ByteBuffer bf = ByteBuffer.allocate(mBufSize);
+      while ((len = fic.read(bf)) != -1) {
+        if (isBreak()) {
+          break;
+        }
+        if (mSleepTime > 0) {
+          Thread.sleep(mSleepTime);
+        }
+        bf.flip();
+        foc.write(bf);
+        bf.compact();
+        progress(len);
+      }
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
+    } finally {
+      try {
+        if (fos != null) {
+          fos.close();
+        }
+        if (foc != null) {
+          foc.close();
+        }
+        if (fic != null) {
+          fic.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  /**
+   * 多线程写文件方式
+   */
+  private void readNormal(InputStream is) {
+    BufferedRandomAccessFile file = null;
+    try {
+      file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
+      file.seek(mConfig.START_LOCATION);
+      byte[] buffer = new byte[mBufSize];
+      int len;
+      while ((len = is.read(buffer)) != -1) {
+        if (isBreak()) {
+          break;
+        }
+        if (mSleepTime > 0) Thread.sleep(mSleepTime);
+        if (mChildCurrentLocation + len >= mConfig.END_LOCATION) {
+          len = (int) (mConfig.END_LOCATION - mChildCurrentLocation);
+          file.write(buffer, 0, len);
+          progress(len);
+          break;
+        } else {
+          file.write(buffer, 0, len);
+          progress(len);
+        }
+      }
+    } catch (IOException e) {
+      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        if (file != null) {
+          file.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
   }
 }

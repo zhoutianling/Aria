@@ -144,15 +144,16 @@ class BaseUListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
     mEntity.setState(state);
     mEntity.setComplete(state == IEntity.STATE_COMPLETE);
     if (state == IEntity.STATE_CANCEL) {
-      if (mEntity instanceof AbsNormalEntity) {
+      if (mEntity instanceof UploadEntity) {
         TaskRecord record =
             DbEntity.findFirst(TaskRecord.class, "TaskRecord.filePath=?", mTaskEntity.getKey());
         if (record != null) {
-          CommonUtil.delTaskRecord(record, mTaskEntity.isRemoveFile(), (AbsNormalEntity) mEntity);
+          CommonUtil.delTaskRecord(record, mTaskEntity.isRemoveFile(), (UploadEntity) mEntity);
         }
-      } else if (mEntity instanceof AbsGroupEntity) {
-        CommonUtil.delGroupTaskRecord(mTaskEntity.isRemoveFile(), ((AbsGroupEntity) mEntity));
       }
+      //else if (mEntity instanceof AbsGroupEntity) {
+      //  CommonUtil.delGroupTaskRecord(mTaskEntity.isRemoveFile(), ((AbsGroupEntity) mEntity));
+      //}
       return;
     } else if (mEntity.isComplete()) {
       mEntity.setCompleteTime(System.currentTimeMillis());
