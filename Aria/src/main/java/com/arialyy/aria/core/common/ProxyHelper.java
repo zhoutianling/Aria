@@ -50,9 +50,6 @@ public class ProxyHelper {
     List<String> classes = CommonUtil.getClassName(AriaManager.APP,
         "com.arialyy.aria.ProxyClassCounter");
     for (String className : classes) {
-      if (!className.startsWith("com.arialyy.aria.ProxyClassCounter")) {
-        continue;
-      }
       count(className);
     }
   }

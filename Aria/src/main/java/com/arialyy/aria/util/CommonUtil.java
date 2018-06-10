@@ -40,7 +40,6 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.orm.DbEntity;
 import dalvik.system.DexFile;
-import dalvik.system.PathClassLoader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -80,42 +79,50 @@ public class CommonUtil {
    */
   public static List<String> getClassName(Context context, String className) {
     List<String> classNameList = new ArrayList<>();
-    try {
-      String pPath = context.getPackageCodePath();
-      File dir = new File(pPath).getParentFile();
-      //PathClassLoader classLoader = (PathClassLoader) context.getClassLoader();
+    String pPath = context.getPackageCodePath();
+    File dir = new File(pPath).getParentFile();
+    String[] paths = dir.list();
+    if (paths == null) {
+      classNameList.addAll(getPkgClassName(pPath, className));
+    } else {
       String dPath = dir.getPath();
       for (String path : dir.list()) {
         String fPath = dPath + "/" + path;
-        Log.d(TAG, fPath);
         if (!fPath.endsWith(".apk")) {
           continue;
         }
-        DexFile df = new DexFile(fPath);//通过DexFile查找当前的APK中可执行文件
-        Enumeration<String> enumeration = df.entries();//获取df中的元素  这里包含了所有可执行的类名 该类名包含了包名+类名的方式
-        while (enumeration.hasMoreElements()) {
-          String _className = enumeration.nextElement();
-          if (!_className.contains(className)) {
-            continue;
-          }
-          //Class clazz = classLoader.loadClass(_className);  // 处理4.4手机无法获取到类的问题
-          //String cn = clazz.getName();
-          //if (clazz.getName().contains(className)) {//在当前所有可执行的类里面查找包含有该包名的所有类
-          //  classNameList.add(_className);
-          //}
-          if (_className.contains(className)){
-            classNameList.add(_className);
-          }
-        }
-        df.close();
+        classNameList.addAll(getPkgClassName(fPath, className));
       }
+    }
+    return classNameList;
+  }
+
+  /**
+   * 获取指定包名下的所有类
+   *
+   * @param path dex路径
+   * @param filterClass 需要过滤的类
+   */
+  public static List<String> getPkgClassName(String path, String filterClass) {
+    List<String> list = new ArrayList<>();
+    try {
+
+      DexFile df = new DexFile(path);//通过DexFile查找当前的APK中可执行文件
+      Enumeration<String> enumeration = df.entries();//获取df中的元素  这里包含了所有可执行的类名 该类名包含了包名+类名的方式
+      while (enumeration.hasMoreElements()) {
+        String _className = enumeration.nextElement();
+        if (!_className.contains(filterClass)) {
+          continue;
+        }
+        if (_className.contains(filterClass)) {
+          list.add(_className);
+        }
+      }
+      df.close();
     } catch (IOException e) {
       e.printStackTrace();
     }
-    //catch (ClassNotFoundException e) {
-    //  e.printStackTrace();
-    //}
-    return classNameList;
+    return list;
   }
 
   /**
