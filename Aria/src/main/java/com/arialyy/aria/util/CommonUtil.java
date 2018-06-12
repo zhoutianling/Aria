@@ -23,7 +23,6 @@ import android.net.Uri;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.command.ICmd;
@@ -106,6 +105,11 @@ public class CommonUtil {
   public static List<String> getPkgClassName(String path, String filterClass) {
     List<String> list = new ArrayList<>();
     try {
+      File file = new File(path);
+      if (!file.exists()) {
+        ALog.w(TAG, String.format("路径【%s】下的Dex文件不存在", path));
+        return list;
+      }
 
       DexFile df = new DexFile(path);//通过DexFile查找当前的APK中可执行文件
       Enumeration<String> enumeration = df.entries();//获取df中的元素  这里包含了所有可执行的类名 该类名包含了包名+类名的方式

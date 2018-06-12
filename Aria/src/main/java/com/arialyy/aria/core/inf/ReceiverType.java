@@ -15,32 +15,19 @@
  */
 package com.arialyy.aria.core.inf;
 
+import android.support.annotation.StringDef;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
- * Created by lyy on 2017/2/6.
+ * {@link AbsReceiver}类型
  */
-public interface IReceiver {
-  /**
-   * Receiver 销毁
-   */
-  void destroy();
-
-  /**
-   * 注册
-   */
-  void register();
-
-  /**
-   * 移除观察者
-   */
-  void unRegister();
-
-  /**
-   * 观察者对象的类完整名称
-   */
-  String getTargetName();
-
-  /**
-   * 获取当前Receiver的key
-   */
-  String getKey();
+@StringDef({
+    ReceiverType.DOWNLOAD,
+    ReceiverType.UPLOAD,
+})
+@Retention(RetentionPolicy.SOURCE)
+public @interface ReceiverType {
+  String DOWNLOAD = "download";
+  String UPLOAD = "upload";
 }

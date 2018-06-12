@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.CancelAllCmd;
@@ -27,6 +28,7 @@ import com.arialyy.aria.core.download.wrapper.DGEWrapper;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.AbsTarget;
+import com.arialyy.aria.core.inf.ReceiverType;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
 import com.arialyy.aria.core.scheduler.DownloadSchedulers;
@@ -229,15 +231,23 @@ public class DownloadReceiver extends AbsReceiver {
    * 将当前类注册到Aria
    */
   public void register() {
-    String className = obj.getClass().getName();
+    if (TextUtils.isEmpty(targetName)) {
+      ALog.e(TAG, "download register target null");
+      return;
+    }
+    Object obj = OBJ_MAP.get(getKey());
+    if (obj == null) {
+      ALog.e(TAG, String.format("【%s】观察者为空", targetName));
+      return;
+    }
     Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
     Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
     Set<String> dgsCounter = ProxyHelper.getInstance().downloadGroupSubCounter;
-    if (dCounter != null && dCounter.contains(className)) {
+    if (dCounter != null && dCounter.contains(targetName)) {
       DownloadSchedulers.getInstance().register(obj);
     }
-    if ((dgCounter != null && dgCounter.contains(className)) || (dgsCounter != null
-        && dgsCounter.contains(className))) {
+    if ((dgCounter != null && dgCounter.contains(targetName)) || (dgsCounter != null
+        && dgsCounter.contains(targetName))) {
       DownloadGroupSchedulers.getInstance().register(obj);
     }
   }
@@ -251,25 +261,37 @@ public class DownloadReceiver extends AbsReceiver {
     if (needRmListener) {
       unRegisterListener();
     }
-    AriaManager.getInstance(AriaManager.APP).removeReceiver(obj);
+    AriaManager.getInstance(AriaManager.APP).removeReceiver(targetName);
+  }
+
+  @Override protected String getType() {
+    return ReceiverType.DOWNLOAD;
   }
 
   @Override public void unRegisterListener() {
-    String className = obj.getClass().getName();
+    if (TextUtils.isEmpty(targetName)) {
+      ALog.e(TAG, "download unRegisterListener target null");
+      return;
+    }
+    Object obj = OBJ_MAP.get(getKey());
+    if (obj == null) {
+      ALog.e(TAG, String.format("【%s】观察者为空", targetName));
+      return;
+    }
     Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
     Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
     Set<String> dgsCounter = ProxyHelper.getInstance().downloadGroupSubCounter;
-    if (dCounter != null && dCounter.contains(className)) {
+    if (dCounter != null && dCounter.contains(targetName)) {
       DownloadSchedulers.getInstance().unRegister(obj);
     }
-    if (dgCounter != null && dgCounter.contains(className) || (dgsCounter != null
-        && dgsCounter.contains(className))) {
+    if (dgCounter != null && dgCounter.contains(targetName) || (dgsCounter != null
+        && dgsCounter.contains(targetName))) {
       DownloadGroupSchedulers.getInstance().unRegister(obj);
     }
   }
 
   @Override public void destroy() {
-    targetName = null;
+    removeObj();
   }
 
   /**
@@ -338,8 +360,10 @@ public class DownloadReceiver extends AbsReceiver {
 
   /**
    * 下载任务是否存在
+   *
+   * @return {@code true}存在，{@code false} 不存在
    */
-  @Override public boolean taskExists(String downloadUrl) {
+  public boolean taskExists(String downloadUrl) {
     return DownloadEntity.findFirst(DownloadEntity.class, "url=?", downloadUrl) != null;
   }
 
@@ -362,7 +386,7 @@ public class DownloadReceiver extends AbsReceiver {
    * 获取未完成的普通任务列表{@link #getAllNotCompletTask()}
    * 获取已经完成的普通任务列表{@link #getAllCompleteTask()}
    */
-  @Override public List<DownloadEntity> getTaskList() {
+  public List<DownloadEntity> getTaskList() {
     return DownloadEntity.findDatas(DownloadEntity.class, "isGroupChild=? and downloadPath!=''",
         "false");
   }
@@ -419,7 +443,7 @@ public class DownloadReceiver extends AbsReceiver {
   /**
    * 停止所有正在下载的任务，并清空等待队列。
    */
-  @Override public void stopAllTask() {
+  public void stopAllTask() {
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(NormalCmdFactory.getInstance()
             .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL,
@@ -446,7 +470,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @param removeFile {@code true} 删除已经下载完成的任务，不仅删除下载记录，还会删除已经下载完成的文件，{@code false}
    * 如果文件已经下载完成，只删除下载记录
    */
-  @Override public void removeAllTask(boolean removeFile) {
+  public void removeAllTask(boolean removeFile) {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
     CancelAllCmd cancelCmd =
         (CancelAllCmd) CommonUtil.createNormalCmd(targetName, new DownloadTaskEntity(),

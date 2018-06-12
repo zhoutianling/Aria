@@ -16,19 +16,76 @@
 
 package com.arialyy.aria.core.inf;
 
+import com.arialyy.aria.core.queue.DownloadGroupTaskQueue;
+import com.arialyy.aria.core.queue.DownloadTaskQueue;
+import com.arialyy.aria.core.queue.UploadTaskQueue;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Created by AriaL on 2017/6/27.
+ * 接收器
  */
+public abstract class AbsReceiver implements IReceiver {
+  /**
+   * 观察者对象map
+   * key 由 {@link #getKey(String, IReceiver)}指定
+   */
+  public static final Map<String, Object> OBJ_MAP = new ConcurrentHashMap<>();
 
-public abstract class AbsReceiver<ENTITY extends AbsEntity> implements IReceiver<ENTITY> {
   public String targetName;
-  public Object obj;
   /**
    * 当dialog、dialogFragment、popupwindow已经被设置了关闭监听时，需要手动移除receiver
    */
   public boolean needRmListener = false;
 
-  public void unRegisterListener(){
-
+  /**
+   * 创建观察者对象map的key，生成规则：
+   * {@link #targetName}_{@code download}{@code upload}_{@link #hashCode()}
+   *
+   * @param type {@link ReceiverType}
+   * @param receiver 当前接收器
+   * @return 返回key
+   */
+  public static String getKey(@ReceiverType String type, IReceiver receiver) {
+    return String.format("%s_%s_%s", receiver.getTargetName(), type, receiver.hashCode());
   }
+
+  @Override public String getTargetName() {
+    return targetName;
+  }
+
+  /**
+   * 获取当前Receiver的key
+   */
+  @Override public String getKey() {
+    return getKey(getType(), this);
+  }
+
+  /**
+   * 移除观察者对象
+   */
+  protected void removeObj() {
+    for (Iterator<Map.Entry<String, Object>> iter = OBJ_MAP.entrySet().iterator();
+        iter.hasNext(); ) {
+      Map.Entry<String, Object> entry = iter.next();
+      String key = entry.getKey();
+      if (key.equals(getKey())) {
+        iter.remove();
+      }
+    }
+  }
+
+  /**
+   * 设置类型
+   *
+   * @return {@link ReceiverType}
+   */
+  protected abstract @ReceiverType String getType();
+
+  /**
+   * 移除{@link DownloadTaskQueue}、{@link DownloadGroupTaskQueue}、{@link UploadTaskQueue}中注册的观察者
+   */
+  public abstract void unRegisterListener();
 }

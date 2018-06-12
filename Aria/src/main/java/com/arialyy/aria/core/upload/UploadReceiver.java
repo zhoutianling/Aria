@@ -23,8 +23,10 @@ import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.core.inf.AbsReceiver;
+import com.arialyy.aria.core.inf.ReceiverType;
 import com.arialyy.aria.core.scheduler.UploadSchedulers;
 import com.arialyy.aria.orm.DbEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.List;
@@ -34,7 +36,7 @@ import java.util.Set;
  * Created by lyy on 2017/2/6.
  * 上传功能接收器
  */
-public class UploadReceiver extends AbsReceiver<UploadEntity> {
+public class UploadReceiver extends AbsReceiver {
   private static final String TAG = "UploadReceiver";
 
   /**
@@ -71,9 +73,11 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   }
 
   /**
-   * 下载任务是否存在
+   * 上传任务是否存在
+   *
+   * @return {@code true}存在，{@code false} 不存在
    */
-  @Override public boolean taskExists(String filePath) {
+  public boolean taskExists(String filePath) {
     return DbEntity.findFirst(UploadEntity.class, "filePath=?", filePath) != null;
   }
 
@@ -82,7 +86,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
    * 获取未完成的普通任务列表{@link #getAllNotCompletTask()}
    * 获取已经完成的普通任务列表{@link #getAllCompleteTask()}
    */
-  @Override public List<UploadEntity> getTaskList() {
+  public List<UploadEntity> getTaskList() {
     return DbEntity.findAllData(UploadEntity.class);
   }
 
@@ -102,7 +106,10 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
         "isGroupChild=? and isComplete=?", "false", "true");
   }
 
-  @Override public void stopAllTask() {
+  /**
+   * 停止所有正在下载的任务，并清空等待队列。
+   */
+  public void stopAllTask() {
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(NormalCmdFactory.getInstance()
             .createCmd(targetName, new UploadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL,
@@ -116,7 +123,7 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
    * @param removeFile {@code true} 删除已经上传完成的任务，不仅删除上传记录，还会删除已经上传完成的文件，{@code false}
    * 如果文件已经上传完成，只删除上传记录
    */
-  @Override public void removeAllTask(boolean removeFile) {
+  public void removeAllTask(boolean removeFile) {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
 
     am.setCmd(CommonUtil.createNormalCmd(targetName, new UploadTaskEntity(),
@@ -129,16 +136,24 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
   }
 
   @Override public void destroy() {
-    targetName = null;
+    removeObj();
   }
 
   /**
    * 将当前类注册到Aria
    */
   public void register() {
-    String className = obj.getClass().getName();
+    if (TextUtils.isEmpty(targetName)) {
+      ALog.e(TAG, "upload register target null");
+      return;
+    }
+    Object obj = OBJ_MAP.get(getKey());
+    if (obj == null) {
+      ALog.e(TAG, String.format("【%s】观察者为空", targetName));
+      return;
+    }
     Set<String> cCounter = ProxyHelper.getInstance().uploadCounter;
-    if (cCounter != null && cCounter.contains(className)) {
+    if (cCounter != null && cCounter.contains(targetName)) {
       UploadSchedulers.getInstance().register(obj);
     }
   }
@@ -151,13 +166,25 @@ public class UploadReceiver extends AbsReceiver<UploadEntity> {
     if (needRmListener) {
       unRegisterListener();
     }
-    AriaManager.getInstance(AriaManager.APP).removeReceiver(obj);
+    AriaManager.getInstance(AriaManager.APP).removeReceiver(targetName);
+  }
+
+  @Override protected String getType() {
+    return ReceiverType.UPLOAD;
   }
 
   @Override public void unRegisterListener() {
-    String className = obj.getClass().getName();
+    if (TextUtils.isEmpty(targetName)) {
+      ALog.e(TAG, "upload unRegisterListener target null");
+      return;
+    }
+    Object obj = OBJ_MAP.get(getKey());
+    if (obj == null) {
+      ALog.e(TAG, String.format("【%s】观察者为空", targetName));
+      return;
+    }
     Set<String> dCounter = ProxyHelper.getInstance().uploadCounter;
-    if (dCounter != null && dCounter.contains(className)) {
+    if (dCounter != null && dCounter.contains(targetName)) {
       UploadSchedulers.getInstance().unRegister(obj);
     }
   }

@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.widget.PopupWindow;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.common.QueueMod;
@@ -293,39 +294,10 @@ import org.xml.sax.SAXException;
     return receiver;
   }
 
-  /**
-   * 不允许在"onDestroy"、"finish"、"onStop"这三个方法中添加注册器
-   */
   private AbsReceiver checkTarget(String key, AbsReceiver receiver, Object obj,
       boolean needRmReceiver) {
-    StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-    int i = 0;
-    for (StackTraceElement e : stack) {
-      String name = e.getClassName();
-      if (!name.equals(AriaManager.class.getName())) {
-        i++;
-      } else {
-        break;
-      }
-    }
-    i += 4;
-    String methodName = stack[i].getMethodName();
-    boolean isDestroyed =
-        methodName.equals("onDestroy") || methodName.equals("finish") || methodName.equals(
-            "onStop");
-
-    if (isDestroyed) {
-      ALog.e(TAG,
-          "请不要在Activity或Fragment的onDestroy、finish、onStop等方法中注册Aria，Aria的unRegister会在Activity页面销毁时自动执行");
-    }
-
-    if (obj instanceof Activity && isDestroyed) {
-      return receiver;
-    } else if (obj instanceof Fragment && isDestroyed) {
-      return receiver;
-    }
     receiver.targetName = obj.getClass().getName();
-    receiver.obj = obj;
+    AbsReceiver.OBJ_MAP.put(receiver.getKey(), obj);
     receiver.needRmListener = needRmReceiver;
     mReceivers.put(key, receiver);
     return receiver;
@@ -430,29 +402,16 @@ import org.xml.sax.SAXException;
   /**
    * 移除指定对象的receiver
    */
-  public void removeReceiver(Object obj) {
-    if (obj == null) return;
-    String clsName = obj.getClass().getName();
-    for (Iterator<Map.Entry<String, AbsReceiver>> iter = mReceivers.entrySet().iterator();
-        iter.hasNext(); ) {
-      Map.Entry<String, AbsReceiver> entry = iter.next();
-      String key = entry.getKey();
-      if (key.contains(clsName)) {
-        iter.remove();
-      }
+  public void removeReceiver(String targetName) {
+    if (TextUtils.isEmpty(targetName)) {
+      ALog.e(TAG, "target name null");
+      return;
     }
-  }
-
-  /**
-   * Aria注册对象被销毁时调用
-   */
-  void destroySchedulerListener(Object obj) {
-    String clsName = obj.getClass().getName();
     for (Iterator<Map.Entry<String, AbsReceiver>> iter = mReceivers.entrySet().iterator();
         iter.hasNext(); ) {
       Map.Entry<String, AbsReceiver> entry = iter.next();
       String key = entry.getKey();
-      if (key.contains(clsName)) {
+      if (key.contains(targetName)) {
         AbsReceiver receiver = mReceivers.get(key);
         if (receiver != null) {
           receiver.unRegisterListener();
@@ -493,7 +452,7 @@ import org.xml.sax.SAXException;
     }
 
     @Override public void onActivityDestroyed(Activity activity) {
-      destroySchedulerListener(activity);
+      removeReceiver(activity.getClass().getName());
       // TODO: 2018/4/11 维护一个activity堆栈，应用被kill，activity会回调onDestroy方法，需要考虑server后台情况
     }
   }

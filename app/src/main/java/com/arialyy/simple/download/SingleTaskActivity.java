@@ -254,6 +254,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Override protected void onStop() {
     super.onStop();
-    //Aria.download(this).unRegister();
+    Aria.download(this).unRegister();
   }
 }
