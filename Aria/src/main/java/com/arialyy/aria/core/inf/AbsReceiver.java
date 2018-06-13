@@ -30,13 +30,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class AbsReceiver implements IReceiver {
   /**
    * 观察者对象map
-   * key 由 {@link #getKey(String, IReceiver)}指定
+   * key 由 {@link #getKey(IReceiver)}指定
    */
   public static final Map<String, Object> OBJ_MAP = new ConcurrentHashMap<>();
-
+  /**
+   * 观察者对象类的完整名称
+   */
   public String targetName;
   /**
-   * 当dialog、dialogFragment、popupwindow已经被设置了关闭监听时，需要手动移除receiver
+   * 当dialog、dialogFragment、popupwindow已经被用户使用了Dismiss事件或Cancel事件，需要手动移除receiver
    */
   public boolean needRmListener = false;
 
@@ -44,12 +46,12 @@ public abstract class AbsReceiver implements IReceiver {
    * 创建观察者对象map的key，生成规则：
    * {@link #targetName}_{@code download}{@code upload}_{@link #hashCode()}
    *
-   * @param type {@link ReceiverType}
    * @param receiver 当前接收器
    * @return 返回key
    */
-  public static String getKey(@ReceiverType String type, IReceiver receiver) {
-    return String.format("%s_%s_%s", receiver.getTargetName(), type, receiver.hashCode());
+  public static String getKey(IReceiver receiver) {
+    return String.format("%s_%s_%s", receiver.getTargetName(), receiver.getType(),
+        receiver.hashCode());
   }
 
   @Override public String getTargetName() {
@@ -60,13 +62,13 @@ public abstract class AbsReceiver implements IReceiver {
    * 获取当前Receiver的key
    */
   @Override public String getKey() {
-    return getKey(getType(), this);
+    return getKey(this);
   }
 
   /**
    * 移除观察者对象
    */
-  protected void removeObj() {
+  private void removeObj() {
     for (Iterator<Map.Entry<String, Object>> iter = OBJ_MAP.entrySet().iterator();
         iter.hasNext(); ) {
       Map.Entry<String, Object> entry = iter.next();
@@ -77,15 +79,13 @@ public abstract class AbsReceiver implements IReceiver {
     }
   }
 
-  /**
-   * 设置类型
-   *
-   * @return {@link ReceiverType}
-   */
-  protected abstract @ReceiverType String getType();
+  @Override public void destroy() {
+    unRegisterListener();
+    removeObj();
+  }
 
   /**
    * 移除{@link DownloadTaskQueue}、{@link DownloadGroupTaskQueue}、{@link UploadTaskQueue}中注册的观察者
    */
-  public abstract void unRegisterListener();
+  protected abstract void unRegisterListener();
 }

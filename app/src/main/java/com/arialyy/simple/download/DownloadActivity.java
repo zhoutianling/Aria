@@ -20,7 +20,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
@@ -97,6 +96,7 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadMeanBinding> 
         break;
       case R.id.dialog_task:
         DownloadDialog dialog = new DownloadDialog(this);
+
         dialog.show();
         //DownloadDialogFragment dialog = new DownloadDialogFragment(this);
         //dialog.show(getSupportFragmentManager(), "dialog");
@@ -109,8 +109,8 @@ public class DownloadActivity extends BaseActivity<ActivityDownloadMeanBinding> 
         startActivity(new Intent(this, FragmentActivity.class));
         break;
       case R.id.notification:
-        SimpleNotification notification = new SimpleNotification(this);
-        notification.start();
+        //SimpleNotification notification = new SimpleNotification(this);
+        //notification.start();
         break;
     }
   }

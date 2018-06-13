@@ -135,10 +135,6 @@ public class UploadReceiver extends AbsReceiver {
     }
   }
 
-  @Override public void destroy() {
-    removeObj();
-  }
-
   /**
    * 将当前类注册到Aria
    */
@@ -166,14 +162,14 @@ public class UploadReceiver extends AbsReceiver {
     if (needRmListener) {
       unRegisterListener();
     }
-    AriaManager.getInstance(AriaManager.APP).removeReceiver(targetName);
+    AriaManager.getInstance(AriaManager.APP).removeReceiver(OBJ_MAP.get(getKey()));
   }
 
-  @Override protected String getType() {
+  @Override public String getType() {
     return ReceiverType.UPLOAD;
   }
 
-  @Override public void unRegisterListener() {
+  @Override protected void unRegisterListener() {
     if (TextUtils.isEmpty(targetName)) {
       ALog.e(TAG, "upload unRegisterListener target null");
       return;

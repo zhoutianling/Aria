@@ -98,7 +98,7 @@ import com.arialyy.simple.databinding.DialogFragmentDownloadBinding;
       case R.id.start:
         Aria.download(getContext())
             .load(DOWNLOAD_URL)
-            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/放置江湖.apk")
+            .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/放置江湖.apk")
             .start();
         break;
       case R.id.stop:

@@ -16,6 +16,7 @@
 
 package com.arialyy.simple.download;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -219,13 +220,13 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         startD();
         break;
       case R.id.stop:
-        Aria.download(this).load(DOWNLOAD_URL).stop();
-        //startActivity(new Intent(this, SingleTaskActivity.class));
+        //Aria.download(this).load(DOWNLOAD_URL).stop();
+        startActivity(new Intent(this, SingleTaskActivity.class));
         //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
       case R.id.cancel:
         Aria.download(this).load(DOWNLOAD_URL).cancel();
-        Aria.download(this).load(DOWNLOAD_URL).removeRecord();
+        //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
     }
   }
@@ -254,6 +255,6 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
   @Override protected void onStop() {
     super.onStop();
-    Aria.download(this).unRegister();
+    //Aria.download(this).unRegister();
   }
 }

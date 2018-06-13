@@ -253,22 +253,28 @@ public class DownloadReceiver extends AbsReceiver {
   }
 
   /**
-   * 取消注册，如果是Activity或fragment，Aria会界面销毁时自动调用该方法。
-   * 如果在activity中一定要调用该方法，那么请在onDestroy()中调用
-   * 如果是Dialog或popupwindow，需要你在撤销界面时调用该方法
+   * 取消注册，如果是Activity或fragment，Aria会界面销毁时自动调用该方法，不需要你手动调用。
+   * 注意事项：
+   * 1、如果在activity中一定要调用该方法，那么请在{@code onDestroy()}中调用
+   * 2、不要在activity的{@code onStop()}中调用改方法
+   * 3、如果是Dialog或popupwindow，需要你在撤销界面时调用该方法
+   * 4、如果你是在Module（非android组件类）中注册了Aria，那么你也需要在Module类中调用该方法，而不是在组件类中
+   * 调用销毁，详情见
+   *
+   * @see <a href="https://aria.laoyuyu.me/aria_doc/start/any_java.html#%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9">module类中销毁</a>
    */
   @Override public void unRegister() {
     if (needRmListener) {
       unRegisterListener();
     }
-    AriaManager.getInstance(AriaManager.APP).removeReceiver(targetName);
+    AriaManager.getInstance(AriaManager.APP).removeReceiver(OBJ_MAP.get(getKey()));
   }
 
-  @Override protected String getType() {
+  @Override public String getType() {
     return ReceiverType.DOWNLOAD;
   }
 
-  @Override public void unRegisterListener() {
+  @Override protected void unRegisterListener() {
     if (TextUtils.isEmpty(targetName)) {
       ALog.e(TAG, "download unRegisterListener target null");
       return;
@@ -288,10 +294,6 @@ public class DownloadReceiver extends AbsReceiver {
         && dgsCounter.contains(targetName))) {
       DownloadGroupSchedulers.getInstance().unRegister(obj);
     }
-  }
-
-  @Override public void destroy() {
-    removeObj();
   }
 
   /**

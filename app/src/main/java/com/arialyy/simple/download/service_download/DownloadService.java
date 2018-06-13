@@ -48,7 +48,7 @@ public class DownloadService extends Service {
     Aria.download(this).register();
     Aria.download(this)
         .load(DOWNLOAD_URL)
-        .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/service_task.apk")
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/service_task.apk")
         .start();
   }
 

@@ -57,8 +57,8 @@ public class DownloadDialog extends AbsDialog {
   }
 
   private void init() {
-    Aria.download(getContext()).register();
-    DownloadEntity entity = Aria.download(getContext()).getDownloadEntity(DOWNLOAD_URL);
+    Aria.download(this).register();
+    DownloadEntity entity = Aria.download(this).getDownloadEntity(DOWNLOAD_URL);
     if (entity != null) {
       mSize.setText(CommonUtil.formatFileSize(entity.getFileSize()));
       int p = (int) (entity.getCurrentProgress() * 100 / entity.getFileSize());
@@ -73,16 +73,16 @@ public class DownloadDialog extends AbsDialog {
   @OnClick({ R.id.start, R.id.stop, R.id.cancel }) public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.download(getContext())
+        Aria.download(this)
             .load(DOWNLOAD_URL)
-            .setDownloadPath(Environment.getExternalStorageDirectory().getPath() + "/飞机大战.apk")
+            .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/飞机大战.apk")
             .start();
         break;
       case R.id.stop:
-        Aria.download(getContext()).load(DOWNLOAD_URL).pause();
+        Aria.download(this).load(DOWNLOAD_URL).stop();
         break;
       case R.id.cancel:
-        Aria.download(getContext()).load(DOWNLOAD_URL).cancel();
+        Aria.download(this).load(DOWNLOAD_URL).cancel();
         break;
     }
   }

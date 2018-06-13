@@ -43,4 +43,11 @@ public interface IReceiver {
    * 获取当前Receiver的key
    */
   String getKey();
+
+  /**
+   * 设置类型
+   *
+   * @return {@link ReceiverType}
+   */
+  @ReceiverType String getType();
 }

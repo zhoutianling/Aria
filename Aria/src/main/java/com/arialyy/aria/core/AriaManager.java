@@ -25,20 +25,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.widget.PopupWindow;
+import android.widget.Toast;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
-import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadReceiver;
-import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
 import com.arialyy.aria.core.inf.IReceiver;
+import com.arialyy.aria.core.inf.ReceiverType;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadReceiver;
-import com.arialyy.aria.core.upload.UploadTaskEntity;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.orm.DelegateWrapper;
 import com.arialyy.aria.util.ALog;
@@ -63,14 +61,17 @@ import org.xml.sax.SAXException;
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH) public class AriaManager {
   private static final String TAG = "AriaManager";
-  private static final String DOWNLOAD = "_download";
-  private static final String UPLOAD = "_upload";
   public static final Object LOCK = new Object();
   public static final String DOWNLOAD_TEMP_DIR = "/Aria/temp/download/";
   public static final String UPLOAD_TEMP_DIR = "/Aria/temp/upload/";
 
   @SuppressLint("StaticFieldLeak") private static volatile AriaManager INSTANCE = null;
   private Map<String, AbsReceiver> mReceivers = new ConcurrentHashMap<>();
+  /**
+   * activity 和其Dialog、Fragment的映射表
+   */
+  private Map<String, List<String>> mSubClass = new ConcurrentHashMap<>();
+  private List<String> mActivityCount = new ArrayList<>();
   public static Context APP;
   private List<ICmd> mCommands = new ArrayList<>();
   private Configuration.DownloadConfig mDConfig;
@@ -225,9 +226,9 @@ import org.xml.sax.SAXException;
    * 处理下载操作
    */
   DownloadReceiver download(Object obj) {
-    IReceiver receiver = mReceivers.get(getKey(true, obj));
+    IReceiver receiver = mReceivers.get(getKey(ReceiverType.DOWNLOAD, obj));
     if (receiver == null) {
-      receiver = putReceiver(true, obj);
+      receiver = putReceiver(ReceiverType.DOWNLOAD, obj);
     }
     return (receiver instanceof DownloadReceiver) ? (DownloadReceiver) receiver : null;
   }
@@ -236,9 +237,9 @@ import org.xml.sax.SAXException;
    * 处理上传操作
    */
   UploadReceiver upload(Object obj) {
-    IReceiver receiver = mReceivers.get(getKey(false, obj));
+    IReceiver receiver = mReceivers.get(getKey(ReceiverType.UPLOAD, obj));
     if (receiver == null) {
-      receiver = putReceiver(false, obj);
+      receiver = putReceiver(ReceiverType.UPLOAD, obj);
     }
     return (receiver instanceof UploadReceiver) ? (UploadReceiver) receiver : null;
   }
@@ -252,22 +253,19 @@ import org.xml.sax.SAXException;
   public void delRecord(int type, String key) {
     switch (type) {
       case 1:
-        DbEntity.deleteData(DownloadEntity.class, "url=?", key);
-        DbEntity.deleteData(DownloadTaskEntity.class, "key=? and isGroupTask='false'", key);
+        DbEntity.deleteData(DownloadEntity.class, "url=? and isGroupChild='false'", key);
         break;
       case 2:
         DbEntity.deleteData(DownloadGroupEntity.class, "groupName=?", key);
-        DbEntity.deleteData(DownloadGroupTaskEntity.class, "key=?", key);
         break;
       case 3:
         DbEntity.deleteData(UploadEntity.class, "filePath=?", key);
-        DbEntity.deleteData(UploadTaskEntity.class, "key=?", key);
         break;
     }
   }
 
-  private IReceiver putReceiver(boolean isDownload, Object obj) {
-    final String key = getKey(isDownload, obj);
+  private IReceiver putReceiver(@ReceiverType String type, Object obj) {
+    final String key = getKey(type, obj);
     IReceiver receiver = mReceivers.get(key);
     boolean needRmReceiver = false;
     // 监控Dialog、fragment、popupWindow的生命周期
@@ -284,58 +282,81 @@ import org.xml.sax.SAXException;
 
     if (receiver == null) {
       AbsReceiver absReceiver;
-      if (isDownload) {
-        absReceiver = new DownloadReceiver();
-      } else {
-        absReceiver = new UploadReceiver();
+      switch (type) {
+        case ReceiverType.DOWNLOAD:
+          absReceiver = new DownloadReceiver();
+          break;
+        case ReceiverType.UPLOAD:
+          absReceiver = new UploadReceiver();
+          break;
+        default:
+          absReceiver = new DownloadReceiver();
+          break;
       }
-      receiver = checkTarget(key, absReceiver, obj, needRmReceiver);
+      absReceiver.targetName = obj.getClass().getName();
+      AbsReceiver.OBJ_MAP.put(absReceiver.getKey(), obj);
+      absReceiver.needRmListener = needRmReceiver;
+      mReceivers.put(key, absReceiver);
+      receiver = absReceiver;
     }
-    return receiver;
-  }
-
-  private AbsReceiver checkTarget(String key, AbsReceiver receiver, Object obj,
-      boolean needRmReceiver) {
-    receiver.targetName = obj.getClass().getName();
-    AbsReceiver.OBJ_MAP.put(receiver.getKey(), obj);
-    receiver.needRmListener = needRmReceiver;
-    mReceivers.put(key, receiver);
     return receiver;
   }
 
   /**
    * 根据功能类型和控件类型获取对应的key
+   *
+   * @param type {@link ReceiverType}
+   * @param obj 观察者对象
+   * @return {@link #createKey(String, Object)}
    */
-  private String getKey(boolean isDownload, Object obj) {
-    String clsName = obj.getClass().getName();
-    String key;
+  private String getKey(@ReceiverType String type, Object obj) {
     if (obj instanceof DialogFragment) {
-      key = clsName + "_" + ((DialogFragment) obj).getActivity().getClass().getName();
+      relateSubClass(type, obj, ((DialogFragment) obj).getActivity());
     } else if (obj instanceof android.app.DialogFragment) {
-      key = clsName + "_" + ((android.app.DialogFragment) obj).getActivity().getClass().getName();
+      relateSubClass(type, obj, ((android.app.DialogFragment) obj).getActivity());
     } else if (obj instanceof android.support.v4.app.Fragment) {
-      key = clsName + "_" + ((Fragment) obj).getActivity().getClass().getName();
+      relateSubClass(type, obj, ((Fragment) obj).getActivity());
     } else if (obj instanceof android.app.Fragment) {
-      key = clsName + "_" + ((android.app.Fragment) obj).getActivity().getClass().getName();
+      relateSubClass(type, obj, ((android.app.Fragment) obj).getActivity());
     } else if (obj instanceof Dialog) {
       Activity activity = ((Dialog) obj).getOwnerActivity();
       if (activity != null) {
-        key = clsName + "_" + activity.getClass().getName();
-      } else {
-        key = clsName;
+        relateSubClass(type, obj, activity);
       }
     } else if (obj instanceof PopupWindow) {
       Context context = ((PopupWindow) obj).getContentView().getContext();
       if (context instanceof Activity) {
-        key = clsName + "_" + context.getClass().getName();
-      } else {
-        key = clsName;
+        relateSubClass(type, obj, (Activity) context);
       }
-    } else {
-      key = clsName;
     }
-    key += (isDownload ? DOWNLOAD : UPLOAD) + obj.hashCode();
-    return key;
+    return createKey(type, obj);
+  }
+
+  /**
+   * 关联Activity类和Fragment间的关系
+   *
+   * @param sub Frgament或dialog类
+   * @param activity activity寄主类
+   */
+  private void relateSubClass(@ReceiverType String type, Object sub, Activity activity) {
+    String key = createKey(type, activity);
+    List<String> list = mSubClass.get(key);
+    if (list == null) {
+      list = new ArrayList<>();
+      mSubClass.put(key, list);
+    }
+    list.add(createKey(type, sub));
+  }
+
+  /**
+   * 根据功能类型和控件类型获取对应的key
+   *
+   * @param type {@link ReceiverType}
+   * @param obj 观察者对象
+   * @return key的格式为：{@code String.format("%s_%s_%s", obj.getClass().getName(), type, obj.hashCode());}
+   */
+  private String createKey(@ReceiverType String type, Object obj) {
+    return String.format("%s_%s_%s", obj.getClass().getName(), type, obj.hashCode());
   }
 
   /**
@@ -402,22 +423,43 @@ import org.xml.sax.SAXException;
   /**
    * 移除指定对象的receiver
    */
-  public void removeReceiver(String targetName) {
-    if (TextUtils.isEmpty(targetName)) {
-      ALog.e(TAG, "target name null");
+  public void removeReceiver(Object obj) {
+    if (obj == null) {
+      ALog.e(TAG, "target obj is null");
       return;
     }
+    List<String> temp = new ArrayList<>();
+    // 移除寄主的receiver
     for (Iterator<Map.Entry<String, AbsReceiver>> iter = mReceivers.entrySet().iterator();
         iter.hasNext(); ) {
       Map.Entry<String, AbsReceiver> entry = iter.next();
       String key = entry.getKey();
-      if (key.contains(targetName)) {
+      if (key.equals(getKey(ReceiverType.DOWNLOAD, obj)) || key.equals(
+          getKey(ReceiverType.UPLOAD, obj))) {
         AbsReceiver receiver = mReceivers.get(key);
+        List<String> subNames = mSubClass.get(key);
+        if (subNames != null && !subNames.isEmpty()) {
+          temp.addAll(subNames);
+        }
         if (receiver != null) {
-          receiver.unRegisterListener();
           receiver.destroy();
         }
         iter.remove();
+      }
+    }
+
+    // 移除寄生的receiver
+    if (!temp.isEmpty()) {
+      for (Iterator<Map.Entry<String, AbsReceiver>> iter = mReceivers.entrySet().iterator();
+          iter.hasNext(); ) {
+        Map.Entry<String, AbsReceiver> entry = iter.next();
+        if (temp.contains(entry.getKey())) {
+          AbsReceiver receiver = mReceivers.get(entry.getKey());
+          if (receiver != null) {
+            receiver.destroy();
+          }
+          iter.remove();
+        }
       }
     }
   }
@@ -428,7 +470,9 @@ import org.xml.sax.SAXException;
   private class LifeCallback implements Application.ActivityLifecycleCallbacks {
 
     @Override public void onActivityCreated(Activity activity, Bundle savedInstanceState) {
-
+      mActivityCount.add(
+          String.format("%s_%s", activity.getClass().getName(), activity.hashCode()));
+      ALog.w(TAG, "size  = " + mActivityCount.size());
     }
 
     @Override public void onActivityStarted(Activity activity) {
@@ -452,8 +496,14 @@ import org.xml.sax.SAXException;
     }
 
     @Override public void onActivityDestroyed(Activity activity) {
-      removeReceiver(activity.getClass().getName());
-      // TODO: 2018/4/11 维护一个activity堆栈，应用被kill，activity会回调onDestroy方法，需要考虑server后台情况
+      removeReceiver(activity);
+      mActivityCount.remove(
+          String.format("%s_%s", activity.getClass().getName(), activity.hashCode()));
+      ALog.w(TAG, "size  = " + mActivityCount.size());
+      if (mActivityCount.size() == 0) {
+        ALog.e(TAG, "gggg");
+        //Toast.makeText(activity, "destroy", Toast.LENGTH_SHORT).show();
+      }
     }
   }
 }
