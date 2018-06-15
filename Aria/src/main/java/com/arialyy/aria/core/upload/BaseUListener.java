@@ -19,8 +19,6 @@ import android.os.Handler;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.TaskRecord;
 import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.aria.core.inf.AbsGroupEntity;
-import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
@@ -155,6 +153,8 @@ class BaseUListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
       //  CommonUtil.delGroupTaskRecord(mTaskEntity.isRemoveFile(), ((AbsGroupEntity) mEntity));
       //}
       return;
+    } else if (state == IEntity.STATE_STOP) {
+      mEntity.setStopTime(System.currentTimeMillis());
     } else if (mEntity.isComplete()) {
       mEntity.setCompleteTime(System.currentTimeMillis());
       mEntity.setCurrentProgress(mEntity.getFileSize());

@@ -65,12 +65,17 @@ public class AnyRunnModule {
 
   void start(String url) {
     mUrl = url;
+    String path = Environment.getExternalStorageDirectory().getPath() + "/abcds.exe";
+    File file = new File(path);
+    if (file.exists()) {
+      file.delete();
+    }
     Aria.download(this)
         .load(url)
         //.addHeader("Accept-Encoding", "gzip")
         .setRequestMode(RequestEnum.GET)
         .setUrlProxy(Proxy.NO_PROXY)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/abcds.exe")
+        .setFilePath(path)
         //.resetState()
         .start();
     //String[] urls = new String[] {

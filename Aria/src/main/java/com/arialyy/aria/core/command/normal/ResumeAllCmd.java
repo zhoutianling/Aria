@@ -27,6 +27,7 @@ import java.util.List;
  * 1.如果执行队列没有满，则开始下载任务，直到执行队列满
  * 2.如果队列执行队列已经满了，则将所有任务添加到等待队列中
  * 3.如果队列中只有等待状态的任务，如果执行队列没有满，则会启动等待状态的任务，如果执行队列已经满了，则会将所有等待状态的任务加载到缓存队列中
+ * 4.恢复下载的任务规则是，停止时间越晚的任务启动越早，安装DESC来进行排序
  */
 final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   private List<AbsTaskEntity> mWaitList = new ArrayList<>();
@@ -61,7 +62,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     if (type == 1) {
       List<DownloadEntity> entities =
           DbEntity.findDatas(DownloadEntity.class,
-              "isGroupChild=? and state!=?", "false", "1");
+              "isGroupChild=? AND state!=? ORDER BY stopTime DESC", "false", "1");
       if (entities != null && !entities.isEmpty()) {
         for (DownloadEntity entity : entities) {
           resumeTask(TEManager.getInstance().getTEntity(DownloadTaskEntity.class, entity.getKey()));
@@ -69,7 +70,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       }
     } else if (type == 2) {
       List<DownloadGroupEntity> entities =
-          DbEntity.findDatas(DownloadGroupEntity.class, "state!=?", "1");
+          DbEntity.findDatas(DownloadGroupEntity.class, "state!=? ORDER BY stopTime DESC", "1");
       if (entities != null && !entities.isEmpty()) {
         for (DownloadGroupEntity entity : entities) {
           resumeTask(
@@ -78,7 +79,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       }
     } else if (type == 3) {
       List<UploadEntity> entities =
-          DbEntity.findDatas(UploadEntity.class, "state!=?", "1");
+          DbEntity.findDatas(UploadEntity.class, "state!=? ORDER BY stopTime DESC", "1");
       if (entities != null && !entities.isEmpty()) {
         for (UploadEntity entity : entities) {
           resumeTask(TEManager.getInstance().getTEntity(UploadTaskEntity.class, entity.getKey()));

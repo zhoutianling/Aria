@@ -176,7 +176,6 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
     public DownloadTask build() {
       DownloadTask task = new DownloadTask(taskEntity, outHandler);
       task.setTargetName(targetName);
-      taskEntity.save();
       return task;
     }
   }

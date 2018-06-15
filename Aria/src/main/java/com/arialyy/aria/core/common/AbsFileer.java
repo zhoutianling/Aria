@@ -509,6 +509,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         mConstance.isStop = false;
         mConstance.isCancel = false;
         mConstance.isRunning = true;
+        startTimer();
         ALog.d(TAG, String.format("任务【%s】开始重试，线程__%s__【开始位置：%s，结束位置：%s】", mEntity.getFileName(),
             key, task.getConfig().START_LOCATION, task.getConfig().END_LOCATION));
         if (!mFixedThreadPool.isShutdown()) {

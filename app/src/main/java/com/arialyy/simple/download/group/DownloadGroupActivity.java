@@ -89,7 +89,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
             .start();
         break;
       case R.id.stop:
-        Aria.download(this).load(mUrls).stop();
+        Aria.download(this).loadGroup(mUrls).stop();
         break;
       case R.id.cancel:
         //Aria.download(this).load(mUrls).cancel(true);
@@ -133,7 +133,12 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
-    Log.d(TAG, "group running");
+    Log.d(TAG, "group running, p = "
+        + task.getPercent()
+        + ", speed = "
+        + task.getConvertSpeed()
+        + "current_p = "
+        + task.getCurrentProgress());
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
     mChildList.updateChildProgress(task.getEntity().getSubEntities());

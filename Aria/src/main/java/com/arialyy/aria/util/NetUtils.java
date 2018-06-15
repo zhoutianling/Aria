@@ -51,6 +51,7 @@ public class NetUtils {
 
   /**
    * 判断网络是否连接
+   * @return {@code true} 网络已连接、{@code false}网络未连接
    */
   public static boolean isConnected(Context context) {
     ConnectivityManager cm =

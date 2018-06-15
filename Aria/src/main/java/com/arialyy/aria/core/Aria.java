@@ -86,6 +86,9 @@ import com.arialyy.aria.util.ALog;
    * @param obj 观察者对象，为本类对象，使用{@code this}
    */
   public static DownloadReceiver download(Object obj) {
+    if (AriaManager.getInstance() != null){
+     return AriaManager.getInstance().download(obj);
+    }
     return get(convertContext(obj)).download(obj);
   }
 
@@ -97,6 +100,9 @@ import com.arialyy.aria.util.ALog;
    * @param obj 观察者对象，为本类对象，使用{@code this}
    */
   public static UploadReceiver upload(Object obj) {
+    if (AriaManager.getInstance() != null){
+      return AriaManager.getInstance().upload(obj);
+    }
     return get(convertContext(obj)).upload(obj);
   }
 
@@ -105,7 +111,8 @@ import com.arialyy.aria.util.ALog;
    */
   public static AriaManager get(Context context) {
     if (context == null) {
-      throw new NullPointerException("context 无效，请使用 download(this) 或 upload(this);"
+      throw new NullPointerException("context 无效，在非【Activity、Service、Application、DialogFragment、Fragment、PopupWindow、Dialog】，"
+          + "请参考【https://aria.laoyuyu.me/aria_doc/start/any_java.html】，参数请使用 download(this) 或 upload(this);"
           + "不要使用 download(getContext()) 或 upload(getContext())");
     }
     return AriaManager.getInstance(context);

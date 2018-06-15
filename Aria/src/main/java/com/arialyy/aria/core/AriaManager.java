@@ -96,9 +96,9 @@ import org.xml.sax.SAXException;
   }
 
   static AriaManager getInstance() {
-    if (INSTANCE == null) {
-      throw new NullPointerException("请在Application或Activity初始化时调用一次Aria.init(context)方法进行初始化操作");
-    }
+    //if (INSTANCE == null) {
+    //  throw new NullPointerException("请在Application或Activity初始化时调用一次Aria.init(context)方法进行初始化操作");
+    //}
     return INSTANCE;
   }
 

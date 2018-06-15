@@ -15,6 +15,7 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -259,7 +260,7 @@ public abstract class AbsGroupUtil implements IUtil {
         dt.stop();
       }
     }
-    if (mDownloaderMap.size() == 0){
+    if (mDownloaderMap.size() == 0) {
       mListener.onStop(mCurrentLocation);
     }
   }
@@ -540,6 +541,8 @@ public abstract class AbsGroupUtil implements IUtil {
       if (state == IEntity.STATE_CANCEL) {
         subEntity.deleteData();
         return;
+      } else if (state == IEntity.STATE_STOP) {
+        subEntity.setStopTime(System.currentTimeMillis());
       } else if (subEntity.isComplete()) {
         subEntity.setCompleteTime(System.currentTimeMillis());
         subEntity.setCurrentProgress(subEntity.getFileSize());

@@ -1,6 +1,8 @@
 ## 开发日志
   + v_3.4.3
     - 修复在activity 的onStop中取消注册导致的内存泄露问题
+    - fix bug https://github.com/AriaLyy/Aria/issues/258
+    - fix bug https://github.com/AriaLyy/Aria/issues/259
   + v_3.4.2
     - fix bug https://github.com/AriaLyy/Aria/issues/248
     - fix bug https://github.com/AriaLyy/Aria/issues/247

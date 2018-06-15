@@ -70,6 +70,11 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
 
   private boolean isComplete = false;
 
+  /**
+   * 上一次停止时间
+   */
+  private long stopTime = 0;
+
   public boolean isComplete() {
     return isComplete;
   }
@@ -158,6 +163,14 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     this.percent = percent;
   }
 
+  public long getStopTime() {
+    return stopTime;
+  }
+
+  public void setStopTime(long stopTime) {
+    this.stopTime = stopTime;
+  }
+
   /**
    * 实体唯一标识符
    */
@@ -188,8 +201,9 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     dest.writeInt(this.state);
     dest.writeLong(this.currentProgress);
     dest.writeLong(this.completeTime);
-    dest.writeByte(this.isComplete ? (byte) 1 : (byte) 0);
     dest.writeInt(this.percent);
+    dest.writeByte(this.isComplete ? (byte) 1 : (byte) 0);
+    dest.writeLong(this.stopTime);
   }
 
   protected AbsEntity(Parcel in) {
@@ -202,7 +216,8 @@ public abstract class AbsEntity extends DbEntity implements IEntity, Parcelable 
     this.state = in.readInt();
     this.currentProgress = in.readLong();
     this.completeTime = in.readLong();
-    this.isComplete = in.readByte() != 0;
     this.percent = in.readInt();
+    this.isComplete = in.readByte() != 0;
+    this.stopTime = in.readLong();
   }
 }

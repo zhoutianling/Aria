@@ -30,8 +30,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.4.2'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.2'
+compile 'com.arialyy.aria:aria-core:3.4.3'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.3'
 ```
 如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:<last-version>'`替换为
 ```
@@ -99,15 +99,10 @@ protected void onCreate(Bundle savedInstanceState) {
 
 
 ### 版本日志
-  + v_3.4.2
-    - fix bug https://github.com/AriaLyy/Aria/issues/248
-    - fix bug https://github.com/AriaLyy/Aria/issues/247
-    - fix bug https://github.com/AriaLyy/Aria/issues/250
-    - 添加任务判断是否存在的api
-    - 添加代理api
-    - 修复删除所有没有进出等待的问题
-    - 进度有时出错的问题
-    - FTP添加超时处理
+ + v_3.4.3
+    - 修复在activity 的onStop中取消注册导致的内存泄露问题
+    - fix bug https://github.com/AriaLyy/Aria/issues/258
+    - fix bug https://github.com/AriaLyy/Aria/issues/259
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 

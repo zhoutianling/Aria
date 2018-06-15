@@ -169,6 +169,8 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
       }
       //mEntity.deleteData();
       return;
+    } else if (state == IEntity.STATE_STOP) {
+      mEntity.setStopTime(System.currentTimeMillis());
     } else if (mEntity.isComplete()) {
       mEntity.setCompleteTime(System.currentTimeMillis());
       mEntity.setCurrentProgress(mEntity.getFileSize());
