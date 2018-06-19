@@ -23,8 +23,12 @@ import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.ErrorHelp;
+import com.arialyy.aria.util.FileUtil;
 import com.arialyy.aria.util.NetUtils;
+import java.io.File;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
@@ -69,10 +73,10 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   });
 
   protected AbsThreadTask(StateConstance constance, IEventListener listener,
-      SubThreadConfig<TASK_ENTITY> info) {
+      SubThreadConfig<TASK_ENTITY> config) {
     STATE = constance;
     mListener = listener;
-    mConfig = info;
+    mConfig = config;
     mTaskEntity = mConfig.TASK_ENTITY;
     mEntity = mTaskEntity.getEntity();
     mLastSaveTime = System.currentTimeMillis();
@@ -132,6 +136,30 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    */
   protected boolean isBreak() {
     return STATE.isCancel || STATE.isStop || taskBreak;
+  }
+
+  /**
+   * 合并文件
+   *
+   * @return {@code true} 合并成功，{@code false}合并失败
+   */
+  protected boolean mergeFile() {
+    List<String> partPath = new ArrayList<>();
+    for (int i = 0, len = STATE.TASK_RECORD.threadNum; i < len; i++) {
+      partPath.add(String.format(AbsFileer.SUB_PATH, STATE.TASK_RECORD.filePath, i));
+    }
+    boolean isSuccess = FileUtil.mergeFile(STATE.TASK_RECORD.filePath, partPath);
+    if (isSuccess) {
+      for (String pp : partPath) {
+        File f = new File(pp);
+        if (f.exists()) {
+          f.delete();
+        }
+      }
+      return true;
+    } else {
+      return false;
+    }
   }
 
   /**

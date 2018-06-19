@@ -18,6 +18,7 @@ package com.arialyy.aria.core.common;
 import android.content.Context;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
+import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
@@ -48,6 +49,10 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   private static final String STATE = "_state_";
   private static final String RECORD = "_record_";
   /**
+   * 分块文件路径
+   */
+  public static final String SUB_PATH = "%s.%s.part";
+  /**
    * 小于1m的文件不启用多线程
    */
   protected static final long SUB_LEN = 1024 * 1024;
@@ -74,7 +79,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 进度刷新间隔
    */
   private long mUpdateInterval = 1000;
-  private TaskRecord mRecord;
+  protected TaskRecord mRecord;
 
   protected AbsFileer(IEventListener listener, TASK_ENTITY taskEntity) {
     mListener = listener;
@@ -117,23 +122,36 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     if (!mTaskEntity.isSupportBP()) {
       mTotalThreadNum = 1;
       mStartThreadNum = 1;
-      handleNoSupportBP();
     } else {
       mTotalThreadNum =
           mTaskEntity.isNewTask() ? (mStartThreadNum = setNewTaskThreadNum()) : mTotalThreadNum;
-      handleBreakpoint();
     }
     mConstance.START_THREAD_NUM = mTotalThreadNum;
+
+    // 处理分块和动态文件参数
+    if (mTaskEntity.isNewTask() && mTaskEntity instanceof DownloadTaskEntity) {
+      AriaManager manager = AriaManager.getInstance(AriaManager.APP);
+      mRecord.isBlock = mTotalThreadNum > 1 && manager.getDownloadConfig().isUseBlock();
+      // 线程数不等1并且没有使用块下载，则认为没有使用动态文件
+      mRecord.isOpenDynamicFile = mTotalThreadNum == 1 || mRecord.isBlock;
+    }
+
     /*
      * mTaskEntity.getEntity().getFileSize() != mTempFile.length()为兼容以前老版本代码
      * 动态长度条件：
      * 1、总线程数为1，并且是新任务
      * 2、总线程数为1，不是新任务，但是长度不是文件全长度
      */
-    if (mTotalThreadNum == 1 && (mTaskEntity.isNewTask()
-        || mTaskEntity.getEntity().getFileSize() != mTempFile.length())) {
-      mConstance.isOpenDynamicFile = true;
+    if (mTotalThreadNum == 1 && (mTaskEntity.getEntity().getFileSize() != mTempFile.length())) {
+      mRecord.isOpenDynamicFile = true;
     }
+
+    if (!mTaskEntity.isSupportBP()) {
+      handleNoSupportBP();
+    } else {
+      handleBreakpoint();
+    }
+
     startTimer();
   }
 
@@ -254,17 +272,16 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     } else {
       mRecord = DbHelper.getTaskRecord(mTaskEntity.getKey());
       if (mRecord == null) {
-        initRecord();
-        mTaskEntity.setNewTask(true);
+        initRecord(true);
       } else {
         if (mRecord.threadRecords == null || mRecord.threadRecords.isEmpty()) {
-          initRecord();
-          mTaskEntity.setNewTask(true);
-        } else if (mTempFile.length() == 0) {
-          mRecord.deleteData();
-          initRecord();
-          mTaskEntity.setNewTask(true);
-        } else {
+          initRecord(true);
+        }
+        //else if (mTempFile.length() == 0) {
+        //  mRecord.deleteData();
+        //  initRecord(true);
+        //}
+        else {
           for (ThreadRecord tr : mRecord.threadRecords) {
             if (tr.isComplete) {
               mCompleteThreadNum++;
@@ -294,7 +311,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         mTaskEntity.setNewTask(true);
         return;
       }
-      initRecord();
+      initRecord(false);
       Set<Object> keys = pro.keySet();
       // 老版本记录是5s存一次，但是5s中内，如果线程执行完成，record记录是没有的，只有state记录...
       // 第一步应该是record 和 state去重取正确的线程数
@@ -338,7 +355,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   /**
    * 初始化记录
    */
-  private void initRecord() {
+  private void initRecord(boolean isNewTask) {
     mRecord = new TaskRecord();
     mRecord.fileName = mEntity.getFileName();
     mRecord.filePath = mTaskEntity.getKey();
@@ -349,6 +366,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         mRecord.dGroupName = ((DownloadEntity) mTaskEntity.getEntity()).getGroupName();
       }
     }
+    mTaskEntity.setNewTask(isNewTask);
   }
 
   /**
@@ -399,7 +417,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     SubThreadConfig<TASK_ENTITY> config = new SubThreadConfig<>();
     config.FILE_SIZE = fileLength;
     config.URL = mEntity.isRedirect() ? mEntity.getRedirectUrl() : mEntity.getUrl();
-    config.TEMP_FILE = mTempFile;
+    config.TEMP_FILE =
+        mRecord.isBlock ? new File(String.format(SUB_PATH, mTempFile.getPath(), i)) : mTempFile;
     config.THREAD_ID = i;
     config.START_LOCATION = startL;
     config.END_LOCATION = endL;

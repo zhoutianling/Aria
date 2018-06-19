@@ -44,6 +44,7 @@ import java.nio.channels.ReadableByteChannel;
 final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEntity> {
   private final String TAG = "HttpThreadTask";
   private boolean isOpenDynamicFile;
+  private boolean isBlock;
 
   HttpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
@@ -53,11 +54,16 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     mReadTimeOut = manager.getDownloadConfig().getIOTimeOut();
     mBufSize = manager.getDownloadConfig().getBuffSize();
     isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
-    isOpenDynamicFile = STATE.isOpenDynamicFile;
+    isOpenDynamicFile = STATE.TASK_RECORD.isOpenDynamicFile;
+    isBlock = STATE.TASK_RECORD.isBlock;
     setMaxSpeed(manager.getDownloadConfig().getMaxSpeed());
   }
 
   @Override public void run() {
+    if (mConfig.THREAD_RECORD.isComplete) {
+      handleComplete();
+      return;
+    }
     HttpURLConnection conn = null;
     BufferedInputStream is = null;
     BufferedRandomAccessFile file = null;
@@ -209,6 +215,15 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         writeConfig(true, mConfig.END_LOCATION);
         STATE.COMPLETE_THREAD_NUM++;
         if (STATE.isComplete()) {
+          if (isBlock) {
+            boolean success = mergeFile();
+            if (!success) {
+              ALog.e(TAG, String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName()));
+              STATE.isRunning = false;
+              mListener.onFail(false);
+              return;
+            }
+          }
           STATE.TASK_RECORD.deleteData();
           STATE.isRunning = false;
           mListener.onComplete();

@@ -30,6 +30,7 @@ import com.arialyy.aria.core.command.group.AbsGroupCmd;
 import com.arialyy.aria.core.command.group.GroupCmdFactory;
 import com.arialyy.aria.core.command.normal.AbsNormalCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.common.AbsFileer;
 import com.arialyy.aria.core.common.TaskRecord;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
@@ -411,8 +412,17 @@ public class CommonUtil {
     if (records == null || records.isEmpty()) {
       ALog.w(TAG, "组任务记录删除失败，记录为null");
     } else {
-      for (TaskRecord tr : records) {
-        tr.deleteData();
+      for (TaskRecord record : records) {
+        // 删除分块文件
+        if (record.isBlock) {
+          for (int i = 0, len = record.threadNum; i < len; i++) {
+            File partFile = new File(String.format(AbsFileer.SUB_PATH, record.filePath, i));
+            if (partFile.exists()) {
+              partFile.delete();
+            }
+          }
+        }
+        record.deleteData();
       }
     }
 
@@ -449,8 +459,19 @@ public class CommonUtil {
       ALog.w(TAG, "删除记录失败，未知类型");
       return;
     }
-    if (file.exists() && (removeFile || !dEntity.isComplete())) {
-      file.delete();
+    if (removeFile || !dEntity.isComplete()) {
+      // 删除分块文件
+      if (record.isBlock) {
+        for (int i = 0, len = record.threadNum; i < len; i++) {
+          File partFile = new File(String.format(AbsFileer.SUB_PATH, record.filePath, i));
+          if (partFile.exists()) {
+            partFile.delete();
+          }
+        }
+      }
+      if (file.exists()) {
+        file.delete();
+      }
     }
 
     if (record != null) {

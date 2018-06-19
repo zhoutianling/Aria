@@ -65,11 +65,11 @@ public class AnyRunnModule {
 
   void start(String url) {
     mUrl = url;
-    String path = Environment.getExternalStorageDirectory().getPath() + "/abcds.exe";
-    File file = new File(path);
-    if (file.exists()) {
-      file.delete();
-    }
+    String path = Environment.getExternalStorageDirectory().getPath() + "/abcds.apk";
+    //File file = new File(path);
+    //if (file.exists()) {
+    //  file.delete();
+    //}
     Aria.download(this)
         .load(url)
         //.addHeader("Accept-Encoding", "gzip")

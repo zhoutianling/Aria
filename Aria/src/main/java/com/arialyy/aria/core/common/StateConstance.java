@@ -17,7 +17,7 @@ package com.arialyy.aria.core.common;
 
 /**
  * Created by lyy on 2017/1/18.
- * 下载状态常量
+ * 状态常量
  */
 public class StateConstance {
   public int CANCEL_NUM = 0;
@@ -30,13 +30,8 @@ public class StateConstance {
   public boolean isCancel = false;
   public boolean isStop = false;
   public TaskRecord TASK_RECORD;
-  /**
-   * 是否是使用虚拟文件下载的
-   * {@code true}是，{@code false}不是
-   */
-  public boolean isOpenDynamicFile = false;
 
-  public StateConstance() {
+  StateConstance() {
   }
 
   public void resetState() {
@@ -50,14 +45,14 @@ public class StateConstance {
   }
 
   /**
-   * 所有子线程是否都已经停止下载
+   * 所有子线程是否都已经停止
    */
   public boolean isStop() {
     return STOP_NUM == START_THREAD_NUM;
   }
 
   /**
-   * 所有子线程是否都已经下载失败
+   * 所有子线程是否都已经失败
    */
   public boolean isFail() {
     return COMPLETE_THREAD_NUM != START_THREAD_NUM
@@ -65,14 +60,14 @@ public class StateConstance {
   }
 
   /**
-   * 所有子线程是否都已经完成下载
+   * 所有子线程是否都已经完成
    */
   public boolean isComplete() {
     return COMPLETE_THREAD_NUM >= START_THREAD_NUM;
   }
 
   /**
-   * 所有子线程是否都已经取消下载
+   * 所有子线程是否都已经取消
    */
   public boolean isCancel() {
     return CANCEL_NUM == START_THREAD_NUM;

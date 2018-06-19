@@ -57,22 +57,20 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
   }
 
   @Override protected boolean handleNewTask() {
-    CommonUtil.createFile(mTempFile.getPath());
+    if (!mRecord.isBlock) {
+      CommonUtil.createFile(mTempFile.getPath());
+    }
     BufferedRandomAccessFile file = null;
     try {
-      if (mTotalThreadNum > 1) {
+      if (mTotalThreadNum > 1 && !mRecord.isBlock) {
         file = new BufferedRandomAccessFile(new File(mTempFile.getPath()), "rwd", 8192);
         //设置文件长度
         file.setLength(mEntity.getFileSize());
       }
       return true;
     } catch (IOException e) {
-      failDownload("下载失败【downloadUrl:"
-          + mEntity.getUrl()
-          + "】\n【filePath:"
-          + mEntity.getDownloadPath()
-          + "】\n"
-          + ALog.getExceptionString(e));
+      failDownload(String.format("下载失败【downloadUrl:%s】；【filePath:%s】\n %S", mEntity.getUrl(),
+          mEntity.getDownloadPath(), ALog.getExceptionString(e)));
     } finally {
       if (file != null) {
         try {

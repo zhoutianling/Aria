@@ -43,42 +43,44 @@ public class FileUtil {
    *
    * @param targetPath 目标文件
    * @param subPaths 碎片文件路径
+   * @return {@code true} 合并成功，{@code false}合并失败
    */
-  public static void mergeFile(String targetPath, List<String> subPaths) {
+  public static boolean mergeFile(String targetPath, List<String> subPaths) {
     File file = new File(targetPath);
     FileOutputStream fos = null;
     FileChannel foc = null;
     try {
       if (!file.exists()) {
         file.createNewFile();
-        fos = new FileOutputStream(targetPath);
-        foc = fos.getChannel();
-        List<FileInputStream> streams = new LinkedList<>();
-        for (String subPath : subPaths) {
-          File f = new File(subPath);
-          if (!f.exists()) {
-            ALog.d(TAG, String.format("合并文件失败，文件【%s】不存在", subPath));
-            for (FileInputStream fis : streams) {
-              fis.close();
-            }
-            streams.clear();
-
-            return;
-          }
-          streams.add(new FileInputStream(subPath));
-        }
-        Enumeration<FileInputStream> en = Collections.enumeration(streams);
-        SequenceInputStream sis = new SequenceInputStream(en);
-        ReadableByteChannel fic = Channels.newChannel(sis);
-        ByteBuffer bf = ByteBuffer.allocate(8196);
-        while (fic.read(bf) != -1) {
-          bf.flip();
-          foc.write(bf);
-          bf.compact();
-        }
-        fic.close();
-        sis.close();
       }
+      fos = new FileOutputStream(targetPath);
+      foc = fos.getChannel();
+      List<FileInputStream> streams = new LinkedList<>();
+      for (String subPath : subPaths) {
+        File f = new File(subPath);
+        if (!f.exists()) {
+          ALog.d(TAG, String.format("合并文件失败，文件【%s】不存在", subPath));
+          for (FileInputStream fis : streams) {
+            fis.close();
+          }
+          streams.clear();
+
+          return false;
+        }
+        streams.add(new FileInputStream(subPath));
+      }
+      Enumeration<FileInputStream> en = Collections.enumeration(streams);
+      SequenceInputStream sis = new SequenceInputStream(en);
+      ReadableByteChannel fic = Channels.newChannel(sis);
+      ByteBuffer bf = ByteBuffer.allocate(8196);
+      while (fic.read(bf) != -1) {
+        bf.flip();
+        foc.write(bf);
+        bf.compact();
+      }
+      fic.close();
+      sis.close();
+      return true;
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
@@ -93,6 +95,7 @@ public class FileUtil {
         e.printStackTrace();
       }
     }
+    return false;
   }
 
   /**

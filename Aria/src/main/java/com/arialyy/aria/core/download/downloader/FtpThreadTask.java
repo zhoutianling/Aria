@@ -41,6 +41,7 @@ import org.apache.commons.net.ftp.FTPReply;
 class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity> {
   private final String TAG = "FtpThreadTask";
   private boolean isOpenDynamicFile;
+  private boolean isBlock;
 
   FtpThreadTask(StateConstance constance, IDownloadListener listener,
       SubThreadConfig<DownloadTaskEntity> downloadInfo) {
@@ -50,11 +51,16 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
     mReadTimeOut = manager.getDownloadConfig().getIOTimeOut();
     mBufSize = manager.getDownloadConfig().getBuffSize();
     isNotNetRetry = manager.getDownloadConfig().isNotNetRetry();
-    isOpenDynamicFile = STATE.isOpenDynamicFile;
+    isOpenDynamicFile = STATE.TASK_RECORD.isOpenDynamicFile;
+    isBlock = STATE.TASK_RECORD.isBlock;
     setMaxSpeed(manager.getDownloadConfig().getMaxSpeed());
   }
 
   @Override public void run() {
+    if (mConfig.THREAD_RECORD.isComplete) {
+      handleComplete();
+      return;
+    }
     //当前子线程的下载位置
     mChildCurrentLocation = mConfig.START_LOCATION;
     FTPClient client = null;
@@ -100,19 +106,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       if (isBreak()) {
         return;
       }
-      ALog.i(TAG,
-          String.format("任务【%s】线程__%s__下载完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
-      writeConfig(true, mConfig.END_LOCATION);
-      STATE.COMPLETE_THREAD_NUM++;
-      if (STATE.isComplete()) {
-        STATE.TASK_RECORD.deleteData();
-        STATE.isRunning = false;
-        mListener.onComplete();
-      }
-      if (STATE.isFail()) {
-        STATE.isRunning = false;
-        mListener.onFail(false);
-      }
+      handleComplete();
     } catch (IOException e) {
       fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
     } catch (Exception e) {
@@ -128,6 +122,34 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       } catch (IOException e) {
         e.printStackTrace();
       }
+    }
+  }
+
+  /**
+   * 处理线程完成的情况
+   */
+  private void handleComplete() {
+    ALog.i(TAG,
+        String.format("任务【%s】线程__%s__下载完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
+    writeConfig(true, mConfig.END_LOCATION);
+    STATE.COMPLETE_THREAD_NUM++;
+    if (STATE.isComplete()) {
+      if (isBlock) {
+        boolean success = mergeFile();
+        if (!success) {
+          ALog.e(TAG, String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName()));
+          STATE.isRunning = false;
+          mListener.onFail(false);
+          return;
+        }
+      }
+      STATE.TASK_RECORD.deleteData();
+      STATE.isRunning = false;
+      mListener.onComplete();
+    }
+    if (STATE.isFail()) {
+      STATE.isRunning = false;
+      mListener.onFail(false);
     }
   }
 

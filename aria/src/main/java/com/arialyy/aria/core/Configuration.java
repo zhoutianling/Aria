@@ -379,6 +379,26 @@ class Configuration {
      */
     int maxSpeed = 0;
 
+    /**
+     * 多线程下载是否使用块下载模式，{@code true}使用，{@code false}不使用
+     * 注意：
+     * 1、使用分块模式，在读写性能底下的手机上，合并文件需要的时间会更加长；
+     * 2、优点是使用多线程的块下载，初始化时，文件初始化时将不会预占用对应长度的空间；
+     * 3、只对新的多线程下载任务有效
+     * 4、只对多线程的任务有效
+     */
+    boolean useBlock = false;
+
+    public boolean isUseBlock() {
+      return useBlock;
+    }
+
+    public DownloadConfig setUseBlock(boolean useBlock) {
+      this.useBlock = useBlock;
+      saveKey("useBlock", String.valueOf(useBlock));
+      return this;
+    }
+
     public DownloadConfig setMaxTaskNum(int maxTaskNum) {
       oldMaxTaskNum = this.maxTaskNum;
       this.maxTaskNum = maxTaskNum;
@@ -398,9 +418,10 @@ class Configuration {
       return this;
     }
 
-    public void setThreadNum(int threadNum) {
+    public DownloadConfig setThreadNum(int threadNum) {
       this.threadNum = threadNum;
       saveKey("threadNum", String.valueOf(threadNum));
+      return this;
     }
 
     public String getCaPath() {

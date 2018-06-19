@@ -28,10 +28,10 @@ import org.xml.sax.helpers.DefaultHandler;
 class ConfigHelper extends DefaultHandler {
   private final String TAG = "ConfigHelper";
 
-  private boolean isDownloadConfig = false, isUploadConfig = false, isAppConfig = false;
   private Configuration.DownloadConfig mDownloadConfig = Configuration.DownloadConfig.getInstance();
   private Configuration.UploadConfig mUploadConfig = Configuration.UploadConfig.getInstance();
   private Configuration.AppConfig mAppConfig = Configuration.AppConfig.getInstance();
+  private @ConfigType int mType;
 
   @Override public void startDocument() throws SAXException {
     super.startDocument();
@@ -41,21 +41,19 @@ class ConfigHelper extends DefaultHandler {
   public void startElement(String uri, String localName, String qName, Attributes attributes)
       throws SAXException {
     super.startElement(uri, localName, qName, attributes);
-    if (qName.equals("download")) {
-      isDownloadConfig = true;
-      isUploadConfig = false;
-      isAppConfig = false;
-    } else if (qName.equals("upload")) {
-      isUploadConfig = true;
-      isDownloadConfig = false;
-      isAppConfig = false;
-    } else if (qName.equals("app")) {
-      isUploadConfig = false;
-      isDownloadConfig = false;
-      isAppConfig = true;
+    switch (qName) {
+      case "download":
+        mType = ConfigType.DOWNLOAD;
+        break;
+      case "upload":
+        mType = ConfigType.UPLOAD;
+        break;
+      case "app":
+        mType = ConfigType.APP;
+        break;
     }
 
-    if (isDownloadConfig || isUploadConfig) {
+    if (mType == ConfigType.DOWNLOAD || mType == ConfigType.UPLOAD) {
 
       String value = attributes.getValue("value");
       switch (qName) {
@@ -100,8 +98,11 @@ class ConfigHelper extends DefaultHandler {
         case "notNetRetry":
           loadNotNetRetry(value);
           break;
+        case "useBlock":
+          loadUseBlock(value);
+          break;
       }
-    } else if (isAppConfig) {
+    } else if (mType == ConfigType.APP) {
       String value = attributes.getValue("value");
       switch (qName) {
         case "useAriaCrashHandler":
@@ -114,11 +115,17 @@ class ConfigHelper extends DefaultHandler {
     }
   }
 
+  private void loadUseBlock(String value) {
+    if (mType == ConfigType.DOWNLOAD) {
+      mDownloadConfig.useBlock = checkBoolean(value) ? Boolean.valueOf(value) : false;
+    }
+  }
+
   private void loadNotNetRetry(String value) {
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.notNetRetry = checkBoolean(value) ? Boolean.valueOf(value) : false;
     }
-    if (isUploadConfig) {
+    if (mType == ConfigType.UPLOAD) {
       mUploadConfig.notNetRetry = checkBoolean(value) ? Boolean.valueOf(value) : false;
     }
   }
@@ -150,10 +157,10 @@ class ConfigHelper extends DefaultHandler {
 
   private void loadUpdateInterval(String value) {
     long temp = checkLong(value) ? Long.parseLong(value) : 1000;
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.updateInterval = temp;
     }
-    if (isUploadConfig) {
+    if (mType == ConfigType.UPLOAD) {
       mUploadConfig.updateInterval = temp;
     }
   }
@@ -164,17 +171,17 @@ class ConfigHelper extends DefaultHandler {
         "wait"))) {
       mod = value;
     }
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.queueMod = mod;
     }
-    if (isUploadConfig) {
+    if (mType == ConfigType.UPLOAD) {
       mUploadConfig.queueMod = mod;
     }
   }
 
   private void loadMaxSpeed(String value) {
     int maxSpeed = checkInt(value) ? Integer.parseInt(value) : 0;
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.maxSpeed = maxSpeed;
     }
   }
@@ -185,10 +192,10 @@ class ConfigHelper extends DefaultHandler {
       open = Boolean.parseBoolean(value);
     }
 
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.isConvertSpeed = open;
     }
-    if (isUploadConfig) {
+    if (mType == ConfigType.UPLOAD) {
       mUploadConfig.isConvertSpeed = open;
     }
   }
@@ -200,13 +207,13 @@ class ConfigHelper extends DefaultHandler {
       time = 2 * 1000;
     }
 
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.reTryInterval = time;
     }
   }
 
   private void loadCA(String name, String path) {
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.caName = name;
       mDownloadConfig.caPath = path;
     }
@@ -219,11 +226,11 @@ class ConfigHelper extends DefaultHandler {
       buffSize = 2048;
     }
 
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.buffSize = buffSize;
     }
 
-    if (isUploadConfig) {
+    if (mType == ConfigType.UPLOAD) {
       mUploadConfig.buffSize = buffSize;
     }
   }
@@ -235,11 +242,11 @@ class ConfigHelper extends DefaultHandler {
       time = 10 * 1000;
     }
 
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.iOTimeOut = time;
     }
 
-    if (isUploadConfig) {
+    if (mType == ConfigType.UPLOAD) {
       mUploadConfig.iOTimeOut = time;
     }
   }
@@ -247,10 +254,10 @@ class ConfigHelper extends DefaultHandler {
   private void loadConnectTime(String value) {
     int time = checkInt(value) ? Integer.parseInt(value) : 5 * 1000;
 
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.connectTimeOut = time;
     }
-    if (isUploadConfig) {
+    if (mType == ConfigType.UPLOAD) {
       mUploadConfig.connectTimeOut = time;
     }
   }
@@ -258,10 +265,10 @@ class ConfigHelper extends DefaultHandler {
   private void loadReTry(String value) {
     int num = checkInt(value) ? Integer.parseInt(value) : 0;
 
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.reTryNum = num;
     }
-    if (isUploadConfig) {
+    if (mType == ConfigType.UPLOAD) {
       mUploadConfig.reTryNum = num;
     }
   }
@@ -272,10 +279,10 @@ class ConfigHelper extends DefaultHandler {
       ALog.w(TAG, "任务队列数不能小于 1");
       num = 2;
     }
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.maxTaskNum = num;
     }
-    if (isUploadConfig) {
+    if (mType == ConfigType.UPLOAD) {
       mUploadConfig.maxTaskNum = num;
     }
   }
@@ -286,7 +293,7 @@ class ConfigHelper extends DefaultHandler {
       ALog.e(TAG, "下载线程数不能小于 1");
       num = 1;
     }
-    if (isDownloadConfig) {
+    if (mType == ConfigType.DOWNLOAD) {
       mDownloadConfig.threadNum = num;
     }
   }
