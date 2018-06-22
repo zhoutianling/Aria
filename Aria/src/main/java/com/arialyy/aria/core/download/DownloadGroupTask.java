@@ -69,6 +69,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
   }
 
   @Override public void stop() {
+    super.stop();
     if (!mUtil.isRunning()) {
       mListener.onStop(getCurrentProgress());
     } else {
@@ -77,6 +78,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
   }
 
   @Override public void cancel() {
+    super.cancel();
     if (!mUtil.isRunning()) {
       mListener.onCancel();
     } else {

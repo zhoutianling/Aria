@@ -15,7 +15,6 @@
  */
 package com.arialyy.aria.core.download.downloader;
 
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -491,10 +490,11 @@ public abstract class AbsGroupUtil implements IUtil {
      * 重试下载，只有全部都下载失败才会执行任务组的整体重试，否则只会执行单个子任务的重试
      */
     private void reTry(boolean needRetry) {
+      Downloader dt = mDownloaderMap.get(subEntity.getUrl());
       synchronized (AbsGroupUtil.LOCK) {
-        if (subEntity.getFailNum() < 5
-            && needRetry && (NetUtils.isConnected(AriaManager.APP) || isNotNetRetry)) {
-          reStartTask();
+        if (dt != null && !dt.isBreak() && needRetry && subEntity.getFailNum() < 5
+            && (NetUtils.isConnected(AriaManager.APP) || isNotNetRetry)) {
+          reStartTask(dt);
         } else {
           mFailMap.put(subTaskEntity.getUrl(), subTaskEntity);
           mListener.onSubFail(subEntity);
@@ -510,7 +510,7 @@ public abstract class AbsGroupUtil implements IUtil {
       }
     }
 
-    private void reStartTask() {
+    private void reStartTask(final Downloader dt) {
       if (timer != null) {
         timer.purge();
         timer.cancel();
@@ -518,7 +518,6 @@ public abstract class AbsGroupUtil implements IUtil {
       timer = new Timer();
       timer.schedule(new TimerTask() {
         @Override public void run() {
-          Downloader dt = mDownloaderMap.get(subEntity.getUrl());
           if (dt != null) {
             dt.retryThreadTask();
           }

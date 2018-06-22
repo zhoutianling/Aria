@@ -121,6 +121,7 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
    * 停止下载
    */
   @Override public void stop() {
+    super.stop();
     stop(false);
   }
 
@@ -137,6 +138,7 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
    * 取消下载
    */
   @Override public void cancel() {
+    super.cancel();
     if (mUtil.isRunning()) {
       mUtil.cancel();
     } else {

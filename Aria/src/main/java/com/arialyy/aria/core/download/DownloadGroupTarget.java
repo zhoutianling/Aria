@@ -16,7 +16,11 @@
 package com.arialyy.aria.core.download;
 
 import android.support.annotation.CheckResult;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import com.arialyy.aria.core.common.RequestEnum;
+import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
+import com.arialyy.aria.core.inf.IHttpHeaderTarget;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
@@ -24,13 +28,17 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Created by AriaL on 2017/6/29.
  * 下载任务组
  */
-public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
+public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> implements
+    IHttpHeaderTarget<DownloadGroupTarget> {
+  private HttpHeaderDelegate<DownloadGroupTarget, DownloadGroupEntity, DownloadGroupTaskEntity>
+      mDelegate;
   /**
    * 子任务下载地址，
    */
@@ -63,6 +71,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
     if (mEntity != null) {
       mDirPathTemp = mEntity.getDirPath();
     }
+    mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
   }
 
   /**
@@ -252,5 +261,26 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> {
     }
 
     return true;
+  }
+
+  @Override public DownloadGroupTarget addHeader(@NonNull String key, @NonNull String value) {
+    for (DownloadTaskEntity subTask : mTaskEntity.getSubTaskEntities()) {
+      mDelegate.addHeader(subTask, key, value);
+    }
+    return mDelegate.addHeader(key, value);
+  }
+
+  @Override public DownloadGroupTarget addHeaders(Map<String, String> headers) {
+    for (DownloadTaskEntity subTask : mTaskEntity.getSubTaskEntities()) {
+      mDelegate.addHeaders(subTask, headers);
+    }
+    return mDelegate.addHeaders(headers);
+  }
+
+  @Override public DownloadGroupTarget setRequestMode(RequestEnum requestEnum) {
+    for (DownloadTaskEntity subTask : mTaskEntity.getSubTaskEntities()) {
+      subTask.setRequestEnum(requestEnum);
+    }
+    return mDelegate.setRequestMode(requestEnum);
   }
 }

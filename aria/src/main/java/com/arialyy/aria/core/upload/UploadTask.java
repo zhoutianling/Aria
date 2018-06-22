@@ -60,6 +60,7 @@ public class UploadTask extends AbsNormalTask<UploadTaskEntity> {
   }
 
   @Override public void stop() {
+    super.stop();
     if (mUtil.isRunning()) {
       mUtil.stop();
     } else {
@@ -68,6 +69,7 @@ public class UploadTask extends AbsNormalTask<UploadTaskEntity> {
   }
 
   @Override public void cancel() {
+    super.cancel();
     if (mUtil.isRunning()) {
       mUtil.cancel();
     } else {

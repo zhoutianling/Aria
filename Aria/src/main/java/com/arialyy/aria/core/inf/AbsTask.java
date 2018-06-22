@@ -37,6 +37,7 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity> implements ITas
   private String mTargetName;
   protected Context mContext;
   protected boolean isHeighestTask = false;
+  private boolean isCancel = false, isStop = false;
 
   public Handler getOutHandler() {
     return mOutHandler;
@@ -119,6 +120,32 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity> implements ITas
    */
   @Override public String getExtendField() {
     return mTaskEntity.getEntity() == null ? null : mTaskEntity.getEntity().getStr();
+  }
+
+  @Override public void stop() {
+    isStop = true;
+  }
+
+  @Override public void cancel() {
+    isCancel = true;
+  }
+
+  /**
+   * 任务是否取消了
+   *
+   * @return {@code true}任务已经取消
+   */
+  public boolean isCancel() {
+    return isCancel;
+  }
+
+  /**
+   * 任务是否停止了
+   *
+   * @return {@code true}任务已经停止
+   */
+  public boolean isStop() {
+    return isStop;
   }
 
   /**

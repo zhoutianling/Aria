@@ -83,7 +83,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     mConfigThreadPool = Executors.newCachedThreadPool();
   }
 
-  public void setMaxSpeed(double maxSpeed) {
+  protected void setMaxSpeed(double maxSpeed) {
     if (-0.9999 < maxSpeed && maxSpeed < 0.00001) {
       mSleepTime = 0;
     } else {
@@ -106,13 +106,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    */
   public SubThreadConfig getConfig() {
     return mConfig;
-  }
-
-  /**
-   * 当前线程下载进度
-   */
-  public long getCurrentLocation() {
-    return mChildCurrentLocation;
   }
 
   private boolean filterVersion() {
@@ -291,8 +284,8 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
           mFailTimes++;
           ALog.w(TAG, String.format("任务【%s】thread__%s__正在重试", mConfig.TEMP_FILE.getName(),
               mConfig.THREAD_ID));
-          final long temp = mChildCurrentLocation;
-          mConfig.START_LOCATION = mChildCurrentLocation == 0 ? mConfig.START_LOCATION : temp;
+          mConfig.START_LOCATION = mChildCurrentLocation == 0 ? mConfig.START_LOCATION
+              : mConfig.THREAD_RECORD.startLocation;
           AbsThreadTask.this.run();
         }
       }, RETRY_INTERVAL);

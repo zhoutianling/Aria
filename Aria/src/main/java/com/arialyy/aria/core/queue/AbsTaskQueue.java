@@ -67,11 +67,20 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
    * 停止所有任务
    */
   @Override public void stopAllTask() {
-    mCachePool.clear();
+    //mCachePool.clear();
     for (String key : mExecutePool.getAllTask().keySet()) {
       TASK task = mExecutePool.getAllTask().get(key);
-      if (task != null && task.isRunning()) task.stop();
+      if (task != null && task.isRunning()) {
+        task.stop();
+      }
     }
+    for(String key : mCachePool.getAllTask().keySet()){
+      TASK task = mCachePool.getAllTask().get(key);
+      if (task != null){
+        task.stop();
+      }
+    }
+    mCachePool.clear();
   }
 
   /**

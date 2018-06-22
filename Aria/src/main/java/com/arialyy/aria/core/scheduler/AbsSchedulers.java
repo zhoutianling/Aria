@@ -17,7 +17,6 @@ package com.arialyy.aria.core.scheduler;
 
 import android.os.CountDownTimer;
 import android.os.Message;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadTask;
@@ -257,7 +256,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
    * @param task 下载任务
    */
   private void handleFailTask(final TASK task) {
-    if (!task.needRetry) {
+    if (!task.needRetry || task.isStop() || task.isCancel()) {
       mQueue.removeTaskFormQueue(task.getKey());
       startNextTask();
       return;
@@ -285,6 +284,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
       TEManager.getInstance().removeTEntity(task.getKey());
       return;
     }
+
     CountDownTimer timer = new CountDownTimer(interval, 1000) {
       @Override public void onTick(long millisUntilFinished) {
 

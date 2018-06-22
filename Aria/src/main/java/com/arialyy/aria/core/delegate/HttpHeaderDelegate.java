@@ -61,11 +61,7 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
       ALog.w(TAG, "设置header失败，header对应的value不能为null");
       return mTarget;
     }
-    if (mTaskEntity.getHeaders().get(key) == null) {
-      mTaskEntity.getHeaders().put(key, value);
-    } else if (!mTaskEntity.getHeaders().get(key).equals(value)) {
-      mTaskEntity.getHeaders().put(key, value);
-    }
+    addHeader(mTaskEntity, key, value);
     return mTarget;
   }
 
@@ -81,47 +77,7 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
       ALog.w(TAG, "设置header失败，map没有header数据");
       return mTarget;
     }
-    /*
-      两个map比较逻辑
-      1、比对key是否相同
-      2、如果key相同，比对value是否相同
-      3、只有当上面两个步骤中key 和 value都相同时才能任务两个map数据一致
-     */
-    boolean mapEquals = false;
-    if (mTaskEntity.getHeaders().size() == headers.size()) {
-      int i = 0;
-      Set<String> keys = mTaskEntity.getHeaders().keySet();
-      for (String key : keys) {
-        if (headers.containsKey(key)) {
-          i++;
-        } else {
-          break;
-        }
-      }
-      if (i == mTaskEntity.getHeaders().size()) {
-        int j = 0;
-        Collection<String> values = mTaskEntity.getHeaders().values();
-        for (String value : values) {
-          if (headers.containsValue(value)) {
-            j++;
-          } else {
-            break;
-          }
-        }
-        if (j == mTaskEntity.getHeaders().size()) {
-          mapEquals = true;
-        }
-      }
-    }
-
-    if (!mapEquals) {
-      mTaskEntity.getHeaders().clear();
-      Set<String> keys = headers.keySet();
-      for (String key : keys) {
-        mTaskEntity.getHeaders().put(key, headers.get(key));
-      }
-    }
-
+    addHeaders(mTaskEntity, headers);
     return mTarget;
   }
 
@@ -133,7 +89,62 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
    */
   @Override
   public TARGET setRequestMode(RequestEnum requestEnum) {
-    mTaskEntity.setRequestEnum(requestEnum);
+    setRequestMode(mTaskEntity, requestEnum);
     return mTarget;
+  }
+
+  public void addHeader(AbsTaskEntity taskEntity, String key, String value) {
+    if (taskEntity.getHeaders().get(key) == null) {
+      taskEntity.getHeaders().put(key, value);
+    } else if (!taskEntity.getHeaders().get(key).equals(value)) {
+      taskEntity.getHeaders().put(key, value);
+    }
+  }
+
+  public void setRequestMode(AbsTaskEntity taskEntity, RequestEnum requestEnum) {
+    taskEntity.setRequestEnum(requestEnum);
+  }
+
+  public void addHeaders(AbsTaskEntity taskEntity, Map<String, String> headers) {
+     /*
+      两个map比较逻辑
+      1、比对key是否相同
+      2、如果key相同，比对value是否相同
+      3、只有当上面两个步骤中key 和 value都相同时才能任务两个map数据一致
+     */
+    boolean mapEquals = false;
+    if (taskEntity.getHeaders().size() == headers.size()) {
+      int i = 0;
+      Set<String> keys = taskEntity.getHeaders().keySet();
+      for (String key : keys) {
+        if (headers.containsKey(key)) {
+          i++;
+        } else {
+          break;
+        }
+      }
+      if (i == taskEntity.getHeaders().size()) {
+        int j = 0;
+        Collection<String> values = taskEntity.getHeaders().values();
+        for (String value : values) {
+          if (headers.containsValue(value)) {
+            j++;
+          } else {
+            break;
+          }
+        }
+        if (j == taskEntity.getHeaders().size()) {
+          mapEquals = true;
+        }
+      }
+    }
+
+    if (!mapEquals) {
+      taskEntity.getHeaders().clear();
+      Set<String> keys = headers.keySet();
+      for (String key : keys) {
+        taskEntity.getHeaders().put(key, headers.get(key));
+      }
+    }
   }
 }

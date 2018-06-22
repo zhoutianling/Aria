@@ -113,6 +113,9 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 开始流程
    */
   private void startFlow() {
+    if (isBreak()) {
+      return;
+    }
     mConstance.resetState();
     checkTask();
     mConstance.TASK_RECORD = mRecord;
@@ -497,6 +500,9 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 启动单线程任务
    */
   private void startThreadTask(int[] recordL) {
+    if (isBreak()) {
+      return;
+    }
     if (mConstance.CURRENT_LOCATION > 0) {
       mListener.onResume(mConstance.CURRENT_LOCATION);
     } else {
@@ -516,6 +522,10 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 重试线程任务，只有线程创建成功才能重试
    */
   public void retryThreadTask() {
+    if (isBreak()) {
+      return;
+    }
+
     if (mTask == null || mTask.size() == 0) {
       ALog.w(TAG, "没有线程任务");
       return;
@@ -524,7 +534,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     for (Integer key : keys) {
       AbsThreadTask task = mTask.get(key);
       if (task != null && !task.isThreadComplete()) {
-        task.getConfig().START_LOCATION = task.getCurrentLocation();
+        task.getConfig().START_LOCATION = task.getConfig().THREAD_RECORD.startLocation;
         mConstance.isStop = false;
         mConstance.isCancel = false;
         mConstance.isRunning = true;
@@ -561,6 +571,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     config.END_LOCATION = config.FILE_SIZE;
     config.SUPPORT_BP = mTaskEntity.isSupportBP();
     config.TASK_ENTITY = mTaskEntity;
+    ThreadRecord record = new ThreadRecord();
+    record.startLocation = 0;
+    record.endLocation = config.FILE_SIZE;
+    record.key = mTempFile.getPath();
+    config.THREAD_RECORD = record;
     AbsThreadTask task = selectThreadTask(config);
     if (task == null) return;
     mTask.put(0, task);
@@ -573,4 +588,18 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 选择单任务线程的类型
    */
   protected abstract AbsThreadTask selectThreadTask(SubThreadConfig<TASK_ENTITY> config);
+
+  /**
+   * 任务是否已经中断
+   *
+   * @return {@code true}中断
+   */
+  public boolean isBreak() {
+    if (mConstance.isCancel || mConstance.isStop) {
+      closeTimer();
+      ALog.d(TAG, String.format("任务【%s】已停止或取消了", mEntity.getFileName()));
+      return true;
+    }
+    return false;
+  }
 }
