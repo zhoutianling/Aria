@@ -34,6 +34,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
   private IDownloadListener mListener;
   private Downloader mDownloader;
   private DownloadTaskEntity mTaskEntity;
+  private boolean isStop = false, isCancel = false;
 
   public SimpleDownloadUtil(DownloadTaskEntity entity, IDownloadListener downloadListener) {
     mTaskEntity = entity;
@@ -60,6 +61,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
    * 取消下载
    */
   @Override public void cancel() {
+    isCancel = true;
     mDownloader.cancel();
   }
 
@@ -67,6 +69,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
    * 停止下载
    */
   @Override public void stop() {
+    isStop = true;
     mDownloader.stop();
   }
 
@@ -74,6 +77,9 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
    * 多线程断点续传下载文件，开始下载
    */
   @Override public void start() {
+    if (isStop || isCancel){
+      return;
+    }
     new Thread(this).start();
   }
 
@@ -86,12 +92,18 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
   }
 
   private void failDownload(String msg, boolean needRetry) {
+    if (isStop || isCancel) {
+      return;
+    }
     mListener.onFail(needRetry);
     ErrorHelp.saveError(TAG, msg, "");
   }
 
   @Override public void run() {
     mListener.onPre();
+    if (isStop || isCancel) {
+      return;
+    }
     if (mTaskEntity.getEntity().getFileSize() <= 1
         || mTaskEntity.isRefreshInfo()
         || mTaskEntity.getRequestType() == AbsTaskEntity.D_FTP

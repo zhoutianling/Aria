@@ -40,14 +40,14 @@ class HttpFileInfoThread implements Runnable {
   private DownloadEntity mEntity;
   private DownloadTaskEntity mTaskEntity;
   private int mConnectTimeOut;
-  private OnFileInfoCallback onFileInfoListener;
+  private OnFileInfoCallback onFileInfoCallback;
 
   HttpFileInfoThread(DownloadTaskEntity taskEntity, OnFileInfoCallback callback) {
     this.mTaskEntity = taskEntity;
     mEntity = taskEntity.getEntity();
     mConnectTimeOut =
         AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getConnectTimeOut();
-    onFileInfoListener = callback;
+    onFileInfoCallback = callback;
   }
 
   @Override public void run() {
@@ -168,9 +168,9 @@ class HttpFileInfoThread implements Runnable {
     if (end) {
       mTaskEntity.setChunked(isChunked);
       mTaskEntity.update();
-      if (onFileInfoListener != null) {
+      if (onFileInfoCallback != null) {
         CompleteInfo info = new CompleteInfo(code);
-        onFileInfoListener.onComplete(mEntity.getUrl(), info);
+        onFileInfoCallback.onComplete(mEntity.getUrl(), info);
       }
     }
   }
@@ -200,8 +200,8 @@ class HttpFileInfoThread implements Runnable {
     ALog.d(TAG, "30x跳转，新url为【" + newUrl + "】");
     if (TextUtils.isEmpty(newUrl) || newUrl.equalsIgnoreCase("null") || !newUrl.startsWith(
         "http")) {
-      if (onFileInfoListener != null) {
-        onFileInfoListener.onFail(mEntity.getUrl(), "获取重定向链接失败", false);
+      if (onFileInfoCallback != null) {
+        onFileInfoCallback.onFail(mEntity.getUrl(), "获取重定向链接失败", false);
       }
       return;
     }
@@ -242,8 +242,8 @@ class HttpFileInfoThread implements Runnable {
 
   private void failDownload(String errorMsg, boolean needRetry) {
     ALog.e(TAG, errorMsg);
-    if (onFileInfoListener != null) {
-      onFileInfoListener.onFail(mEntity.getUrl(), errorMsg, needRetry);
+    if (onFileInfoCallback != null) {
+      onFileInfoCallback.onFail(mEntity.getUrl(), errorMsg, needRetry);
     }
   }
 }

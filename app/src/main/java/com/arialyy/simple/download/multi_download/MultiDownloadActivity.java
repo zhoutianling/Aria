@@ -126,6 +126,7 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
   }
 
   @DownloadGroup.onTaskStop void groupTaskStop(DownloadGroupTask task) {
+    ALog.d(TAG, String.format("group【%s】stop", task.getTaskName()));
     mAdapter.updateState(task.getEntity());
   }
 
@@ -134,6 +135,7 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
   }
 
   @DownloadGroup.onTaskFail void groupTaskFail(DownloadGroupTask task) {
+    ALog.d(TAG, String.format("group【%s】fail", task.getTaskName()));
     mAdapter.updateState(task.getEntity());
   }
 

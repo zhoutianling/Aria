@@ -112,16 +112,16 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     int maxTaskNum = mQueue.getMaxTaskNum();
     if (mWaitList == null || mWaitList.isEmpty()) return;
     for (AbsTaskEntity te : mWaitList) {
+      if (te instanceof DownloadTaskEntity) {
+        mQueue = DownloadTaskQueue.getInstance();
+      } else if (te instanceof UploadTaskEntity) {
+        mQueue = UploadTaskQueue.getInstance();
+      } else if (te instanceof DownloadGroupTaskEntity) {
+        mQueue = DownloadGroupTaskQueue.getInstance();
+      }
       if (mQueue.getCurrentExePoolNum() < maxTaskNum) {
         startTask(createTask(te));
       } else {
-        if (te instanceof DownloadTaskEntity) {
-          mQueue = DownloadTaskQueue.getInstance();
-        } else if (te instanceof UploadTaskEntity) {
-          mQueue = UploadTaskQueue.getInstance();
-        } else if (te instanceof DownloadGroupTaskEntity) {
-          mQueue = DownloadGroupTaskQueue.getInstance();
-        }
         createTask(te);
       }
     }

@@ -274,13 +274,15 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
       ALog.w(TAG, String.format("任务【%s】thread__%s__重试失败，网络未连接", mConfig.TEMP_FILE.getName(),
           mConfig.THREAD_ID));
     }
-    if (mFailTimes < RETRY_NUM
-        && needRetry
-        && (NetUtils.isConnected(AriaManager.APP) || isNotNetRetry)
-        && isBreak()) {
+    if (mFailTimes < RETRY_NUM && needRetry && (NetUtils.isConnected(AriaManager.APP)
+        || isNotNetRetry) && isBreak()) {
       mFailTimer = new Timer(true);
       mFailTimer.schedule(new TimerTask() {
         @Override public void run() {
+          if (isBreak()) {
+            handleSailState(false);
+            return;
+          }
           mFailTimes++;
           ALog.w(TAG, String.format("任务【%s】thread__%s__正在重试", mConfig.TEMP_FILE.getName(),
               mConfig.THREAD_ID));
@@ -290,13 +292,22 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
         }
       }, RETRY_INTERVAL);
     } else {
-      STATE.FAIL_NUM++;
-      if (STATE.isFail()) {
-        STATE.isRunning = false;
-        STATE.isStop = true;
-        ALog.e(TAG, String.format("任务【%s】执行失败", mConfig.TEMP_FILE.getName()));
-        mListener.onFail(true);
-      }
+      handleSailState(!isBreak());
+    }
+  }
+
+  /**
+   * 处理失败状态
+   *
+   * @param taskNeedReTry 任务是否需要重试{@code true} 需要
+   */
+  private void handleSailState(boolean taskNeedReTry) {
+    STATE.FAIL_NUM++;
+    if (STATE.isFail()) {
+      STATE.isRunning = false;
+      STATE.isStop = true;
+      ALog.e(TAG, String.format("任务【%s】执行失败", mConfig.TEMP_FILE.getName()));
+      mListener.onFail(taskNeedReTry);
     }
   }
 

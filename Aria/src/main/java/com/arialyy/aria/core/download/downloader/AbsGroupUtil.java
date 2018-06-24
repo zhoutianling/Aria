@@ -91,6 +91,7 @@ public abstract class AbsGroupUtil implements IUtil {
   //任务组大小
   int mGroupSize = 0;
   private long mUpdateInterval = 1000;
+  private boolean isStop = false, isCancel = false;
 
   AbsGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity groupEntity) {
     mListener = listener;
@@ -224,6 +225,7 @@ public abstract class AbsGroupUtil implements IUtil {
   }
 
   @Override public void cancel() {
+    isCancel = true;
     closeTimer(false);
     onCancel();
     if (!mExePool.isShutdown()) {
@@ -246,6 +248,7 @@ public abstract class AbsGroupUtil implements IUtil {
   }
 
   @Override public void stop() {
+    isStop = true;
     closeTimer(false);
     onStop();
     if (!mExePool.isShutdown()) {
@@ -294,6 +297,11 @@ public abstract class AbsGroupUtil implements IUtil {
   }
 
   @Override public void start() {
+    if (isStop || isCancel) {
+      isRunning = false;
+      closeTimer(false);
+      return;
+    }
     isRunning = true;
     clearState();
     onStart();
@@ -471,7 +479,7 @@ public abstract class AbsGroupUtil implements IUtil {
         if (mCompleteNum == mGroupSize) {
           closeTimer(false);
           mListener.onComplete();
-        } else if (mFailMap.size() > 0 && mStopNum + mCompleteNum + mFailMap.size() == mGroupSize) {
+        } else if (mFailMap.size() > 0 && mStopNum + mCompleteNum + mFailMap.size() >= mGroupSize) {
           //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
           closeTimer(false);
           mListener.onStop(mCurrentLocation);
@@ -492,7 +500,10 @@ public abstract class AbsGroupUtil implements IUtil {
     private void reTry(boolean needRetry) {
       Downloader dt = mDownloaderMap.get(subEntity.getUrl());
       synchronized (AbsGroupUtil.LOCK) {
-        if (dt != null && !dt.isBreak() && needRetry && subEntity.getFailNum() < 5
+        if (dt != null
+            && !dt.isBreak()
+            && needRetry
+            && subEntity.getFailNum() < 5
             && (NetUtils.isConnected(AriaManager.APP) || isNotNetRetry)) {
           reStartTask(dt);
         } else {
