@@ -15,17 +15,20 @@
  */
 package com.arialyy.aria.core.common;
 
+import com.arialyy.aria.util.ALog;
+
 /**
  * Created by lyy on 2017/1/18.
  * 状态常量
  */
 public class StateConstance {
+  private static final String TAG = "StateConstance";
   public int CANCEL_NUM = 0;
   public int STOP_NUM = 0;
   public int FAIL_NUM = 0;
   public int COMPLETE_THREAD_NUM = 0;
   public int START_THREAD_NUM;  //启动的线程数
-  public long CURRENT_LOCATION = 0;
+  public long CURRENT_LOCATION = 0; //当前下载进度
   public boolean isRunning = false;
   public boolean isCancel = false;
   public boolean isStop = false;
@@ -38,7 +41,6 @@ public class StateConstance {
     isCancel = false;
     isStop = false;
     isRunning = true;
-    CURRENT_LOCATION = 0;
     CANCEL_NUM = 0;
     STOP_NUM = 0;
     FAIL_NUM = 0;
@@ -55,15 +57,17 @@ public class StateConstance {
    * 所有子线程是否都已经失败
    */
   public boolean isFail() {
+    ALog.d(TAG, String.format("fail_num=%s; start_thread_num=%s, complete_num=%s", FAIL_NUM,
+        START_THREAD_NUM, COMPLETE_THREAD_NUM));
     return COMPLETE_THREAD_NUM != START_THREAD_NUM
-        && FAIL_NUM + COMPLETE_THREAD_NUM >= START_THREAD_NUM;
+        && FAIL_NUM == START_THREAD_NUM;
   }
 
   /**
    * 所有子线程是否都已经完成
    */
   public boolean isComplete() {
-    return COMPLETE_THREAD_NUM >= START_THREAD_NUM;
+    return COMPLETE_THREAD_NUM == START_THREAD_NUM;
   }
 
   /**

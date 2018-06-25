@@ -262,9 +262,8 @@ public abstract class AbsGroupUtil implements IUtil {
         dt.stop();
       }
     }
-    if (mDownloaderMap.size() == 0) {
-      mListener.onStop(mCurrentLocation);
-    }
+    clearState();
+    mListener.onStop(mCurrentLocation);
   }
 
   protected void onStop() {
@@ -279,7 +278,7 @@ public abstract class AbsGroupUtil implements IUtil {
     mListener.onPre();
     mGroupSize = mGTEntity.getSubTaskEntities().size();
     mTotalLen = mGTEntity.getEntity().getFileSize();
-    isNeedLoadFileSize = mTotalLen <= 1;
+    isNeedLoadFileSize = mTotalLen <= 10;
     for (DownloadTaskEntity te : mGTEntity.getSubTaskEntities()) {
       File file = new File(te.getKey());
       if (te.getState() == IEntity.STATE_COMPLETE && file.exists()) {
@@ -455,7 +454,7 @@ public abstract class AbsGroupUtil implements IUtil {
       mListener.onSubStop(subEntity);
       synchronized (AbsGroupUtil.LOCK) {
         mStopNum++;
-        if (mStopNum + mCompleteNum + mFailMap.size() == mGroupSize) {
+        if (mStopNum + mCompleteNum + mFailMap.size() == mGroupSize && !isStop) {
           closeTimer(false);
           mListener.onStop(mCurrentLocation);
         }
@@ -479,7 +478,9 @@ public abstract class AbsGroupUtil implements IUtil {
         if (mCompleteNum == mGroupSize) {
           closeTimer(false);
           mListener.onComplete();
-        } else if (mFailMap.size() > 0 && mStopNum + mCompleteNum + mFailMap.size() >= mGroupSize) {
+        } else if (mFailMap.size() > 0
+            && mStopNum + mCompleteNum + mFailMap.size() >= mGroupSize
+            && !isStop) {
           //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
           closeTimer(false);
           mListener.onStop(mCurrentLocation);
@@ -500,10 +501,10 @@ public abstract class AbsGroupUtil implements IUtil {
     private void reTry(boolean needRetry) {
       Downloader dt = mDownloaderMap.get(subEntity.getUrl());
       synchronized (AbsGroupUtil.LOCK) {
-        if (dt != null
+        if (!isCancel && !isStop && dt != null
             && !dt.isBreak()
             && needRetry
-            && subEntity.getFailNum() < 5
+            && subEntity.getFailNum() < 3
             && (NetUtils.isConnected(AriaManager.APP) || isNotNetRetry)) {
           reStartTask(dt);
         } else {
@@ -533,7 +534,7 @@ public abstract class AbsGroupUtil implements IUtil {
             dt.retryThreadTask();
           }
         }
-      }, 3000);
+      }, 5000);
     }
 
     private void handleSpeed(long speed) {

@@ -245,7 +245,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected void fail(final long subCurrentLocation, String msg, Exception ex, boolean needRetry) {
     synchronized (AriaManager.LOCK) {
       if (ex != null) {
-        ALog.e(TAG, msg + "\n" + ALog.getExceptionString(ex));
+        //ALog.e(TAG, msg + "\n" + ALog.getExceptionString(ex));
       } else {
         ALog.e(TAG, msg);
       }
@@ -280,7 +280,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
       mFailTimer.schedule(new TimerTask() {
         @Override public void run() {
           if (isBreak()) {
-            handleSailState(false);
+            handleFailState(false);
             return;
           }
           mFailTimes++;
@@ -292,7 +292,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
         }
       }, RETRY_INTERVAL);
     } else {
-      handleSailState(!isBreak());
+      handleFailState(!isBreak());
     }
   }
 
@@ -301,13 +301,17 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    *
    * @param taskNeedReTry 任务是否需要重试{@code true} 需要
    */
-  private void handleSailState(boolean taskNeedReTry) {
-    STATE.FAIL_NUM++;
-    if (STATE.isFail()) {
-      STATE.isRunning = false;
-      STATE.isStop = true;
-      ALog.e(TAG, String.format("任务【%s】执行失败", mConfig.TEMP_FILE.getName()));
-      mListener.onFail(taskNeedReTry);
+  private void handleFailState(boolean taskNeedReTry) {
+    synchronized (AriaManager.LOCK) {
+      STATE.FAIL_NUM++;
+      if (STATE.isFail()) {
+        STATE.isRunning = false;
+        // 手动停止不进行fail回调
+        if (!STATE.isStop) {
+          ALog.e(TAG, String.format("任务【%s】执行失败", mConfig.TEMP_FILE.getName()));
+          mListener.onFail(taskNeedReTry);
+        }
+      }
     }
   }
 

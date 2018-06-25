@@ -144,6 +144,7 @@ public class MultiDownloadActivity extends BaseActivity<ActivityMultiDownloadBin
   }
 
   @DownloadGroup.onTaskRunning() void groupTaskRunning(DownloadGroupTask task) {
+    ALog.d(TAG, String.format("group【%s】running", task.getTaskName()));
     mAdapter.setProgress(task.getEntity());
   }
 

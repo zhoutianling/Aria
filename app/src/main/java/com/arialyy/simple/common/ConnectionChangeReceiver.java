@@ -12,7 +12,7 @@ public class ConnectionChangeReceiver extends BroadcastReceiver {
   private static final String TAG = ConnectionChangeReceiver.class.getSimpleName();
 
   @Override public void onReceive(Context context, Intent intent) {
-    Log.d(TAG, "网络状态改变");
+
     /**
      * 获得网络连接服务
      */
@@ -23,11 +23,12 @@ public class ConnectionChangeReceiver extends BroadcastReceiver {
 
     if (NetworkInfo.State.CONNECTED == state) {
       Aria.download(this).resumeAllTask();
+      Log.w(TAG, "恢复所有任务");
       return;
     }
 
     Aria.download(this).stopAllTask();
-
+    //Log.w(TAG, "停止所有任务");
     //state = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState();
     //if (NetworkInfo.State.CONNECTED == state) {
     //

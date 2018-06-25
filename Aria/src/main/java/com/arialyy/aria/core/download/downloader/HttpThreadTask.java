@@ -99,12 +99,8 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         } else {
           readNormal(is, file);
         }
+        handleComplete();
       }
-
-      if (isBreak()) {
-        return;
-      }
-      handleComplete();
     } catch (MalformedURLException e) {
       fail(mChildCurrentLocation, "下载链接异常", e);
     } catch (IOException e) {
@@ -153,6 +149,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         bf.compact();
         progress(len);
       }
+      handleComplete();
     } catch (InterruptedException e) {
       e.printStackTrace();
     } catch (IOException e) {
@@ -207,29 +204,28 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
    * 处理完成配置文件的更新或事件回调
    */
   private void handleComplete() {
+    if (isBreak()) {
+      return;
+    }
     //支持断点的处理
     if (mConfig.SUPPORT_BP) {
-      if (mChildCurrentLocation == mConfig.END_LOCATION) {
-        ALog.i(TAG,
-            String.format("任务【%s】线程__%s__下载完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
-        writeConfig(true, mConfig.END_LOCATION);
-        STATE.COMPLETE_THREAD_NUM++;
-        if (STATE.isComplete()) {
-          if (isBlock) {
-            boolean success = mergeFile();
-            if (!success) {
-              ALog.e(TAG, String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName()));
-              STATE.isRunning = false;
-              mListener.onFail(false);
-              return;
-            }
+      ALog.i(TAG,
+          String.format("任务【%s】线程__%s__下载完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
+      writeConfig(true, mConfig.END_LOCATION);
+      STATE.COMPLETE_THREAD_NUM++;
+      if (STATE.isComplete()) {
+        if (isBlock) {
+          boolean success = mergeFile();
+          if (!success) {
+            ALog.e(TAG, String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName()));
+            STATE.isRunning = false;
+            mListener.onFail(false);
+            return;
           }
-          STATE.TASK_RECORD.deleteData();
-          STATE.isRunning = false;
-          mListener.onComplete();
         }
-      } else {
-        STATE.FAIL_NUM++;
+        STATE.TASK_RECORD.deleteData();
+        STATE.isRunning = false;
+        mListener.onComplete();
       }
       if (STATE.isFail()) {
         STATE.isRunning = false;

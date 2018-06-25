@@ -174,7 +174,8 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
     } else if (mEntity.isComplete()) {
       mEntity.setCompleteTime(System.currentTimeMillis());
       mEntity.setCurrentProgress(mEntity.getFileSize());
-    } else if (location > 0) {
+    }
+    if (location > 0) {
       mEntity.setCurrentProgress(location);
     }
     mTaskEntity.update();

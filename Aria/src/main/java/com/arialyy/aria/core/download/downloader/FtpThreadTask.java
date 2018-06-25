@@ -101,12 +101,8 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         readDynamicFile(is);
       } else {
         readNormal(is);
+        handleComplete();
       }
-
-      if (isBreak()) {
-        return;
-      }
-      handleComplete();
     } catch (IOException e) {
       fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
     } catch (Exception e) {
@@ -129,6 +125,9 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
    * 处理线程完成的情况
    */
   private void handleComplete() {
+    if (isBreak()) {
+      return;
+    }
     ALog.i(TAG,
         String.format("任务【%s】线程__%s__下载完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
     writeConfig(true, mConfig.END_LOCATION);
@@ -178,6 +177,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         bf.compact();
         progress(len);
       }
+      handleComplete();
     } catch (InterruptedException e) {
       e.printStackTrace();
     } catch (IOException e) {

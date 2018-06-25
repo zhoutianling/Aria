@@ -27,7 +27,7 @@ import java.util.List;
  * 1.如果执行队列没有满，则开始下载任务，直到执行队列满
  * 2.如果队列执行队列已经满了，则将所有任务添加到等待队列中
  * 3.如果队列中只有等待状态的任务，如果执行队列没有满，则会启动等待状态的任务，如果执行队列已经满了，则会将所有等待状态的任务加载到缓存队列中
- * 4.恢复下载的任务规则是，停止时间越晚的任务启动越早，安装DESC来进行排序
+ * 4.恢复下载的任务规则是，停止时间越晚的任务启动越早，按照DESC来进行排序
  */
 final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   private List<AbsTaskEntity> mWaitList = new ArrayList<>();
@@ -96,7 +96,7 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     int state = te.getState();
     if (state == IEntity.STATE_STOP || state == IEntity.STATE_OTHER) {
       resumeEntity(te);
-    } else if (state == IEntity.STATE_WAIT) {
+    } else if (state == IEntity.STATE_WAIT || state == IEntity.STATE_FAIL) {
       mWaitList.add(te);
     } else if (state == IEntity.STATE_RUNNING) {
       if (!mQueue.taskIsRunning(te.getEntity().getKey())) {

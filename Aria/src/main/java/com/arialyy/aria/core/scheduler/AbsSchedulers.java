@@ -168,11 +168,13 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
       case CANCEL:
         mQueue.removeTaskFormQueue(task.getKey());
         if (mQueue.getCurrentExePoolNum() < mQueue.getMaxTaskNum()) {
+          ALog.d(TAG, "stop_next");
           startNextTask();
         }
         break;
       case COMPLETE:
         mQueue.removeTaskFormQueue(task.getKey());
+        ALog.d(TAG, "complete_next");
         startNextTask();
         break;
       case FAIL:
@@ -258,6 +260,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
   private void handleFailTask(final TASK task) {
     if (!task.needRetry || task.isStop() || task.isCancel()) {
       mQueue.removeTaskFormQueue(task.getKey());
+      ALog.d(TAG, "fail_next");
       startNextTask();
       return;
     }
@@ -281,6 +284,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
       callback(FAIL, task);
       mQueue.removeTaskFormQueue(task.getKey());
       startNextTask();
+      ALog.d(TAG, "retry_next");
       TEManager.getInstance().removeTEntity(task.getKey());
       return;
     }
@@ -299,6 +303,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
         } else {
           mQueue.removeTaskFormQueue(task.getKey());
           startNextTask();
+          ALog.d(TAG, "retry_next_1");
           TEManager.getInstance().removeTEntity(task.getKey());
         }
       }
