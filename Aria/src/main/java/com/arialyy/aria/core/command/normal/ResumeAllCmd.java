@@ -98,9 +98,9 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       resumeEntity(te);
     } else if (state == IEntity.STATE_WAIT || state == IEntity.STATE_FAIL) {
       mWaitList.add(te);
-    } else if (state == IEntity.STATE_RUNNING) {
+    } else {
       if (!mQueue.taskIsRunning(te.getEntity().getKey())) {
-        resumeEntity(te);
+        mWaitList.add(te);
       }
     }
   }
@@ -122,7 +122,9 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
       if (mQueue.getCurrentExePoolNum() < maxTaskNum) {
         startTask(createTask(te));
       } else {
-        createTask(te);
+        te.getEntity().setState(IEntity.STATE_WAIT);
+        AbsTask task = createTask(te);
+        sendWaitState(task);
       }
     }
   }

@@ -70,8 +70,12 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
     mCachePool.clear();
     for (String key : mExecutePool.getAllTask().keySet()) {
       TASK task = mExecutePool.getAllTask().get(key);
-      if (task != null && (task.isRunning() || task.getState() == IEntity.STATE_FAIL)) {
-        task.stop();
+      if (task != null) {
+        int state = task.getState();
+        if (task.isRunning() || (state != IEntity.STATE_COMPLETE
+            && state != IEntity.STATE_CANCEL)) {
+          task.stop();
+        }
       }
     }
   }

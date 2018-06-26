@@ -245,7 +245,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected void fail(final long subCurrentLocation, String msg, Exception ex, boolean needRetry) {
     synchronized (AriaManager.LOCK) {
       if (ex != null) {
-        //ALog.e(TAG, msg + "\n" + ALog.getExceptionString(ex));
+        ALog.e(TAG, msg + "\n" + ALog.getExceptionString(ex));
       } else {
         ALog.e(TAG, msg);
       }
@@ -322,12 +322,14 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    * @param record 当前下载进度
    */
   protected void writeConfig(boolean isComplete, final long record) {
-    if (mConfig.THREAD_RECORD != null) {
-      mConfig.THREAD_RECORD.isComplete = isComplete;
-      if (0 < record && record < mConfig.END_LOCATION) {
-        mConfig.THREAD_RECORD.startLocation = record;
+    synchronized (AriaManager.LOCK) {
+      if (mConfig.THREAD_RECORD != null) {
+        mConfig.THREAD_RECORD.isComplete = isComplete;
+        if (0 < record && record < mConfig.END_LOCATION) {
+          mConfig.THREAD_RECORD.startLocation = record;
+        }
+        mConfig.THREAD_RECORD.update();
       }
-      mConfig.THREAD_RECORD.update();
     }
   }
 }

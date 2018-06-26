@@ -126,7 +126,6 @@ public abstract class AbsGroupUtil implements IUtil {
   public void startSubTask(String url) {
     if (!checkSubTask(url, "开始")) return;
     if (!isRunning) {
-      isRunning = true;
       startTimer();
     }
     Downloader d = getDownloader(url, false);
@@ -165,7 +164,7 @@ public abstract class AbsGroupUtil implements IUtil {
         mFailMap.remove(det.getKey());
         mGroupSize--;
         if (mGroupSize == 0) {
-          closeTimer(false);
+          closeTimer();
           mListener.onCancel();
         }
       }
@@ -226,7 +225,7 @@ public abstract class AbsGroupUtil implements IUtil {
 
   @Override public void cancel() {
     isCancel = true;
-    closeTimer(false);
+    closeTimer();
     onCancel();
     if (!mExePool.isShutdown()) {
       mExePool.shutdown();
@@ -249,7 +248,7 @@ public abstract class AbsGroupUtil implements IUtil {
 
   @Override public void stop() {
     isStop = true;
-    closeTimer(false);
+    closeTimer();
     onStop();
     if (!mExePool.isShutdown()) {
       mExePool.shutdown();
@@ -297,11 +296,9 @@ public abstract class AbsGroupUtil implements IUtil {
 
   @Override public void start() {
     if (isStop || isCancel) {
-      isRunning = false;
-      closeTimer(false);
+      closeTimer();
       return;
     }
-    isRunning = true;
     clearState();
     onStart();
   }
@@ -323,8 +320,8 @@ public abstract class AbsGroupUtil implements IUtil {
     mFailMap.clear();
   }
 
-  void closeTimer(boolean isRunning) {
-    this.isRunning = isRunning;
+  void closeTimer() {
+    isRunning = false;
     if (mTimer != null) {
       mTimer.purge();
       mTimer.cancel();
@@ -336,7 +333,7 @@ public abstract class AbsGroupUtil implements IUtil {
    * 开始进度流程
    */
   void startRunningFlow() {
-    closeTimer(true);
+    closeTimer();
     mListener.onPostPre(mTotalLen);
     if (mCurrentLocation > 0) {
       mListener.onResume(mCurrentLocation);
@@ -347,11 +344,12 @@ public abstract class AbsGroupUtil implements IUtil {
   }
 
   private void startTimer() {
+    isRunning = true;
     mTimer = new Timer(true);
     mTimer.schedule(new TimerTask() {
       @Override public void run() {
         if (!isRunning) {
-          closeTimer(false);
+          closeTimer();
         } else if (mCurrentLocation >= 0) {
           long t = 0;
           for (DownloadTaskEntity te : mGTEntity.getSubTaskEntities()) {
@@ -455,7 +453,7 @@ public abstract class AbsGroupUtil implements IUtil {
       synchronized (AbsGroupUtil.LOCK) {
         mStopNum++;
         if (mStopNum + mCompleteNum + mFailMap.size() == mGroupSize && !isStop) {
-          closeTimer(false);
+          closeTimer();
           mListener.onStop(mCurrentLocation);
         }
       }
@@ -476,13 +474,13 @@ public abstract class AbsGroupUtil implements IUtil {
         mCompleteNum++;
         //如果子任务完成的数量和总任务数一致，表示任务组任务已经完成
         if (mCompleteNum == mGroupSize) {
-          closeTimer(false);
+          closeTimer();
           mListener.onComplete();
         } else if (mFailMap.size() > 0
             && mStopNum + mCompleteNum + mFailMap.size() >= mGroupSize
             && !isStop) {
           //如果子任务完成数量加上失败的数量和总任务数一致，则任务组停止下载
-          closeTimer(false);
+          closeTimer();
           mListener.onStop(mCurrentLocation);
         }
       }
@@ -511,7 +509,7 @@ public abstract class AbsGroupUtil implements IUtil {
           mFailMap.put(subTaskEntity.getUrl(), subTaskEntity);
           mListener.onSubFail(subEntity);
           if (mFailMap.size() == mExeMap.size() || mFailMap.size() + mCompleteNum == mGroupSize) {
-            closeTimer(false);
+            closeTimer();
           }
           if (mFailMap.size() == mGroupSize) {
             mListener.onFail(true);

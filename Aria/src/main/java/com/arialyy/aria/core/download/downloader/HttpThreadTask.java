@@ -207,34 +207,39 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     if (isBreak()) {
       return;
     }
-    //支持断点的处理
-    if (mConfig.SUPPORT_BP) {
-      ALog.i(TAG,
-          String.format("任务【%s】线程__%s__下载完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
-      writeConfig(true, mConfig.END_LOCATION);
-      STATE.COMPLETE_THREAD_NUM++;
-      if (STATE.isComplete()) {
-        if (isBlock) {
-          boolean success = mergeFile();
-          if (!success) {
-            ALog.e(TAG, String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName()));
-            STATE.isRunning = false;
-            mListener.onFail(false);
-            return;
+
+    if (mChildCurrentLocation == mConfig.END_LOCATION) {
+      //支持断点的处理
+      if (mConfig.SUPPORT_BP) {
+        ALog.i(TAG,
+            String.format("任务【%s】线程__%s__下载完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
+        writeConfig(true, mConfig.END_LOCATION);
+        STATE.COMPLETE_THREAD_NUM++;
+        if (STATE.isComplete()) {
+          if (isBlock) {
+            boolean success = mergeFile();
+            if (!success) {
+              ALog.e(TAG, String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName()));
+              STATE.isRunning = false;
+              mListener.onFail(false);
+              return;
+            }
           }
+          STATE.TASK_RECORD.deleteData();
+          STATE.isRunning = false;
+          mListener.onComplete();
         }
-        STATE.TASK_RECORD.deleteData();
+        if (STATE.isFail()) {
+          STATE.isRunning = false;
+          mListener.onFail(false);
+        }
+      } else {
+        ALog.i(TAG, "任务下载完成");
         STATE.isRunning = false;
         mListener.onComplete();
       }
-      if (STATE.isFail()) {
-        STATE.isRunning = false;
-        mListener.onFail(false);
-      }
     } else {
-      ALog.i(TAG, "任务下载完成");
-      STATE.isRunning = false;
-      mListener.onComplete();
+      STATE.FAIL_NUM++;
     }
   }
 }
