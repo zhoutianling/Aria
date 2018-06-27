@@ -104,14 +104,24 @@ class ConnectionHelp {
         conn.setRequestProperty(key, entity.getHeaders().get(key));
       }
     }
-    if (keys == null || !keys.contains("Charset")) {
+
+    if (conn.getRequestProperty("Accept-Encoding") == null) {
+      conn.setRequestProperty("Accept-Encoding", "identity");
+    }
+    if (conn.getRequestProperty("Accept-Charset") == null) {
+      conn.setRequestProperty("Accept-Charset", "UTF-8");
+    }
+    if (conn.getRequestProperty("Connection") == null) {
+      conn.setRequestProperty("Connection", "Keep-Alive");
+    }
+    if (conn.getRequestProperty("Charset") == null) {
       conn.setRequestProperty("Charset", "UTF-8");
     }
-    if (keys == null || !keys.contains("User-Agent")) {
+    if (conn.getRequestProperty("User-Agent") == null) {
       conn.setRequestProperty("User-Agent",
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36");
     }
-    if (keys == null || !keys.contains("Accept")) {
+    if (conn.getRequestProperty("Accept") == null) {
       StringBuilder accept = new StringBuilder();
       accept.append("image/gif, ")
           .append("image/jpeg, ")
@@ -133,15 +143,7 @@ class ConnectionHelp {
           .append("*/*");
       conn.setRequestProperty("Accept", accept.toString());
     }
-    if (keys == null || !keys.contains("Accept-Encoding")) {
-      conn.setRequestProperty("Accept-Encoding", "identity");
-    }
-    if (keys == null || !keys.contains("Accept-Charset")) {
-      conn.setRequestProperty("Accept-Charset", "UTF-8");
-    }
-    if (keys == null || !keys.contains("Connection")) {
-      conn.setRequestProperty("Connection", "Keep-Alive");
-    }
+
     //302获取重定向地址
     conn.setInstanceFollowRedirects(false);
     return conn;

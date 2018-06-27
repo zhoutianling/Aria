@@ -73,8 +73,10 @@ public class AnyRunnModule {
     Aria.download(this)
         .load(url)
         //.addHeader("Accept-Encoding", "gzip")
+        .addHeader("headers", "Referer: http://www.bilibili.com/")
+        .addHeader("user-agent", "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
         .setRequestMode(RequestEnum.GET)
-        .setUrlProxy(Proxy.NO_PROXY)
+        //.setUrlProxy(Proxy.NO_PROXY)
         .setFilePath(path)
         //.resetState()
         .start();
