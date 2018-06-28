@@ -32,7 +32,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
   /**
    * 资源地址
    */
-  protected String url;
+  protected String url, newUrl;
 
   /**
    * 通过地址初始化target
@@ -46,6 +46,24 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
     if (mEntity != null) {
       mTempFilePath = mEntity.getDownloadPath();
     }
+  }
+
+  /**
+   * 更新下载url
+   *
+   * @param newUrl 新的下载url
+   */
+  public TARGET updateUrl(String newUrl) {
+    if (TextUtils.isEmpty(newUrl)) {
+      ALog.e(TAG, "下载url更新失败，newUrl为null");
+      return (TARGET) this;
+    }
+    if (url.equals(newUrl)) {
+      ALog.e(TAG, "下载url更新失败，新的下载url和旧的url一致");
+      return (TARGET) this;
+    }
+    this.newUrl = newUrl;
+    return (TARGET) this;
   }
 
   /**

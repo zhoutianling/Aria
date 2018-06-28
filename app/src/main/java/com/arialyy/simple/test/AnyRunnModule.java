@@ -65,7 +65,7 @@ public class AnyRunnModule {
 
   void start(String url) {
     mUrl = url;
-    String path = Environment.getExternalStorageDirectory().getPath() + "/aaa.apk";
+    String path = Environment.getExternalStorageDirectory().getPath() + "/aaas.apk";
     //File file = new File(path);
     //if (file.exists()) {
     //  file.delete();

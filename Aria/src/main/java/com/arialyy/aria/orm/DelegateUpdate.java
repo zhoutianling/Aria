@@ -24,6 +24,7 @@ import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -123,7 +124,7 @@ class DelegateUpdate extends AbsDelegate {
             Object obj = field.get(dbEntity);
             value = obj == null ? "" : convertValue(obj.toString());
           }
-          values.put(field.getName(), value);
+          values.put(field.getName(), encodeStr(value));
         }
       } catch (IllegalAccessException e) {
         e.printStackTrace();
@@ -165,7 +166,7 @@ class DelegateUpdate extends AbsDelegate {
               value = convertValue(field.get(dbEntity).toString());
             }
           }
-          values.put(field.getName(), value);
+          values.put(field.getName(), encodeStr(value));
         }
       } catch (IllegalAccessException e) {
         e.printStackTrace();
@@ -173,6 +174,11 @@ class DelegateUpdate extends AbsDelegate {
       dbEntity.rowID = db.insert(CommonUtil.getClassName(dbEntity), null, values);
     }
     close(db);
+  }
+
+  private String encodeStr(String str) {
+    str = str.replaceAll("\\\\+", "%2B");
+    return URLEncoder.encode(str);
   }
 
   /**

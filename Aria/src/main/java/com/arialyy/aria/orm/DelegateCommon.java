@@ -41,7 +41,7 @@ class DelegateCommon extends AbsDelegate {
    */
   void dropTable(SQLiteDatabase db, String tableName) {
     db = checkDb(db);
-    String deleteSQL = "DROP TABLE IF EXISTS ".concat(tableName);
+    String deleteSQL = String.format("DROP TABLE IF EXISTS %s", tableName);
     print(DROP_TABLE, deleteSQL);
     //db.beginTransaction();
     db.execSQL(deleteSQL);
@@ -75,12 +75,11 @@ class DelegateCommon extends AbsDelegate {
     db = checkDb(db);
     Cursor cursor = null;
     try {
-      StringBuilder sb = new StringBuilder();
-      sb.append("SELECT COUNT(*) AS c FROM sqlite_master WHERE type='table' AND name='");
-      sb.append(tableName);
-      sb.append("'");
-      print(TABLE_EXISTS, sb.toString());
-      cursor = db.rawQuery(sb.toString(), null);
+      String sql =
+          String.format("SELECT name FROM sqlite_master WHERE type='table' AND name='%s'",
+              tableName);
+      print(TABLE_EXISTS, sql);
+      cursor = db.rawQuery(sql, null);
       if (cursor != null && cursor.moveToNext()) {
         int count = cursor.getInt(0);
         if (count > 0) {
@@ -133,7 +132,7 @@ class DelegateCommon extends AbsDelegate {
       //外键Map，在Sqlite3中foreign修饰的字段必须放在最后
       final List<Field> foreignArray = new ArrayList<>();
       StringBuilder sb = new StringBuilder();
-      sb.append("CREATE TABLE ")
+      sb.append("CREATE TABLE IF NOT EXISTS ")
           .append(CommonUtil.getClassName(clazz))
           .append(" (");
       for (Field field : fields) {
@@ -187,7 +186,7 @@ class DelegateCommon extends AbsDelegate {
           }
         }
 
-        if (SqlUtil.isUnique(field)){
+        if (SqlUtil.isUnique(field)) {
           sb.append(" UNIQUE");
         }
 

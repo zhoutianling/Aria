@@ -82,7 +82,7 @@ public class HighestPriorityActivity extends BaseActivity<ActivityHighestPriorit
       mStart.setText("恢复");
       mStart.setTextColor(getResources().getColor(android.R.color.holo_blue_light));
       setBtState(true);
-    } else if (target.isDownloading()) {
+    } else if (target.isRunning()) {
       setBtState(false);
     }
     mSize.setText(target.getConvertFileSize());

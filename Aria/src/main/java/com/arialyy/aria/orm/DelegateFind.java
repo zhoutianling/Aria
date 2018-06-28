@@ -34,7 +34,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 /**
  * Created by laoyuyu on 2018/3/22.
@@ -441,18 +440,18 @@ class DelegateFind extends AbsDelegate {
         field.setBoolean(entity, !temp.equalsIgnoreCase("false"));
       }
     } else if (type == java.util.Date.class || type == java.sql.Date.class) {
-      field.set(entity, new Date(cursor.getString(column)));
+      field.set(entity, new Date(URLDecoder.decode(cursor.getString(column))));
     } else if (type == byte[].class) {
       field.set(entity, cursor.getBlob(column));
     } else if (type == Map.class) {
       String temp = cursor.getString(column);
       if (!TextUtils.isEmpty(temp)) {
-        field.set(entity, SqlUtil.str2Map(temp));
+        field.set(entity, SqlUtil.str2Map(URLDecoder.decode(temp)));
       }
     } else if (type == List.class) {
       String value = cursor.getString(column);
       if (!TextUtils.isEmpty(value)) {
-        field.set(entity, SqlUtil.str2List(value, field));
+        field.set(entity, SqlUtil.str2List(URLDecoder.decode(value), field));
       }
     }
   }
