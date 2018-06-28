@@ -26,6 +26,8 @@ import java.net.HttpURLConnection;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
@@ -123,27 +125,27 @@ class ConnectionHelp {
     }
     if (conn.getRequestProperty("Accept") == null) {
       StringBuilder accept = new StringBuilder();
-      accept.append("image/gif, ")
-          .append("image/jpeg, ")
-          .append("image/pjpeg, ")
-          .append("image/webp, ")
-          .append("image/apng, ")
-          .append("application/xml, ")
-          .append("application/xaml+xml, ")
-          .append("application/xhtml+xml, ")
-          .append("application/x-shockwave-flash, ")
-          .append("application/x-ms-xbap, ")
-          .append("application/x-ms-application, ")
-          .append("application/msword, ")
-          .append("application/vnd.ms-excel, ")
-          .append("application/vnd.ms-xpsdocument, ")
-          .append("application/vnd.ms-powerpoint, ")
-          .append("text/plain, ")
-          .append("text/html, ")
-          .append("*/*");
-      conn.setRequestProperty("Accept", accept.toString());
+      //accept
+          //.append("image/gif, ")
+          //.append("image/jpeg, ")
+          //.append("image/pjpeg, ")
+          //.append("image/webp, ")
+          //.append("image/apng, ")
+          //.append("application/xml, ")
+          //.append("application/xaml+xml, ")
+          //.append("application/xhtml+xml, ")
+          //.append("application/x-shockwave-flash, ")
+          //.append("application/x-ms-xbap, ")
+          //.append("application/x-ms-application, ")
+          //.append("application/msword, ")
+          //.append("application/vnd.ms-excel, ")
+          //.append("application/vnd.ms-xpsdocument, ")
+          //.append("application/vnd.ms-powerpoint, ")
+          //.append("text/plain, ")
+          //.append("text/html, ")
+          //.append("*/*");
+      conn.setRequestProperty("Accept", "*/*");
     }
-
     //302获取重定向地址
     conn.setInstanceFollowRedirects(false);
     return conn;

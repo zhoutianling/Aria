@@ -30,8 +30,12 @@ import com.arialyy.simple.common.ConnectionChangeReceiver;
  * Created by Lyy on 2016/9/27.
  */
 public class BaseApplication extends Application {
+
+  private static BaseApplication INSTANCE;
+
   @Override public void onCreate() {
     super.onCreate();
+    INSTANCE = this;
     AbsFrame.init(this);
     Aria.init(this);
     if (BuildConfig.DEBUG && Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
@@ -42,5 +46,14 @@ public class BaseApplication extends Application {
 
     registerReceiver(new ConnectionChangeReceiver(),
         new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+  }
+
+  public static BaseApplication getApp() {
+    return INSTANCE;
+  }
+
+  @Override
+  public void onTerminate() {
+    super.onTerminate();
   }
 }

@@ -13,6 +13,7 @@ Aria有以下特点：
    - 支持文件FTP断点续传上传
  + 支持https地址下载
    - 在配置文件中很容易就可以设置CA证书的信息
+ + 支持[多线程分块下载](https://aria.laoyuyu.me/aria_doc/start/config.html)，能更有效的发挥机器IO性能
  + 支持300、301、302重定向下载链接下载
  + 下载支持文件长度动态增加，文件下载初始化时将不再占用过多的内存空间，见[动态长度配置](https://aria.laoyuyu.me/aria_doc/start/config.html#%E4%B8%8B%E8%BD%BD%E5%8A%A8%E6%80%81%E6%96%87%E4%BB%B6%E8%AF%B4%E6%98%8E)
  
@@ -30,8 +31,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.4.3'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.3'
+compile 'com.arialyy.aria:aria-core:3.4.4'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.4'
 ```
 如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:<last-version>'`替换为
 ```
@@ -99,10 +100,10 @@ protected void onCreate(Bundle savedInstanceState) {
 
 
 ### 版本日志
- + v_3.4.3
-    - 修复在activity 的onStop中取消注册导致的内存泄露问题
-    - fix bug https://github.com/AriaLyy/Aria/issues/258
-    - fix bug https://github.com/AriaLyy/Aria/issues/259
+  + v_3.4.4
+    - 实现[多线程分块下载](https://aria.laoyuyu.me/aria_doc/start/config.html)
+    - 修复`stopAll()`和`resumeAll()`导致的进度为0问题
+    - 修复任务组添加header无效的问题
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 
@@ -124,6 +125,8 @@ protected void onCreate(Bundle savedInstanceState) {
 ## 其他
  有任何问题，可以在[issues](https://github.com/AriaLyy/Aria/issues)给我留言反馈。</br>
  在提交问题前，希望你已经查看过[wiki](https://aria.laoyuyu.me/aria_doc/)或搜索过[issues](https://github.com/AriaLyy/Aria/issues)。</br>
+ 交流群：524329160
+
 ***
 
 License

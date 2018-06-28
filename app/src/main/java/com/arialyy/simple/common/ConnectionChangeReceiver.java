@@ -21,13 +21,13 @@ public class ConnectionChangeReceiver extends BroadcastReceiver {
     NetworkInfo.State state =
         connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).getState();
 
-    if (NetworkInfo.State.CONNECTED == state) {
-      Aria.download(this).resumeAllTask();
-      Log.w(TAG, "恢复所有任务");
-      return;
-    }
-
-    Aria.download(this).stopAllTask();
+    //if (NetworkInfo.State.CONNECTED == state) {
+    //  Aria.download(this).resumeAllTask();
+    //  Log.w(TAG, "恢复所有任务");
+    //  return;
+    //}
+    //
+    //Aria.download(this).stopAllTask();
     //Log.w(TAG, "停止所有任务");
     //state = connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).getState();
     //if (NetworkInfo.State.CONNECTED == state) {

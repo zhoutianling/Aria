@@ -1,4 +1,8 @@
 ## 开发日志
+  + v_3.4.4
+    - 实现[多线程分块下载](https://aria.laoyuyu.me/aria_doc/start/config.html)
+    - 修复`stopAll()`和`resumeAll()`导致的进度为0问题
+    - 修复任务组添加header无效的问题
   + v_3.4.3
     - 修复在activity 的onStop中取消注册导致的内存泄露问题
     - fix bug https://github.com/AriaLyy/Aria/issues/258

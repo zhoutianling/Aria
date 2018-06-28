@@ -65,7 +65,7 @@ public class AnyRunnModule {
 
   void start(String url) {
     mUrl = url;
-    String path = Environment.getExternalStorageDirectory().getPath() + "/abcds.apk";
+    String path = Environment.getExternalStorageDirectory().getPath() + "/aaa.apk";
     //File file = new File(path);
     //if (file.exists()) {
     //  file.delete();
@@ -73,12 +73,12 @@ public class AnyRunnModule {
     Aria.download(this)
         .load(url)
         //.addHeader("Accept-Encoding", "gzip")
-        .addHeader("headers", "Referer: http://www.bilibili.com/")
+        .addHeader("Referer", "http://www.bilibili.com/")
         .addHeader("user-agent", "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
         .setRequestMode(RequestEnum.GET)
         //.setUrlProxy(Proxy.NO_PROXY)
         .setFilePath(path)
-        //.resetState()
+        .resetState()
         .start();
     //String[] urls = new String[] {
     //    "http://cdn-s1.touchfound.net/1526449199142_3617.png",
