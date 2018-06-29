@@ -66,36 +66,12 @@ public class AnyRunnModule {
   void start(String url) {
     mUrl = url;
     String path = Environment.getExternalStorageDirectory().getPath() + "/aaas.apk";
-    //File file = new File(path);
-    //if (file.exists()) {
-    //  file.delete();
-    //}
     Aria.download(this)
         .load(url)
-        //.addHeader("Accept-Encoding", "gzip")
-        .addHeader("Referer", "http://www.bilibili.com/")
-        .addHeader("user-agent", "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36")
         .setRequestMode(RequestEnum.GET)
-        //.setUrlProxy(Proxy.NO_PROXY)
         .setFilePath(path)
         .resetState()
         .start();
-    //String[] urls = new String[] {
-    //    "http://cdn-s1.touchfound.net/1526449199142_3617.png",
-    //    "http://cdn-s1.touchfound.net/mtVmResources/1526287158571.zip",
-    //    "http://cdn-s1.touchfound.net/1526450206960_2186.png",
-    //    "http://cdn-s1.touchfound.net/1526449199025_1476.png"
-    //};
-    //for (int i = 0, len = urls.length; i < len; i++){
-    //
-    //  Aria.download(this)
-    //      .load(urls[i])
-    //      //.addHeader("Accept-Encoding", "gzip")
-    //      .setRequestMode(RequestEnum.GET)
-    //      .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg123456.apk" + i)
-    //      //.resetState()
-    //      .start();
-    //}
   }
 
   void startFtp(String url) {
@@ -103,26 +79,8 @@ public class AnyRunnModule {
     Aria.download(this)
         .loadFtp(url)
         .login("lao", "123456")
-        //.addHeader("Accept-Encoding", "gzip")
         .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/")
-        //.resetState()
         .start();
-    //String[] urls = new String[] {
-    //    "http://cdn-s1.touchfound.net/1526449199142_3617.png",
-    //    "http://cdn-s1.touchfound.net/mtVmResources/1526287158571.zip",
-    //    "http://cdn-s1.touchfound.net/1526450206960_2186.png",
-    //    "http://cdn-s1.touchfound.net/1526449199025_1476.png"
-    //};
-    //for (int i = 0, len = urls.length; i < len; i++){
-    //
-    //  Aria.download(this)
-    //      .load(urls[i])
-    //      //.addHeader("Accept-Encoding", "gzip")
-    //      .setRequestMode(RequestEnum.GET)
-    //      .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg123456.apk" + i)
-    //      //.resetState()
-    //      .start();
-    //}
   }
 
   void stop(String url) {

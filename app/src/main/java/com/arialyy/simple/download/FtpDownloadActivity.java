@@ -59,7 +59,7 @@ public class FtpDownloadActivity extends BaseActivity<ActivityFtpDownloadBinding
   public void onClick(View view) {
     switch (view.getId()) {
       case R.id.start:
-        Aria.download(this).loadFtp(URL, true)
+        Aria.download(this).loadFtp(URL)
             .login("sxf", "B34VdGsJ")
             //.login("lao", "123456")
             .login("lao", "123456")

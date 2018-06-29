@@ -169,7 +169,7 @@ class DelegateFind extends AbsDelegate {
           sql = sql.replace("?", "%s");
           Object[] params = new String[expression.length - 1];
           for (int i = 0, len = params.length; i < len; i++) {
-            params[i] = "'" + convertValue(expression[i + 1]) + "'";
+            params[i] = String.format("'%s'", encodeStr(expression[i + 1]));
           }
           sql = String.format(sql, params);
         } else {
@@ -344,7 +344,7 @@ class DelegateFind extends AbsDelegate {
     sql = sql.replace("?", "%s");
     Object[] params = new String[expression.length - 1];
     for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + convertValue(expression[i + 1]) + "'";
+      params[i] = String.format("'%s'", encodeStr(expression[i + 1]));
     }
     sql = String.format(sql, params);
     print(FIND_DATA, sql);

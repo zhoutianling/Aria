@@ -60,7 +60,7 @@ public class StateConstance {
     ALog.d(TAG, String.format("fail_num=%s; start_thread_num=%s, complete_num=%s", FAIL_NUM,
         START_THREAD_NUM, COMPLETE_THREAD_NUM));
     return COMPLETE_THREAD_NUM != START_THREAD_NUM
-        && FAIL_NUM == START_THREAD_NUM;
+        && (FAIL_NUM == START_THREAD_NUM || FAIL_NUM + COMPLETE_THREAD_NUM == START_THREAD_NUM);
   }
 
   /**

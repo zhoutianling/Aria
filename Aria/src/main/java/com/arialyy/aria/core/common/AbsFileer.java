@@ -489,7 +489,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }
     if (mConstance.CURRENT_LOCATION != 0
         && mConstance.CURRENT_LOCATION != mEntity.getCurrentProgress()) {
-      ALog.d(TAG, "进度修正");
+      ALog.d(TAG, String.format("进度修正，当前进度：%s", mConstance.CURRENT_LOCATION));
       mEntity.setCurrentProgress(mConstance.CURRENT_LOCATION);
     }
     saveRecord();

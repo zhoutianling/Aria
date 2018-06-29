@@ -76,7 +76,7 @@ class DelegateCommon extends AbsDelegate {
     Cursor cursor = null;
     try {
       String sql =
-          String.format("SELECT name FROM sqlite_master WHERE type='table' AND name='%s'",
+          String.format("SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name='%s'",
               tableName);
       print(TABLE_EXISTS, sql);
       cursor = db.rawQuery(sql, null);
@@ -109,7 +109,7 @@ class DelegateCommon extends AbsDelegate {
     sql = sql.replace("?", "%s");
     Object[] params = new String[expression.length - 1];
     for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + expression[i + 1] + "'";
+      params[i] = String.format("'%s'", encodeStr(expression[i + 1]));
     }
     sql = String.format(sql, params);
     print(FIND_DATA, sql);

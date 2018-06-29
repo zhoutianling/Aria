@@ -49,6 +49,9 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    */
   private final int RETRY_INTERVAL = 5000;
   private final String TAG = "AbsThreadTask";
+  /**
+   * 当前子线程的下载位置
+   */
   protected long mChildCurrentLocation = 0, mSleepTime = 0;
   protected int mBufSize;
   protected IEventListener mListener;
@@ -185,6 +188,8 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected void progress(long len) {
     synchronized (AriaManager.LOCK) {
       if (STATE.CURRENT_LOCATION > mEntity.getFileSize()) {
+        ALog.d(TAG, String.format("currentLocation=%s, fileSize=%s", STATE.CURRENT_LOCATION,
+            mEntity.getFileSize()));
         taskBreak = true;
         fail(mChildCurrentLocation, "下载失败，下载长度超出文件大小", null, false);
         return;

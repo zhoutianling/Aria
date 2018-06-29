@@ -30,24 +30,19 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
     implements IFtpTarget<FtpDownloadTarget> {
   private FtpDelegate<FtpDownloadTarget, DownloadEntity, DownloadTaskEntity> mDelegate;
 
-  public FtpDownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
-    this(entity.getUrl(), targetName, refreshInfo);
+  public FtpDownloadTarget(DownloadEntity entity, String targetName) {
+    this(entity.getUrl(), targetName);
   }
 
   FtpDownloadTarget(String url, String targetName) {
-    this(url, targetName, false);
+    initTarget(url, targetName);
+    init();
   }
 
-  FtpDownloadTarget(String url, String targetName, boolean refreshInfo) {
-    initTarget(url, targetName, refreshInfo);
-    init(refreshInfo);
-  }
-
-  private void init(boolean refreshInfo) {
+  private void init() {
     int lastIndex = url.lastIndexOf("/");
     mEntity.setFileName(url.substring(lastIndex + 1, url.length()));
     mTaskEntity.setUrlEntity(CommonUtil.getFtpUrlInfo(url));
-    mTaskEntity.setRefreshInfo(refreshInfo);
     mTaskEntity.setRequestType(AbsTaskEntity.D_FTP);
 
     mDelegate = new FtpDelegate<>(this, mTaskEntity);

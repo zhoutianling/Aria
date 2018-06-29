@@ -89,6 +89,17 @@ abstract class AbsDelegate {
   }
 
   /**
+   * URL编码字符串
+   *
+   * @param str 原始字符串
+   * @return 编码后的字符串
+   */
+  String encodeStr(String str) {
+    str = str.replaceAll("\\\\+", "%2B");
+    return URLEncoder.encode(str);
+  }
+
+  /**
    * 检查list参数是否合法，list只能是{@code List<String>}
    *
    * @return {@code true} 合法
@@ -120,19 +131,6 @@ abstract class AbsDelegate {
       ALog.d(TAG, "map参数错误，支持Map<String,String>的参数字段");
       return false;
     }
-  }
-
-  /**
-   * 为了防止特殊字符串导致存储失败，需要使用URL编码保存的字符串
-   *
-   * @param value 需要保存的内容
-   * @return 转换后的内容
-   */
-  String convertValue(String value) {
-    if (!TextUtils.isEmpty(value) && value.contains("'")) {
-      return URLEncoder.encode(value);
-    }
-    return value;
   }
 
   void closeCursor(Cursor cursor) {

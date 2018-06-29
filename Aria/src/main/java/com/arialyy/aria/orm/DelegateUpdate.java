@@ -24,7 +24,6 @@ import com.arialyy.aria.util.CheckUtil;
 import com.arialyy.aria.util.CommonUtil;
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -91,7 +90,7 @@ class DelegateUpdate extends AbsDelegate {
     sql = sql.replace("?", "%s");
     Object[] params = new String[expression.length - 1];
     for (int i = 0, len = params.length; i < len; i++) {
-      params[i] = "'" + expression[i + 1] + "'";
+      params[i] = String.format("'%s'", encodeStr(expression[i + 1]));
     }
     sql = String.format(sql, params);
     print(DEL_DATA, sql);
@@ -122,7 +121,7 @@ class DelegateUpdate extends AbsDelegate {
             value = SqlUtil.list2Str(dbEntity, field);
           } else {
             Object obj = field.get(dbEntity);
-            value = obj == null ? "" : convertValue(obj.toString());
+            value = obj == null ? "" : obj.toString();
           }
           values.put(field.getName(), encodeStr(value));
         }
@@ -163,7 +162,7 @@ class DelegateUpdate extends AbsDelegate {
           } else {
             Object obj = field.get(dbEntity);
             if (obj != null) {
-              value = convertValue(field.get(dbEntity).toString());
+              value = field.get(dbEntity).toString();
             }
           }
           values.put(field.getName(), encodeStr(value));
@@ -174,11 +173,6 @@ class DelegateUpdate extends AbsDelegate {
       dbEntity.rowID = db.insert(CommonUtil.getClassName(dbEntity), null, values);
     }
     close(db);
-  }
-
-  private String encodeStr(String str) {
-    str = str.replaceAll("\\\\+", "%2B");
-    return URLEncoder.encode(str);
   }
 
   /**

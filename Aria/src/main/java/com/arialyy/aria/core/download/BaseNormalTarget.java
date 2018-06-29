@@ -37,12 +37,12 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
   /**
    * 通过地址初始化target
    */
-  void initTarget(String url, String targetName, boolean refreshInfo) {
+  void initTarget(String url, String targetName) {
     this.url = url;
     mTargetName = targetName;
     mTaskEntity = TEManager.getInstance().getTEntity(DownloadTaskEntity.class, url);
     mEntity = mTaskEntity.getEntity();
-    mTaskEntity.setRefreshInfo(refreshInfo);
+
     if (mEntity != null) {
       mTempFilePath = mEntity.getDownloadPath();
     }
@@ -63,6 +63,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
       return (TARGET) this;
     }
     this.newUrl = newUrl;
+    mTaskEntity.setRefreshInfo(true);
     return (TARGET) this;
   }
 
@@ -198,6 +199,10 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
     if (index == -1) {
       ALog.e(TAG, "下载失败，url【" + url + "】不合法");
       return false;
+    }
+    if (!TextUtils.isEmpty(newUrl)){
+      mEntity.setUrl(newUrl);
+      mTaskEntity.setUrl(newUrl);
     }
     return true;
   }

@@ -61,7 +61,6 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       handleComplete();
       return;
     }
-    //当前子线程的下载位置
     mChildCurrentLocation = mConfig.START_LOCATION;
     FTPClient client = null;
     InputStream is = null;
@@ -172,10 +171,19 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         if (mSleepTime > 0) {
           Thread.sleep(mSleepTime);
         }
-        bf.flip();
-        foc.write(bf);
-        bf.compact();
-        progress(len);
+        if (mChildCurrentLocation + len >= mConfig.END_LOCATION) {
+          len = (int) (mConfig.END_LOCATION - mChildCurrentLocation);
+          bf.flip();
+          fos.write(bf.array(), 0, len);
+          bf.compact();
+          progress(len);
+          break;
+        } else {
+          bf.flip();
+          foc.write(bf);
+          bf.compact();
+          progress(len);
+        }
       }
       handleComplete();
     } catch (InterruptedException e) {

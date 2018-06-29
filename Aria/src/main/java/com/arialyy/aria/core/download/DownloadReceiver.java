@@ -18,7 +18,6 @@ package com.arialyy.aria.core.download;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.CancelAllCmd;
@@ -27,7 +26,6 @@ import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.core.download.wrapper.DGEWrapper;
 import com.arialyy.aria.core.inf.AbsEntity;
 import com.arialyy.aria.core.inf.AbsReceiver;
-import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.inf.ReceiverType;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.scheduler.DownloadGroupSchedulers;
@@ -64,28 +62,7 @@ public class DownloadReceiver extends AbsReceiver {
    */
   @CheckResult
   public DownloadTarget load(DownloadEntity entity) {
-    return load(entity, false);
-  }
-
-  /**
-   * 使用下载实体执行下载操作
-   *
-   * @param refreshInfo 是否刷新下载信息
-   * @deprecated 请使用 {@link AbsTarget#resetState()}
-   * <pre>
-   *   <code>
-   *   Aria.download(this)
-   *       .load(URL)
-   *       .setDownloadPath(PATH)
-   *       .resetState()
-   *       .start();
-   *   </code>
-   * </pre>
-   */
-  @CheckResult
-  @Deprecated public DownloadTarget load(DownloadEntity entity, boolean refreshInfo) {
-    CheckUtil.checkDownloadEntity(entity);
-    return new DownloadTarget(entity, targetName, refreshInfo);
+    return new DownloadTarget(entity, targetName);
   }
 
   /**
@@ -95,29 +72,7 @@ public class DownloadReceiver extends AbsReceiver {
    */
   @CheckResult
   public DownloadTarget load(@NonNull String url) {
-    return load(url, false);
-  }
-
-  /**
-   * 加载Http、https单任务下载地址
-   *
-   * @param url 下载地址
-   * @param refreshInfo 是否刷新下载信息，当下载地址改变而保存路径不变，则需要设置该参数为{@code true}
-   * @deprecated 请使用 {@link AbsTarget#resetState()}
-   * <pre>
-   *   <code>
-   *   Aria.download(this)
-   *       .load(URL)
-   *       .setDownloadPath(PATH)
-   *       .resetState()
-   *       .start();
-   *   </code>
-   * </pre>
-   */
-  @CheckResult
-  @Deprecated public DownloadTarget load(@NonNull String url, boolean refreshInfo) {
-    CheckUtil.checkUrlInvalidThrow(url);
-    return new DownloadTarget(url, targetName, refreshInfo);
+    return new DownloadTarget(url, targetName);
   }
 
   /**
@@ -148,31 +103,7 @@ public class DownloadReceiver extends AbsReceiver {
    */
   @CheckResult
   public FtpDownloadTarget loadFtp(DownloadEntity entity) {
-    return loadFtp(entity, false);
-  }
-
-  /**
-   * 使用下载实体执行下载操作
-   *
-   * @param refreshInfo 是否刷新下载信息，当下载地址改变而保存路径不变，则需要设置该参数为{@code true}
-   * @deprecated 请使用 {@link AbsTarget#resetState()}
-   * <pre>
-   *   <code>
-   *   Aria.download(this)
-   *       .load(URL)
-   *       .setDownloadPath(PATH)
-   *       .resetState()
-   *       .start();
-   *   </code>
-   * </pre>
-   */
-  @CheckResult
-  @Deprecated public FtpDownloadTarget loadFtp(DownloadEntity entity, boolean refreshInfo) {
-    CheckUtil.checkDownloadEntity(entity);
-    if (!entity.getUrl().startsWith("ftp")) {
-      throw new IllegalArgumentException("非FTP请求不能使用该方法");
-    }
-    return new FtpDownloadTarget(entity, targetName, refreshInfo);
+    return new FtpDownloadTarget(entity, targetName);
   }
 
   /**
@@ -180,18 +111,7 @@ public class DownloadReceiver extends AbsReceiver {
    */
   @CheckResult
   public FtpDownloadTarget loadFtp(@NonNull String url) {
-    return loadFtp(url, false);
-  }
-
-  /**
-   * 加载ftp单任务下载地址
-   *
-   * @param refreshInfo 是否刷新下载信息
-   */
-  @CheckResult
-  public FtpDownloadTarget loadFtp(@NonNull String url, boolean refreshInfo) {
-    CheckUtil.checkUrlInvalidThrow(url);
-    return new FtpDownloadTarget(url, targetName, refreshInfo);
+    return new FtpDownloadTarget(url, targetName);
   }
 
   /**

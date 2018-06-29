@@ -31,20 +31,13 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
     implements IHttpHeaderTarget<DownloadTarget> {
   private HttpHeaderDelegate<DownloadTarget, DownloadEntity, DownloadTaskEntity> mDelegate;
 
-  public DownloadTarget(DownloadEntity entity, String targetName) {
-    this(entity, targetName, false);
-  }
 
-  DownloadTarget(DownloadEntity entity, String targetName, boolean refreshInfo) {
-    this(entity.getUrl(), targetName, refreshInfo);
+  DownloadTarget(DownloadEntity entity, String targetName) {
+    this(entity.getUrl(), targetName);
   }
 
   DownloadTarget(String url, String targetName) {
-    this(url, targetName, false);
-  }
-
-  DownloadTarget(String url, String targetName, boolean refreshInfo) {
-    initTarget(url, targetName, refreshInfo);
+    initTarget(url, targetName);
     mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
   }
 
