@@ -321,11 +321,13 @@ public abstract class AbsGroupUtil implements IUtil {
   }
 
   void closeTimer() {
-    isRunning = false;
-    if (mTimer != null) {
-      mTimer.purge();
-      mTimer.cancel();
-      mTimer = null;
+    synchronized (LOCK) {
+      isRunning = false;
+      if (mTimer != null) {
+        mTimer.purge();
+        mTimer.cancel();
+        mTimer = null;
+      }
     }
   }
 

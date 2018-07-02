@@ -92,8 +92,8 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         Aria.download(this).loadGroup(mUrls).stop();
         break;
       case R.id.cancel:
-        //Aria.download(this).load(mUrls).cancel(true);
-        Aria.download(this).removeAllTask(true);
+        Aria.download(this).loadGroup(mUrls).cancel(true);
+        //Aria.download(this).removeAllTask(true);
         //mUrls = getModule(GroupModule.class).getUrls1();
         //Aria.download(this)
         //    .load(mUrls)

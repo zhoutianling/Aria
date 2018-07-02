@@ -117,7 +117,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       return;
     }
     mConstance.resetState();
-    checkTask();
+    checkRecord();
     mConstance.TASK_RECORD = mRecord;
     if (mListener instanceof IDownloadListener) {
       ((IDownloadListener) mListener).onPostPre(mEntity.getFileSize());
@@ -183,10 +183,12 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   protected void closeTimer() {
-    if (mTimer != null) {
-      mTimer.purge();
-      mTimer.cancel();
-      mTimer = null;
+    synchronized (AbsFileer.class) {
+      if (mTimer != null) {
+        mTimer.purge();
+        mTimer.cancel();
+        mTimer = null;
+      }
     }
   }
 
@@ -261,14 +263,13 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
-   * 检查任务、检查线程数
-   * 新任务条件：
-   * 1、文件不存在
-   * 2、任务记录文件缺失或不匹配
-   * 3、数据库记录不存在
-   * 4、不支持断点，则是新任务
+   * 检查记录
+   * 对于分块任务：
+   * 子分块不存在或被删除，子线程将重新下载
+   * 对于普通任务：
+   * 预下载文件不存在，则任务任务呗删除
    */
-  private void checkTask() {
+  private void checkRecord() {
     mConfigFile = new File(CommonUtil.getFileConfigPath(false, mEntity.getFileName()));
     if (mConfigFile.exists()) {
       convertDb();
@@ -279,12 +280,32 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       } else {
         if (mRecord.threadRecords == null || mRecord.threadRecords.isEmpty()) {
           initRecord(true);
-        }
-        //else if (mTempFile.length() == 0) {
-        //  mRecord.deleteData();
-        //  initRecord(true);
-        //}
-        else {
+        } else if (mRecord.isBlock) {
+          for (ThreadRecord tr : mRecord.threadRecords) {
+            File temp = new File(String.format(SUB_PATH, mRecord.filePath, tr.threadId));
+            if (!temp.exists()) {
+              ALog.w(TAG, String.format("分块文件【%s】不存在，该分块将重新开始", temp.getPath()));
+              tr.isComplete = false;
+              tr.startLocation = -1;
+              mStartThreadNum++;
+            } else {
+              if (tr.isComplete) {
+                mCompleteThreadNum++;
+              } else {
+                mStartThreadNum++;
+              }
+            }
+            mTotalThreadNum = mRecord.threadRecords.size();
+            mTaskEntity.setNewTask(false);
+          }
+        } else {
+          File file = new File(mRecord.filePath);
+          if (!file.exists()) {
+            ALog.w(TAG, String.format("下载文件【%s】不存在，任务将重新开始", file.getPath()));
+            mRecord.deleteData();
+            initRecord(true);
+            return;
+          }
           for (ThreadRecord tr : mRecord.threadRecords) {
             if (tr.isComplete) {
               mCompleteThreadNum++;

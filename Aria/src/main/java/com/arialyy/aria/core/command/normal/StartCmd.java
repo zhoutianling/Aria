@@ -17,6 +17,7 @@
 package com.arialyy.aria.core.command.normal;
 
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -82,14 +83,14 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
             || task.getState() == IEntity.STATE_COMPLETE) {
           resumeTask();
         } else {
-          sendWaitState();
+          sendWaitState(task);
         }
       }
     } else {
       //任务没执行并且执行队列中没有该任务，才认为任务没有运行中
       if (!task.isRunning() && !mQueue.taskIsRunning(task.getKey())) {
         resumeTask();
-      }else {
+      } else {
         ALog.w(TAG, String.format("任务【%s】已经在运行", task.getTaskName()));
       }
     }
@@ -152,7 +153,8 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
         AbsTask task = getTask(te.getEntity());
         if (task != null) continue;
         if (te instanceof DownloadTaskEntity) {
-          if (te.getRequestType() == AbsTaskEntity.D_FTP || te.getRequestType() == AbsTaskEntity.U_FTP) {
+          if (te.getRequestType() == AbsTaskEntity.D_FTP
+              || te.getRequestType() == AbsTaskEntity.U_FTP) {
             te.setUrlEntity(CommonUtil.getFtpUrlInfo(te.getEntity().getKey()));
           }
           mQueue = DownloadTaskQueue.getInstance();
