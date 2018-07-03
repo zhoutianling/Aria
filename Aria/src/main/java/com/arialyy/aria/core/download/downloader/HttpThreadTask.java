@@ -76,7 +76,6 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         ALog.d(TAG,
             String.format("任务【%s】线程__%s__开始下载【开始位置 : %s，结束位置：%s】", mConfig.TEMP_FILE.getName(),
                 mConfig.THREAD_ID, mConfig.START_LOCATION, mConfig.END_LOCATION));
-        //在头里面请求下载开始位置和结束位置
         conn.setRequestProperty("Range",
             String.format("bytes=%s-%s", mConfig.START_LOCATION, (mConfig.END_LOCATION - 1)));
       } else {
@@ -144,10 +143,24 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         if (mSleepTime > 0) {
           Thread.sleep(mSleepTime);
         }
-        bf.flip();
-        foc.write(bf);
-        bf.compact();
-        progress(len);
+        //
+        //bf.flip();
+        //foc.write(bf);
+        //bf.compact();
+        //progress(len);
+        if (mChildCurrentLocation + len >= mConfig.END_LOCATION) {
+          len = (int) (mConfig.END_LOCATION - mChildCurrentLocation);
+          bf.flip();
+          fos.write(bf.array(), 0, len);
+          bf.compact();
+          progress(len);
+          break;
+        } else {
+          bf.flip();
+          foc.write(bf);
+          bf.compact();
+          progress(len);
+        }
       }
       handleComplete();
     } catch (InterruptedException e) {
@@ -157,6 +170,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     } finally {
       try {
         if (fos != null) {
+          fos.flush();
           fos.close();
         }
         if (foc != null) {

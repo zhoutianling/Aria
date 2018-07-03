@@ -50,14 +50,16 @@ public class StateConstance {
    * 所有子线程是否都已经停止
    */
   public boolean isStop() {
-    return STOP_NUM == START_THREAD_NUM;
+    ALog.d(TAG, String.format("stop_num=%s; start_thread_num=%s; complete_num=%s", STOP_NUM,
+        START_THREAD_NUM, COMPLETE_THREAD_NUM));
+    return STOP_NUM == START_THREAD_NUM || STOP_NUM + COMPLETE_THREAD_NUM == START_THREAD_NUM;
   }
 
   /**
    * 所有子线程是否都已经失败
    */
   public boolean isFail() {
-    ALog.d(TAG, String.format("fail_num=%s; start_thread_num=%s, complete_num=%s", FAIL_NUM,
+    ALog.d(TAG, String.format("fail_num=%s; start_thread_num=%s; complete_num=%s", FAIL_NUM,
         START_THREAD_NUM, COMPLETE_THREAD_NUM));
     return COMPLETE_THREAD_NUM != START_THREAD_NUM
         && (FAIL_NUM == START_THREAD_NUM || FAIL_NUM + COMPLETE_THREAD_NUM == START_THREAD_NUM);

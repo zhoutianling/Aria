@@ -65,7 +65,7 @@ public class AnyRunnModule {
 
   void start(String url) {
     mUrl = url;
-    String path = Environment.getExternalStorageDirectory().getPath() + "/aaas.apk";
+    String path = Environment.getExternalStorageDirectory().getPath() + "/mmm.mp4";
     Aria.download(this)
         .load(url)
         .setRequestMode(RequestEnum.GET)

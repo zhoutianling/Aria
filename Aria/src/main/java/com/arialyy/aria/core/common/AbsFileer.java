@@ -245,7 +245,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }
     for (int i = 0; i < mStartThreadNum; i++) {
       AbsThreadTask task = mTask.get(i);
-      if (task != null) {
+      if (task != null && !task.isThreadComplete()) {
         task.stop();
       }
     }
@@ -281,6 +281,9 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         if (mRecord.threadRecords == null || mRecord.threadRecords.isEmpty()) {
           initRecord(true);
         } else if (mRecord.isBlock) {
+          final int threadNum = mRecord.threadRecords.size();
+          final long blockLen = mEntity.getFileSize() / threadNum;
+          int i = 0;
           for (ThreadRecord tr : mRecord.threadRecords) {
             File temp = new File(String.format(SUB_PATH, mRecord.filePath, tr.threadId));
             if (!temp.exists()) {
@@ -292,16 +295,37 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
               if (tr.isComplete) {
                 mCompleteThreadNum++;
               } else {
-                mStartThreadNum++;
+                long realLocation = i * blockLen + temp.length();
+                ALog.w(TAG, String.format(
+                    "startLocation = %s; endLocation = %s; block = %s; tempLen = %s; i = %s",
+                    tr.startLocation, tr.endLocation, blockLen, temp.length(), i));
+                if (tr.endLocation == realLocation) {
+                  ALog.d(TAG, String.format("分块【%s】已完成，更新记录", temp.getPath()));
+                  tr.startLocation = realLocation;
+                  tr.isComplete = true;
+                  mCompleteThreadNum++;
+                } else {
+                  tr.isComplete = false;
+                  if (realLocation < tr.startLocation) {
+                    ALog.w(TAG, String.format("修正分块【%s】的进度记录为：%s", temp.getPath(), realLocation));
+                    tr.startLocation = realLocation;
+                  } else if (realLocation > tr.endLocation) {
+                    ALog.w(TAG, String.format("分块【%s】错误，将重新开始该分块", temp.getPath()));
+                    temp.delete();
+                    tr.startLocation = i * blockLen;
+                  }
+                  mStartThreadNum++;
+                }
               }
             }
-            mTotalThreadNum = mRecord.threadRecords.size();
-            mTaskEntity.setNewTask(false);
+            i++;
           }
+          mTotalThreadNum = mRecord.threadRecords.size();
+          mTaskEntity.setNewTask(false);
         } else {
           File file = new File(mRecord.filePath);
           if (!file.exists()) {
-            ALog.w(TAG, String.format("下载文件【%s】不存在，任务将重新开始", file.getPath()));
+            ALog.w(TAG, String.format("文件【%s】不存在，任务将重新开始", file.getPath()));
             mRecord.deleteData();
             initRecord(true);
             return;
@@ -483,22 +507,24 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       }
 
       //如果有记录，则恢复任务
-      if (tr.startLocation >= 0) {
-        Long r = tr.startLocation;
+      if (tr.startLocation > 0) {
+        long r = tr.startLocation;
         //记录的位置需要在线程区间中
-        if (startL < r && r < (i == (mTotalThreadNum - 1) ? fileLength : endL)) {
+        if (startL < r && r <= (i == (mTotalThreadNum - 1) ? fileLength : endL)) {
           mConstance.CURRENT_LOCATION += r - startL;
           startL = r;
         }
         ALog.d(TAG, String.format("任务【%s】线程__%s__恢复任务", mEntity.getFileName(), i));
+      } else {
+        tr.startLocation = startL;
       }
       //最后一个线程的结束位置即为文件的总长度
       if (i == (mTotalThreadNum - 1)) {
         endL = fileLength;
       }
-      // 更新记录
-      tr.startLocation = startL;
-      tr.endLocation = endL;
+      if (tr.endLocation <= 0) {
+        tr.endLocation = endL;
+      }
       if (isNewTr) {
         mRecord.threadRecords.add(tr);
       }

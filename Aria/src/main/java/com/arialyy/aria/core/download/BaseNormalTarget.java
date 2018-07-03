@@ -162,7 +162,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
       }
     }
 
-    //设置文件保存路径，如果新文件路径和就文件路径不同，则修改路径
+    //设置文件保存路径，如果新文件路径和旧文件路径不同，则修改路径
     if (!filePath.equals(mEntity.getDownloadPath())) {
       if (DbEntity.checkDataExist(DownloadEntity.class, "downloadPath=?", filePath)) {
         ALog.e(TAG, "下载失败，保存路径【" + filePath + "】已经被其它任务占用，请设置其它保存路径");
@@ -200,7 +200,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
       ALog.e(TAG, "下载失败，url【" + url + "】不合法");
       return false;
     }
-    if (!TextUtils.isEmpty(newUrl)){
+    if (!TextUtils.isEmpty(newUrl)) {
       mEntity.setUrl(newUrl);
       mTaskEntity.setUrl(newUrl);
     }

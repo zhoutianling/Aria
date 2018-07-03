@@ -50,4 +50,78 @@ public class GroupModule extends BaseModule {
     Collections.addAll(names, str);
     return names;
   }
+
+  List<String> getSubName2() {
+    List<String> taskSubFile;
+    taskSubFile = new ArrayList<>();
+    //taskSubFile.add("2156.mp4");
+    //        taskSubFile.add("2115.mp4");
+    //taskSubFile.add("2009.mp4");
+    //taskSubFile.add("1893.mp4");
+    //taskSubFile.add("1952.mp4");
+    //taskSubFile.add("1958.mp4");
+    taskSubFile.add("1994.mp4");
+    //taskSubFile.add("2083.mp4");
+    taskSubFile.add("2305.JPG");
+    taskSubFile.add("2183.JPG");
+    taskSubFile.add("2154.JPG");
+    taskSubFile.add("2153.JPG");
+    taskSubFile.add("2152.JPG");
+    taskSubFile.add("2151.JPG");
+    taskSubFile.add("2149.JPG");
+    taskSubFile.add("2148.JPG");
+    taskSubFile.add("2147.JPG");
+    taskSubFile.add("2146.JPG");
+    taskSubFile.add("1949.JPG");
+    taskSubFile.add("1887.JPG");
+    taskSubFile.add("1996.txt");
+    return taskSubFile;
+  }
+
+  public List<String> getUrls2() {
+    List<String> downLoadUrls;
+    downLoadUrls = new ArrayList<>();
+    //downLoadUrls.add(
+    //    "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2156&clientId=A000011106034058176");
+    //        downLoadUrls.add("http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2115&clientId=A000011106034058176");
+    //downLoadUrls.add(
+    //    "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2009&clientId=A000011106034058176");
+    //downLoadUrls.add(
+    //    "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1893&clientId=A000011106034058176");
+    //downLoadUrls.add(
+    //    "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1952&clientId=A000011106034058176");
+    //downLoadUrls.add(
+    //    "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1958&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1994&clientId=A000011106034058176");
+    //downLoadUrls.add(
+    //    "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2083&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2305&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2183&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2154&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2153&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2152&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2151&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2149&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2148&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2147&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2146&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1949&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1887&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1996&clientId=A000011106034058176");
+    return downLoadUrls;
+  }
 }

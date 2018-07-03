@@ -77,7 +77,7 @@ public class CommonUtil {
    * @param className 过滤的类名
    * @return 类的完整名称
    */
-  public static List<String> getClassName(Context context, String className) {
+  public static List<String> getPkgClassNames(Context context, String className) {
     List<String> classNameList = new ArrayList<>();
     String pPath = context.getPackageCodePath();
     File dir = new File(pPath).getParentFile();
