@@ -49,7 +49,6 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
         mUtil = new FtpDirDownloadUtil(mListener, mTaskEntity);
         break;
     }
-    Log.d(TAG, "FTP_TASK_MD5:" + mTaskEntity.hashCode());
   }
 
   @Override public boolean isRunning() {

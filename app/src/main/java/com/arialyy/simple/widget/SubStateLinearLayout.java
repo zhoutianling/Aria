@@ -18,6 +18,7 @@ package com.arialyy.simple.widget;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -105,6 +106,7 @@ public class SubStateLinearLayout extends LinearLayout implements View.OnClickLi
       if (position != -1) {
         TextView child = ((TextView) getChildAt(position));
         int p = getPercent(entity);
+        Log.d("TAG", "p = " + p);
         child.setText(entity.getFileName() + ": " + p + "%" + "   | " + entity.getConvertSpeed());
         child.invalidate();
       }

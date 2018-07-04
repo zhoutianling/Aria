@@ -58,8 +58,8 @@ public class GroupModule extends BaseModule {
     //        taskSubFile.add("2115.mp4");
     //taskSubFile.add("2009.mp4");
     //taskSubFile.add("1893.mp4");
-    //taskSubFile.add("1952.mp4");
-    //taskSubFile.add("1958.mp4");
+    taskSubFile.add("1952.mp4");
+    taskSubFile.add("1958.mp4");
     taskSubFile.add("1994.mp4");
     //taskSubFile.add("2083.mp4");
     taskSubFile.add("2305.JPG");
@@ -88,10 +88,10 @@ public class GroupModule extends BaseModule {
     //    "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=2009&clientId=A000011106034058176");
     //downLoadUrls.add(
     //    "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1893&clientId=A000011106034058176");
-    //downLoadUrls.add(
-    //    "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1952&clientId=A000011106034058176");
-    //downLoadUrls.add(
-    //    "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1958&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1952&clientId=A000011106034058176");
+    downLoadUrls.add(
+        "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1958&clientId=A000011106034058176");
     downLoadUrls.add(
         "http://d.quanscreen.com/k/down/resourceDownLoad?resourceId=1994&clientId=A000011106034058176");
     //downLoadUrls.add(

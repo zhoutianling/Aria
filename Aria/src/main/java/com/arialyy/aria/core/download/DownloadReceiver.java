@@ -160,15 +160,17 @@ public class DownloadReceiver extends AbsReceiver {
       ALog.e(TAG, String.format("【%s】观察者为空", targetName));
       return;
     }
-    Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
-    Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
-    Set<String> dgsCounter = ProxyHelper.getInstance().downloadGroupSubCounter;
-    if (dCounter != null && dCounter.contains(targetName)) {
-      DownloadSchedulers.getInstance().register(obj);
-    }
-    if ((dgCounter != null && dgCounter.contains(targetName)) || (dgsCounter != null
-        && dgsCounter.contains(targetName))) {
-      DownloadGroupSchedulers.getInstance().register(obj);
+    Set<Integer> set = ProxyHelper.getInstance().checkProxyType(obj.getClass());
+    if (set != null && !set.isEmpty()) {
+      for (Integer type : set) {
+        if (type == ProxyHelper.PROXY_TYPE_DOWNLOAD) {
+          DownloadSchedulers.getInstance().register(obj);
+        } else if (type == ProxyHelper.PROXY_TYPE_DOWNLOAD_GROUP) {
+          DownloadGroupSchedulers.getInstance().register(obj);
+        }
+      }
+    } else {
+      ALog.i(TAG, "没有Aria的注解方法");
     }
   }
 

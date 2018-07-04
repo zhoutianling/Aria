@@ -18,6 +18,7 @@ package com.arialyy.aria.core.download;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
 import com.arialyy.aria.core.inf.IHttpHeaderTarget;
@@ -66,8 +67,8 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
   private void init() {
     mGroupName = CommonUtil.getMd5Code(mUrls);
     mTaskEntity = TEManager.getInstance().getGTEntity(DownloadGroupTaskEntity.class, mUrls);
+    //ALog.d(TAG, "gHash=" + mEntity.getSubEntities().get(0).hashCode() + "; subHash="+mEntity.getT)
     mEntity = mTaskEntity.getEntity();
-
     if (mEntity != null) {
       mDirPathTemp = mEntity.getDirPath();
     }

@@ -22,6 +22,7 @@ import android.view.View;
 import butterknife.Bind;
 import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTask;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -133,14 +134,15 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
-    Log.d(TAG, "group running, p = "
-        + task.getPercent()
-        + ", speed = "
-        + task.getConvertSpeed()
-        + "current_p = "
-        + task.getCurrentProgress());
+    //Log.d(TAG, "group running, p = "
+    //    + task.getPercent()
+    //    + ", speed = "
+    //    + task.getConvertSpeed()
+    //    + "current_p = "
+    //    + task.getCurrentProgress());
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
+    //Log.d(TAG, "sub_len = " + task.getEntity().getSubEntities().size());
     mChildList.updateChildProgress(task.getEntity().getSubEntities());
   }
 
@@ -169,5 +171,55 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     mChildList.updateChildProgress(task.getEntity().getSubEntities());
     T.showShort(this, "任务组下载完成");
     L.d(TAG, "任务组下载完成");
+  }
+
+  @DownloadGroup.onSubTaskRunning void onSubTaskRunning(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+    //ALog.d(TAG, "sub_percent = " + subEntity.getPercent());
+    Log.e(TAG, "gHash = "
+        + groupTask.getEntity().getSubEntities().get(0).hashCode()
+        + "; subHash = "
+        + groupTask.getTaskEntity().getSubTaskEntities().get(0).getEntity().hashCode() +
+        "; subHash = " + subEntity.hashCode());
+    int percent = subEntity.getPercent();
+    //如果你打开了速度单位转换配置，将可以通过以下方法获取带单位的下载速度，如：1 mb/s
+    String convertSpeed = subEntity.getConvertSpeed();
+    //当前下载完成的进度，长度bytes
+    long completedSize = subEntity.getCurrentProgress();
+    Log.d(TAG, "subTask名字："
+        + subEntity.getFileName()
+        + ", "
+        + " speed:"
+        + convertSpeed
+        + ",percent: "
+        + percent
+        + "%,  completedSize:"
+        + completedSize);
+  }
+
+  @DownloadGroup.onSubTaskPre void onSubTaskPre(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+  }
+
+  @DownloadGroup.onSubTaskStop void onSubTaskStop(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+  }
+
+  @DownloadGroup.onSubTaskStart void onSubTaskStart(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+  }
+
+  //@DownloadGroup.onSubTaskCancel void onSubTaskCancel(DownloadGroupTask groupTask,
+  //    DownloadEntity subEntity) {
+  //  Log.d(TAG, "new Size: " + groupTask.getConvertFileSize());
+  //  mSub.setText("子任务：" + mChildName + "，状态：取消下载");
+  //}
+
+  @DownloadGroup.onSubTaskComplete void onSubTaskComplete(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
+  }
+
+  @DownloadGroup.onSubTaskFail void onSubTaskFail(DownloadGroupTask groupTask,
+      DownloadEntity subEntity) {
   }
 }

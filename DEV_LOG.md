@@ -1,4 +1,10 @@
 ## 开发日志
+  + v_3.4.6
+    - 修复android 4.4.4 版本多dex下无法进行回调的问题
+    - 优化分块下载
+    - 修复了字符串中有特殊字符导致的路径冲突问题；修复ftp分块下载失败问题
+    - 修复连接中有`+`导致的地址呗使用问题。
+    - 修复表重复创建导致的崩溃问题 https://github.com/AriaLyy/Aria/issues/264
   + v_3.4.4
     - 实现[多线程分块下载](https://aria.laoyuyu.me/aria_doc/start/config.html)
     - 修复`stopAll()`和`resumeAll()`导致的进度为0问题

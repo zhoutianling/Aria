@@ -20,6 +20,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
+import com.arialyy.aria.core.command.normal.CancelAllCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.ProxyHelper;
 import com.arialyy.aria.core.inf.AbsReceiver;
@@ -125,10 +126,11 @@ public class UploadReceiver extends AbsReceiver {
    */
   public void removeAllTask(boolean removeFile) {
     final AriaManager am = AriaManager.getInstance(AriaManager.APP);
-
-    am.setCmd(CommonUtil.createNormalCmd(targetName, new UploadTaskEntity(),
-        NormalCmdFactory.TASK_CANCEL_ALL, ICmd.TASK_TYPE_UPLOAD)).exe();
-
+    CancelAllCmd cancelCmd =
+        (CancelAllCmd) CommonUtil.createNormalCmd(targetName, new UploadTaskEntity(),
+            NormalCmdFactory.TASK_CANCEL_ALL, ICmd.TASK_TYPE_UPLOAD);
+    cancelCmd.removeFile = removeFile;
+    am.setCmd(cancelCmd).exe();
     Set<String> keys = am.getReceiver().keySet();
     for (String key : keys) {
       am.getReceiver().remove(key);
@@ -148,9 +150,15 @@ public class UploadReceiver extends AbsReceiver {
       ALog.e(TAG, String.format("【%s】观察者为空", targetName));
       return;
     }
-    Set<String> cCounter = ProxyHelper.getInstance().uploadCounter;
-    if (cCounter != null && cCounter.contains(targetName)) {
-      UploadSchedulers.getInstance().register(obj);
+    Set<Integer> set = ProxyHelper.getInstance().checkProxyType(obj.getClass());
+    if (set != null && !set.isEmpty()) {
+      for (Integer type : set) {
+        if (type == ProxyHelper.PROXY_TYPE_UPLOAD) {
+          UploadSchedulers.getInstance().register(obj);
+        }
+      }
+    } else {
+      ALog.i(TAG, "没有Aria的注解方法");
     }
   }
 
