@@ -35,7 +35,7 @@ import java.util.WeakHashMap;
  * Created by Aria.Lao on 2017/7/17.
  */
 public class SubStateLinearLayout extends LinearLayout implements View.OnClickListener {
-
+  private final String TAG = "SubStateLinearLayout";
   interface OnShowCallback {
     void onShow(boolean visibility);
   }
@@ -106,7 +106,6 @@ public class SubStateLinearLayout extends LinearLayout implements View.OnClickLi
       if (position != -1) {
         TextView child = ((TextView) getChildAt(position));
         int p = getPercent(entity);
-        Log.d("TAG", "p = " + p);
         child.setText(entity.getFileName() + ": " + p + "%" + "   | " + entity.getConvertSpeed());
         child.invalidate();
       }

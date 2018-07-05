@@ -110,14 +110,38 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
+   * 重置任务状态
+   */
+  private void resetState() {
+    closeTimer();
+    mCompleteThreadNum = 0;
+    mTotalThreadNum = 0;
+    mStartThreadNum = 0;
+    if (mFixedThreadPool != null) {
+      mFixedThreadPool.shutdown();
+    }
+    if (mTask != null && !mTask.isEmpty()) {
+      for (int i = 0; i < mTask.size(); i++) {
+        AbsThreadTask task = mTask.get(i);
+        if (task != null && !task.isRunning()) {
+          task.breakTask();
+        }
+      }
+      mTask.clear();
+    }
+  }
+
+  /**
    * 开始流程
    */
   private void startFlow() {
     if (isBreak()) {
       return;
     }
+    resetState();
     mConstance.resetState();
     checkRecord();
+    mConstance.isRunning = true;
     mConstance.TASK_RECORD = mRecord;
     if (mListener instanceof IDownloadListener) {
       ((IDownloadListener) mListener).onPostPre(mEntity.getFileSize());
@@ -281,67 +305,109 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         if (mRecord.threadRecords == null || mRecord.threadRecords.isEmpty()) {
           initRecord(true);
         } else if (mRecord.isBlock) {
-          final int threadNum = mRecord.threadRecords.size();
-          final long blockLen = mEntity.getFileSize() / threadNum;
-          int i = 0;
-          for (ThreadRecord tr : mRecord.threadRecords) {
-            File temp = new File(String.format(SUB_PATH, mRecord.filePath, tr.threadId));
-            if (!temp.exists()) {
-              ALog.w(TAG, String.format("分块文件【%s】不存在，该分块将重新开始", temp.getPath()));
-              tr.isComplete = false;
-              tr.startLocation = -1;
-              mStartThreadNum++;
-            } else {
-              if (tr.isComplete) {
-                mCompleteThreadNum++;
-              } else {
-                long realLocation = i * blockLen + temp.length();
-                ALog.w(TAG, String.format(
-                    "startLocation = %s; endLocation = %s; block = %s; tempLen = %s; i = %s",
-                    tr.startLocation, tr.endLocation, blockLen, temp.length(), i));
-                if (tr.endLocation == realLocation) {
-                  ALog.d(TAG, String.format("分块【%s】已完成，更新记录", temp.getPath()));
-                  tr.startLocation = realLocation;
-                  tr.isComplete = true;
-                  mCompleteThreadNum++;
-                } else {
-                  tr.isComplete = false;
-                  if (realLocation < tr.startLocation) {
-                    ALog.w(TAG, String.format("修正分块【%s】的进度记录为：%s", temp.getPath(), realLocation));
-                    tr.startLocation = realLocation;
-                  } else if (realLocation > tr.endLocation) {
-                    ALog.w(TAG, String.format("分块【%s】错误，将重新开始该分块", temp.getPath()));
-                    temp.delete();
-                    tr.startLocation = i * blockLen;
-                  }
-                  mStartThreadNum++;
-                }
-              }
-            }
-            i++;
-          }
-          mTotalThreadNum = mRecord.threadRecords.size();
-          mTaskEntity.setNewTask(false);
+          handleBlockRecord();
         } else {
-          File file = new File(mRecord.filePath);
-          if (!file.exists()) {
-            ALog.w(TAG, String.format("文件【%s】不存在，任务将重新开始", file.getPath()));
-            mRecord.deleteData();
-            initRecord(true);
-            return;
-          }
-          for (ThreadRecord tr : mRecord.threadRecords) {
-            if (tr.isComplete) {
-              mCompleteThreadNum++;
-            } else {
-              mStartThreadNum++;
-            }
-          }
-          mTotalThreadNum = mRecord.threadRecords.size();
-          mTaskEntity.setNewTask(false);
+          handleNormalRecord();
         }
       }
     }
+  }
+
+  /**
+   * 处理普通任务的记录
+   */
+  private void handleNormalRecord() {
+    File file = new File(mRecord.filePath);
+    if (!file.exists()) {
+      ALog.w(TAG, String.format("文件【%s】不存在，任务将重新开始", file.getPath()));
+      mRecord.deleteData();
+      initRecord(true);
+      return;
+    }
+
+    if (mRecord.isOpenDynamicFile) {
+      ThreadRecord tr = mRecord.threadRecords.get(0);
+      if (tr == null) {
+        mTaskEntity.setNewTask(true);
+        mTotalThreadNum = 1;
+        return;
+      }
+      if (file.length() > mEntity.getFileSize()) {
+        ALog.i(TAG, String.format("文件【%s】错误，任务重新开始", file.getPath()));
+        file.delete();
+        tr.startLocation = 0;
+        tr.isComplete = false;
+        tr.endLocation = mEntity.getFileSize();
+        mStartThreadNum++;
+      } else if (file.length() == mEntity.getFileSize()) {
+        tr.isComplete = true;
+        mCompleteThreadNum++;
+      } else {
+        if (file.length() != tr.startLocation) {
+          ALog.i(TAG, String.format("修正【%s】的进度记录为：%s", file.getPath(), file.length()));
+          tr.startLocation = file.length();
+          tr.isComplete = false;
+          mStartThreadNum++;
+        }
+      }
+    } else {
+      for (ThreadRecord tr : mRecord.threadRecords) {
+        if (tr.isComplete) {
+          mCompleteThreadNum++;
+        } else {
+          mStartThreadNum++;
+        }
+      }
+    }
+    mTotalThreadNum = mRecord.threadRecords.size();
+    mTaskEntity.setNewTask(false);
+  }
+
+  /**
+   * 处理分块任务的记录
+   */
+  private void handleBlockRecord() {
+    final int threadNum = mRecord.threadRecords.size();
+    final long blockLen = mEntity.getFileSize() / threadNum;
+    int i = 0;
+    for (ThreadRecord tr : mRecord.threadRecords) {
+      File temp = new File(String.format(SUB_PATH, mRecord.filePath, tr.threadId));
+      if (!temp.exists()) {
+        ALog.i(TAG, String.format("分块文件【%s】不存在，该分块将重新开始", temp.getPath()));
+        tr.isComplete = false;
+        tr.startLocation = -1;
+        mStartThreadNum++;
+      } else {
+        if (tr.isComplete) {
+          mCompleteThreadNum++;
+        } else {
+          long realLocation = i * blockLen + temp.length();
+          ALog.i(TAG, String.format(
+              "startLocation = %s; endLocation = %s; block = %s; tempLen = %s; i = %s",
+              tr.startLocation, tr.endLocation, blockLen, temp.length(), i));
+          if (tr.endLocation == realLocation) {
+            ALog.d(TAG, String.format("分块【%s】已完成，更新记录", temp.getPath()));
+            tr.startLocation = realLocation;
+            tr.isComplete = true;
+            mCompleteThreadNum++;
+          } else {
+            tr.isComplete = false;
+            if (realLocation < tr.startLocation) {
+              ALog.i(TAG, String.format("修正分块【%s】的进度记录为：%s", temp.getPath(), realLocation));
+              tr.startLocation = realLocation;
+            } else if (realLocation > tr.endLocation) {
+              ALog.i(TAG, String.format("分块【%s】错误，将重新开始该分块", temp.getPath()));
+              temp.delete();
+              tr.startLocation = i * blockLen;
+            }
+            mStartThreadNum++;
+          }
+        }
+      }
+      i++;
+    }
+    mTotalThreadNum = mRecord.threadRecords.size();
+    mTaskEntity.setNewTask(false);
   }
 
   /**
@@ -463,7 +529,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   private AbsThreadTask createSingThreadTask(int i, long startL, long endL, long fileLength,
       ThreadRecord record) {
     SubThreadConfig<TASK_ENTITY> config = new SubThreadConfig<>();
-    config.FILE_SIZE = fileLength;
+    config.TOTAL_FILE_SIZE = fileLength;
     config.URL = mEntity.isRedirect() ? mEntity.getRedirectUrl() : mEntity.getUrl();
     config.TEMP_FILE =
         mRecord.isBlock ? new File(String.format(SUB_PATH, mTempFile.getPath(), i)) : mTempFile;
@@ -566,34 +632,36 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   }
 
   /**
-   * 重试线程任务，只有线程创建成功才能重试
+   * 重试任务
    */
-  public void retryThreadTask() {
-    if (isBreak()) {
-      return;
-    }
-
-    if (mTask == null || mTask.size() == 0) {
-      ALog.w(TAG, "没有线程任务");
-      return;
-    }
-    Set<Integer> keys = mTask.keySet();
-    for (Integer key : keys) {
-      AbsThreadTask task = mTask.get(key);
-      if (task != null && !task.isThreadComplete()) {
-        task.getConfig().START_LOCATION = task.getConfig().THREAD_RECORD.startLocation;
-        mConstance.resetState();
-        startTimer();
-        ALog.d(TAG, String.format("任务【%s】开始重试，线程__%s__【开始位置：%s，结束位置：%s】", mEntity.getFileName(),
-            key, task.getConfig().START_LOCATION, task.getConfig().END_LOCATION));
-        if (!mFixedThreadPool.isShutdown()) {
-          mFixedThreadPool.execute(task);
-        } else {
-          ALog.w(TAG, "线程池已关闭");
-          mListener.onFail(true);
-        }
-      }
-    }
+  public void retryTask() {
+    ALog.w(TAG, String.format("任务【%s】开始重试", mEntity.getFileName()));
+    startFlow();
+    //if (isBreak()) {
+    //  return;
+    //}
+    //if (mTask == null || mTask.size() == 0) {
+    //  ALog.w(TAG, "没有线程任务");
+    //  return;
+    //}
+    //Set<Integer> keys = mTask.keySet();
+    //for (Integer key : keys) {
+    //  AbsThreadTask task = mTask.get(key);
+    //  if (task != null && !task.isThreadComplete()) {
+    //
+    //    task.getConfig().START_LOCATION = task.getConfig().THREAD_RECORD.startLocation;
+    //    mConstance.resetState();
+    //    startTimer();
+    //    ALog.d(TAG, String.format("任务【%s】开始重试，线程__%s__【开始位置：%s，结束位置：%s】", mEntity.getFileName(),
+    //        key, task.getConfig().START_LOCATION, task.getConfig().END_LOCATION));
+    //    if (!mFixedThreadPool.isShutdown()) {
+    //      mFixedThreadPool.execute(task);
+    //    } else {
+    //      ALog.w(TAG, "线程池已关闭");
+    //      mListener.onFail(true);
+    //    }
+    //  }
+    //}
   }
 
   /**
@@ -608,17 +676,17 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    */
   private void handleNoSupportBP() {
     SubThreadConfig<TASK_ENTITY> config = new SubThreadConfig<>();
-    config.FILE_SIZE = mEntity.getFileSize();
+    config.TOTAL_FILE_SIZE = mEntity.getFileSize();
     config.URL = mEntity.isRedirect() ? mEntity.getRedirectUrl() : mEntity.getUrl();
     config.TEMP_FILE = mTempFile;
     config.THREAD_ID = 0;
     config.START_LOCATION = 0;
-    config.END_LOCATION = config.FILE_SIZE;
+    config.END_LOCATION = config.TOTAL_FILE_SIZE;
     config.SUPPORT_BP = mTaskEntity.isSupportBP();
     config.TASK_ENTITY = mTaskEntity;
     ThreadRecord record = new ThreadRecord();
     record.startLocation = 0;
-    record.endLocation = config.FILE_SIZE;
+    record.endLocation = config.TOTAL_FILE_SIZE;
     record.key = mTempFile.getPath();
     config.THREAD_RECORD = record;
     AbsThreadTask task = selectThreadTask(config);

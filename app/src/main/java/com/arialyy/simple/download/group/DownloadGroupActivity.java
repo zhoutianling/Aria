@@ -46,7 +46,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     super.init(savedInstanceState);
     Aria.download(this).register();
     setTitle("任务组");
-    mUrls = getModule(GroupModule.class).getUrls2();
+    mUrls = getModule(GroupModule.class).getUrls1();
     DownloadGroupTaskEntity entity = Aria.download(this).getGroupTask(mUrls);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
@@ -83,9 +83,11 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
         Aria.download(this)
             .loadGroup(mUrls)
             .setDirPath(
-                Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_5")
+                //Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_5")
+                Environment.getExternalStorageDirectory().getPath() + "/Download/group_test_1")
             .setGroupAlias("任务组测试")
-            .setSubFileName(getModule(GroupModule.class).getSubName2())
+            //.setSubFileName(getModule(GroupModule.class).getSubName2())
+            .setSubFileName(getModule(GroupModule.class).getSubName())
             //.setFileSize(32895492)
             .start();
         break;
@@ -134,12 +136,12 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
   }
 
   @DownloadGroup.onTaskRunning() protected void running(DownloadGroupTask task) {
-    //Log.d(TAG, "group running, p = "
-    //    + task.getPercent()
-    //    + ", speed = "
-    //    + task.getConvertSpeed()
-    //    + "current_p = "
-    //    + task.getCurrentProgress());
+    Log.d(TAG, "group running, p = "
+        + task.getPercent()
+        + ", speed = "
+        + task.getConvertSpeed()
+        + "current_p = "
+        + task.getCurrentProgress());
     getBinding().setProgress(task.getPercent());
     getBinding().setSpeed(task.getConvertSpeed());
     //Log.d(TAG, "sub_len = " + task.getEntity().getSubEntities().size());
@@ -175,26 +177,25 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
 
   @DownloadGroup.onSubTaskRunning void onSubTaskRunning(DownloadGroupTask groupTask,
       DownloadEntity subEntity) {
-    //ALog.d(TAG, "sub_percent = " + subEntity.getPercent());
-    Log.e(TAG, "gHash = "
-        + groupTask.getEntity().getSubEntities().get(0).hashCode()
-        + "; subHash = "
-        + groupTask.getTaskEntity().getSubTaskEntities().get(0).getEntity().hashCode() +
-        "; subHash = " + subEntity.hashCode());
-    int percent = subEntity.getPercent();
-    //如果你打开了速度单位转换配置，将可以通过以下方法获取带单位的下载速度，如：1 mb/s
-    String convertSpeed = subEntity.getConvertSpeed();
-    //当前下载完成的进度，长度bytes
-    long completedSize = subEntity.getCurrentProgress();
-    Log.d(TAG, "subTask名字："
-        + subEntity.getFileName()
-        + ", "
-        + " speed:"
-        + convertSpeed
-        + ",percent: "
-        + percent
-        + "%,  completedSize:"
-        + completedSize);
+    //Log.e(TAG, "gHash = "
+    //    + groupTask.getEntity().getSubEntities().get(0).hashCode()
+    //    + "; subHash = "
+    //    + groupTask.getTaskEntity().getSubTaskEntities().get(0).getEntity().hashCode() +
+    //    "; subHash = " + subEntity.hashCode());
+    //int percent = subEntity.getPercent();
+    ////如果你打开了速度单位转换配置，将可以通过以下方法获取带单位的下载速度，如：1 mb/s
+    //String convertSpeed = subEntity.getConvertSpeed();
+    ////当前下载完成的进度，长度bytes
+    //long completedSize = subEntity.getCurrentProgress();
+    //Log.d(TAG, "subTask名字："
+    //    + subEntity.getFileName()
+    //    + ", "
+    //    + " speed:"
+    //    + convertSpeed
+    //    + ",percent: "
+    //    + percent
+    //    + "%,  completedSize:"
+    //    + completedSize);
   }
 
   @DownloadGroup.onSubTaskPre void onSubTaskPre(DownloadGroupTask groupTask,

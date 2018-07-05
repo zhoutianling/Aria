@@ -60,7 +60,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
   }
 
   @Override public void run() {
-    if (mConfig.THREAD_RECORD.isComplete) {
+    if (getThreadRecord().isComplete) {
       handleComplete();
       return;
     }

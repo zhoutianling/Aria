@@ -170,7 +170,7 @@ public class DownloadReceiver extends AbsReceiver {
         }
       }
     } else {
-      ALog.i(TAG, "没有Aria的注解方法");
+      ALog.w(TAG, "没有Aria的注解方法");
     }
   }
 

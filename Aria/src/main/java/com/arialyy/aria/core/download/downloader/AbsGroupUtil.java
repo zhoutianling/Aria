@@ -275,6 +275,7 @@ public abstract class AbsGroupUtil implements IUtil {
    */
   protected void onPre() {
     mListener.onPre();
+    isRunning = true;
     mGroupSize = mGTEntity.getSubTaskEntities().size();
     mTotalLen = mGTEntity.getEntity().getFileSize();
     isNeedLoadFileSize = mTotalLen <= 10;
@@ -492,20 +493,22 @@ public abstract class AbsGroupUtil implements IUtil {
       subEntity.setFailNum(subEntity.getFailNum() + 1);
       saveData(IEntity.STATE_FAIL, lastLen);
       handleSpeed(0);
-      reTry(needRetry);
+      //reTry(needRetry);
+      reTry(false);
     }
 
     /**
      * 重试下载，只有全部都下载失败才会执行任务组的整体重试，否则只会执行单个子任务的重试
      */
     private void reTry(boolean needRetry) {
-      Downloader dt = mDownloaderMap.get(subEntity.getUrl());
       synchronized (AbsGroupUtil.LOCK) {
+        Downloader dt = mDownloaderMap.get(subEntity.getUrl());
         if (!isCancel && !isStop && dt != null
             && !dt.isBreak()
             && needRetry
             && subEntity.getFailNum() < 3
             && (NetUtils.isConnected(AriaManager.APP) || isNotNetRetry)) {
+          ALog.d(TAG, "downloader retry");
           reStartTask(dt);
         } else {
           mFailMap.put(subTaskEntity.getUrl(), subTaskEntity);
@@ -531,7 +534,7 @@ public abstract class AbsGroupUtil implements IUtil {
       timer.schedule(new TimerTask() {
         @Override public void run() {
           if (dt != null) {
-            dt.retryThreadTask();
+            dt.retryTask();
           }
         }
       }, 5000);

@@ -109,14 +109,26 @@ public class ProxyHelper {
     try {
       if (Class.forName(className.concat("$$DownloadGroupListenerProxy")) != null) {
         result.add(PROXY_TYPE_DOWNLOAD_GROUP);
-      } else if (Class.forName(className.concat("$$DownloadListenerProxy")) != null) {
+      }
+    } catch (ClassNotFoundException e) {
+      //e.printStackTrace();
+    }
+    try {
+      if (Class.forName(className.concat("$$DownloadListenerProxy")) != null) {
         result.add(PROXY_TYPE_DOWNLOAD);
-      } else if (Class.forName(className.concat("$$UploadListenerProxy")) != null) {
+      }
+    } catch (ClassNotFoundException e) {
+      //e.printStackTrace();
+    }
+
+    try {
+      if (Class.forName(className.concat("$$UploadListenerProxy")) != null) {
         result.add(PROXY_TYPE_UPLOAD);
       }
     } catch (ClassNotFoundException e) {
       //e.printStackTrace();
     }
+
     if (!result.isEmpty()) {
       mProxyCache.put(clazz.getName(), result);
     }

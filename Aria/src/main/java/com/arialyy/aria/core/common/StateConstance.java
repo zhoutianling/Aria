@@ -40,10 +40,13 @@ public class StateConstance {
   public void resetState() {
     isCancel = false;
     isStop = false;
-    isRunning = true;
+    isRunning = false;
     CANCEL_NUM = 0;
     STOP_NUM = 0;
     FAIL_NUM = 0;
+    COMPLETE_THREAD_NUM = 0;
+    START_THREAD_NUM = 0;
+    CURRENT_LOCATION = 0;
   }
 
   /**

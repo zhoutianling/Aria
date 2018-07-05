@@ -163,6 +163,10 @@ public class DownloadGroupUtil extends AbsGroupUtil implements IUtil {
    */
   private void checkStartFlow() {
     synchronized (DownloadGroupUtil.class) {
+      if (isStop) {
+        closeTimer();
+        return;
+      }
       if (mInitFailNum == mExeNum) {
         closeTimer();
         mListener.onFail(true);

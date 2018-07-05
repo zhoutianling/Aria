@@ -14,10 +14,10 @@
       android:supportsRtl="true"
       android:theme="@style/AppTheme.NoActionBar">
     <!--android:name=".test.TestActivity"-->
-    <!--android:name=".test.AnyRunActivity"-->
     <!--android:name=".test.TestGroupActivity"-->
         <!--android:name=".MainActivity"-->
     <!--android:name="com.arialyy.simple.test.AnyRunActivity"-->
+    <!--android:name=".test.AnyRunActivity"-->
     <activity
     android:name=".download.group.DownloadGroupActivity"
         android:label="@string/app_name">
