@@ -143,11 +143,6 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         if (mSleepTime > 0) {
           Thread.sleep(mSleepTime);
         }
-        //
-        //bf.flip();
-        //foc.write(bf);
-        //bf.compact();
-        //progress(len);
         if (mChildCurrentLocation + len >= mConfig.END_LOCATION) {
           len = (int) (mConfig.END_LOCATION - mChildCurrentLocation);
           bf.flip();

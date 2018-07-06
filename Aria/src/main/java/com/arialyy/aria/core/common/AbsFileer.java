@@ -567,6 +567,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       } else {
         tr = mRecord.threadRecords.get(i);
       }
+
+      if (tr.blockLen == 0) {
+        tr.blockLen = i == mTotalThreadNum - 1 ? (fileLength - i * blockSize) : blockSize;
+      }
+
       if (tr.isComplete) {//该线程已经完成
         if (resumeRecordLocation(i, startL, endL)) return;
         continue;

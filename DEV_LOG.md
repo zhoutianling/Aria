@@ -1,6 +1,7 @@
 ## 开发日志
   + v_3.4.6
     - 修复android 4.4.4 版本多dex下无法进行回调的问题
+    - 新增`updateUrl(newUrl)`用于修改任务的url，[see](https://aria.laoyuyu.me/aria_doc/api/task_handle.html#%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1url)
     - 优化分块下载
     - 修复了字符串中有特殊字符导致的路径冲突问题；修复ftp分块下载失败问题
     - 修复连接中有`+`导致的地址呗使用问题。

@@ -493,8 +493,7 @@ public abstract class AbsGroupUtil implements IUtil {
       subEntity.setFailNum(subEntity.getFailNum() + 1);
       saveData(IEntity.STATE_FAIL, lastLen);
       handleSpeed(0);
-      //reTry(needRetry);
-      reTry(false);
+      reTry(needRetry);
     }
 
     /**

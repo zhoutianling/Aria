@@ -44,10 +44,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    * 线程重试次数
    */
   private final int RETRY_NUM = 2;
-  /**
-   * 线程重试间隔
-   */
-  private final int RETRY_INTERVAL = 5000;
+
   private final String TAG = "AbsThreadTask";
   /**
    * 当前子线程的下载位置
@@ -296,7 +293,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected void fail(final long subCurrentLocation, String msg, Exception ex, boolean needRetry) {
     synchronized (AriaManager.LOCK) {
       if (ex != null) {
-        //ALog.e(TAG, msg + "\n" + ALog.getExceptionString(ex));
+        ALog.e(TAG, msg + "\n" + ALog.getExceptionString(ex));
       } else {
         ALog.e(TAG, msg);
       }
@@ -327,6 +324,8 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     }
     if (mFailTimes < RETRY_NUM && needRetry && (NetUtils.isConnected(AriaManager.APP)
         || isNotNetRetry) && !isBreak()) {
+      ALog.w(TAG,
+          String.format("任务【%s】thread__%s__正在重试", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
       mFailTimer = new Timer(true);
       mFailTimer.schedule(new TimerTask() {
         @Override public void run() {
@@ -335,12 +334,10 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
             return;
           }
           mFailTimes++;
-          ALog.w(TAG, String.format("任务【%s】thread__%s__正在重试", mConfig.TEMP_FILE.getName(),
-              mConfig.THREAD_ID));
           handleRetryRecord();
           AbsThreadTask.this.run();
         }
-      }, RETRY_INTERVAL);
+      }, 3000);
     } else {
       handleFailState(!isBreak());
     }
@@ -365,23 +362,33 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
         STATE.COMPLETE_THREAD_NUM++;
         tr.isComplete = true;
       } else {
-        tr.startLocation = file.length();
-        mConfig.START_LOCATION = file.length();
+        tr.startLocation = block * tr.threadId + file.length();
+        mConfig.START_LOCATION = tr.startLocation;
         tr.isComplete = false;
-        long size = 0;
-        for (int i = 0, len = getTaskRecord().threadRecords.size(); i < len; i++) {
-          File temp = new File(String.format(AbsFileer.SUB_PATH, getTaskRecord().filePath, i));
-          if (temp.exists()) {
-            size += file.length();
-          }
-        }
-        STATE.CURRENT_LOCATION = size;
-        ALog.i(TAG, String.format("修正分块【%s】进度，开始位置：%s", file.getPath(), tr.startLocation));
+        STATE.CURRENT_LOCATION = getBlockRealTotalSize();
+        ALog.i(TAG, String.format("修正分块【%s】进度，开始位置：%s，当前进度：%s", file.getPath(), tr.startLocation,
+            STATE.CURRENT_LOCATION));
       }
     } else {
       mConfig.START_LOCATION = mChildCurrentLocation == 0 ? mConfig.START_LOCATION
           : mConfig.THREAD_RECORD.startLocation;
     }
+  }
+
+  /**
+   * 获取分块任务真实的进度
+   *
+   * @return 进度
+   */
+  private long getBlockRealTotalSize() {
+    long size = 0;
+    for (int i = 0, len = getTaskRecord().threadRecords.size(); i < len; i++) {
+      File temp = new File(String.format(AbsFileer.SUB_PATH, getTaskRecord().filePath, i));
+      if (temp.exists()) {
+        size += temp.length();
+      }
+    }
+    return size;
   }
 
   /**
