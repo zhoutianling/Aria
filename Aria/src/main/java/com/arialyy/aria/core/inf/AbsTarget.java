@@ -21,10 +21,13 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.CancelCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.common.TaskRecord;
+import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.util.ArrayList;
@@ -35,7 +38,7 @@ import java.util.List;
  */
 public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
     implements ITarget<TARGET> {
-  protected String TAG ;
+  protected String TAG;
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
   protected String mTargetName;
@@ -64,7 +67,17 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
       ALog.d("AbsTarget", "任务正在下载，即将删除任务");
       cancel();
     } else {
-      mEntity.deleteData();
+      if (mEntity instanceof AbsNormalEntity) {
+        TaskRecord record =
+            DbEntity.findFirst(TaskRecord.class, "TaskRecord.filePath=?", mTaskEntity.getKey());
+        if (record != null) {
+          CommonUtil.delTaskRecord(record, mTaskEntity.isRemoveFile(), (AbsNormalEntity) mEntity);
+        } else {
+          mEntity.deleteData();
+        }
+      } else if (mEntity instanceof DownloadGroupEntity) {
+        CommonUtil.delGroupTaskRecord(mTaskEntity.isRemoveFile(), ((DownloadGroupEntity) mEntity));
+      }
       TEManager.getInstance().removeTEntity(mEntity.getKey());
     }
   }

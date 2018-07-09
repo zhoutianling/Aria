@@ -1,4 +1,6 @@
 ## 开发日志
+  + v_3.4.7
+    - 修复分块任务异常操作导致的问题
   + v_3.4.6
     - 修复android 4.4.4 版本多dex下无法进行回调的问题
     - 新增`updateUrl(newUrl)`用于修改任务的url，[see](https://aria.laoyuyu.me/aria_doc/api/task_handle.html#%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1url)

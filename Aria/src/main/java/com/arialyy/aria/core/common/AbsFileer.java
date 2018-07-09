@@ -392,10 +392,10 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
             mCompleteThreadNum++;
           } else {
             tr.isComplete = false;
-            if (realLocation < tr.startLocation) {
+            if (realLocation != tr.startLocation) {
               ALog.i(TAG, String.format("修正分块【%s】的进度记录为：%s", temp.getPath(), realLocation));
               tr.startLocation = realLocation;
-            } else if (realLocation > tr.endLocation) {
+            }else if (realLocation > tr.endLocation) {
               ALog.i(TAG, String.format("分块【%s】错误，将重新开始该分块", temp.getPath()));
               temp.delete();
               tr.startLocation = i * blockLen;

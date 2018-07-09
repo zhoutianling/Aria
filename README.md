@@ -31,8 +31,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.4.6'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.6'
+compile 'com.arialyy.aria:aria-core:3.4.7'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.7'
 ```
 如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:<last-version>'`替换为
 ```
@@ -100,13 +100,8 @@ protected void onCreate(Bundle savedInstanceState) {
 
 
 ### 版本日志
-  + v_3.4.6
-    - 修复android 4.4.4 版本多dex下无法进行回调的问题
-    - 新增`updateUrl(newUrl)`用于修改任务的url，[see](https://aria.laoyuyu.me/aria_doc/api/task_handle.html#%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1url)
-    - 优化分块下载
-    - 修复了字符串中有特殊字符导致的路径冲突问题；修复ftp分块下载失败问题
-    - 修复连接中有`+`导致的地址呗使用问题。
-    - 修复表重复创建导致的崩溃问题 https://github.com/AriaLyy/Aria/issues/264
+  + v_3.4.7
+    - 修复分块任务异常操作导致的问题
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 

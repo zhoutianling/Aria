@@ -18,11 +18,11 @@ package com.arialyy.aria.core.download;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
 import com.arialyy.aria.core.inf.IHttpHeaderTarget;
 import com.arialyy.aria.core.manager.TEManager;
+import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
@@ -67,7 +67,6 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
   private void init() {
     mGroupName = CommonUtil.getMd5Code(mUrls);
     mTaskEntity = TEManager.getInstance().getGTEntity(DownloadGroupTaskEntity.class, mUrls);
-    //ALog.d(TAG, "gHash=" + mEntity.getSubEntities().get(0).hashCode() + "; subHash="+mEntity.getT)
     mEntity = mTaskEntity.getEntity();
     if (mEntity != null) {
       mDirPathTemp = mEntity.getDirPath();
@@ -239,6 +238,11 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
       if (oldFile.exists()) {
         oldFile.renameTo(new File(newPath));
       }
+      if (DbEntity.checkDataExist(DownloadEntity.class, "downloadPath=?", newPath)) {
+        ALog.w(TAG, String.format("更新文件名失败，路径【%s】已存在", newPath));
+        return;
+      }
+
       CommonUtil.modifyTaskRecord(oldFile.getPath(), newPath);
       entity.setDownloadPath(newPath);
       taskEntity.setKey(newPath);
