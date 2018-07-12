@@ -10,7 +10,6 @@ import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
 import java.io.File;
-import java.net.Proxy;
 
 /**
  * Created by laoyuyu on 2018/4/13.
@@ -79,7 +78,11 @@ public class AnyRunnModule {
     Aria.download(this)
         .loadFtp(url)
         .login("lao", "123456")
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/")
+        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/Download/")
+        .asFtps()
+        .setStorePath("/mnt/sdcard/Download/server.crt")
+        .setAlias("www.laoyuyu.me")
+        .setStorePass("123456")
         .start();
   }
 

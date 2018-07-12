@@ -19,13 +19,14 @@ import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.common.RequestEnum;
-import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
+import com.arialyy.aria.core.common.http.HttpHeaderDelegate;
 import com.arialyy.aria.core.inf.IHttpHeaderTarget;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.io.File;
+import java.net.Proxy;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -38,8 +39,7 @@ import java.util.Set;
  */
 public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> implements
     IHttpHeaderTarget<DownloadGroupTarget> {
-  private HttpHeaderDelegate<DownloadGroupTarget, DownloadGroupEntity, DownloadGroupTaskEntity>
-      mDelegate;
+  private HttpHeaderDelegate<DownloadGroupTarget> mDelegate;
   /**
    * 子任务下载地址，
    */
@@ -71,7 +71,35 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
     if (mEntity != null) {
       mDirPathTemp = mEntity.getDirPath();
     }
-    mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
+    mDelegate = new HttpHeaderDelegate<>(this);
+  }
+
+  /**
+   * 更新组合任务下载地址
+   *
+   * @param urls 新的组合任务下载地址列表
+   */
+  @CheckResult
+  public DownloadGroupTarget updateUrls(List<String> urls) {
+    if (urls == null || urls.isEmpty()) {
+      throw new NullPointerException("下载地址列表为空");
+    }
+    if (urls.size() != mUrls.size()) {
+      throw new IllegalArgumentException("新下载地址数量和旧下载地址数量不一致");
+    }
+    mUrls.clear();
+    mUrls.addAll(urls);
+    mGroupName = CommonUtil.getMd5Code(urls);
+    mEntity.setGroupName(mGroupName);
+    mTaskEntity.setKey(mGroupName);
+    mEntity.update();
+    if (mEntity.getSubEntities() != null && !mEntity.getSubEntities().isEmpty()) {
+      for (DownloadEntity de : mEntity.getSubEntities()) {
+        de.setGroupName(mGroupName);
+        de.update();
+      }
+    }
+    return this;
   }
 
   /**
@@ -268,6 +296,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
     return true;
   }
 
+  @CheckResult
   @Override public DownloadGroupTarget addHeader(@NonNull String key, @NonNull String value) {
     for (DownloadTaskEntity subTask : mTaskEntity.getSubTaskEntities()) {
       mDelegate.addHeader(subTask, key, value);
@@ -275,6 +304,7 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
     return mDelegate.addHeader(key, value);
   }
 
+  @CheckResult
   @Override public DownloadGroupTarget addHeaders(Map<String, String> headers) {
     for (DownloadTaskEntity subTask : mTaskEntity.getSubTaskEntities()) {
       mDelegate.addHeaders(subTask, headers);
@@ -282,10 +312,16 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
     return mDelegate.addHeaders(headers);
   }
 
+  @CheckResult
   @Override public DownloadGroupTarget setRequestMode(RequestEnum requestEnum) {
     for (DownloadTaskEntity subTask : mTaskEntity.getSubTaskEntities()) {
       subTask.setRequestEnum(requestEnum);
     }
     return mDelegate.setRequestMode(requestEnum);
+  }
+
+  @CheckResult
+  @Override public DownloadGroupTarget setUrlProxy(Proxy proxy) {
+    return mDelegate.setUrlProxy(proxy);
   }
 }

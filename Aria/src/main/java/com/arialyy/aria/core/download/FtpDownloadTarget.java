@@ -17,7 +17,8 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
-import com.arialyy.aria.core.delegate.FtpDelegate;
+import com.arialyy.aria.core.common.ftp.FTPSSLConfig;
+import com.arialyy.aria.core.common.ftp.FtpDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IFtpTarget;
 import com.arialyy.aria.util.CommonUtil;
@@ -28,7 +29,7 @@ import com.arialyy.aria.util.CommonUtil;
  */
 public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
     implements IFtpTarget<FtpDownloadTarget> {
-  private FtpDelegate<FtpDownloadTarget, DownloadEntity, DownloadTaskEntity> mDelegate;
+  private FtpDelegate<FtpDownloadTarget> mDelegate;
 
   public FtpDownloadTarget(DownloadEntity entity, String targetName) {
     this(entity.getUrl(), targetName);
@@ -45,7 +46,18 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
     mTaskEntity.setUrlEntity(CommonUtil.getFtpUrlInfo(url));
     mTaskEntity.setRequestType(AbsTaskEntity.D_FTP);
 
-    mDelegate = new FtpDelegate<>(this, mTaskEntity);
+    mDelegate = new FtpDelegate<>(this);
+  }
+
+  /**
+   * 是否是FTPS协议
+   * 如果是FTPS协议，需要使用{@link FTPSSLConfig#setPrivateKeyPath(String)}、{@link FTPSSLConfig#setCertPath(String)}
+   * 设置证书信息
+   */
+  @CheckResult
+  public FTPSSLConfig<FtpDownloadTarget> asFtps() {
+    mTaskEntity.getUrlEntity().isFtps = true;
+    return new FTPSSLConfig<>(this);
   }
 
   /**

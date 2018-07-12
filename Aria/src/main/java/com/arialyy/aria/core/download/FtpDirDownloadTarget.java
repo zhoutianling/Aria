@@ -17,7 +17,7 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.CheckResult;
 import android.text.TextUtils;
-import com.arialyy.aria.core.delegate.FtpDelegate;
+import com.arialyy.aria.core.common.ftp.FtpDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IFtpTarget;
 import com.arialyy.aria.core.manager.TEManager;
@@ -29,7 +29,7 @@ import com.arialyy.aria.util.ALog;
  */
 public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
     implements IFtpTarget<FtpDirDownloadTarget> {
-  private FtpDelegate<FtpDirDownloadTarget, DownloadGroupEntity, DownloadGroupTaskEntity> mDelegate;
+  private FtpDelegate<FtpDirDownloadTarget> mDelegate;
 
   FtpDirDownloadTarget(String url, String targetName) {
     mTargetName = targetName;
@@ -44,7 +44,7 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
     if (mEntity != null) {
       mDirPathTemp = mEntity.getDirPath();
     }
-    mDelegate = new FtpDelegate<>(this, mTaskEntity);
+    mDelegate = new FtpDelegate<>(this);
   }
 
   @Override protected int getTargetType() {
@@ -90,14 +90,17 @@ public class FtpDirDownloadTarget extends BaseGroupTarget<FtpDirDownloadTarget>
     }
     return true;
   }
+
   @CheckResult
   @Override public FtpDirDownloadTarget charSet(String charSet) {
     return mDelegate.charSet(charSet);
   }
+
   @CheckResult
   @Override public FtpDirDownloadTarget login(String userName, String password) {
     return mDelegate.login(userName, password);
   }
+
   @CheckResult
   @Override public FtpDirDownloadTarget login(String userName, String password, String account) {
     return mDelegate.login(userName, password, account);

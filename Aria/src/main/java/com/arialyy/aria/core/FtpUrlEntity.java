@@ -17,6 +17,7 @@
  */
 package com.arialyy.aria.core;
 
+import com.arialyy.aria.orm.annotation.Ignore;
 import java.net.InetAddress;
 
 /**
@@ -33,6 +34,12 @@ public class FtpUrlEntity implements Cloneable {
   public String account;
 
   /**
+   * 是否是ftps
+   * {@code true}ftps协议的地址，{@code false}不是ftps协议的地址
+   */
+  public boolean isFtps = false;
+
+  /**
    * 原始url
    */
   public String url;
@@ -46,9 +53,11 @@ public class FtpUrlEntity implements Cloneable {
    * 登录的用户名
    */
   public String user;
+
   /**
    * 密码
    */
+  @Ignore
   public String password;
 
   /**
@@ -70,6 +79,26 @@ public class FtpUrlEntity implements Cloneable {
    * 有效的ip地址
    */
   public InetAddress validAddr;
+
+  /**
+   * 证书路径
+   */
+  public String storePath;
+
+  /**
+   * 证书密码
+   */
+  public String storePass;
+
+  /**
+   * SSL协议
+   */
+  public String SSLProtocol;
+
+  /**
+   * 私钥别名
+   */
+  public String keyAlias;
 
   @Override public FtpUrlEntity clone() {
     FtpUrlEntity entity = null;

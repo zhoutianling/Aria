@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.delegate;
+package com.arialyy.aria.core.common.http;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.common.RequestEnum;
-import com.arialyy.aria.core.inf.AbsEntity;
+import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IHttpHeaderTarget;
-import com.arialyy.aria.core.inf.ITarget;
 import com.arialyy.aria.util.ALog;
+import java.net.Proxy;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -31,18 +31,13 @@ import java.util.Set;
  * Created by laoyuyu on 2018/3/9.
  * HTTP header参数设置委托类
  */
-public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
+public class HttpHeaderDelegate<TARGET extends AbsTarget>
     implements IHttpHeaderTarget<TARGET> {
   private static final String TAG = "HttpHeaderDelegate";
-  private ENTITY mEntity;
-  private TASK_ENTITY mTaskEntity;
   private TARGET mTarget;
 
-  public HttpHeaderDelegate(TARGET target, TASK_ENTITY taskEntity) {
+  public HttpHeaderDelegate(TARGET target) {
     mTarget = target;
-    mTaskEntity = taskEntity;
-
-    mEntity = mTaskEntity.getEntity();
   }
 
   /**
@@ -61,7 +56,7 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
       ALog.w(TAG, "设置header失败，header对应的value不能为null");
       return mTarget;
     }
-    addHeader(mTaskEntity, key, value);
+    addHeader(mTarget.getTaskEntity(), key, value);
     return mTarget;
   }
 
@@ -77,7 +72,7 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
       ALog.w(TAG, "设置header失败，map没有header数据");
       return mTarget;
     }
-    addHeaders(mTaskEntity, headers);
+    addHeaders(mTarget.getTaskEntity(), headers);
     return mTarget;
   }
 
@@ -89,7 +84,12 @@ public class HttpHeaderDelegate<TARGET extends ITarget, ENTITY extends AbsEntity
    */
   @Override
   public TARGET setRequestMode(RequestEnum requestEnum) {
-    setRequestMode(mTaskEntity, requestEnum);
+    setRequestMode(mTarget.getTaskEntity(), requestEnum);
+    return mTarget;
+  }
+
+  @Override public TARGET setUrlProxy(Proxy proxy) {
+    mTarget.getTaskEntity().setProxy(proxy);
     return mTarget;
   }
 

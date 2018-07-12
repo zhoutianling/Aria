@@ -17,6 +17,7 @@ package com.arialyy.aria.util;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyManagementException;
@@ -42,30 +43,46 @@ import javax.net.ssl.X509TrustManager;
  * SSL证书工具
  */
 public class SSLContextUtil {
+  private static final String TAG = "SSLContextUtil";
 
-  public static String CA_PATH, CA_ALIAS;
+  /**
+   * 从assets目录下加载证书
+   *
+   * @param caAlias CA证书别名
+   * @param caPath 保存在assets目录下的CA证书完整路径
+   */
+  public static SSLContext getSSLContextFromAssets(String caAlias, String caPath) {
+    try {
+      InputStream caInput = AriaManager.APP.getAssets().open(caPath);
+      Certificate ca = loadCert(caInput);
+      return createContext(caAlias, ca);
+    } catch (IOException | CertificateException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
   /**
    * 颁发服务器证书的 CA 未知
    *
    * @param caAlias CA证书别名
-   * @param caPath 保存在assets目录下的CA证书完整路径
+   * @param caPath CA证书路径
    */
   public static SSLContext getSSLContext(String caAlias, String caPath) {
     if (TextUtils.isEmpty(caAlias) || TextUtils.isEmpty(caPath)) {
       return null;
     }
-    // Load CAs from an InputStream
-    // (could be from a resource or ByteArrayInputStream or ...)
-    CertificateFactory cf = null;
     try {
-      cf = CertificateFactory.getInstance("X.509");
-      InputStream caInput = AriaManager.APP.getAssets().open(caPath);
-      Certificate ca;
-      ca = cf.generateCertificate(caInput);
-      System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
+      Certificate ca = loadCert(new FileInputStream(caPath));
+      return createContext(caAlias, ca);
+    } catch (CertificateException | IOException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
 
-      // Create a KeyStore containing our trusted CAs
+  private static SSLContext createContext(String caAlias, Certificate ca) {
+    try {
       String keyStoreType = KeyStore.getDefaultType();
       KeyStore keyStore = KeyStore.getInstance(keyStoreType);
       keyStore.load(null, null);
@@ -87,6 +104,20 @@ public class SSLContextUtil {
       e.printStackTrace();
     }
     return null;
+  }
+
+  /**
+   * 加载CA证书
+   *
+   * @param is CA证书文件流
+   * @throws CertificateException
+   */
+  private static Certificate loadCert(InputStream is) throws CertificateException, IOException {
+    CertificateFactory cf = CertificateFactory.getInstance("X.509");
+    Certificate ca = cf.generateCertificate(is);
+    ALog.d(TAG, String.format("ca【%s】", ((X509Certificate) ca).getSubjectDN()));
+    is.close();
+    return ca;
   }
 
   /**

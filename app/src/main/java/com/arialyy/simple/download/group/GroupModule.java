@@ -39,8 +39,9 @@ public class GroupModule extends BaseModule {
 
   List<String> getUrls1() {
     List<String> urls = new ArrayList<>();
-    String[] str = getContext().getResources().getStringArray(R.array.group_urls);
-    Collections.addAll(urls, str);
+    //String[] str = getContext().getResources().getStringArray(R.array.group_urls);
+    //Collections.addAll(urls, str);
+    urls.add("https://d.pcs.baidu.com/file/130335545f3f4d9cc38afe709c19af5a?fid=1411168371-250528-1010657263806840&dstime=1531134607&rt=sh&sign=FDtAERVY-DCb740ccc5511e5e8fedcff06b081203-sNCujT7lC42aMcfiHcgqAzYHuw4%3D&expires=8h&chkv=1&chkbd=0&chkpc=et&dp-logid=4401967667009194668&dp-callid=0&r=540192514");
     return urls;
   }
 

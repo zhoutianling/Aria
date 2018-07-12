@@ -15,7 +15,7 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
-import com.arialyy.aria.core.common.AbsFtpInfoThread;
+import com.arialyy.aria.core.common.ftp.AbsFtpInfoThread;
 import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
 import com.arialyy.aria.core.common.TaskRecord;

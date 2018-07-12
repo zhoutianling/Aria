@@ -18,7 +18,7 @@ package com.arialyy.aria.core.upload;
 import android.support.annotation.CheckResult;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
-import com.arialyy.aria.core.delegate.FtpDelegate;
+import com.arialyy.aria.core.common.ftp.FtpDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IFtpTarget;
 import com.arialyy.aria.util.CommonUtil;
@@ -29,7 +29,7 @@ import com.arialyy.aria.util.CommonUtil;
  */
 public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
     implements IFtpTarget<FtpUploadTarget> {
-  private FtpDelegate<FtpUploadTarget, UploadEntity, UploadTaskEntity> mDelegate;
+  private FtpDelegate<FtpUploadTarget> mDelegate;
 
   private String mAccount, mUser, mPw;
   private boolean needLogin = false;
@@ -42,7 +42,7 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
   private void initTask(String filePath) {
     initTarget(filePath);
     mTaskEntity.setRequestType(AbsTaskEntity.U_FTP);
-    mDelegate = new FtpDelegate<>(this, mTaskEntity);
+    mDelegate = new FtpDelegate<>(this);
   }
 
   /**

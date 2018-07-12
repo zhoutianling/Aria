@@ -37,7 +37,7 @@ import java.util.List;
  * Created by AriaL on 2017/7/3.
  */
 public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
-    implements ITarget<TARGET> {
+    implements ITarget {
   protected String TAG;
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
@@ -83,11 +83,17 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
   }
 
   /**
+   * 获取任务实体
+   */
+  public TASK_ENTITY getTaskEntity() {
+    return mTaskEntity;
+  }
+
+  /**
    * 获取任务进度，如果任务存在，则返回当前进度
    *
    * @return 该任务进度
    */
-  @Override
   public long getCurrentProgress() {
     return mEntity == null ? -1 : mEntity.getCurrentProgress();
   }
@@ -97,7 +103,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    *
    * @return 文件大小
    */
-  @Override public long getSize() {
+  public long getSize() {
     return mEntity == null ? 0 : mEntity.getFileSize();
   }
 
@@ -106,7 +112,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    *
    * @return 文件大小{@code xxx mb}
    */
-  @Override public String getConvertSize() {
+  public String getConvertSize() {
     return mEntity == null ? "0b" : CommonUtil.formatFileSize(mEntity.getFileSize());
   }
 
@@ -142,7 +148,6 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    *
    * @return {@link IEntity}
    */
-  @Override
   public int getTaskState() {
     return mEntity.getState();
   }
@@ -152,7 +157,7 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
    *
    * @return 返回任务进度
    */
-  @Override public int getPercent() {
+  public int getPercent() {
     if (mEntity == null) {
       ALog.e("AbsTarget", "下载管理器中没有该任务");
       return 0;
@@ -190,6 +195,20 @@ public abstract class AbsTarget<TARGET extends AbsTarget, ENTITY extends AbsEnti
       ALog.e(TAG, "保存修改失败");
     }
   }
+
+  /**
+   * 任务是否在执行
+   *
+   * @return {@code true} 任务正在执行
+   */
+  public abstract boolean isRunning();
+
+  /**
+   * 任务是否存在
+   *
+   * @return {@code true} 任务存在
+   */
+  public abstract boolean taskExists();
 
   /**
    * 开始任务

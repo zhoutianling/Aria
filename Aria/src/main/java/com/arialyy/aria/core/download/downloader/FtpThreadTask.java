@@ -16,7 +16,7 @@
 package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.common.AbsFtpThreadTask;
+import com.arialyy.aria.core.common.ftp.AbsFtpThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.download.DownloadEntity;

@@ -13,20 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.common;
+package com.arialyy.aria.core.common.ftp;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.FtpUrlEntity;
+import com.arialyy.aria.core.common.AbsThreadTask;
+import com.arialyy.aria.core.common.ProtocolType;
+import com.arialyy.aria.core.common.StateConstance;
+import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.util.SSLContextUtil;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import javax.net.ssl.SSLContext;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
+import org.apache.commons.net.ftp.FTPSClient;
 
 /**
  * Created by lyy on 2017/9/26.
@@ -35,7 +42,7 @@ import org.apache.commons.net.ftp.FTPReply;
 public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
     extends AbsThreadTask<ENTITY, TASK_ENTITY> {
   private final String TAG = "AbsFtpThreadTask";
-  protected String charSet, port;
+  protected String charSet;
   /**
    * D_FTP 服务器编码
    */
@@ -55,7 +62,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
     if (urlEntity.validAddr == null) {
       try {
         InetAddress[] ips = InetAddress.getAllByName(urlEntity.hostName);
-        client = connect(new FTPClient(), ips, 0, Integer.parseInt(urlEntity.port));
+        client = connect(newInstanceClient(urlEntity), ips, 0, Integer.parseInt(urlEntity.port));
         if (client == null) {
           return null;
         }
@@ -63,7 +70,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
         e.printStackTrace();
       }
     } else {
-      client = new FTPClient();
+      client = newInstanceClient(urlEntity);
       try {
         client.connect(urlEntity.validAddr, Integer.parseInt(urlEntity.port));
       } catch (IOException e) {
@@ -77,6 +84,12 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
     }
 
     try {
+      if (urlEntity.isFtps) {
+        int code = ((FTPSClient) client).execAUTH(
+            TextUtils.isEmpty(urlEntity.SSLProtocol) ? ProtocolType.TLS : urlEntity.SSLProtocol);
+        ALog.d(TAG, String.format("cod：%s，msg：%s", code, client.getReplyString()));
+      }
+
       if (urlEntity.needLogin) {
         if (TextUtils.isEmpty(urlEntity.account)) {
           client.login(urlEntity.user, urlEntity.password);
@@ -93,9 +106,10 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       }
       // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
       charSet = "UTF-8";
-      if (!TextUtils.isEmpty(mTaskEntity.getCharSet()) || !FTPReply.isPositiveCompletion(
-          client.sendCommand("OPTS UTF8", "ON"))) {
-        charSet = mTaskEntity.getCharSet();
+      if (reply != FTPReply.COMMAND_IS_SUPERFLUOUS) {
+        if (!TextUtils.isEmpty(mTaskEntity.getCharSet())) {
+          charSet = mTaskEntity.getCharSet();
+        }
       }
       client.setControlEncoding(charSet);
       client.setDataTimeout(mReadTimeOut);
@@ -103,10 +117,32 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       client.enterLocalPassiveMode();
       client.setFileType(FTP.BINARY_FILE_TYPE);
       client.setControlKeepAliveTimeout(5000);
+      if (mTaskEntity.getUrlEntity().isFtps) {
+        ((FTPSClient) client).execPROT("P");
+      }
     } catch (IOException e) {
       e.printStackTrace();
     }
     return client;
+  }
+
+  /**
+   * 创建FTP/FTPS客户端
+   */
+  private FTPClient newInstanceClient(FtpUrlEntity urlEntity) {
+    FTPClient temp;
+    if (urlEntity.isFtps) {
+      SSLContext sslContext =
+          SSLContextUtil.getSSLContext(urlEntity.keyAlias, urlEntity.storePath);
+      if (sslContext == null) {
+        sslContext = SSLContextUtil.getDefaultSLLContext();
+      }
+      temp = new FTPSClient(true, sslContext);
+    } else {
+      temp = new FTPClient();
+    }
+
+    return temp;
   }
 
   /**

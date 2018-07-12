@@ -19,6 +19,7 @@ import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadEntity;
+import java.net.Proxy;
 import java.util.Map;
 
 /**
@@ -53,4 +54,7 @@ public interface IHttpHeaderTarget<TARGET extends ITarget> {
    */
   @CheckResult
   TARGET setRequestMode(RequestEnum requestEnum);
+
+  @CheckResult
+  TARGET setUrlProxy(Proxy proxy);
 }

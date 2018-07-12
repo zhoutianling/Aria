@@ -13,35 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.delegate;
+package com.arialyy.aria.core.common.ftp;
 
 import android.text.TextUtils;
-import com.arialyy.aria.core.inf.AbsEntity;
-import com.arialyy.aria.core.inf.AbsTaskEntity;
+import com.arialyy.aria.core.FtpUrlEntity;
+import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.inf.IFtpTarget;
-import com.arialyy.aria.core.inf.ITarget;
 import com.arialyy.aria.util.ALog;
 
 /**
  * Created by laoyuyu on 2018/3/9.
  * ftp 委托
  */
-public class FtpDelegate<TARGET extends ITarget, ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
-    implements IFtpTarget<TARGET> {
+public class FtpDelegate<TARGET extends AbsTarget> implements IFtpTarget<TARGET> {
   private static final String TAG = "FtpDelegate";
-  private ENTITY mEntity;
-  private TASK_ENTITY mTaskEntity;
+  private FtpUrlEntity mUrlEntity;
   private TARGET mTarget;
 
-  public FtpDelegate(TARGET target, TASK_ENTITY taskEntity) {
+  public FtpDelegate(TARGET target) {
     mTarget = target;
-    mTaskEntity = taskEntity;
-    mEntity = mTaskEntity.getEntity();
+    mUrlEntity = target.getTaskEntity().getUrlEntity();
   }
 
   @Override public TARGET charSet(String charSet) {
-    if (TextUtils.isEmpty(charSet)) return mTarget;
-    mTaskEntity.setCharSet(charSet);
+    if (TextUtils.isEmpty(charSet)) {
+      throw new NullPointerException("字符编码为空");
+    }
+    mTarget.getTaskEntity().setCharSet(charSet);
     return mTarget;
   }
 
@@ -57,10 +55,10 @@ public class FtpDelegate<TARGET extends ITarget, ENTITY extends AbsEntity, TASK_
       ALog.e(TAG, "密码不能为null");
       return mTarget;
     }
-    mTaskEntity.getUrlEntity().needLogin = true;
-    mTaskEntity.getUrlEntity().user = userName;
-    mTaskEntity.getUrlEntity().password = password;
-    mTaskEntity.getUrlEntity().account = account;
+    mUrlEntity.needLogin = true;
+    mUrlEntity.user = userName;
+    mUrlEntity.password = password;
+    mUrlEntity.account = account;
     return mTarget;
   }
 }

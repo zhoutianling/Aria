@@ -16,7 +16,7 @@
 package com.arialyy.aria.core.upload.uploader;
 
 import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.common.AbsFtpThreadTask;
+import com.arialyy.aria.core.common.ftp.AbsFtpThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.inf.IEventListener;

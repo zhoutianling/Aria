@@ -18,7 +18,7 @@ package com.arialyy.aria.core.download;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.common.RequestEnum;
-import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
+import com.arialyy.aria.core.common.http.HttpHeaderDelegate;
 import com.arialyy.aria.core.inf.IHttpHeaderTarget;
 import java.net.Proxy;
 import java.util.Map;
@@ -29,7 +29,7 @@ import java.util.Map;
  */
 public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
     implements IHttpHeaderTarget<DownloadTarget> {
-  private HttpHeaderDelegate<DownloadTarget, DownloadEntity, DownloadTaskEntity> mDelegate;
+  private HttpHeaderDelegate<DownloadTarget> mDelegate;
 
 
   DownloadTarget(DownloadEntity entity, String targetName) {
@@ -38,7 +38,7 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
 
   DownloadTarget(String url, String targetName) {
     initTarget(url, targetName);
-    mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
+    mDelegate = new HttpHeaderDelegate<>(this);
   }
 
   /**
@@ -50,17 +50,6 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
   @CheckResult
   public DownloadTarget useServerFileName(boolean use) {
     mTaskEntity.setUseServerFileName(use);
-    return this;
-  }
-
-  /**
-   * 设置URL的代理
-   *
-   * @param proxy {@link Proxy}
-   */
-  @CheckResult
-  public DownloadTarget setUrlProxy(Proxy proxy) {
-    mTaskEntity.setProxy(proxy);
     return this;
   }
 
@@ -98,6 +87,17 @@ public class DownloadTarget extends BaseNormalTarget<DownloadTarget>
 
   @Override protected int getTargetType() {
     return HTTP;
+  }
+
+
+  /**
+   * 设置URL的代理
+   *
+   * @param proxy {@link Proxy}
+   */
+  @CheckResult
+  @Override public DownloadTarget setUrlProxy(Proxy proxy) {
+    return mDelegate.setUrlProxy(proxy);
   }
 
   @CheckResult

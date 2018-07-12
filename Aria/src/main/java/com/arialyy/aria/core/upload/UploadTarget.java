@@ -18,9 +18,10 @@ package com.arialyy.aria.core.upload;
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
 import com.arialyy.aria.core.common.RequestEnum;
-import com.arialyy.aria.core.delegate.HttpHeaderDelegate;
+import com.arialyy.aria.core.common.http.HttpHeaderDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IHttpHeaderTarget;
+import java.net.Proxy;
 import java.util.Map;
 
 /**
@@ -29,7 +30,7 @@ import java.util.Map;
  */
 public class UploadTarget extends BaseNormalTarget<UploadTarget>
     implements IHttpHeaderTarget<UploadTarget> {
-  private HttpHeaderDelegate<UploadTarget, UploadEntity, UploadTaskEntity> mDelegate;
+  private HttpHeaderDelegate<UploadTarget> mDelegate;
 
   UploadTarget(String filePath, String targetName) {
     this.mTargetName = targetName;
@@ -42,7 +43,7 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
     //http暂时不支持断点上传
     mTaskEntity.setSupportBP(false);
     mTaskEntity.setRequestType(AbsTaskEntity.U_HTTP);
-    mDelegate = new HttpHeaderDelegate<>(this, mTaskEntity);
+    mDelegate = new HttpHeaderDelegate<>(this);
   }
 
   /**
@@ -89,5 +90,9 @@ public class UploadTarget extends BaseNormalTarget<UploadTarget>
   @CheckResult
   @Override public UploadTarget setRequestMode(RequestEnum requestEnum) {
     return mDelegate.setRequestMode(requestEnum);
+  }
+
+  @Override public UploadTarget setUrlProxy(Proxy proxy) {
+    return mDelegate.setUrlProxy(proxy);
   }
 }

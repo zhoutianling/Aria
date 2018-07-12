@@ -13,29 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.core.inf;
+package com.arialyy.aria.core.common;
 
-/**
- * Created by AriaL on 2017/6/29.
- */
-public interface ITarget {
-  /**
-   * 开始下载
-   */
-  void start();
+import android.support.annotation.StringDef;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
-  /**
-   * 停止下载
-   */
-  void stop();
-
-  /**
-   * 恢复下载
-   */
-  void resume();
-
-  /**
-   * 取消下载
-   */
-  void cancel();
+@StringDef({
+    ProtocolType.Default,
+    ProtocolType.SSL,
+    ProtocolType.SSLv3,
+    ProtocolType.TLS,
+    ProtocolType.TLSv1,
+    ProtocolType.TLSv1_1,
+    ProtocolType.TLSv1_2
+})
+@Retention(RetentionPolicy.SOURCE) public @interface ProtocolType {
+  String Default = "Default";
+  String SSL = "SSL";
+  String SSLv3 = "SSLv3";
+  String TLS = "TLS";
+  String TLSv1 = "TLSv1";
+  String TLSv1_1 = "TLSv1.1";
+  String TLSv1_2 = "TLSv1.2";
 }
