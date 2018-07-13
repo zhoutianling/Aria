@@ -15,7 +15,6 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
-import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
@@ -52,11 +51,10 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
   HttpThreadTask(StateConstance constance, IUploadListener listener,
       SubThreadConfig<UploadTaskEntity> uploadInfo) {
     super(constance, listener, uploadInfo);
-    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
-    mConnectTimeOut = manager.getUploadConfig().getConnectTimeOut();
-    mReadTimeOut = manager.getUploadConfig().getIOTimeOut();
-    mBufSize = manager.getUploadConfig().getBuffSize();
-    isNotNetRetry = manager.getUploadConfig().isNotNetRetry();
+    mConnectTimeOut = mAridManager.getUploadConfig().getConnectTimeOut();
+    mReadTimeOut = mAridManager.getUploadConfig().getIOTimeOut();
+    mBufSize = mAridManager.getUploadConfig().getBuffSize();
+    isNotNetRetry = mAridManager.getUploadConfig().isNotNetRetry();
   }
 
   @Override public void run() {
@@ -167,6 +165,9 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       if (STATE.isCancel) {
         break;
       }
+      if (mSpeedBandUtil != null) {
+        mSpeedBandUtil.limitNextBytes(bytesRead);
+      }
     }
 
     mOutputStream.flush();
@@ -211,5 +212,9 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     writer.close();
     mOutputStream.close();
     return response.toString();
+  }
+
+  @Override public int getMaxSpeed() {
+    return mAridManager.getUploadConfig().getMaxSpeed();
   }
 }

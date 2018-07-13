@@ -17,11 +17,14 @@ package com.arialyy.aria.core.upload;
 
 import android.support.annotation.CheckResult;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
+import com.arialyy.aria.core.common.ftp.FTPSConfig;
 import com.arialyy.aria.core.common.ftp.FtpDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IFtpTarget;
 import com.arialyy.aria.util.CommonUtil;
+import java.net.Proxy;
 
 /**
  * Created by Aria.Lao on 2017/7/27.
@@ -62,12 +65,36 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
     if (!b) {
       return false;
     }
-    mTaskEntity.setUrlEntity(CommonUtil.getFtpUrlInfo(mTempUrl));
+    FtpUrlEntity temp = mTaskEntity.getUrlEntity();
+    FtpUrlEntity newEntity = CommonUtil.getFtpUrlInfo(mTempUrl);
+    if (temp != null) { //处理FTPS的信息
+      newEntity.isFtps = temp.isFtps;
+      newEntity.storePass = temp.storePass;
+      newEntity.keyAlias = temp.keyAlias;
+      newEntity.protocol = temp.protocol;
+      newEntity.storePath = temp.storePath;
+    }
+    mTaskEntity.setUrlEntity(newEntity);
     mTaskEntity.getUrlEntity().account = mAccount;
     mTaskEntity.getUrlEntity().user = mUser;
     mTaskEntity.getUrlEntity().password = mPw;
     mTaskEntity.getUrlEntity().needLogin = needLogin;
     return true;
+  }
+
+  /**
+   * 是否是FTPS协议
+   * 如果是FTPS协议，需要使用{@link FTPSConfig#setStorePath(String)} 、{@link FTPSConfig#setAlias(String)}
+   * 设置证书信息
+   */
+  @CheckResult
+  public FTPSConfig<FtpUploadTarget> asFtps() {
+    if (mTaskEntity.getUrlEntity() == null) {
+      FtpUrlEntity urlEntity = new FtpUrlEntity();
+      urlEntity.isFtps = true;
+      mTaskEntity.setUrlEntity(urlEntity);
+    }
+    return new FTPSConfig<>(this);
   }
 
   @CheckResult
@@ -88,5 +115,9 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
     mPw = password;
     mAccount = account;
     return this;
+  }
+
+  @Override public FtpUploadTarget setProxy(Proxy proxy) {
+    return mDelegate.setProxy(proxy);
   }
 }

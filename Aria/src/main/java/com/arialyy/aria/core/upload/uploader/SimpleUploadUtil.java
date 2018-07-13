@@ -99,7 +99,7 @@ public class SimpleUploadUtil implements IUtil, Runnable {
     mUploader.cancel();
   }
 
-  @Override public void setMaxSpeed(double maxSpeed) {
-    mUploader.setMaxSpeed(maxSpeed);
+  @Override public void setMaxSpeed(int speed) {
+    mUploader.setMaxSpeed(speed);
   }
 }

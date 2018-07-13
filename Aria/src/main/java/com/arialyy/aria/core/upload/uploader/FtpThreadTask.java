@@ -15,10 +15,9 @@
  */
 package com.arialyy.aria.core.upload.uploader;
 
-import com.arialyy.aria.core.AriaManager;
-import com.arialyy.aria.core.common.ftp.AbsFtpThreadTask;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
+import com.arialyy.aria.core.common.ftp.AbsFtpThreadTask;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
@@ -41,11 +40,14 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
   FtpThreadTask(StateConstance constance, IEventListener listener,
       SubThreadConfig<UploadTaskEntity> info) {
     super(constance, listener, info);
-    AriaManager manager = AriaManager.getInstance(AriaManager.APP);
-    mConnectTimeOut = manager.getUploadConfig().getConnectTimeOut();
-    mReadTimeOut = manager.getUploadConfig().getIOTimeOut();
-    mBufSize = manager.getUploadConfig().getBuffSize();
-    isNotNetRetry = manager.getUploadConfig().isNotNetRetry();
+    mConnectTimeOut = mAridManager.getUploadConfig().getConnectTimeOut();
+    mReadTimeOut = mAridManager.getUploadConfig().getIOTimeOut();
+    mBufSize = mAridManager.getUploadConfig().getBuffSize();
+    isNotNetRetry = mAridManager.getUploadConfig().isNotNetRetry();
+  }
+
+  @Override public int getMaxSpeed() {
+    return mAridManager.getUploadConfig().getMaxSpeed();
   }
 
   @Override public void run() {
@@ -128,15 +130,18 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
 
         @Override public void onFtpInputStream(FTPClient client, long totalBytesTransferred,
             int bytesTransferred, long streamSize) {
-          if (isBreak() && !isStoped) {
-            try {
+          try {
+            if (isBreak() && !isStoped) {
               isStoped = true;
               client.abor();
-            } catch (IOException e) {
-              e.printStackTrace();
             }
+            if (mSpeedBandUtil != null) {
+              mSpeedBandUtil.limitNextBytes(bytesTransferred);
+            }
+            progress(bytesTransferred);
+          } catch (IOException e) {
+            e.printStackTrace();
           }
-          progress(bytesTransferred);
         }
       });
     } catch (IOException e) {

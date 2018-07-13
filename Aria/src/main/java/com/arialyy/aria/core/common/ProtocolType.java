@@ -29,7 +29,7 @@ import java.lang.annotation.RetentionPolicy;
     ProtocolType.TLSv1_2
 })
 @Retention(RetentionPolicy.SOURCE) public @interface ProtocolType {
-  String Default = "Default";
+  String Default = "TLS";
   String SSL = "SSL";
   String SSLv3 = "SSLv3";
   String TLS = "TLS";

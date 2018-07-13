@@ -35,7 +35,6 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
 
   private DownloadListener mListener;
   private DownloadEntity mEntity;
-  private IUtil mUtil;
 
   private DownloadTask(DownloadTaskEntity taskEntity, Handler outHandler) {
     mTaskEntity = taskEntity;
@@ -94,15 +93,6 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
    */
   @Override public void stopAndWait() {
     stop(true);
-  }
-
-  /**
-   * 设置最大下载速度，单位：kb
-   *
-   * @param maxSpeed 为0表示不限速
-   */
-  public void setMaxSpeed(double maxSpeed) {
-    mUtil.setMaxSpeed(maxSpeed);
   }
 
   /**

@@ -77,7 +77,7 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
    * 多线程断点续传下载文件，开始下载
    */
   @Override public void start() {
-    if (isStop || isCancel){
+    if (isStop || isCancel) {
       return;
     }
     new Thread(this).start();
@@ -87,8 +87,8 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
     start();
   }
 
-  public void setMaxSpeed(double maxSpeed) {
-    mDownloader.setMaxSpeed(maxSpeed);
+  @Override public void setMaxSpeed(int speed) {
+    mDownloader.setMaxSpeed(speed);
   }
 
   private void failDownload(String msg, boolean needRetry) {

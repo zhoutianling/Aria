@@ -21,7 +21,6 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
@@ -45,7 +44,7 @@ import java.util.concurrent.Executors;
  * 任务处理器
  */
 public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
-    implements Runnable, IUtil {
+    implements Runnable {
   private static final String STATE = "_state_";
   private static final String RECORD = "_record_";
   /**
@@ -93,7 +92,12 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     mTaskEntity.setNewTask(newTask);
   }
 
-  @Override public void setMaxSpeed(double maxSpeed) {
+  /**
+   * 设置最大下载/上传速度
+   *
+   * @param maxSpeed 单位为：kb
+   */
+  public void setMaxSpeed(int maxSpeed) {
     for (int i = 0; i < mTotalThreadNum; i++) {
       AbsThreadTask task = mTask.get(i);
       if (task != null) {
@@ -143,9 +147,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     checkRecord();
     mConstance.isRunning = true;
     mConstance.TASK_RECORD = mRecord;
-    if (mListener instanceof IDownloadListener) {
-      ((IDownloadListener) mListener).onPostPre(mEntity.getFileSize());
-    }
     if (!mTaskEntity.isSupportBP()) {
       mTotalThreadNum = 1;
       mStartThreadNum = 1;
@@ -173,6 +174,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       mRecord.isOpenDynamicFile = true;
     }
 
+    onPostPre();
+
     if (!mTaskEntity.isSupportBP()) {
       handleNoSupportBP();
     } else {
@@ -180,6 +183,13 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }
 
     startTimer();
+  }
+
+  /**
+   * 预处理完成
+   */
+  protected void onPostPre() {
+
   }
 
   /**
@@ -229,22 +239,22 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     mUpdateInterval = interval;
   }
 
-  @Override public long getFileSize() {
+  public long getFileSize() {
     return mEntity.getFileSize();
   }
 
   /**
    * 获取当前任务位置
    */
-  @Override public long getCurrentLocation() {
+  public long getCurrentLocation() {
     return mConstance.CURRENT_LOCATION;
   }
 
-  @Override public boolean isRunning() {
+  public boolean isRunning() {
     return mConstance.isRunning;
   }
 
-  @Override public void cancel() {
+  public void cancel() {
     closeTimer();
     mConstance.isRunning = false;
     mConstance.isCancel = true;
@@ -259,7 +269,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }
   }
 
-  @Override public void stop() {
+  public void stop() {
     closeTimer();
     mConstance.isRunning = false;
     mConstance.isStop = true;
@@ -278,11 +288,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   /**
    * 直接调用的时候会自动启动线程执行
    */
-  @Override public void start() {
+  public void start() {
     new Thread(this).start();
   }
 
-  @Override public void resume() {
+  public void resume() {
     start();
   }
 
@@ -395,7 +405,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
             if (realLocation != tr.startLocation) {
               ALog.i(TAG, String.format("修正分块【%s】的进度记录为：%s", temp.getPath(), realLocation));
               tr.startLocation = realLocation;
-            }else if (realLocation > tr.endLocation) {
+            } else if (realLocation > tr.endLocation) {
               ALog.i(TAG, String.format("分块【%s】错误，将重新开始该分块", temp.getPath()));
               temp.delete();
               tr.startLocation = i * blockLen;

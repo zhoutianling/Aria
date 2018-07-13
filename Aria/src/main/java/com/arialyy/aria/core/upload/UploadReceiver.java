@@ -41,6 +41,16 @@ public class UploadReceiver extends AbsReceiver {
   private static final String TAG = "UploadReceiver";
 
   /**
+   * 设置最大上传速度，单位：kb
+   *
+   * @param maxSpeed 为0表示不限速
+   */
+  public UploadReceiver setMaxSpeed(int maxSpeed) {
+    AriaManager.getInstance(AriaManager.APP).getUploadConfig().setMaxSpeed(maxSpeed);
+    return this;
+  }
+
+  /**
    * 加载HTTP单文件上传任务
    *
    * @param filePath 文件路径

@@ -17,6 +17,7 @@ package com.arialyy.aria.core.download.downloader;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.common.ProtocolType;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
@@ -78,9 +79,9 @@ class ConnectionHelp {
       conn = (HttpsURLConnection) urlConn;
       SSLContext sslContext =
           SSLContextUtil.getSSLContextFromAssets(manager.getDownloadConfig().getCaName(),
-              manager.getDownloadConfig().getCaPath());
+              manager.getDownloadConfig().getCaPath(), ProtocolType.Default);
       if (sslContext == null) {
-        sslContext = SSLContextUtil.getDefaultSLLContext();
+        sslContext = SSLContextUtil.getDefaultSLLContext(ProtocolType.Default);
       }
       SSLSocketFactory ssf = sslContext.getSocketFactory();
       ((HttpsURLConnection) conn).setSSLSocketFactory(ssf);

@@ -61,7 +61,7 @@ class FtpDirInfoThread extends AbsFtpInfoThread<DownloadGroupEntity, DownloadGro
     final FtpUrlEntity urlEntity = mTaskEntity.getUrlEntity().clone();
     DownloadEntity entity = new DownloadEntity();
     entity.setUrl(
-        urlEntity.protocol + "://" + urlEntity.hostName + ":" + urlEntity.port + "/" + remotePath);
+        urlEntity.scheme + "://" + urlEntity.hostName + ":" + urlEntity.port + "/" + remotePath);
     entity.setDownloadPath(mEntity.getDirPath() + "/" + remotePath);
     int lastIndex = remotePath.lastIndexOf("/");
     String fileName = lastIndex < 0 ? CommonUtil.keyToHashKey(remotePath)

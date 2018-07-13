@@ -17,6 +17,7 @@ package com.arialyy.aria.core.inf;
 
 import android.content.Context;
 import android.os.Handler;
+import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
@@ -38,9 +39,21 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity> implements ITas
   protected Context mContext;
   protected boolean isHeighestTask = false;
   private boolean isCancel = false, isStop = false;
+  protected IUtil mUtil;
 
   public Handler getOutHandler() {
     return mOutHandler;
+  }
+
+  /**
+   * 设置最大下载/上传速度
+   *
+   * @param speed 单位为：kb
+   */
+  public void setMaxSpeed(int speed) {
+    if (mUtil != null) {
+      mUtil.setMaxSpeed(speed);
+    }
   }
 
   /**

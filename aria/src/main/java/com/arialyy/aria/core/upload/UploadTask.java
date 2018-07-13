@@ -29,7 +29,6 @@ import com.arialyy.aria.util.ALog;
 public class UploadTask extends AbsNormalTask<UploadTaskEntity> {
   private static final String TAG = "UploadTask";
 
-  private SimpleUploadUtil mUtil;
   private BaseUListener<UploadEntity, UploadTaskEntity, UploadTask> mListener;
 
   private UploadTask(UploadTaskEntity taskEntity, Handler outHandler) {

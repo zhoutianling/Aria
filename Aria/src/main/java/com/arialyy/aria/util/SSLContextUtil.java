@@ -17,6 +17,7 @@ package com.arialyy.aria.util;
 
 import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
+import com.arialyy.aria.core.common.ProtocolType;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.Map;
+import java.util.WeakHashMap;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -44,18 +47,26 @@ import javax.net.ssl.X509TrustManager;
  */
 public class SSLContextUtil {
   private static final String TAG = "SSLContextUtil";
+  private static Map<String, SSLContext> SSL_CACHE = new WeakHashMap<>();
 
   /**
    * 从assets目录下加载证书
    *
    * @param caAlias CA证书别名
    * @param caPath 保存在assets目录下的CA证书完整路径
+   * @param protocol 连接协议
    */
-  public static SSLContext getSSLContextFromAssets(String caAlias, String caPath) {
+  public static SSLContext getSSLContextFromAssets(String caAlias, String caPath,
+      @ProtocolType String protocol) {
     try {
+      String cacheKey = getCacheKey(caAlias, caPath);
+      SSLContext sslContext = SSL_CACHE.get(cacheKey);
+      if (sslContext != null) {
+        return sslContext;
+      }
       InputStream caInput = AriaManager.APP.getAssets().open(caPath);
       Certificate ca = loadCert(caInput);
-      return createContext(caAlias, ca);
+      return createContext(caAlias, ca, protocol, cacheKey);
     } catch (IOException | CertificateException e) {
       e.printStackTrace();
     }
@@ -67,21 +78,32 @@ public class SSLContextUtil {
    *
    * @param caAlias CA证书别名
    * @param caPath CA证书路径
+   * @param protocol 连接协议
    */
-  public static SSLContext getSSLContext(String caAlias, String caPath) {
+  public static SSLContext getSSLContext(String caAlias, String caPath,
+      @ProtocolType String protocol) {
     if (TextUtils.isEmpty(caAlias) || TextUtils.isEmpty(caPath)) {
       return null;
     }
     try {
+      String cacheKey = getCacheKey(caAlias, caPath);
+      SSLContext sslContext = SSL_CACHE.get(cacheKey);
+      if (sslContext != null) {
+        return sslContext;
+      }
       Certificate ca = loadCert(new FileInputStream(caPath));
-      return createContext(caAlias, ca);
+      return createContext(caAlias, ca, protocol, cacheKey);
     } catch (CertificateException | IOException e) {
       e.printStackTrace();
     }
     return null;
   }
 
-  private static SSLContext createContext(String caAlias, Certificate ca) {
+  /**
+   * @param cacheKey 别名 + 证书路径，然后取md5
+   */
+  private static SSLContext createContext(String caAlias, Certificate ca,
+      @ProtocolType String protocol, String cacheKey) {
     try {
       String keyStoreType = KeyStore.getDefaultType();
       KeyStore keyStore = KeyStore.getInstance(keyStoreType);
@@ -97,13 +119,19 @@ public class SSLContextUtil {
       kmf.init(keyStore, null);
 
       // Create an SSLContext that uses our TrustManager
-      SSLContext context = SSLContext.getInstance("TLS");
+      SSLContext context =
+          SSLContext.getInstance(TextUtils.isEmpty(protocol) ? ProtocolType.Default : protocol);
       context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
+      SSL_CACHE.put(cacheKey, context);
       return context;
     } catch (CertificateException | NoSuchAlgorithmException | IOException | KeyStoreException | KeyManagementException | UnrecoverableKeyException e) {
       e.printStackTrace();
     }
     return null;
+  }
+
+  private static String getCacheKey(String alias, String path) {
+    return CommonUtil.getStrMd5(String.format("%s_%s", alias, path));
   }
 
   /**
@@ -123,10 +151,11 @@ public class SSLContextUtil {
   /**
    * 服务器证书不是由 CA 签署的，而是自签署时，获取默认的SSL
    */
-  public static SSLContext getDefaultSLLContext() {
+  public static SSLContext getDefaultSLLContext(@ProtocolType String protocol) {
     SSLContext sslContext = null;
     try {
-      sslContext = SSLContext.getInstance("TLS");
+      sslContext =
+          SSLContext.getInstance(TextUtils.isEmpty(protocol) ? ProtocolType.Default : protocol);
       sslContext.init(null, new TrustManager[] { trustManagers }, new SecureRandom());
     } catch (Exception e) {
       e.printStackTrace();

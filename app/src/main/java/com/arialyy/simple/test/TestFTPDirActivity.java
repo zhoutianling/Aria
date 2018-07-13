@@ -17,9 +17,9 @@ import java.util.List;
  * Created by Administrator on 2018/4/12.
  */
 
-public class TestGroupActivity extends BaseActivity<ActivityTestBinding> {
+public class TestFTPDirActivity extends BaseActivity<ActivityTestBinding> {
   List<String> mUrls;
-  private static final String dir = "ftp://192.168.1.8:21/upload/测试";
+  private static final String dir = "ftps://192.168.29.140:990/upload/测试";
 
   @Override protected int setLayoutId() {
     return R.layout.activity_test;
@@ -87,6 +87,10 @@ public class TestGroupActivity extends BaseActivity<ActivityTestBinding> {
             .setGroupAlias("ftp文件夹下载")
             //.setSubTaskFileName(getModule(GroupModule.class).getSubName())
             .login("lao", "123456")
+            .asFtps()
+            .setStorePath("/mnt/sdcard/Download/server.crt")
+            .setAlias("www.laoyuyu.me")
+            .setStorePass("123456")
             .start();
         break;
       case R.id.stop:

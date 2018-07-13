@@ -20,6 +20,7 @@ import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.inf.IFtpTarget;
 import com.arialyy.aria.util.ALog;
+import java.net.Proxy;
 
 /**
  * Created by laoyuyu on 2018/3/9.
@@ -59,6 +60,11 @@ public class FtpDelegate<TARGET extends AbsTarget> implements IFtpTarget<TARGET>
     mUrlEntity.user = userName;
     mUrlEntity.password = password;
     mUrlEntity.account = account;
+    return mTarget;
+  }
+
+  @Override public TARGET setProxy(Proxy proxy) {
+    mTarget.getTaskEntity().setProxy(proxy);
     return mTarget;
   }
 }

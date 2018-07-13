@@ -22,6 +22,8 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.util.ALog;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by lyy on 2017/2/23.
@@ -77,6 +79,18 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
           task.stop();
         }
       }
+    }
+  }
+
+  /**
+   * 最大下载速度
+   */
+  public void setMaxSpeed(int maxSpeed) {
+    Map<String, TASK> tasks = mExecutePool.getAllTask();
+    Set<String> keys = tasks.keySet();
+    for (String key : keys) {
+      TASK task = tasks.get(key);
+      task.setMaxSpeed(maxSpeed);
     }
   }
 

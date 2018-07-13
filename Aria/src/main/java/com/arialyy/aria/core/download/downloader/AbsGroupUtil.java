@@ -312,8 +312,14 @@ public abstract class AbsGroupUtil implements IUtil {
     start();
   }
 
-  @Override public void setMaxSpeed(double maxSpeed) {
-
+  @Override public void setMaxSpeed(int speed) {
+    Set<String> keys = mDownloaderMap.keySet();
+    for (String key : keys) {
+      Downloader dt = mDownloaderMap.get(key);
+      if (dt != null) {
+        dt.setMaxSpeed(speed);
+      }
+    }
   }
 
   private void clearState() {

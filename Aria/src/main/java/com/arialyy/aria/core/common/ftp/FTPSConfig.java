@@ -24,12 +24,12 @@ import com.arialyy.aria.core.inf.ITarget;
 /**
  * FTP SSL/TSL配置
  */
-public class FTPSSLConfig<TARGET extends AbsTarget> implements ITarget {
-  private final String TAG = "FTPSSLConfig";
+public class FTPSConfig<TARGET extends AbsTarget> implements ITarget {
+  private final String TAG = "FTPSConfig";
   private TARGET mTarget;
   private FtpUrlEntity mUrlEntity;
 
-  public FTPSSLConfig(TARGET target) {
+  public FTPSConfig(TARGET target) {
     mTarget = target;
     mUrlEntity = mTarget.getTaskEntity().getUrlEntity();
   }
@@ -39,11 +39,11 @@ public class FTPSSLConfig<TARGET extends AbsTarget> implements ITarget {
    *
    * @param protocol {@link ProtocolType}
    */
-  public FTPSSLConfig setProtocol(@ProtocolType String protocol) {
+  public FTPSConfig setProtocol(@ProtocolType String protocol) {
     if (TextUtils.isEmpty(protocol)) {
       throw new NullPointerException("协议为空");
     }
-    mUrlEntity.SSLProtocol = protocol;
+    mUrlEntity.protocol = protocol;
     return this;
   }
 
@@ -52,7 +52,7 @@ public class FTPSSLConfig<TARGET extends AbsTarget> implements ITarget {
    *
    * @param keyAlias 别名
    */
-  public FTPSSLConfig setAlias(String keyAlias) {
+  public FTPSConfig setAlias(String keyAlias) {
     if (TextUtils.isEmpty(keyAlias)) {
       throw new NullPointerException("别名为空");
     }
@@ -65,7 +65,7 @@ public class FTPSSLConfig<TARGET extends AbsTarget> implements ITarget {
    *
    * @param storePass 私钥密码
    */
-  public FTPSSLConfig setStorePass(String storePass) {
+  public FTPSConfig setStorePass(String storePass) {
     if (TextUtils.isEmpty(storePass)) {
       throw new NullPointerException("证书密码为空");
     }
@@ -78,7 +78,7 @@ public class FTPSSLConfig<TARGET extends AbsTarget> implements ITarget {
    *
    * @param storePath 证书路径
    */
-  public FTPSSLConfig setStorePath(String storePath) {
+  public FTPSConfig setStorePath(String storePath) {
     if (TextUtils.isEmpty(storePath)) {
       throw new NullPointerException("证书路径为空");
     }

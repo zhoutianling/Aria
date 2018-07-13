@@ -47,12 +47,12 @@ public class DownloadReceiver extends AbsReceiver {
 
   /**
    * 设置最大下载速度，单位：kb
-   * 该方法为实验性功能，清不要轻易在生产环境中使用。
    *
    * @param maxSpeed 为0表示不限速
    */
-  @Deprecated public void setMaxSpeed(int maxSpeed) {
+  public DownloadReceiver setMaxSpeed(int maxSpeed) {
     AriaManager.getInstance(AriaManager.APP).getDownloadConfig().setMaxSpeed(maxSpeed);
+    return this;
   }
 
   /**

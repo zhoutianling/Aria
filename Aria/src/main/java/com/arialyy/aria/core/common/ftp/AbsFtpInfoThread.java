@@ -85,7 +85,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
           new String(setRemotePath().getBytes(charSet), AbsFtpThreadTask.SERVER_CHARSET);
       if (mTaskEntity.getUrlEntity().isFtps) {
         ((FTPSClient) client).execPROT("P");
-        //((FTPSClient) client).setEnabledSessionCreation(false);
+        //((FTPSClient) client).enterLocalActiveMode();
       }
       FTPFile[] files = client.listFiles(remotePath);
       boolean isExist = files.length != 0;
@@ -190,7 +190,7 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
 
       if (urlEntity.isFtps) {
         int code = ((FTPSClient) client).execAUTH(
-            TextUtils.isEmpty(urlEntity.SSLProtocol) ? ProtocolType.TLS : urlEntity.SSLProtocol);
+            TextUtils.isEmpty(urlEntity.protocol) ? ProtocolType.TLS : urlEntity.protocol);
         ALog.d(TAG, String.format("cod：%s，msg：%s", code, client.getReplyString()));
       }
 
@@ -269,14 +269,16 @@ public abstract class AbsFtpInfoThread<ENTITY extends AbsEntity, TASK_ENTITY ext
     FTPClient temp = null;
     if (urlEntity.isFtps) {
       SSLContext sslContext =
-          SSLContextUtil.getSSLContext(urlEntity.keyAlias, urlEntity.storePath);
+          SSLContextUtil.getSSLContext(urlEntity.keyAlias, urlEntity.storePath, urlEntity.protocol);
       if (sslContext == null) {
-        sslContext = SSLContextUtil.getDefaultSLLContext();
+        sslContext = SSLContextUtil.getDefaultSLLContext(urlEntity.protocol);
       }
       //System.setProperty("jdk.tls.useExtendedMasterSecret", "false");
-      //temp = new SSLSessionReuseFTPSClient(true, sslContext);
+      //FTPSClient client = new SSLSessionReuseFTPSClient(true, sslContext);
 
       FTPSClient client = new FTPSClient(true, sslContext);
+      //Log.d(TAG, "session = " + client.getEnableSessionCreation());
+
       temp = client;
     } else {
       temp = new FTPClient();

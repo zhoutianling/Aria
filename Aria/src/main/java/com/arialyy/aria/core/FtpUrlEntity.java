@@ -17,6 +17,7 @@
  */
 package com.arialyy.aria.core;
 
+import com.arialyy.aria.core.common.ProtocolType;
 import com.arialyy.aria.orm.annotation.Ignore;
 import java.net.InetAddress;
 
@@ -47,7 +48,7 @@ public class FtpUrlEntity implements Cloneable {
   /**
    * ftp协议：ftp
    */
-  public String protocol;
+  public String scheme;
 
   /**
    * 登录的用户名
@@ -91,9 +92,11 @@ public class FtpUrlEntity implements Cloneable {
   public String storePass;
 
   /**
-   * SSL协议
+   * 连接协议
+   * {@link ProtocolType}
    */
-  public String SSLProtocol;
+  @ProtocolType
+  public String protocol;
 
   /**
    * 私钥别名

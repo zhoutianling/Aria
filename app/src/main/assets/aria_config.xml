@@ -11,6 +11,10 @@
 
   <!--注意，修改该配置文件中的属性会覆盖代码中所设置的属性-->
   <download>
+
+    <!--设置任务最大下载速度，0表示不限速，单位为：kb-->
+    <maxSpeed value="0"/>
+
     <!--
       多线程下载是否使用块下载模式，{@code true}使用，{@code false}不使用
       注意：
@@ -66,7 +70,8 @@
   </download>
 
   <upload>
-
+    <!--设置任务最大上传速度，0表示不限速，单位为：kb-->
+    <maxSpeed value="0"/>
     <!--断网的时候是否重试，true：断网也重试；false：断网不重试，直接走失败的回调-->
     <notNetRetry value="false"/>
 

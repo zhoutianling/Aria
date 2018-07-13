@@ -19,12 +19,12 @@ import java.io.File;
  * Created by Administrator on 2018/4/12.
  */
 
-public class TestActivity extends BaseActivity<ActivityTestBinding> {
-  String TAG = "TestActivity";
+public class TestFTPActivity extends BaseActivity<ActivityTestBinding> {
+  String TAG = "TestFTPActivity";
   //String URL = "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
   //private final String URL = "ftp://192.168.1.3:21/download//AriaPrj.rar";
-  private final String FILE_PATH = "/mnt/sdcard/AriaPrj.rar";
-  private final String URL = "ftp://192.168.1.2:21/aa//你好";
+  private final String FILE_PATH = "/mnt/sdcard/mmm.mp4";
+  private final String URL = "ftps://192.168.29.140:990/aa/你好";
 
 
   @Override protected int setLayoutId() {
@@ -35,7 +35,7 @@ public class TestActivity extends BaseActivity<ActivityTestBinding> {
     super.init(savedInstanceState);
     mBar.setVisibility(View.GONE);
     Aria.upload(this).register();
-
+    Aria.upload(this).setMaxSpeed(128);
   }
 
   @Upload.onWait void onWait(UploadTask task) {
@@ -51,7 +51,7 @@ public class TestActivity extends BaseActivity<ActivityTestBinding> {
   }
 
   @Upload.onTaskRunning protected void running(UploadTask task) {
-    Log.d(TAG, "running");
+    Log.d(TAG, "running，speed=" + task.getConvertSpeed());
   }
 
   @Upload.onTaskResume void taskResume(UploadTask task) {
@@ -82,6 +82,10 @@ public class TestActivity extends BaseActivity<ActivityTestBinding> {
             .login("lao", "123456")
             .setUploadUrl(URL)
             .setExtendField("韩寒哈大双")
+            .asFtps()
+            .setStorePath("/mnt/sdcard/Download/server.crt")
+            .setAlias("www.laoyuyu.me")
+            .setStorePass("123456")
             .start();
         //Uri uri = Uri.parse("ftp://z:z@dygod18.com:21211/[电影天堂www.dy2018.com]猩球崛起3：终极之战BD国英双语中英双字.mkv");
         //ALog.d(TAG, "sh = " + uri.getScheme() + ", user = " + uri.getUserInfo() + ", host = " + uri.getHost() + ", port = " + uri.getPort() + " remotePath = " + uri.getPath());

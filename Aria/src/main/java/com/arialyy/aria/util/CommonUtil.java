@@ -289,6 +289,7 @@ public class CommonUtil {
         entity.user = userInfo;
       }
     }
+    entity.scheme = uri.getScheme();
     entity.remotePath = TextUtils.isEmpty(remotePath) ? "/" : remotePath;
     return entity;
   }
@@ -393,6 +394,23 @@ public class CommonUtil {
       ALog.e(TAG, e.getMessage());
     }
     return md5;
+  }
+
+  /**
+   * 获取字符串的md5
+   *
+   * @return 字符串为空或获取md5失败，则返回""
+   */
+  public static String getStrMd5(String str) {
+    if (TextUtils.isEmpty(str)) return "";
+    try {
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      md.update(str.getBytes());
+      return new BigInteger(1, md.digest()).toString(16);
+    } catch (NoSuchAlgorithmException e) {
+      ALog.e(TAG, e.getMessage());
+    }
+    return "";
   }
 
   /**

@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.common.ftp;
 
 import android.text.TextUtils;
+import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.ProtocolType;
@@ -86,7 +87,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
     try {
       if (urlEntity.isFtps) {
         int code = ((FTPSClient) client).execAUTH(
-            TextUtils.isEmpty(urlEntity.SSLProtocol) ? ProtocolType.TLS : urlEntity.SSLProtocol);
+            TextUtils.isEmpty(urlEntity.protocol) ? ProtocolType.TLS : urlEntity.protocol);
         ALog.d(TAG, String.format("cod：%s，msg：%s", code, client.getReplyString()));
       }
 
@@ -133,9 +134,9 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
     FTPClient temp;
     if (urlEntity.isFtps) {
       SSLContext sslContext =
-          SSLContextUtil.getSSLContext(urlEntity.keyAlias, urlEntity.storePath);
+          SSLContextUtil.getSSLContext(urlEntity.keyAlias, urlEntity.storePath, urlEntity.protocol);
       if (sslContext == null) {
-        sslContext = SSLContextUtil.getDefaultSLLContext();
+        sslContext = SSLContextUtil.getDefaultSLLContext(urlEntity.protocol);
       }
       temp = new FTPSClient(true, sslContext);
     } else {

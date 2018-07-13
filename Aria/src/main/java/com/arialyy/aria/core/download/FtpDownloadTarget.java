@@ -17,11 +17,12 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
-import com.arialyy.aria.core.common.ftp.FTPSSLConfig;
+import com.arialyy.aria.core.common.ftp.FTPSConfig;
 import com.arialyy.aria.core.common.ftp.FtpDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IFtpTarget;
 import com.arialyy.aria.util.CommonUtil;
+import java.net.Proxy;
 
 /**
  * Created by lyy on 2016/12/5.
@@ -51,13 +52,13 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
 
   /**
    * 是否是FTPS协议
-   * 如果是FTPS协议，需要使用{@link FTPSSLConfig#setPrivateKeyPath(String)}、{@link FTPSSLConfig#setCertPath(String)}
+   * 如果是FTPS协议，需要使用{@link FTPSConfig#setStorePath(String)} 、{@link FTPSConfig#setAlias(String)}
    * 设置证书信息
    */
   @CheckResult
-  public FTPSSLConfig<FtpDownloadTarget> asFtps() {
+  public FTPSConfig<FtpDownloadTarget> asFtps() {
     mTaskEntity.getUrlEntity().isFtps = true;
-    return new FTPSSLConfig<>(this);
+    return new FTPSConfig<>(this);
   }
 
   /**
@@ -101,5 +102,10 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
   @CheckResult
   @Override public FtpDownloadTarget login(String userName, String password, String account) {
     return mDelegate.login(userName, password, account);
+  }
+
+  @CheckResult
+  @Override public FtpDownloadTarget setProxy(Proxy proxy) {
+    return mDelegate.setProxy(proxy);
   }
 }

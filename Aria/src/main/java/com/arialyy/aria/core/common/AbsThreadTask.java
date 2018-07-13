@@ -26,7 +26,6 @@ import com.arialyy.aria.util.ErrorHelp;
 import com.arialyy.aria.util.FileUtil;
 import com.arialyy.aria.util.NetUtils;
 import java.io.File;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -49,7 +48,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   /**
    * 当前子线程的下载位置
    */
-  protected long mChildCurrentLocation = 0, mSleepTime = 0;
+  protected long mChildCurrentLocation = 0;
   protected int mBufSize;
   protected IEventListener mListener;
   protected StateConstance STATE;
@@ -64,6 +63,12 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected int mReadTimeOut; //流读取的超时时间
   protected boolean isNotNetRetry = false;  //断网情况是否重试
   private boolean taskBreak = false;  //任务中断
+  protected int mThreadNum;
+  /**
+   * 速度限制工具
+   */
+  protected BandwidthLimiter mSpeedBandUtil;
+  protected AriaManager mAridManager;
 
   private Thread mConfigThread = new Thread(new Runnable() {
     @Override public void run() {
@@ -81,15 +86,10 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     mEntity = mTaskEntity.getEntity();
     mLastSaveTime = System.currentTimeMillis();
     mConfigThreadPool = Executors.newCachedThreadPool();
-  }
-
-  protected void setMaxSpeed(double maxSpeed) {
-    if (-0.9999 < maxSpeed && maxSpeed < 0.00001) {
-      mSleepTime = 0;
-    } else {
-      BigDecimal db = new BigDecimal(
-          ((mBufSize / 1024) * (filterVersion() ? 1 : STATE.START_THREAD_NUM) / maxSpeed) * 1000);
-      mSleepTime = db.setScale(0, BigDecimal.ROUND_HALF_UP).longValue();
+    mThreadNum = STATE.TASK_RECORD.threadRecords.size();
+    mAridManager = AriaManager.getInstance(AriaManager.APP);
+    if (getMaxSpeed() > 0) {
+      mSpeedBandUtil = new BandwidthLimiter(getMaxSpeed(), mThreadNum);
     }
   }
 
@@ -113,6 +113,23 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    */
   public ThreadRecord getThreadRecord() {
     return mConfig.THREAD_RECORD;
+  }
+
+  /**
+   * 获取配置的最大上传/下载速度
+   *
+   * @return 单位为：kb
+   */
+  public abstract int getMaxSpeed();
+
+  /**
+   * 设置最大下载速度
+   * @param speed 单位为：kb
+   */
+  public void setMaxSpeed(int speed){
+    if (mSpeedBandUtil != null){
+      mSpeedBandUtil.setMaxRate(speed / mThreadNum);
+    }
   }
 
   /**

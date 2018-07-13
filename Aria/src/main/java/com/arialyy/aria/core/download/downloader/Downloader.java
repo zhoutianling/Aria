@@ -83,6 +83,15 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
     return false;
   }
 
+  @Override protected void onPostPre() {
+    super.onPostPre();
+    ((IDownloadListener) mListener).onPostPre(mEntity.getFileSize());
+    File file = new File(mEntity.getDownloadPath());
+    if (!file.getParentFile().exists()) {
+      file.getParentFile().mkdirs();
+    }
+  }
+
   @Override protected AbsThreadTask selectThreadTask(SubThreadConfig<DownloadTaskEntity> config) {
     switch (mTaskEntity.getRequestType()) {
       case AbsTaskEntity.D_FTP:
