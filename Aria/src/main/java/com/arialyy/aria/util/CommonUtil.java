@@ -21,6 +21,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.StatFs;
 import android.text.TextUtils;
 import android.util.Base64;
 import com.arialyy.aria.core.AriaManager;
@@ -70,6 +71,54 @@ import java.util.regex.Pattern;
  */
 public class CommonUtil {
   private static final String TAG = "CommonUtil";
+
+  /**
+   * 检查SD内存空间是否充足
+   *
+   * @param filePath 文件保存路径
+   * @param fileSize 文件大小
+   * @return {@code false} 内存空间不足，{@code true}内存空间足够
+   */
+  public static boolean checkSDMemorySpace(String filePath, long fileSize) {
+    List<String> dirs = FileUtil.getSDPathList(AriaManager.APP);
+    if (dirs == null || dirs.isEmpty()) {
+      return true;
+    }
+    for (String path : dirs) {
+      if (filePath.contains(path)) {
+        if (fileSize > 0 && fileSize > getAvailableExternalMemorySize(path)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * sdcard 可用大小
+   *
+   * @param sdcardPath sdcard 根路径
+   * @return 单位为：byte
+   */
+  public static long getAvailableExternalMemorySize(String sdcardPath) {
+    StatFs stat = new StatFs(sdcardPath);
+    long blockSize = stat.getBlockSize();
+    long availableBlocks = stat.getAvailableBlocks();
+    return availableBlocks * blockSize;
+  }
+
+  /**
+   * sdcard 总大小
+   *
+   * @param sdcardPath sdcard 根路径
+   * @return 单位为：byte
+   */
+  public static long getTotalExternalMemorySize(String sdcardPath) {
+    StatFs stat = new StatFs(sdcardPath);
+    long blockSize = stat.getBlockSize();
+    long totalBlocks = stat.getBlockCount();
+    return totalBlocks * blockSize;
+  }
 
   /**
    * 获取某包下所有类

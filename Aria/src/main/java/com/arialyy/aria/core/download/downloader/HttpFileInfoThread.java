@@ -92,6 +92,12 @@ class HttpFileInfoThread implements Runnable {
         }
       }
     }
+
+    if (!CommonUtil.checkSDMemorySpace(mEntity.getDownloadPath(), len)) {
+      failDownload(String.format("路径【%s】内存空间不足", mEntity.getDownloadPath()), false);
+      return;
+    }
+
     int code = conn.getResponseCode();
     boolean end = false;
     if (TextUtils.isEmpty(mEntity.getMd5Code())) {
