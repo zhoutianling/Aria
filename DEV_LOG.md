@@ -1,9 +1,10 @@
 ## 开发日志
   + v_3.4.8
-    - 组合任务新增`updateUrls(List<String>)`用于修改组合子任务的url，[see](https://aria.laoyuyu.me/aria_doc/api/task_handle.html#%E6%9B%B4%E6%96%B0%E4%BB%BB%E5%8A%A1url)
+    - 组合任务新增`updateUrls(List<String>)`用于修改组合子任务的url，[see](https://aria.laoyuyu.me/aria_doc/api/update_url.html)
     - 出于安全考虑，FTP数据库去掉密码的保存
-    - 增加FTPS支持 [see]()
-    - 增加速度限制支持[see]()
+    - 增加FTPS支持 [see](https://aria.laoyuyu.me/aria_doc/download/ftps.html)
+    - 增加速度限制支持[see](https://aria.laoyuyu.me/aria_doc/api/speed_handle.html)
+    - 增加内存空间不足验证
   + v_3.4.7
     - 修复分块任务异常操作导致的问题
   + v_3.4.6

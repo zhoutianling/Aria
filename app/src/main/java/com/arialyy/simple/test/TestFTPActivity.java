@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import com.arialyy.annotations.Upload;
 import com.arialyy.aria.core.Aria;
+import com.arialyy.aria.core.common.ProtocolType;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.upload.UploadTask;
 import com.arialyy.aria.util.ALog;
@@ -83,9 +84,8 @@ public class TestFTPActivity extends BaseActivity<ActivityTestBinding> {
             .setUploadUrl(URL)
             .setExtendField("韩寒哈大双")
             .asFtps()
-            .setStorePath("/mnt/sdcard/Download/server.crt")
-            .setAlias("www.laoyuyu.me")
-            .setStorePass("123456")
+            //.setStorePath("/mnt/sdcard/Download/server.crt")
+            //.setAlias("www.laoyuyu.me")
             .start();
         //Uri uri = Uri.parse("ftp://z:z@dygod18.com:21211/[电影天堂www.dy2018.com]猩球崛起3：终极之战BD国英双语中英双字.mkv");
         //ALog.d(TAG, "sh = " + uri.getScheme() + ", user = " + uri.getUserInfo() + ", host = " + uri.getHost() + ", port = " + uri.getPort() + " remotePath = " + uri.getPath());

@@ -17,10 +17,12 @@ package com.arialyy.aria.core.download;
 
 import android.support.annotation.CheckResult;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import com.arialyy.aria.core.common.ftp.FTPSConfig;
 import com.arialyy.aria.core.common.ftp.FtpDelegate;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IFtpTarget;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import java.net.Proxy;
 
@@ -59,6 +61,20 @@ public class FtpDownloadTarget extends BaseNormalTarget<FtpDownloadTarget>
   public FTPSConfig<FtpDownloadTarget> asFtps() {
     mTaskEntity.getUrlEntity().isFtps = true;
     return new FTPSConfig<>(this);
+  }
+
+  @Override protected boolean checkEntity() {
+    if (mTaskEntity.getUrlEntity().isFtps){
+      if (TextUtils.isEmpty(mTaskEntity.getUrlEntity().storePath)){
+        ALog.e(TAG, "证书路径为空");
+        return false;
+      }
+      if (TextUtils.isEmpty(mTaskEntity.getUrlEntity().keyAlias)){
+        ALog.e(TAG, "证书别名为空");
+        return false;
+      }
+    }
+    return super.checkEntity();
   }
 
   /**

@@ -17,9 +17,9 @@
     <!--android:name=".download.group.DownloadGroupActivity"-->
     <!--android:name=".test.AnyRunActivity"-->
     <!--android:name=".test.TestFTPDirActivity"-->
-    <!--android:name=".test.TestFTPActivity"-->
+        <!--android:name=".download.SingleTaskActivity"-->
     <activity
-        android:name=".download.SingleTaskActivity"
+    android:name=".test.TestFTPActivity"
         android:label="@string/app_name">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
