@@ -58,6 +58,9 @@ public class SSLContextUtil {
    */
   public static SSLContext getSSLContextFromAssets(String caAlias, String caPath,
       @ProtocolType String protocol) {
+    if (TextUtils.isEmpty(caAlias) || TextUtils.isEmpty(caPath)){
+      return null;
+    }
     try {
       String cacheKey = getCacheKey(caAlias, caPath);
       SSLContext sslContext = SSL_CACHE.get(cacheKey);

@@ -201,7 +201,7 @@ class DelegateFind extends AbsDelegate {
    * @param pColumnAlias 关联查询父表别名
    * @param cColumnAlias 关联查询子表别名
    */
-  private <T extends AbsWrapper, P extends DbEntity, C extends DbEntity> List<T> newInstanceEntity(
+  private synchronized <T extends AbsWrapper, P extends DbEntity, C extends DbEntity> List<T> newInstanceEntity(
       Class<T> clazz, Class<P> parent,
       Class<C> child,
       Cursor cursor,
@@ -373,7 +373,7 @@ class DelegateFind extends AbsDelegate {
   /**
    * 根据数据游标创建一个具体的对象
    */
-  private <T extends DbEntity> List<T> newInstanceEntity(Class<T> clazz, Cursor cursor) {
+  private synchronized <T extends DbEntity> List<T> newInstanceEntity(Class<T> clazz, Cursor cursor) {
     List<Field> fields = CommonUtil.getAllFields(clazz);
     List<T> entitys = new ArrayList<>();
     if (fields != null && fields.size() > 0) {
@@ -419,6 +419,10 @@ class DelegateFind extends AbsDelegate {
    */
   private void setFieldValue(Class type, Field field, int column, Cursor cursor, Object entity)
       throws IllegalAccessException {
+    if (cursor == null || cursor.isClosed()) {
+      ALog.e(TAG, "cursor没有初始化");
+      return;
+    }
     if (type == String.class) {
       String temp = cursor.getString(column);
       if (!TextUtils.isEmpty(temp)) {

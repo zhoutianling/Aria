@@ -15,11 +15,11 @@
       android:theme="@style/AppTheme.NoActionBar">
         <!--android:name=".MainActivity"-->
     <!--android:name=".download.group.DownloadGroupActivity"-->
-    <!--android:name=".test.AnyRunActivity"-->
     <!--android:name=".test.TestFTPDirActivity"-->
         <!--android:name=".download.SingleTaskActivity"-->
+    <!--android:name=".test.TestFTPActivity"-->
     <activity
-    android:name=".test.TestFTPActivity"
+    android:name=".test.AnyRunActivity"
         android:label="@string/app_name">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>

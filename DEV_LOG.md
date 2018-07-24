@@ -1,4 +1,6 @@
 ## 开发日志
+  + v_3.4.9
+    - fix bug https://github.com/AriaLyy/Aria/issues/276
   + v_3.4.8
     - 组合任务新增`updateUrls(List<String>)`用于修改组合子任务的url，[see](https://aria.laoyuyu.me/aria_doc/api/update_url.html)
     - 出于安全考虑，FTP数据库去掉密码的保存
