@@ -57,12 +57,12 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     isNotNetRetry = mAridManager.getUploadConfig().isNotNetRetry();
   }
 
-  @Override public void run() {
+  @Override public UploadTaskEntity call() throws Exception {
     File uploadFile = new File(mEntity.getFilePath());
     if (!uploadFile.exists()) {
       ALog.e(TAG, String.format("【%s】，文件不存在。", mEntity.getFilePath()));
       fail();
-      return;
+      return mTaskEntity;
     }
     mListener.onPre();
     URL url;
@@ -103,6 +103,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       e.printStackTrace();
       fail();
     }
+    return mTaskEntity;
   }
 
   private void fail() {
@@ -199,7 +200,7 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     if (status == HttpURLConnection.HTTP_OK) {
       BufferedReader reader = new BufferedReader(new InputStreamReader(mHttpConn.getInputStream()));
       String line;
-      while ((line = reader.readLine()) != null) {
+      while (!Thread.currentThread().isInterrupted() && (line = reader.readLine()) != null) {
         response.append(line);
       }
       reader.close();

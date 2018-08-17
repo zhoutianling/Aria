@@ -20,6 +20,7 @@ import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
+import com.arialyy.aria.core.manager.ThreadTaskManager;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.ErrorHelp;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -38,7 +40,7 @@ import java.util.concurrent.Executors;
  * 任务线程
  */
 public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
-    implements Runnable {
+    implements Callable<TASK_ENTITY> {
   /**
    * 线程重试次数
    */
@@ -352,7 +354,8 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
           }
           mFailTimes++;
           handleRetryRecord();
-          AbsThreadTask.this.run();
+          ThreadTaskManager.getInstance().retryThread(AbsThreadTask.this);
+          //AbsThreadTask.this.run();
         }
       }, 3000);
     } else {

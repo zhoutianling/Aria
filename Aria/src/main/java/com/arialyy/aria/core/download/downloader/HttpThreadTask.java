@@ -33,6 +33,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
@@ -56,10 +57,10 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     isBlock = STATE.TASK_RECORD.isBlock;
   }
 
-  @Override public void run() {
+  @Override public DownloadTaskEntity call(){
     if (getThreadRecord().isComplete) {
       handleComplete();
-      return;
+      return mTaskEntity;
     }
     HttpURLConnection conn = null;
     BufferedInputStream is = null;
@@ -118,6 +119,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         e.printStackTrace();
       }
     }
+    return mTaskEntity;
   }
 
   /**
@@ -133,7 +135,8 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       foc = fos.getChannel();
       fic = Channels.newChannel(is);
       ByteBuffer bf = ByteBuffer.allocate(mBufSize);
-      while ((len = fic.read(bf)) != -1) {
+      //如果要通过 Future 的 cancel 方法取消正在运行的任务，那么该任务必定是可以 对线程中断做出响应 的任务。
+      while (!Thread.currentThread().isInterrupted() && (len = fic.read(bf)) != -1) {
         if (isBreak()) {
           break;
         }
@@ -192,7 +195,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       throws IOException {
     byte[] buffer = new byte[mBufSize];
     int len;
-    while ((len = is.read(buffer)) != -1) {
+    while (!Thread.currentThread().isInterrupted() && (len = is.read(buffer)) != -1) {
       if (isBreak()) {
         break;
       }

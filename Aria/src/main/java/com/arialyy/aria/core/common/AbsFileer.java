@@ -22,6 +22,7 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
+import com.arialyy.aria.core.manager.ThreadTaskManager;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
@@ -36,8 +37,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by AriaL on 2017/7/1.
@@ -63,7 +62,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   protected Context mContext;
   protected File mTempFile; //文件
   protected StateConstance mConstance;
-  private ExecutorService mFixedThreadPool;
   //总线程数
   protected int mTotalThreadNum;
   //启动线程数
@@ -121,9 +119,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     mCompleteThreadNum = 0;
     mTotalThreadNum = 0;
     mStartThreadNum = 0;
-    if (mFixedThreadPool != null) {
-      mFixedThreadPool.shutdown();
-    }
     if (mTask != null && !mTask.isEmpty()) {
       for (int i = 0; i < mTask.size(); i++) {
         AbsThreadTask task = mTask.get(i);
@@ -258,15 +253,13 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     closeTimer();
     mConstance.isRunning = false;
     mConstance.isCancel = true;
-    if (mFixedThreadPool != null) {
-      mFixedThreadPool.shutdown();
-    }
     for (int i = 0; i < mStartThreadNum; i++) {
       AbsThreadTask task = mTask.get(i);
       if (task != null) {
         task.cancel();
       }
     }
+    ThreadTaskManager.getInstance().stopTaskThread(mTaskEntity.getKey());
   }
 
   public void stop() {
@@ -274,15 +267,13 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     mConstance.isRunning = false;
     mConstance.isStop = true;
     if (mConstance.isComplete()) return;
-    if (mFixedThreadPool != null) {
-      mFixedThreadPool.shutdown();
-    }
     for (int i = 0; i < mStartThreadNum; i++) {
       AbsThreadTask task = mTask.get(i);
       if (task != null && !task.isThreadComplete()) {
         task.stop();
       }
     }
+    ThreadTaskManager.getInstance().stopTaskThread(mTaskEntity.getKey());
   }
 
   /**
@@ -636,13 +627,9 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     } else {
       mListener.onStart(mConstance.CURRENT_LOCATION);
     }
-    mFixedThreadPool = Executors.newFixedThreadPool(recordL.length);
     for (int l : recordL) {
       if (l == -1) continue;
-      Runnable task = mTask.get(l);
-      if (task != null) {
-        mFixedThreadPool.execute(task);
-      }
+      ThreadTaskManager.getInstance().startThread(mTaskEntity.getKey(), mTask.get(l));
     }
   }
 
@@ -652,31 +639,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   public void retryTask() {
     ALog.w(TAG, String.format("任务【%s】开始重试", mEntity.getFileName()));
     startFlow();
-    //if (isBreak()) {
-    //  return;
-    //}
-    //if (mTask == null || mTask.size() == 0) {
-    //  ALog.w(TAG, "没有线程任务");
-    //  return;
-    //}
-    //Set<Integer> keys = mTask.keySet();
-    //for (Integer key : keys) {
-    //  AbsThreadTask task = mTask.get(key);
-    //  if (task != null && !task.isThreadComplete()) {
-    //
-    //    task.getConfig().START_LOCATION = task.getConfig().THREAD_RECORD.startLocation;
-    //    mConstance.resetState();
-    //    startTimer();
-    //    ALog.d(TAG, String.format("任务【%s】开始重试，线程__%s__【开始位置：%s，结束位置：%s】", mEntity.getFileName(),
-    //        key, task.getConfig().START_LOCATION, task.getConfig().END_LOCATION));
-    //    if (!mFixedThreadPool.isShutdown()) {
-    //      mFixedThreadPool.execute(task);
-    //    } else {
-    //      ALog.w(TAG, "线程池已关闭");
-    //      mListener.onFail(true);
-    //    }
-    //  }
-    //}
   }
 
   /**
@@ -707,8 +669,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     AbsThreadTask task = selectThreadTask(config);
     if (task == null) return;
     mTask.put(0, task);
-    mFixedThreadPool = Executors.newFixedThreadPool(1);
-    mFixedThreadPool.execute(task);
+    ThreadTaskManager.getInstance().startThread(mTaskEntity.getKey(), task);
     mListener.onStart(0);
   }
 

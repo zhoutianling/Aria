@@ -50,7 +50,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
     return mAridManager.getUploadConfig().getMaxSpeed();
   }
 
-  @Override public void run() {
+  @Override public UploadTaskEntity call() throws Exception {
     //当前子线程的下载位置
     mChildCurrentLocation = mConfig.START_LOCATION;
     FTPClient client = null;
@@ -60,7 +60,9 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
           String.format("任务【%s】线程__%s__开始上传【开始位置 : %s，结束位置：%s】", mConfig.TEMP_FILE.getName(),
               mConfig.THREAD_ID, mConfig.START_LOCATION, mConfig.END_LOCATION));
       client = createClient();
-      if (client == null) return;
+      if (client == null) {
+        return mTaskEntity;
+      }
       initPath();
       client.makeDirectory(dir);
       client.changeWorkingDirectory(dir);
@@ -69,7 +71,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       if (!FTPReply.isPositivePreliminary(reply) && reply != FTPReply.FILE_ACTION_OK) {
         fail(mChildCurrentLocation, "上传失败，错误码为：" + reply + "，msg：" + client.getReplyString(), null);
         client.disconnect();
-        return;
+        return mTaskEntity;
       }
 
       file = new BufferedRandomAccessFile(mConfig.TEMP_FILE, "rwd", mBufSize);
@@ -79,7 +81,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       }
       upload(client, file);
       if (isBreak()) {
-        return;
+        return mTaskEntity;
       }
       ALog.i(TAG,
           String.format("任务【%s】线程__%s__上传完毕", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
@@ -110,6 +112,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
         e.printStackTrace();
       }
     }
+    return mTaskEntity;
   }
 
   private void initPath() throws UnsupportedEncodingException {

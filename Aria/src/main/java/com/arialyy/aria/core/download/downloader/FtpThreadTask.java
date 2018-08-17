@@ -53,10 +53,10 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
     isBlock = STATE.TASK_RECORD.isBlock;
   }
 
-  @Override public void run() {
+  @Override public DownloadTaskEntity call() throws Exception {
     if (mConfig.THREAD_RECORD.isComplete) {
       handleComplete();
-      return;
+      return mTaskEntity;
     }
     mChildCurrentLocation = mConfig.START_LOCATION;
     FTPClient client = null;
@@ -69,7 +69,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       client = createClient();
       if (client == null) {
         fail(mChildCurrentLocation, "ftp client 创建失败", null);
-        return;
+        return mTaskEntity;
       }
       if (mConfig.START_LOCATION > 0) {
         client.setRestartOffset(mConfig.START_LOCATION);
@@ -81,7 +81,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
             String.format("获取文件信息错误，错误码为：%s，msg：%s", reply, client.getReplyString()),
             null);
         client.disconnect();
-        return;
+        return mTaskEntity;
       }
       String remotePath =
           new String(mTaskEntity.getUrlEntity().remotePath.getBytes(charSet), SERVER_CHARSET);
@@ -93,7 +93,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
             String.format("获取流失败，错误码为：%s，msg：%s", reply, client.getReplyString()),
             null);
         client.disconnect();
-        return;
+        return mTaskEntity;
       }
 
       if (isOpenDynamicFile) {
@@ -118,6 +118,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         e.printStackTrace();
       }
     }
+    return mTaskEntity;
   }
 
   /**
@@ -164,7 +165,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       foc = fos.getChannel();
       fic = Channels.newChannel(is);
       ByteBuffer bf = ByteBuffer.allocate(mBufSize);
-      while ((len = fic.read(bf)) != -1) {
+      while (!Thread.currentThread().isInterrupted() && (len = fic.read(bf)) != -1) {
         if (isBreak()) {
           break;
         }
@@ -215,7 +216,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       file.seek(mConfig.START_LOCATION);
       byte[] buffer = new byte[mBufSize];
       int len;
-      while ((len = is.read(buffer)) != -1) {
+      while (!Thread.currentThread().isInterrupted() && (len = is.read(buffer)) != -1) {
         if (isBreak()) {
           break;
         }
