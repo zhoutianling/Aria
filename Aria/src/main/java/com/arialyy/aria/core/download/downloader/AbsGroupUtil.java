@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -63,22 +64,22 @@ public abstract class AbsGroupUtil implements IUtil {
   /**
    * 保存所有没有下载完成的任务，key为下载地址
    */
-  Map<String, DownloadTaskEntity> mExeMap = new HashMap<>();
+  Map<String, DownloadTaskEntity> mExeMap = new ConcurrentHashMap<>();
 
   /**
    * 下载失败的映射表，key为下载地址
    */
-  Map<String, DownloadTaskEntity> mFailMap = new HashMap<>();
+  Map<String, DownloadTaskEntity> mFailMap = new ConcurrentHashMap<>();
 
   /**
    * 该任务组对应的所有任务
    */
-  private Map<String, DownloadTaskEntity> mTasksMap = new HashMap<>();
+  private Map<String, DownloadTaskEntity> mTasksMap = new ConcurrentHashMap<>();
 
   /**
    * 下载器映射表，key为下载地址
    */
-  private Map<String, Downloader> mDownloaderMap = new HashMap<>();
+  private Map<String, Downloader> mDownloaderMap = new ConcurrentHashMap<>();
 
   /**
    * 是否需要读取文件长度，{@code true}需要

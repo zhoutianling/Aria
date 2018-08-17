@@ -197,9 +197,14 @@ public class UploadReceiver extends AbsReceiver {
       ALog.e(TAG, String.format("【%s】观察者为空", targetName));
       return;
     }
-    Set<String> dCounter = ProxyHelper.getInstance().uploadCounter;
-    if (dCounter != null && dCounter.contains(targetName)) {
-      UploadSchedulers.getInstance().unRegister(obj);
+
+    Set<Integer> set = ProxyHelper.getInstance().mProxyCache.get(obj.getClass().getName());
+    if (set != null) {
+      for (Integer integer : set) {
+        if (integer == ProxyHelper.PROXY_TYPE_UPLOAD) {
+          UploadSchedulers.getInstance().unRegister(obj);
+        }
+      }
     }
   }
 }

@@ -1,4 +1,9 @@
 ## 开发日志
+  + v_3.4.11
+    - fix bug https://github.com/AriaLyy/Aria/issues/288
+    - fix bug https://github.com/AriaLyy/Aria/issues/282
+  + v_3.4.10
+    - fix bug https://github.com/AriaLyy/Aria/issues/280
   + v_3.4.9
     - fix bug https://github.com/AriaLyy/Aria/issues/276
   + v_3.4.8

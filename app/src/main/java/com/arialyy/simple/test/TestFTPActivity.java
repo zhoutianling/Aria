@@ -25,7 +25,7 @@ public class TestFTPActivity extends BaseActivity<ActivityTestBinding> {
   //String URL = "http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
   //private final String URL = "ftp://192.168.1.3:21/download//AriaPrj.rar";
   private final String FILE_PATH = "/mnt/sdcard/mmm.mp4";
-  private final String URL = "ftps://192.168.29.140:990/aa/你好";
+  private final String URL = "ftps://9.9.9.59:990/aa/你好";
 
 
   @Override protected int setLayoutId() {
@@ -82,8 +82,7 @@ public class TestFTPActivity extends BaseActivity<ActivityTestBinding> {
             .loadFtp(FILE_PATH)
             .login("lao", "123456")
             .setUploadUrl(URL)
-            .setExtendField("韩寒哈大双")
-            .asFtps()
+            //.asFtps()
             //.setStorePath("/mnt/sdcard/Download/server.crt")
             //.setAlias("www.laoyuyu.me")
             .start();

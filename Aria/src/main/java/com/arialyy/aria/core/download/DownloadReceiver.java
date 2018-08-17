@@ -206,15 +206,15 @@ public class DownloadReceiver extends AbsReceiver {
       ALog.e(TAG, String.format("【%s】观察者为空", targetName));
       return;
     }
-    Set<String> dCounter = ProxyHelper.getInstance().downloadCounter;
-    Set<String> dgCounter = ProxyHelper.getInstance().downloadGroupCounter;
-    Set<String> dgsCounter = ProxyHelper.getInstance().downloadGroupSubCounter;
-    if (dCounter != null && dCounter.contains(targetName)) {
-      DownloadSchedulers.getInstance().unRegister(obj);
-    }
-    if (dgCounter != null && dgCounter.contains(targetName) || (dgsCounter != null
-        && dgsCounter.contains(targetName))) {
-      DownloadGroupSchedulers.getInstance().unRegister(obj);
+    Set<Integer> set = ProxyHelper.getInstance().mProxyCache.get(obj.getClass().getName());
+    if (set != null) {
+      for (Integer integer : set) {
+        if (integer == ProxyHelper.PROXY_TYPE_DOWNLOAD) {
+          DownloadSchedulers.getInstance().unRegister(obj);
+        } else if (integer == ProxyHelper.PROXY_TYPE_DOWNLOAD_GROUP) {
+          DownloadGroupSchedulers.getInstance().unRegister(obj);
+        }
+      }
     }
   }
 

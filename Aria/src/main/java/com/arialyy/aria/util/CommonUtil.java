@@ -502,11 +502,14 @@ public class CommonUtil {
         }
       }
     }
-    File dir = new File(groupEntity.getDirPath());
-    if (dir.exists() && (removeFile || !groupEntity.isComplete())) {
-      dir.delete();
+
+    if (!TextUtils.isEmpty(groupEntity.getDirPath())) {
+      File dir = new File(groupEntity.getDirPath());
+      if (dir.exists() && (removeFile || !groupEntity.isComplete())) {
+        dir.delete();
+      }
+      groupEntity.deleteData();
     }
-    groupEntity.deleteData();
   }
 
   /**

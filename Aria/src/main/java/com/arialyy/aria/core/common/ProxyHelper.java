@@ -49,7 +49,7 @@ public class ProxyHelper {
   public static int PROXY_TYPE_UPLOAD = 0x04;
   public Set<String> downloadCounter = new HashSet<>(), uploadCounter = new HashSet<>(),
       downloadGroupCounter = new HashSet<>(), downloadGroupSubCounter = new HashSet<>();
-  private Map<String, Set<Integer>> mProxyCache = new ConcurrentHashMap<>();
+  public Map<String, Set<Integer>> mProxyCache = new ConcurrentHashMap<>();
 
   public static volatile ProxyHelper INSTANCE = null;
   private boolean canLoadClass = false;

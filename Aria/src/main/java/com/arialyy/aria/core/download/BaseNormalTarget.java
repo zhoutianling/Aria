@@ -86,7 +86,7 @@ abstract class BaseNormalTarget<TARGET extends BaseNormalTarget>
    * @return {@code true}任务存在
    */
   @Override public boolean taskExists() {
-    return DownloadTaskQueue.getInstance().getTask(mEntity.getUrl()) != null;
+    return DownloadTaskQueue.getInstance().getTask(mEntity.getKey()) != null;
   }
 
   /**

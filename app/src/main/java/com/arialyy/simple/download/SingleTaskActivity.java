@@ -33,6 +33,7 @@ import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadTarget;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.frame.util.show.L;
 import com.arialyy.frame.util.show.T;
@@ -130,6 +131,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   }
 
   @Download.onTaskRunning protected void running(DownloadTask task) {
+    ALog.d(TAG, String.format("%s_running_%s", getClass().getName(), hashCode()));
     if (task.getKey().equals(DOWNLOAD_URL)) {
       //Log.d(TAG, task.getKey());
       long len = task.getFileSize();
@@ -220,8 +222,9 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         startD();
         break;
       case R.id.stop:
-        Aria.download(this).load(DOWNLOAD_URL).stop();
-        //startActivity(new Intent(this, SingleTaskActivity.class));
+        //Aria.download(this).load(DOWNLOAD_URL).stop();
+        startActivity(new Intent(this, SingleTaskActivity.class));
+        Aria.download(this).unRegister();
         //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
       case R.id.cancel:

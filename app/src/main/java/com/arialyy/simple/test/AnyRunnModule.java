@@ -64,7 +64,7 @@ public class AnyRunnModule {
 
   void start(String url) {
     mUrl = url;
-    String path = Environment.getExternalStorageDirectory().getPath() + "/mmm1.mp4";
+    String path = Environment.getExternalStorageDirectory().getPath() + "/mmm2.mp4";
     Aria.download(this)
         .load(url)
         .setRequestMode(RequestEnum.GET)
@@ -79,10 +79,10 @@ public class AnyRunnModule {
         .loadFtp(url)
         .login("lao", "123456")
         .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/Download/")
-        .asFtps()
-        .setStorePath("/mnt/sdcard/Download/server.crt")
-        .setAlias("www.laoyuyu.me")
-        .setStorePass("123456")
+        //.asFtps()
+        //.setStorePath("/mnt/sdcard/Download/server.crt")
+        //.setAlias("www.laoyuyu.me")
+        //.setStorePass("123456")
         .start();
   }
 

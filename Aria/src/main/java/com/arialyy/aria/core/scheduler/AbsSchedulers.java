@@ -259,6 +259,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
    */
   private void handleFailTask(final TASK task) {
     if (!task.needRetry || task.isStop() || task.isCancel()) {
+      callback(FAIL, task);
       mQueue.removeTaskFormQueue(task.getKey());
       ALog.d(TAG, "fail_next");
       startNextTask();

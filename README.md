@@ -32,8 +32,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.4.9'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.9'
+compile 'com.arialyy.aria:aria-core:3.4.11'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.4.11'
 ```
 如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:<last-version>'`替换为
 ```
@@ -101,12 +101,9 @@ protected void onCreate(Bundle savedInstanceState) {
 
 
 ### 版本日志
-  + v_3.4.8
-    - 组合任务新增`updateUrls(List<String>)`用于修改组合子任务的url，[see](https://aria.laoyuyu.me/aria_doc/api/update_url.html)
-    - 出于安全考虑，FTP数据库去掉密码的保存
-    - 增加FTPS支持 [see](https://aria.laoyuyu.me/aria_doc/download/ftps.html)
-    - 增加速度限制支持[see](https://aria.laoyuyu.me/aria_doc/api/speed_handle.html)
-    - 增加内存空间不足验证
+  + v_3.4.11
+    - fix bug https://github.com/AriaLyy/Aria/issues/288
+    - fix bug https://github.com/AriaLyy/Aria/issues/282
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 
