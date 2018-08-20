@@ -41,12 +41,14 @@ class KotlinDownloadActivity : AppCompatActivity() {
 //      setBtState(false)
 //    }
 //    binding.fileSize = target.getConvertFileSize()
+    Aria.get(this).downloadConfig.maxTaskNum = 2
     Aria.download(this).register()
   }
 
-  @Download.onTaskRunning protected fun running(task: DownloadTask) {
+  @Download.onTaskRunning
+  protected fun running(task: DownloadTask) {
     Log.d(TAG, task.percent.toString() + "")
-    val len = task.fileSize
+//    val len = task.fileSize
 //    if (len == 0L) {
 //      binding.progress = 0
 //    } else {
@@ -65,7 +67,7 @@ class KotlinDownloadActivity : AppCompatActivity() {
 
   private fun startD() {
     Aria.download(this)
-        .load(DOWNLOAD_URL, true)
+        .load(DOWNLOAD_URL)
         .addHeader("groupName", "value")
         .setDownloadPath(Environment.getExternalStorageDirectory().path + "/hhhhhhhh.apk")
         .start()

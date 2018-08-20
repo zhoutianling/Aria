@@ -42,8 +42,7 @@ import java.util.TimerTask;
  * Created by AriaL on 2017/7/1.
  * 任务处理器
  */
-public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
-    implements Runnable {
+public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>> {
   private static final String STATE = "_state_";
   private static final String RECORD = "_record_";
   /**
@@ -102,13 +101,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         task.setMaxSpeed(maxSpeed);
       }
     }
-  }
-
-  @Override public void run() {
-    if (mConstance.isRunning) {
-      return;
-    }
-    startFlow();
   }
 
   /**
@@ -280,7 +272,10 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 直接调用的时候会自动启动线程执行
    */
   public void start() {
-    new Thread(this).start();
+    if (mConstance.isRunning) {
+      return;
+    }
+    startFlow();
   }
 
   public void resume() {

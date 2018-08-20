@@ -84,7 +84,7 @@ public class BandwidthLimiter {
     this.bytesWillBeSentOrReceive += len;
 
     /* We have sent CHUNK_LENGTH bytes */
-    while (this.bytesWillBeSentOrReceive > CHUNK_LENGTH) {
+    while (!Thread.currentThread().isInterrupted() && this.bytesWillBeSentOrReceive > CHUNK_LENGTH) {
       long nowTick = System.nanoTime();
       long missedTime = this.timeCostPerChunk
           - (nowTick - this.lastPieceSentOrReceiveTick);

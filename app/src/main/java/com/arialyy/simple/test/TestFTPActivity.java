@@ -82,9 +82,9 @@ public class TestFTPActivity extends BaseActivity<ActivityTestBinding> {
             .loadFtp(FILE_PATH)
             .login("lao", "123456")
             .setUploadUrl(URL)
-            //.asFtps()
-            //.setStorePath("/mnt/sdcard/Download/server.crt")
-            //.setAlias("www.laoyuyu.me")
+            .asFtps()
+            .setStorePath("/mnt/sdcard/Download/server.crt")
+            .setAlias("www.laoyuyu.me")
             .start();
         //Uri uri = Uri.parse("ftp://z:z@dygod18.com:21211/[电影天堂www.dy2018.com]猩球崛起3：终极之战BD国英双语中英双字.mkv");
         //ALog.d(TAG, "sh = " + uri.getScheme() + ", user = " + uri.getUserInfo() + ", host = " + uri.getHost() + ", port = " + uri.getPort() + " remotePath = " + uri.getPath());

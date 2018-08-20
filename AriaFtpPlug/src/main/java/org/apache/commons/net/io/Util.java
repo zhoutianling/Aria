@@ -92,7 +92,7 @@ public final class Util {
     byte[] buffer = new byte[bufferSize > 0 ? bufferSize : DEFAULT_COPY_BUFFER_SIZE];
 
     try {
-      while ((numBytes = source.read(buffer)) != -1) {
+      while (!Thread.currentThread().isInterrupted() && (numBytes = source.read(buffer)) != -1) {
         // Technically, some read(byte[]) methods may return 0 and we cannot
         // accept that as an indication of EOF.
 

@@ -15,7 +15,6 @@
  */
 package com.arialyy.aria.core.common;
 
-import android.os.Build;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
@@ -29,8 +28,6 @@ import com.arialyy.aria.util.NetUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,7 +55,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
   private int mFailTimes = 0;
-  private Timer mFailTimer;
   private long mLastSaveTime;
   private ExecutorService mConfigThreadPool;
   protected int mConnectTimeOut; //连接超时时间
@@ -126,10 +122,11 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
 
   /**
    * 设置最大下载速度
+   *
    * @param speed 单位为：kb
    */
-  public void setMaxSpeed(int speed){
-    if (mSpeedBandUtil != null){
+  public void setMaxSpeed(int speed) {
+    if (mSpeedBandUtil != null) {
       mSpeedBandUtil.setMaxRate(speed / mThreadNum);
     }
   }
@@ -166,15 +163,15 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     return STATE.isRunning;
   }
 
+  public boolean isInterrupted() {
+    return Thread.currentThread().isInterrupted();
+  }
+
   /**
    * 获取线程配置信息
    */
   public SubThreadConfig getConfig() {
     return mConfig;
-  }
-
-  private boolean filterVersion() {
-    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
   }
 
   @Override protected void finalize() throws Throwable {
@@ -333,10 +330,6 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    * @param needRetry 是否可以重试
    */
   private void retryThis(boolean needRetry) {
-    if (mFailTimer != null) {
-      mFailTimer.purge();
-      mFailTimer.cancel();
-    }
     if (!NetUtils.isConnected(AriaManager.APP) && !isNotNetRetry) {
       ALog.w(TAG, String.format("任务【%s】thread__%s__重试失败，网络未连接", mConfig.TEMP_FILE.getName(),
           mConfig.THREAD_ID));
@@ -345,19 +338,9 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
         || isNotNetRetry) && !isBreak()) {
       ALog.w(TAG,
           String.format("任务【%s】thread__%s__正在重试", mConfig.TEMP_FILE.getName(), mConfig.THREAD_ID));
-      mFailTimer = new Timer(true);
-      mFailTimer.schedule(new TimerTask() {
-        @Override public void run() {
-          if (isBreak()) {
-            handleFailState(false);
-            return;
-          }
-          mFailTimes++;
-          handleRetryRecord();
-          ThreadTaskManager.getInstance().retryThread(AbsThreadTask.this);
-          //AbsThreadTask.this.run();
-        }
-      }, 3000);
+      mFailTimes++;
+      handleRetryRecord();
+      ThreadTaskManager.getInstance().retryThread(AbsThreadTask.this);
     } else {
       handleFailState(!isBreak());
     }

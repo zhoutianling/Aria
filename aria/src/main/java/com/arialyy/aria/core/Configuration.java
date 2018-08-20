@@ -34,7 +34,7 @@ import java.util.Properties;
  * Created by lyy on 2016/12/8.
  * 信息配置
  */
-class Configuration {
+public class Configuration {
   static final String TAG = "Configuration";
   static final String DOWNLOAD_CONFIG_FILE = "/Aria/DownloadConfig.properties";
   static final String UPLOAD_CONFIG_FILE = "/Aria/UploadConfig.properties";

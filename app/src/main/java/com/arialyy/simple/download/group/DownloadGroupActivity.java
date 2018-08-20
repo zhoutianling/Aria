@@ -47,7 +47,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
     super.init(savedInstanceState);
     Aria.download(this).register();
     setTitle("任务组");
-    mUrls = getModule(GroupModule.class).getUrls1();
+    mUrls = getModule(GroupModule.class).getUrls();
     DownloadGroupTaskEntity entity = Aria.download(this).getGroupTask(mUrls);
     if (entity != null && entity.getEntity() != null) {
       DownloadGroupEntity groupEntity = entity.getEntity();
@@ -91,7 +91,7 @@ public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBin
             .setGroupAlias("任务组测试")
             //.setSubFileName(getModule(GroupModule.class).getSubName2())
             .setSubFileName(getModule(GroupModule.class).getSubName())
-            .updateUrls(temp)
+            //.updateUrls(temp)
             .start();
         break;
       case R.id.stop:

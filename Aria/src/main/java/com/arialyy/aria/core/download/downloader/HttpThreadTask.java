@@ -33,7 +33,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
-import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 
@@ -57,7 +56,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     isBlock = STATE.TASK_RECORD.isBlock;
   }
 
-  @Override public DownloadTaskEntity call(){
+  @Override public DownloadTaskEntity call() {
     if (getThreadRecord().isComplete) {
       handleComplete();
       return mTaskEntity;
@@ -68,7 +67,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     //当前子线程的下载位置
     mChildCurrentLocation = mConfig.START_LOCATION;
     try {
-      URL url = new URL(CommonUtil.convertUrl(mConfig.URL));
+      URL url = new URL(CommonUtil.convertUrl(mConfig.URL + 1));
       conn = ConnectionHelp.handleConnection(url, mTaskEntity);
       if (mConfig.SUPPORT_BP) {
         ALog.d(TAG,

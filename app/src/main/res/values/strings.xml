@@ -85,7 +85,7 @@
   </string-array>
 
   <string-array name="group_names">
-    <!--<item>王者荣耀.apk</item>-->
+    <item>王者荣耀.apk</item>
     <item>战斗吧剑灵.apk</item>
     <!--<item>天魔幻想.apk</item>-->
   </string-array>

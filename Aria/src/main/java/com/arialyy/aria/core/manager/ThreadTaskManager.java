@@ -57,7 +57,7 @@ public class ThreadTaskManager {
    * @param key 任务对应的key{@link AbsTaskEntity#getKey()}
    * @param threadTask 线程任务{@link AbsThreadTask}
    */
-  public void startThread(String key, AbsThreadTask threadTask) {
+  public synchronized void startThread(String key, AbsThreadTask threadTask) {
     if (mExePool.isShutdown()) {
       ALog.e(TAG, "线程池已经关闭");
       return;
@@ -76,18 +76,23 @@ public class ThreadTaskManager {
    *
    * @param key 任务对应的key{@link AbsTaskEntity#getKey()}
    */
-  public void stopTaskThread(String key) {
+  public synchronized void stopTaskThread(String key) {
     if (mExePool.isShutdown()) {
       ALog.e(TAG, "线程池已经关闭");
       return;
     }
     Set<Future> temp = mThreadTasks.get(getKey(key));
-    for (Future future : temp) {
-      if (future.isDone() || future.isCancelled()) {
-        continue;
+    try {
+      for (Future future : temp) {
+        if (future.isDone() || future.isCancelled()) {
+          continue;
+        }
+        future.cancel(true);
       }
-      future.cancel(true);
+    } catch (Exception e) {
+      ALog.e(TAG, e);
     }
+    temp.clear();
     mThreadTasks.remove(key);
   }
 
@@ -96,9 +101,18 @@ public class ThreadTaskManager {
    *
    * @param task 线程任务
    */
-  public void retryThread(AbsThreadTask task) {
+  public synchronized void retryThread(AbsThreadTask task) {
     if (mExePool.isShutdown()) {
       ALog.e(TAG, "线程池已经关闭");
+      return;
+    }
+    try {
+      if (task == null || task.isInterrupted()) {
+        ALog.e(TAG, "线程为空或线程已经中断");
+        return;
+      }
+    } catch (Exception e) {
+      ALog.e(TAG, e);
       return;
     }
     mExePool.submit(task);

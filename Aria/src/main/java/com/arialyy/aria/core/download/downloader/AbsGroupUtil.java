@@ -26,13 +26,11 @@ import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.NetUtils;
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -56,7 +54,6 @@ public abstract class AbsGroupUtil implements IUtil {
    */
   long mTotalLen = 0;
   long mCurrentLocation = 0;
-  private ExecutorService mExePool;
   protected IDownloadGroupListener mListener;
   DownloadGroupTaskEntity mGTEntity;
   private boolean isRunning = false;
@@ -97,7 +94,6 @@ public abstract class AbsGroupUtil implements IUtil {
   AbsGroupUtil(IDownloadGroupListener listener, DownloadGroupTaskEntity groupEntity) {
     mListener = listener;
     mGTEntity = groupEntity;
-    mExePool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     mUpdateInterval =
         AriaManager.getInstance(AriaManager.APP).getDownloadConfig().getUpdateInterval();
   }
@@ -228,10 +224,6 @@ public abstract class AbsGroupUtil implements IUtil {
     isCancel = true;
     closeTimer();
     onCancel();
-    if (!mExePool.isShutdown()) {
-      mExePool.shutdown();
-    }
-
     Set<String> keys = mDownloaderMap.keySet();
     for (String key : keys) {
       Downloader dt = mDownloaderMap.get(key);
@@ -251,9 +243,6 @@ public abstract class AbsGroupUtil implements IUtil {
     isStop = true;
     closeTimer();
     onStop();
-    if (!mExePool.isShutdown()) {
-      mExePool.shutdown();
-    }
 
     Set<String> keys = mDownloaderMap.keySet();
     for (String key : keys) {
@@ -392,9 +381,8 @@ public abstract class AbsGroupUtil implements IUtil {
     ChildDownloadListener listener = new ChildDownloadListener(taskEntity);
     Downloader dt = new Downloader(listener, taskEntity);
     mDownloaderMap.put(taskEntity.getEntity().getUrl(), dt);
-    if (mExePool.isShutdown()) return dt;
     if (start) {
-      mExePool.execute(dt);
+      dt.start();
     }
     return dt;
   }

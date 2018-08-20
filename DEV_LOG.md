@@ -1,4 +1,7 @@
 ## 开发日志
+  + v_3.4.12
+    - fix bug https://github.com/AriaLyy/Aria/issues/286
+    - 优化线程池任务
   + v_3.4.11
     - fix bug https://github.com/AriaLyy/Aria/issues/288
     - fix bug https://github.com/AriaLyy/Aria/issues/282

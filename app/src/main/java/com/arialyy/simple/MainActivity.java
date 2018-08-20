@@ -20,6 +20,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import butterknife.OnClick;
+import com.arialyy.aria.core.Aria;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
 import com.arialyy.simple.download.DownloadActivity;
@@ -39,6 +40,7 @@ public class MainActivity extends BaseActivity<ActivityMainBinding> {
     setSupportActionBar(mBar);
     mBar.setTitle("Aria  Demo");
     getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
   }
 
   @Override protected int setLayoutId() {

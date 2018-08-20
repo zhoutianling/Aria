@@ -266,8 +266,8 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
       if (oldFile.exists()) {
         oldFile.renameTo(new File(newPath));
       }
-      if (DbEntity.checkDataExist(DownloadEntity.class, "downloadPath=?", newPath)) {
-        ALog.w(TAG, String.format("更新文件名失败，路径【%s】已存在", newPath));
+      if (DbEntity.checkDataExist(DownloadEntity.class, "downloadPath=? or isComplete='true'", newPath)) {
+        ALog.w(TAG, String.format("更新文件名失败，路径【%s】已存在或文件已下载", newPath));
         return;
       }
 
