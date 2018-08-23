@@ -93,11 +93,9 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
   public static class Builder {
     DownloadGroupTaskEntity taskEntity;
     Handler outHandler;
-    String targetName;
 
-    public Builder(String targetName, DownloadGroupTaskEntity taskEntity) {
+    public Builder(DownloadGroupTaskEntity taskEntity) {
       CheckUtil.checkTaskEntity(taskEntity);
-      this.targetName = targetName;
       this.taskEntity = taskEntity;
     }
 
@@ -117,9 +115,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupTaskEntity> {
     }
 
     public DownloadGroupTask build() {
-      DownloadGroupTask task = new DownloadGroupTask(taskEntity, outHandler);
-      task.setTargetName(targetName);
-      return task;
+      return new DownloadGroupTask(taskEntity, outHandler);
     }
   }
 }

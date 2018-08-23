@@ -187,7 +187,6 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
   }
 
   @Override public void removeTaskFormQueue(String key) {
-    //TEManager.getInstance().removeTEntity(key);
     TASK task = mExecutePool.getTask(key);
     if (task != null) {
       ALog.d(TAG, String.format("从执行池删除任务【%s】%s", task.getTaskName(),
@@ -205,10 +204,6 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
       ALog.e(TAG, "任务重试失败，原因：task 为null");
       return;
     }
-    //if (!NetUtils.isConnected(AriaManager.APP)) {
-    //  ALog.e(TAG, "任务【" + task.getTaskName() + "】重试失败，原因：网络未连接");
-    //  return;
-    //}
     if (!task.isRunning()) {
       task.start();
     } else {

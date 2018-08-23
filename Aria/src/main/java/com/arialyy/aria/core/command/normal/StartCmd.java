@@ -16,8 +16,6 @@
 
 package com.arialyy.aria.core.command.normal;
 
-import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.QueueMod;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
@@ -46,8 +44,8 @@ import java.util.List;
  */
 class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
 
-  StartCmd(String targetName, T entity, int taskType) {
-    super(targetName, entity, taskType);
+  StartCmd(T entity, int taskType) {
+    super(entity, taskType);
   }
 
   @Override public void executeCmd() {
@@ -68,9 +66,6 @@ class StartCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
     AbsTask task = getTask();
     if (task == null) {
       task = createTask();
-      if (!TextUtils.isEmpty(mTargetName)) {
-        task.setTargetName(mTargetName);
-      }
       // 任务不存在时，根据配置不同，对任务执行操作
       if (mod.equals(QueueMod.NOW.getTag())) {
         startTask();

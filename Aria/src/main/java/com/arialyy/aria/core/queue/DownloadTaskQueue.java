@@ -16,7 +16,6 @@
 
 package com.arialyy.aria.core.queue;
 
-import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -104,19 +103,15 @@ public class DownloadTaskQueue extends AbsTaskQueue<DownloadTask, DownloadTaskEn
     }
   }
 
-  @Override public DownloadTask createTask(String target, DownloadTaskEntity entity) {
+  @Override public DownloadTask createTask(DownloadTaskEntity entity) {
     DownloadTask task = null;
-    if (!TextUtils.isEmpty(target)) {
-      if (mCachePool.getTask(entity.getEntity().getKey()) == null
-          && mExecutePool.getTask(entity.getEntity().getKey()) == null) {
-        task = (DownloadTask) TaskFactory.getInstance()
-            .createTask(target, entity, DownloadSchedulers.getInstance());
-        mCachePool.putTask(task);
-      } else {
-        ALog.w(TAG, "任务已存在");
-      }
+    if (mCachePool.getTask(entity.getEntity().getKey()) == null
+        && mExecutePool.getTask(entity.getEntity().getKey()) == null) {
+      task = (DownloadTask) TaskFactory.getInstance()
+          .createTask(entity, DownloadSchedulers.getInstance());
+      mCachePool.putTask(task);
     } else {
-      ALog.e(TAG, "target name 为 null！！");
+      ALog.w(TAG, "任务已存在");
     }
 
     return task;

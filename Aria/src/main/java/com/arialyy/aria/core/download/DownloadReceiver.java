@@ -370,7 +370,7 @@ public class DownloadReceiver extends AbsReceiver {
   public void stopAllTask() {
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(NormalCmdFactory.getInstance()
-            .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL,
+            .createCmd(new DownloadTaskEntity(), NormalCmdFactory.TASK_STOP_ALL,
                 ICmd.TASK_TYPE_DOWNLOAD))
         .exe();
   }
@@ -383,7 +383,7 @@ public class DownloadReceiver extends AbsReceiver {
   public void resumeAllTask() {
     AriaManager.getInstance(AriaManager.APP)
         .setCmd(NormalCmdFactory.getInstance()
-            .createCmd(targetName, new DownloadTaskEntity(), NormalCmdFactory.TASK_RESUME_ALL,
+            .createCmd(new DownloadTaskEntity(), NormalCmdFactory.TASK_RESUME_ALL,
                 ICmd.TASK_TYPE_DOWNLOAD))
         .exe();
   }
@@ -397,7 +397,7 @@ public class DownloadReceiver extends AbsReceiver {
   public void removeAllTask(boolean removeFile) {
     final AriaManager ariaManager = AriaManager.getInstance(AriaManager.APP);
     CancelAllCmd cancelCmd =
-        (CancelAllCmd) CommonUtil.createNormalCmd(targetName, new DownloadTaskEntity(),
+        (CancelAllCmd) CommonUtil.createNormalCmd(new DownloadTaskEntity(),
             NormalCmdFactory.TASK_CANCEL_ALL, ICmd.TASK_TYPE_DOWNLOAD);
     cancelCmd.removeFile = removeFile;
     ariaManager.setCmd(cancelCmd).exe();

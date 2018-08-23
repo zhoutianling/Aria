@@ -689,9 +689,9 @@ public class CommonUtil {
    * @param taskType {@link ICmd#TASK_TYPE_DOWNLOAD}、{@link ICmd#TASK_TYPE_DOWNLOAD_GROUP}、{@link
    * ICmd#TASK_TYPE_UPLOAD}
    */
-  public static <T extends AbsTaskEntity> AbsNormalCmd createNormalCmd(String target, T entity,
+  public static <T extends AbsTaskEntity> AbsNormalCmd createNormalCmd(T entity,
       int cmd, int taskType) {
-    return NormalCmdFactory.getInstance().createCmd(target, entity, cmd, taskType);
+    return NormalCmdFactory.getInstance().createCmd(entity, cmd, taskType);
   }
 
   /**

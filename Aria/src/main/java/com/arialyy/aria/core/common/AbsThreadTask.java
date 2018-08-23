@@ -37,7 +37,7 @@ import java.util.concurrent.Executors;
  * 任务线程
  */
 public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
-    implements Callable<TASK_ENTITY> {
+    implements Callable<AbsThreadTask> {
   /**
    * 线程重试次数
    */
@@ -60,13 +60,14 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected int mConnectTimeOut; //连接超时时间
   protected int mReadTimeOut; //流读取的超时时间
   protected boolean isNotNetRetry = false;  //断网情况是否重试
-  private boolean taskBreak = false;  //任务中断
+  private boolean taskBreak = false;  //任务跳出
   protected int mThreadNum;
   /**
    * 速度限制工具
    */
   protected BandwidthLimiter mSpeedBandUtil;
   protected AriaManager mAridManager;
+  protected boolean isInterrupted = false;
 
   private Thread mConfigThread = new Thread(new Runnable() {
     @Override public void run() {
@@ -89,6 +90,23 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
     if (getMaxSpeed() > 0) {
       mSpeedBandUtil = new BandwidthLimiter(getMaxSpeed(), mThreadNum);
     }
+  }
+
+  /**
+   * 设置线程是否中断
+   * @param isInterrupted {@code true} 中断
+   */
+  public void setInterrupted(boolean isInterrupted) {
+    this.isInterrupted = isInterrupted;
+  }
+
+  /**
+   * 线程是否存活
+   * @return {@code true}存活
+   */
+  protected boolean isLive(){
+    Thread t = Thread.currentThread();
+    return !t.isInterrupted() && !isInterrupted;
   }
 
   /**
@@ -434,5 +452,10 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
         tr.update();
       }
     }
+  }
+
+  @Override public AbsThreadTask call() throws Exception {
+    isInterrupted = true;
+    return this;
   }
 }
