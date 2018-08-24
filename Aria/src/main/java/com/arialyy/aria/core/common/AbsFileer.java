@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.common;
 
 import android.content.Context;
+import android.util.SparseArray;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
@@ -64,11 +65,9 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   protected StateConstance mConstance;
   //总线程数
   protected int mTotalThreadNum;
-  //启动线程数
-  private int mStartThreadNum;
   //已完成的线程数
   private int mCompleteThreadNum;
-  private Map<Integer, AbsThreadTask> mTask = new HashMap<>();
+  private SparseArray<AbsThreadTask> mTask = new SparseArray<>();
 
   private Timer mTimer;
   @Deprecated private File mConfigFile;
@@ -111,8 +110,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     closeTimer();
     mCompleteThreadNum = 0;
     mTotalThreadNum = 0;
-    mStartThreadNum = 0;
-    if (mTask != null && !mTask.isEmpty()) {
+    if (mTask != null && mTask.size() != 0) {
       for (int i = 0; i < mTask.size(); i++) {
         AbsThreadTask task = mTask.get(i);
         if (task != null && !task.isRunning()) {
@@ -137,7 +135,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     mConstance.TASK_RECORD = mRecord;
     if (!mTaskEntity.isSupportBP()) {
       mTotalThreadNum = 1;
-      mStartThreadNum = 1;
     } else {
       mTotalThreadNum =
           mTaskEntity.isNewTask() ? setNewTaskThreadNum() : mTotalThreadNum;
@@ -252,7 +249,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     closeTimer();
     mConstance.isRunning = false;
     mConstance.isCancel = true;
-    for (int i = 0; i < mStartThreadNum; i++) {
+    for (int i = 0; i < mTask.size(); i++) {
       AbsThreadTask task = mTask.get(i);
       if (task != null) {
         task.cancel();
@@ -266,7 +263,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     mConstance.isRunning = false;
     mConstance.isStop = true;
     if (mConstance.isComplete()) return;
-    for (int i = 0; i < mStartThreadNum; i++) {
+    for (int i = 0; i < mTask.size(); i++) {
       AbsThreadTask task = mTask.get(i);
       if (task != null && !task.isThreadComplete()) {
         task.stop();
@@ -338,7 +335,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         tr.startLocation = 0;
         tr.isComplete = false;
         tr.endLocation = mEntity.getFileSize();
-        mStartThreadNum++;
       } else if (file.length() == mEntity.getFileSize()) {
         tr.isComplete = true;
         mCompleteThreadNum++;
@@ -348,14 +344,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
           tr.startLocation = file.length();
           tr.isComplete = false;
         }
-        mStartThreadNum++;
       }
     } else {
       for (ThreadRecord tr : mRecord.threadRecords) {
         if (tr.isComplete) {
           mCompleteThreadNum++;
-        } else {
-          mStartThreadNum++;
         }
       }
     }
@@ -376,7 +369,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
         ALog.i(TAG, String.format("分块文件【%s】不存在，该分块将重新开始", temp.getPath()));
         tr.isComplete = false;
         tr.startLocation = -1;
-        mStartThreadNum++;
       } else {
         if (tr.isComplete) {
           mCompleteThreadNum++;
@@ -400,7 +392,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
               temp.delete();
               tr.startLocation = i * blockLen;
             }
-            mStartThreadNum++;
           }
         }
       }
@@ -453,7 +444,6 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
           tRecord.isComplete = true;
           continue;
         }
-        mStartThreadNum++;
         if (record != null) {
           Long temp = Long.parseLong(String.valueOf(record));
           tRecord.startLocation = temp > 0 ? temp : 0;

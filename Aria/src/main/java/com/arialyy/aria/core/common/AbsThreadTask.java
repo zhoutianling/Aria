@@ -455,7 +455,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   }
 
   @Override public AbsThreadTask call() throws Exception {
-    isInterrupted = true;
+    isInterrupted = false;
     return this;
   }
 }

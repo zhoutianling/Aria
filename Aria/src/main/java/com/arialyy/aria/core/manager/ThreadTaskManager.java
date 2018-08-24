@@ -81,7 +81,8 @@ public class ThreadTaskManager {
       ALog.e(TAG, "线程池已经关闭");
       return;
     }
-    Set<Future> temp = mThreadTasks.get(getKey(key));
+    key = getKey(key);
+    Set<Future> temp = mThreadTasks.get(key);
     try {
       for (Future future : temp) {
         if (future.isDone() || future.isCancelled()) {
