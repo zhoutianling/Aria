@@ -32,11 +32,8 @@ import java.util.List;
 final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
   private List<AbsTaskEntity> mWaitList = new ArrayList<>();
 
-  /**
-   * @param targetName 产生任务的对象名
-   */
-  ResumeAllCmd(String targetName, T entity, int taskType) {
-    super(targetName, entity, taskType);
+  ResumeAllCmd(T entity, int taskType) {
+    super(entity, taskType);
   }
 
   @Override public void executeCmd() {

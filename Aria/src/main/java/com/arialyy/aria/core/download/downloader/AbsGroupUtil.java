@@ -31,13 +31,12 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
 
 /**
  * Created by AriaL on 2017/6/30.
  * 任务组核心逻辑
  */
-public abstract class AbsGroupUtil implements IUtil {
+public abstract class AbsGroupUtil implements IUtil, Runnable {
   private static final Object LOCK = new Object();
   private final String TAG = "AbsGroupUtil";
   /**
@@ -286,6 +285,10 @@ public abstract class AbsGroupUtil implements IUtil {
   }
 
   @Override public void start() {
+    new Thread(this).start();
+  }
+
+  @Override public void run() {
     if (isStop || isCancel) {
       closeTimer();
       return;

@@ -32,12 +32,8 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity> implements ITas
   protected TASK_ENTITY mTaskEntity;
   protected Handler mOutHandler;
 
-  /**
-   * 用于生成该任务对象的hash码
-   */
-  private String mTargetName;
   protected Context mContext;
-  protected boolean isHeighestTask = false;
+  boolean isHeighestTask = false;
   private boolean isCancel = false, isStop = false;
   protected IUtil mUtil;
 
@@ -211,14 +207,6 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity> implements ITas
    * 获取任务名，也就是文件名
    */
   public abstract String getTaskName();
-
-  public String getTargetName() {
-    return mTargetName;
-  }
-
-  @Override public void setTargetName(String targetName) {
-    this.mTargetName = targetName;
-  }
 
   public boolean isHighestPriorityTask() {
     return isHeighestTask;

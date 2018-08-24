@@ -54,7 +54,7 @@ public class FtpUploadTarget extends BaseNormalTarget<FtpUploadTarget>
   public void add() {
     if (checkEntity()) {
       AriaManager.getInstance(AriaManager.APP)
-          .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CREATE,
+          .setCmd(CommonUtil.createNormalCmd(mTaskEntity, NormalCmdFactory.TASK_CREATE,
               checkTaskType()))
           .exe();
     }

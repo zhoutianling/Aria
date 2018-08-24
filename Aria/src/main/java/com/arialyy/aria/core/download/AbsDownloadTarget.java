@@ -52,8 +52,8 @@ abstract class AbsDownloadTarget<TARGET extends AbsTarget, ENTITY extends AbsEnt
   protected void setHighestPriority() {
     if (checkEntity()) {
       AriaManager.getInstance(AriaManager.APP)
-          .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity,
-              NormalCmdFactory.TASK_HIGHEST_PRIORITY, checkTaskType()))
+          .setCmd(CommonUtil.createNormalCmd(mTaskEntity, NormalCmdFactory.TASK_HIGHEST_PRIORITY,
+              checkTaskType()))
           .exe();
     }
   }
@@ -64,7 +64,7 @@ abstract class AbsDownloadTarget<TARGET extends AbsTarget, ENTITY extends AbsEnt
   public void add() {
     if (checkEntity()) {
       AriaManager.getInstance(AriaManager.APP)
-          .setCmd(CommonUtil.createNormalCmd(mTargetName, mTaskEntity, NormalCmdFactory.TASK_CREATE,
+          .setCmd(CommonUtil.createNormalCmd(mTaskEntity, NormalCmdFactory.TASK_CREATE,
               checkTaskType()))
           .exe();
     }

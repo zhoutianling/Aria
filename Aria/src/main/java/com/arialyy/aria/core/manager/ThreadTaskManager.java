@@ -87,6 +87,8 @@ public class ThreadTaskManager {
         if (future.isDone() || future.isCancelled()) {
           continue;
         }
+        AbsThreadTask task = (AbsThreadTask) future.get();
+        task.setInterrupted(true);
         future.cancel(true);
       }
     } catch (Exception e) {

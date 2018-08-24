@@ -42,7 +42,8 @@ import java.util.TimerTask;
  * Created by AriaL on 2017/7/1.
  * 任务处理器
  */
-public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>> {
+public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>>
+    implements Runnable {
   private static final String STATE = "_state_";
   private static final String RECORD = "_record_";
   /**
@@ -139,7 +140,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
       mStartThreadNum = 1;
     } else {
       mTotalThreadNum =
-          mTaskEntity.isNewTask() ? (mStartThreadNum = setNewTaskThreadNum()) : mTotalThreadNum;
+          mTaskEntity.isNewTask() ? setNewTaskThreadNum() : mTotalThreadNum;
     }
     mConstance.START_THREAD_NUM = mTotalThreadNum;
 
@@ -168,8 +169,14 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     } else {
       handleBreakpoint();
     }
-
     startTimer();
+  }
+
+  @Override public void run() {
+    if (mConstance.isRunning) {
+      return;
+    }
+    startFlow();
   }
 
   /**
@@ -272,10 +279,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 直接调用的时候会自动启动线程执行
    */
   public void start() {
-    if (mConstance.isRunning) {
-      return;
-    }
-    startFlow();
+    new Thread(this).start();
   }
 
   public void resume() {
@@ -343,8 +347,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
           ALog.i(TAG, String.format("修正【%s】的进度记录为：%s", file.getPath(), file.length()));
           tr.startLocation = file.length();
           tr.isComplete = false;
-          mStartThreadNum++;
         }
+        mStartThreadNum++;
       }
     } else {
       for (ThreadRecord tr : mRecord.threadRecords) {

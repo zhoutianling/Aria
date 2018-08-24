@@ -143,10 +143,8 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
   public static class Builder {
     DownloadTaskEntity taskEntity;
     Handler outHandler;
-    String targetName;
 
-    public Builder(String targetName, DownloadTaskEntity taskEntity) {
-      this.targetName = targetName;
+    public Builder(DownloadTaskEntity taskEntity) {
       this.taskEntity = taskEntity;
     }
 
@@ -166,9 +164,7 @@ public class DownloadTask extends AbsNormalTask<DownloadTaskEntity> {
     }
 
     public DownloadTask build() {
-      DownloadTask task = new DownloadTask(taskEntity, outHandler);
-      task.setTargetName(targetName);
-      return task;
+      return new DownloadTask(taskEntity, outHandler);
     }
   }
 }

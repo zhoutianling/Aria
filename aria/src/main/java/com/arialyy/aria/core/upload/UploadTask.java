@@ -83,7 +83,6 @@ public class UploadTask extends AbsNormalTask<UploadTaskEntity> {
   public static class Builder {
     private Handler mOutHandler;
     private UploadTaskEntity mTaskEntity;
-    private String mTargetName;
 
     public void setOutHandler(ISchedulers outHandler) {
       try {
@@ -98,18 +97,12 @@ public class UploadTask extends AbsNormalTask<UploadTaskEntity> {
       mTaskEntity = taskEntity;
     }
 
-    public void setTargetName(String targetName) {
-      mTargetName = targetName;
-    }
-
     public Builder() {
 
     }
 
     public UploadTask build() {
-      UploadTask task = new UploadTask(mTaskEntity, mOutHandler);
-      task.setTargetName(mTargetName);
-      return task;
+      return new UploadTask(mTaskEntity, mOutHandler);
     }
   }
 }

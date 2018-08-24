@@ -90,5 +90,4 @@ public interface ITask<TASK_ENTITY extends AbsTaskEntity> {
    */
   String getConvertCurrentProgress();
 
-  void setTargetName(String targetName);
 }

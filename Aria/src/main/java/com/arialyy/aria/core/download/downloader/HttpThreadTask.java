@@ -56,10 +56,11 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     isBlock = STATE.TASK_RECORD.isBlock;
   }
 
-  @Override public DownloadTaskEntity call() {
+  @Override public HttpThreadTask call() throws Exception {
+    super.call();
     if (getThreadRecord().isComplete) {
       handleComplete();
-      return mTaskEntity;
+      return this;
     }
     HttpURLConnection conn = null;
     BufferedInputStream is = null;
@@ -67,7 +68,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
     //当前子线程的下载位置
     mChildCurrentLocation = mConfig.START_LOCATION;
     try {
-      URL url = new URL(CommonUtil.convertUrl(mConfig.URL + 1));
+      URL url = new URL(CommonUtil.convertUrl(mConfig.URL));
       conn = ConnectionHelp.handleConnection(url, mTaskEntity);
       if (mConfig.SUPPORT_BP) {
         ALog.d(TAG,
@@ -118,7 +119,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         e.printStackTrace();
       }
     }
-    return mTaskEntity;
+    return this;
   }
 
   /**
@@ -135,7 +136,8 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       fic = Channels.newChannel(is);
       ByteBuffer bf = ByteBuffer.allocate(mBufSize);
       //如果要通过 Future 的 cancel 方法取消正在运行的任务，那么该任务必定是可以 对线程中断做出响应 的任务。
-      while (!Thread.currentThread().isInterrupted() && (len = fic.read(bf)) != -1) {
+
+      while (isLive() && (len = fic.read(bf)) != -1) {
         if (isBreak()) {
           break;
         }
@@ -194,7 +196,7 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       throws IOException {
     byte[] buffer = new byte[mBufSize];
     int len;
-    while (!Thread.currentThread().isInterrupted() && (len = is.read(buffer)) != -1) {
+    while (isLive() && (len = is.read(buffer)) != -1) {
       if (isBreak()) {
         break;
       }
