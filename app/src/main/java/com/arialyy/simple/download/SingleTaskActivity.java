@@ -17,6 +17,7 @@
 package com.arialyy.simple.download;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -47,7 +48,9 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+  //"https://yizi-kejian.oss-cn-beijing.aliyuncs.com/qimeng/package1/qmtable11.zip";
+  "http://rs.0.gaoshouyou.com/d/04/1e/400423a7551e1f3f0eb1812afa1f9b44.apk";
       //"http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
       //"https://static.donguo.me//video/ip/course/pfys_1.mp4";
       //"https://www.baidu.com/link?url=_LFCuTPtnzFxVJByJ504QymRywIA1Z_T5xUxe9ZLuxcGM0C_RcdpWyB1eGjbJC-e5wv5wAKM4WmLMAS5KeF6EZJHB8Va3YqZUiaErqK_pxm&wd=&eqid=e8583fe70002d126000000065a99f864";
@@ -188,6 +191,11 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       L.d(TAG, "path ==> " + task.getDownloadEntity().getDownloadPath());
       L.d(TAG, "md5Code ==> " + CommonUtil.getFileMD5(new File(task.getDownloadPath())));
       L.d(TAG, "data ==> " + Aria.download(this).getDownloadEntity(DOWNLOAD_URL));
+      //Intent install = new Intent(Intent.ACTION_VIEW);
+      //install.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      //File apkFile = new File(task.getDownloadPath());
+      //install.setDataAndType(Uri.fromFile(apkFile), "application/vnd.android.package-archive");
+      //startActivity(install);
     }
   }
 
@@ -228,7 +236,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
       case R.id.cancel:
-        Aria.download(this).load(DOWNLOAD_URL).cancel();
+        Aria.download(this).load(DOWNLOAD_URL).cancel(true);
         //Aria.download(this).load(DOWNLOAD_URL).removeRecord();
         break;
     }
@@ -237,6 +245,12 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private void startD() {
     //Aria.get(this).setLogLevel(ALog.LOG_CLOSE);
     //Aria.download(this).load("aaaa.apk");
+    String path = Environment.getExternalStorageDirectory().getPath() + "/ggsg8.apk";
+    //File file = new File(path);
+    //if (file.exists()){
+    //  file.delete();
+    //}
+
     Aria.download(SingleTaskActivity.this)
         .load(DOWNLOAD_URL)
         //.addHeader("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
@@ -245,7 +259,10 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         //.addHeader("Cookie", "BAIDUID=648E5FF020CC69E8DD6F492D1068AAA9:FG=1; BIDUPSID=648E5FF020CC69E8DD6F492D1068AAA9; PSTM=1519099573; BD_UPN=12314753; locale=zh; BDSVRTM=0")
         //.useServerFileName(true)
         //.setRequestMode(RequestEnum.GET)
-        .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/ggsg4.apk")
+        .setFilePath(path)
+        //.setExtendField("{\n"
+        //    + "\"id\":\"你的样子\"\n< > "
+        //    + "}")
         //.resetState()
         .start();
     //.add();

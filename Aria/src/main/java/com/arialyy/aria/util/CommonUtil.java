@@ -940,8 +940,11 @@ public class CommonUtil {
     // 创建目标文件
     if (file.exists()) {
       final File to = new File(file.getAbsolutePath() + System.currentTimeMillis());
-      file.renameTo(to);
-      to.delete();
+      if (file.renameTo(to)) {
+        to.delete();
+      }else {
+        file.delete();
+      }
     }
     try {
       if (file.createNewFile()) {

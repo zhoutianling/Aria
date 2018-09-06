@@ -18,6 +18,7 @@ package com.arialyy.aria.core.upload;
 import android.os.Handler;
 import android.os.Looper;
 import com.arialyy.aria.core.inf.AbsNormalTask;
+import com.arialyy.aria.core.inf.IUploadListener;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.core.upload.uploader.SimpleUploadUtil;
 import com.arialyy.aria.util.ALog;
@@ -26,54 +27,21 @@ import com.arialyy.aria.util.ALog;
  * Created by lyy on 2017/2/23.
  * 上传任务
  */
-public class UploadTask extends AbsNormalTask<UploadTaskEntity> {
-  private static final String TAG = "UploadTask";
-
-  private BaseUListener<UploadEntity, UploadTaskEntity, UploadTask> mListener;
+public class UploadTask extends AbsNormalTask<UploadEntity, UploadTaskEntity> {
 
   private UploadTask(UploadTaskEntity taskEntity, Handler outHandler) {
     mTaskEntity = taskEntity;
     mOutHandler = outHandler;
     mListener = new BaseUListener<>(this, mOutHandler);
-    mUtil = new SimpleUploadUtil(taskEntity, mListener);
+    mUtil = new SimpleUploadUtil(taskEntity, (IUploadListener) mListener);
   }
 
   @Override public String getKey() {
     return mTaskEntity.getEntity().getFilePath();
   }
 
-  @Override public boolean isRunning() {
-    return mUtil.isRunning();
-  }
-
   public UploadEntity getEntity() {
     return mTaskEntity.getEntity();
-  }
-
-  @Override public void start() {
-    if (mUtil.isRunning()) {
-      ALog.d(TAG, "任务正在下载");
-    } else {
-      mUtil.start();
-    }
-  }
-
-  @Override public void stop() {
-    super.stop();
-    if (mUtil.isRunning()) {
-      mUtil.stop();
-    } else {
-      mListener.onStop(getCurrentProgress());
-    }
-  }
-
-  @Override public void cancel() {
-    super.cancel();
-    if (mUtil.isRunning()) {
-      mUtil.cancel();
-    } else {
-      mListener.onCancel();
-    }
   }
 
   @Override public String getTaskName() {

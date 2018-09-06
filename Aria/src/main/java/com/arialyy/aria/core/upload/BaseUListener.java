@@ -23,6 +23,7 @@ import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IUploadListener;
+import com.arialyy.aria.core.inf.TaskSchedulerType;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
@@ -31,7 +32,7 @@ import java.lang.ref.WeakReference;
 /**
  * 下载监听类
  */
-class BaseUListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>, TASK extends AbsTask<TASK_ENTITY>>
+class BaseUListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>, TASK extends AbsTask<ENTITY, TASK_ENTITY>>
     implements IUploadListener {
   private WeakReference<Handler> outHandler;
   private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
@@ -41,7 +42,6 @@ class BaseUListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
   protected TASK_ENTITY mTaskEntity;
   protected TASK mTask;
   private boolean isConvertSpeed = false;
-  boolean isWait = false;
   private long mLastSaveTime;
   private long mUpdateInterval;
 
@@ -89,7 +89,8 @@ class BaseUListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
   }
 
   @Override public void onStop(long stopLocation) {
-    saveData(isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP, stopLocation);
+    saveData(mTask.getSchedulerType() == TaskSchedulerType.TYPE_STOP_AND_WAIT ? IEntity.STATE_WAIT
+        : IEntity.STATE_STOP, stopLocation);
     handleSpeed(0);
     sendInState2Target(ISchedulers.STOP);
   }

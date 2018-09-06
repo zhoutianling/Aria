@@ -58,7 +58,10 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
 
   @Override protected boolean handleNewTask() {
     if (!mRecord.isBlock) {
-      CommonUtil.createFile(mTempFile.getPath());
+      if (mTempFile.exists()){
+        mTempFile.delete();
+      }
+      //CommonUtil.createFile(mTempFile.getPath());
     }
     BufferedRandomAccessFile file = null;
     try {

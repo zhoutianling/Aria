@@ -19,6 +19,7 @@ package com.arialyy.aria.core.queue;
 import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.inf.TaskSchedulerType;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.util.ALog;
@@ -69,7 +70,6 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
    * 停止所有任务
    */
   @Override public void stopAllTask() {
-    mCachePool.clear();
     for (String key : mExecutePool.getAllTask().keySet()) {
       TASK task = mExecutePool.getAllTask().get(key);
       if (task != null) {
@@ -80,6 +80,15 @@ abstract class AbsTaskQueue<TASK extends AbsTask, TASK_ENTITY extends AbsTaskEnt
         }
       }
     }
+
+    for (String key : mCachePool.getAllTask().keySet()) {
+      TASK task = mCachePool.getAllTask().get(key);
+      if (task != null) {
+        task.stop(TaskSchedulerType.TYPE_STOP_NOT_NEXT);
+      }
+    }
+
+    mCachePool.clear();
   }
 
   /**

@@ -30,10 +30,8 @@ import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.DbHelper;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Timer;
@@ -191,7 +189,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   /**
    * 启动进度获取定时器
    */
-  private void startTimer() {
+  private synchronized void startTimer() {
     mTimer = new Timer(true);
     mTimer.schedule(new TimerTask() {
       @Override public void run() {
@@ -207,13 +205,11 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     }, 0, mUpdateInterval);
   }
 
-  protected void closeTimer() {
-    synchronized (AbsFileer.class) {
-      if (mTimer != null) {
-        mTimer.purge();
-        mTimer.cancel();
-        mTimer = null;
-      }
+  protected synchronized void closeTimer() {
+    if (mTimer != null) {
+      mTimer.purge();
+      mTimer.cancel();
+      mTimer = null;
     }
   }
 
@@ -241,41 +237,60 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
     return mConstance.CURRENT_LOCATION;
   }
 
-  public boolean isRunning() {
+  public synchronized boolean isRunning() {
     return mConstance.isRunning;
   }
 
-  public void cancel() {
+  public synchronized void cancel() {
+    if (mConstance.isCancel) {
+      return;
+    }
     closeTimer();
     mConstance.isRunning = false;
     mConstance.isCancel = true;
-    for (int i = 0; i < mTask.size(); i++) {
-      AbsThreadTask task = mTask.get(i);
-      if (task != null) {
-        task.cancel();
+    new Thread(new Runnable() {
+      @Override public void run() {
+
+        for (int i = 0; i < mTask.size(); i++) {
+          AbsThreadTask task = mTask.get(i);
+          if (task != null) {
+            task.cancel();
+          }
+        }
+        ThreadTaskManager.getInstance().stopTaskThread(mTaskEntity.getKey());
       }
-    }
-    ThreadTaskManager.getInstance().stopTaskThread(mTaskEntity.getKey());
+    }).start();
   }
 
-  public void stop() {
+  public synchronized void stop() {
+    if (mConstance.isStop) {
+      return;
+    }
     closeTimer();
     mConstance.isRunning = false;
     mConstance.isStop = true;
     if (mConstance.isComplete()) return;
-    for (int i = 0; i < mTask.size(); i++) {
-      AbsThreadTask task = mTask.get(i);
-      if (task != null && !task.isThreadComplete()) {
-        task.stop();
+    new Thread(new Runnable() {
+      @Override public void run() {
+
+        for (int i = 0; i < mTask.size(); i++) {
+          AbsThreadTask task = mTask.get(i);
+          if (task != null && !task.isThreadComplete()) {
+            task.stop();
+          }
+        }
+        ThreadTaskManager.getInstance().stopTaskThread(mTaskEntity.getKey());
       }
-    }
-    ThreadTaskManager.getInstance().stopTaskThread(mTaskEntity.getKey());
+    }).start();
   }
 
   /**
    * 直接调用的时候会自动启动线程执行
    */
-  public void start() {
+  public synchronized void start() {
+    if (mConstance.isRunning) {
+      return;
+    }
     new Thread(this).start();
   }
 

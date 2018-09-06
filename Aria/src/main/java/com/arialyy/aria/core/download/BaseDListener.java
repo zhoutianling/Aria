@@ -23,6 +23,7 @@ import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.inf.TaskSchedulerType;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.CommonUtil;
@@ -31,7 +32,7 @@ import java.lang.ref.WeakReference;
 /**
  * 下载监听类
  */
-class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>, TASK extends AbsTask<TASK_ENTITY>>
+class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>, TASK extends AbsTask<ENTITY, TASK_ENTITY>>
     implements IDownloadListener {
   private static final String TAG = "BaseDListener";
   WeakReference<Handler> outHandler;
@@ -42,7 +43,6 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
   protected TASK_ENTITY mTaskEntity;
   private TASK mTask;
   private boolean isConvertSpeed = false;
-  boolean isWait = false;
   private long mLastSaveTime;
   private long mUpdateInterval;
 
@@ -102,7 +102,7 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
   }
 
   @Override public void onStop(long stopLocation) {
-    saveData(isWait ? IEntity.STATE_WAIT : IEntity.STATE_STOP, stopLocation);
+    saveData(mTask.getSchedulerType() == TaskSchedulerType.TYPE_STOP_AND_WAIT ? IEntity.STATE_WAIT : IEntity.STATE_STOP, stopLocation);
     handleSpeed(0);
     sendInState2Target(ISchedulers.STOP);
   }

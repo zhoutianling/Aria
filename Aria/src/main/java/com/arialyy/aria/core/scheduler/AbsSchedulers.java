@@ -26,6 +26,7 @@ import com.arialyy.aria.core.inf.AbsTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.GroupSendParams;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.core.inf.TaskSchedulerType;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.core.queue.ITaskQueue;
 import com.arialyy.aria.core.upload.UploadTask;
@@ -40,7 +41,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by lyy on 2017/6/4.
  * 事件调度器，用于处理任务状态的调度
  */
-abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends AbsTask<TASK_ENTITY>,
+abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends AbsTask,
     QUEUE extends ITaskQueue<TASK, TASK_ENTITY>> implements ISchedulers<TASK> {
   private final String TAG = "AbsSchedulers";
 
@@ -169,13 +170,13 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
         mQueue.removeTaskFormQueue(task.getKey());
         if (mQueue.getCurrentExePoolNum() < mQueue.getMaxTaskNum()) {
           ALog.d(TAG, "stop_next");
-          startNextTask();
+          startNextTask(task);
         }
         break;
       case COMPLETE:
         mQueue.removeTaskFormQueue(task.getKey());
         ALog.d(TAG, "complete_next");
-        startNextTask();
+        startNextTask(task);
         break;
       case FAIL:
         handleFailTask(task);
@@ -262,7 +263,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
       callback(FAIL, task);
       mQueue.removeTaskFormQueue(task.getKey());
       ALog.d(TAG, "fail_next");
-      startNextTask();
+      startNextTask(task);
       return;
     }
     long interval = 2000;
@@ -284,7 +285,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
         || task.getTaskEntity().getEntity().getFailNum() > reTryNum) {
       callback(FAIL, task);
       mQueue.removeTaskFormQueue(task.getKey());
-      startNextTask();
+      startNextTask(task);
       ALog.d(TAG, "retry_next");
       TEManager.getInstance().removeTEntity(task.getKey());
       return;
@@ -303,7 +304,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
           mQueue.reTryStart(task);
         } else {
           mQueue.removeTaskFormQueue(task.getKey());
-          startNextTask();
+          startNextTask(task);
           ALog.d(TAG, "retry_next_1");
           TEManager.getInstance().removeTEntity(task.getKey());
         }
@@ -315,7 +316,10 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
   /**
    * 启动下一个任务，条件：任务停止，取消下载，任务完成
    */
-  private void startNextTask() {
+  private void startNextTask(TASK oldTask) {
+    if (oldTask.getSchedulerType() == TaskSchedulerType.TYPE_STOP_NOT_NEXT){
+      return;
+    }
     TASK newTask = mQueue.getNextTask();
     if (newTask == null) {
       if (mQueue.getCurrentExePoolNum() == 0) {

@@ -13,12 +13,11 @@
       android:label="@string/app_name"
       android:supportsRtl="true"
       android:theme="@style/AppTheme.NoActionBar">
-        <!--android:name=".MainActivity"-->
     <!--android:name=".test.TestFTPDirActivity"-->
     <!--android:name=".test.AnyRunActivity"-->
-        <!--android:name=".download.SingleTaskActivity"-->
     <!--android:name=".test.TestFTPActivity"-->
     <!--android:name=".download.group.DownloadGroupActivity"-->
+        <!--android:name=".MainActivity"-->
     <activity
         android:name=".download.SingleTaskActivity"
         android:label="@string/app_name">

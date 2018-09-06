@@ -19,6 +19,8 @@ package com.arialyy.aria.core.queue;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadTask;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
+import com.arialyy.aria.core.inf.AbsTask;
+import com.arialyy.aria.core.inf.TaskSchedulerType;
 import com.arialyy.aria.core.queue.pool.BaseCachePool;
 import com.arialyy.aria.core.queue.pool.BaseExecutePool;
 import com.arialyy.aria.core.queue.pool.DownloadSharePool;
@@ -88,7 +90,7 @@ public class DownloadTaskQueue extends AbsTaskQueue<DownloadTask, DownloadTaskEn
         DownloadTask oldTsk = mExecutePool.pollTask();
         if (oldTsk != null && oldTsk.isRunning()) {
           if (i == maxSize - 1) {
-            oldTsk.stopAndWait();
+            oldTsk.stop(TaskSchedulerType.TYPE_STOP_AND_WAIT);
             mCachePool.putTaskToFirst(oldTsk);
             break;
           }

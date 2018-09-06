@@ -133,7 +133,8 @@ final class EventProxyFiler {
 
     //任务组接口
     if (taskEnum == TaskEnum.DOWNLOAD_GROUP_SUB) {
-      ClassName subTask = ClassName.get(TaskEnum.DOWNLOAD_ENTITY.pkg, TaskEnum.DOWNLOAD_ENTITY.className);
+      ClassName subTask =
+          ClassName.get(TaskEnum.DOWNLOAD_ENTITY.pkg, TaskEnum.DOWNLOAD_ENTITY.className);
       ParameterSpec subTaskParam =
           ParameterSpec.builder(subTask, "subEntity").addModifiers(Modifier.FINAL).build();
 
@@ -161,9 +162,19 @@ final class EventProxyFiler {
         "keyMapping").addModifiers(Modifier.PRIVATE).initializer("new $T()", HashMap.class).build();
     builder.addField(mappingField);
 
+    //Set<Integer> type = new HashSet<>();
     //添加注解方法
     for (TaskEnum te : entity.methods.keySet()) {
       Map<Class<? extends Annotation>, String> temp = entity.methods.get(te);
+      //if (entity.proxyClassName.contains(TaskEnum.DOWNLOAD.proxySuffix)) {
+      //  type.add(1);
+      //} else if (entity.proxyClassName.contains(TaskEnum.DOWNLOAD_GROUP.proxySuffix)) {
+      //  type.add(2);
+      //} else if (entity.proxyClassName.contains(TaskEnum.UPLOAD.proxySuffix)) {
+      //  type.add(3);
+      //} else if (entity.proxyClassName.contains(TaskEnum.UPLOAD_GROUP.proxySuffix)) {
+      //  type.add(4);
+      //}
       if (temp != null) {
         for (Class<? extends Annotation> annotation : temp.keySet()) {
           MethodSpec method = createProxyMethod(te, annotation, temp.get(annotation));
@@ -189,6 +200,24 @@ final class EventProxyFiler {
       sb.append("keyMapping.put(\"").append(methodName).append("\", ").append("set);\n");
       cb.add(sb.toString(), ClassName.get(HashSet.class));
     }
+    //注册当前类
+    //for (Integer i : type) {
+    //  String str = null;
+    //  switch (i) {
+    //    case 1:
+    //    case 2:
+    //      str = "$T.download(obj).register();\n";
+    //      break;
+    //    case 3:
+    //    case 4:
+    //      str = "$T.upload(obj).register();\n";
+    //      break;
+    //  }
+    //  if (str != null) {
+    //    cb.add(str, ClassName.get("com.arialyy.aria.core", "Aria"));
+    //  }
+    //}
+
     MethodSpec structure =
         MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC).addCode(cb.build()).build();
     builder.addMethod(structure);

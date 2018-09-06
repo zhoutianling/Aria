@@ -83,19 +83,21 @@ public class ThreadTaskManager {
     }
     key = getKey(key);
     Set<Future> temp = mThreadTasks.get(key);
-    try {
-      for (Future future : temp) {
-        if (future.isDone() || future.isCancelled()) {
-          continue;
+    if (temp != null && temp.size() > 0) {
+      try {
+        for (Future future : temp) {
+          if (future.isDone() || future.isCancelled()) {
+            continue;
+          }
+          AbsThreadTask task = (AbsThreadTask) future.get();
+          task.setInterrupted(true);
+          future.cancel(true);
         }
-        AbsThreadTask task = (AbsThreadTask) future.get();
-        task.setInterrupted(true);
-        future.cancel(true);
+      } catch (Exception e) {
+        ALog.e(TAG, e);
       }
-    } catch (Exception e) {
-      ALog.e(TAG, e);
+      temp.clear();
     }
-    temp.clear();
     mThreadTasks.remove(key);
   }
 

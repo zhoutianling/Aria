@@ -1,5 +1,6 @@
 package com.arialyy.aria.core.command.normal;
 
+import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
@@ -62,6 +63,9 @@ final class ResumeAllCmd<T extends AbsTaskEntity> extends AbsNormalCmd<T> {
               "isGroupChild=? AND state!=? ORDER BY stopTime DESC", "false", "1");
       if (entities != null && !entities.isEmpty()) {
         for (DownloadEntity entity : entities) {
+          //if (TextUtils.isEmpty(entity.getDownloadPath())){
+          //  continue;
+          //}
           resumeTask(TEManager.getInstance().getTEntity(DownloadTaskEntity.class, entity.getKey()));
         }
       }

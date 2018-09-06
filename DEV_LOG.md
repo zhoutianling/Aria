@@ -1,4 +1,9 @@
 ## 开发日志
+  + v_3.4.17
+    - fix bug https://github.com/AriaLyy/Aria/issues/302
+    - fix bug https://github.com/AriaLyy/Aria/issues/283
+    - 现在，停止所有任务，未开始的任务状态将变为停止
+    - 优化停止任务的速度
   + v_3.4.12
     - fix bug https://github.com/AriaLyy/Aria/issues/286
     - 优化线程池任务

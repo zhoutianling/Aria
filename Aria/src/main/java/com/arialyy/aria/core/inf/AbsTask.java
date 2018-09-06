@@ -18,24 +18,36 @@ package com.arialyy.aria.core.inf;
 import android.content.Context;
 import android.os.Handler;
 import com.arialyy.aria.core.common.IUtil;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by AriaL on 2017/6/29.
  */
-public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity> implements ITask<TASK_ENTITY> {
-
+public abstract class AbsTask<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
+    implements ITask<TASK_ENTITY> {
   /**
    * 是否需要重试，默认为true
    */
   public boolean needRetry = true;
   protected TASK_ENTITY mTaskEntity;
   protected Handler mOutHandler;
-
   protected Context mContext;
   boolean isHeighestTask = false;
   private boolean isCancel = false, isStop = false;
   protected IUtil mUtil;
+  /**
+   * 该任务的调度类型
+   */
+  @TaskSchedulerType
+  private int mSchedulerType = TaskSchedulerType.TYPE_DEFAULT;
+  protected IEventListener mListener;
+  protected ENTITY mEntity;
+  protected String TAG;
+
+  protected AbsTask() {
+    TAG = CommonUtil.getClassName(this);
+  }
 
   public Handler getOutHandler() {
     return mOutHandler;
@@ -127,16 +139,55 @@ public abstract class AbsTask<TASK_ENTITY extends AbsTaskEntity> implements ITas
    *
    * @return 如果实体不存在，则返回null，否则返回扩展字段
    */
-  @Override public String getExtendField() {
+  public String getExtendField() {
     return mTaskEntity.getEntity() == null ? null : mTaskEntity.getEntity().getStr();
   }
 
+  @Override public void start() {
+    if (mUtil.isRunning()) {
+      ALog.d(TAG, "任务正在下载");
+    } else {
+      mUtil.start();
+    }
+  }
+
   @Override public void stop() {
+    stop(TaskSchedulerType.TYPE_DEFAULT);
+  }
+
+  @Override public void stop(@TaskSchedulerType int type) {
     isStop = true;
+    mSchedulerType = type;
+    if (mUtil.isRunning()) {
+      mUtil.stop();
+    } else {
+      mListener.onStop(mEntity.getCurrentProgress());
+    }
   }
 
   @Override public void cancel() {
     isCancel = true;
+    if (!mUtil.isRunning()) {
+      mListener.onCancel();
+    } else {
+      mUtil.cancel();
+    }
+  }
+
+  /**
+   * 是否真正下载
+   *
+   * @return {@code true} 真正下载
+   */
+  @Override public boolean isRunning() {
+    return mUtil.isRunning();
+  }
+
+  /**
+   * 任务的调度类型
+   */
+  public int getSchedulerType() {
+    return mSchedulerType;
   }
 
   /**
