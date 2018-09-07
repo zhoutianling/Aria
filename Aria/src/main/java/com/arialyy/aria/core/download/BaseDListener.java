@@ -37,12 +37,12 @@ class BaseDListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<
   private static final String TAG = "BaseDListener";
   WeakReference<Handler> outHandler;
   private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
-  private long mLastLen = 0;   //上一次发送长度
+  private long mLastLen;   //上一次发送长度
   private boolean isFirst = true;
   protected ENTITY mEntity;
   protected TASK_ENTITY mTaskEntity;
   private TASK mTask;
-  private boolean isConvertSpeed = false;
+  private boolean isConvertSpeed;
   private long mLastSaveTime;
   private long mUpdateInterval;
 

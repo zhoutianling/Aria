@@ -94,12 +94,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity, DownloadTaskEnti
      * @param schedulers {@link ISchedulers}
      */
     public Builder setOutHandler(ISchedulers schedulers) {
-      try {
-        outHandler = new Handler(schedulers);
-      } catch (Exception e) {
-        ALog.w(TAG, ALog.getExceptionString(e));
-        outHandler = new Handler(Looper.getMainLooper(), schedulers);
-      }
+      outHandler = new Handler(Looper.getMainLooper(), schedulers);
       return this;
     }
 

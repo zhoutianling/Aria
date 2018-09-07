@@ -21,7 +21,6 @@ import com.arialyy.aria.core.inf.AbsNormalTask;
 import com.arialyy.aria.core.inf.IUploadListener;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.core.upload.uploader.SimpleUploadUtil;
-import com.arialyy.aria.util.ALog;
 
 /**
  * Created by lyy on 2017/2/23.
@@ -53,12 +52,7 @@ public class UploadTask extends AbsNormalTask<UploadEntity, UploadTaskEntity> {
     private UploadTaskEntity mTaskEntity;
 
     public void setOutHandler(ISchedulers outHandler) {
-      try {
-        mOutHandler = new Handler(outHandler);
-      } catch (Exception e) {
-        e.printStackTrace();
-        mOutHandler = new Handler(Looper.getMainLooper(), outHandler);
-      }
+      mOutHandler = new Handler(Looper.getMainLooper(), outHandler);
     }
 
     public void setUploadTaskEntity(UploadTaskEntity taskEntity) {

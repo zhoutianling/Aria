@@ -34,8 +34,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by AriaL on 2017/7/1.
@@ -67,7 +67,7 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
   private int mCompleteThreadNum;
   private SparseArray<AbsThreadTask> mTask = new SparseArray<>();
 
-  private Timer mTimer;
+  private ScheduledThreadPoolExecutor mTimer;
   @Deprecated private File mConfigFile;
   /**
    * 进度刷新间隔
@@ -190,8 +190,8 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
    * 启动进度获取定时器
    */
   private synchronized void startTimer() {
-    mTimer = new Timer(true);
-    mTimer.schedule(new TimerTask() {
+    mTimer = new ScheduledThreadPoolExecutor(1);
+    mTimer.scheduleWithFixedDelay(new Runnable() {
       @Override public void run() {
         if (mConstance.isComplete()
             || mConstance.isStop()
@@ -202,14 +202,12 @@ public abstract class AbsFileer<ENTITY extends AbsNormalEntity, TASK_ENTITY exte
           mListener.onProgress(mConstance.CURRENT_LOCATION);
         }
       }
-    }, 0, mUpdateInterval);
+    }, 0, mUpdateInterval, TimeUnit.MILLISECONDS);
   }
 
   protected synchronized void closeTimer() {
-    if (mTimer != null) {
-      mTimer.purge();
-      mTimer.cancel();
-      mTimer = null;
+    if (mTimer != null && !mTimer.isShutdown()) {
+      mTimer.shutdown();
     }
   }
 

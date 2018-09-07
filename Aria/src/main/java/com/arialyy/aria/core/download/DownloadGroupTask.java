@@ -18,7 +18,6 @@ package com.arialyy.aria.core.download;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import android.util.Log;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.download.downloader.DownloadGroupUtil;
 import com.arialyy.aria.core.download.downloader.FtpDirDownloadUtil;
@@ -26,7 +25,6 @@ import com.arialyy.aria.core.download.downloader.IDownloadGroupListener;
 import com.arialyy.aria.core.inf.AbsGroupTask;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
-import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CheckUtil;
 
 /**
@@ -74,12 +72,7 @@ public class DownloadGroupTask extends AbsGroupTask<DownloadGroupEntity, Downloa
      * @param schedulers {@link ISchedulers}
      */
     public DownloadGroupTask.Builder setOutHandler(ISchedulers schedulers) {
-      try {
-        outHandler = new Handler(schedulers);
-      } catch (Exception e) {
-        e.printStackTrace();
-        outHandler = new Handler(Looper.getMainLooper(), schedulers);
-      }
+      outHandler = new Handler(Looper.getMainLooper(), schedulers);
       return this;
     }
 

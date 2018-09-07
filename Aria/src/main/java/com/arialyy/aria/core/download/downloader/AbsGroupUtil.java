@@ -28,9 +28,9 @@ import com.arialyy.aria.util.NetUtils;
 import java.io.File;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by AriaL on 2017/6/30.
@@ -56,7 +56,7 @@ public abstract class AbsGroupUtil implements IUtil, Runnable {
   protected IDownloadGroupListener mListener;
   DownloadGroupTaskEntity mGTEntity;
   private boolean isRunning = false;
-  private Timer mTimer;
+  private ScheduledThreadPoolExecutor mTimer;
   /**
    * 保存所有没有下载完成的任务，key为下载地址
    */
@@ -320,14 +320,9 @@ public abstract class AbsGroupUtil implements IUtil, Runnable {
     mFailMap.clear();
   }
 
-  void closeTimer() {
-    synchronized (LOCK) {
-      isRunning = false;
-      if (mTimer != null) {
-        mTimer.purge();
-        mTimer.cancel();
-        mTimer = null;
-      }
+  synchronized void closeTimer() {
+    if (mTimer != null && !mTimer.isShutdown()) {
+      mTimer.shutdown();
     }
   }
 
@@ -345,10 +340,10 @@ public abstract class AbsGroupUtil implements IUtil, Runnable {
     startTimer();
   }
 
-  private void startTimer() {
+  private synchronized void startTimer() {
     isRunning = true;
-    mTimer = new Timer(true);
-    mTimer.schedule(new TimerTask() {
+    mTimer = new ScheduledThreadPoolExecutor(1);
+    mTimer.scheduleWithFixedDelay(new Runnable() {
       @Override public void run() {
         if (!isRunning) {
           closeTimer();
@@ -365,7 +360,7 @@ public abstract class AbsGroupUtil implements IUtil, Runnable {
           mListener.onProgress(t);
         }
       }
-    }, 0, mUpdateInterval);
+    }, 0, mUpdateInterval, TimeUnit.MILLISECONDS);
   }
 
   /**
@@ -398,9 +393,9 @@ public abstract class AbsGroupUtil implements IUtil, Runnable {
     private DownloadEntity subEntity;
     private int RUN_SAVE_INTERVAL = 5 * 1000;  //5s保存一次下载中的进度
     private long lastSaveTime;
-    private long lastLen = 0;
-    private Timer timer;
-    private boolean isNotNetRetry = false;
+    private long lastLen;
+    private ScheduledThreadPoolExecutor timer;
+    private boolean isNotNetRetry;
 
     ChildDownloadListener(DownloadTaskEntity entity) {
       subTaskEntity = entity;
@@ -523,18 +518,16 @@ public abstract class AbsGroupUtil implements IUtil, Runnable {
     }
 
     private void reStartTask(final Downloader dt) {
-      if (timer != null) {
-        timer.purge();
-        timer.cancel();
+      if (timer == null || timer.isShutdown()) {
+        timer = new ScheduledThreadPoolExecutor(1);
       }
-      timer = new Timer();
-      timer.schedule(new TimerTask() {
+      timer.schedule(new Runnable() {
         @Override public void run() {
           if (dt != null) {
             dt.retryTask();
           }
         }
-      }, 5000);
+      }, 5, TimeUnit.SECONDS);
     }
 
     private void handleSpeed(long speed) {

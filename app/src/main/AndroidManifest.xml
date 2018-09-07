@@ -17,9 +17,9 @@
     <!--android:name=".test.AnyRunActivity"-->
     <!--android:name=".test.TestFTPActivity"-->
     <!--android:name=".download.group.DownloadGroupActivity"-->
-        <!--android:name=".MainActivity"-->
+        <!--android:name=".download.SingleTaskActivity"-->
     <activity
-        android:name=".download.SingleTaskActivity"
+        android:name=".MainActivity"
         android:label="@string/app_name">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
@@ -29,7 +29,7 @@
     </activity>
 
     <activity android:name=".download.DownloadActivity"/>
-    <!--<activity android:name=".download.SingleTaskActivity"/>-->
+    <activity android:name=".download.SingleTaskActivity"/>
     <activity android:name=".download.multi_download.MultiTaskActivity"/>
     <activity android:name=".download.fragment_download.FragmentActivity"/>
     <activity android:name=".download.multi_download.MultiDownloadActivity"/>
