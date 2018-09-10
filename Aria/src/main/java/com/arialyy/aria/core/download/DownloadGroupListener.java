@@ -16,17 +16,20 @@
 package com.arialyy.aria.core.download;
 
 import android.os.Handler;
+import com.arialyy.aria.core.common.BaseListener;
 import com.arialyy.aria.core.download.downloader.IDownloadGroupListener;
 import com.arialyy.aria.core.inf.GroupSendParams;
+import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
 import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.util.CommonUtil;
 
 /**
  * Created by Aria.Lao on 2017/7/20.
  * 任务组下载事件
  */
 class DownloadGroupListener
-    extends BaseDListener<DownloadGroupEntity, DownloadGroupTaskEntity, DownloadGroupTask>
+    extends BaseListener<DownloadGroupEntity, DownloadGroupTaskEntity, DownloadGroupTask>
     implements IDownloadGroupListener {
   private final String TAG = "DownloadGroupListener";
   private GroupSendParams<DownloadGroupTask, DownloadEntity> mSeedEntity;
@@ -35,6 +38,8 @@ class DownloadGroupListener
     super(task, outHandler);
     mSeedEntity = new GroupSendParams<>();
     mSeedEntity.groupTask = task;
+    isConvertSpeed = manager.getDownloadConfig().isConvertSpeed();
+    mUpdateInterval = manager.getDownloadConfig().getUpdateInterval();
   }
 
   @Override public void onSubPre(DownloadEntity subEntity) {
@@ -99,5 +104,37 @@ class DownloadGroupListener
     }
     mEntity.setCurrentProgress(location);
     mEntity.update();
+  }
+
+  @Override public void onPostPre(long fileSize) {
+    mEntity.setFileSize(fileSize);
+    mEntity.setConvertFileSize(CommonUtil.formatFileSize(fileSize));
+    saveData(IEntity.STATE_POST_PRE, -1);
+    sendInState2Target(ISchedulers.POST_PRE);
+  }
+
+  @Override public void supportBreakpoint(boolean support) {
+
+  }
+
+  @Override protected void saveData(int state, long location) {
+    mTaskEntity.setState(state);
+    mEntity.setState(state);
+    mEntity.setComplete(state == IEntity.STATE_COMPLETE);
+    if (state == IEntity.STATE_CANCEL) {
+      if (mEntity instanceof DownloadGroupEntity) {
+        CommonUtil.delGroupTaskRecord(mTaskEntity.isRemoveFile(), mEntity);
+      }
+      return;
+    } else if (state == IEntity.STATE_STOP) {
+      mEntity.setStopTime(System.currentTimeMillis());
+    } else if (mEntity.isComplete()) {
+      mEntity.setCompleteTime(System.currentTimeMillis());
+      mEntity.setCurrentProgress(mEntity.getFileSize());
+    }
+    if (location > 0) {
+      mEntity.setCurrentProgress(location);
+    }
+    mTaskEntity.update();
   }
 }

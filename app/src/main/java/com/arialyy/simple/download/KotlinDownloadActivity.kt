@@ -12,7 +12,7 @@ import com.arialyy.simple.R
 import com.arialyy.simple.base.BaseActivity
 
 /**
- * Created by Aria.Lao on 2017/10/23.
+ * Created by lyy on 2017/10/23.
  */
 class KotlinDownloadActivity : AppCompatActivity() {
 

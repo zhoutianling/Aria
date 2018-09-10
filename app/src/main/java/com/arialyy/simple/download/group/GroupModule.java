@@ -23,7 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by Aria.Lao on 2017/7/6.
+ * Created by lyy on 2017/7/6.
  */
 public class GroupModule extends BaseModule {
   public GroupModule(Context context) {

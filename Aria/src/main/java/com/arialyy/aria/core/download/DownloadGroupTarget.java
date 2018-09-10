@@ -262,13 +262,14 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
     if (!newName.equals(entity.getFileName())) {
       String oldPath = mEntity.getDirPath() + "/" + entity.getFileName();
       String newPath = mEntity.getDirPath() + "/" + newName;
-      File oldFile = new File(oldPath);
-      if (oldFile.exists()) {
-        oldFile.renameTo(new File(newPath));
-      }
       if (DbEntity.checkDataExist(DownloadEntity.class, "downloadPath=? or isComplete='true'", newPath)) {
         ALog.w(TAG, String.format("更新文件名失败，路径【%s】已存在或文件已下载", newPath));
         return;
+      }
+
+      File oldFile = new File(oldPath);
+      if (oldFile.exists()) {
+        oldFile.renameTo(new File(newPath));
       }
 
       CommonUtil.modifyTaskRecord(oldFile.getPath(), newPath);

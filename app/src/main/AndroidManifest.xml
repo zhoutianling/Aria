@@ -35,7 +35,7 @@
     <activity android:name=".download.multi_download.MultiDownloadActivity"/>
     <activity android:name=".download.HighestPriorityActivity"/>
     <activity android:name=".test.TestMutilTaskSysDownload"/>
-    <!--<activity android:name=".download.group.DownloadGroupActivity"/>-->
+    <activity android:name=".download.group.DownloadGroupActivity"/>
     <activity android:name=".download.FtpDownloadActivity"/>
     <activity android:name=".download.group.FTPDirDownloadActivity"/>
     <activity android:name=".upload.HttpUploadActivity"/>

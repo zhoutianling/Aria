@@ -31,7 +31,7 @@ public class UploadTask extends AbsNormalTask<UploadEntity, UploadTaskEntity> {
   private UploadTask(UploadTaskEntity taskEntity, Handler outHandler) {
     mTaskEntity = taskEntity;
     mOutHandler = outHandler;
-    mListener = new BaseUListener<>(this, mOutHandler);
+    mListener = new BaseUListener(this, mOutHandler);
     mUtil = new SimpleUploadUtil(taskEntity, (IUploadListener) mListener);
   }
 

@@ -37,7 +37,7 @@ public class DownloadTask extends AbsNormalTask<DownloadEntity, DownloadTaskEnti
     mTaskEntity = taskEntity;
     mOutHandler = outHandler;
     mContext = AriaManager.APP;
-    mListener = new DownloadListener(this, mOutHandler);
+    mListener = new BaseDListener(this, mOutHandler);
     mUtil = new SimpleDownloadUtil(taskEntity, (IDownloadListener) mListener);
     mEntity = taskEntity.getEntity();
   }

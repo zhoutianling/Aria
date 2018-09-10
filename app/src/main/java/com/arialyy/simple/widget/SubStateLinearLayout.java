@@ -32,7 +32,7 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * Created by Aria.Lao on 2017/7/17.
+ * Created by lyy on 2017/7/17.
  */
 public class SubStateLinearLayout extends LinearLayout implements View.OnClickListener {
   private final String TAG = "SubStateLinearLayout";

@@ -31,7 +31,7 @@ import com.arialyy.simple.upload.FtpUploadActivity;
 import com.arialyy.simple.upload.HttpUploadActivity;
 
 /**
- * Created by Aria.Lao on 2017/3/1.
+ * Created by lyy on 2017/3/1.
  */
 public class MainActivity extends BaseActivity<ActivityMainBinding> {
 

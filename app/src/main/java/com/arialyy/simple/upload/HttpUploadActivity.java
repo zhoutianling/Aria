@@ -32,7 +32,7 @@ import com.arialyy.simple.widget.HorizontalProgressBarWithNumber;
 import java.io.File;
 
 /**
- * Created by Aria.Lao on 2017/2/9.
+ * Created by lyy on 2017/2/9.
  */
 public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
   private static final String TAG = "HttpUploadActivity";

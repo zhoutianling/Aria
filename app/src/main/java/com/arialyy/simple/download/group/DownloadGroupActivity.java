@@ -36,7 +36,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Aria.Lao on 2017/7/6.
+ * Created by lyy on 2017/7/6.
  */
 public class DownloadGroupActivity extends BaseActivity<ActivityDownloadGroupBinding> {
 
