@@ -26,7 +26,7 @@ import java.util.Map;
  * Created by laoyuyu on 2018/3/9.
  * HTTP Header功能接口
  */
-public interface IHttpHeaderTarget<TARGET extends ITarget> {
+public interface IHttpHeaderDelegate<TARGET extends ITarget> {
 
   /**
    * 给url请求添加Header数据
@@ -46,14 +46,6 @@ public interface IHttpHeaderTarget<TARGET extends ITarget> {
    */
   @CheckResult
   TARGET addHeaders(Map<String, String> headers);
-
-  /**
-   * 设置HTTP请求类型
-   *
-   * @param requestEnum {@link RequestEnum}
-   */
-  @CheckResult
-  TARGET setRequestMode(RequestEnum requestEnum);
 
   @CheckResult
   TARGET setUrlProxy(Proxy proxy);

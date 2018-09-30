@@ -89,7 +89,7 @@ public class UploadReceiver extends AbsReceiver {
    * @return {@code true}存在，{@code false} 不存在
    */
   public boolean taskExists(String filePath) {
-    return DbEntity.findFirst(UploadEntity.class, "filePath=?", filePath) != null;
+    return DbEntity.checkDataExist(UploadTaskEntity.class, "key=?", filePath);
   }
 
   /**

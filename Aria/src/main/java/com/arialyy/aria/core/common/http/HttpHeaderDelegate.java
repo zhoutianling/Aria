@@ -17,10 +17,9 @@ package com.arialyy.aria.core.common.http;
 
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.inf.AbsTarget;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
-import com.arialyy.aria.core.inf.IHttpHeaderTarget;
+import com.arialyy.aria.core.inf.IHttpHeaderDelegate;
 import com.arialyy.aria.util.ALog;
 import java.net.Proxy;
 import java.util.Collection;
@@ -32,7 +31,7 @@ import java.util.Set;
  * HTTP header参数设置委托类
  */
 public class HttpHeaderDelegate<TARGET extends AbsTarget>
-    implements IHttpHeaderTarget<TARGET> {
+    implements IHttpHeaderDelegate<TARGET> {
   private static final String TAG = "HttpHeaderDelegate";
   private TARGET mTarget;
 
@@ -76,18 +75,6 @@ public class HttpHeaderDelegate<TARGET extends AbsTarget>
     return mTarget;
   }
 
-  /**
-   * 设置请求类型，POST或GET，默认为在GET
-   * 只试用于HTTP请求
-   *
-   * @param requestEnum {@link RequestEnum}
-   */
-  @Override
-  public TARGET setRequestMode(RequestEnum requestEnum) {
-    setRequestMode(mTarget.getTaskEntity(), requestEnum);
-    return mTarget;
-  }
-
   @Override public TARGET setUrlProxy(Proxy proxy) {
     mTarget.getTaskEntity().setProxy(proxy);
     return mTarget;
@@ -99,10 +86,6 @@ public class HttpHeaderDelegate<TARGET extends AbsTarget>
     } else if (!taskEntity.getHeaders().get(key).equals(value)) {
       taskEntity.getHeaders().put(key, value);
     }
-  }
-
-  public void setRequestMode(AbsTaskEntity taskEntity, RequestEnum requestEnum) {
-    taskEntity.setRequestEnum(requestEnum);
   }
 
   public void addHeaders(AbsTaskEntity taskEntity, Map<String, String> headers) {

@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.common.CompleteInfo;
 import com.arialyy.aria.core.common.OnFileInfoCallback;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.util.ALog;
@@ -28,9 +29,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 下载文件信息获取
@@ -76,6 +81,23 @@ class HttpFileInfoThread implements Runnable {
   }
 
   private void handleConnect(HttpURLConnection conn) throws IOException {
+    if (mTaskEntity.getRequestEnum() == RequestEnum.POST) {
+      Map<String, String> params = mTaskEntity.getParams();
+      if (params != null) {
+        OutputStreamWriter dos = new OutputStreamWriter(conn.getOutputStream());
+        Set<String> keys = params.keySet();
+        StringBuilder sb = new StringBuilder();
+        for (String key : keys) {
+          sb.append(key).append("=").append(URLEncoder.encode(params.get(key))).append("&");
+        }
+        String url = sb.toString();
+        url = url.substring(0, url.length() - 1);
+        dos.write(url);
+        dos.flush();
+        dos.close();
+      }
+    }
+
     long len = conn.getContentLength();
     if (len < 0) {
       String temp = conn.getHeaderField("Content-Length");
@@ -122,7 +144,7 @@ class HttpFileInfoThread implements Runnable {
             if (temp.length > 1) {
               String newName = URLDecoder.decode(temp[1], "utf-8");
               mEntity.setServerFileName(newName);
-              fileRename(newName);
+              renameFile(newName);
               break;
             }
           }
@@ -184,7 +206,7 @@ class HttpFileInfoThread implements Runnable {
   /**
    * 重命名文件
    */
-  private void fileRename(String newName) {
+  private void renameFile(String newName) {
     if (TextUtils.isEmpty(newName)) {
       ALog.w(TAG, "重命名失败【服务器返回的文件名为空】");
       return;
@@ -219,7 +241,8 @@ class HttpFileInfoThread implements Runnable {
     mEntity.setRedirect(true);
     mEntity.setRedirectUrl(newUrl);
     String cookies = conn.getHeaderField("Set-Cookie");
-    conn = (HttpURLConnection) new URL(newUrl).openConnection();
+    URL url = new URL(CommonUtil.convertUrl(newUrl));
+    conn = ConnectionHelp.handleConnection(url, mTaskEntity);
     conn = ConnectionHelp.setConnectParam(mTaskEntity, conn);
     conn.setRequestProperty("Cookie", cookies);
     conn.setRequestProperty("Range", "bytes=" + 0 + "-");

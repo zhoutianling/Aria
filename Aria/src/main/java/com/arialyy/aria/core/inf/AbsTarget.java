@@ -22,6 +22,7 @@ import com.arialyy.aria.core.command.ICmd;
 import com.arialyy.aria.core.command.normal.CancelCmd;
 import com.arialyy.aria.core.command.normal.NormalCmdFactory;
 import com.arialyy.aria.core.common.TaskRecord;
+import com.arialyy.aria.core.common.http.PostDelegate;
 import com.arialyy.aria.core.download.DownloadGroupEntity;
 import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;

@@ -288,7 +288,7 @@ public class DownloadReceiver extends AbsReceiver {
    * @return {@code true}存在，{@code false} 不存在
    */
   public boolean taskExists(String downloadUrl) {
-    return DownloadEntity.findFirst(DownloadEntity.class, "url=?", downloadUrl) != null;
+    return DbEntity.checkDataExist(DownloadTaskEntity.class, "url=?", downloadUrl);
   }
 
   /**
@@ -301,8 +301,7 @@ public class DownloadReceiver extends AbsReceiver {
       return false;
     }
     String groupName = CommonUtil.getMd5Code(urls);
-    return DownloadGroupEntity.findFirst(DownloadGroupEntity.class, "groupName=?", groupName)
-        != null;
+    return DbEntity.checkDataExist(DownloadGroupEntity.class, "groupName=?", groupName);
   }
 
   /**

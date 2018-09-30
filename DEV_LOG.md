@@ -1,4 +1,16 @@
 ## 开发日志
+  + v_3.5.1
+    - 优化`taskExists`方法
+    - 添加`post`参数请求支持
+      ```java
+      Aria.download(SingleTaskActivity.this)
+              .load(DOWNLOAD_URL)
+              .setFilePath(path)
+              .asPost() // post请求
+              .setParam("key", "value") //传递参数
+              //.setParams(Map<String, String>) // 传递多参数
+              .start();
+      ```
   + v_3.5
     - fix bug https://github.com/AriaLyy/Aria/issues/302
     - fix bug https://github.com/AriaLyy/Aria/issues/283

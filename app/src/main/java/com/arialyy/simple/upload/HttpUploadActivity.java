@@ -56,7 +56,7 @@ public class HttpUploadActivity extends BaseActivity<ActivityUploadBinding> {
             "http://lib-test.xzxyun.com:8042/Api/upload?data={\"type\":\"1\",\"fileType\":\".apk\"}")
         //.setUploadUrl("http://192.168.1.6:8080/upload/sign_file/").setAttachment("file")
         //.addHeader("iplanetdirectorypro", "11a09102fb934ad0bc206f9c611d7933")
-        .setRequestMode(RequestEnum.POST)
+        .asPost()
         .start();
   }
 

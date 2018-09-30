@@ -71,6 +71,11 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
   @Ignore private boolean isNewTask = false;
 
   /**
+   * 请求参数
+   */
+  @Ignore private Map<String, String> params;
+
+  /**
    * 任务状态，和Entity的state同步
    */
   private int state = IEntity.STATE_WAIT;
@@ -255,5 +260,13 @@ public abstract class AbsTaskEntity<ENTITY extends AbsEntity> extends DbEntity {
 
   public void setCode(int code) {
     this.code = code;
+  }
+
+  public Map<String, String> getParams() {
+    return params;
+  }
+
+  public void setParams(Map<String, String> params) {
+    this.params = params;
   }
 }

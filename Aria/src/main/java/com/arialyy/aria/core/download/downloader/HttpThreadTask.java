@@ -16,6 +16,7 @@
 package com.arialyy.aria.core.download.downloader;
 
 import com.arialyy.aria.core.common.AbsThreadTask;
+import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.common.StateConstance;
 import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.download.DownloadEntity;
@@ -28,13 +29,17 @@ import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by lyy on 2017/1/18.
@@ -83,6 +88,23 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       conn.setConnectTimeout(mConnectTimeOut);
       conn.setReadTimeout(mReadTimeOut);  //设置读取流的等待时间,必须设置该参数
       conn.connect();
+      if (mTaskEntity.getRequestEnum() == RequestEnum.POST) {
+        Map<String, String> params = mTaskEntity.getParams();
+        if (params != null) {
+          OutputStreamWriter dos = new OutputStreamWriter(conn.getOutputStream());
+          Set<String> keys = params.keySet();
+          StringBuilder sb = new StringBuilder();
+          for (String key : keys) {
+            sb.append(key).append("=").append(URLEncoder.encode(params.get(key))).append("&");
+          }
+          String paramStr = sb.toString();
+          paramStr = paramStr.substring(0, paramStr.length() - 1);
+          dos.write(paramStr);
+          dos.flush();
+          dos.close();
+        }
+      }
+
       is = new BufferedInputStream(ConnectionHelp.convertInputStream(conn));
       if (isOpenDynamicFile) {
         readDynamicFile(is);

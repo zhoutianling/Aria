@@ -67,7 +67,6 @@ public class AnyRunnModule {
     String path = Environment.getExternalStorageDirectory().getPath() + "/mmm2.mp4";
     Aria.download(this)
         .load(url)
-        .setRequestMode(RequestEnum.GET)
         .setFilePath(path)
         .resetState()
         .start();

@@ -56,13 +56,6 @@ public class DelegateWrapper {
     return INSTANCE;
   }
 
-  ///**
-  // * 保存关联数据
-  // */
-  //void saveRelationData(AbsWrapper wrapper){
-  //
-  //}
-
   /**
    * 查询关联表数据
    *

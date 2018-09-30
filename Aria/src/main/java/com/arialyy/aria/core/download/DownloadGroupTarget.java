@@ -20,7 +20,8 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import com.arialyy.aria.core.common.RequestEnum;
 import com.arialyy.aria.core.common.http.HttpHeaderDelegate;
-import com.arialyy.aria.core.inf.IHttpHeaderTarget;
+import com.arialyy.aria.core.common.http.PostDelegate;
+import com.arialyy.aria.core.inf.IHttpHeaderDelegate;
 import com.arialyy.aria.core.manager.TEManager;
 import com.arialyy.aria.orm.DbEntity;
 import com.arialyy.aria.util.ALog;
@@ -38,7 +39,7 @@ import java.util.Set;
  * 下载任务组
  */
 public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> implements
-    IHttpHeaderTarget<DownloadGroupTarget> {
+    IHttpHeaderDelegate<DownloadGroupTarget> {
   private HttpHeaderDelegate<DownloadGroupTarget> mDelegate;
   /**
    * 子任务下载地址，
@@ -72,6 +73,13 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
       mDirPathTemp = mEntity.getDirPath();
     }
     mDelegate = new HttpHeaderDelegate<>(this);
+  }
+
+  /**
+   * Post处理
+   */
+  public PostDelegate asPost() {
+    return new PostDelegate<>(this);
   }
 
   /**
@@ -178,6 +186,12 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
         return false;
       }
 
+      if (mTaskEntity.getRequestEnum() == RequestEnum.POST) {
+        for (DownloadTaskEntity subTask : mTaskEntity.getSubTaskEntities()) {
+          subTask.setRequestEnum(RequestEnum.POST);
+        }
+      }
+
       mEntity.save();
       mTaskEntity.save();
 
@@ -262,7 +276,8 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
     if (!newName.equals(entity.getFileName())) {
       String oldPath = mEntity.getDirPath() + "/" + entity.getFileName();
       String newPath = mEntity.getDirPath() + "/" + newName;
-      if (DbEntity.checkDataExist(DownloadEntity.class, "downloadPath=? or isComplete='true'", newPath)) {
+      if (DbEntity.checkDataExist(DownloadEntity.class, "downloadPath=? or isComplete='true'",
+          newPath)) {
         ALog.w(TAG, String.format("更新文件名失败，路径【%s】已存在或文件已下载", newPath));
         return;
       }
@@ -311,14 +326,6 @@ public class DownloadGroupTarget extends BaseGroupTarget<DownloadGroupTarget> im
       mDelegate.addHeaders(subTask, headers);
     }
     return mDelegate.addHeaders(headers);
-  }
-
-  @CheckResult
-  @Override public DownloadGroupTarget setRequestMode(RequestEnum requestEnum) {
-    for (DownloadTaskEntity subTask : mTaskEntity.getSubTaskEntities()) {
-      subTask.setRequestEnum(requestEnum);
-    }
-    return mDelegate.setRequestMode(requestEnum);
   }
 
   @CheckResult
