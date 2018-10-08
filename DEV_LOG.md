@@ -11,6 +11,13 @@
               //.setParams(Map<String, String>) // 传递多参数
               .start();
       ```
+     - 增加强制设置文件路径的api, https://github.com/AriaLyy/Aria/issues/311
+       ```
+       Aria.download(SingleTaskActivity.this)
+                     .load(DOWNLOAD_URL)
+                     .setFilePath(path, true) // true表示忽略路径是否被占用
+                     .start();
+       ```
   + v_3.5
     - fix bug https://github.com/AriaLyy/Aria/issues/302
     - fix bug https://github.com/AriaLyy/Aria/issues/283

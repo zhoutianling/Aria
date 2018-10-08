@@ -32,8 +32,8 @@ Aria有以下特点：
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaApi/images/download.svg)](https://bintray.com/arialyy/maven/AriaApi/_latestVersion)
 [![Download](https://api.bintray.com/packages/arialyy/maven/AriaCompiler/images/download.svg)](https://bintray.com/arialyy/maven/AriaCompiler/_latestVersion)
 ```java
-compile 'com.arialyy.aria:aria-core:3.5'
-annotationProcessor 'com.arialyy.aria:aria-compiler:3.5'
+compile 'com.arialyy.aria:aria-core:3.5.1'
+annotationProcessor 'com.arialyy.aria:aria-compiler:3.5.1'
 ```
 如果出现android support，请将 `compile 'com.arialyy.aria:aria-core:<last-version>'`替换为
 ```
@@ -101,16 +101,25 @@ protected void onCreate(Bundle savedInstanceState) {
 
 
 ### 版本日志
-  + v_3.5
-    - fix bug https://github.com/AriaLyy/Aria/issues/302
-    - fix bug https://github.com/AriaLyy/Aria/issues/283
-    - fix bug https://github.com/AriaLyy/Aria/issues/305
-    - fix bug https://github.com/AriaLyy/Aria/issues/306
-    - fix bug https://github.com/AriaLyy/Aria/issues/272  (现在，停止所有任务，未开始的任务状态将变为停止)
-    - fix bug https://github.com/AriaLyy/Aria/issues/277
-    - fix bug https://github.com/AriaLyy/Aria/issues/303
-    - 优化停止任务的速度
-    - 修复组合任务修改子任务文件名失败的问题
++ v_3.5.1
+    - 优化`taskExists`方法
+    - 添加`post`参数请求支持
+      ```java
+      Aria.download(SingleTaskActivity.this)
+              .load(DOWNLOAD_URL)
+              .setFilePath(path)
+              .asPost() // post请求
+              .setParam("key", "value") //传递参数
+              //.setParams(Map<String, String>) // 传递多参数
+              .start();
+      ```
+     - 增加强制设置文件路径的api, https://github.com/AriaLyy/Aria/issues/311
+       ```
+       Aria.download(SingleTaskActivity.this)
+                     .load(DOWNLOAD_URL)
+                     .setFilePath(path, true) // true表示忽略路径是否被占用
+                     .start();
+       ```
 
 [更多版本记录](https://github.com/AriaLyy/Aria/blob/master/DEV_LOG.md)
 

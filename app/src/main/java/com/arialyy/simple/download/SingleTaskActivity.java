@@ -49,7 +49,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      //"http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
   //"https://yizi-kejian.oss-cn-beijing.aliyuncs.com/qimeng/package1/qmtable11.zip";
   //"http://rs.0.gaoshouyou.com/d/04/1e/400423a7551e1f3f0eb1812afa1f9b44.apk";
       //"http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
@@ -58,7 +58,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
       //"https://d.pcs.baidu.com/file/a02c89a2d479d4fd2756f3313d42491d?fid=4232431903-250528-1114369760340736&dstime=1525491372&rt=sh&sign=FDtAERVY-DCb740ccc5511e5e8fedcff06b081203-3C13vkOkuk4TqXvVYW05zj1K0ao%3D&expires=8h&chkv=1&chkbd=0&chkpc=et&dp-logid=8651730921842106225&dp-callid=0&r=165533013";
       //"http://apk500.bce.baidu-mgame.com/game/67000/67734/20170622040827_oem_5502845.apk?r=1";
       //"https://dl.genymotion.com/releases/genymotion-2.12.1/genymotion-2.12.1-vbox.exe";
-      "http://9.9.9.59:5000/download/CentOS-7-x86_64-Minimal-1804.iso";
+      //"http://9.9.9.59:5000/download/CentOS-7-x86_64-Minimal-1804.iso";
   @Bind(R.id.start) Button mStart;
   @Bind(R.id.stop) Button mStop;
   @Bind(R.id.cancel) Button mCancel;
@@ -262,8 +262,8 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
         //.addHeader("Cookie", "BAIDUID=648E5FF020CC69E8DD6F492D1068AAA9:FG=1; BIDUPSID=648E5FF020CC69E8DD6F492D1068AAA9; PSTM=1519099573; BD_UPN=12314753; locale=zh; BDSVRTM=0")
         //.useServerFileName(true)
         //.setRequestMode(RequestEnum.GET)
-        .setFilePath(path)
-        .asPost().setParams("key", "value")
+        .setFilePath(path, false)
+        //.asPost().setParam("key", "value")
         //.setExtendField("{\n"
         //    + "\"id\":\"你的样子\"\n< > "
         //    + "}")
