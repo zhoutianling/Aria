@@ -16,6 +16,7 @@
 
 package com.arialyy.simple.download;
 
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -49,7 +50,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private static final String DOWNLOAD_URL =
       //"http://kotlinlang.org/docs/kotlin-docs.pdf";
       //"https://atom-installer.github.com/v1.13.0/AtomSetup.exe?s=1484074138&ext=.exe";
-      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apk";
+      "http://static.gaoshouyou.com/d/22/94/822260b849944492caadd2983f9bb624.apks";
   //"https://yizi-kejian.oss-cn-beijing.aliyuncs.com/qimeng/package1/qmtable11.zip";
   //"http://rs.0.gaoshouyou.com/d/04/1e/400423a7551e1f3f0eb1812afa1f9b44.apk";
       //"http://58.210.9.131/tpk/sipgt//TDLYZTGH.tpk"; //chunked 下载
@@ -248,7 +249,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
   private void startD() {
     //Aria.get(this).setLogLevel(ALog.LOG_CLOSE);
     //Aria.download(this).load("aaaa.apk");
-    String path = Environment.getExternalStorageDirectory().getPath() + "/ggsg9.apk";
+    String path = Environment.getExternalStorageDirectory().getPath() + "/ggsg10.apk";
     //File file = new File(path);
     //if (file.exists()){
     //  file.delete();

@@ -16,7 +16,6 @@
 package com.arialyy.aria.core.common.ftp;
 
 import android.text.TextUtils;
-import com.arialyy.aria.core.AriaManager;
 import com.arialyy.aria.core.FtpUrlEntity;
 import com.arialyy.aria.core.common.AbsThreadTask;
 import com.arialyy.aria.core.common.ProtocolType;
@@ -25,9 +24,9 @@ import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.inf.AbsNormalEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
+import com.arialyy.aria.exception.AriaIOException;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.SSLContextUtil;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import javax.net.ssl.SSLContext;
@@ -74,7 +73,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       client = newInstanceClient(urlEntity);
       try {
         client.connect(urlEntity.validAddr, Integer.parseInt(urlEntity.port));
-      } catch (IOException e) {
+      } catch (java.io.IOException e) {
         ALog.e(TAG, ALog.getExceptionString(e));
         return null;
       }
@@ -101,8 +100,8 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       int reply = client.getReplyCode();
       if (!FTPReply.isPositiveCompletion(reply)) {
         client.disconnect();
-        fail(mChildCurrentLocation,
-            String.format("无法连接到ftp服务器，错误码为：%s，msg:%s", reply, client.getReplyString()), null);
+        fail(mChildCurrentLocation, new AriaIOException(TAG,
+            String.format("无法连接到ftp服务器，错误码为：%s，msg:%s", reply, client.getReplyString())), false);
         return null;
       }
       // 开启服务器对UTF-8的支持，如果服务器支持就用UTF-8编码
@@ -121,7 +120,7 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       if (mTaskEntity.getUrlEntity().isFtps) {
         ((FTPSClient) client).execPROT("P");
       }
-    } catch (IOException e) {
+    } catch (java.io.IOException e) {
       e.printStackTrace();
     }
     return client;
@@ -154,12 +153,12 @@ public abstract class AbsFtpThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTI
       client.connect(ips[index], port);
       mTaskEntity.getUrlEntity().validAddr = ips[index];
       return client;
-    } catch (IOException e) {
+    } catch (java.io.IOException e) {
       try {
         if (client.isConnected()) {
           client.disconnect();
         }
-      } catch (IOException e1) {
+      } catch (java.io.IOException e1) {
         e1.printStackTrace();
       }
       if (index + 1 >= ips.length) {

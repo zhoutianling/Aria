@@ -16,17 +16,16 @@
 package com.arialyy.aria.exception;
 
 /**
- * Created by lyy on 2017/1/18.
- * Aria 文件异常
+ * 任务异常
  */
-public class FileException extends BaseException {
-  private static final String ARIA_FILE_EXCEPTION = "Aria File Exception:";
+public class TaskException extends BaseException {
+  private static final String ARIA_TASK_EXCEPTION = "Aria Task Exception:";
 
-  public FileException(String tag, String detailMessage) {
-    super(tag, String.format("%s%s", ARIA_FILE_EXCEPTION, detailMessage));
+  public TaskException(String tag, String detailMessage) {
+    super(tag, String.format("%s, %s", ARIA_TASK_EXCEPTION, detailMessage));
   }
 
-  public FileException(String tag, String message, Exception e){
+  public TaskException(String tag, String message, Exception e){
     super(tag, message, e);
   }
 }

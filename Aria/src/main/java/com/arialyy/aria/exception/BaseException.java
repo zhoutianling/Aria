@@ -15,18 +15,21 @@
  */
 package com.arialyy.aria.exception;
 
-/**
- * Created by lyy on 2017/1/18.
- * Aria 文件异常
- */
-public class FileException extends BaseException {
-  private static final String ARIA_FILE_EXCEPTION = "Aria File Exception:";
+public abstract class BaseException extends Exception {
 
-  public FileException(String tag, String detailMessage) {
-    super(tag, String.format("%s%s", ARIA_FILE_EXCEPTION, detailMessage));
+  private String tag;
+
+  public BaseException(String tag, String message) {
+    super(message);
+    this.tag = tag;
   }
 
-  public FileException(String tag, String message, Exception e){
-    super(tag, message, e);
+  public BaseException(String tag, String message, Exception e) {
+    super(String.format("%s\n%s", message == null ? "" : message, e == null ? "" : e.getMessage()));
+    this.tag = tag;
+  }
+
+  public String getTag() {
+    return tag;
   }
 }

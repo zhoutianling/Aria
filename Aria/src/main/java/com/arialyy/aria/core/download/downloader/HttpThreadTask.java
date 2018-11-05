@@ -22,6 +22,8 @@ import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
+import com.arialyy.aria.exception.AriaIOException;
+import com.arialyy.aria.exception.TaskException;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import com.arialyy.aria.util.CommonUtil;
@@ -121,11 +123,17 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         handleComplete();
       }
     } catch (MalformedURLException e) {
-      fail(mChildCurrentLocation, "下载链接异常", e);
+      fail(mChildCurrentLocation, new TaskException(TAG,
+          String.format("任务【%s】下载失败，filePath: %s, url: %s", mConfig.TEMP_FILE.getName(),
+              mEntity.getDownloadPath(), mEntity.getUrl()), e));
     } catch (IOException e) {
-      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
+      fail(mChildCurrentLocation, new TaskException(TAG,
+          String.format("任务【%s】下载失败，filePath: %s, url: %s", mConfig.TEMP_FILE.getName(),
+              mEntity.getDownloadPath(), mEntity.getUrl()), e));
     } catch (Exception e) {
-      fail(mChildCurrentLocation, "获取流失败", e);
+      fail(mChildCurrentLocation, new TaskException(TAG,
+          String.format("任务【%s】下载失败，filePath: %s, url: %s", mConfig.TEMP_FILE.getName(),
+              mEntity.getDownloadPath(), mEntity.getUrl()), e));
     } finally {
       try {
         if (file != null) {
@@ -182,7 +190,9 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
       }
       handleComplete();
     } catch (IOException e) {
-      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
+      fail(mChildCurrentLocation, new AriaIOException(TAG,
+          String.format("文件下载失败，savePath: %s, url: %s", mEntity.getDownloadPath(), mConfig.URL),
+          e));
     } finally {
       try {
         if (fos != null) {
@@ -249,9 +259,9 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
           if (isBlock) {
             boolean success = mergeFile();
             if (!success) {
-              ALog.e(TAG, String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName()));
               STATE.isRunning = false;
-              mListener.onFail(false);
+              mListener.onFail(false, new TaskException(TAG,
+                  String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName())));
               return;
             }
           }
@@ -261,7 +271,10 @@ final class HttpThreadTask extends AbsThreadTask<DownloadEntity, DownloadTaskEnt
         }
         if (STATE.isFail()) {
           STATE.isRunning = false;
-          mListener.onFail(false);
+          mListener.onFail(false,
+              new TaskException(TAG,
+                  String.format("任务【%s】下载失败，filePath: %s, url: %s", mConfig.TEMP_FILE.getName(),
+                      mEntity.getDownloadPath(), mEntity.getUrl())));
         }
       } else {
         ALog.i(TAG, "任务下载完成");

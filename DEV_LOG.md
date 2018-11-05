@@ -1,4 +1,13 @@
 ## 开发日志
+  + v_3.5.2
+    - 添加Serializable接口支持 https://github.com/AriaLyy/Aria/issues/320
+    - 失败回调增加错误原因 https://github.com/AriaLyy/Aria/issues/310
+      ```
+      @Download.onTaskFail void taskFail(DownloadTask task, Exception e) {
+         e.getMessage();
+        ...
+      }
+      ```
   + v_3.5.1
     - 优化`taskExists`方法
     - 添加`post`参数请求支持

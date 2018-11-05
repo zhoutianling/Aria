@@ -140,7 +140,8 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
             listener.onSubTaskStop((TASK) params.groupTask, params.entity);
             break;
           case SUB_FAIL:
-            listener.onSubTaskFail((TASK) params.groupTask, params.entity);
+            listener.onSubTaskFail((TASK) params.groupTask, params.entity,
+                (Exception) (params.groupTask).getExpand(AbsTask.ERROR_INFO_KEY));
             break;
           case SUB_RUNNING:
             listener.onSubTaskRunning((TASK) params.groupTask, params.entity);
@@ -244,7 +245,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
           listener.onTaskComplete(task);
           break;
         case FAIL:
-          listener.onTaskFail(task);
+          listener.onTaskFail(task, (Exception) task.getExpand(AbsTask.ERROR_INFO_KEY));
           break;
         case SUPPORT_BREAK_POINT:
           listener.onNoSupportBreakPoint(task);
@@ -317,7 +318,7 @@ abstract class AbsSchedulers<TASK_ENTITY extends AbsTaskEntity, TASK extends Abs
    * 启动下一个任务，条件：任务停止，取消下载，任务完成
    */
   private void startNextTask(TASK oldTask) {
-    if (oldTask.getSchedulerType() == TaskSchedulerType.TYPE_STOP_NOT_NEXT){
+    if (oldTask.getSchedulerType() == TaskSchedulerType.TYPE_STOP_NOT_NEXT) {
       return;
     }
     TASK newTask = mQueue.getNextTask();

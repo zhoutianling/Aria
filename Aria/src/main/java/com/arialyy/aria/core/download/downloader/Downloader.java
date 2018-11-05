@@ -23,10 +23,9 @@ import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
-import com.arialyy.aria.util.ALog;
+import com.arialyy.aria.exception.BaseException;
+import com.arialyy.aria.exception.TaskException;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
-import com.arialyy.aria.util.CommonUtil;
-import com.arialyy.aria.util.ErrorHelp;
 import java.io.File;
 import java.io.IOException;
 
@@ -58,7 +57,7 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
 
   @Override protected boolean handleNewTask() {
     if (!mRecord.isBlock) {
-      if (mTempFile.exists()){
+      if (mTempFile.exists()) {
         mTempFile.delete();
       }
       //CommonUtil.createFile(mTempFile.getPath());
@@ -72,8 +71,9 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
       }
       return true;
     } catch (IOException e) {
-      failDownload(String.format("下载失败【downloadUrl:%s】；【filePath:%s】\n %S", mEntity.getUrl(),
-          mEntity.getDownloadPath(), ALog.getExceptionString(e)));
+      failDownload(new TaskException(TAG,
+          String.format("下载失败，filePath: %s, url: %s", mEntity.getDownloadPath(),
+              mEntity.getUrl()), e));
     } finally {
       if (file != null) {
         try {
@@ -106,11 +106,9 @@ class Downloader extends AbsFileer<DownloadEntity, DownloadTaskEntity> {
     return null;
   }
 
-  private void failDownload(String errorMsg) {
+  private void failDownload(BaseException e) {
     closeTimer();
-    ALog.e(TAG, errorMsg);
     mConstance.isRunning = false;
-    mListener.onFail(false);
-    ErrorHelp.saveError(TAG, "", errorMsg);
+    mListener.onFail(false, e);
   }
 }

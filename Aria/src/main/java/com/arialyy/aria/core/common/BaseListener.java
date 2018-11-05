@@ -24,7 +24,10 @@ import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.inf.TaskSchedulerType;
 import com.arialyy.aria.core.scheduler.ISchedulers;
+import com.arialyy.aria.exception.BaseException;
+import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.ErrorHelp;
 import java.lang.ref.WeakReference;
 
 public abstract class BaseListener<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity<ENTITY>, TASK extends AbsTask<ENTITY, TASK_ENTITY>>
@@ -103,12 +106,14 @@ public abstract class BaseListener<ENTITY extends AbsEntity, TASK_ENTITY extends
     sendInState2Target(ISchedulers.CANCEL);
   }
 
-  @Override public void onFail(boolean needRetry) {
+  @Override public void onFail(boolean needRetry, BaseException e) {
     mEntity.setFailNum(mEntity.getFailNum() + 1);
     saveData(IEntity.STATE_FAIL, mEntity.getCurrentProgress());
     handleSpeed(0);
     mTask.needRetry = needRetry;
     sendInState2Target(ISchedulers.FAIL);
+    e.printStackTrace();
+    ErrorHelp.saveError(e.getTag(), "", ALog.getExceptionString(e));
   }
 
   private void handleSpeed(long speed) {

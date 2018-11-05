@@ -21,6 +21,8 @@ import com.arialyy.aria.core.common.ftp.AbsFtpThreadTask;
 import com.arialyy.aria.core.download.DownloadEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
+import com.arialyy.aria.exception.AriaIOException;
+import com.arialyy.aria.exception.TaskException;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import java.io.FileOutputStream;
@@ -69,7 +71,7 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
               mConfig.THREAD_ID, mConfig.START_LOCATION, mConfig.END_LOCATION));
       client = createClient();
       if (client == null) {
-        fail(mChildCurrentLocation, "ftp client 创建失败", null);
+        fail(mChildCurrentLocation, new TaskException(TAG, "ftp client 创建失败"));
         return this;
       }
       if (mConfig.START_LOCATION > 0) {
@@ -79,8 +81,8 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       int reply = client.getReplyCode();
       if (!FTPReply.isPositivePreliminary(reply) && reply != FTPReply.COMMAND_OK) {
         fail(mChildCurrentLocation,
-            String.format("获取文件信息错误，错误码为：%s，msg：%s", reply, client.getReplyString()),
-            null);
+            new AriaIOException(TAG,
+                String.format("获取文件信息错误，错误码为：%s，msg：%s", reply, client.getReplyString())));
         client.disconnect();
         return this;
       }
@@ -91,8 +93,8 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       reply = client.getReplyCode();
       if (!FTPReply.isPositivePreliminary(reply)) {
         fail(mChildCurrentLocation,
-            String.format("获取流失败，错误码为：%s，msg：%s", reply, client.getReplyString()),
-            null);
+            new AriaIOException(TAG,
+                String.format("获取流失败，错误码为：%s，msg：%s", reply, client.getReplyString())));
         client.disconnect();
         return this;
       }
@@ -104,9 +106,11 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         handleComplete();
       }
     } catch (IOException e) {
-      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
+      fail(mChildCurrentLocation,
+          new AriaIOException(TAG, String.format("下载失败【%s】", mConfig.URL), e));
     } catch (Exception e) {
-      fail(mChildCurrentLocation, "获取流失败", e);
+      fail(mChildCurrentLocation,
+          new AriaIOException(TAG, String.format("下载失败【%s】", mConfig.URL), e));
     } finally {
       try {
         if (is != null) {
@@ -137,9 +141,10 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       if (isBlock) {
         boolean success = mergeFile();
         if (!success) {
-          ALog.e(TAG, String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName()));
+          //ALog.e(TAG, String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName()));
           STATE.isRunning = false;
-          mListener.onFail(false);
+          mListener.onFail(false,
+              new TaskException(TAG, String.format("任务【%s】分块文件合并失败", mConfig.TEMP_FILE.getName())));
           return;
         }
       }
@@ -149,7 +154,8 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
     }
     if (STATE.isFail()) {
       STATE.isRunning = false;
-      mListener.onFail(false);
+      mListener.onFail(false,
+          new TaskException(TAG, String.format("任务【%s】下载失败", mConfig.TEMP_FILE.getName())));
     }
   }
 
@@ -189,7 +195,8 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
       }
       handleComplete();
     } catch (IOException e) {
-      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
+      fail(mChildCurrentLocation,
+          new AriaIOException(TAG, String.format("下载失败【%s】", mConfig.URL), e));
     } finally {
       try {
         if (fos != null) {
@@ -235,7 +242,8 @@ class FtpThreadTask extends AbsFtpThreadTask<DownloadEntity, DownloadTaskEntity>
         }
       }
     } catch (IOException e) {
-      fail(mChildCurrentLocation, String.format("下载失败【%s】", mConfig.URL), e);
+      fail(mChildCurrentLocation,
+          new AriaIOException(TAG, String.format("下载失败【%s】", mConfig.URL), e));
     } finally {
       try {
         if (file != null) {

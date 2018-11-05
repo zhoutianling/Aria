@@ -21,6 +21,8 @@ import com.arialyy.aria.core.common.ftp.AbsFtpThreadTask;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.exception.AriaIOException;
+import com.arialyy.aria.exception.TaskException;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.BufferedRandomAccessFile;
 import java.io.IOException;
@@ -70,7 +72,10 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       client.setRestartOffset(mConfig.START_LOCATION);
       int reply = client.getReplyCode();
       if (!FTPReply.isPositivePreliminary(reply) && reply != FTPReply.FILE_ACTION_OK) {
-        fail(mChildCurrentLocation, "上传失败，错误码为：" + reply + "，msg：" + client.getReplyString(), null);
+        fail(mChildCurrentLocation,
+            new AriaIOException(TAG,
+                String.format("文件上传错误，错误码为：%s, msg：%s, filePath: %s", reply,
+                    client.getReplyString(), mEntity.getFilePath())));
         client.disconnect();
         return this;
       }
@@ -95,12 +100,14 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       }
       if (STATE.isFail()) {
         STATE.isRunning = false;
-        mListener.onFail(false);
+        mListener.onFail(false, new TaskException(TAG,
+            String.format("上传失败，filePath: %s, uploadUrl: %s", mEntity.getFilePath(), mConfig.URL)));
       }
     } catch (IOException e) {
-      fail(mChildCurrentLocation, String.format("上传失败【%s】", mConfig.URL), e);
+      fail(mChildCurrentLocation, new AriaIOException(TAG,
+          String.format("上传失败，filePath: %s, uploadUrl: %s", mEntity.getFilePath(), mConfig.URL)));
     } catch (Exception e) {
-      fail(mChildCurrentLocation, "获取流失败", e);
+      fail(mChildCurrentLocation, new AriaIOException(TAG, null, e));
     } finally {
       try {
         if (file != null) {
@@ -128,7 +135,7 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
       throws IOException {
 
     try {
-      ALog.d(TAG, String.format("remotePath【%s】", remotePath));
+      ALog.d(TAG, String.format("remotePath: %s", remotePath));
       client.storeFile(remotePath, new FtpFISAdapter(bis), new OnFtpInputStreamListener() {
         boolean isStoped = false;
 
@@ -149,10 +156,11 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
         }
       });
     } catch (IOException e) {
-      if (e.getMessage().contains("IOException caught while copying")) {
+      if (e.getMessage().contains("AriaIOException caught while copying")) {
         e.printStackTrace();
       } else {
-        fail(mChildCurrentLocation, "上传失败", e);
+        fail(mChildCurrentLocation,
+            new AriaIOException(TAG, String.format("上传失败，filePath: %s", mEntity.getFilePath()), e));
       }
     }
 
@@ -160,8 +168,9 @@ class FtpThreadTask extends AbsFtpThreadTask<UploadEntity, UploadTaskEntity> {
     if (!FTPReply.isPositiveCompletion(reply)) {
       if (reply != FTPReply.TRANSFER_ABORTED) {
         fail(mChildCurrentLocation,
-            String.format("上传文件错误，错误码为：%s，msg：%s", reply, client.getReplyString()),
-            null);
+            new AriaIOException(TAG,
+                String.format("文件上传错误，错误码为：%s, msg：%s, filePath: %s", reply,
+                    client.getReplyString(), mEntity.getFilePath())));
       }
       if (client.isConnected()) {
         client.disconnect();

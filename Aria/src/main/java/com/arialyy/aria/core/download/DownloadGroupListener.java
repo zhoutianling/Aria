@@ -21,8 +21,10 @@ import com.arialyy.aria.core.download.downloader.IDownloadGroupListener;
 import com.arialyy.aria.core.inf.GroupSendParams;
 import com.arialyy.aria.core.inf.IEntity;
 import com.arialyy.aria.core.scheduler.ISchedulers;
+import com.arialyy.aria.exception.BaseException;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
+import com.arialyy.aria.util.ErrorHelp;
 
 /**
  * Created by Aria.Lao on 2017/7/20.
@@ -64,9 +66,11 @@ class DownloadGroupListener
     sendInState2Target(ISchedulers.SUB_COMPLETE, subEntity);
   }
 
-  @Override public void onSubFail(DownloadEntity subEntity) {
+  @Override public void onSubFail(DownloadEntity subEntity, BaseException e) {
     saveCurrentLocation();
     sendInState2Target(ISchedulers.SUB_FAIL, subEntity);
+    e.printStackTrace();
+    ErrorHelp.saveError(e.getTag(), "", ALog.getExceptionString(e));
   }
 
   @Override public void onSubCancel(DownloadEntity subEntity) {

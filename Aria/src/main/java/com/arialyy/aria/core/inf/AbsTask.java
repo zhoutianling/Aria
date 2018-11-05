@@ -17,15 +17,20 @@ package com.arialyy.aria.core.inf;
 
 import android.content.Context;
 import android.os.Handler;
+import android.text.TextUtils;
 import com.arialyy.aria.core.common.IUtil;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by AriaL on 2017/6/29.
  */
 public abstract class AbsTask<ENTITY extends AbsEntity, TASK_ENTITY extends AbsTaskEntity>
     implements ITask<TASK_ENTITY> {
+  public static final String ERROR_INFO_KEY = "ERROR_INFO_KEY";
+
   /**
    * 是否需要重试，默认为true
    */
@@ -36,6 +41,10 @@ public abstract class AbsTask<ENTITY extends AbsEntity, TASK_ENTITY extends AbsT
   boolean isHeighestTask = false;
   private boolean isCancel = false, isStop = false;
   protected IUtil mUtil;
+  /**
+   * 扩展信息
+   */
+  private Map<String, Object> mExpand = new HashMap<>();
   /**
    * 该任务的调度类型
    */
@@ -51,6 +60,28 @@ public abstract class AbsTask<ENTITY extends AbsEntity, TASK_ENTITY extends AbsT
 
   public Handler getOutHandler() {
     return mOutHandler;
+  }
+
+  /**
+   * 添加扩展数据
+   * 读取扩展数据{@link #getExpand(String)}
+   */
+  public void putExpand(String key, Object obj) {
+    if (TextUtils.isEmpty(key)) {
+      ALog.e(TAG, "key 为空");
+      return;
+    } else if (obj == null) {
+      ALog.e(TAG, "扩展数据为空");
+      return;
+    }
+    mExpand.put(key, obj);
+  }
+
+  /**
+   * 读取扩展数据
+   */
+  public Object getExpand(String key) {
+    return mExpand.get(key);
   }
 
   /**

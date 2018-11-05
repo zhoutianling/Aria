@@ -21,6 +21,9 @@ import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IEventListener;
 import com.arialyy.aria.core.manager.ThreadTaskManager;
 import com.arialyy.aria.core.upload.UploadEntity;
+import com.arialyy.aria.exception.BaseException;
+import com.arialyy.aria.exception.FileException;
+import com.arialyy.aria.exception.TaskException;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.ErrorHelp;
 import com.arialyy.aria.util.FileUtil;
@@ -94,6 +97,7 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
 
   /**
    * 设置线程是否中断
+   *
    * @param isInterrupted {@code true} 中断
    */
   public void setInterrupted(boolean isInterrupted) {
@@ -102,9 +106,10 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
 
   /**
    * 线程是否存活
+   *
    * @return {@code true}存活
    */
-  protected boolean isLive(){
+  protected boolean isLive() {
     Thread t = Thread.currentThread();
     return !t.isInterrupted() && !isInterrupted;
   }
@@ -265,10 +270,11 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
   protected void progress(long len) {
     synchronized (AriaManager.LOCK) {
       if (STATE.CURRENT_LOCATION > mEntity.getFileSize()) {
-        ALog.d(TAG, String.format("currentLocation=%s, fileSize=%s", STATE.CURRENT_LOCATION,
-            mEntity.getFileSize()));
+        String errorMsg =
+            String.format("下载失败，下载长度超出文件大；currentLocation=%s, fileSize=%s", STATE.CURRENT_LOCATION,
+                mEntity.getFileSize());
         taskBreak = true;
-        fail(mChildCurrentLocation, "下载失败，下载长度超出文件大小", null, false);
+        fail(mChildCurrentLocation, new FileException(TAG, errorMsg), false);
         return;
       }
       mChildCurrentLocation += len;
@@ -312,11 +318,10 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    * 线程任务失败
    *
    * @param subCurrentLocation 当前线程下载进度
-   * @param msg 自定义信息
    * @param ex 异常信息
    */
-  protected void fail(final long subCurrentLocation, String msg, Exception ex) {
-    fail(subCurrentLocation, msg, ex, true);
+  protected void fail(final long subCurrentLocation, BaseException ex) {
+    fail(subCurrentLocation, ex, true);
   }
 
   /**
@@ -324,19 +329,17 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
    *
    * @param subCurrentLocation 当前子线程进度
    */
-  protected void fail(final long subCurrentLocation, String msg, Exception ex, boolean needRetry) {
+  protected void fail(final long subCurrentLocation, BaseException ex, boolean needRetry) {
     synchronized (AriaManager.LOCK) {
       if (ex != null) {
-        ALog.e(TAG, msg + "\n" + ALog.getExceptionString(ex));
-      } else {
-        ALog.e(TAG, msg);
+        ALog.e(TAG, ALog.getExceptionString(ex));
       }
       if (mConfig.SUPPORT_BP) {
         writeConfig(false, subCurrentLocation);
         retryThis(needRetry && STATE.START_THREAD_NUM != 1);
       } else {
         ALog.e(TAG, String.format("任务【%s】执行失败", mConfig.TEMP_FILE.getName()));
-        mListener.onFail(true);
+        mListener.onFail(true, ex);
         ErrorHelp.saveError(TAG, "", ALog.getExceptionString(ex));
       }
     }
@@ -424,8 +427,9 @@ public abstract class AbsThreadTask<ENTITY extends AbsNormalEntity, TASK_ENTITY 
         STATE.isRunning = false;
         // 手动停止不进行fail回调
         if (!STATE.isStop) {
-          ALog.e(TAG, String.format("任务【%s】执行失败", mConfig.TEMP_FILE.getName()));
-          mListener.onFail(taskNeedReTry);
+          String errorMsg = String.format("任务【%s】执行失败", mConfig.TEMP_FILE.getName());
+          //ALog.e(TAG, errorMsg);
+          mListener.onFail(taskNeedReTry, new TaskException(TAG, errorMsg));
         }
       }
     }

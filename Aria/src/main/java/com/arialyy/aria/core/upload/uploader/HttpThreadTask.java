@@ -21,6 +21,8 @@ import com.arialyy.aria.core.common.SubThreadConfig;
 import com.arialyy.aria.core.inf.IUploadListener;
 import com.arialyy.aria.core.upload.UploadEntity;
 import com.arialyy.aria.core.upload.UploadTaskEntity;
+import com.arialyy.aria.exception.BaseException;
+import com.arialyy.aria.exception.TaskException;
 import com.arialyy.aria.util.ALog;
 import java.io.BufferedReader;
 import java.io.File;
@@ -61,8 +63,9 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
     super.call();
     File uploadFile = new File(mEntity.getFilePath());
     if (!uploadFile.exists()) {
-      ALog.e(TAG, String.format("【%s】，文件不存在。", mEntity.getFilePath()));
-      fail();
+      fail(new TaskException(TAG,
+          String.format("上传失败，文件不存在；filePath: %s, url: %s", mEntity.getFilePath(),
+              mEntity.getUrl())));
       return this;
     }
     mListener.onPre();
@@ -102,14 +105,15 @@ class HttpThreadTask extends AbsThreadTask<UploadEntity, UploadTaskEntity> {
       mListener.onComplete();
     } catch (Exception e) {
       e.printStackTrace();
-      fail();
+      fail(new TaskException(TAG,
+          String.format("上传失败，filePath: %s, url: %s", mEntity.getFilePath(), mEntity.getUrl()), e));
     }
     return this;
   }
 
-  private void fail() {
+  private void fail(BaseException e1) {
     try {
-      mListener.onFail(true);
+      mListener.onFail(true, e1);
       STATE.isRunning = false;
       if (mOutputStream != null) {
         mOutputStream.close();

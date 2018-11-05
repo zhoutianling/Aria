@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.arialyy.simple">
 
   <uses-permission android:name="android.permission.INTERNET"/>
@@ -12,14 +13,16 @@
       android:icon="@mipmap/ic_launcher"
       android:label="@string/app_name"
       android:supportsRtl="true"
-      android:theme="@style/AppTheme.NoActionBar">
+      android:theme="@style/AppTheme.NoActionBar"
+      tools:ignore="GoogleAppIndexingWarning">
     <!--android:name=".test.TestFTPDirActivity"-->
-    <!--android:name=".test.AnyRunActivity"-->
     <!--android:name=".test.TestFTPActivity"-->
     <!--android:name=".download.group.DownloadGroupActivity"-->
         <!--android:name=".download.SingleTaskActivity"-->
+        <!--android:name=".MainActivity"-->
+    <!--android:name=".test.AnyRunActivity"-->
     <activity
-        android:name=".MainActivity"
+        android:name=".download.SingleTaskActivity"
         android:label="@string/app_name">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
@@ -29,7 +32,7 @@
     </activity>
 
     <activity android:name=".download.DownloadActivity"/>
-    <activity android:name=".download.SingleTaskActivity"/>
+    <!--<activity android:name=".download.SingleTaskActivity"/>-->
     <activity android:name=".download.multi_download.MultiTaskActivity"/>
     <activity android:name=".download.fragment_download.FragmentActivity"/>
     <activity android:name=".download.multi_download.MultiDownloadActivity"/>

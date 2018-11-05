@@ -15,18 +15,14 @@
  */
 package com.arialyy.aria.exception;
 
-/**
- * Created by lyy on 2017/1/18.
- * Aria 文件异常
- */
-public class FileException extends BaseException {
-  private static final String ARIA_FILE_EXCEPTION = "Aria File Exception:";
+public class AriaIOException extends BaseException{
+  private static final String ARIA_NET_EXCEPTION = "Aria Net Exception:";
 
-  public FileException(String tag, String detailMessage) {
-    super(tag, String.format("%s%s", ARIA_FILE_EXCEPTION, detailMessage));
+  public AriaIOException(String tag, String message) {
+    super(tag, String.format("%s%s", ARIA_NET_EXCEPTION, message));
   }
 
-  public FileException(String tag, String message, Exception e){
+  public AriaIOException(String tag, String message, Exception e){
     super(tag, message, e);
   }
 }

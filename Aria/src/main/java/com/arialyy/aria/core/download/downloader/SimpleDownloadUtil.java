@@ -23,7 +23,8 @@ import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.AbsTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
-import com.arialyy.aria.util.ErrorHelp;
+import com.arialyy.aria.exception.BaseException;
+import com.arialyy.aria.exception.TaskException;
 
 /**
  * Created by lyy on 2015/8/25.
@@ -91,12 +92,11 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
     mDownloader.setMaxSpeed(speed);
   }
 
-  private void failDownload(String msg, boolean needRetry) {
+  private void failDownload(BaseException e, boolean needRetry) {
     if (isStop || isCancel) {
       return;
     }
-    mListener.onFail(needRetry);
-    ErrorHelp.saveError(TAG, msg, "");
+    mListener.onFail(needRetry, e);
   }
 
   @Override public void run() {
@@ -125,8 +125,8 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
             mDownloader.start();
           }
 
-          @Override public void onFail(String url, String errorMsg, boolean needRetry) {
-            failDownload(errorMsg, needRetry);
+          @Override public void onFail(String url, BaseException e, boolean needRetry) {
+            failDownload(e, needRetry);
           }
         });
       case AbsTaskEntity.D_HTTP:
@@ -135,8 +135,8 @@ public class SimpleDownloadUtil implements IUtil, Runnable {
             mDownloader.start();
           }
 
-          @Override public void onFail(String url, String errorMsg, boolean needRetry) {
-            failDownload(errorMsg, needRetry);
+          @Override public void onFail(String url, BaseException e, boolean needRetry) {
+            failDownload(e, needRetry);
           }
         });
     }

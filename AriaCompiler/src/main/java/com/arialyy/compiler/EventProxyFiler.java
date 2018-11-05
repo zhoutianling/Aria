@@ -16,6 +16,7 @@
 package com.arialyy.compiler;
 
 import com.arialyy.annotations.Download;
+import com.arialyy.annotations.DownloadGroup;
 import com.arialyy.annotations.Upload;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
@@ -91,33 +92,54 @@ final class EventProxyFiler {
    *
    * @param taskEnum 任务类型枚举{@link TaskEnum}
    * @param annotation {@link Download}、{@link Upload}
-   * @param methodName 被代理类注解的方法名
+   * @param methodInfo 被代理类注解的方法信息
    */
   private MethodSpec createProxyMethod(TaskEnum taskEnum, Class<? extends Annotation> annotation,
-      String methodName) {
+      MethodInfo methodInfo) {
     ClassName task = ClassName.get(taskEnum.getPkg(), taskEnum.getClassName());
 
     ParameterSpec taskParam =
         ParameterSpec.builder(task, "task").addModifiers(Modifier.FINAL).build();
 
     String callCode;
+
     if (taskEnum == TaskEnum.DOWNLOAD_GROUP_SUB) {
-      callCode = "task, subEntity";
+      if (methodInfo.params.get(methodInfo.params.size() - 1)
+          .asType()
+          .toString()
+          .equals(Exception.class.getName())
+          && annotation == DownloadGroup.onSubTaskFail.class) {
+        callCode = "task, subEntity, e";
+      } else {
+        callCode = "task, subEntity";
+      }
     } else {
-      callCode = "task";
+      if (methodInfo.params.get(methodInfo.params.size() - 1)
+          .asType()
+          .toString()
+          .equals(Exception.class.getName())
+          && (annotation == Download.onTaskFail.class
+          || annotation == Upload.onTaskFail.class
+          || annotation == DownloadGroup.onTaskFail.class)) {
+        callCode = "task, e";
+      } else {
+        callCode = "task";
+      }
     }
     StringBuilder sb = new StringBuilder();
-    sb.append("Set<String> keys = keyMapping.get(\"").append(methodName).append("\");\n");
+    sb.append("Set<String> keys = keyMapping.get(\"")
+        .append(methodInfo.methodName)
+        .append("\");\n");
     sb.append("if (keys != null) {\n\tif (keys.contains(task.getKey())) {\n")
         .append("\t\tobj.")
-        .append(methodName)
+        .append(methodInfo.methodName)
         .append("((")
         .append(taskEnum.getClassName())
         .append(")")
         .append(callCode)
         .append(");\n\t}\n} else {\n")
         .append("\tobj.")
-        .append(methodName)
+        .append(methodInfo.methodName)
         .append("((")
         .append(taskEnum.getClassName())
         .append(")")
@@ -140,6 +162,15 @@ final class EventProxyFiler {
 
       builder.addParameter(subTaskParam);
     }
+
+    if (annotation == Download.onTaskFail.class
+        || annotation == Upload.onTaskFail.class
+        || annotation == DownloadGroup.onTaskFail.class
+        || annotation == DownloadGroup.onSubTaskFail.class) {
+      ParameterSpec exception = ParameterSpec.builder(Exception.class, "e").build();
+      builder.addParameter(exception);
+    }
+
     return builder.build();
   }
 
@@ -165,7 +196,7 @@ final class EventProxyFiler {
     //Set<Integer> type = new HashSet<>();
     //添加注解方法
     for (TaskEnum te : entity.methods.keySet()) {
-      Map<Class<? extends Annotation>, String> temp = entity.methods.get(te);
+      Map<Class<? extends Annotation>, MethodInfo> methodInfoMap = entity.methods.get(te);
       //if (entity.proxyClassName.contains(TaskEnum.DOWNLOAD.proxySuffix)) {
       //  type.add(1);
       //} else if (entity.proxyClassName.contains(TaskEnum.DOWNLOAD_GROUP.proxySuffix)) {
@@ -175,9 +206,9 @@ final class EventProxyFiler {
       //} else if (entity.proxyClassName.contains(TaskEnum.UPLOAD_GROUP.proxySuffix)) {
       //  type.add(4);
       //}
-      if (temp != null) {
-        for (Class<? extends Annotation> annotation : temp.keySet()) {
-          MethodSpec method = createProxyMethod(te, annotation, temp.get(annotation));
+      if (methodInfoMap != null) {
+        for (Class<? extends Annotation> annotation : methodInfoMap.keySet()) {
+          MethodSpec method = createProxyMethod(te, annotation, methodInfoMap.get(annotation));
           builder.addMethod(method);
         }
       }

@@ -78,10 +78,10 @@ public class AnyRunnModule {
         .loadFtp(url)
         .login("lao", "123456")
         .setFilePath(Environment.getExternalStorageDirectory().getPath() + "/Download/")
-        //.asFtps()
-        //.setStorePath("/mnt/sdcard/Download/server.crt")
-        //.setAlias("www.laoyuyu.me")
-        //.setStorePass("123456")
+        .asFtps()
+        .setStorePath("/mnt/sdcard/Download/server.crt")
+        .setAlias("www.laoyuyu.me")
+        .setStorePass("123456")
         .start();
   }
 

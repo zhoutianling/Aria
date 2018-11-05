@@ -13,20 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.arialyy.aria.exception;
+package com.arialyy.compiler;
+
+import java.util.List;
+import javax.lang.model.element.VariableElement;
 
 /**
- * Created by lyy on 2017/1/18.
- * Aria 文件异常
+ * 方法信息
  */
-public class FileException extends BaseException {
-  private static final String ARIA_FILE_EXCEPTION = "Aria File Exception:";
-
-  public FileException(String tag, String detailMessage) {
-    super(tag, String.format("%s%s", ARIA_FILE_EXCEPTION, detailMessage));
-  }
-
-  public FileException(String tag, String message, Exception e){
-    super(tag, message, e);
-  }
+final class MethodInfo {
+  String methodName;
+  List<VariableElement> params;
 }

@@ -48,5 +48,5 @@ class ProxyClassParam {
 
   Set<TaskEnum> taskEnums;
   Map<String, Set<String>> keyMappings = new HashMap<>();
-  Map<TaskEnum, Map<Class<? extends Annotation>, String>> methods = new HashMap<>();
+  Map<TaskEnum, Map<Class<? extends Annotation>, MethodInfo>> methods = new HashMap<>();
 }

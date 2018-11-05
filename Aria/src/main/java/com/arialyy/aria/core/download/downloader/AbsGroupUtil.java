@@ -22,6 +22,8 @@ import com.arialyy.aria.core.download.DownloadGroupTaskEntity;
 import com.arialyy.aria.core.download.DownloadTaskEntity;
 import com.arialyy.aria.core.inf.IDownloadListener;
 import com.arialyy.aria.core.inf.IEntity;
+import com.arialyy.aria.exception.BaseException;
+import com.arialyy.aria.exception.TaskException;
 import com.arialyy.aria.util.ALog;
 import com.arialyy.aria.util.CommonUtil;
 import com.arialyy.aria.util.NetUtils;
@@ -482,7 +484,7 @@ public abstract class AbsGroupUtil implements IUtil, Runnable {
       }
     }
 
-    @Override public void onFail(boolean needRetry) {
+    @Override public void onFail(boolean needRetry, BaseException e) {
       subEntity.setFailNum(subEntity.getFailNum() + 1);
       saveData(IEntity.STATE_FAIL, lastLen);
       handleSpeed(0);
@@ -504,12 +506,15 @@ public abstract class AbsGroupUtil implements IUtil, Runnable {
           reStartTask(dt);
         } else {
           mFailMap.put(subTaskEntity.getUrl(), subTaskEntity);
-          mListener.onSubFail(subEntity);
+          mListener.onSubFail(subEntity, new TaskException(TAG,
+              String.format("任务组子任务【%s】下载失败，下载地址【%s】", subEntity.getFileName(),
+                  subEntity.getUrl())));
           if (mFailMap.size() == mExeMap.size() || mFailMap.size() + mCompleteNum == mGroupSize) {
             closeTimer();
           }
           if (mFailMap.size() == mGroupSize) {
-            mListener.onFail(true);
+            mListener.onFail(true, new TaskException(TAG,
+                String.format("任务组【%s】下载失败", mGTEntity.getEntity().getGroupName())));
           } else if (mFailMap.size() + mCompleteNum >= mExeMap.size()) {
             mListener.onStop(mCurrentLocation);
           }
