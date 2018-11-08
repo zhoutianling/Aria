@@ -8,6 +8,7 @@
         ...
       }
       ```
+     - fix bug https://github.com/AriaLyy/Aria/issues/322
   + v_3.5.1
     - 优化`taskExists`方法
     - 添加`post`参数请求支持

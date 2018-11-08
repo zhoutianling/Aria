@@ -30,4 +30,4 @@ dependencies {
 
 //    compile project(':AriaFtpPlug')
 }
-apply from: 'bintray-release.gradle'
+//apply from: 'bintray-release.gradle'
