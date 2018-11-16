@@ -55,6 +55,7 @@ dependencies {
   //    compile 'com.arialyy.aria:aria-core:3.3.16'
   //  annotationProcessor 'com.arialyy.aria:aria-compiler:3.3.16'
   debugCompile 'com.amitshekhar.android:debug-db:1.0.0'
+    compile project(path: ':AriaAnnotations')
 }
 repositories {
   mavenCentral()

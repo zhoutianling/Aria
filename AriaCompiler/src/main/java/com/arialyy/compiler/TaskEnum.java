@@ -20,37 +20,37 @@ package com.arialyy.compiler;
  * 任务类型枚举
  */
 enum TaskEnum {
-  DOWNLOAD("com.arialyy.aria.core.download", "DownloadTask",
-      "$$DownloadListenerProxy"), DOWNLOAD_GROUP("com.arialyy.aria.core.download",
-      "DownloadGroupTask", "$$DownloadGroupListenerProxy"), DOWNLOAD_GROUP_SUB(
-      "com.arialyy.aria.core.download", "DownloadGroupTask", "$$DownloadGroupListenerProxy"), UPLOAD(
-      "com.arialyy.aria.core.upload", "UploadTask", "$$UploadListenerProxy"), UPLOAD_GROUP(
-      "com.arialyy.aria.core.upload", "UploadGroupTask",
-      "$$UploadGroupListenerProxy"), NORMAL_ENTITY("com.arialyy.aria.core.inf", "AbsNormalEntity",
-      ""), DOWNLOAD_ENTITY("com.arialyy.aria.core.download", "DownloadEntity", "");
+    DOWNLOAD("com.arialyy.aria.core.download", "DownloadTask",
+            "$$DownloadListenerProxy"), DOWNLOAD_GROUP("com.arialyy.aria.core.download",
+            "DownloadGroupTask", "$$DownloadGroupListenerProxy"), DOWNLOAD_GROUP_SUB(
+            "com.arialyy.aria.core.download", "DownloadGroupTask", "$$DownloadGroupListenerProxy"), UPLOAD(
+            "com.arialyy.aria.core.upload", "UploadTask", "$$UploadListenerProxy"), UPLOAD_GROUP(
+            "com.arialyy.aria.core.upload", "UploadGroupTask",
+            "$$UploadGroupListenerProxy"), NORMAL_ENTITY("com.arialyy.aria.core.inf", "AbsNormalEntity",
+            ""), DOWNLOAD_ENTITY("com.arialyy.aria.core.download", "DownloadEntity", "");
 
-  String pkg, className, proxySuffix;
+    String pkg, className, proxySuffix;
 
-  public String getClassName() {
-    return className;
-  }
+    public String getClassName() {
+        return className;
+    }
 
-  public String getProxySuffix() {
-    return proxySuffix;
-  }
+    public String getProxySuffix() {
+        return proxySuffix;
+    }
 
-  public String getPkg() {
-    return pkg;
-  }
+    public String getPkg() {
+        return pkg;
+    }
 
-  /**
-   * @param pkg 包名
-   * @param className 任务完整类名
-   * @param proxySuffix 事件代理后缀
-   */
-  TaskEnum(String pkg, String className, String proxySuffix) {
-    this.pkg = pkg;
-    this.className = className;
-    this.proxySuffix = proxySuffix;
-  }
+    /**
+     * @param pkg         包名
+     * @param className   任务完整类名
+     * @param proxySuffix 事件代理后缀
+     */
+    TaskEnum(String pkg, String className, String proxySuffix) {
+        this.pkg = pkg;
+        this.className = className;
+        this.proxySuffix = proxySuffix;
+    }
 }

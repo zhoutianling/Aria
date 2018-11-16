@@ -56,7 +56,7 @@ public class MultiTaskActivity extends BaseActivity<ActivityMultiBinding> {
     super.init(savedInstanceState);
     Aria.download(this).register();
     setTitle("多任务下载");
-    mData.addAll(getModule(DownloadModule.class).createGroupTestList());
+//    mData.addAll(getModule(DownloadModule.class).createGroupTestList());
     mData.addAll(getModule(DownloadModule.class).createMultiTestList());
     mAdapter = new FileListAdapter(this, mData);
     mList.setLayoutManager(new LinearLayoutManager(this));

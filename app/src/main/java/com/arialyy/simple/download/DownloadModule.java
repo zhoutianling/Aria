@@ -64,7 +64,7 @@ public class DownloadModule extends BaseModule {
       FileListEntity entity = new FileListEntity();
       entity.name = name;
       entity.key = downloadUrl[i];
-      entity.downloadPath = Environment.getExternalStorageDirectory() + "/Download/" + name;
+      entity.downloadPath = Environment.getExternalStorageDirectory() + "/Download/" + name+".apk";
       list.add(entity);
       i++;
     }

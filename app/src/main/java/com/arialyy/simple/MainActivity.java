@@ -19,7 +19,9 @@ package com.arialyy.simple;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+
 import butterknife.OnClick;
+
 import com.arialyy.aria.core.Aria;
 import com.arialyy.simple.base.BaseActivity;
 import com.arialyy.simple.databinding.ActivityMainBinding;
@@ -35,44 +37,47 @@ import com.arialyy.simple.upload.HttpUploadActivity;
  */
 public class MainActivity extends BaseActivity<ActivityMainBinding> {
 
-  @Override protected void init(Bundle savedInstanceState) {
-    super.init(savedInstanceState);
-    setSupportActionBar(mBar);
-    mBar.setTitle("Aria  Demo");
-    getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+    @Override
+    protected void init(Bundle savedInstanceState) {
+        super.init(savedInstanceState);
+        setSupportActionBar(mBar);
+        mBar.setTitle("Aria  Demo");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-  }
-
-  @Override protected int setLayoutId() {
-    return R.layout.activity_main;
-  }
-
-  @OnClick({
-      R.id.download, R.id.upload, R.id.download_task_group, R.id.ftp_download,
-      R.id.ftp_dir_download, R.id.ftp_upload, R.id.kotlin_download
-  }) public void funcation(View view) {
-    switch (view.getId()) {
-      case R.id.download:
-        startActivity(new Intent(this, DownloadActivity.class));
-        break;
-      case R.id.upload:
-        startActivity(new Intent(this, HttpUploadActivity.class));
-        break;
-      case R.id.download_task_group:
-        startActivity(new Intent(this, DownloadGroupActivity.class));
-        break;
-      case R.id.ftp_download:
-        startActivity(new Intent(this, FtpDownloadActivity.class));
-        break;
-      case R.id.ftp_dir_download:
-        startActivity(new Intent(this, FTPDirDownloadActivity.class));
-        break;
-      case R.id.ftp_upload:
-        startActivity(new Intent(this, FtpUploadActivity.class));
-        break;
-      case R.id.kotlin_download:
-        //startActivity(new Intent(this, KotlinDownloadActivity.class));
-        break;
     }
-  }
+
+    @Override
+    protected int setLayoutId() {
+        return R.layout.activity_main;
+    }
+
+    @OnClick({
+            R.id.download, R.id.upload, R.id.download_task_group, R.id.ftp_download,
+            R.id.ftp_dir_download, R.id.ftp_upload, R.id.kotlin_download
+    })
+    public void funcation(View view) {
+        switch (view.getId()) {
+            case R.id.download:
+                startActivity(new Intent(this, DownloadActivity.class));
+                break;
+            case R.id.upload:
+                startActivity(new Intent(this, HttpUploadActivity.class));
+                break;
+            case R.id.download_task_group:
+                startActivity(new Intent(this, DownloadGroupActivity.class));
+                break;
+            case R.id.ftp_download:
+                startActivity(new Intent(this, FtpDownloadActivity.class));
+                break;
+            case R.id.ftp_dir_download:
+                startActivity(new Intent(this, FTPDirDownloadActivity.class));
+                break;
+            case R.id.ftp_upload:
+                startActivity(new Intent(this, FtpUploadActivity.class));
+                break;
+            case R.id.kotlin_download:
+                //startActivity(new Intent(this, KotlinDownloadActivity.class));
+                break;
+        }
+    }
 }
