@@ -141,7 +141,7 @@ class HttpFileInfoThread implements Runnable {
       if (disposition.contains(";")) {
         String[] infos = disposition.split(";");
         for (String info : infos) {
-          if (info.startsWith("filename") && info.contains("=")) {
+          if (info.trim().startsWith("filename") && info.contains("=")) {
             String[] temp = info.split("=");
             if (temp.length > 1) {
               String newName = URLDecoder.decode(temp[1], "utf-8");

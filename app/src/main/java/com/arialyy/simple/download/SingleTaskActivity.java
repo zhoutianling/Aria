@@ -50,7 +50,7 @@ import java.util.Map;
 
 public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
 
-    private static final String DOWNLOAD_URL = "http://msoftdl.360.cn/mobilesafe/shouji360/360safe/500192/360MobileSafe.apk";
+    private static final String DOWNLOAD_URL = "https://firmwareapi.azurewebsites.net/api/v1/zigbee/firmwares/download/4489/25/latest";
     @Bind(R.id.start)
     Button mStart;
     @Bind(R.id.stop)
@@ -259,7 +259,7 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
     private void startD() {
         //Aria.get(this).setLogLevel(ALog.LOG_CLOSE);
         //Aria.download(this).load("aaaa.apk");
-        String path = Environment.getExternalStorageDirectory().getPath() + "/360.apk";
+        String path = Environment.getExternalStorageDirectory().getPath() + "/ota";
         //File file = new File(path);
         //if (file.exists()){
         //  file.delete();
@@ -271,9 +271,9 @@ public class SingleTaskActivity extends BaseActivity<ActivitySingleBinding> {
                 //.addHeader("Accept-Encoding", "gzip, deflate")
                 //.addHeader("DNT", "1")
                 //.addHeader("Cookie", "BAIDUID=648E5FF020CC69E8DD6F492D1068AAA9:FG=1; BIDUPSID=648E5FF020CC69E8DD6F492D1068AAA9; PSTM=1519099573; BD_UPN=12314753; locale=zh; BDSVRTM=0")
-                //.useServerFileName(true)
+                .useServerFileName(true)
                 //.setRequestMode(RequestEnum.GET)
-                .setFilePath(path, false)
+                .setFilePath(path, true)
                 //.asPost().setParam("key", "value")
                 //.setExtendField("{\n"
                 //    + "\"id\":\"你的样子\"\n< > "
